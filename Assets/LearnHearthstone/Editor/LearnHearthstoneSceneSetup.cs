@@ -57,12 +57,14 @@ namespace LearnHearthstone.Editor
             Debug.Log("Learn Heartstone smoke test passed.");
         }
 
+        [MenuItem("Learn Heartstone/Play Main Hub")]
         public static void OpenSampleSceneAndPlay()
         {
             ConfigureSampleScene();
             RequestPlayMode(PlayHubRequest);
         }
 
+        [MenuItem("Learn Heartstone/Play Tavern Trainer")]
         public static void OpenTrainerAndPlay()
         {
             ConfigureSampleScene();

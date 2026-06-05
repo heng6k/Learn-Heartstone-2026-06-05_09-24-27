@@ -58,6 +58,7 @@ namespace LearnHearthstone.Tests.EditMode
             var attacker = TestInstance("p1", "attacker", 0);
             attacker.Attack = 2;
             attacker.Health = 2;
+            var support = TestInstance("p2", "support", 0);
             var taunt = TestInstance("o1", "taunt", 0);
             taunt.Attack = 1;
             taunt.Health = 3;
@@ -67,7 +68,7 @@ namespace LearnHearthstone.Tests.EditMode
             other.Attack = 1;
             other.Health = 3;
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { other, taunt }, 42, 1);
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { other, taunt }, 42, 1);
 
             Assert.AreEqual(1, result.Steps);
             Assert.AreEqual("o1", result.Log[0].TargetId);

@@ -6,11 +6,15 @@ namespace LearnHearthstone.Presentation.Common
 {
     public static class UiFactory
     {
+        private static Font uiFont;
+
         public static GameObject Panel(string name, Transform parent, Color color)
         {
             var panel = new GameObject(name, typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(parent, false);
-            panel.GetComponent<Image>().color = color;
+            var image = panel.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
             return panel;
         }
 
@@ -20,13 +24,15 @@ namespace LearnHearthstone.Presentation.Common
             label.transform.SetParent(parent, false);
             var textComponent = label.GetComponent<Text>();
             textComponent.text = text;
-            textComponent.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            textComponent.font = GetUiFont(size);
             textComponent.fontSize = size;
             textComponent.fontStyle = style;
             textComponent.color = new Color(0.94f, 0.92f, 0.86f);
             textComponent.alignment = TextAnchor.MiddleLeft;
             textComponent.horizontalOverflow = HorizontalWrapMode.Wrap;
             textComponent.verticalOverflow = VerticalWrapMode.Truncate;
+            textComponent.alignByGeometry = true;
+            textComponent.raycastTarget = false;
             return textComponent;
         }
 
@@ -34,7 +40,7 @@ namespace LearnHearthstone.Presentation.Common
         {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            buttonObject.GetComponent<Image>().color = new Color(0.25f, 0.36f, 0.48f);
+            buttonObject.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f);
             var button = buttonObject.GetComponent<Button>();
             button.onClick.AddListener(onClick);
 
@@ -42,6 +48,33 @@ namespace LearnHearthstone.Presentation.Common
             label.alignment = TextAnchor.MiddleCenter;
             Stretch(label.rectTransform);
             return button;
+        }
+
+        public static void SetTextColor(Text text, Color color)
+        {
+            text.color = color;
+        }
+
+        public static void SetImageColor(GameObject target, Color color)
+        {
+            var image = target.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = color;
+            }
+        }
+
+        private static Font GetUiFont(int size)
+        {
+            if (uiFont != null)
+            {
+                return uiFont;
+            }
+
+            uiFont = Font.CreateDynamicFontFromOSFont(
+                new[] { "Microsoft YaHei UI", "Microsoft YaHei", "SimHei", "Noto Sans CJK SC", "Arial" },
+                Mathf.Max(16, size));
+            return uiFont;
         }
 
         public static VerticalLayoutGroup Vertical(GameObject target, int padding = 10, int spacing = 8)
@@ -63,7 +96,7 @@ namespace LearnHearthstone.Presentation.Common
             layout.spacing = spacing;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
+            layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
             return layout;
         }
@@ -80,6 +113,19 @@ namespace LearnHearthstone.Presentation.Common
         {
             var element = target.GetComponent<LayoutElement>() ?? target.AddComponent<LayoutElement>();
             element.preferredHeight = height;
+        }
+
+        public static void SetWidth(GameObject target, float width)
+        {
+            var element = target.GetComponent<LayoutElement>() ?? target.AddComponent<LayoutElement>();
+            element.preferredWidth = width;
+        }
+
+        public static void SetMinSize(GameObject target, float width, float height)
+        {
+            var element = target.GetComponent<LayoutElement>() ?? target.AddComponent<LayoutElement>();
+            element.minWidth = width;
+            element.minHeight = height;
         }
 
         public static void SetFlexible(GameObject target, float width, float height)

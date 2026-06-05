@@ -47,9 +47,10 @@ namespace LearnHearthstone.Presentation
             canvasObject.transform.SetParent(transform, false);
             var created = canvasObject.GetComponent<Canvas>();
             created.renderMode = RenderMode.ScreenSpaceOverlay;
+            created.pixelPerfect = true;
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600, 900);
+            scaler.referenceResolution = new Vector2(1280, 720);
             scaler.matchWidthOrHeight = 0.5f;
             return created;
         }
@@ -64,7 +65,7 @@ namespace LearnHearthstone.Presentation
 
         private static void EnsureEventSystem()
         {
-            var eventSystem = FindObjectOfType<EventSystem>();
+            var eventSystem = FindAnyObjectByType<EventSystem>();
             var eventSystemObject = eventSystem != null
                 ? eventSystem.gameObject
                 : new GameObject("EventSystem", typeof(EventSystem));

@@ -16,6 +16,9 @@ namespace LearnHearthstone.Application.Services
         private const int BuyCost = 3;
         private const int RerollCost = 1;
         private const int SellValue = 1;
+        private const string TripleRewardDefinitionId = "triple-reward";
+        private const string TripleRewardCardId = "TRIPLE_REWARD";
+        private const string TripleRewardGrantedCounter = "triple-reward-granted";
 
         private readonly MinionCatalog catalog;
 
@@ -62,6 +65,12 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.ChooseDiscover:
                     ChooseDiscover(command.Index);
+                    break;
+                case GameCommandType.MoveMinion:
+                    MoveMinionToHand(command.InstanceId);
+                    break;
+                case GameCommandType.UpdateMinion:
+                    UpdateMinion(command.InstanceId, command.MinionPatch);
                     break;
                 case GameCommandType.DebugAddGold:
                     State.Player.Tavern.Gold = Math.Max(0, State.Player.Tavern.Gold + command.Index);
@@ -152,17 +161,31 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("目标手牌不存在。");
             }
 
+            var target = tavern.Hand[handIndex];
+            if (IsTripleRewardCard(target))
+            {
+                tavern.Hand.RemoveAt(handIndex);
+                State.Player.Tavern.Discover = CreateTripleDiscover();
+                AddRecruitLog(RecruitLogType.Discover, "Triple reward discover", tavern.Gold, tavern.Gold);
+                return;
+            }
+
             if (State.Player.Board.Count >= BoardLimit)
             {
                 throw new InvalidOperationException("战场已满。");
             }
 
-            var target = tavern.Hand[handIndex];
             tavern.Hand.RemoveAt(handIndex);
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
             State.Player.Board.Add(target);
             AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
+            if (target.Golden && !HasGrantedTripleReward(target))
+            {
+                MarkTripleRewardGranted(target);
+                GrantTripleRewardCard();
+            }
+
             ResolvePlayerTriples();
         }
 
@@ -180,6 +203,27 @@ namespace LearnHearthstone.Application.Services
             State.Player.Board.Remove(target);
             ReleaseMinionToPool(target);
             AddRecruitLog(RecruitLogType.Sell, "出售 " + target.Name, before, tavern.Gold);
+        }
+
+        private void MoveMinionToHand(string instanceId)
+        {
+            var target = State.Player.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("Target minion is not on the player board.");
+            }
+
+            var tavern = State.Player.Tavern;
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                throw new InvalidOperationException("Hand is full.");
+            }
+
+            State.Player.Board.Remove(target);
+            target.Owner = BoardSide.Player;
+            target.InstanceId = "player-" + target.DefinitionId + "-return-" + State.Round + "-" + tavern.Hand.Count;
+            tavern.Hand.Add(target);
+            AddRecruitLog(RecruitLogType.Play, "Return " + target.Name, tavern.Gold, tavern.Gold);
         }
 
         private void RerollShop()
@@ -258,6 +302,78 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.Discover = null;
         }
 
+        private void UpdateMinion(string instanceId, MinionPatch patch)
+        {
+            if (string.IsNullOrEmpty(instanceId) || patch == null)
+            {
+                throw new InvalidOperationException("目标随从不存在。");
+            }
+
+            var updated = false;
+            updated |= UpdateMinionInList(State.Player.Board, instanceId, patch);
+            updated |= UpdateMinionInList(State.Opponent.Board, instanceId, patch);
+            updated |= UpdateMinionInList(State.Player.Tavern.Hand, instanceId, patch);
+            updated |= UpdateMinionInList(State.Player.Tavern.Shop, instanceId, patch);
+
+            if (State.Player.Tavern.Discover != null)
+            {
+                updated |= UpdateMinionInList(State.Player.Tavern.Discover.Options, instanceId, patch);
+            }
+
+            if (!updated)
+            {
+                throw new InvalidOperationException("目标随从不存在。");
+            }
+        }
+
+        private static bool UpdateMinionInList(List<MinionInstance> minions, string instanceId, MinionPatch patch)
+        {
+            var updated = false;
+            foreach (var minion in minions)
+            {
+                if (minion == null || minion.InstanceId != instanceId)
+                {
+                    continue;
+                }
+
+                if (patch.Attack.HasValue)
+                {
+                    minion.Attack = Math.Max(0, patch.Attack.Value);
+                }
+
+                if (patch.MaxHealth.HasValue)
+                {
+                    minion.MaxHealth = Math.Max(1, patch.MaxHealth.Value);
+                }
+
+                if (patch.Health.HasValue)
+                {
+                    minion.Health = Math.Max(1, patch.Health.Value);
+                }
+
+                minion.Health = Math.Min(minion.Health, minion.MaxHealth);
+
+                if (patch.Golden.HasValue)
+                {
+                    minion.Golden = patch.Golden.Value;
+                }
+
+                if (patch.Keywords != null)
+                {
+                    minion.Keywords = new List<Keyword>(patch.Keywords);
+                }
+
+                if (patch.Tribes != null)
+                {
+                    minion.Tribes = new List<Tribe>(patch.Tribes);
+                }
+
+                updated = true;
+            }
+
+            return updated;
+        }
+
         private void SimulateCombat()
         {
             var result = CombatEngine.SimulateBasicCombat(State.Player.Board, State.Opponent.Board, State.Seed + State.Round);
@@ -288,8 +404,67 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Board.Add(result.Golden);
             }
 
-            State.Player.Tavern.Discover = CreateTripleDiscover();
             AddRecruitLog(RecruitLogType.Triple, "三连合成 " + result.Golden.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void GrantTripleRewardCard()
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                return;
+            }
+
+            tavern.Hand.Add(CreateTripleRewardCard(State.Round + "-" + tavern.RecruitLog.Count));
+            AddRecruitLog(RecruitLogType.Triple, "Triple reward card", tavern.Gold, tavern.Gold);
+        }
+
+        private static bool IsTripleRewardCard(MinionInstance minion)
+        {
+            return minion != null && minion.DefinitionId == TripleRewardDefinitionId;
+        }
+
+        private static bool HasGrantedTripleReward(MinionInstance minion)
+        {
+            return minion.Counters != null &&
+                minion.Counters.TryGetValue(TripleRewardGrantedCounter, out var granted) &&
+                granted > 0;
+        }
+
+        private static void MarkTripleRewardGranted(MinionInstance minion)
+        {
+            if (minion.Counters == null)
+            {
+                minion.Counters = new Dictionary<string, int>();
+            }
+
+            minion.Counters[TripleRewardGrantedCounter] = 1;
+        }
+
+        private static MinionInstance CreateTripleRewardCard(string suffix)
+        {
+            return new MinionInstance
+            {
+                InstanceId = "player-" + TripleRewardDefinitionId + "-" + suffix,
+                DefinitionId = TripleRewardDefinitionId,
+                CardId = TripleRewardCardId,
+                Name = "Triple Reward",
+                Attack = 0,
+                Health = 1,
+                MaxHealth = 1,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Discover, Keyword.TavernSpell },
+                Text = "Play: Discover a minion from one tavern tier higher, up to tier 7.",
+                Golden = false,
+                Owner = BoardSide.Player,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                CanAttack = false,
+                AttacksThisCombat = 0,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0
+            };
         }
 
         private DiscoverState CreateTripleDiscover()

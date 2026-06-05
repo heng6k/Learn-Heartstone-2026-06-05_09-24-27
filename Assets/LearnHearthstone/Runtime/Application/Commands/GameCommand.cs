@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using LearnHearthstone.Domain.Models;
+
 namespace LearnHearthstone.Application.Commands
 {
     public enum GameCommandType
@@ -30,6 +33,13 @@ namespace LearnHearthstone.Application.Commands
             InstanceId = instanceId;
         }
 
+        public GameCommand(GameCommandType type, string instanceId, MinionPatch minionPatch)
+        {
+            Type = type;
+            InstanceId = instanceId;
+            MinionPatch = minionPatch;
+        }
+
         public GameCommand(GameCommandType type, bool flag)
         {
             Type = type;
@@ -45,5 +55,16 @@ namespace LearnHearthstone.Application.Commands
         public int Index { get; }
         public string InstanceId { get; }
         public bool Flag { get; }
+        public MinionPatch MinionPatch { get; }
+    }
+
+    public sealed class MinionPatch
+    {
+        public int? Attack;
+        public int? Health;
+        public int? MaxHealth;
+        public bool? Golden;
+        public List<Keyword> Keywords;
+        public List<Tribe> Tribes;
     }
 }

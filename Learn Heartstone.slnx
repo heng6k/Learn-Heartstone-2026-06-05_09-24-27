@@ -1,2 +1,4 @@
 ﻿<Solution>
+  <Project Path="LearnHearthstone.Runtime.csproj" />
+  <Project Path="LearnHearthstone.Tests.csproj" />
 </Solution>
