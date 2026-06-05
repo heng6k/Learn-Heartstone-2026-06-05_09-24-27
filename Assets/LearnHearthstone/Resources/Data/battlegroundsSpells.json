@@ -1,0 +1,5358 @@
+{
+  "source": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+  "fetchedAt": "2026-06-05T09:40:55Z",
+  "gameId": "battlegrounds",
+  "filter": {
+    "attr18": "法术"
+  },
+  "count": 60,
+  "schemaVersion": 1,
+  "spells": [
+    {
+      "id": "iyingdi-34597",
+      "sourceId": 34597,
+      "cardNumber": "100596",
+      "name": "尖利箭矢",
+      "englishName": "Pointy Arrow",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "使一个随从获得+4攻击力。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_014.png",
+      "imagePath": "CardImages/TavernSpells/EBG_Spell_014",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34597"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得+4攻击力。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34597,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_014.png",
+        "name": "尖利箭矢",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34598",
+      "sourceId": 34598,
+      "cardNumber": "100601",
+      "name": "大地母亲之眼",
+      "englishName": "Eyes of the Earth Mother",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 6,
+      "keywords": [],
+      "text": "选择一个等级4或以下的友方随从，将其变为金色。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_017.png",
+      "imagePath": "CardImages/TavernSpells/EBG_Spell_017",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34598"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "6"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个等级4或以下的友方随从，将其变为金色。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34598,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_017.png",
+        "name": "大地母亲之眼",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34599",
+      "sourceId": 34599,
+      "cardNumber": "100899",
+      "name": "祈请吞噬者",
+      "englishName": "Channel the Devourer",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "出售一个友方随从，使一个随机友方随从获得其属性值。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_032.png",
+      "imagePath": "CardImages/TavernSpells/EBG_Spell_032",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34599"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "出售一个友方随从，使一个随机友方随从获得其属性值。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34599,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_032.png",
+        "name": "祈请吞噬者",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34600",
+      "sourceId": 34600,
+      "cardNumber": "100910",
+      "name": "身份揭晓",
+      "englishName": "Unmasked Identity",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 5,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一个新的英雄技能。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_037.png",
+      "imagePath": "CardImages/TavernSpells/EBG_Spell_037",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34600"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一个新的英雄技能。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34600,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_037.png",
+        "name": "身份揭晓",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34601",
+      "sourceId": 34601,
+      "cardNumber": "100911",
+      "name": "哈缪尔遗失的法杖",
+      "englishName": "Lost Staff of Hamuul",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 6,
+      "keywords": [
+        "刷新:让酒馆换上新的卡牌。"
+      ],
+      "text": "选择一个随从。刷新酒馆，使其中的牌变为该类型的随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_038.png",
+      "imagePath": "CardImages/TavernSpells/EBG_Spell_038",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34601"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "6"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个随从。刷新酒馆，使其中的牌变为该类型的随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34601,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/EBG_Spell_038.png",
+        "name": "哈缪尔遗失的法杖",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34602",
+      "sourceId": 34602,
+      "cardNumber": "103779",
+      "name": "慎重投资",
+      "englishName": "Careful Investment",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "下回合获得2枚铸币。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_800.png",
+      "imagePath": "CardImages/TavernSpells/BG28_800",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34602"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "下回合获得2枚铸币。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34602,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_800.png",
+        "name": "慎重投资",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34603",
+      "sourceId": 34603,
+      "cardNumber": "103785",
+      "name": "护甲储备",
+      "englishName": "Armor Stash",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "将你的护甲值变为5点。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_500.png",
+      "imagePath": "CardImages/TavernSpells/BG28_500",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34603"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "将你的护甲值变为5点。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34603,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_500.png",
+        "name": "护甲储备",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34604",
+      "sourceId": 34604,
+      "cardNumber": "103791",
+      "name": "强固",
+      "englishName": "Fortify",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 1,
+      "keywords": [
+        "嘲讽:敌人必须攻击具有嘲讽的随从。"
+      ],
+      "text": "使一个随从获得+3生命值和嘲讽。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_503.png",
+      "imagePath": "CardImages/TavernSpells/BG28_503",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34604"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得+3生命值和嘲讽。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34604,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_503.png",
+        "name": "强固",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34605",
+      "sourceId": 34605,
+      "cardNumber": "103793",
+      "name": "招募新人",
+      "englishName": "Recruit a Trainee",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "随机获取一张等级1的随从牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_504.png",
+      "imagePath": "CardImages/TavernSpells/BG28_504",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34605"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "随机获取一张等级1的随从牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34605,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_504.png",
+        "name": "招募新人",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34606",
+      "sourceId": 34606,
+      "cardNumber": "103796",
+      "name": "神圣赠礼",
+      "englishName": "Sacred Gift",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 7,
+      "keywords": [
+        "圣盾:被圣盾保护的随从免疫其受到的第一次伤害。"
+      ],
+      "text": "使一个随从获得圣盾。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_507.png",
+      "imagePath": "CardImages/TavernSpells/BG28_507",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34606"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "7"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得圣盾。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34606,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_507.png",
+        "name": "神圣赠礼",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34608",
+      "sourceId": 34608,
+      "cardNumber": "104029",
+      "name": "钻探原油",
+      "englishName": "Strike Oil",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 2,
+      "keywords": [],
+      "text": "你的铸币上限提高1枚。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_805.png",
+      "imagePath": "CardImages/TavernSpells/BG28_805",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34608"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "你的铸币上限提高1枚。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34608,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_805.png",
+        "name": "钻探原油",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34609",
+      "sourceId": 34609,
+      "cardNumber": "104436",
+      "name": "酒馆币",
+      "englishName": "Tavern Coin",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "获得1枚铸币。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_810.png",
+      "imagePath": "CardImages/TavernSpells/BG28_810",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34609"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "获得1枚铸币。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34609,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_810.png",
+        "name": "酒馆币",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34612",
+      "sourceId": 34612,
+      "cardNumber": "104445",
+      "name": "防御者的仪式",
+      "englishName": "Defender's Rites",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [
+        "嘲讽:敌人必须攻击具有嘲讽的随从。"
+      ],
+      "text": "使一个友方随从获得+6/+6和嘲讽。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_825.png",
+      "imagePath": "CardImages/TavernSpells/BG28_825",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34612"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个友方随从获得+6/+6和嘲讽。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34612,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_825.png",
+        "name": "防御者的仪式",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34613",
+      "sourceId": 34613,
+      "cardNumber": "104446",
+      "name": "快速浏览",
+      "englishName": "Leaf Through the Pages",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 2,
+      "keywords": [
+        "刷新:让酒馆换上新的卡牌。"
+      ],
+      "text": "获得2次免费的刷新。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_827.png",
+      "imagePath": "CardImages/TavernSpells/BG28_827",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34613"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "获得2次免费的刷新。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34613,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_827.png",
+        "name": "快速浏览",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34614",
+      "sourceId": 34614,
+      "cardNumber": "104448",
+      "name": "点金之触",
+      "englishName": "Golden Touch",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 5,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "随机使酒馆中的一个随从变为金色。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_830.png",
+      "imagePath": "CardImages/TavernSpells/BG28_830",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34614"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "随机使酒馆中的一个随从变为金色。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34614,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_830.png",
+        "name": "点金之触",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34617",
+      "sourceId": 34617,
+      "cardNumber": "104472",
+      "name": "自然祝福",
+      "englishName": "Natural Blessing",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "选择一个随从，使所有该类型的随从获得+3/+3。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_845.png",
+      "imagePath": "CardImages/TavernSpells/BG28_845",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34617"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个随从，使所有该类型的随从获得+3/+3。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34617,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_845.png",
+        "name": "自然祝福",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34618",
+      "sourceId": 34618,
+      "cardNumber": "104494",
+      "name": "顶尖好酒",
+      "englishName": "Saloon's Finest",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [
+        "刷新:让酒馆换上新的卡牌。"
+      ],
+      "text": "刷新酒馆，使其中变为酒馆法术牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_849.png",
+      "imagePath": "CardImages/TavernSpells/BG28_849",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34618"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "刷新酒馆，使其中变为酒馆法术牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34618,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_849.png",
+        "name": "顶尖好酒",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34619",
+      "sourceId": 34619,
+      "cardNumber": "104502",
+      "name": "附魔链索",
+      "englishName": "Enchanted Lasso",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "随机偷取酒馆中的一个随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_512.png",
+      "imagePath": "CardImages/TavernSpells/BG28_512",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34619"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "随机偷取酒馆中的一个随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34619,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_512.png",
+        "name": "附魔链索",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34622",
+      "sourceId": 34622,
+      "cardNumber": "104559",
+      "name": "拼命发掘",
+      "englishName": "Hasty Excavation",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 2,
+      "keywords": [],
+      "text": "获得1枚铸币。购买本牌会消耗生命值，而非铸币。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_571.png",
+      "imagePath": "CardImages/TavernSpells/BG28_571",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34622"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "获得1枚铸币。购买本牌会消耗生命值，而非铸币。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34622,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_571.png",
+        "name": "拼命发掘",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34623",
+      "sourceId": 34623,
+      "cardNumber": "104560",
+      "name": "优势压制",
+      "englishName": "Upper Hand",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 5,
+      "keywords": [
+        "战斗开始时:会在战斗阶段开始时产生某些效果。"
+      ],
+      "text": "战斗开始时：随机将一个敌方随从的生命值变为1。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_573.png",
+      "imagePath": "CardImages/TavernSpells/BG28_573",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34623"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "战斗开始时：随机将一个敌方随从的生命值变为1。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34623,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_573.png",
+        "name": "优势压制",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34624",
+      "sourceId": 34624,
+      "cardNumber": "104601",
+      "name": "完美形象",
+      "englishName": "Perfect Vision",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 6,
+      "keywords": [],
+      "text": "将一个随从的属性值变为20/20。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_838.png",
+      "imagePath": "CardImages/TavernSpells/BG28_838",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34624"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "6"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "将一个随从的属性值变为20/20。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34624,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_838.png",
+        "name": "完美形象",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34626",
+      "sourceId": 34626,
+      "cardNumber": "105264",
+      "name": "猎头招聘",
+      "englishName": "Hired Headhunter",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 5,
+      "keywords": [
+        "战吼:当你从你的手牌中使用它的时候，它会产生一些效果。",
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一张战吼随从牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_GIL_836.png",
+      "imagePath": "CardImages/TavernSpells/BG28_GIL_836",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34626"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一张战吼随从牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34626,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_GIL_836.png",
+        "name": "猎头招聘",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34627",
+      "sourceId": 34627,
+      "cardNumber": "105265",
+      "name": "预订遗体",
+      "englishName": "Contracted Corpse",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 5,
+      "keywords": [
+        "亡语:在其死亡时会产生一些效果。",
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一张亡语随从牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_882.png",
+      "imagePath": "CardImages/TavernSpells/BG28_882",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34627"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一张亡语随从牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34627,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_882.png",
+        "name": "预订遗体",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34629",
+      "sourceId": 34629,
+      "cardNumber": "105267",
+      "name": "自负",
+      "englishName": "Overconfidence",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "如果你在你下一场战斗中获胜，获得3枚铸币。如果平局，获得1枚。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_884.png",
+      "imagePath": "CardImages/TavernSpells/BG28_884",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34629"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "如果你在你下一场战斗中获胜，获得3枚铸币。如果平局，获得1枚。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34629,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_884.png",
+        "name": "自负",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34631",
+      "sourceId": 34631,
+      "cardNumber": "105271",
+      "name": "乱放的茶具",
+      "englishName": "Misplaced Tea Set",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "使每个类型的各一个友方随从获得+2/+2。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_888.png",
+      "imagePath": "CardImages/TavernSpells/BG28_888",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34631"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使每个类型的各一个友方随从获得+2/+2。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34631,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_888.png",
+        "name": "乱放的茶具",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34632",
+      "sourceId": 34632,
+      "cardNumber": "105276",
+      "name": "富足之杖",
+      "englishName": "Staff of Enrichment",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "使酒馆中的随从在本局对战中获得+2/+2。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_886.png",
+      "imagePath": "CardImages/TavernSpells/BG28_886",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34632"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使酒馆中的随从在本局对战中获得+2/+2。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34632,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_886.png",
+        "name": "富足之杖",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34634",
+      "sourceId": 34634,
+      "cardNumber": "105664",
+      "name": "主厨甄选",
+      "englishName": "Chef's Choice",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 2,
+      "keywords": [],
+      "text": "选择一个随从。获取相同类型的另一张随从牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_518.png",
+      "imagePath": "CardImages/TavernSpells/BG28_518",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34634"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个随从。获取相同类型的另一张随从牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34634,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_518.png",
+        "name": "主厨甄选",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34635",
+      "sourceId": 34635,
+      "cardNumber": "105665",
+      "name": "瞬息活力",
+      "englishName": "Fleeting Vigor",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [
+        "战斗开始时:会在战斗阶段开始时产生某些效果。"
+      ],
+      "text": "战斗开始时：使你的随从获得+2/+1。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_519.png",
+      "imagePath": "CardImages/TavernSpells/BG28_519",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34635"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "战斗开始时：使你的随从获得+2/+1。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34635,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_519.png",
+        "name": "瞬息活力",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34636",
+      "sourceId": 34636,
+      "cardNumber": "105667",
+      "name": "搞怪裤",
+      "englishName": "Tricky Trousers",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [
+        "嘲讽:敌人必须攻击具有嘲讽的随从。"
+      ],
+      "text": "使一个随从获得+1/+2和嘲讽。如果它已经拥有嘲讽，则移除。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_520.png",
+      "imagePath": "CardImages/TavernSpells/BG28_520",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34636"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得+1/+2和嘲讽。如果它已经拥有嘲讽，则移除。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34636,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_520.png",
+        "name": "搞怪裤",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34637",
+      "sourceId": 34637,
+      "cardNumber": "105669",
+      "name": "位面望远镜",
+      "englishName": "Planar Telescope",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 3,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一个你的多数随从的类型的随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_521.png",
+      "imagePath": "CardImages/TavernSpells/BG28_521",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34637"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一个你的多数随从的类型的随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34637,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_521.png",
+        "name": "位面望远镜",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34638",
+      "sourceId": 34638,
+      "cardNumber": "105752",
+      "name": "香蕉果盘",
+      "englishName": "Tavern Dish Banana",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "使一个随从获得+2/+2。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_897.png",
+      "imagePath": "CardImages/TavernSpells/BG28_897",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34638"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得+2/+2。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34638,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_897.png",
+        "name": "香蕉果盘",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34639",
+      "sourceId": 34639,
+      "cardNumber": "105903",
+      "name": "意外之果",
+      "englishName": "Them Apples",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 1,
+      "keywords": [],
+      "text": "使酒馆中的随从获得+1/+2。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_966.png",
+      "imagePath": "CardImages/TavernSpells/BG28_966",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34639"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使酒馆中的随从获得+1/+2。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34639,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_966.png",
+        "name": "意外之果",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34643",
+      "sourceId": 34643,
+      "cardNumber": "109230",
+      "name": "闪亮的戒指",
+      "englishName": "Shiny Ring",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "使你的随从获得+1/+1。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_168.png",
+      "imagePath": "CardImages/TavernSpells/BG28_168",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34643"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使你的随从获得+1/+1。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34643,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_168.png",
+        "name": "闪亮的戒指",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34644",
+      "sourceId": 34644,
+      "cardNumber": "109232",
+      "name": "艾泽里特强化",
+      "englishName": "Azerite Empowerment",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 6,
+      "keywords": [],
+      "text": "使你的随从获得+2/+2，触发两次。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_169.png",
+      "imagePath": "CardImages/TavernSpells/BG28_169",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34644"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "6"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使你的随从获得+2/+2，触发两次。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34644,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_169.png",
+        "name": "艾泽里特强化",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34646",
+      "sourceId": 34646,
+      "cardNumber": "110400",
+      "name": "克隆螺号",
+      "englishName": "Cloning Conch",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "鱼人",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "随机获取一张鱼人牌和一张它的复制。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_601.png",
+      "imagePath": "CardImages/TavernSpells/BG28_601",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34646"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "鱼人"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "随机获取一张鱼人牌和一张它的复制。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34646,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_601.png",
+        "name": "克隆螺号",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34648",
+      "sourceId": 34648,
+      "cardNumber": "110406",
+      "name": "恶鳞套餐",
+      "englishName": "Spitescale Special",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "纳迦",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [
+        "塑造法术:每回合获得一张临时法术牌。"
+      ],
+      "text": "随机获取3张塑造法术的法术牌。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_606.png",
+      "imagePath": "CardImages/TavernSpells/BG28_606",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34648"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "纳迦"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "随机获取3张塑造法术的法术牌。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34648,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_606.png",
+        "name": "恶鳞套餐",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34649",
+      "sourceId": 34649,
+      "cardNumber": "110407",
+      "name": "腐化糕点",
+      "englishName": "Corrupted Cupcakes",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "恶魔",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "选择一个友方恶魔，使其吞食酒馆中的3个随机随从，获得其属性值。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_607.png",
+      "imagePath": "CardImages/TavernSpells/BG28_607",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34649"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "恶魔"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个友方恶魔，使其吞食酒馆中的3个随机随从，获得其属性值。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34649,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_607.png",
+        "name": "腐化糕点",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34655",
+      "sourceId": 34655,
+      "cardNumber": "110642",
+      "name": "查抄宝石",
+      "englishName": "Gem Confiscation",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "野猪人",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 4,
+      "keywords": [
+        "鲜血宝石:法术牌，使一个友方随从获得+1/+1。"
+      ],
+      "text": "本牌对一个随从使用2张鲜血宝石，并使其偷取相邻随从的所有鲜血宝石。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_698.png",
+      "imagePath": "CardImages/TavernSpells/BG28_698",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34655"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "野猪人"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "本牌对一个随从使用2张鲜血宝石，并使其偷取相邻随从的所有鲜血宝石。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34655,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_698.png",
+        "name": "查抄宝石",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-34658",
+      "sourceId": 34658,
+      "cardNumber": "113901",
+      "name": "稳健异变",
+      "englishName": "Robust Evolution",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "选择一个随从，随机将其变形成为高一级的随从并保留其属性值。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_804.png",
+      "imagePath": "CardImages/TavernSpells/BG30_804",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "34658"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个随从，随机将其变形成为高一级的随从并保留其属性值。"
+        }
+      ],
+      "rawListRow": {
+        "id": 34658,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_804.png",
+        "name": "稳健异变",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-38644",
+      "sourceId": 38644,
+      "cardNumber": "117573",
+      "name": "时间管理",
+      "englishName": "Time Management",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 3,
+      "keywords": [
+        "抉择:从两种效果中选择其一生效。"
+      ],
+      "text": "抉择：使你的随从获得+2/+2；或者在你的下个回合开始时，使你的随从获得+2/+2，触发两次。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_881.png",
+      "imagePath": "CardImages/TavernSpells/BG31_881",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "38644"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "抉择：使你的随从获得+2/+2；或者在你的下个回合开始时，使你的随从获得+2/+2，触发两次。"
+        }
+      ],
+      "rawListRow": {
+        "id": 38644,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_881.png",
+        "name": "时间管理",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-38646",
+      "sourceId": 38646,
+      "cardNumber": "117670",
+      "name": "寒热骤变",
+      "englishName": "Temperature Shift",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "元素",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 4,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "获取一张火焰投球手和一张冰雪投球手。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_819.png",
+      "imagePath": "CardImages/TavernSpells/BG31_819",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "38646"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "元素"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "获取一张火焰投球手和一张冰雪投球手。"
+        }
+      ],
+      "rawListRow": {
+        "id": 38646,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_819.png",
+        "name": "寒热骤变",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-38647",
+      "sourceId": 38647,
+      "cardNumber": "117671",
+      "name": "折价合集",
+      "englishName": "Bargain Bundle",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "双打专属"
+      ],
+      "cost": 5,
+      "tavernTier": 5,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一张随从牌。你的队友会获取其余选项。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_242.png",
+      "imagePath": "CardImages/TavernSpells/BG31_242",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "双打专属"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "38647"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "双打专属"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一张随从牌。你的队友会获取其余选项。"
+        }
+      ],
+      "rawListRow": {
+        "id": 38647,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_242.png",
+        "name": "折价合集",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-38648",
+      "sourceId": 38648,
+      "cardNumber": "119470",
+      "name": "泉水传送",
+      "englishName": "Portal in a Fountain",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "双打专属"
+      ],
+      "cost": 3,
+      "tavernTier": 3,
+      "keywords": [
+        "传递:花费1枚铸币，将卡牌送到你的队友的手中。"
+      ],
+      "text": "传递酒馆里的一个随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_243.png",
+      "imagePath": "CardImages/TavernSpells/BG31_243",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "双打专属"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "38648"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "双打专属"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "传递酒馆里的一个随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 38648,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_243.png",
+        "name": "泉水传送",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-38649",
+      "sourceId": 38649,
+      "cardNumber": "119471",
+      "name": "水晶传送",
+      "englishName": "Portal in a Crystal",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "双打专属"
+      ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [
+        "传递:花费1枚铸币，将卡牌送到你的队友的手中。"
+      ],
+      "text": "传递一个友方非金色随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_244.png",
+      "imagePath": "CardImages/TavernSpells/BG31_244",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "双打专属"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "38649"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "双打专属"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "传递一个友方非金色随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 38649,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_244.png",
+        "name": "水晶传送",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-41824",
+      "sourceId": 41824,
+      "cardNumber": "119599",
+      "name": "分享关爱",
+      "englishName": "Sharing is Caring",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 7,
+      "keywords": [
+        "战斗开始时:会在战斗阶段开始时产生某些效果。"
+      ],
+      "text": "战斗开始时：你最左边的随从会获得等同于距其最近的敌方随从的属性值。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_889.png",
+      "imagePath": "CardImages/TavernSpells/BG31_889",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "41824"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "7"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "战斗开始时：你最左边的随从会获得等同于距其最近的敌方随从的属性值。"
+        }
+      ],
+      "rawListRow": {
+        "id": 41824,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_889.png",
+        "name": "分享关爱",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-41825",
+      "sourceId": 41825,
+      "cardNumber": "119603",
+      "name": "雄心之刃",
+      "englishName": "Blade of Ambition",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 7,
+      "tavernTier": 7,
+      "keywords": [],
+      "text": "选择一个友方随从，将其攻击力与生命值变为与你的战队中最高的数值相同。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_895.png",
+      "imagePath": "CardImages/TavernSpells/BG31_895",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "41825"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "7"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "7"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "选择一个友方随从，将其攻击力与生命值变为与你的战队中最高的数值相同。"
+        }
+      ],
+      "rawListRow": {
+        "id": 41825,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_895.png",
+        "name": "雄心之刃",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-41826",
+      "sourceId": 41826,
+      "cardNumber": "119718",
+      "name": "降圣仪式",
+      "englishName": "Hallowed Ritual",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 5,
+      "tavernTier": 7,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一个等级7的随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_896.png",
+      "imagePath": "CardImages/TavernSpells/BG31_896",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "41826"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "7"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一个等级7的随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 41826,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_896.png",
+        "name": "降圣仪式",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-42838",
+      "sourceId": 42838,
+      "cardNumber": "120900",
+      "name": "变换之潮",
+      "englishName": "Shifting Tide",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "纳迦",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "使一个随从获得+2/+2，触发两次。如果该随从是纳迦，重复此效果。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_815.png",
+      "imagePath": "CardImages/TavernSpells/BG32_815",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "42838"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "纳迦"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使一个随从获得+2/+2，触发两次。如果该随从是纳迦，重复此效果。"
+        }
+      ],
+      "rawListRow": {
+        "id": 42838,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_815.png",
+        "name": "变换之潮",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-48234",
+      "sourceId": 48234,
+      "cardNumber": "122489",
+      "name": "寄灵龟甲",
+      "englishName": "Haunted Carapace",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "亡灵",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "直到下回合，你的随从拥有+3/+1。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_112.png",
+      "imagePath": "CardImages/TavernSpells/BG33_112",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "48234"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "亡灵"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "直到下回合，你的随从拥有+3/+1。"
+        }
+      ],
+      "rawListRow": {
+        "id": 48234,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_112.png",
+        "name": "寄灵龟甲",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-48235",
+      "sourceId": 48235,
+      "cardNumber": "122862",
+      "name": "累叠雪崩",
+      "englishName": "Mounting Avalanche",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "元素",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "出售一个友方随从，使你最左边的元素获得其属性值。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_899.png",
+      "imagePath": "CardImages/TavernSpells/BG33_899",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "48235"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "元素"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "出售一个友方随从，使你最左边的元素获得其属性值。"
+        }
+      ],
+      "rawListRow": {
+        "id": 48235,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_899.png",
+        "name": "累叠雪崩",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-48236",
+      "sourceId": 48236,
+      "cardNumber": "122864",
+      "name": "新生幼苗",
+      "englishName": "A New Sprout",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 3,
+      "tavernTier": 1,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一个等级1的随从。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_101.png",
+      "imagePath": "CardImages/TavernSpells/BG33_101",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "48236"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一个等级1的随从。"
+        }
+      ],
+      "rawListRow": {
+        "id": 48236,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_101.png",
+        "name": "新生幼苗",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-48237",
+      "sourceId": 48237,
+      "cardNumber": "122899",
+      "name": "圣洁庇护",
+      "englishName": "Sanctify",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "机械",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 5,
+      "keywords": [
+        "圣盾:被圣盾保护的随从免疫其受到的第一次伤害。"
+      ],
+      "text": "使你具有圣盾的随从获得+6攻击力。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_817.png",
+      "imagePath": "CardImages/TavernSpells/BG33_817",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "48237"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "机械"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使你具有圣盾的随从获得+6攻击力。"
+        }
+      ],
+      "rawListRow": {
+        "id": 48237,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_817.png",
+        "name": "圣洁庇护",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-48238",
+      "sourceId": 48238,
+      "cardNumber": "123553",
+      "name": "迅猛龙的复仇",
+      "englishName": "Raptor's Revenge",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "野兽",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [
+        "复仇:在X个友方随从死亡后，它会产生一些效果。"
+      ],
+      "text": "复仇（4）：随机获取一张野兽牌。持续1回合。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_819.png",
+      "imagePath": "CardImages/TavernSpells/BG33_819",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "48238"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "野兽"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "复仇（4）：随机获取一张野兽牌。持续1回合。"
+        }
+      ],
+      "rawListRow": {
+        "id": 48238,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_819.png",
+        "name": "迅猛龙的复仇",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53132",
+      "sourceId": 53132,
+      "cardNumber": "126676",
+      "name": "鲜血宝石弹幕",
+      "englishName": "Blood Gem Barrage",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "野猪人",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 3,
+      "keywords": [
+        "鲜血宝石:法术牌，使一个友方随从获得+1/+1。",
+        "刷新:让酒馆换上新的卡牌。"
+      ],
+      "text": "在本局对战中，在酒馆刷新后，使其中的随从获得+1/+1的鲜血宝石。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_689.png",
+      "imagePath": "CardImages/TavernSpells/BG34_689",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53132"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "野猪人"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "3"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "在本局对战中，在酒馆刷新后，使其中的随从获得+1/+1的鲜血宝石。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53132,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_689.png",
+        "name": "鲜血宝石弹幕",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53133",
+      "sourceId": 53133,
+      "cardNumber": "126909",
+      "name": "乘借东风",
+      "englishName": "Easterly Winds",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "元素",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 1,
+      "tavernTier": 4,
+      "keywords": [
+        "刷新:让酒馆换上新的卡牌。"
+      ],
+      "text": "在本局对战中，在酒馆刷新后，使酒馆中最右边的随从获得+5/+5。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_444.png",
+      "imagePath": "CardImages/TavernSpells/BG34_444",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53133"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "元素"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "1"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "在本局对战中，在酒馆刷新后，使酒馆中最右边的随从获得+5/+5。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53133,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_444.png",
+        "name": "乘借东风",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53134",
+      "sourceId": 53134,
+      "cardNumber": "126957",
+      "name": "惊扰墓穴",
+      "englishName": "Tomb Turning",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "亡灵",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一张亡灵牌。如果你在本回合中使用发现的这张牌，则该随从会死亡。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_888.png",
+      "imagePath": "CardImages/TavernSpells/BG34_888",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53134"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "亡灵"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "4"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一张亡灵牌。如果你在本回合中使用发现的这张牌，则该随从会死亡。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53134,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_888.png",
+        "name": "惊扰墓穴",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53135",
+      "sourceId": 53135,
+      "cardNumber": "127288",
+      "name": "搜寻时光",
+      "englishName": "Search Through Time",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 2,
+      "keywords": [
+        "发现:从三张卡牌中选择其一置入你的手牌。"
+      ],
+      "text": "发现一张你当前等级的随从牌，将其锁入你的手牌1个回合。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_330.png",
+      "imagePath": "CardImages/TavernSpells/BG34_330",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53135"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "发现一张你当前等级的随从牌，将其锁入你的手牌1个回合。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53135,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_330.png",
+        "name": "搜寻时光",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53136",
+      "sourceId": 53136,
+      "cardNumber": "127503",
+      "name": "诺兹多姆的子嗣",
+      "englishName": "Brood of Nozdormu",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "龙",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [
+        "战斗开始时:会在战斗阶段开始时产生某些效果。"
+      ],
+      "text": "战斗开始时：使你最左边的随从的攻击力翻倍。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_889.png",
+      "imagePath": "CardImages/TavernSpells/BG34_889",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53136"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "龙"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "战斗开始时：使你最左边的随从的攻击力翻倍。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53136,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_889.png",
+        "name": "诺兹多姆的子嗣",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53137",
+      "sourceId": 53137,
+      "cardNumber": "127506",
+      "name": "黄金狂潮",
+      "englishName": "Wave of Gold",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "海盗",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "使你的随从获得+3/+2。使你的金色随从额外获得+3/+2。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_990.png",
+      "imagePath": "CardImages/TavernSpells/BG34_990",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53137"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "海盗"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "5"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "使你的随从获得+3/+2。使你的金色随从额外获得+3/+2。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53137,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_990.png",
+        "name": "黄金狂潮",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    },
+    {
+      "id": "iyingdi-53138",
+      "sourceId": 53138,
+      "cardNumber": "127642",
+      "name": "戴欧斯之手",
+      "englishName": "Hand of Deios",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [
+        "通用"
+      ],
+      "cost": 2,
+      "tavernTier": 6,
+      "keywords": [
+        "战吼:当你从你的手牌中使用它的时候，它会产生一些效果。",
+        "亡语:在其死亡时会产生一些效果。",
+        "战斗开始时:会在战斗阶段开始时产生某些效果。",
+        "进击:每当其攻击时都会产生一些效果。"
+      ],
+      "text": "战斗开始时：随机触发友方的战吼，亡语和进击效果各一个。",
+      "description": "",
+      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_991.png",
+      "imagePath": "CardImages/TavernSpells/BG34_991",
+      "effectIds": [],
+      "tags": [],
+      "availability": {
+        "modes": [
+          "通用"
+        ],
+        "notes": ""
+      },
+      "sourceRefs": {
+        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
+        "listEndpoint": "/pc/card/get-card-list",
+        "detailEndpoint": "/pc/card/get-card-info",
+        "sourceId": "53138"
+      },
+      "implementationStatus": "data-only",
+      "notes": "",
+      "rawAttributes": [
+        {
+          "section": "up",
+          "title": "类型",
+          "style": "text",
+          "text": "法术"
+        },
+        {
+          "section": "up",
+          "title": "特殊类型",
+          "style": "text",
+          "text": "酒馆"
+        },
+        {
+          "section": "up",
+          "title": "阵营",
+          "style": "text",
+          "text": "中立"
+        },
+        {
+          "section": "up",
+          "title": "可用模式",
+          "style": "text",
+          "text": "通用"
+        },
+        {
+          "section": "up",
+          "title": "价格",
+          "style": "text",
+          "text": "2"
+        },
+        {
+          "section": "up",
+          "title": "酒馆等级",
+          "style": "text",
+          "text": "6"
+        },
+        {
+          "section": "down",
+          "title": "效果",
+          "style": "text",
+          "text": "战斗开始时：随机触发友方的战吼，亡语和进击效果各一个。"
+        }
+      ],
+      "rawListRow": {
+        "id": 53138,
+        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_991.png",
+        "name": "戴欧斯之手",
+        "series_cn_abbr": "",
+        "price": 0
+      }
+    }
+  ]
+}
