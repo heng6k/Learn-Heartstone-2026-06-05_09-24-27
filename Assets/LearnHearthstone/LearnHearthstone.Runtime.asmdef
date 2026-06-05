@@ -1,7 +1,9 @@
 {
   "name": "LearnHearthstone.Runtime",
   "rootNamespace": "LearnHearthstone",
-  "references": [],
+  "references": [
+    "Unity.InputSystem"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

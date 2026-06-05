@@ -2,6 +2,7 @@ using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer;
+using UnityEngine.InputSystem.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -63,12 +64,22 @@ namespace LearnHearthstone.Presentation
 
         private static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null)
+            var eventSystem = FindObjectOfType<EventSystem>();
+            var eventSystemObject = eventSystem != null
+                ? eventSystem.gameObject
+                : new GameObject("EventSystem", typeof(EventSystem));
+
+            var legacyModule = eventSystemObject.GetComponent<StandaloneInputModule>();
+            if (legacyModule != null)
             {
-                return;
+                legacyModule.enabled = false;
+                Destroy(legacyModule);
             }
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            if (eventSystemObject.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                eventSystemObject.AddComponent<InputSystemUIInputModule>();
+            }
         }
     }
 }
