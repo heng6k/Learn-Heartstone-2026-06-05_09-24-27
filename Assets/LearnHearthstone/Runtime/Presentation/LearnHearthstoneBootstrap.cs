@@ -1,0 +1,74 @@
+using LearnHearthstone.Adapters.Advisor;
+using LearnHearthstone.Application.Services;
+using LearnHearthstone.Presentation.MainHub;
+using LearnHearthstone.Presentation.TavernTrainer;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace LearnHearthstone.Presentation
+{
+    public sealed class LearnHearthstoneBootstrap : MonoBehaviour
+    {
+        private Canvas canvas;
+        private MatchService matchService;
+        private IAdvisorService advisor;
+
+        private void Awake()
+        {
+            EnsureEventSystem();
+            canvas = GetComponentInChildren<Canvas>();
+            if (canvas == null)
+            {
+                canvas = CreateCanvas();
+            }
+
+            matchService = MatchService.CreateWithDefaultCatalog();
+            advisor = new LocalAdvisorService();
+            ShowHub();
+        }
+
+        private void ShowHub()
+        {
+            ClearCanvas();
+            new MainHubView(canvas.transform, ShowTrainer).Build();
+        }
+
+        private void ShowTrainer()
+        {
+            ClearCanvas();
+            new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
+        }
+
+        private Canvas CreateCanvas()
+        {
+            var canvasObject = new GameObject("LearnHearthstoneCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            canvasObject.transform.SetParent(transform, false);
+            var created = canvasObject.GetComponent<Canvas>();
+            created.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = canvasObject.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1600, 900);
+            scaler.matchWidthOrHeight = 0.5f;
+            return created;
+        }
+
+        private void ClearCanvas()
+        {
+            for (var index = canvas.transform.childCount - 1; index >= 0; index -= 1)
+            {
+                Destroy(canvas.transform.GetChild(index).gameObject);
+            }
+        }
+
+        private static void EnsureEventSystem()
+        {
+            if (FindObjectOfType<EventSystem>() != null)
+            {
+                return;
+            }
+
+            new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+        }
+    }
+}

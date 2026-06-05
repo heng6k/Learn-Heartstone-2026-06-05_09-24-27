@@ -1,0 +1,372 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Domain.Data;
+using LearnHearthstone.Domain.Engine;
+using LearnHearthstone.Domain.Models;
+
+namespace LearnHearthstone.Application.Services
+{
+    public sealed class MatchService
+    {
+        private const int BoardLimit = 7;
+        private const int HandLimit = 10;
+        private const int BuyCost = 3;
+        private const int RerollCost = 1;
+        private const int SellValue = 1;
+
+        private readonly MinionCatalog catalog;
+
+        private MatchService(MinionCatalog catalog, int seed)
+        {
+            this.catalog = catalog;
+            State = CreateMatch(seed);
+        }
+
+        public MatchState State { get; private set; }
+
+        public static MatchService CreateWithDefaultCatalog(int seed = 12345)
+        {
+            return new MatchService(MinionCatalogLoader.LoadFromResources(), seed);
+        }
+
+        public MatchState Apply(GameCommand command)
+        {
+            switch (command.Type)
+            {
+                case GameCommandType.BuyMinion:
+                    BuyMinion(command.Index);
+                    break;
+                case GameCommandType.PlayMinion:
+                    PlayMinion(command.Index);
+                    break;
+                case GameCommandType.SellMinion:
+                    SellMinion(command.InstanceId);
+                    break;
+                case GameCommandType.RerollShop:
+                    RerollShop();
+                    break;
+                case GameCommandType.FreezeShop:
+                    State.Player.Tavern.Frozen = command.Flag;
+                    break;
+                case GameCommandType.UpgradeTavern:
+                    UpgradeTavern();
+                    break;
+                case GameCommandType.NextTurn:
+                    NextTurn();
+                    break;
+                case GameCommandType.SimulateCombat:
+                    SimulateCombat();
+                    break;
+                case GameCommandType.ChooseDiscover:
+                    ChooseDiscover(command.Index);
+                    break;
+                case GameCommandType.DebugAddGold:
+                    State.Player.Tavern.Gold = Math.Max(0, State.Player.Tavern.Gold + command.Index);
+                    State.Player.Tavern.MaxGold = Math.Max(State.Player.Tavern.MaxGold, State.Player.Tavern.Gold);
+                    break;
+            }
+
+            return State;
+        }
+
+        private MatchState CreateMatch(int seed)
+        {
+            var initial = CreateShopFromPool(null, 1, TavernRules.GetShopSize(1), seed, "shop-1");
+            return new MatchState
+            {
+                Mode = MatchMode.TavernPractice,
+                Phase = MatchPhase.Tavern,
+                Round = 1,
+                Seed = seed,
+                Player = new LocalPlayerState
+                {
+                    Health = 30,
+                    Armor = 0,
+                    Tavern = new TavernState
+                    {
+                        Tier = 1,
+                        Gold = TavernRules.GetMaxGoldForRound(1),
+                        MaxGold = TavernRules.GetMaxGoldForRound(1),
+                        UpgradeCost = TavernRules.GetUpgradeCost(1),
+                        Frozen = false,
+                        Shop = initial.Shop,
+                        Hand = new List<MinionInstance>(),
+                        Pool = initial.Pool,
+                        SearchPlan = new SearchPlanState(),
+                        RecruitLog = new List<RecruitLogEntry>()
+                    },
+                    Board = new List<MinionInstance>()
+                },
+                Opponent = new LocalOpponentState
+                {
+                    Name = "训练对手",
+                    Health = 30,
+                    Armor = 0,
+                    TavernTier = 1,
+                    Editable = true,
+                    Board = new List<MinionInstance>()
+                },
+                RecruitHints = new List<SearchHint>
+                {
+                    new SearchHint { Type = SearchHintType.CanHit, Message = "当前商店有可购买随从，可先补齐战场。", Severity = SearchHintSeverity.Info }
+                },
+                CombatLog = new List<CombatLogEntry>()
+            };
+        }
+
+        private void BuyMinion(int shopIndex)
+        {
+            var tavern = State.Player.Tavern;
+            if (shopIndex < 0 || shopIndex >= tavern.Shop.Count || tavern.Shop[shopIndex] == null)
+            {
+                throw new InvalidOperationException("目标商店槽位不存在。");
+            }
+
+            if (tavern.Gold < BuyCost)
+            {
+                throw new InvalidOperationException("金币不足。");
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                throw new InvalidOperationException("手牌已满。");
+            }
+
+            var target = tavern.Shop[shopIndex];
+            var before = tavern.Gold;
+            tavern.Gold -= BuyCost;
+            tavern.Hand.Add(target);
+            tavern.Shop[shopIndex] = null;
+            AddRecruitLog(RecruitLogType.Buy, "购买 " + target.Name, before, tavern.Gold);
+            ResolvePlayerTriples();
+        }
+
+        private void PlayMinion(int handIndex)
+        {
+            var tavern = State.Player.Tavern;
+            if (handIndex < 0 || handIndex >= tavern.Hand.Count)
+            {
+                throw new InvalidOperationException("目标手牌不存在。");
+            }
+
+            if (State.Player.Board.Count >= BoardLimit)
+            {
+                throw new InvalidOperationException("战场已满。");
+            }
+
+            var target = tavern.Hand[handIndex];
+            tavern.Hand.RemoveAt(handIndex);
+            target.Owner = BoardSide.Player;
+            target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
+            State.Player.Board.Add(target);
+            AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
+            ResolvePlayerTriples();
+        }
+
+        private void SellMinion(string instanceId)
+        {
+            var target = State.Player.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("要出售的随从不在玩家战场。");
+            }
+
+            var tavern = State.Player.Tavern;
+            var before = tavern.Gold;
+            tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + SellValue);
+            State.Player.Board.Remove(target);
+            ReleaseMinionToPool(target);
+            AddRecruitLog(RecruitLogType.Sell, "出售 " + target.Name, before, tavern.Gold);
+        }
+
+        private void RerollShop()
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.Gold < RerollCost)
+            {
+                throw new InvalidOperationException("金币不足，无法刷新。");
+            }
+
+            var before = tavern.Gold;
+            var released = ReleaseShopToPool();
+            var drawn = CreateShopFromPool(released, tavern.Tier, TavernRules.GetShopSize(tavern.Tier), State.Seed + State.Round * 101 + before, "reroll-" + State.Round + "-" + before);
+            tavern.Gold -= RerollCost;
+            tavern.Shop = drawn.Shop;
+            tavern.Pool = drawn.Pool;
+            tavern.Frozen = false;
+            tavern.SearchPlan.GoldSpentOnRerollThisTurn += RerollCost;
+            AddRecruitLog(RecruitLogType.Reroll, "刷新酒馆", before, tavern.Gold);
+        }
+
+        private void UpgradeTavern()
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.Tier >= TavernRules.MaxTavernTier)
+            {
+                throw new InvalidOperationException("酒馆等级已满。");
+            }
+
+            if (tavern.Gold < tavern.UpgradeCost)
+            {
+                throw new InvalidOperationException("金币不足，无法升级。");
+            }
+
+            var before = tavern.Gold;
+            tavern.Gold -= tavern.UpgradeCost;
+            tavern.Tier += 1;
+            tavern.UpgradeCost = tavern.Tier >= TavernRules.MaxTavernTier ? 0 : TavernRules.GetUpgradeCost(tavern.Tier);
+            AddRecruitLog(RecruitLogType.LevelUp, "升级到 " + tavern.Tier + " 本", before, tavern.Gold);
+        }
+
+        private void NextTurn()
+        {
+            var tavern = State.Player.Tavern;
+            var nextRound = State.Round + 1;
+            var maxGold = TavernRules.GetMaxGoldForRound(nextRound);
+            var shopState = tavern.Frozen
+                ? new ShopState { Shop = tavern.Shop, Pool = tavern.Pool }
+                : CreateShopFromPool(ReleaseShopToPool(), tavern.Tier, TavernRules.GetShopSize(tavern.Tier), State.Seed + nextRound * 997, "turn-" + nextRound);
+
+            State.Round = nextRound;
+            State.Phase = MatchPhase.Tavern;
+            tavern.Gold = maxGold;
+            tavern.MaxGold = maxGold;
+            tavern.UpgradeCost = TavernRules.DecrementUpgradeCost(tavern.UpgradeCost);
+            tavern.Frozen = false;
+            tavern.Shop = shopState.Shop;
+            tavern.Pool = shopState.Pool;
+            tavern.SearchPlan.GoldSpentOnRerollThisTurn = 0;
+            tavern.SearchPlan.HitsThisTurn.Clear();
+            State.CombatLog.Clear();
+            State.LastResult = null;
+            AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, maxGold);
+        }
+
+        private void ChooseDiscover(int optionIndex)
+        {
+            var discover = State.Player.Tavern.Discover;
+            if (discover == null || optionIndex < 0 || optionIndex >= discover.Options.Count)
+            {
+                throw new InvalidOperationException("发现奖励不存在。");
+            }
+
+            State.Player.Tavern.Hand.Add(discover.Options[optionIndex]);
+            AddRecruitLog(RecruitLogType.Discover, "发现 " + discover.Options[optionIndex].Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            State.Player.Tavern.Discover = null;
+        }
+
+        private void SimulateCombat()
+        {
+            var result = CombatEngine.SimulateBasicCombat(State.Player.Board, State.Opponent.Board, State.Seed + State.Round);
+            State.Phase = MatchPhase.Result;
+            State.CombatLog = result.Log;
+            State.LastResult = result;
+        }
+
+        private void ResolvePlayerTriples()
+        {
+            var all = State.Player.Tavern.Hand.Concat(State.Player.Board).ToList();
+            var candidate = TripleEngine.FindTripleCandidate(all);
+            if (string.IsNullOrEmpty(candidate))
+            {
+                return;
+            }
+
+            var result = TripleEngine.ResolveTriple(all, candidate, BoardSide.Player, State.Round + "-" + State.Player.Tavern.RecruitLog.Count);
+            State.Player.Tavern.Hand = result.Remaining.Where(minion => State.Player.Tavern.Hand.Any(hand => hand.InstanceId == minion.InstanceId)).ToList();
+            State.Player.Board = result.Remaining.Where(minion => State.Player.Board.Any(board => board.InstanceId == minion.InstanceId)).ToList();
+
+            if (State.Player.Tavern.Hand.Count < HandLimit)
+            {
+                State.Player.Tavern.Hand.Add(result.Golden);
+            }
+            else if (State.Player.Board.Count < BoardLimit)
+            {
+                State.Player.Board.Add(result.Golden);
+            }
+
+            State.Player.Tavern.Discover = CreateTripleDiscover();
+            AddRecruitLog(RecruitLogType.Triple, "三连合成 " + result.Golden.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private DiscoverState CreateTripleDiscover()
+        {
+            var rewardTier = Math.Min(TavernRules.MaxTavernTier, State.Player.Tavern.Tier + 1);
+            var candidates = catalog.All.Where(definition => definition.InPool && definition.TavernTier == rewardTier).ToList();
+            if (candidates.Count < 3)
+            {
+                candidates = catalog.All.Where(definition => definition.InPool && definition.TavernTier <= rewardTier).ToList();
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 7919 + State.Player.Tavern.RecruitLog.Count);
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + options.Count, false, PoolSource.Discover, 0));
+            }
+
+            return new DiscoverState { RewardTier = rewardTier, Options = options };
+        }
+
+        private ShopState CreateShopFromPool(IDictionary<string, int> snapshot, int tier, int size, int seed, string suffix)
+        {
+            var pool = new MinionPool(catalog.All, snapshot);
+            var definitions = pool.DrawShop(tier, size, new SeededRng(seed));
+            return new ShopState
+            {
+                Shop = definitions.Select((definition, index) => MinionFactory.Create(definition, BoardSide.Player, suffix + "-" + index, false, PoolSource.Pool, 1)).ToList(),
+                Pool = pool.Snapshot()
+            };
+        }
+
+        private Dictionary<string, int> ReleaseShopToPool()
+        {
+            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool);
+            foreach (var minion in State.Player.Tavern.Shop)
+            {
+                if (minion != null && minion.PoolCopiesHeld > 0)
+                {
+                    pool.Release(minion.DefinitionId, minion.PoolCopiesHeld);
+                }
+            }
+
+            return pool.Snapshot();
+        }
+
+        private void ReleaseMinionToPool(MinionInstance minion)
+        {
+            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool);
+            if (minion.PoolCopiesHeld > 0)
+            {
+                pool.Release(minion.DefinitionId, minion.PoolCopiesHeld);
+            }
+
+            State.Player.Tavern.Pool = pool.Snapshot();
+        }
+
+        private void AddRecruitLog(RecruitLogType type, string message, int goldBefore, int goldAfter)
+        {
+            State.Player.Tavern.RecruitLog.Add(new RecruitLogEntry
+            {
+                Seq = State.Player.Tavern.RecruitLog.Count + 1,
+                Round = State.Round,
+                Type = type,
+                Message = message,
+                GoldBefore = goldBefore,
+                GoldAfter = goldAfter
+            });
+        }
+
+        private sealed class ShopState
+        {
+            public List<MinionInstance> Shop;
+            public Dictionary<string, int> Pool;
+        }
+    }
+}

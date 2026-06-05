@@ -117,6 +117,52 @@ Docs/ProjectProgress.md
 
 `ProjectProgress.md` 记录当前项目状态、已确认决策和下一步任务。
 
+## Implementation Progress
+
+2026-06-05 已开始完整 Unity + C# 迁移，并新增以下内容：
+
+- `Assets/LearnHearthstone/LearnHearthstone.Runtime.asmdef`
+- `Assets/LearnHearthstone/Tests/EditMode/LearnHearthstone.Tests.asmdef`
+- `Assets/LearnHearthstone/Runtime/Domain/Models`
+- `Assets/LearnHearthstone/Runtime/Domain/Engine`
+- `Assets/LearnHearthstone/Runtime/Domain/Data`
+- `Assets/LearnHearthstone/Runtime/Application`
+- `Assets/LearnHearthstone/Runtime/Adapters`
+- `Assets/LearnHearthstone/Runtime/Presentation`
+- `Assets/LearnHearthstone/Editor/LearnHearthstoneSceneSetup.cs`
+- `Assets/LearnHearthstone/Resources/Data/battlegroundsMinions.json`
+- `Assets/LearnHearthstone/Resources/CardImages`
+
+已迁移能力：
+
+- 纯 C# 酒馆规则 `TavernRules`。
+- 确定性 RNG `SeededRng`。
+- 随从模型、战场实例、酒馆状态、对局状态、战斗日志模型。
+- 卡池占用、释放、抽商店。
+- 三连检测和金色随从合成。
+- 基础确定性战斗模拟。
+- 279 个随从 JSON 数据加载。
+- 卡图资源复制到 Unity Resources。
+- MatchService 初始对局、购买、打出、出售、刷新、冻结、升级、下一回合、发现奖励、模拟战斗、调试金币。
+- 本地 JSON 存档接口和实现。
+- 本地顾问接口和基础建议。
+- 主功能大厅 UI。
+- 酒馆训练器工作台 UI，包括商店、手牌、玩家战场、对手战场、编辑器、日志、回放/战斗入口、搜索提示面板。
+- SampleScene 已接入 `LearnHearthstoneBootstrap`。
+
+验证结果：
+
+- Unity 批编译通过，日志结尾包含 `Exiting batchmode successfully now!`。
+- Unity Editor 烟测通过，日志包含 `Learn Heartstone smoke test passed.`。
+- 烟测验证了 Resources 中 279 个随从可加载，并且 `MatchService` 能创建 1 回合、3 金币、3 个商店槽位的初始对局。
+
+当前限制：
+
+- Unity 命令行 `-runTests` 当前没有生成 `TestResults.xml`，但批编译和 Editor 烟测可用。
+- 随从图片已复制到 Resources，但导入设置尚未批量调整为 Sprite。
+- UI 为第一版程序化 UGUI，已具备完整功能入口和核心交互，但视觉 polish、拖拽、复杂编辑器和完整回放时间轴仍适合后续单独迭代。
+- 复杂独有效果仍按原项目边界保留为后续扩展。
+
 ## Recommended Next Work
 
 下一步建议按以下顺序执行：
