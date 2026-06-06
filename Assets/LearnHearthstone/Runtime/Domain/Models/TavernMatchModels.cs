@@ -39,6 +39,13 @@ namespace LearnHearthstone.Domain.Models
     }
 
     [Serializable]
+    public sealed class TavernGrowthState
+    {
+        public List<TavernGrowthModifier> ShopModifiers = new List<TavernGrowthModifier>();
+        public List<GeneratedCardBuffState> GeneratedCardBuffs = new List<GeneratedCardBuffState>();
+    }
+
+    [Serializable]
     public sealed class TavernState
     {
         public int Tier;
@@ -51,6 +58,7 @@ namespace LearnHearthstone.Domain.Models
         public Dictionary<string, int> Pool = new Dictionary<string, int>();
         public DiscoverState Discover;
         public SearchPlanState SearchPlan = new SearchPlanState();
+        public TavernGrowthState Growth = new TavernGrowthState();
         public List<RecruitLogEntry> RecruitLog = new List<RecruitLogEntry>();
     }
 

@@ -1,4 +1,5 @@
 ﻿<Solution>
   <Project Path="LearnHearthstone.Runtime.csproj" />
   <Project Path="LearnHearthstone.Tests.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

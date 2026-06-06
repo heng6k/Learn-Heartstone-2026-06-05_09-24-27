@@ -5,7 +5,7 @@
   "filter": {
     "attr18": "法术"
   },
-  "count": 60,
+  "count": 57,
   "schemaVersion": 1,
   "spells": [
     {
@@ -94,7 +94,8 @@
         "name": "尖利箭矢",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34598",
@@ -182,7 +183,8 @@
         "name": "大地母亲之眼",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34599",
@@ -270,7 +272,8 @@
         "name": "祈请吞噬者",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34600",
@@ -360,7 +363,8 @@
         "name": "身份揭晓",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34601",
@@ -450,7 +454,8 @@
         "name": "哈缪尔遗失的法杖",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34602",
@@ -538,7 +543,8 @@
         "name": "慎重投资",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34603",
@@ -626,7 +632,8 @@
         "name": "护甲储备",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34604",
@@ -716,7 +723,8 @@
         "name": "强固",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34605",
@@ -804,7 +812,8 @@
         "name": "招募新人",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34606",
@@ -894,7 +903,8 @@
         "name": "神圣赠礼",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34608",
@@ -982,7 +992,8 @@
         "name": "钻探原油",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34609",
@@ -1070,7 +1081,8 @@
         "name": "酒馆币",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34612",
@@ -1160,7 +1172,8 @@
         "name": "防御者的仪式",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34613",
@@ -1250,7 +1263,8 @@
         "name": "快速浏览",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34614",
@@ -1338,7 +1352,8 @@
         "name": "点金之触",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34617",
@@ -1426,7 +1441,8 @@
         "name": "自然祝福",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34618",
@@ -1516,7 +1532,8 @@
         "name": "顶尖好酒",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34619",
@@ -1604,7 +1621,8 @@
         "name": "附魔链索",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34622",
@@ -1692,7 +1710,8 @@
         "name": "拼命发掘",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34623",
@@ -1782,7 +1801,8 @@
         "name": "优势压制",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34624",
@@ -1870,7 +1890,8 @@
         "name": "完美形象",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34626",
@@ -1961,7 +1982,8 @@
         "name": "猎头招聘",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34627",
@@ -2052,7 +2074,8 @@
         "name": "预订遗体",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34629",
@@ -2140,7 +2163,8 @@
         "name": "自负",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34631",
@@ -2228,7 +2252,8 @@
         "name": "乱放的茶具",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34632",
@@ -2316,7 +2341,8 @@
         "name": "富足之杖",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34634",
@@ -2404,7 +2430,8 @@
         "name": "主厨甄选",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34635",
@@ -2494,7 +2521,8 @@
         "name": "瞬息活力",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34636",
@@ -2584,7 +2612,8 @@
         "name": "搞怪裤",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34637",
@@ -2674,7 +2703,8 @@
         "name": "位面望远镜",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34638",
@@ -2762,7 +2792,8 @@
         "name": "香蕉果盘",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34639",
@@ -2850,7 +2881,8 @@
         "name": "意外之果",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34643",
@@ -2938,7 +2970,8 @@
         "name": "闪亮的戒指",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34644",
@@ -3026,7 +3059,8 @@
         "name": "艾泽里特强化",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34646",
@@ -3114,7 +3148,8 @@
         "name": "克隆螺号",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34648",
@@ -3204,7 +3239,8 @@
         "name": "恶鳞套餐",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34649",
@@ -3292,7 +3328,8 @@
         "name": "腐化糕点",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34655",
@@ -3382,7 +3419,8 @@
         "name": "查抄宝石",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-34658",
@@ -3470,7 +3508,8 @@
         "name": "稳健异变",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-38644",
@@ -3560,7 +3599,8 @@
         "name": "时间管理",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-38646",
@@ -3648,277 +3688,8 @@
         "name": "寒热骤变",
         "series_cn_abbr": "",
         "price": 0
-      }
-    },
-    {
-      "id": "iyingdi-38647",
-      "sourceId": 38647,
-      "cardNumber": "117671",
-      "name": "折价合集",
-      "englishName": "Bargain Bundle",
-      "type": "法术",
-      "specialType": "酒馆",
-      "category": "TavernSpell",
-      "faction": "中立",
-      "availableModes": [
-        "双打专属"
-      ],
-      "cost": 5,
-      "tavernTier": 5,
-      "keywords": [
-        "发现:从三张卡牌中选择其一置入你的手牌。"
-      ],
-      "text": "发现一张随从牌。你的队友会获取其余选项。",
-      "description": "",
-      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_242.png",
-      "imagePath": "CardImages/TavernSpells/BG31_242",
-      "effectIds": [],
-      "tags": [],
-      "availability": {
-        "modes": [
-          "双打专属"
-        ],
-        "notes": ""
       },
-      "sourceRefs": {
-        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
-        "listEndpoint": "/pc/card/get-card-list",
-        "detailEndpoint": "/pc/card/get-card-info",
-        "sourceId": "38647"
-      },
-      "implementationStatus": "data-only",
-      "notes": "",
-      "rawAttributes": [
-        {
-          "section": "up",
-          "title": "类型",
-          "style": "text",
-          "text": "法术"
-        },
-        {
-          "section": "up",
-          "title": "特殊类型",
-          "style": "text",
-          "text": "酒馆"
-        },
-        {
-          "section": "up",
-          "title": "阵营",
-          "style": "text",
-          "text": "中立"
-        },
-        {
-          "section": "up",
-          "title": "可用模式",
-          "style": "text",
-          "text": "双打专属"
-        },
-        {
-          "section": "up",
-          "title": "价格",
-          "style": "text",
-          "text": "5"
-        },
-        {
-          "section": "up",
-          "title": "酒馆等级",
-          "style": "text",
-          "text": "5"
-        },
-        {
-          "section": "down",
-          "title": "效果",
-          "style": "text",
-          "text": "发现一张随从牌。你的队友会获取其余选项。"
-        }
-      ],
-      "rawListRow": {
-        "id": 38647,
-        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_242.png",
-        "name": "折价合集",
-        "series_cn_abbr": "",
-        "price": 0
-      }
-    },
-    {
-      "id": "iyingdi-38648",
-      "sourceId": 38648,
-      "cardNumber": "119470",
-      "name": "泉水传送",
-      "englishName": "Portal in a Fountain",
-      "type": "法术",
-      "specialType": "酒馆",
-      "category": "TavernSpell",
-      "faction": "中立",
-      "availableModes": [
-        "双打专属"
-      ],
-      "cost": 3,
-      "tavernTier": 3,
-      "keywords": [
-        "传递:花费1枚铸币，将卡牌送到你的队友的手中。"
-      ],
-      "text": "传递酒馆里的一个随从。",
-      "description": "",
-      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_243.png",
-      "imagePath": "CardImages/TavernSpells/BG31_243",
-      "effectIds": [],
-      "tags": [],
-      "availability": {
-        "modes": [
-          "双打专属"
-        ],
-        "notes": ""
-      },
-      "sourceRefs": {
-        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
-        "listEndpoint": "/pc/card/get-card-list",
-        "detailEndpoint": "/pc/card/get-card-info",
-        "sourceId": "38648"
-      },
-      "implementationStatus": "data-only",
-      "notes": "",
-      "rawAttributes": [
-        {
-          "section": "up",
-          "title": "类型",
-          "style": "text",
-          "text": "法术"
-        },
-        {
-          "section": "up",
-          "title": "特殊类型",
-          "style": "text",
-          "text": "酒馆"
-        },
-        {
-          "section": "up",
-          "title": "阵营",
-          "style": "text",
-          "text": "中立"
-        },
-        {
-          "section": "up",
-          "title": "可用模式",
-          "style": "text",
-          "text": "双打专属"
-        },
-        {
-          "section": "up",
-          "title": "价格",
-          "style": "text",
-          "text": "3"
-        },
-        {
-          "section": "up",
-          "title": "酒馆等级",
-          "style": "text",
-          "text": "3"
-        },
-        {
-          "section": "down",
-          "title": "效果",
-          "style": "text",
-          "text": "传递酒馆里的一个随从。"
-        }
-      ],
-      "rawListRow": {
-        "id": 38648,
-        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_243.png",
-        "name": "泉水传送",
-        "series_cn_abbr": "",
-        "price": 0
-      }
-    },
-    {
-      "id": "iyingdi-38649",
-      "sourceId": 38649,
-      "cardNumber": "119471",
-      "name": "水晶传送",
-      "englishName": "Portal in a Crystal",
-      "type": "法术",
-      "specialType": "酒馆",
-      "category": "TavernSpell",
-      "faction": "中立",
-      "availableModes": [
-        "双打专属"
-      ],
-      "cost": 2,
-      "tavernTier": 5,
-      "keywords": [
-        "传递:花费1枚铸币，将卡牌送到你的队友的手中。"
-      ],
-      "text": "传递一个友方非金色随从。",
-      "description": "",
-      "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_244.png",
-      "imagePath": "CardImages/TavernSpells/BG31_244",
-      "effectIds": [],
-      "tags": [],
-      "availability": {
-        "modes": [
-          "双打专属"
-        ],
-        "notes": ""
-      },
-      "sourceRefs": {
-        "page": "https://www.iyingdi.com/tz/tool/general/battlegrounds",
-        "listEndpoint": "/pc/card/get-card-list",
-        "detailEndpoint": "/pc/card/get-card-info",
-        "sourceId": "38649"
-      },
-      "implementationStatus": "data-only",
-      "notes": "",
-      "rawAttributes": [
-        {
-          "section": "up",
-          "title": "类型",
-          "style": "text",
-          "text": "法术"
-        },
-        {
-          "section": "up",
-          "title": "特殊类型",
-          "style": "text",
-          "text": "酒馆"
-        },
-        {
-          "section": "up",
-          "title": "阵营",
-          "style": "text",
-          "text": "中立"
-        },
-        {
-          "section": "up",
-          "title": "可用模式",
-          "style": "text",
-          "text": "双打专属"
-        },
-        {
-          "section": "up",
-          "title": "价格",
-          "style": "text",
-          "text": "2"
-        },
-        {
-          "section": "up",
-          "title": "酒馆等级",
-          "style": "text",
-          "text": "5"
-        },
-        {
-          "section": "down",
-          "title": "效果",
-          "style": "text",
-          "text": "传递一个友方非金色随从。"
-        }
-      ],
-      "rawListRow": {
-        "id": 38649,
-        "img": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_244.png",
-        "name": "水晶传送",
-        "series_cn_abbr": "",
-        "price": 0
-      }
+      "inPool": 1
     },
     {
       "id": "iyingdi-41824",
@@ -4008,7 +3779,8 @@
         "name": "分享关爱",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-41825",
@@ -4096,7 +3868,8 @@
         "name": "雄心之刃",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-41826",
@@ -4186,7 +3959,8 @@
         "name": "降圣仪式",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-42838",
@@ -4274,7 +4048,8 @@
         "name": "变换之潮",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-48234",
@@ -4362,7 +4137,8 @@
         "name": "寄灵龟甲",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-48235",
@@ -4450,7 +4226,8 @@
         "name": "累叠雪崩",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-48236",
@@ -4540,7 +4317,8 @@
         "name": "新生幼苗",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-48237",
@@ -4630,7 +4408,8 @@
         "name": "圣洁庇护",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-48238",
@@ -4720,7 +4499,8 @@
         "name": "迅猛龙的复仇",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53132",
@@ -4811,7 +4591,8 @@
         "name": "鲜血宝石弹幕",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53133",
@@ -4901,7 +4682,8 @@
         "name": "乘借东风",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53134",
@@ -4991,7 +4773,8 @@
         "name": "惊扰墓穴",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53135",
@@ -5081,7 +4864,8 @@
         "name": "搜寻时光",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53136",
@@ -5171,7 +4955,8 @@
         "name": "诺兹多姆的子嗣",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53137",
@@ -5259,7 +5044,8 @@
         "name": "黄金狂潮",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     },
     {
       "id": "iyingdi-53138",
@@ -5352,7 +5138,8 @@
         "name": "戴欧斯之手",
         "series_cn_abbr": "",
         "price": 0
-      }
+      },
+      "inPool": 1
     }
   ]
 }

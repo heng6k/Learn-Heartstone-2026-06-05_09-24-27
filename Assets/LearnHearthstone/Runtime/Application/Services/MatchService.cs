@@ -21,10 +21,12 @@ namespace LearnHearthstone.Application.Services
         private const string TripleRewardGrantedCounter = "triple-reward-granted";
 
         private readonly MinionCatalog catalog;
+        private readonly SpellCatalog spellCatalog;
 
-        private MatchService(MinionCatalog catalog, int seed)
+        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed)
         {
             this.catalog = catalog;
+            this.spellCatalog = spellCatalog;
             State = CreateMatch(seed);
         }
 
@@ -32,7 +34,7 @@ namespace LearnHearthstone.Application.Services
 
         public static MatchService CreateWithDefaultCatalog(int seed = 12345)
         {
-            return new MatchService(MinionCatalogLoader.LoadFromResources(), seed);
+            return new MatchService(MinionCatalogLoader.LoadFromResources(), SpellCatalogLoader.LoadFromResources(), seed);
         }
 
         public MatchState Apply(GameCommand command)
@@ -43,7 +45,7 @@ namespace LearnHearthstone.Application.Services
                     BuyMinion(command.Index);
                     break;
                 case GameCommandType.PlayMinion:
-                    PlayMinion(command.Index);
+                    PlayMinion(command.Index, command.TargetIndex);
                     break;
                 case GameCommandType.SellMinion:
                     SellMinion(command.InstanceId);
@@ -68,6 +70,9 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.MoveMinion:
                     MoveMinionToHand(command.InstanceId);
+                    break;
+                case GameCommandType.MoveBoardMinion:
+                    MoveBoardMinion(command.InstanceId, command.TargetIndex);
                     break;
                 case GameCommandType.UpdateMinion:
                     UpdateMinion(command.InstanceId, command.MinionPatch);
@@ -134,26 +139,27 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("目标商店槽位不存在。");
             }
 
-            if (tavern.Gold < BuyCost)
-            {
-                throw new InvalidOperationException("金币不足。");
-            }
-
             if (tavern.Hand.Count >= HandLimit)
             {
                 throw new InvalidOperationException("手牌已满。");
             }
 
             var target = tavern.Shop[shopIndex];
+            var cost = target.Cost > 0 ? target.Cost : BuyCost;
+            if (tavern.Gold < cost)
+            {
+                throw new InvalidOperationException("金币不足。");
+            }
+
             var before = tavern.Gold;
-            tavern.Gold -= BuyCost;
+            tavern.Gold -= cost;
             tavern.Hand.Add(target);
             tavern.Shop[shopIndex] = null;
             AddRecruitLog(RecruitLogType.Buy, "购买 " + target.Name, before, tavern.Gold);
             ResolvePlayerTriples();
         }
 
-        private void PlayMinion(int handIndex)
+        private void PlayMinion(int handIndex, int targetIndex)
         {
             var tavern = State.Player.Tavern;
             if (handIndex < 0 || handIndex >= tavern.Hand.Count)
@@ -170,6 +176,11 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            if (target.CardKind == CardKind.TavernSpell)
+            {
+                throw new InvalidOperationException("Tavern spell effects are not implemented yet.");
+            }
+
             if (State.Player.Board.Count >= BoardLimit)
             {
                 throw new InvalidOperationException("战场已满。");
@@ -178,7 +189,7 @@ namespace LearnHearthstone.Application.Services
             tavern.Hand.RemoveAt(handIndex);
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
-            State.Player.Board.Add(target);
+            State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
             AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
             if (target.Golden && !HasGrantedTripleReward(target))
             {
@@ -226,6 +237,29 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(RecruitLogType.Play, "Return " + target.Name, tavern.Gold, tavern.Gold);
         }
 
+        private void MoveBoardMinion(string instanceId, int targetIndex)
+        {
+            var target = State.Player.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("Target minion is not on the player board.");
+            }
+
+            State.Player.Board.Remove(target);
+            State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
+            AddRecruitLog(RecruitLogType.Play, "Reorder " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private static int NormalizeBoardInsertIndex(int targetIndex, int currentCount)
+        {
+            if (targetIndex < 0)
+            {
+                return currentCount;
+            }
+
+            return Math.Min(Math.Max(0, targetIndex), currentCount);
+        }
+
         private void RerollShop()
         {
             var tavern = State.Player.Tavern;
@@ -239,6 +273,7 @@ namespace LearnHearthstone.Application.Services
             var drawn = CreateShopFromPool(released, tavern.Tier, TavernRules.GetShopSize(tavern.Tier), State.Seed + State.Round * 101 + before, "reroll-" + State.Round + "-" + before);
             tavern.Gold -= RerollCost;
             tavern.Shop = drawn.Shop;
+            ApplyShopGrowth(tavern.Shop, tavern.Growth.ShopModifiers);
             tavern.Pool = drawn.Pool;
             tavern.Frozen = false;
             tavern.SearchPlan.GoldSpentOnRerollThisTurn += RerollCost;
@@ -270,7 +305,8 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var nextRound = State.Round + 1;
             var maxGold = TavernRules.GetMaxGoldForRound(nextRound);
-            var shopState = tavern.Frozen
+            var wasFrozen = tavern.Frozen;
+            var shopState = wasFrozen
                 ? new ShopState { Shop = tavern.Shop, Pool = tavern.Pool }
                 : CreateShopFromPool(ReleaseShopToPool(), tavern.Tier, TavernRules.GetShopSize(tavern.Tier), State.Seed + nextRound * 997, "turn-" + nextRound);
 
@@ -281,6 +317,11 @@ namespace LearnHearthstone.Application.Services
             tavern.UpgradeCost = TavernRules.DecrementUpgradeCost(tavern.UpgradeCost);
             tavern.Frozen = false;
             tavern.Shop = shopState.Shop;
+            if (!wasFrozen)
+            {
+                ApplyShopGrowth(tavern.Shop, tavern.Growth.ShopModifiers);
+            }
+
             tavern.Pool = shopState.Pool;
             tavern.SearchPlan.GoldSpentOnRerollThisTurn = 0;
             tavern.SearchPlan.HitsThisTurn.Clear();
@@ -445,10 +486,12 @@ namespace LearnHearthstone.Application.Services
         {
             return new MinionInstance
             {
+                CardKind = CardKind.TavernSpell,
                 InstanceId = "player-" + TripleRewardDefinitionId + "-" + suffix,
                 DefinitionId = TripleRewardDefinitionId,
                 CardId = TripleRewardCardId,
                 Name = "Triple Reward",
+                Cost = 0,
                 Attack = 0,
                 Health = 1,
                 MaxHealth = 1,
@@ -492,12 +535,69 @@ namespace LearnHearthstone.Application.Services
         private ShopState CreateShopFromPool(IDictionary<string, int> snapshot, int tier, int size, int seed, string suffix)
         {
             var pool = new MinionPool(catalog.All, snapshot);
-            var definitions = pool.DrawShop(tier, size, new SeededRng(seed));
+            var rng = new SeededRng(seed);
+            var spell = DrawTavernSpell(tier, rng);
+            var minionSlots = spell == null ? size : Math.Max(0, size - 1);
+            var definitions = pool.DrawShop(tier, minionSlots, rng);
+            var shop = definitions
+                .Select((definition, index) => MinionFactory.Create(definition, BoardSide.Player, suffix + "-" + index, false, PoolSource.Pool, 1))
+                .ToList();
+
+            if (spell != null)
+            {
+                shop.Add(MinionFactory.Create(spell, BoardSide.Player, suffix + "-spell"));
+            }
+
             return new ShopState
             {
-                Shop = definitions.Select((definition, index) => MinionFactory.Create(definition, BoardSide.Player, suffix + "-" + index, false, PoolSource.Pool, 1)).ToList(),
+                Shop = shop,
                 Pool = pool.Snapshot()
             };
+        }
+
+        private TavernSpellDefinition DrawTavernSpell(int tier, SeededRng rng)
+        {
+            var candidates = spellCatalog.GetTavernSpellsForTier(tier);
+            return candidates.Count == 0 ? null : rng.Pick(candidates);
+        }
+
+        private static void ApplyShopGrowth(List<MinionInstance> shop, List<TavernGrowthModifier> modifiers)
+        {
+            if (shop == null || modifiers == null || modifiers.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var minion in shop)
+            {
+                if (minion == null || minion.CardKind != CardKind.Minion)
+                {
+                    continue;
+                }
+
+                foreach (var modifier in modifiers)
+                {
+                    if (modifier.Scope != BuffScope.ShopGlobal || !MatchesTribe(minion, modifier.Tribe))
+                    {
+                        continue;
+                    }
+
+                    MechanicEngine.ApplyToMinion(minion, new MechanicAction
+                    {
+                        Type = MechanicActionType.BuffStats,
+                        Attack = modifier.Attack,
+                        Health = modifier.Health,
+                        SourceId = modifier.SourceId
+                    });
+                }
+            }
+        }
+
+        private static bool MatchesTribe(MinionInstance minion, Tribe tribe)
+        {
+            return tribe == Tribe.All ||
+                minion.Tribes.Contains(tribe) ||
+                minion.Tribes.Contains(Tribe.All);
         }
 
         private Dictionary<string, int> ReleaseShopToPool()

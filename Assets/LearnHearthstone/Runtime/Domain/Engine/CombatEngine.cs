@@ -26,10 +26,25 @@ namespace LearnHearthstone.Domain.Engine
                 }
 
                 var defender = ChooseDefender(defenders.Where(IsAlive).ToList(), seed + steps);
-                var attackerPoison = attacker.Keywords.Contains(Keyword.Poisonous) || attacker.Keywords.Contains(Keyword.Venomous);
-                var defenderPoison = defender.Keywords.Contains(Keyword.Poisonous) || defender.Keywords.Contains(Keyword.Venomous);
-                var damagedDefender = DealDamage(defender, attacker.Attack, attackerPoison);
-                var damagedAttacker = DealDamage(attacker, defender.Attack, defenderPoison);
+                var attackerVenomous = attacker.Keywords.Contains(Keyword.Venomous);
+                var defenderVenomous = defender.Keywords.Contains(Keyword.Venomous);
+                var attackerPoison = attacker.Keywords.Contains(Keyword.Poisonous) || attackerVenomous;
+                var defenderPoison = defender.Keywords.Contains(Keyword.Poisonous) || defenderVenomous;
+                var defenderDamage = DealDamage(defender, attacker.Attack, attackerPoison);
+                var attackerDamage = DealDamage(attacker, defender.Attack, defenderPoison);
+                var damagedDefender = defenderDamage.Minion;
+                var damagedAttacker = attackerDamage.Minion;
+                damagedAttacker.Keywords.Remove(Keyword.Stealth);
+
+                if (attackerVenomous && defenderDamage.CombatDamageDealt)
+                {
+                    damagedAttacker.Keywords.Remove(Keyword.Venomous);
+                }
+
+                if (defenderVenomous && attackerDamage.CombatDamageDealt)
+                {
+                    damagedDefender.Keywords.Remove(Keyword.Venomous);
+                }
 
                 ReplaceByInstanceId(attackers, damagedAttacker);
                 ReplaceByInstanceId(defenders, damagedDefender);
@@ -68,27 +83,29 @@ namespace LearnHearthstone.Domain.Engine
 
         private static MinionInstance ChooseDefender(IList<MinionInstance> defenders, int seed)
         {
-            var taunts = defenders.Where(minion => minion.Keywords.Contains(Keyword.Taunt)).ToList();
-            var candidates = taunts.Count > 0 ? taunts : defenders;
+            var visible = defenders.Where(minion => !minion.Keywords.Contains(Keyword.Stealth)).ToList();
+            var targetPool = visible.Count > 0 ? visible : defenders;
+            var taunts = targetPool.Where(minion => minion.Keywords.Contains(Keyword.Taunt)).ToList();
+            var candidates = taunts.Count > 0 ? taunts : targetPool;
             return new SeededRng(seed).Pick(candidates);
         }
 
-        private static MinionInstance DealDamage(MinionInstance target, int amount, bool poison)
+        private static DamageResult DealDamage(MinionInstance target, int amount, bool poison)
         {
             var next = target.Clone();
             if (amount <= 0)
             {
-                return next;
+                return new DamageResult(next, false);
             }
 
             if (next.Keywords.Contains(Keyword.DivineShield))
             {
                 next.Keywords.Remove(Keyword.DivineShield);
-                return next;
+                return new DamageResult(next, false);
             }
 
             next.Health = poison ? 0 : next.Health - amount;
-            return next;
+            return new DamageResult(next, true);
         }
 
         private static void ReplaceByInstanceId(IList<MinionInstance> items, MinionInstance next)
@@ -101,6 +118,18 @@ namespace LearnHearthstone.Domain.Engine
                     return;
                 }
             }
+        }
+
+        private readonly struct DamageResult
+        {
+            public DamageResult(MinionInstance minion, bool combatDamageDealt)
+            {
+                Minion = minion;
+                CombatDamageDealt = combatDamageDealt;
+            }
+
+            public MinionInstance Minion { get; }
+            public bool CombatDamageDealt { get; }
         }
     }
 }

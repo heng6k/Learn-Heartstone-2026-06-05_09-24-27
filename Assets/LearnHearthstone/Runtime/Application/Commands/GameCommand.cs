@@ -11,6 +11,7 @@ namespace LearnHearthstone.Application.Commands
         FreezeShop,
         UpgradeTavern,
         MoveMinion,
+        MoveBoardMinion,
         UpdateMinion,
         PlayMinion,
         ChooseDiscover,
@@ -27,10 +28,24 @@ namespace LearnHearthstone.Application.Commands
             Index = index;
         }
 
+        public GameCommand(GameCommandType type, int index, int targetIndex)
+        {
+            Type = type;
+            Index = index;
+            TargetIndex = targetIndex;
+        }
+
         public GameCommand(GameCommandType type, string instanceId)
         {
             Type = type;
             InstanceId = instanceId;
+        }
+
+        public GameCommand(GameCommandType type, string instanceId, int targetIndex)
+        {
+            Type = type;
+            InstanceId = instanceId;
+            TargetIndex = targetIndex;
         }
 
         public GameCommand(GameCommandType type, string instanceId, MinionPatch minionPatch)
@@ -53,6 +68,7 @@ namespace LearnHearthstone.Application.Commands
 
         public GameCommandType Type { get; }
         public int Index { get; }
+        public int TargetIndex { get; } = -1;
         public string InstanceId { get; }
         public bool Flag { get; }
         public MinionPatch MinionPatch { get; }

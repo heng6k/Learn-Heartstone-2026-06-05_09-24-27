@@ -203,7 +203,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 if (minion == null)
                 {
                     var empty = EmptySlot();
-                    AddDropTarget(empty, DropTarget.PlayerBoard);
+                    AddDropTarget(empty, DropTarget.PlayerBoard, index);
                     return empty;
                 }
 
@@ -211,7 +211,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                     minion,
                     side == BoardSide.Player ? DragSource.PlayerBoard : DragSource.OpponentBoard,
                     index,
-                    side == BoardSide.Player ? DropTarget.PlayerBoard : (DropTarget?)null);
+                    side == BoardSide.Player ? DropTarget.PlayerBoard : (DropTarget?)null,
+                    index);
             });
             AddDropTarget(boardRow, DropTarget.PlayerBoard);
         }
@@ -355,7 +356,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             return row;
         }
 
-        private GameObject CardWithDrag(MinionInstance minion, DragSource source, int index, DropTarget? dropTarget)
+        private GameObject CardWithDrag(MinionInstance minion, DragSource source, int index, DropTarget? dropTarget, int targetIndex = -1)
         {
             if (minion == null)
             {
@@ -377,8 +378,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             drag.Initialize(this, minion, source, index);
             if (dropTarget.HasValue)
             {
-                AddDropTarget(card, dropTarget.Value);
-                AddDropTarget(holder, dropTarget.Value);
+                AddDropTarget(card, dropTarget.Value, targetIndex);
+                AddDropTarget(holder, dropTarget.Value, targetIndex);
             }
 
             UiFactory.Vertical(card, 6, 2);
@@ -423,7 +424,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             return empty;
         }
 
-        private void AddDropTarget(GameObject target, DropTarget dropTarget)
+        private void AddDropTarget(GameObject target, DropTarget dropTarget, int targetIndex = -1)
         {
             var image = target.GetComponent<Image>();
             if (image != null)
@@ -432,7 +433,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             }
 
             var behaviour = target.GetComponent<DropTargetBehaviour>() ?? target.AddComponent<DropTargetBehaviour>();
-            behaviour.Initialize(this, dropTarget);
+            behaviour.Initialize(this, dropTarget, targetIndex);
         }
 
         private void Stepper(Transform parent, string label, int value, System.Action<int> onChange)
@@ -543,7 +544,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             DestroyDragGhost();
         }
 
-        internal void HandleDrop(DropTarget target)
+        internal void HandleDrop(DropTarget target, int targetIndex = -1)
         {
             if (activeDrag == null)
             {
@@ -551,7 +552,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             }
 
             var drag = activeDrag;
-            if (!TryBuildDropCommand(drag, target, out var command))
+            if (!TryBuildDropCommand(drag, target, targetIndex, out var command))
             {
                 lastError = "请拖到正确区域。";
                 EndDrag();
@@ -570,7 +571,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             Apply(command);
         }
 
-        private static bool TryBuildDropCommand(DragContext drag, DropTarget target, out GameCommand command)
+        private static bool TryBuildDropCommand(DragContext drag, DropTarget target, int targetIndex, out GameCommand command)
         {
             command = null;
             if (drag.Source == DragSource.Shop && target == DropTarget.Hand)
@@ -587,7 +588,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
             if (drag.Source == DragSource.Hand && target == DropTarget.PlayerBoard)
             {
-                command = new GameCommand(GameCommandType.PlayMinion, drag.Index);
+                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                return true;
+            }
+
+            if (drag.Source == DragSource.PlayerBoard && target == DropTarget.PlayerBoard)
+            {
+                command = new GameCommand(GameCommandType.MoveBoardMinion, drag.Minion.InstanceId, targetIndex);
                 return true;
             }
 
@@ -910,14 +917,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer
     {
         private TavernTrainerView view;
         private DropTarget target;
+        private int targetIndex;
         private Image image;
         private Color normalColor;
         private bool hasImage;
 
-        public void Initialize(TavernTrainerView owner, DropTarget dropTarget)
+        public void Initialize(TavernTrainerView owner, DropTarget dropTarget, int dropTargetIndex)
         {
             view = owner;
             target = dropTarget;
+            targetIndex = dropTargetIndex;
             image = GetComponent<Image>();
             hasImage = image != null;
             if (hasImage)
@@ -934,7 +943,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 return;
             }
 
-            view.HandleDrop(target);
+            view.HandleDrop(target, targetIndex);
         }
 
         public void OnPointerEnter(PointerEventData eventData)

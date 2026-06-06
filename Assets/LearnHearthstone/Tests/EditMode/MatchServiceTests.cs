@@ -18,6 +18,86 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Tavern.Tier);
             Assert.AreEqual(3, service.State.Player.Tavern.Gold);
             Assert.AreEqual(TavernRules.GetShopSize(1), service.State.Player.Tavern.Shop.Count);
+            Assert.AreEqual(CardKind.TavernSpell, service.State.Player.Tavern.Shop.Last().CardKind);
+            Assert.IsTrue(service.State.Player.Tavern.Shop.Take(service.State.Player.Tavern.Shop.Count - 1).All(card => card.CardKind == CardKind.Minion));
+            Assert.LessOrEqual(service.State.Player.Tavern.Shop.Last().TavernTier, service.State.Player.Tavern.Tier);
+        }
+
+        [Test]
+        public void Apply_RerollShopKeepsRightmostSlotAsTierEligibleTavernSpell()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var shop = service.State.Player.Tavern.Shop;
+            Assert.AreEqual(TavernRules.GetShopSize(1), shop.Count);
+            Assert.AreEqual(CardKind.TavernSpell, shop.Last().CardKind);
+            Assert.LessOrEqual(shop.Last().TavernTier, 1);
+            Assert.IsTrue(shop.Take(shop.Count - 1).All(card => card.CardKind == CardKind.Minion));
+        }
+
+        [Test]
+        public void Apply_RerollShopDrawsSpellFromCurrentTierOrLower()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Tier = 4;
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var spell = service.State.Player.Tavern.Shop.Last();
+            Assert.AreEqual(CardKind.TavernSpell, spell.CardKind);
+            Assert.GreaterOrEqual(spell.TavernTier, 1);
+            Assert.LessOrEqual(spell.TavernTier, 4);
+        }
+
+        [Test]
+        public void Apply_RerollShopAppliesGlobalShopGrowthToMatchingMinions()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier
+            {
+                Scope = BuffScope.ShopGlobal,
+                Tribe = Tribe.All,
+                Attack = 2,
+                Health = 2,
+                SourceId = "test-global-shop"
+            });
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var minions = service.State.Player.Tavern.Shop.Where(card => card.CardKind == CardKind.Minion).ToList();
+            Assert.IsTrue(minions.Count > 0);
+            Assert.IsTrue(minions.All(card => card.Attack >= card.BaseAttack + 2));
+            Assert.IsTrue(minions.All(card => card.MaxHealth >= card.BaseHealth + 2));
+        }
+
+        [Test]
+        public void Apply_PlayingTavernSpellDoesNotPutItOnBoardUntilEffectsExist()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var spell = service.State.Player.Tavern.Shop.Last();
+            service.State.Player.Tavern.Hand.Add(spell.Clone());
+
+            Assert.Throws<System.InvalidOperationException>(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)));
+            Assert.IsFalse(service.State.Player.Board.Any(card => card.CardKind == CardKind.TavernSpell));
+        }
+
+        [Test]
+        public void Apply_BuyingTavernSpellUsesSpellCost()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var spellIndex = service.State.Player.Tavern.Shop.Count - 1;
+            service.State.Player.Tavern.Shop[spellIndex].Cost = 1;
+            service.State.Player.Tavern.Gold = 3;
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, spellIndex));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(CardKind.TavernSpell, service.State.Player.Tavern.Hand.Last().CardKind);
         }
 
         [Test]
@@ -136,6 +216,46 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_PlayMinionWithTargetIndexInsertsAtBoardPosition()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var minions = service.State.Player.Tavern.Shop.Where(card => card.CardKind == CardKind.Minion).Take(2).ToList();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var existing = CloneForBoard(minions[0], "existing-board");
+            var played = CloneForHand(minions[1], "played-hand");
+            service.State.Player.Board.Add(existing);
+            service.State.Player.Tavern.Hand.Add(played);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count);
+            Assert.AreEqual(played.DefinitionId, service.State.Player.Board[0].DefinitionId);
+            Assert.AreEqual(existing.DefinitionId, service.State.Player.Board[1].DefinitionId);
+        }
+
+        [Test]
+        public void Apply_MoveBoardMinionWithTargetIndexReordersPlayerBoard()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var source = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion);
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var first = CloneForBoard(source, "board-a");
+            var second = CloneForBoard(source, "board-b");
+            var third = CloneForBoard(source, "board-c");
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            service.State.Player.Board.Add(third);
+
+            service.Apply(new GameCommand(GameCommandType.MoveBoardMinion, first.InstanceId, 2));
+
+            Assert.AreEqual(second.InstanceId, service.State.Player.Board[0].InstanceId);
+            Assert.AreEqual(third.InstanceId, service.State.Player.Board[1].InstanceId);
+            Assert.AreEqual(first.InstanceId, service.State.Player.Board[2].InstanceId);
+        }
+
+        [Test]
         public void Apply_ReplayingReturnedGoldenDoesNotGrantDuplicateTripleReward()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -164,6 +284,14 @@ namespace LearnHearthstone.Tests.EditMode
             clone.InstanceId = "player-" + source.DefinitionId + "-" + suffix;
             clone.Owner = BoardSide.Player;
             clone.Golden = false;
+            return clone;
+        }
+
+        private static MinionInstance CloneForBoard(MinionInstance source, string suffix)
+        {
+            var clone = CloneForHand(source, suffix);
+            clone.InstanceId = "player-" + source.DefinitionId + "-" + suffix;
+            clone.Owner = BoardSide.Player;
             return clone;
         }
     }

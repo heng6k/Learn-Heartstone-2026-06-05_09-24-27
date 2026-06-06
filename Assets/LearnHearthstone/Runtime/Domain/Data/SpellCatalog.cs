@@ -57,5 +57,12 @@ namespace LearnHearthstone.Domain.Data
         {
             return All.Where(spell => spell.TavernTier <= tier).ToList();
         }
+
+        public List<TavernSpellDefinition> GetTavernSpellsForTier(int tier)
+        {
+            return All
+                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier <= tier)
+                .ToList();
+        }
     }
 }

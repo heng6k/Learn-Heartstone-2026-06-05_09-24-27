@@ -49,10 +49,14 @@ namespace LearnHearthstone.Domain.Models
     [Serializable]
     public sealed class MinionInstance
     {
+        public CardKind CardKind = CardKind.Minion;
         public string InstanceId;
         public string DefinitionId;
         public string CardId;
         public string Name;
+        public int Cost;
+        public int BaseAttack;
+        public int BaseHealth;
         public int Attack;
         public int Health;
         public int MaxHealth;
@@ -66,17 +70,24 @@ namespace LearnHearthstone.Domain.Models
         public Dictionary<string, int> Counters = new Dictionary<string, int>();
         public bool CanAttack = true;
         public int AttacksThisCombat;
+        public PoolSource OriginPoolSource;
+        public bool CanReturnToPoolAfterAttach;
         public PoolSource PoolSource;
         public int PoolCopiesHeld;
+        public string ImagePath;
 
         public MinionInstance Clone()
         {
             return new MinionInstance
             {
+                CardKind = CardKind,
                 InstanceId = InstanceId,
                 DefinitionId = DefinitionId,
                 CardId = CardId,
                 Name = Name,
+                Cost = Cost,
+                BaseAttack = BaseAttack,
+                BaseHealth = BaseHealth,
                 Attack = Attack,
                 Health = Health,
                 MaxHealth = MaxHealth,
@@ -90,8 +101,11 @@ namespace LearnHearthstone.Domain.Models
                 Counters = new Dictionary<string, int>(Counters),
                 CanAttack = CanAttack,
                 AttacksThisCombat = AttacksThisCombat,
+                OriginPoolSource = OriginPoolSource,
+                CanReturnToPoolAfterAttach = CanReturnToPoolAfterAttach,
                 PoolSource = PoolSource,
-                PoolCopiesHeld = PoolCopiesHeld
+                PoolCopiesHeld = PoolCopiesHeld,
+                ImagePath = ImagePath
             };
         }
     }
@@ -106,10 +120,14 @@ namespace LearnHearthstone.Domain.Models
 
             return new MinionInstance
             {
+                CardKind = CardKind.Minion,
                 InstanceId = owner.ToString().ToLowerInvariant() + "-" + definition.Id + "-" + suffix,
                 DefinitionId = definition.Id,
                 CardId = definition.CardId,
                 Name = definition.Name,
+                Cost = 3,
+                BaseAttack = attack,
+                BaseHealth = health,
                 Attack = attack,
                 Health = health,
                 MaxHealth = health,
@@ -123,8 +141,44 @@ namespace LearnHearthstone.Domain.Models
                 Counters = new Dictionary<string, int>(),
                 CanAttack = true,
                 AttacksThisCombat = 0,
+                OriginPoolSource = source,
+                CanReturnToPoolAfterAttach = source == PoolSource.Pool && poolCopiesHeld > 0,
                 PoolSource = source,
-                PoolCopiesHeld = poolCopiesHeld
+                PoolCopiesHeld = poolCopiesHeld,
+                ImagePath = definition.ImagePath
+            };
+        }
+
+        public static MinionInstance Create(TavernSpellDefinition definition, BoardSide owner, string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.TavernSpell,
+                InstanceId = owner.ToString().ToLowerInvariant() + "-" + definition.Id + "-" + suffix,
+                DefinitionId = definition.Id,
+                CardId = definition.CardNumber,
+                Name = definition.Name,
+                Cost = definition.Cost,
+                BaseAttack = 0,
+                BaseHealth = 0,
+                Attack = 0,
+                Health = 0,
+                MaxHealth = 0,
+                TavernTier = definition.TavernTier,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.TavernSpell },
+                Text = definition.Text,
+                Golden = false,
+                Owner = owner,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                CanAttack = false,
+                AttacksThisCombat = 0,
+                OriginPoolSource = PoolSource.Copy,
+                CanReturnToPoolAfterAttach = false,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                ImagePath = definition.ImagePath
             };
         }
     }

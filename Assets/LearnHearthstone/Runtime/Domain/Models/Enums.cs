@@ -61,6 +61,12 @@ namespace LearnHearthstone.Domain.Models
         Debug
     }
 
+    public enum CardKind
+    {
+        Minion,
+        TavernSpell
+    }
+
     public enum MatchMode
     {
         TavernPractice,

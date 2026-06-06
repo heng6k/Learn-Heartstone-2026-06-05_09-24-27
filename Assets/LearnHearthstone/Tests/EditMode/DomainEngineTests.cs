@@ -75,6 +75,37 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(result.FinalOpponentBoard.Find(m => m.InstanceId == "o1").Keywords.Contains(Keyword.DivineShield));
         }
 
+        [Test]
+        public void CombatEngine_VenomousKillsDamagedTargetAndIsConsumed()
+        {
+            var attacker = TestInstance("p1", "venom", 0);
+            attacker.Attack = 1;
+            attacker.Keywords.Add(Keyword.Venomous);
+            var defender = TestInstance("o1", "defender", 0);
+            defender.Attack = 0;
+            defender.Health = 10;
+            defender.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { defender }, 1, 1);
+
+            Assert.AreEqual(0, result.FinalOpponentBoard.Count);
+            Assert.IsFalse(result.FinalPlayerBoard[0].Keywords.Contains(Keyword.Venomous));
+        }
+
+        [Test]
+        public void CombatEngine_StealthDefendersAreSkippedWhenOtherTargetsExist()
+        {
+            var attacker = TestInstance("p1", "attacker", 0);
+            var support = TestInstance("p2", "support", 0);
+            var stealth = TestInstance("o1", "stealth", 0);
+            stealth.Keywords.Add(Keyword.Stealth);
+            var visible = TestInstance("o2", "visible", 0);
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { stealth, visible }, 5, 1);
+
+            Assert.AreEqual("o2", result.Log[0].TargetId);
+        }
+
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
         {
             return new MinionDefinition

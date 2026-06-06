@@ -134,6 +134,44 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(minion.InstanceId, command.InstanceId);
         }
 
+        [Test]
+        public void DropCommand_HandToPlayerBoardSlotUsesTargetIndex()
+        {
+            var minion = new MinionInstance
+            {
+                InstanceId = "hand-minion",
+                DefinitionId = "m1",
+                Name = "m1",
+                Owner = BoardSide.Player
+            };
+
+            var command = BuildDropCommandByReflection(minion, "Hand", "PlayerBoard", 3);
+
+            Assert.IsNotNull(command);
+            Assert.AreEqual(GameCommandType.PlayMinion, command.Type);
+            Assert.AreEqual(0, command.Index);
+            Assert.AreEqual(3, command.TargetIndex);
+        }
+
+        [Test]
+        public void DropCommand_PlayerBoardToPlayerBoardSlotUsesReorderCommand()
+        {
+            var minion = new MinionInstance
+            {
+                InstanceId = "board-minion",
+                DefinitionId = "m1",
+                Name = "m1",
+                Owner = BoardSide.Player
+            };
+
+            var command = BuildDropCommandByReflection(minion, "PlayerBoard", "PlayerBoard", 1);
+
+            Assert.IsNotNull(command);
+            Assert.AreEqual(GameCommandType.MoveBoardMinion, command.Type);
+            Assert.AreEqual(minion.InstanceId, command.InstanceId);
+            Assert.AreEqual(1, command.TargetIndex);
+        }
+
         private static Transform FindChild(Transform root, string name)
         {
             if (root.name == name)
@@ -174,7 +212,7 @@ namespace LearnHearthstone.Tests.EditMode
             return false;
         }
 
-        private static GameCommand BuildDropCommandByReflection(MinionInstance minion, string sourceName, string targetName)
+        private static GameCommand BuildDropCommandByReflection(MinionInstance minion, string sourceName, string targetName, int targetIndex = -1)
         {
             var viewType = typeof(TavernTrainerView);
             var assembly = viewType.Assembly;
@@ -196,11 +234,12 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 dragContext,
                 Enum.Parse(dropTargetType, targetName),
+                targetIndex,
                 null
             };
 
             var handled = (bool)method.Invoke(null, args);
-            return handled ? (GameCommand)args[2] : null;
+            return handled ? (GameCommand)args[3] : null;
         }
     }
 }

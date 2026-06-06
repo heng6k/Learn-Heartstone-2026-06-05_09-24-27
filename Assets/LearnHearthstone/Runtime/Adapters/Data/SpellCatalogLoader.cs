@@ -54,6 +54,7 @@ namespace LearnHearthstone.Adapters.Data
                 AvailableModes = raw.availableModes ?? new List<string>(),
                 Cost = raw.cost,
                 TavernTier = raw.tavernTier,
+                InPool = raw.inPool != 0,
                 Keywords = raw.keywords ?? new List<string>(),
                 Text = raw.text,
                 Description = raw.description,
@@ -88,6 +89,7 @@ namespace LearnHearthstone.Adapters.Data
             public List<string> availableModes;
             public int cost;
             public int tavernTier;
+            public int inPool = 1;
             public List<string> keywords;
             public string text;
             public string description;

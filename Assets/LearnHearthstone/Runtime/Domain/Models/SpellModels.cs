@@ -16,6 +16,7 @@ namespace LearnHearthstone.Domain.Models
         public List<string> AvailableModes { get; set; }
         public int Cost { get; set; }
         public int TavernTier { get; set; }
+        public bool InPool { get; set; }
         public List<string> Keywords { get; set; }
         public string Text { get; set; }
         public string Description { get; set; }
