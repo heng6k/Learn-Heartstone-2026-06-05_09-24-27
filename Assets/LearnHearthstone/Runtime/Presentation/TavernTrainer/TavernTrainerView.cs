@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Models;
@@ -24,6 +25,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private string lastError;
         private DragContext activeDrag;
         private GameObject dragGhost;
+        private RightInspectorTab activeRightTab = RightInspectorTab.Info;
 
         public TavernTrainerView(Transform root, MatchService service, IAdvisorService advisor, System.Action backToHub)
         {
@@ -37,7 +39,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         {
             if (shell != null)
             {
-                Object.Destroy(shell);
+                if (UnityEngine.Application.isPlaying)
+                {
+                    Object.Destroy(shell);
+                }
+                else
+                {
+                    Object.DestroyImmediate(shell);
+                }
             }
 
             shell = UiFactory.Panel("TavernTrainer", root, ColorFromHex(0x101418));
@@ -103,10 +112,204 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             var inspector = UiFactory.Panel("RightInspector", workspace.transform, ColorFromHex(0x181E24));
             UiFactory.SetWidth(inspector, 380);
             UiFactory.Vertical(inspector, 12, 10);
-            BuildBoardPanel(inspector.transform, service.State.Opponent.Name, service.State.Opponent.Health, service.State.Opponent.Armor, service.State.Opponent.Board, BoardSide.Opponent, false);
-            BuildMinionEditor(inspector.transform);
-            BuildHints(inspector.transform);
-            BuildLogs(inspector.transform);
+            BuildRightInspector(inspector.transform);
+        }
+
+        private void BuildRightInspector(Transform parent)
+        {
+            BuildRightInspectorTabs(parent);
+            if (activeRightTab == RightInspectorTab.CardAcquisition)
+            {
+                BuildCardAcquisitionPanel(parent);
+                return;
+            }
+
+            if (activeRightTab == RightInspectorTab.OpponentCustomization)
+            {
+                BuildOpponentCustomizationPanel(parent);
+                return;
+            }
+
+            BuildBoardPanel(parent, service.State.Opponent.Name, service.State.Opponent.Health, service.State.Opponent.Armor, service.State.Opponent.Board, BoardSide.Opponent, false);
+            BuildMinionEditor(parent);
+            BuildHints(parent);
+            BuildLogs(parent);
+        }
+
+        private void BuildRightInspectorTabs(Transform parent)
+        {
+            var tabs = UiFactory.Panel("RightInspectorTabs", parent, ColorFromHex(0x141B22));
+            UiFactory.SetHeight(tabs, 40);
+            UiFactory.Horizontal(tabs, 4, 4);
+            InspectorTabButton(tabs.transform, "Tab-Info", "对局", RightInspectorTab.Info);
+            InspectorTabButton(tabs.transform, "Tab-CardAcquisition", "获取", RightInspectorTab.CardAcquisition);
+            InspectorTabButton(tabs.transform, "Tab-OpponentCustomization", "对手", RightInspectorTab.OpponentCustomization);
+        }
+
+        private void InspectorTabButton(Transform parent, string name, string text, RightInspectorTab tab)
+        {
+            var button = UiFactory.Button(name, parent, text, () =>
+            {
+                activeRightTab = tab;
+                Rebuild();
+            });
+            UiFactory.SetFlexible(button.gameObject, 1, 1);
+            UiFactory.SetImageColor(button.gameObject, activeRightTab == tab ? ColorFromHex(0x273F57) : ColorFromHex(0x202832));
+        }
+
+        private void BuildCardAcquisitionPanel(Transform parent)
+        {
+            var panel = UiFactory.Panel("CardAcquisitionPanel", parent, ColorFromHex(0x202832));
+            UiFactory.SetFlexible(panel, 1, 1);
+            UiFactory.Vertical(panel, 10, 7);
+            BuildDockHeader(panel.transform, "获取卡牌", service.State.Player.Tavern.Hand.Count + "/10");
+            if (lastError != null)
+            {
+                LogLine(panel.transform, lastError);
+            }
+
+            var index = 0;
+            foreach (var card in BuildDebugCardChoices().Take(8))
+            {
+                var row = UiFactory.Panel("CardAcquisitionRow", panel.transform, ColorFromHex(0x181E24));
+                UiFactory.SetHeight(row, 42);
+                UiFactory.Horizontal(row, 6, 6);
+                var label = UiFactory.Label("CardAcquisitionName", row.transform, card.Name + "  " + card.CardKind, 12, FontStyle.Bold);
+                UiFactory.SetFlexible(label.gameObject, 1, 1);
+                var buttonName = index == 0 ? "AddCardToHandButton" : "AddCardToHandButton-" + card.CardId;
+                var button = UiFactory.Button(buttonName, row.transform, "加入手牌", () => Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind)));
+                UiFactory.SetWidth(button.gameObject, 94);
+                index += 1;
+            }
+        }
+
+        private IEnumerable<MinionInstance> BuildDebugCardChoices()
+        {
+            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Take(6))
+            {
+                yield return MinionFactory.Create(definition, BoardSide.Player, "ui-choice", false, PoolSource.Debug, 0);
+            }
+
+            foreach (var definition in SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.Category == "TavernSpell").Take(4))
+            {
+                var spell = MinionFactory.Create(definition, BoardSide.Player, "ui-choice");
+                spell.PoolSource = PoolSource.Debug;
+                spell.OriginPoolSource = PoolSource.Debug;
+                yield return spell;
+            }
+        }
+
+        private void BuildOpponentCustomizationPanel(Transform parent)
+        {
+            var panel = UiFactory.Panel("OpponentCustomizationPanel", parent, ColorFromHex(0x202832));
+            UiFactory.SetFlexible(panel, 1, 1);
+            UiFactory.Vertical(panel, 10, 7);
+            BuildDockHeader(panel.transform, "自定义对手", service.State.Opponent.Board.Count + "/7");
+            if (lastError != null)
+            {
+                LogLine(panel.transform, lastError);
+            }
+
+            BuildCompactBoardGrid(panel.transform, "OpponentCustomizationSlots", service.State.Opponent.Board, BoardSide.Opponent);
+            var firstChoice = MinionCatalogLoader.LoadFromResources().All.First();
+            var addButton = UiFactory.Button("AddOpponentButton", panel.transform, "添加对手", () => Apply(new GameCommand(GameCommandType.AddOpponentMinion, firstChoice.CardId)));
+            UiFactory.SetHeight(addButton.gameObject, 32);
+
+            var selected = service.State.Opponent.Board.FirstOrDefault(minion => minion.InstanceId == selectedMinionId);
+            BuildOpponentToolbar(panel.transform, selected);
+            BuildOpponentStatEditor(panel.transform, selected);
+        }
+
+        private void BuildOpponentToolbar(Transform parent, MinionInstance selected)
+        {
+            var toolbar = UiFactory.Panel("OpponentCustomizationToolbar", parent, Color.clear);
+            UiFactory.SetHeight(toolbar, 36);
+            UiFactory.Horizontal(toolbar, 0, 6);
+            var canEdit = selected != null;
+            var left = UiFactory.Button("MoveOpponentLeftButton", toolbar.transform, "左移", () => MoveOpponentSelected(-1));
+            left.interactable = canEdit;
+            var right = UiFactory.Button("MoveOpponentRightButton", toolbar.transform, "右移", () => MoveOpponentSelected(1));
+            right.interactable = canEdit;
+            var remove = UiFactory.Button("RemoveOpponentButton", toolbar.transform, "删除", () =>
+            {
+                if (selected != null)
+                {
+                    Apply(new GameCommand(GameCommandType.RemoveOpponentMinion, selected.InstanceId));
+                    selectedMinionId = null;
+                }
+            });
+            remove.interactable = canEdit;
+        }
+
+        private void BuildOpponentStatEditor(Transform parent, MinionInstance selected)
+        {
+            var editor = UiFactory.Panel("OpponentStatEditor", parent, ColorFromHex(0x181E24));
+            UiFactory.SetFlexible(editor, 1, 1);
+            UiFactory.Vertical(editor, 8, 6);
+            if (selected == null)
+            {
+                EmptyText(editor.transform, "选择对手随从后编辑身材和关键词。");
+                return;
+            }
+
+            var name = UiFactory.Label("OpponentSelectedName", editor.transform, selected.Name, 14, FontStyle.Bold);
+            UiFactory.SetHeight(name.gameObject, 24);
+            Stepper(editor.transform, "对手攻击", selected.Attack, value => UpdateOpponentSelected(new MinionPatch { Attack = value }));
+            Stepper(editor.transform, "对手生命", selected.Health, value => UpdateOpponentSelected(new MinionPatch { Health = value }));
+            Stepper(editor.transform, "对手最大生命", selected.MaxHealth, value => UpdateOpponentSelected(new MinionPatch { MaxHealth = value }));
+
+            var toggles = UiFactory.Panel("OpponentKeywordToggles", editor.transform, Color.clear);
+            UiFactory.SetHeight(toggles, 72);
+            UiFactory.Horizontal(toggles, 0, 6);
+            OpponentKeywordToggle(toggles.transform, selected, Keyword.Taunt, "嘲讽");
+            OpponentKeywordToggle(toggles.transform, selected, Keyword.DivineShield, "圣盾");
+            OpponentKeywordToggle(toggles.transform, selected, Keyword.Poisonous, "剧毒");
+            OpponentKeywordToggle(toggles.transform, selected, Keyword.Venomous, "烈毒");
+        }
+
+        private void MoveOpponentSelected(int delta)
+        {
+            if (string.IsNullOrEmpty(selectedMinionId))
+            {
+                return;
+            }
+
+            var index = service.State.Opponent.Board.FindIndex(minion => minion.InstanceId == selectedMinionId);
+            if (index < 0)
+            {
+                return;
+            }
+
+            Apply(new GameCommand(GameCommandType.MoveOpponentMinion, selectedMinionId, index + delta));
+        }
+
+        private void UpdateOpponentSelected(MinionPatch patch)
+        {
+            if (string.IsNullOrEmpty(selectedMinionId))
+            {
+                return;
+            }
+
+            Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, selectedMinionId, patch));
+        }
+
+        private void OpponentKeywordToggle(Transform parent, MinionInstance minion, Keyword keyword, string label)
+        {
+            var hasKeyword = minion.Keywords.Contains(keyword);
+            ToolbarButton(parent, label, hasKeyword, true, () =>
+            {
+                var next = new List<Keyword>(minion.Keywords);
+                if (hasKeyword)
+                {
+                    next.Remove(keyword);
+                }
+                else
+                {
+                    next.Add(keyword);
+                }
+
+                UpdateOpponentSelected(new MinionPatch { Keywords = next });
+            });
         }
 
         private void BuildShopStage(Transform parent)
@@ -854,6 +1057,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         Hand,
         PlayerBoard,
         SellZone
+    }
+
+    internal enum RightInspectorTab
+    {
+        Info,
+        CardAcquisition,
+        OpponentCustomization
     }
 
     internal sealed class DragCardBehaviour : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler

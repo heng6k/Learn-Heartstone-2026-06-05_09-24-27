@@ -17,7 +17,12 @@ namespace LearnHearthstone.Application.Commands
         ChooseDiscover,
         NextTurn,
         DebugAddGold,
-        SimulateCombat
+        SimulateCombat,
+        AddCardToHand,
+        AddOpponentMinion,
+        RemoveOpponentMinion,
+        MoveOpponentMinion,
+        UpdateOpponentMinion
     }
 
     public sealed class GameCommand
@@ -55,6 +60,13 @@ namespace LearnHearthstone.Application.Commands
             MinionPatch = minionPatch;
         }
 
+        public GameCommand(GameCommandType type, string cardId, CardKind cardKind)
+        {
+            Type = type;
+            CardId = cardId;
+            CardKind = cardKind;
+        }
+
         public GameCommand(GameCommandType type, bool flag)
         {
             Type = type;
@@ -70,6 +82,8 @@ namespace LearnHearthstone.Application.Commands
         public int Index { get; }
         public int TargetIndex { get; } = -1;
         public string InstanceId { get; }
+        public string CardId { get; }
+        public CardKind CardKind { get; }
         public bool Flag { get; }
         public MinionPatch MinionPatch { get; }
     }

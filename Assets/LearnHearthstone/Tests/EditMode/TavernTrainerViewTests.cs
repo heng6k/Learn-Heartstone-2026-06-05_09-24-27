@@ -117,6 +117,70 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Build_RightInspectorCreatesTabButtons()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "RightInspectorTabs"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "Tab-Info"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "Tab-CardAcquisition"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "Tab-OpponentCustomization"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_CardAcquisitionTabShowsAddToHandEntry()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "Tab-CardAcquisition").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "CardAcquisitionPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AddCardToHandButton"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_OpponentCustomizationTabShowsEditingEntries()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "Tab-OpponentCustomization").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "OpponentCustomizationPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AddOpponentButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "MoveOpponentLeftButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "MoveOpponentRightButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "RemoveOpponentButton"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void DropCommand_PlayerBoardToHandReturnsMoveMinionCommand()
         {
             var minion = new MinionInstance

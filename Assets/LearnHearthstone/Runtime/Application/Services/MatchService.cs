@@ -79,6 +79,21 @@ namespace LearnHearthstone.Application.Services
                 case GameCommandType.UpdateMinion:
                     UpdateMinion(command.InstanceId, command.MinionPatch);
                     break;
+                case GameCommandType.AddCardToHand:
+                    AddCardToHand(command.CardId, command.CardKind);
+                    break;
+                case GameCommandType.AddOpponentMinion:
+                    AddOpponentMinion(command.InstanceId);
+                    break;
+                case GameCommandType.RemoveOpponentMinion:
+                    RemoveOpponentMinion(command.InstanceId);
+                    break;
+                case GameCommandType.MoveOpponentMinion:
+                    MoveOpponentMinion(command.InstanceId, command.TargetIndex);
+                    break;
+                case GameCommandType.UpdateOpponentMinion:
+                    UpdateOpponentMinion(command.InstanceId, command.MinionPatch);
+                    break;
                 case GameCommandType.DebugAddGold:
                     State.Player.Tavern.Gold = Math.Max(0, State.Player.Tavern.Gold + command.Index);
                     State.Player.Tavern.MaxGold = Math.Max(State.Player.Tavern.MaxGold, State.Player.Tavern.Gold);
@@ -207,6 +222,46 @@ namespace LearnHearthstone.Application.Services
             ResolvePlayerTriples();
         }
 
+        private void AddCardToHand(string cardId, CardKind cardKind)
+        {
+            var tavern = State.Player.Tavern;
+            if (string.IsNullOrEmpty(cardId))
+            {
+                throw new InvalidOperationException("Card id is required.");
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                throw new InvalidOperationException("Hand is full.");
+            }
+
+            MinionInstance card;
+            if (cardKind == CardKind.Minion)
+            {
+                var definition = catalog.GetByCardId(cardId);
+                card = MinionFactory.Create(definition, BoardSide.Player, "debug-hand-" + State.Round + "-" + tavern.Hand.Count, false, PoolSource.Debug, 0);
+            }
+            else if (cardKind == CardKind.TavernSpell)
+            {
+                var definition = spellCatalog.All.FirstOrDefault(spell => spell.CardNumber == cardId || spell.Id == cardId);
+                if (definition == null)
+                {
+                    throw new InvalidOperationException("Spell card id does not exist: " + cardId);
+                }
+
+                card = MinionFactory.Create(definition, BoardSide.Player, "debug-hand-" + State.Round + "-" + tavern.Hand.Count);
+                card.PoolSource = PoolSource.Debug;
+                card.OriginPoolSource = PoolSource.Debug;
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported card kind: " + cardKind);
+            }
+
+            tavern.Hand.Add(card);
+            AddRecruitLog(RecruitLogType.Buy, "Debug add " + card.Name, tavern.Gold, tavern.Gold);
+        }
+
         private void DispatchSourceEvent(MechanicEventType eventType, MinionInstance source)
         {
             var dispatcher = new EffectDispatcher(effectCatalog, new SeededRng(State.Seed + State.Round * 1009 + State.Player.Tavern.RecruitLog.Count));
@@ -279,6 +334,62 @@ namespace LearnHearthstone.Application.Services
             State.Player.Board.Remove(target);
             State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
             AddRecruitLog(RecruitLogType.Play, "Reorder " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void AddOpponentMinion(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                throw new InvalidOperationException("Opponent minion card id is required.");
+            }
+
+            if (State.Opponent.Board.Count >= BoardLimit)
+            {
+                throw new InvalidOperationException("Opponent board is full.");
+            }
+
+            var definition = catalog.GetByCardId(cardId);
+            var minion = MinionFactory.Create(definition, BoardSide.Opponent, "debug-board-" + State.Round + "-" + State.Opponent.Board.Count, false, PoolSource.Debug, 0);
+            State.Opponent.Board.Add(minion);
+            AddRecruitLog(RecruitLogType.Play, "Debug opponent add " + minion.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void RemoveOpponentMinion(string instanceId)
+        {
+            var target = State.Opponent.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("Target minion is not on the opponent board.");
+            }
+
+            State.Opponent.Board.Remove(target);
+            AddRecruitLog(RecruitLogType.Play, "Debug opponent remove " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void MoveOpponentMinion(string instanceId, int targetIndex)
+        {
+            var target = State.Opponent.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("Target minion is not on the opponent board.");
+            }
+
+            State.Opponent.Board.Remove(target);
+            State.Opponent.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Opponent.Board.Count), target);
+            AddRecruitLog(RecruitLogType.Play, "Debug opponent reorder " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void UpdateOpponentMinion(string instanceId, MinionPatch patch)
+        {
+            if (string.IsNullOrEmpty(instanceId) || patch == null)
+            {
+                throw new InvalidOperationException("Target minion is not on the opponent board.");
+            }
+
+            if (!UpdateMinionInList(State.Opponent.Board, instanceId, patch))
+            {
+                throw new InvalidOperationException("Target minion is not on the opponent board.");
+            }
         }
 
         private static int NormalizeBoardInsertIndex(int targetIndex, int currentCount)
