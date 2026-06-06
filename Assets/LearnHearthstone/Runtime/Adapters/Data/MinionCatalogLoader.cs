@@ -55,7 +55,7 @@ namespace LearnHearthstone.Adapters.Data
                 InPool = raw.inPool == 1,
                 PoolCount = raw.poolCount,
                 ImagePath = "CardImages/" + raw.cardId,
-                EffectIds = new List<string> { raw.cardId }
+                EffectIds = raw.effectIds == null ? new List<string>() : new List<string>(raw.effectIds)
             };
 
             if (raw.golden != null && !string.IsNullOrEmpty(raw.golden.cardId))
@@ -190,6 +190,7 @@ namespace LearnHearthstone.Adapters.Data
             public string text;
             public int inPool;
             public int poolCount;
+            public List<string> effectIds;
             public RawGolden golden;
         }
 

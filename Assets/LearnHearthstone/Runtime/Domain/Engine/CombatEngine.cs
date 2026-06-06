@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Domain.Models;
@@ -48,8 +49,6 @@ namespace LearnHearthstone.Domain.Engine
 
                 ReplaceByInstanceId(attackers, damagedAttacker);
                 ReplaceByInstanceId(defenders, damagedDefender);
-                player = player.Where(IsAlive).ToList();
-                opponent = opponent.Where(IsAlive).ToList();
 
                 log.Add(new CombatLogEntry
                 {
@@ -60,6 +59,9 @@ namespace LearnHearthstone.Domain.Engine
                     TargetId = defender.InstanceId,
                     Severity = LogSeverity.Normal
                 });
+
+                player = ResolveDeaths(player, log);
+                opponent = ResolveDeaths(opponent, log);
 
                 attackerSide = attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
             }
@@ -79,6 +81,50 @@ namespace LearnHearthstone.Domain.Engine
         private static bool IsAlive(MinionInstance minion)
         {
             return minion.Health > 0;
+        }
+
+        private static List<MinionInstance> ResolveDeaths(IEnumerable<MinionInstance> board, List<CombatLogEntry> log)
+        {
+            var result = new List<MinionInstance>();
+            foreach (var minion in board)
+            {
+                if (minion.Health > 0)
+                {
+                    result.Add(minion);
+                    continue;
+                }
+
+                if (minion.Keywords.Contains(Keyword.Deathrattle))
+                {
+                    log.Add(new CombatLogEntry
+                    {
+                        Seq = log.Count + 1,
+                        Title = "DeathrattleResolved",
+                        Detail = minion.InstanceId + " deathrattle",
+                        ActorId = minion.InstanceId,
+                        Severity = LogSeverity.Normal
+                    });
+                }
+
+                if (minion.Keywords.Contains(Keyword.Reborn))
+                {
+                    var reborn = minion.Clone();
+                    reborn.Health = 1;
+                    reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
+                    reborn.Keywords.Remove(Keyword.Reborn);
+                    result.Add(reborn);
+                    log.Add(new CombatLogEntry
+                    {
+                        Seq = log.Count + 1,
+                        Title = "RebornResolved",
+                        Detail = minion.InstanceId + " reborn",
+                        ActorId = minion.InstanceId,
+                        Severity = LogSeverity.Good
+                    });
+                }
+            }
+
+            return result;
         }
 
         private static MinionInstance ChooseDefender(IList<MinionInstance> defenders, int seed)

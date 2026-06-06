@@ -48,7 +48,9 @@ namespace LearnHearthstone.Domain.Models
         AddKeyword,
         RemoveKeyword,
         ModifyShopGrowth,
-        ModifyGeneratedCardBuff
+        ModifyGeneratedCardBuff,
+        GainGold,
+        SummonToken
     }
 
     public enum MechanicAuraKind
@@ -67,6 +69,8 @@ namespace LearnHearthstone.Domain.Models
         public Keyword Keyword;
         public Tribe Tribe = Tribe.None;
         public string SourceId;
+        public int Gold;
+        public string TokenDefinitionId;
     }
 
     [Serializable]

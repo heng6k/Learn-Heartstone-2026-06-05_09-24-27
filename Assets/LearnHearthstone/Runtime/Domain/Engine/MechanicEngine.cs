@@ -1,3 +1,4 @@
+using System;
 using LearnHearthstone.Domain.Models;
 
 namespace LearnHearthstone.Domain.Engine
@@ -37,6 +38,9 @@ namespace LearnHearthstone.Domain.Engine
 
             switch (action.Type)
             {
+                case MechanicActionType.GainGold:
+                    tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + action.Gold);
+                    break;
                 case MechanicActionType.ModifyShopGrowth:
                     tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier
                     {

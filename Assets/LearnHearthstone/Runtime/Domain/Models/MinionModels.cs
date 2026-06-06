@@ -75,6 +75,7 @@ namespace LearnHearthstone.Domain.Models
         public PoolSource PoolSource;
         public int PoolCopiesHeld;
         public string ImagePath;
+        public List<string> EffectIds = new List<string>();
 
         public MinionInstance Clone()
         {
@@ -105,7 +106,8 @@ namespace LearnHearthstone.Domain.Models
                 CanReturnToPoolAfterAttach = CanReturnToPoolAfterAttach,
                 PoolSource = PoolSource,
                 PoolCopiesHeld = PoolCopiesHeld,
-                ImagePath = ImagePath
+                ImagePath = ImagePath,
+                EffectIds = new List<string>(EffectIds)
             };
         }
     }
@@ -145,7 +147,8 @@ namespace LearnHearthstone.Domain.Models
                 CanReturnToPoolAfterAttach = source == PoolSource.Pool && poolCopiesHeld > 0,
                 PoolSource = source,
                 PoolCopiesHeld = poolCopiesHeld,
-                ImagePath = definition.ImagePath
+                ImagePath = definition.ImagePath,
+                EffectIds = new List<string>(definition.EffectIds)
             };
         }
 
@@ -178,7 +181,8 @@ namespace LearnHearthstone.Domain.Models
                 CanReturnToPoolAfterAttach = false,
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
-                ImagePath = definition.ImagePath
+                ImagePath = definition.ImagePath,
+                EffectIds = new List<string>()
             };
         }
     }

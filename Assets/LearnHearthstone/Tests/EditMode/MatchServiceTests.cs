@@ -76,14 +76,16 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Apply_PlayingTavernSpellDoesNotPutItOnBoardUntilEffectsExist()
+        public void Apply_PlayingTavernSpellDoesNotPutItOnBoard()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             var spell = service.State.Player.Tavern.Shop.Last();
             service.State.Player.Tavern.Hand.Add(spell.Clone());
 
-            Assert.Throws<System.InvalidOperationException>(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
             Assert.IsFalse(service.State.Player.Board.Any(card => card.CardKind == CardKind.TavernSpell));
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
         }
 
         [Test]

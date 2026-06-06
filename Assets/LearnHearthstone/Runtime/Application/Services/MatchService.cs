@@ -22,11 +22,13 @@ namespace LearnHearthstone.Application.Services
 
         private readonly MinionCatalog catalog;
         private readonly SpellCatalog spellCatalog;
+        private readonly MinionEffectCatalog effectCatalog;
 
         private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed)
         {
             this.catalog = catalog;
             this.spellCatalog = spellCatalog;
+            effectCatalog = MinionEffectCatalog.CreateDefault();
             State = CreateMatch(seed);
         }
 
@@ -156,6 +158,7 @@ namespace LearnHearthstone.Application.Services
             tavern.Hand.Add(target);
             tavern.Shop[shopIndex] = null;
             AddRecruitLog(RecruitLogType.Buy, "购买 " + target.Name, before, tavern.Gold);
+            DispatchBoardEvent(MechanicEventType.CardBought);
             ResolvePlayerTriples();
         }
 
@@ -178,7 +181,10 @@ namespace LearnHearthstone.Application.Services
 
             if (target.CardKind == CardKind.TavernSpell)
             {
-                throw new InvalidOperationException("Tavern spell effects are not implemented yet.");
+                tavern.Hand.RemoveAt(handIndex);
+                DispatchBoardEvent(MechanicEventType.TavernSpellCast);
+                AddRecruitLog(RecruitLogType.Play, "施放 " + target.Name, tavern.Gold, tavern.Gold);
+                return;
             }
 
             if (State.Player.Board.Count >= BoardLimit)
@@ -190,6 +196,7 @@ namespace LearnHearthstone.Application.Services
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
             State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
+            DispatchSourceEvent(MechanicEventType.CardPlayed, target);
             AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
             if (target.Golden && !HasGrantedTripleReward(target))
             {
@@ -198,6 +205,29 @@ namespace LearnHearthstone.Application.Services
             }
 
             ResolvePlayerTriples();
+        }
+
+        private void DispatchSourceEvent(MechanicEventType eventType, MinionInstance source)
+        {
+            var dispatcher = new EffectDispatcher(effectCatalog, new SeededRng(State.Seed + State.Round * 1009 + State.Player.Tavern.RecruitLog.Count));
+            dispatcher.Dispatch(new EffectDispatchContext
+            {
+                EventType = eventType,
+                Source = source,
+                Tavern = State.Player.Tavern,
+                FriendlyBoard = State.Player.Board,
+                FriendlyHand = State.Player.Tavern.Hand,
+                FriendlyShop = State.Player.Tavern.Shop
+            });
+        }
+
+        private void DispatchBoardEvent(MechanicEventType eventType)
+        {
+            var snapshot = State.Player.Board.ToList();
+            foreach (var minion in snapshot)
+            {
+                DispatchSourceEvent(eventType, minion);
+            }
         }
 
         private void SellMinion(string instanceId)
@@ -211,6 +241,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
             tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + SellValue);
+            DispatchSourceEvent(MechanicEventType.MinionSold, target);
             State.Player.Board.Remove(target);
             ReleaseMinionToPool(target);
             AddRecruitLog(RecruitLogType.Sell, "出售 " + target.Name, before, tavern.Gold);
@@ -274,6 +305,7 @@ namespace LearnHearthstone.Application.Services
             tavern.Gold -= RerollCost;
             tavern.Shop = drawn.Shop;
             ApplyShopGrowth(tavern.Shop, tavern.Growth.ShopModifiers);
+            DispatchBoardEvent(MechanicEventType.ShopRefreshed);
             tavern.Pool = drawn.Pool;
             tavern.Frozen = false;
             tavern.SearchPlan.GoldSpentOnRerollThisTurn += RerollCost;
@@ -302,6 +334,7 @@ namespace LearnHearthstone.Application.Services
 
         private void NextTurn()
         {
+            DispatchBoardEvent(MechanicEventType.TurnEnded);
             var tavern = State.Player.Tavern;
             var nextRound = State.Round + 1;
             var maxGold = TavernRules.GetMaxGoldForRound(nextRound);
@@ -328,6 +361,7 @@ namespace LearnHearthstone.Application.Services
             State.CombatLog.Clear();
             State.LastResult = null;
             AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, maxGold);
+            DispatchBoardEvent(MechanicEventType.TurnStarted);
         }
 
         private void ChooseDiscover(int optionIndex)

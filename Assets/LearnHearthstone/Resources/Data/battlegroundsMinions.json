@@ -33,7 +33,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "card_bought_buff_self_1_1"
+      ]
     },
     {
       "id": "bgduo_114",
@@ -99,7 +102,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "combat_reborn_self"
+      ]
     },
     {
       "id": "bg28_300",
@@ -130,7 +136,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_summon_token_1"
+      ]
     },
     {
       "id": "bg25_013",
@@ -192,7 +201,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "future_shop_typed_buff_1_1"
+      ]
     },
     {
       "id": "bgs_119",
@@ -256,7 +268,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "card_played_buff_hand_1_1"
+      ]
     },
     {
       "id": "bg24_009",
@@ -323,7 +338,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "battlecry_random_friendly_buff_1_1"
+      ]
     },
     {
       "id": "bg_gvg_085",
@@ -356,7 +374,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "battlecry_add_taunt_self"
+      ]
     },
     {
       "id": "bg29_611",
@@ -389,7 +410,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "summon_token_microbot"
+      ]
     },
     {
       "id": "bg26_135",
@@ -420,7 +444,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "battlecry_self_buff_2_2"
+      ]
     },
     {
       "id": "bg32_236",
@@ -522,7 +549,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_summon_token_1"
+      ]
     },
     {
       "id": "bg20_100",
@@ -586,7 +616,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "minion_sold_gain_gold_1"
+      ]
     },
     {
       "id": "bg32_330",
@@ -710,7 +743,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "turn_ended_self_buff_1_1"
+      ]
     },
     {
       "id": "bg35_814",
@@ -8527,7 +8563,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "tavern_spell_cast_buff_self_1_1"
+      ]
     },
     {
       "id": "bg32_822",
@@ -8562,7 +8601,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "tavern_spell_cast_buff_self_1_1"
+      ]
     },
     {
       "id": "bg28_595",
@@ -8760,7 +8802,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "card_bought_buff_self_1_1"
+      ]
     },
     {
       "id": "bg34_320",
@@ -8824,7 +8869,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_buff_random_friendly_2_2"
+      ]
     },
     {
       "id": "bg26_149",
@@ -8985,7 +9033,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_buff_random_friendly_2_2"
+      ]
     },
     {
       "id": "bg34_145",
@@ -9016,7 +9067,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "effectIds": [
+        "turn_ended_self_buff_1_1"
+      ]
     },
     {
       "id": "bg27_017",
