@@ -22,7 +22,11 @@ namespace LearnHearthstone.Application.Commands
         AddOpponentMinion,
         RemoveOpponentMinion,
         MoveOpponentMinion,
-        UpdateOpponentMinion
+        UpdateOpponentMinion,
+        SaveTestScenario,
+        LoadTestScenario,
+        RunCombatTest,
+        ResetCombatTestSnapshot
     }
 
     public sealed class GameCommand
@@ -67,6 +71,19 @@ namespace LearnHearthstone.Application.Commands
             CardKind = cardKind;
         }
 
+        public GameCommand(GameCommandType type, string scenarioName, CombatTestOptions combatTestOptions)
+        {
+            Type = type;
+            ScenarioName = scenarioName;
+            CombatTestOptions = combatTestOptions;
+        }
+
+        public GameCommand(GameCommandType type, CombatTestOptions combatTestOptions)
+        {
+            Type = type;
+            CombatTestOptions = combatTestOptions;
+        }
+
         public GameCommand(GameCommandType type, bool flag)
         {
             Type = type;
@@ -84,6 +101,8 @@ namespace LearnHearthstone.Application.Commands
         public string InstanceId { get; }
         public string CardId { get; }
         public CardKind CardKind { get; }
+        public string ScenarioName { get; }
+        public CombatTestOptions CombatTestOptions { get; }
         public bool Flag { get; }
         public MinionPatch MinionPatch { get; }
     }

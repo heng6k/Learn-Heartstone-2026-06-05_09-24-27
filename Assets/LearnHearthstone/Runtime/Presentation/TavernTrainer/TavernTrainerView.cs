@@ -130,6 +130,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 return;
             }
 
+            if (activeRightTab == RightInspectorTab.BattleTest)
+            {
+                BuildBattleTestPanel(parent);
+                return;
+            }
+
+            BuildBattleQuickControls(parent);
             BuildBoardPanel(parent, service.State.Opponent.Name, service.State.Opponent.Health, service.State.Opponent.Armor, service.State.Opponent.Board, BoardSide.Opponent, false);
             BuildMinionEditor(parent);
             BuildHints(parent);
@@ -144,6 +151,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             InspectorTabButton(tabs.transform, "Tab-Info", "对局", RightInspectorTab.Info);
             InspectorTabButton(tabs.transform, "Tab-CardAcquisition", "获取", RightInspectorTab.CardAcquisition);
             InspectorTabButton(tabs.transform, "Tab-OpponentCustomization", "对手", RightInspectorTab.OpponentCustomization);
+            InspectorTabButton(tabs.transform, "Tab-BattleTest", "战斗", RightInspectorTab.BattleTest);
         }
 
         private void InspectorTabButton(Transform parent, string name, string text, RightInspectorTab tab)
@@ -197,6 +205,85 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 spell.OriginPoolSource = PoolSource.Debug;
                 yield return spell;
             }
+        }
+
+        private void BuildBattleQuickControls(Transform parent)
+        {
+            var panel = UiFactory.Panel("BattleQuickControls", parent, ColorFromHex(0x202832));
+            UiFactory.SetHeight(panel, 72);
+            UiFactory.Vertical(panel, 8, 6);
+            var header = UiFactory.Label("BattleQuickTitle", panel.transform, "战斗测试", 13, FontStyle.Bold);
+            UiFactory.SetHeight(header.gameObject, 20);
+            var start = UiFactory.Button("StartCombatButton", panel.transform, "开始战斗", () => Apply(new GameCommand(
+                GameCommandType.RunCombatTest,
+                new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
+            UiFactory.SetHeight(start.gameObject, 34);
+        }
+
+        private void BuildBattleTestPanel(Transform parent)
+        {
+            var panel = UiFactory.Panel("BattleTestPanel", parent, ColorFromHex(0x202832));
+            UiFactory.SetFlexible(panel, 1, 1);
+            UiFactory.Vertical(panel, 10, 7);
+            BuildDockHeader(panel.transform, "战斗测试", "种子 " + DefaultCombatSeed());
+
+            var scenarioName = DefaultScenarioName();
+            var scenario = UiFactory.Panel("ScenarioControls", panel.transform, ColorFromHex(0x181E24));
+            UiFactory.SetHeight(scenario, 112);
+            UiFactory.Vertical(scenario, 8, 6);
+            UiFactory.Label("ScenarioNameInput", scenario.transform, "场景：" + scenarioName, 13, FontStyle.Bold);
+            var scenarioButtons = UiFactory.Panel("ScenarioButtons", scenario.transform, Color.clear);
+            UiFactory.SetHeight(scenarioButtons, 34);
+            UiFactory.Horizontal(scenarioButtons, 0, 6);
+            var save = UiFactory.Button("SaveScenarioButton", scenarioButtons.transform, "保存场景", () => Apply(new GameCommand(GameCommandType.SaveTestScenario, scenarioName, new CombatTestOptions())));
+            var load = UiFactory.Button("LoadScenarioButton", scenarioButtons.transform, "加载场景", () => Apply(new GameCommand(GameCommandType.LoadTestScenario, scenarioName, new CombatTestOptions())));
+            UiFactory.SetWidth(save.gameObject, 112);
+            UiFactory.SetWidth(load.gameObject, 112);
+
+            var combat = UiFactory.Panel("CombatTestControls", panel.transform, ColorFromHex(0x181E24));
+            UiFactory.SetHeight(combat, 122);
+            UiFactory.Vertical(combat, 8, 6);
+            UiFactory.Label("CombatSeedInput", combat.transform, "固定种子：" + DefaultCombatSeed(), 13, FontStyle.Bold);
+            var combatButtons = UiFactory.Panel("CombatButtons", combat.transform, Color.clear);
+            UiFactory.SetHeight(combatButtons, 34);
+            UiFactory.Horizontal(combatButtons, 0, 6);
+            var run = UiFactory.Button("RunCombatTestButton", combatButtons.transform, "开始战斗", () => Apply(new GameCommand(
+                GameCommandType.RunCombatTest,
+                new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
+            var reset = UiFactory.Button("ResetCombatSnapshotButton", combatButtons.transform, "重置战前", () => Apply(new GameCommand(GameCommandType.ResetCombatTestSnapshot)));
+            UiFactory.SetWidth(run.gameObject, 112);
+            UiFactory.SetWidth(reset.gameObject, 112);
+
+            var list = UiFactory.Panel("ScenarioList", panel.transform, ColorFromHex(0x181E24));
+            UiFactory.SetHeight(list, 112);
+            UiFactory.Vertical(list, 8, 4);
+            BuildDockHeader(list.transform, "最近场景", service.TestScenarioNames.Count + " 个");
+            foreach (var name in service.TestScenarioNames.Take(3))
+            {
+                LogLine(list.transform, name);
+            }
+
+            var log = UiFactory.Panel("BattleTestLogPreview", panel.transform, ColorFromHex(0x181E24));
+            UiFactory.SetFlexible(log, 1, 1);
+            UiFactory.Vertical(log, 8, 4);
+            var result = service.State.LastResult == null
+                ? "尚未开始战斗"
+                : "结果：" + service.State.LastResult.Winner + "，步数 " + service.State.LastResult.Steps;
+            BuildDockHeader(log.transform, "战斗日志", result);
+            foreach (var entry in service.State.CombatLog.Take(8))
+            {
+                LogLine(log.transform, entry.Seq + ". " + entry.Detail);
+            }
+        }
+
+        private int DefaultCombatSeed()
+        {
+            return service.State.Seed + service.State.Round;
+        }
+
+        private string DefaultScenarioName()
+        {
+            return "round-" + service.State.Round + "-battle-test";
         }
 
         private void BuildOpponentCustomizationPanel(Transform parent)
@@ -1063,7 +1150,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
     {
         Info,
         CardAcquisition,
-        OpponentCustomization
+        OpponentCustomization,
+        BattleTest
     }
 
     internal sealed class DragCardBehaviour : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler

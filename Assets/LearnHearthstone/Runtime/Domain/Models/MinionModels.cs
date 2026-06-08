@@ -182,7 +182,7 @@ namespace LearnHearthstone.Domain.Models
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
                 ImagePath = definition.ImagePath,
-                EffectIds = new List<string>()
+                EffectIds = definition.EffectIds == null ? new List<string>() : new List<string>(definition.EffectIds)
             };
         }
     }

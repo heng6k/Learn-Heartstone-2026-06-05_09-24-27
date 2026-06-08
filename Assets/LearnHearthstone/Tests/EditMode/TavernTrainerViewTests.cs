@@ -130,6 +130,8 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-Info"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-CardAcquisition"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-OpponentCustomization"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "Tab-BattleTest"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "StartCombatButton"));
             }
             finally
             {
@@ -173,6 +175,63 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "MoveOpponentLeftButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "MoveOpponentRightButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RemoveOpponentButton"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_BattleTestTabShowsScenarioAndCombatControls()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "Tab-BattleTest").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "BattleTestPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "ScenarioNameInput"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "SaveScenarioButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "LoadScenarioButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "CombatSeedInput"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "RunCombatTestButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "ResetCombatSnapshotButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "ScenarioList"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_StartCombatButtonRunsBattleFromCurrentBoards()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                service.State.Player.Board.Clear();
+                service.State.Opponent.Board.Clear();
+                var player = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion).Clone();
+                player.InstanceId = "ui-player";
+                player.Owner = BoardSide.Player;
+                var opponent = service.State.Player.Tavern.Shop.Last(card => card.CardKind == CardKind.Minion).Clone();
+                opponent.InstanceId = "ui-opponent";
+                opponent.Owner = BoardSide.Opponent;
+                service.State.Player.Board.Add(player);
+                service.State.Opponent.Board.Add(opponent);
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                FindChild(rootObject.transform, "StartCombatButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(MatchPhase.Result, service.State.Phase);
+                Assert.IsNotNull(service.State.LastResult);
+                Assert.IsTrue(service.State.CombatLog.Count > 0);
             }
             finally
             {

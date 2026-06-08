@@ -23,20 +23,29 @@ namespace LearnHearthstone.Application.Services
         private readonly MinionCatalog catalog;
         private readonly SpellCatalog spellCatalog;
         private readonly MinionEffectCatalog effectCatalog;
+        private readonly ITestScenarioRepository scenarioRepository;
+        private CombatTestSnapshot combatTestSnapshot;
 
-        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed)
+        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed, ITestScenarioRepository scenarioRepository)
         {
             this.catalog = catalog;
             this.spellCatalog = spellCatalog;
+            this.scenarioRepository = scenarioRepository ?? new FileTestScenarioRepository();
             effectCatalog = MinionEffectCatalog.CreateDefault();
             State = CreateMatch(seed);
         }
 
         public MatchState State { get; private set; }
 
-        public static MatchService CreateWithDefaultCatalog(int seed = 12345)
+        public CombatTestSnapshot LastCombatTestSnapshot => combatTestSnapshot;
+
+        public bool HasCombatTestSnapshot => combatTestSnapshot?.BeforeCombat != null;
+
+        public IReadOnlyList<string> TestScenarioNames => scenarioRepository.ListScenarioNames();
+
+        public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null)
         {
-            return new MatchService(MinionCatalogLoader.LoadFromResources(), SpellCatalogLoader.LoadFromResources(), seed);
+            return new MatchService(MinionCatalogLoader.LoadFromResources(), SpellCatalogLoader.LoadFromResources(), seed, scenarios);
         }
 
         public MatchState Apply(GameCommand command)
@@ -93,6 +102,18 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.UpdateOpponentMinion:
                     UpdateOpponentMinion(command.InstanceId, command.MinionPatch);
+                    break;
+                case GameCommandType.SaveTestScenario:
+                    SaveTestScenario(command.ScenarioName);
+                    break;
+                case GameCommandType.LoadTestScenario:
+                    LoadTestScenario(command.ScenarioName);
+                    break;
+                case GameCommandType.RunCombatTest:
+                    RunCombatTest(command.CombatTestOptions);
+                    break;
+                case GameCommandType.ResetCombatTestSnapshot:
+                    ResetCombatTestSnapshot();
                     break;
                 case GameCommandType.DebugAddGold:
                     State.Player.Tavern.Gold = Math.Max(0, State.Player.Tavern.Gold + command.Index);
@@ -197,8 +218,9 @@ namespace LearnHearthstone.Application.Services
             if (target.CardKind == CardKind.TavernSpell)
             {
                 tavern.Hand.RemoveAt(handIndex);
+                var spellResult = TavernSpellEngine.Cast(target, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count));
                 DispatchBoardEvent(MechanicEventType.TavernSpellCast);
-                AddRecruitLog(RecruitLogType.Play, "施放 " + target.Name, tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, "施放 " + target.Name + " - " + spellResult, tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -562,10 +584,84 @@ namespace LearnHearthstone.Application.Services
 
         private void SimulateCombat()
         {
-            var result = CombatEngine.SimulateBasicCombat(State.Player.Board, State.Opponent.Board, State.Seed + State.Round);
+            RunCombatTest(new CombatTestOptions
+            {
+                Seed = State.Seed + State.Round,
+                SafetyLimit = 200
+            });
+        }
+
+        private void SaveTestScenario(string scenarioName)
+        {
+            if (string.IsNullOrWhiteSpace(scenarioName))
+            {
+                throw new InvalidOperationException("Scenario name is required.");
+            }
+
+            var scenario = TestScenarioMapper.Capture(State, scenarioName.Trim());
+            scenarioRepository.Save(scenario);
+            AddRecruitLog(RecruitLogType.Play, "保存测试场景 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void LoadTestScenario(string scenarioName)
+        {
+            if (string.IsNullOrWhiteSpace(scenarioName))
+            {
+                throw new InvalidOperationException("Scenario name is required.");
+            }
+
+            var scenario = scenarioRepository.Load(scenarioName.Trim());
+            TestScenarioMapper.ApplyTo(State, scenario);
+            combatTestSnapshot = null;
+            AddRecruitLog(RecruitLogType.Play, "加载测试场景 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void RunCombatTest(CombatTestOptions options)
+        {
+            var nextOptions = options ?? new CombatTestOptions();
+            if (nextOptions.SafetyLimit <= 0)
+            {
+                nextOptions.SafetyLimit = 200;
+            }
+
+            if (nextOptions.Seed == 0)
+            {
+                nextOptions.Seed = State.Seed + State.Round;
+            }
+
+            if (nextOptions.ResetBeforeRun && combatTestSnapshot?.BeforeCombat != null)
+            {
+                TestScenarioMapper.ApplyTo(State, combatTestSnapshot.BeforeCombat);
+            }
+
+            combatTestSnapshot = new CombatTestSnapshot
+            {
+                BeforeCombat = TestScenarioMapper.Capture(State, "__before_combat__"),
+                Options = new CombatTestOptions
+                {
+                    Seed = nextOptions.Seed,
+                    ResetBeforeRun = nextOptions.ResetBeforeRun,
+                    SafetyLimit = nextOptions.SafetyLimit
+                }
+            };
+
+            var result = CombatEngine.SimulateBasicCombat(State.Player.Board, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit);
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;
+            combatTestSnapshot.Result = result;
+        }
+
+        private void ResetCombatTestSnapshot()
+        {
+            if (combatTestSnapshot?.BeforeCombat == null)
+            {
+                return;
+            }
+
+            TestScenarioMapper.ApplyTo(State, combatTestSnapshot.BeforeCombat);
+            State.CombatLog.Clear();
+            State.LastResult = null;
         }
 
         private void ResolvePlayerTriples()

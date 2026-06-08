@@ -14,6 +14,7 @@ namespace LearnHearthstone.Domain.Engine
             var log = new List<CombatLogEntry>();
             var attackerSide = player.Count >= opponent.Count ? BoardSide.Player : BoardSide.Opponent;
             var steps = 0;
+            AddLog(log, "CombatStarted", "seed " + seed + " player " + player.Count + " opponent " + opponent.Count, null, null, LogSeverity.Normal);
 
             while (player.Any(IsAlive) && opponent.Any(IsAlive) && steps < safetyLimit)
             {
@@ -50,15 +51,7 @@ namespace LearnHearthstone.Domain.Engine
                 ReplaceByInstanceId(attackers, damagedAttacker);
                 ReplaceByInstanceId(defenders, damagedDefender);
 
-                log.Add(new CombatLogEntry
-                {
-                    Seq = steps,
-                    Title = "攻击",
-                    Detail = attacker.InstanceId + " 攻击 " + defender.InstanceId,
-                    ActorId = attacker.InstanceId,
-                    TargetId = defender.InstanceId,
-                    Severity = LogSeverity.Normal
-                });
+                AddLog(log, "攻击", attacker.InstanceId + " 攻击 " + defender.InstanceId, attacker.InstanceId, defender.InstanceId, LogSeverity.Normal);
 
                 player = ResolveDeaths(player, log);
                 opponent = ResolveDeaths(opponent, log);
@@ -67,6 +60,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var winner = player.Count == opponent.Count ? CombatWinner.Draw : player.Count > opponent.Count ? CombatWinner.Player : CombatWinner.Opponent;
+            AddLog(log, "CombatEnded", "winner " + winner + " steps " + steps + " safety " + (steps >= safetyLimit), null, null, LogSeverity.Normal);
             return new CombatOutput
             {
                 Winner = winner,
@@ -96,14 +90,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
                 {
-                    log.Add(new CombatLogEntry
-                    {
-                        Seq = log.Count + 1,
-                        Title = "DeathrattleResolved",
-                        Detail = minion.InstanceId + " deathrattle",
-                        ActorId = minion.InstanceId,
-                        Severity = LogSeverity.Normal
-                    });
+                    AddLog(log, "DeathrattleResolved", minion.InstanceId + " deathrattle", minion.InstanceId, null, LogSeverity.Normal);
                 }
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
@@ -113,18 +100,24 @@ namespace LearnHearthstone.Domain.Engine
                     reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
                     reborn.Keywords.Remove(Keyword.Reborn);
                     result.Add(reborn);
-                    log.Add(new CombatLogEntry
-                    {
-                        Seq = log.Count + 1,
-                        Title = "RebornResolved",
-                        Detail = minion.InstanceId + " reborn",
-                        ActorId = minion.InstanceId,
-                        Severity = LogSeverity.Good
-                    });
+                    AddLog(log, "RebornResolved", minion.InstanceId + " reborn", minion.InstanceId, null, LogSeverity.Good);
                 }
             }
 
             return result;
+        }
+
+        private static void AddLog(List<CombatLogEntry> log, string title, string detail, string actorId, string targetId, LogSeverity severity)
+        {
+            log.Add(new CombatLogEntry
+            {
+                Seq = log.Count + 1,
+                Title = title,
+                Detail = detail,
+                ActorId = actorId,
+                TargetId = targetId,
+                Severity = severity
+            });
         }
 
         private static MinionInstance ChooseDefender(IList<MinionInstance> defenders, int seed)

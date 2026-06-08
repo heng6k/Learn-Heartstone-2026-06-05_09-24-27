@@ -115,7 +115,15 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             var source = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion).Clone();
-            var spell = service.State.Player.Tavern.Shop.Last(card => card.CardKind == CardKind.TavernSpell).Clone();
+            var spell = new MinionInstance
+            {
+                CardKind = CardKind.TavernSpell,
+                InstanceId = "test-spell",
+                DefinitionId = "test-spell",
+                CardId = "TEST_SPELL",
+                Name = "Test Spell",
+                Owner = BoardSide.Player
+            };
             source.InstanceId = "spell-source";
             source.EffectIds = new List<string> { "tavern_spell_cast_buff_self_1_1" };
             service.State.Player.Board.Clear();

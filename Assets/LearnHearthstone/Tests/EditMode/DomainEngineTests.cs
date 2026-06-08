@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
@@ -71,7 +72,7 @@ namespace LearnHearthstone.Tests.EditMode
             var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { other, taunt }, 42, 1);
 
             Assert.AreEqual(1, result.Steps);
-            Assert.AreEqual("o1", result.Log[0].TargetId);
+            Assert.AreEqual("o1", result.Log.First(entry => entry.Title == "攻击").TargetId);
             Assert.IsFalse(result.FinalOpponentBoard.Find(m => m.InstanceId == "o1").Keywords.Contains(Keyword.DivineShield));
         }
 
@@ -103,7 +104,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { stealth, visible }, 5, 1);
 
-            Assert.AreEqual("o2", result.Log[0].TargetId);
+            Assert.AreEqual("o2", result.Log.First(entry => entry.Title == "攻击").TargetId);
         }
 
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
