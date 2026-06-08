@@ -44,7 +44,16 @@ namespace LearnHearthstone.Domain.Engine
                     UpgradeCost = tavern.UpgradeCost,
                     Frozen = tavern.Frozen,
                     NextTurnBonusGold = tavern.NextTurnBonusGold,
-                    NextTavernSpellCostReduction = tavern.NextTavernSpellCostReduction
+                    NextTavernSpellCostReduction = tavern.NextTavernSpellCostReduction,
+                    FreeRefreshes = tavern.FreeRefreshes,
+                    DemonFodderRefreshes = tavern.DemonFodderRefreshes,
+                    TavernSpellBonusAttack = tavern.TavernSpellBonusAttack,
+                    TavernSpellBonusHealth = tavern.TavernSpellBonusHealth,
+                    BeetleAttackBonus = tavern.BeetleAttackBonus,
+                    BeetleHealthBonus = tavern.BeetleHealthBonus,
+                    FutureBallerAttackBonus = tavern.FutureBallerAttackBonus,
+                    FutureBallerHealthBonus = tavern.FutureBallerHealthBonus,
+                    UndeadAttackBonus = tavern.UndeadAttackBonus
                 },
                 Shop = CaptureCards(tavern.Shop),
                 Hand = CaptureCards(tavern.Hand),
@@ -93,6 +102,15 @@ namespace LearnHearthstone.Domain.Engine
             tavern.Frozen = scenario.Tavern?.Frozen ?? tavern.Frozen;
             tavern.NextTurnBonusGold = Math.Max(0, scenario.Tavern?.NextTurnBonusGold ?? tavern.NextTurnBonusGold);
             tavern.NextTavernSpellCostReduction = Math.Max(0, scenario.Tavern?.NextTavernSpellCostReduction ?? tavern.NextTavernSpellCostReduction);
+            tavern.FreeRefreshes = Math.Max(0, scenario.Tavern?.FreeRefreshes ?? tavern.FreeRefreshes);
+            tavern.DemonFodderRefreshes = Math.Max(0, scenario.Tavern?.DemonFodderRefreshes ?? tavern.DemonFodderRefreshes);
+            tavern.TavernSpellBonusAttack = Math.Max(0, scenario.Tavern?.TavernSpellBonusAttack ?? tavern.TavernSpellBonusAttack);
+            tavern.TavernSpellBonusHealth = Math.Max(0, scenario.Tavern?.TavernSpellBonusHealth ?? tavern.TavernSpellBonusHealth);
+            tavern.BeetleAttackBonus = Math.Max(0, scenario.Tavern?.BeetleAttackBonus ?? tavern.BeetleAttackBonus);
+            tavern.BeetleHealthBonus = Math.Max(0, scenario.Tavern?.BeetleHealthBonus ?? tavern.BeetleHealthBonus);
+            tavern.FutureBallerAttackBonus = Math.Max(0, scenario.Tavern?.FutureBallerAttackBonus ?? tavern.FutureBallerAttackBonus);
+            tavern.FutureBallerHealthBonus = Math.Max(0, scenario.Tavern?.FutureBallerHealthBonus ?? tavern.FutureBallerHealthBonus);
+            tavern.UndeadAttackBonus = Math.Max(0, scenario.Tavern?.UndeadAttackBonus ?? tavern.UndeadAttackBonus);
 
             tavern.Shop = RestoreCards(scenario.Shop, BoardSide.Player);
             tavern.Hand = RestoreCards(scenario.Hand, BoardSide.Player);
@@ -163,7 +181,7 @@ namespace LearnHearthstone.Domain.Engine
         {
             var maxHealth = Math.Max(1, card.MaxHealth);
             var health = Math.Max(1, Math.Min(card.Health, maxHealth));
-            if (card.CardKind == CardKind.TavernSpell)
+            if (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell)
             {
                 maxHealth = 0;
                 health = 0;

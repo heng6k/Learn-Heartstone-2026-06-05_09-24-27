@@ -137,6 +137,29 @@ namespace LearnHearthstone.Adapters.Data
                 case "104436":
                     Add(tags, "gain_gold");
                     break;
+                case "104029":
+                    Add(tags, "max_gold_growth");
+                    Add(tags, "economy_spell");
+                    break;
+                case "104446":
+                    Add(tags, "free_refresh");
+                    Add(tags, "refresh_spell");
+                    break;
+                case "104559":
+                    Add(tags, "health_cost");
+                    Add(tags, "gain_gold");
+                    Add(tags, "economy_spell");
+                    break;
+                case "127288":
+                    Add(tags, "discover_spell");
+                    Add(tags, "current_tier_discover");
+                    Add(tags, "hand_lock");
+                    break;
+                case "105664":
+                    Add(tags, "targeted_spell");
+                    Add(tags, "same_tribe_generator");
+                    Add(tags, "card_generator");
+                    break;
                 case "103793":
                     Add(tags, "random_tier_1_minion");
                     break;

@@ -204,6 +204,94 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_TierTwoBattlecriesAndGeneratedSpellsResolve()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG23_002", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG27_002", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.Spell && card.CardId == "SLIMY_SHIELD"));
+
+            var target = service.State.Player.Board.First();
+            var beforeHealth = target.MaxHealth;
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "SLIMY_SHIELD")));
+            Assert.AreEqual(beforeHealth + 1, target.MaxHealth);
+            Assert.IsTrue(target.Keywords.Contains(Keyword.Taunt));
+        }
+
+        [Test]
+        public void Apply_TierTwoSellAndPlayTriggersResolve()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 0;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_049", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board[0].InstanceId));
+            Assert.AreEqual(3, service.State.Player.Tavern.Gold);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_816", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var boardTarget = service.State.Player.Board.First();
+            var attackBefore = boardTarget.Attack;
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board.Last().InstanceId));
+            Assert.AreEqual(attackBefore + 1, boardTarget.Attack);
+            Assert.AreEqual(1, service.State.Player.Tavern.FutureBallerAttackBonus);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_203", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Spell && card.CardId == "BLOOD_GEM"));
+        }
+
+        [Test]
+        public void Apply_TierTwoGlobalAndCombatEffectsResolve()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_004", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_174", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            Assert.AreEqual(29, service.State.Player.Health);
+            Assert.Greater(service.State.Player.Board.Last().MaxHealth, service.State.Player.Board.Last().BaseHealth);
+
+            service.State.Player.Board.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_805", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_800", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var beastAttack = service.State.Player.Board.Last().Attack;
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 8, SafetyLimit = 10 }));
+            Assert.AreEqual(beastAttack + 1, service.State.LastResult.FinalPlayerBoard.Last(card => card.CardId == "BG26_800").Attack);
+        }
+
+        [Test]
+        public void Apply_ForestRoverCombatSummonsBuffedBeetle()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_801", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var rover = service.State.Player.Board[0];
+            service.Apply(new GameCommand(GameCommandType.UpdateMinion, rover.InstanceId, new MinionPatch { Attack = 0, Health = 1, MaxHealth = 1 }));
+            service.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            service.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, service.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 1, MaxHealth = 1 }));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9, SafetyLimit = 10 }));
+
+            var beetle = service.State.LastResult.FinalPlayerBoard.First(card => card.DefinitionId == "beetle");
+            Assert.AreEqual(4, beetle.Attack);
+            Assert.AreEqual(3, beetle.MaxHealth);
+        }
+
+        [Test]
         public void Apply_BuyPlaySellRoundTripChangesGoldAndBoard()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);

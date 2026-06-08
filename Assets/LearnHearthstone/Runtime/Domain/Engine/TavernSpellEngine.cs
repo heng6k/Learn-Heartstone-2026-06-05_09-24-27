@@ -11,29 +11,37 @@ namespace LearnHearthstone.Domain.Engine
         private const int HandLimit = 10;
         private const string BloodGemCardId = "BLOOD_GEM";
         private const string ScarletSurvivorCardId = "BG35_814";
+        private const string SlimyShieldCardId = "SLIMY_SHIELD";
+        private const string LockedTurnsCounter = "locked-turns";
 
         public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng)
         {
-            if (spell == null || spell.CardKind != CardKind.TavernSpell)
+            if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
-                throw new InvalidOperationException("Target card is not a tavern spell.");
+                throw new InvalidOperationException("Target card is not a spell.");
             }
 
             var cardNumber = spell.CardId;
+            var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
             switch (cardNumber)
             {
                 case BloodGemCardId:
-                    Buff(FirstFriendlyBoard(state), 1, 1, "鲜血宝石");
+                    Buff(state, FirstFriendlyBoard(state), 1, 1, "鲜血宝石", applyTavernSpellBonus);
                     return "鲜血宝石：目标随从获得+1/+1";
+                case SlimyShieldCardId:
+                    var shieldTarget = FirstAnyMinion(state);
+                    Buff(state, shieldTarget, 1, 1, "黏黏盾", applyTavernSpellBonus);
+                    AddKeyword(shieldTarget, Keyword.Taunt);
+                    return "黏黏盾：目标随从获得+1/+1和嘲讽";
                 case "100596":
-                    Buff(FirstAnyMinion(state), 4, 0, "尖利箭矢");
+                    Buff(state, FirstAnyMinion(state), 4, 0, "尖利箭矢", applyTavernSpellBonus);
                     return "尖利箭矢：目标随从获得+4攻击力";
                 case "103791":
-                    Buff(FirstAnyMinion(state), 0, 3, "强固");
+                    Buff(state, FirstAnyMinion(state), 0, 3, "强固", applyTavernSpellBonus);
                     AddKeyword(FirstAnyMinion(state), Keyword.Taunt);
                     return "强固：目标随从获得+3生命值和嘲讽";
                 case "105752":
-                    Buff(FirstAnyMinion(state), 2, 2, "香蕉果盘");
+                    Buff(state, FirstAnyMinion(state), 2, 2, "香蕉果盘", applyTavernSpellBonus);
                     return "香蕉果盘：目标随从获得+2/+2";
                 case "103796":
                     AddKeyword(FirstAnyMinion(state), Keyword.DivineShield);
@@ -42,12 +50,12 @@ namespace LearnHearthstone.Domain.Engine
                     SetStats(FirstAnyMinion(state), 20, 20);
                     return "完美形象：目标随从变为20/20";
                 case "104445":
-                    Buff(FirstFriendlyBoard(state), 6, 6, "防御者的仪式");
+                    Buff(state, FirstFriendlyBoard(state), 6, 6, "防御者的仪式", applyTavernSpellBonus);
                     AddKeyword(FirstFriendlyBoard(state), Keyword.Taunt);
                     return "防御者的仪式：友方随从获得+6/+6和嘲讽";
                 case "105667":
                     var pantsTarget = FirstAnyMinion(state);
-                    Buff(pantsTarget, 1, 2, "搞怪裤");
+                    Buff(state, pantsTarget, 1, 2, "搞怪裤", applyTavernSpellBonus);
                     ToggleKeyword(pantsTarget, Keyword.Taunt);
                     return "搞怪裤：目标随从获得+1/+2并切换嘲讽";
                 case "104436":
@@ -56,6 +64,18 @@ namespace LearnHearthstone.Domain.Engine
                 case "104029":
                     state.Player.Tavern.MaxGold += 1;
                     return "钻探原油：铸币上限提高1";
+                case "104446":
+                    state.Player.Tavern.FreeRefreshes += 2;
+                    return "快速浏览：获得2次免费的刷新";
+                case "104559":
+                    GainGold(state.Player.Tavern, 1);
+                    return "拼命发掘：获得1枚铸币";
+                case "127288":
+                    StartLockedCurrentTierDiscover(state, minions, rng, "搜寻时光");
+                    return "搜寻时光：发现当前等级随从，并锁入手牌1个回合";
+                case "105664":
+                    AddSameTribeMinionToHand(state, minions, rng, FirstAnyMinion(state), "主厨甄选");
+                    return "主厨甄选：获取相同类型的另一张随从牌";
                 case "103785":
                     state.Player.Armor = 5;
                     return "护甲储备：护甲变为5";
@@ -69,26 +89,26 @@ namespace LearnHearthstone.Domain.Engine
                     StartDiscover(state, minions, rng, 7, "降圣仪式");
                     return "降圣仪式：发现等级7随从";
                 case "109230":
-                    BuffAll(state.Player.Board, 1, 1, "闪亮的戒指");
+                    BuffAll(state, state.Player.Board, 1, 1, "闪亮的戒指", applyTavernSpellBonus);
                     return "闪亮的戒指：你的随从获得+1/+1";
                 case "109232":
-                    BuffAll(state.Player.Board, 4, 4, "艾泽里特强化");
+                    BuffAll(state, state.Player.Board, 4, 4, "艾泽里特强化", applyTavernSpellBonus);
                     return "艾泽里特强化：你的随从获得+4/+4";
                 case "127506":
-                    BuffAll(state.Player.Board, 3, 2, "黄金狂潮");
-                    BuffAll(state.Player.Board.Where(minion => minion.Golden), 3, 2, "黄金狂潮-金色");
+                    BuffAll(state, state.Player.Board, 3, 2, "黄金狂潮", applyTavernSpellBonus);
+                    BuffAll(state, state.Player.Board.Where(minion => minion.Golden), 3, 2, "黄金狂潮-金色", applyTavernSpellBonus);
                     return "黄金狂潮：你的随从获得+3/+2，金色随从额外获得+3/+2";
                 case "105271":
-                    BuffOneOfEachTribe(state.Player.Board, 2, 2, "乱放的茶具");
+                    BuffOneOfEachTribe(state, state.Player.Board, 2, 2, "乱放的茶具", applyTavernSpellBonus);
                     return "乱放的茶具：每个类型各一个友方随从获得+2/+2";
                 case "104472":
-                    BuffSameTribeAsTarget(state.Player.Board, FirstFriendlyBoard(state), 3, 3, "自然祝福");
+                    BuffSameTribeAsTarget(state, state.Player.Board, FirstFriendlyBoard(state), 3, 3, "自然祝福", applyTavernSpellBonus);
                     return "自然祝福：同类型友方随从获得+3/+3";
                 case "105903":
-                    BuffAll(state.Player.Tavern.Shop.Where(card => card.CardKind == CardKind.Minion), 1, 2, "意外之果");
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 1, 2, "意外之果", applyTavernSpellBonus);
                     return "意外之果：酒馆随从获得+1/+2";
                 case "105276":
-                    BuffAll(state.Player.Tavern.Shop.Where(card => card.CardKind == CardKind.Minion), 2, 2, "富足之杖");
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "富足之杖", applyTavernSpellBonus);
                     return "富足之杖：酒馆随从获得+2/+2";
                 case "104448":
                     MakeGolden(RandomShopMinion(state, rng));
@@ -116,7 +136,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static MinionInstance FirstAnyMinion(MatchState state)
         {
-            return FirstFriendlyBoard(state) ?? state.Player.Tavern.Shop.FirstOrDefault(card => card.CardKind == CardKind.Minion);
+            return FirstFriendlyBoard(state) ?? state.Player.Tavern.Shop.FirstOrDefault(card => card != null && card.CardKind == CardKind.Minion);
         }
 
         private static MinionInstance FirstFriendlyBoard(MatchState state)
@@ -126,15 +146,21 @@ namespace LearnHearthstone.Domain.Engine
 
         private static MinionInstance RandomShopMinion(MatchState state, SeededRng rng)
         {
-            var candidates = state.Player.Tavern.Shop.Where(card => card.CardKind == CardKind.Minion).ToList();
+            var candidates = state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
             return candidates.Count == 0 ? null : rng.Pick(candidates);
         }
 
-        private static void Buff(MinionInstance target, int attack, int health, string sourceId)
+        private static void Buff(MatchState state, MinionInstance target, int attack, int health, string sourceId, bool applyTavernSpellBonus)
         {
             if (target == null)
             {
                 return;
+            }
+
+            if (applyTavernSpellBonus && (attack != 0 || health != 0))
+            {
+                attack += state.Player.Tavern.TavernSpellBonusAttack;
+                health += state.Player.Tavern.TavernSpellBonusHealth;
             }
 
             target.Attack += attack;
@@ -150,15 +176,15 @@ namespace LearnHearthstone.Domain.Engine
             RefreshScarletSurvivor(target);
         }
 
-        private static void BuffAll(IEnumerable<MinionInstance> targets, int attack, int health, string sourceId)
+        private static void BuffAll(MatchState state, IEnumerable<MinionInstance> targets, int attack, int health, string sourceId, bool applyTavernSpellBonus)
         {
             foreach (var target in targets.Where(target => target != null))
             {
-                Buff(target, attack, health, sourceId);
+                Buff(state, target, attack, health, sourceId, applyTavernSpellBonus);
             }
         }
 
-        private static void BuffOneOfEachTribe(IEnumerable<MinionInstance> targets, int attack, int health, string sourceId)
+        private static void BuffOneOfEachTribe(MatchState state, IEnumerable<MinionInstance> targets, int attack, int health, string sourceId, bool applyTavernSpellBonus)
         {
             var seen = new HashSet<Tribe>();
             foreach (var target in targets.Where(target => target != null))
@@ -169,11 +195,11 @@ namespace LearnHearthstone.Domain.Engine
                     continue;
                 }
 
-                Buff(target, attack, health, sourceId);
+                Buff(state, target, attack, health, sourceId, applyTavernSpellBonus);
             }
         }
 
-        private static void BuffSameTribeAsTarget(IEnumerable<MinionInstance> board, MinionInstance target, int attack, int health, string sourceId)
+        private static void BuffSameTribeAsTarget(MatchState state, IEnumerable<MinionInstance> board, MinionInstance target, int attack, int health, string sourceId, bool applyTavernSpellBonus)
         {
             if (target == null)
             {
@@ -181,7 +207,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var tribes = target.Tribes.Where(tribe => tribe != Tribe.None).ToList();
-            BuffAll(board.Where(minion => minion.Tribes.Any(tribes.Contains)), attack, health, sourceId);
+            BuffAll(state, board.Where(minion => minion.Tribes.Any(tribes.Contains)), attack, health, sourceId, applyTavernSpellBonus);
         }
 
         private static void SetStats(MinionInstance target, int attack, int health)
@@ -262,6 +288,54 @@ namespace LearnHearthstone.Domain.Engine
             };
         }
 
+        private static void StartLockedCurrentTierDiscover(MatchState state, MinionCatalog catalog, SeededRng rng, string source)
+        {
+            var exactTier = Math.Max(1, state.Player.Tavern.Tier);
+            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == exactTier).ToList();
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                var option = MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0);
+                option.Counters[LockedTurnsCounter] = 1;
+                AddTag(option, "locked_in_hand");
+                options.Add(option);
+            }
+
+            state.Player.Tavern.Discover = new DiscoverState
+            {
+                Source = source,
+                RewardTier = exactTier,
+                Options = options
+            };
+        }
+
+        private static void AddSameTribeMinionToHand(MatchState state, MinionCatalog catalog, SeededRng rng, MinionInstance target, string source)
+        {
+            if (target == null || state.Player.Tavern.Hand.Count >= HandLimit)
+            {
+                return;
+            }
+
+            var tribes = target.Tribes.Where(tribe => tribe != Tribe.None && tribe != Tribe.All).ToList();
+            if (tribes.Count == 0)
+            {
+                return;
+            }
+
+            var candidates = catalog.All
+                .Where(minion => minion.InPool && minion.CardId != target.CardId && minion.Tribes.Any(tribes.Contains))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            state.Player.Tavern.Hand.Add(MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spell-" + source + "-" + state.Round, false, PoolSource.Copy, 0));
+        }
+
         private static void MakeGolden(MinionInstance target)
         {
             if (target == null || target.Golden)
@@ -313,6 +387,14 @@ namespace LearnHearthstone.Domain.Engine
             for (var count = 0; count < 3 && state.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; count += 1)
             {
                 state.Player.Tavern.Hand.Add(MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spellcraft-" + state.Round + "-" + count));
+            }
+        }
+
+        private static void AddTag(MinionInstance target, string tag)
+        {
+            if (target != null && !target.Tags.Contains(tag))
+            {
+                target.Tags.Add(tag);
             }
         }
     }

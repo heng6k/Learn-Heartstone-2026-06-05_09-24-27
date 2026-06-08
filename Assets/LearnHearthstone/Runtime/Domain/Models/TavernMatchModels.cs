@@ -55,6 +55,15 @@ namespace LearnHearthstone.Domain.Models
         public bool Frozen;
         public int NextTurnBonusGold;
         public int NextTavernSpellCostReduction;
+        public int FreeRefreshes;
+        public int DemonFodderRefreshes;
+        public int TavernSpellBonusAttack;
+        public int TavernSpellBonusHealth;
+        public int BeetleAttackBonus;
+        public int BeetleHealthBonus;
+        public int FutureBallerAttackBonus;
+        public int FutureBallerHealthBonus;
+        public int UndeadAttackBonus;
         public List<MinionInstance> Shop = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();

@@ -263,6 +263,83 @@ namespace LearnHearthstone.Adapters.Data
                 case "BG34_630":
                     Add(tags, "token_summoner");
                     break;
+                case "BG32_237":
+                    Add(tags, "choose_one");
+                    Add(tags, "tavern_spell_power");
+                    Add(tags, "spell_power_growth");
+                    break;
+                case "BG31_816":
+                case "BG31_818":
+                    Add(tags, "sell_trigger");
+                    Add(tags, "board_buff");
+                    Add(tags, "scaling_sell_effect");
+                    break;
+                case "BGS_049":
+                    Add(tags, "sell_economy");
+                    break;
+                case "BG23_002":
+                    Add(tags, "battlecry");
+                    Add(tags, "economy_generator");
+                    break;
+                case "BG32_170":
+                    Add(tags, "generated_spell");
+                    Add(tags, "pointy_arrow_generator");
+                    break;
+                case "BG35_340":
+                    Add(tags, "spell_discount");
+                    break;
+                case "BG35_432":
+                    Add(tags, "blood_gem_generator");
+                    Add(tags, "conditional_keyword_grant");
+                    break;
+                case "BG31_801":
+                    Add(tags, "beetle_global_buff");
+                    Add(tags, "token_summoner");
+                    break;
+                case "BG25_011":
+                    Add(tags, "global_tribe_buff");
+                    Add(tags, "undead_synergy");
+                    break;
+                case "BG27_002":
+                    Add(tags, "generated_spell");
+                    Add(tags, "slimy_shield_generator");
+                    break;
+                case "BG35_150":
+                    Add(tags, "refresh_injection");
+                    Add(tags, "fodder_generator");
+                    break;
+                case "BG20_203":
+                    Add(tags, "quilboar_play_trigger");
+                    Add(tags, "blood_gem_generator");
+                    break;
+                case "BG26_174":
+                    Add(tags, "hero_damage_rewind");
+                    Add(tags, "self_scaling");
+                    break;
+                case "BG24_715":
+                    Add(tags, "discover_on_sell");
+                    Add(tags, "scaling_sell_effect");
+                    break;
+                case "BGS_115":
+                    Add(tags, "generated_minion");
+                    Add(tags, "elemental_generator");
+                    break;
+                case "BG22_202":
+                    Add(tags, "tribe_generator");
+                    Add(tags, "murloc_synergy");
+                    break;
+                case "BG26_805":
+                    Add(tags, "combat_aura");
+                    Add(tags, "beast_synergy");
+                    break;
+                case "BG34_140":
+                case "BG33_241":
+                    Add(tags, "rally");
+                    break;
+                case "BG23_009":
+                    Add(tags, "spellcraft_receiver");
+                    Add(tags, "permanent_spellcraft");
+                    break;
             }
 
             return tags;

@@ -138,5 +138,24 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(source.BaseAttack + 1, service.State.Player.Board[0].Attack);
             Assert.AreEqual(source.BaseHealth + 1, service.State.Player.Board[0].MaxHealth);
         }
+
+        [Test]
+        public void Apply_PlayNormalSpellDoesNotDispatchTavernSpellCastEffects()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var source = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion).Clone();
+            source.InstanceId = "normal-spell-source";
+            source.EffectIds = new List<string> { "tavern_spell_cast_buff_self_1_1" };
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(source);
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
+            Assert.AreEqual(CardKind.Spell, service.State.Player.Tavern.Hand[0].CardKind);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(source.BaseAttack + 1, service.State.Player.Board[0].Attack);
+            Assert.AreEqual(source.BaseHealth + 1, service.State.Player.Board[0].MaxHealth);
+        }
     }
 }

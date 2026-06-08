@@ -11,6 +11,11 @@ namespace LearnHearthstone.Domain.Engine
         private const string HarmlessBoneheadCardId = "BG28_300";
         private const string ManasaberCardId = "BG26_800";
         private const string TwilightHatchlingCardId = "BG34_630";
+        private const string ForestRoverCardId = "BG31_801";
+        private const string GlowgulletWarlordCardId = "BG32_430";
+        private const string ScarletSkullCardId = "BG25_022";
+        private const string BeetleAttackBonusCounter = "beetle-attack-bonus";
+        private const string BeetleHealthBonusCounter = "beetle-health-bonus";
 
         public static CombatOutput SimulateBasicCombat(IEnumerable<MinionInstance> playerBoard, IEnumerable<MinionInstance> opponentBoard, int seed, int safetyLimit = 200)
         {
@@ -135,7 +140,50 @@ namespace LearnHearthstone.Domain.Engine
                         AddToken(board, log, minion, "hatchling", "雏龙", 3, 3, Tribe.Dragon);
                     }
                     break;
+                case ForestRoverCardId:
+                    AddToken(
+                        board,
+                        log,
+                        minion,
+                        "beetle",
+                        "甲虫",
+                        (minion.Golden ? 4 : 2) + GetCounter(minion, BeetleAttackBonusCounter),
+                        (minion.Golden ? 4 : 2) + GetCounter(minion, BeetleHealthBonusCounter),
+                        Tribe.Beast);
+                    break;
+                case GlowgulletWarlordCardId:
+                    AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                    AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                    if (minion.Golden)
+                    {
+                        AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                        AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                    }
+                    break;
+                case ScarletSkullCardId:
+                    BuffFirstFriendly(board.Where(candidate => candidate.Tribes.Contains(Tribe.Undead)), minion.Golden ? 2 : 1, minion.Golden ? 4 : 2, "血色骷髅");
+                    break;
             }
+        }
+
+        private static void BuffFirstFriendly(IEnumerable<MinionInstance> candidates, int attack, int health, string sourceId)
+        {
+            var target = candidates.FirstOrDefault();
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Attack += attack;
+            target.MaxHealth += health;
+            target.Health += health;
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = sourceId,
+                SourceId = sourceId,
+                AttackBonus = attack,
+                HealthBonus = health
+            });
         }
 
         private static void AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
@@ -171,6 +219,11 @@ namespace LearnHearthstone.Domain.Engine
                 PoolCopiesHeld = 0
             });
             AddLog(log, "MinionSummoned", source.InstanceId + " summoned " + name, source.InstanceId, null, LogSeverity.Good);
+        }
+
+        private static int GetCounter(MinionInstance minion, string key)
+        {
+            return minion.Counters != null && minion.Counters.TryGetValue(key, out var value) ? value : 0;
         }
 
         private static void AddLog(List<CombatLogEntry> log, string title, string detail, string actorId, string targetId, LogSeverity severity)
