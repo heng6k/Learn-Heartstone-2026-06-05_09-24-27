@@ -56,8 +56,6 @@ namespace LearnHearthstone.Application.Services
         private const string HastyExcavationCardId = "104559";
         private const string PatientScoutTierCounter = "patient-scout-tier";
         private const string LockedTurnsCounter = "locked-turns";
-        private const string BeetleAttackBonusCounter = "beetle-attack-bonus";
-        private const string BeetleHealthBonusCounter = "beetle-health-bonus";
 
         private readonly MinionCatalog catalog;
         private readonly SpellCatalog spellCatalog;
@@ -799,7 +797,6 @@ namespace LearnHearthstone.Application.Services
                 case ForestRoverCardId:
                     State.Player.Tavern.BeetleAttackBonus += target.Golden ? 4 : 2;
                     State.Player.Tavern.BeetleHealthBonus += target.Golden ? 2 : 1;
-                    StampBeetleSummonBonus(target);
                     break;
                 case NerubianDeathswarmerCardId:
                     State.Player.Tavern.UndeadAttackBonus += target.Golden ? 2 : 1;
@@ -951,11 +948,6 @@ namespace LearnHearthstone.Application.Services
         private List<MinionInstance> CreateCombatStartPlayerBoard()
         {
             var board = State.Player.Board.Select(minion => minion.Clone()).ToList();
-            foreach (var forestRover in board.Where(minion => minion.CardId == ForestRoverCardId))
-            {
-                StampBeetleSummonBonus(forestRover);
-            }
-
             var scouts = State.Player.Tavern.Hand.Where(card => card.CardId == FlightyScoutCardId).ToList();
             foreach (var scout in scouts)
             {
@@ -1140,17 +1132,6 @@ namespace LearnHearthstone.Application.Services
 
             shop.Add(CreateDemonFodderCard("refresh-" + State.Round + "-" + State.Player.Tavern.DemonFodderRefreshes));
             State.Player.Tavern.DemonFodderRefreshes -= 1;
-        }
-
-        private void StampBeetleSummonBonus(MinionInstance source)
-        {
-            if (source == null)
-            {
-                return;
-            }
-
-            source.Counters[BeetleAttackBonusCounter] = State.Player.Tavern.BeetleAttackBonus;
-            source.Counters[BeetleHealthBonusCounter] = State.Player.Tavern.BeetleHealthBonus;
         }
 
         private static void BuffAllMinions(IEnumerable<MinionInstance> minions, int attack, int health, string sourceId)

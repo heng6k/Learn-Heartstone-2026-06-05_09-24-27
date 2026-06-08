@@ -14,8 +14,6 @@ namespace LearnHearthstone.Domain.Engine
         private const string ForestRoverCardId = "BG31_801";
         private const string GlowgulletWarlordCardId = "BG32_430";
         private const string ScarletSkullCardId = "BG25_022";
-        private const string BeetleAttackBonusCounter = "beetle-attack-bonus";
-        private const string BeetleHealthBonusCounter = "beetle-health-bonus";
 
         public static CombatOutput SimulateBasicCombat(IEnumerable<MinionInstance> playerBoard, IEnumerable<MinionInstance> opponentBoard, int seed, int safetyLimit = 200)
         {
@@ -141,15 +139,7 @@ namespace LearnHearthstone.Domain.Engine
                     }
                     break;
                 case ForestRoverCardId:
-                    AddToken(
-                        board,
-                        log,
-                        minion,
-                        "beetle",
-                        "甲虫",
-                        (minion.Golden ? 4 : 2) + GetCounter(minion, BeetleAttackBonusCounter),
-                        (minion.Golden ? 4 : 2) + GetCounter(minion, BeetleHealthBonusCounter),
-                        Tribe.Beast);
+                    AddToken(board, log, minion, "beetle", "甲虫", minion.Golden ? 4 : 2, minion.Golden ? 4 : 2, Tribe.Beast);
                     break;
                 case GlowgulletWarlordCardId:
                     AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
@@ -219,11 +209,6 @@ namespace LearnHearthstone.Domain.Engine
                 PoolCopiesHeld = 0
             });
             AddLog(log, "MinionSummoned", source.InstanceId + " summoned " + name, source.InstanceId, null, LogSeverity.Good);
-        }
-
-        private static int GetCounter(MinionInstance minion, string key)
-        {
-            return minion.Counters != null && minion.Counters.TryGetValue(key, out var value) ? value : 0;
         }
 
         private static void AddLog(List<CombatLogEntry> log, string title, string detail, string actorId, string targetId, LogSeverity severity)

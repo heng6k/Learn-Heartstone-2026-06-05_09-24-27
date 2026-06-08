@@ -1,4 +1,5 @@
 using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Domain.Models;
 using System.Linq;
 using NUnit.Framework;
 
@@ -61,6 +62,15 @@ namespace LearnHearthstone.Tests.EditMode
             var effectMinions = catalog.All.Where(definition => definition.Tags != null && definition.Tags.Any(tag => tag != "minion" && !tag.StartsWith("tier_"))).ToList();
 
             Assert.GreaterOrEqual(effectMinions.Count, 15);
+        }
+
+        [Test]
+        public void MinionCatalog_DoesNotImportDuosPassMechanic()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+
+            Assert.IsFalse(catalog.All.Any(definition => definition.Tags != null && definition.Tags.Contains("duos_pass")));
+            Assert.IsFalse(catalog.All.Any(definition => definition.Keywords != null && definition.Keywords.Contains(Keyword.Pass)));
         }
     }
 }

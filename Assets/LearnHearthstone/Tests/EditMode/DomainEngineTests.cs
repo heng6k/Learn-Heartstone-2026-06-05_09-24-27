@@ -127,6 +127,68 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.Log.Any(entry => entry.Title == "MinionSummoned"));
         }
 
+        [Test]
+        public void CombatEngine_TierTwoDeathrattlesSummonBasicTokensAndBuffUndead()
+        {
+            var forestRover = TestInstance("p-forest", "forest-rover", 0);
+            forestRover.CardId = "BG31_801";
+            forestRover.Attack = 0;
+            forestRover.Health = 1;
+            forestRover.MaxHealth = 1;
+            forestRover.Tribes = new List<Tribe> { Tribe.Beast };
+            forestRover.Keywords.Add(Keyword.Deathrattle);
+            var smallAttacker = TestInstance("o-small", "small-attacker", 0);
+            smallAttacker.Attack = 1;
+            smallAttacker.Health = 1;
+            smallAttacker.MaxHealth = 1;
+
+            var forestResult = CombatEngine.SimulateBasicCombat(new[] { forestRover }, new[] { smallAttacker }, 1, 1);
+            var beetle = forestResult.FinalPlayerBoard.First(card => card.DefinitionId == "beetle");
+            Assert.AreEqual(2, beetle.Attack);
+            Assert.AreEqual(2, beetle.MaxHealth);
+            Assert.IsTrue(beetle.Tribes.Contains(Tribe.Beast));
+
+            var glowgullet = TestInstance("p-glow", "glowgullet", 0);
+            glowgullet.CardId = "BG32_430";
+            glowgullet.Attack = 0;
+            glowgullet.Health = 1;
+            glowgullet.MaxHealth = 1;
+            glowgullet.Tribes = new List<Tribe> { Tribe.Quilboar };
+            glowgullet.Keywords.Add(Keyword.Deathrattle);
+            var glowAttacker = TestInstance("o-glow", "glow-attacker", 0);
+            glowAttacker.Attack = 1;
+            glowAttacker.Health = 1;
+            glowAttacker.MaxHealth = 1;
+
+            var glowResult = CombatEngine.SimulateBasicCombat(new[] { glowgullet }, new[] { glowAttacker }, 1, 1);
+            var quilboars = glowResult.FinalPlayerBoard.Where(card => card.DefinitionId == "quilboar").ToList();
+            Assert.AreEqual(2, quilboars.Count);
+            Assert.IsTrue(quilboars.All(card => card.Attack == 1 && card.MaxHealth == 1 && card.Keywords.Contains(Keyword.Taunt)));
+
+            var undeadTarget = TestInstance("p-undead", "undead-target", 0);
+            undeadTarget.Attack = 0;
+            undeadTarget.Health = 3;
+            undeadTarget.MaxHealth = 3;
+            undeadTarget.Tribes = new List<Tribe> { Tribe.Undead };
+            undeadTarget.Keywords.Add(Keyword.Stealth);
+            var scarletSkull = TestInstance("p-skull", "scarlet-skull", 0);
+            scarletSkull.CardId = "BG25_022";
+            scarletSkull.Attack = 0;
+            scarletSkull.Health = 1;
+            scarletSkull.MaxHealth = 1;
+            scarletSkull.Tribes = new List<Tribe> { Tribe.Undead };
+            scarletSkull.Keywords.Add(Keyword.Deathrattle);
+            var skullAttacker = TestInstance("o-skull", "skull-attacker", 0);
+            skullAttacker.Attack = 1;
+            skullAttacker.Health = 3;
+            skullAttacker.MaxHealth = 3;
+
+            var skullResult = CombatEngine.SimulateBasicCombat(new[] { undeadTarget, scarletSkull }, new[] { skullAttacker }, 1, 2);
+            var buffed = skullResult.FinalPlayerBoard.First(card => card.InstanceId == "p-undead");
+            Assert.AreEqual(undeadTarget.Attack + 1, buffed.Attack);
+            Assert.AreEqual(undeadTarget.MaxHealth + 2, buffed.MaxHealth);
+        }
+
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
         {
             return new MinionDefinition

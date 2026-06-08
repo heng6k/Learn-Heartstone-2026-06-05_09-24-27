@@ -126,6 +126,11 @@ namespace LearnHearthstone.Adapters.Data
 
             foreach (var keyword in raw)
             {
+                if (keyword == "传递")
+                {
+                    continue;
+                }
+
                 var mapped = MapKeyword(keyword);
                 if (!keywords.Contains(mapped))
                 {
@@ -158,7 +163,6 @@ namespace LearnHearthstone.Adapters.Data
                 case "鲜血宝石": return Keyword.BloodGem;
                 case "发现": return Keyword.Discover;
                 case "刷新": return Keyword.Refresh;
-                case "传递": return Keyword.Pass;
                 case "光环": return Keyword.Aura;
                 case "吞食": return Keyword.Devour;
                 case "酒馆法术": return Keyword.TavernSpell;
@@ -187,7 +191,6 @@ namespace LearnHearthstone.Adapters.Data
                         case "战斗开始时": Add(tags, "start_of_combat"); break;
                         case "鲜血宝石": Add(tags, "blood_gem"); break;
                         case "吞食": Add(tags, "devour"); break;
-                        case "传递": Add(tags, "duos_pass"); break;
                     }
                 }
             }
