@@ -142,10 +142,15 @@ namespace LearnHearthstone.Tests.EditMode
             smallAttacker.Health = 1;
             smallAttacker.MaxHealth = 1;
 
-            var forestResult = CombatEngine.SimulateBasicCombat(new[] { forestRover }, new[] { smallAttacker }, 1, 1);
+            var forestResult = CombatEngine.SimulateBasicCombat(
+                new[] { forestRover },
+                new[] { smallAttacker },
+                1,
+                1,
+                new TavernState { BeetleAttackBonus = 2, BeetleHealthBonus = 1 });
             var beetle = forestResult.FinalPlayerBoard.First(card => card.DefinitionId == "beetle");
-            Assert.AreEqual(2, beetle.Attack);
-            Assert.AreEqual(2, beetle.MaxHealth);
+            Assert.AreEqual(4, beetle.Attack);
+            Assert.AreEqual(3, beetle.MaxHealth);
             Assert.IsTrue(beetle.Tribes.Contains(Tribe.Beast));
 
             var glowgullet = TestInstance("p-glow", "glowgullet", 0);
@@ -163,7 +168,8 @@ namespace LearnHearthstone.Tests.EditMode
             var glowResult = CombatEngine.SimulateBasicCombat(new[] { glowgullet }, new[] { glowAttacker }, 1, 1);
             var quilboars = glowResult.FinalPlayerBoard.Where(card => card.DefinitionId == "quilboar").ToList();
             Assert.AreEqual(2, quilboars.Count);
-            Assert.IsTrue(quilboars.All(card => card.Attack == 1 && card.MaxHealth == 1 && card.Keywords.Contains(Keyword.Taunt)));
+            Assert.IsTrue(quilboars.All(card => card.Attack == 2 && card.MaxHealth == 2 && card.Keywords.Contains(Keyword.Taunt)));
+            Assert.IsTrue(quilboars.All(card => card.Enchantments.Any(enchantment => enchantment.SourceId == "鲜血宝石")));
 
             var undeadTarget = TestInstance("p-undead", "undead-target", 0);
             undeadTarget.Attack = 0;

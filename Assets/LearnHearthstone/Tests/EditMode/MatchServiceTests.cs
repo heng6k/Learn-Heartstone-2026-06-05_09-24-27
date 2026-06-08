@@ -274,7 +274,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Apply_ForestRoverCombatSummonsBasicBeetle()
+        public void Apply_ForestRoverCombatSummonsBuffedBeetle()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_801", CardKind.Minion));
@@ -287,8 +287,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9, SafetyLimit = 10 }));
 
             var beetle = service.State.LastResult.FinalPlayerBoard.First(card => card.DefinitionId == "beetle");
-            Assert.AreEqual(2, beetle.Attack);
-            Assert.AreEqual(2, beetle.MaxHealth);
+            Assert.AreEqual(4, beetle.Attack);
+            Assert.AreEqual(3, beetle.MaxHealth);
         }
 
         [Test]

@@ -742,7 +742,7 @@ namespace LearnHearthstone.Application.Services
             };
 
             var playerCombatBoard = CreateCombatStartPlayerBoard();
-            var result = CombatEngine.SimulateBasicCombat(playerCombatBoard, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit);
+            var result = CombatEngine.SimulateBasicCombat(playerCombatBoard, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit, State.Player.Tavern);
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;

@@ -15,7 +15,13 @@ namespace LearnHearthstone.Domain.Engine
         private const string GlowgulletWarlordCardId = "BG32_430";
         private const string ScarletSkullCardId = "BG25_022";
 
-        public static CombatOutput SimulateBasicCombat(IEnumerable<MinionInstance> playerBoard, IEnumerable<MinionInstance> opponentBoard, int seed, int safetyLimit = 200)
+        public static CombatOutput SimulateBasicCombat(
+            IEnumerable<MinionInstance> playerBoard,
+            IEnumerable<MinionInstance> opponentBoard,
+            int seed,
+            int safetyLimit = 200,
+            TavernState playerTavern = null,
+            TavernState opponentTavern = null)
         {
             var player = playerBoard.Select(minion => minion.Clone()).Where(IsAlive).ToList();
             var opponent = opponentBoard.Select(minion => minion.Clone()).Where(IsAlive).ToList();
@@ -61,8 +67,8 @@ namespace LearnHearthstone.Domain.Engine
 
                 AddLog(log, "攻击", attacker.InstanceId + " 攻击 " + defender.InstanceId, attacker.InstanceId, defender.InstanceId, LogSeverity.Normal);
 
-                player = ResolveDeaths(player, log);
-                opponent = ResolveDeaths(opponent, log);
+                player = ResolveDeaths(player, log, playerTavern);
+                opponent = ResolveDeaths(opponent, log, opponentTavern);
 
                 attackerSide = attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
             }
@@ -85,7 +91,7 @@ namespace LearnHearthstone.Domain.Engine
             return minion.Health > 0;
         }
 
-        private static List<MinionInstance> ResolveDeaths(IEnumerable<MinionInstance> board, List<CombatLogEntry> log)
+        private static List<MinionInstance> ResolveDeaths(IEnumerable<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern)
         {
             var result = new List<MinionInstance>();
             foreach (var minion in board)
@@ -99,7 +105,7 @@ namespace LearnHearthstone.Domain.Engine
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
                 {
                     AddLog(log, "DeathrattleResolved", minion.InstanceId + " deathrattle", minion.InstanceId, null, LogSeverity.Normal);
-                    ResolveDeathrattleSummons(minion, result, log);
+                    ResolveDeathrattleSummons(minion, result, log, tavern);
                 }
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
@@ -116,7 +122,7 @@ namespace LearnHearthstone.Domain.Engine
             return result;
         }
 
-        private static void ResolveDeathrattleSummons(MinionInstance minion, List<MinionInstance> board, List<CombatLogEntry> log)
+        private static void ResolveDeathrattleSummons(MinionInstance minion, List<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern)
         {
             switch (minion.CardId)
             {
@@ -139,15 +145,23 @@ namespace LearnHearthstone.Domain.Engine
                     }
                     break;
                 case ForestRoverCardId:
-                    AddToken(board, log, minion, "beetle", "甲虫", minion.Golden ? 4 : 2, minion.Golden ? 4 : 2, Tribe.Beast);
+                    AddToken(
+                        board,
+                        log,
+                        minion,
+                        "beetle",
+                        "甲虫",
+                        (minion.Golden ? 4 : 2) + (tavern?.BeetleAttackBonus ?? 0),
+                        (minion.Golden ? 4 : 2) + (tavern?.BeetleHealthBonus ?? 0),
+                        Tribe.Beast);
                     break;
                 case GlowgulletWarlordCardId:
-                    AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
-                    AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                    ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
+                    ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
                     if (minion.Golden)
                     {
-                        AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
-                        AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+                        ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
+                        ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
                     }
                     break;
                 case ScarletSkullCardId:
@@ -176,11 +190,11 @@ namespace LearnHearthstone.Domain.Engine
             });
         }
 
-        private static void AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
+        private static MinionInstance AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
         {
             if (board.Count >= 7)
             {
-                return;
+                return null;
             }
 
             var keywords = new List<Keyword>();
@@ -189,7 +203,7 @@ namespace LearnHearthstone.Domain.Engine
                 keywords.Add(keyword.Value);
             }
 
-            board.Add(new MinionInstance
+            var token = new MinionInstance
             {
                 CardKind = CardKind.Minion,
                 InstanceId = "token-" + source.InstanceId + "-" + tokenId + "-" + board.Count,
@@ -207,8 +221,29 @@ namespace LearnHearthstone.Domain.Engine
                 Counters = new Dictionary<string, int>(),
                 PoolSource = PoolSource.Summon,
                 PoolCopiesHeld = 0
-            });
+            };
+            board.Add(token);
             AddLog(log, "MinionSummoned", source.InstanceId + " summoned " + name, source.InstanceId, null, LogSeverity.Good);
+            return token;
+        }
+
+        private static void ApplyBloodGem(MinionInstance target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Attack += 1;
+            target.MaxHealth += 1;
+            target.Health += 1;
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = "鲜血宝石",
+                SourceId = "鲜血宝石",
+                AttackBonus = 1,
+                HealthBonus = 1
+            });
         }
 
         private static void AddLog(List<CombatLogEntry> log, string title, string detail, string actorId, string targetId, LogSeverity severity)
