@@ -27,6 +27,8 @@ namespace LearnHearthstone.Domain.Engine
             var opponent = opponentBoard.Select(minion => minion.Clone()).Where(IsAlive).ToList();
             var log = new List<CombatLogEntry>();
             var attackerSide = player.Count >= opponent.Count ? BoardSide.Player : BoardSide.Opponent;
+            var playerAttackIndex = 0;
+            var opponentAttackIndex = 0;
             var steps = 0;
             AddLog(log, "CombatStarted", "seed " + seed + " player " + player.Count + " opponent " + opponent.Count, null, null, LogSeverity.Normal);
 
@@ -35,12 +37,13 @@ namespace LearnHearthstone.Domain.Engine
                 steps += 1;
                 var attackers = attackerSide == BoardSide.Player ? player : opponent;
                 var defenders = attackerSide == BoardSide.Player ? opponent : player;
-                var attacker = attackers.FirstOrDefault(IsAlive);
-                if (attacker == null)
+                var attackerIndex = FindNextAttackerIndex(attackers, attackerSide == BoardSide.Player ? playerAttackIndex : opponentAttackIndex);
+                if (attackerIndex < 0)
                 {
                     break;
                 }
 
+                var attacker = attackers[attackerIndex];
                 var defender = ChooseDefender(defenders.Where(IsAlive).ToList(), seed + steps);
                 var attackerVenomous = attacker.Keywords.Contains(Keyword.Venomous);
                 var defenderVenomous = defender.Keywords.Contains(Keyword.Venomous);
@@ -67,8 +70,19 @@ namespace LearnHearthstone.Domain.Engine
 
                 AddLog(log, "攻击", attacker.InstanceId + " 攻击 " + defender.InstanceId, attacker.InstanceId, defender.InstanceId, LogSeverity.Normal);
 
-                player = ResolveDeaths(player, log, playerTavern);
-                opponent = ResolveDeaths(opponent, log, opponentTavern);
+                ResolveDeaths(player, log, playerTavern);
+                ResolveDeaths(opponent, log, opponentTavern);
+
+                if (attackerSide == BoardSide.Player)
+                {
+                    playerAttackIndex = NormalizeAttackIndex(player, attackerIndex + 1);
+                    opponentAttackIndex = NormalizeAttackIndex(opponent, opponentAttackIndex);
+                }
+                else
+                {
+                    opponentAttackIndex = NormalizeAttackIndex(opponent, attackerIndex + 1);
+                    playerAttackIndex = NormalizeAttackIndex(player, playerAttackIndex);
+                }
 
                 attackerSide = attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
             }
@@ -91,21 +105,24 @@ namespace LearnHearthstone.Domain.Engine
             return minion.Health > 0;
         }
 
-        private static List<MinionInstance> ResolveDeaths(IEnumerable<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern)
+        private static void ResolveDeaths(List<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern)
         {
-            var result = new List<MinionInstance>();
-            foreach (var minion in board)
+            var index = 0;
+            while (index < board.Count)
             {
+                var minion = board[index];
                 if (minion.Health > 0)
                 {
-                    result.Add(minion);
+                    index += 1;
                     continue;
                 }
 
+                board.RemoveAt(index);
+                var inserted = 0;
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
                 {
                     AddLog(log, "DeathrattleResolved", minion.InstanceId + " deathrattle", minion.InstanceId, null, LogSeverity.Normal);
-                    ResolveDeathrattleSummons(minion, result, log, tavern);
+                    inserted += ResolveDeathrattleSummons(minion, board, log, tavern, index);
                 }
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
@@ -114,60 +131,65 @@ namespace LearnHearthstone.Domain.Engine
                     reborn.Health = 1;
                     reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
                     reborn.Keywords.Remove(Keyword.Reborn);
-                    result.Add(reborn);
+                    board.Insert(Math.Min(index + inserted, board.Count), reborn);
+                    inserted += 1;
                     AddLog(log, "RebornResolved", minion.InstanceId + " reborn", minion.InstanceId, null, LogSeverity.Good);
                 }
-            }
 
-            return result;
+                index += inserted;
+            }
         }
 
-        private static void ResolveDeathrattleSummons(MinionInstance minion, List<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern)
+        private static int ResolveDeathrattleSummons(MinionInstance minion, List<MinionInstance> board, List<CombatLogEntry> log, TavernState tavern, int insertIndex)
         {
+            var inserted = 0;
             switch (minion.CardId)
             {
                 case CordPullerCardId:
-                    AddToken(board, log, minion, "microbot", "微型机器人", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Mech);
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "microbot", "微型机器人", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Mech) == null ? 0 : 1;
                     break;
                 case HarmlessBoneheadCardId:
-                    AddToken(board, log, minion, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
-                    AddToken(board, log, minion, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead) == null ? 0 : 1;
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead) == null ? 0 : 1;
                     break;
                 case ManasaberCardId:
-                    AddToken(board, log, minion, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
-                    AddToken(board, log, minion, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt) == null ? 0 : 1;
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt) == null ? 0 : 1;
                     break;
                 case TwilightHatchlingCardId:
-                    AddToken(board, log, minion, "hatchling", "雏龙", 3, 3, Tribe.Dragon);
+                    inserted += AddToken(board, log, minion, insertIndex + inserted, "hatchling", "雏龙", 3, 3, Tribe.Dragon) == null ? 0 : 1;
                     if (minion.Golden)
                     {
-                        AddToken(board, log, minion, "hatchling", "雏龙", 3, 3, Tribe.Dragon);
+                        inserted += AddToken(board, log, minion, insertIndex + inserted, "hatchling", "雏龙", 3, 3, Tribe.Dragon) == null ? 0 : 1;
                     }
                     break;
                 case ForestRoverCardId:
-                    AddToken(
+                    inserted += AddToken(
                         board,
                         log,
                         minion,
+                        insertIndex + inserted,
                         "beetle",
                         "甲虫",
                         (minion.Golden ? 4 : 2) + (tavern?.BeetleAttackBonus ?? 0),
                         (minion.Golden ? 4 : 2) + (tavern?.BeetleHealthBonus ?? 0),
-                        Tribe.Beast);
+                        Tribe.Beast) == null ? 0 : 1;
                     break;
                 case GlowgulletWarlordCardId:
-                    ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
-                    ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
+                    inserted += AddBloodGemToken(board, log, minion, insertIndex + inserted);
+                    inserted += AddBloodGemToken(board, log, minion, insertIndex + inserted);
                     if (minion.Golden)
                     {
-                        ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
-                        ApplyBloodGem(AddToken(board, log, minion, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt));
+                        inserted += AddBloodGemToken(board, log, minion, insertIndex + inserted);
+                        inserted += AddBloodGemToken(board, log, minion, insertIndex + inserted);
                     }
                     break;
                 case ScarletSkullCardId:
                     BuffFirstFriendly(board.Where(candidate => candidate.Tribes.Contains(Tribe.Undead)), minion.Golden ? 2 : 1, minion.Golden ? 4 : 2, "血色骷髅");
                     break;
             }
+
+            return inserted;
         }
 
         private static void BuffFirstFriendly(IEnumerable<MinionInstance> candidates, int attack, int health, string sourceId)
@@ -190,7 +212,14 @@ namespace LearnHearthstone.Domain.Engine
             });
         }
 
-        private static MinionInstance AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
+        private static int AddBloodGemToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, int insertIndex)
+        {
+            var token = AddToken(board, log, source, insertIndex, "quilboar", "野猪人", 1, 1, Tribe.Quilboar, Keyword.Taunt);
+            ApplyBloodGem(token);
+            return token == null ? 0 : 1;
+        }
+
+        private static MinionInstance AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, int insertIndex, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
         {
             if (board.Count >= 7)
             {
@@ -222,7 +251,7 @@ namespace LearnHearthstone.Domain.Engine
                 PoolSource = PoolSource.Summon,
                 PoolCopiesHeld = 0
             };
-            board.Add(token);
+            board.Insert(Math.Min(Math.Max(0, insertIndex), board.Count), token);
             AddLog(log, "MinionSummoned", source.InstanceId + " summoned " + name, source.InstanceId, null, LogSeverity.Good);
             return token;
         }
@@ -257,6 +286,38 @@ namespace LearnHearthstone.Domain.Engine
                 TargetId = targetId,
                 Severity = severity
             });
+        }
+
+        private static int FindNextAttackerIndex(IList<MinionInstance> board, int startIndex)
+        {
+            if (board.Count == 0)
+            {
+                return -1;
+            }
+
+            var normalized = NormalizeAttackIndex(board, startIndex);
+            for (var offset = 0; offset < board.Count; offset += 1)
+            {
+                var index = (normalized + offset) % board.Count;
+                var candidate = board[index];
+                if (candidate != null && IsAlive(candidate) && candidate.CanAttack)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        private static int NormalizeAttackIndex(IList<MinionInstance> board, int index)
+        {
+            if (board.Count == 0)
+            {
+                return 0;
+            }
+
+            var normalized = index % board.Count;
+            return normalized < 0 ? normalized + board.Count : normalized;
         }
 
         private static MinionInstance ChooseDefender(IList<MinionInstance> defenders, int seed)

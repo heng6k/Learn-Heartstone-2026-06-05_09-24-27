@@ -108,6 +108,29 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void CombatEngine_RotatesAttackersInsteadOfAlwaysUsingFirstMinion()
+        {
+            var first = TestInstance("p1", "first", 0);
+            first.Attack = 1;
+            first.Health = 10;
+            first.MaxHealth = 10;
+            var second = TestInstance("p2", "second", 0);
+            second.Attack = 1;
+            second.Health = 10;
+            second.MaxHealth = 10;
+            var defender = TestInstance("o1", "defender", 0);
+            defender.Attack = 0;
+            defender.Health = 10;
+            defender.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { first, second }, new[] { defender }, 1, 3);
+            var playerAttacks = result.Log.Where(entry => entry.Title == "攻击" && entry.ActorId.StartsWith("p")).ToList();
+
+            Assert.AreEqual("p1", playerAttacks[0].ActorId);
+            Assert.AreEqual("p2", playerAttacks[1].ActorId);
+        }
+
+        [Test]
         public void CombatEngine_TierOneDeathrattlesSummonTokens()
         {
             var manasaber = TestInstance("p1", "manasaber", 0);
@@ -125,6 +148,30 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(2, result.FinalPlayerBoard.Count(card => card.CardId == "CUBLING"));
             Assert.IsTrue(result.FinalPlayerBoard.Where(card => card.CardId == "CUBLING").All(card => card.Keywords.Contains(Keyword.Taunt)));
             Assert.IsTrue(result.Log.Any(entry => entry.Title == "MinionSummoned"));
+        }
+
+        [Test]
+        public void CombatEngine_DeathrattleTokensUseDeadMinionsBoardPosition()
+        {
+            var rover = TestInstance("p-rover", "forest-rover", 0);
+            rover.CardId = "BG31_801";
+            rover.Attack = 0;
+            rover.Health = 1;
+            rover.MaxHealth = 1;
+            rover.Tribes = new List<Tribe> { Tribe.Beast };
+            rover.Keywords.Add(Keyword.Deathrattle);
+            var right = TestInstance("p-right", "right", 0);
+            right.Health = 10;
+            right.MaxHealth = 10;
+            var attacker = TestInstance("o1", "attacker", 0);
+            attacker.Attack = 1;
+            attacker.Health = 1;
+            attacker.MaxHealth = 1;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { rover, right }, new[] { attacker }, 1, 1);
+
+            Assert.AreEqual("beetle", result.FinalPlayerBoard[0].DefinitionId);
+            Assert.AreEqual("p-right", result.FinalPlayerBoard[1].InstanceId);
         }
 
         [Test]
