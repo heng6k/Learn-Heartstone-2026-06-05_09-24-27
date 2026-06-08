@@ -62,8 +62,11 @@ namespace LearnHearthstone.Application.Services
         private const string OldSoulCardId = "BG34_231";
         private const string ReefRifferCardId = "BG26_501";
         private const string SurfNSurfCardId = "BG27_004";
+        private const string LavaLurkerCardId = "BG23_009";
         private const string ReefRifferSpellCardId = "REEF_RIFFER_SPELL";
         private const string SurfNSurfSpellCardId = "SURF_N_SURF_SPELL";
+        private const string TemporarySpellcraftSourceId = "Temporary Spellcraft";
+        private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
         private const string GlobalEternalKnightSourceId = "Eternal Knight";
         private const string GlobalAutomatonSourceId = "Ancestral Automaton";
         private const string PatientScoutTierCounter = "patient-scout-tier";
@@ -327,6 +330,11 @@ namespace LearnHearthstone.Application.Services
             if (target.CardId == EternalKnightCardId)
             {
                 ApplyEternalKnightBonuses();
+            }
+
+            if (target.CardId == LavaLurkerCardId)
+            {
+                ResetPermanentSpellcraftCounter(target);
             }
 
             ResolveTierOneBattlecry(target);
@@ -612,11 +620,65 @@ namespace LearnHearthstone.Application.Services
             tavern.SearchPlan.HitsThisTurn.Clear();
             TickHandLocks();
             TickPatientScouts();
+            ClearTemporarySpellcraftEffects();
+            ResetPermanentSpellcraftCounters();
             State.CombatLog.Clear();
             State.LastResult = null;
             AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, tavern.Gold);
             AddSpellcraftFromBoard();
             DispatchBoardEvent(MechanicEventType.TurnStarted);
+        }
+
+        private void ClearTemporarySpellcraftEffects()
+        {
+            foreach (var card in State.Player.Board.Concat(State.Player.Tavern.Hand).Concat(State.Player.Tavern.Shop.Where(card => card != null)))
+            {
+                ClearTemporarySpellcraftEffects(card);
+            }
+        }
+
+        private static void ClearTemporarySpellcraftEffects(MinionInstance card)
+        {
+            if (card == null)
+            {
+                return;
+            }
+
+            var temporaryEnchantments = card.Enchantments.Where(enchantment => enchantment.SourceId == TemporarySpellcraftSourceId).ToList();
+            foreach (var enchantment in temporaryEnchantments)
+            {
+                card.Attack -= enchantment.AttackBonus;
+                card.MaxHealth = Math.Max(1, card.MaxHealth - enchantment.HealthBonus);
+                card.Health = Math.Min(card.Health, card.MaxHealth);
+                card.Enchantments.Remove(enchantment);
+            }
+
+            if (!card.Tags.Contains("temporary_spellcraft"))
+            {
+                return;
+            }
+
+            card.Tags.Remove("temporary_spellcraft");
+            card.Tags.Remove("surf_n_surf_crab");
+            card.Counters.Remove("surf_crab_attack");
+            card.Counters.Remove("surf_crab_health");
+            if (card.Tags.Remove("temporary_spellcraft_added_deathrattle"))
+            {
+                card.Keywords.Remove(Keyword.Deathrattle);
+            }
+        }
+
+        private void ResetPermanentSpellcraftCounters()
+        {
+            foreach (var lavaLurker in State.Player.Board.Where(card => card.CardId == LavaLurkerCardId))
+            {
+                ResetPermanentSpellcraftCounter(lavaLurker);
+            }
+        }
+
+        private static void ResetPermanentSpellcraftCounter(MinionInstance lavaLurker)
+        {
+            lavaLurker.Counters[PermanentSpellcraftCounter] = lavaLurker.Golden ? 2 : 1;
         }
 
         private void AddSpellcraftFromBoard()

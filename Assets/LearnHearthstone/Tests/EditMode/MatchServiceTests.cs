@@ -429,6 +429,24 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(beforeAttack + 2, target.Attack);
             Assert.AreEqual(beforeHealth + 2, target.MaxHealth);
+            reef.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.AreEqual(beforeAttack, target.Attack);
+            Assert.AreEqual(beforeHealth, target.MaxHealth);
+
+            var lava = MatchService.CreateWithDefaultCatalog(12345);
+            lava.State.Player.Tavern.Tier = 2;
+            lava.State.Player.Board.Clear();
+            lava.State.Player.Tavern.Hand.Clear();
+            lava.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG23_009", CardKind.Minion));
+            lava.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var lavaTarget = lava.State.Player.Board[0];
+            var lavaBeforeAttack = lavaTarget.Attack;
+            var lavaBeforeHealth = lavaTarget.MaxHealth;
+            lava.Apply(new GameCommand(GameCommandType.AddCardToHand, "REEF_RIFFER_SPELL", CardKind.Spell));
+            lava.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            lava.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.AreEqual(lavaBeforeAttack + 2, lavaTarget.Attack);
+            Assert.AreEqual(lavaBeforeHealth + 2, lavaTarget.MaxHealth);
 
             var surf = MatchService.CreateWithDefaultCatalog(12345);
             surf.State.Player.Board.Clear();
@@ -450,6 +468,8 @@ namespace LearnHearthstone.Tests.EditMode
             var crab = surf.State.LastResult.FinalPlayerBoard.First(card => card.DefinitionId == "crab");
             Assert.AreEqual(3, crab.Attack);
             Assert.AreEqual(2, crab.MaxHealth);
+            surf.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.IsFalse(surf.State.Player.Board[0].Tags.Contains("surf_n_surf_crab"));
         }
 
         [Test]

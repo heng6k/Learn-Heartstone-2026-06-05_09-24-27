@@ -15,6 +15,10 @@ namespace LearnHearthstone.Domain.Engine
         private const string SlimyShieldCardId = "SLIMY_SHIELD";
         private const string ReefRifferSpellCardId = "REEF_RIFFER_SPELL";
         private const string SurfNSurfSpellCardId = "SURF_N_SURF_SPELL";
+        private const string LavaLurkerCardId = "BG23_009";
+        private const string TemporarySpellcraftSourceId = "Temporary Spellcraft";
+        private const string PermanentSpellcraftSourceId = "Permanent Spellcraft";
+        private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
         private const string LockedTurnsCounter = "locked-turns";
 
         public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng)
@@ -43,16 +47,24 @@ namespace LearnHearthstone.Domain.Engine
                 case ReefRifferSpellCardId:
                     var reefMultiplier = spell.Counters != null && spell.Counters.TryGetValue("spellcraft_multiplier", out var storedMultiplier) ? Math.Max(1, storedMultiplier) : 1;
                     var reefAmount = Math.Max(1, state.Player.Tavern.Tier) * reefMultiplier;
-                    Buff(state, FirstAnyMinion(state), reefAmount, reefAmount, "Reef Riffer Spellcraft", false);
+                    var reefTarget = FirstAnyMinion(state);
+                    Buff(state, reefTarget, reefAmount, reefAmount, ConsumePermanentSpellcraft(reefTarget) ? PermanentSpellcraftSourceId : TemporarySpellcraftSourceId, false);
                     return "Reef Riffer Spellcraft: target gains +" + reefAmount + "/+" + reefAmount;
                 case SurfNSurfSpellCardId:
                     var surfTarget = FirstAnyMinion(state);
+                    var permanentSurf = ConsumePermanentSpellcraft(surfTarget);
+                    var hadDeathrattle = surfTarget != null && surfTarget.Keywords.Contains(Keyword.Deathrattle);
                     AddKeyword(surfTarget, Keyword.Deathrattle);
                     AddTag(surfTarget, "surf_n_surf_crab");
                     if (surfTarget != null)
                     {
                         surfTarget.Counters["surf_crab_attack"] = spell.Counters != null && spell.Counters.TryGetValue("crab_attack", out var crabAttack) ? crabAttack : 3;
                         surfTarget.Counters["surf_crab_health"] = spell.Counters != null && spell.Counters.TryGetValue("crab_health", out var crabHealth) ? crabHealth : 2;
+                        AddTag(surfTarget, permanentSurf ? "permanent_spellcraft" : "temporary_spellcraft");
+                        if (!hadDeathrattle && !permanentSurf)
+                        {
+                            AddTag(surfTarget, "temporary_spellcraft_added_deathrattle");
+                        }
                     }
 
                     return "Surf n' Surf Spellcraft: target gains a Crab Deathrattle";
@@ -424,6 +436,24 @@ namespace LearnHearthstone.Domain.Engine
             {
                 target.Tags.Add(tag);
             }
+        }
+
+        private static bool ConsumePermanentSpellcraft(MinionInstance target)
+        {
+            if (target == null || target.CardId != LavaLurkerCardId)
+            {
+                return false;
+            }
+
+            target.Counters.TryGetValue(PermanentSpellcraftCounter, out var left);
+            if (left <= 0)
+            {
+                return false;
+            }
+
+            target.Counters[PermanentSpellcraftCounter] = left - 1;
+            AddTag(target, "permanent_spellcraft_receiver");
+            return true;
         }
     }
 }
