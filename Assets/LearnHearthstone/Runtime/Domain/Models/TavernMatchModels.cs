@@ -64,6 +64,9 @@ namespace LearnHearthstone.Domain.Models
         public int FutureBallerAttackBonus;
         public int FutureBallerHealthBonus;
         public int UndeadAttackBonus;
+        public int EternalKnightDeaths;
+        public int AncestralAutomatonSummons;
+        public int FriendlyMinionDeathsThisGame;
         public List<MinionInstance> Shop = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();

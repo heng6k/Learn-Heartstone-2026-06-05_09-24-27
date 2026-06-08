@@ -53,7 +53,10 @@ namespace LearnHearthstone.Domain.Engine
                     BeetleHealthBonus = tavern.BeetleHealthBonus,
                     FutureBallerAttackBonus = tavern.FutureBallerAttackBonus,
                     FutureBallerHealthBonus = tavern.FutureBallerHealthBonus,
-                    UndeadAttackBonus = tavern.UndeadAttackBonus
+                    UndeadAttackBonus = tavern.UndeadAttackBonus,
+                    EternalKnightDeaths = tavern.EternalKnightDeaths,
+                    AncestralAutomatonSummons = tavern.AncestralAutomatonSummons,
+                    FriendlyMinionDeathsThisGame = tavern.FriendlyMinionDeathsThisGame
                 },
                 Shop = CaptureCards(tavern.Shop),
                 Hand = CaptureCards(tavern.Hand),
@@ -111,6 +114,9 @@ namespace LearnHearthstone.Domain.Engine
             tavern.FutureBallerAttackBonus = Math.Max(0, scenario.Tavern?.FutureBallerAttackBonus ?? tavern.FutureBallerAttackBonus);
             tavern.FutureBallerHealthBonus = Math.Max(0, scenario.Tavern?.FutureBallerHealthBonus ?? tavern.FutureBallerHealthBonus);
             tavern.UndeadAttackBonus = Math.Max(0, scenario.Tavern?.UndeadAttackBonus ?? tavern.UndeadAttackBonus);
+            tavern.EternalKnightDeaths = Math.Max(0, scenario.Tavern?.EternalKnightDeaths ?? tavern.EternalKnightDeaths);
+            tavern.AncestralAutomatonSummons = Math.Max(0, scenario.Tavern?.AncestralAutomatonSummons ?? tavern.AncestralAutomatonSummons);
+            tavern.FriendlyMinionDeathsThisGame = Math.Max(0, scenario.Tavern?.FriendlyMinionDeathsThisGame ?? tavern.FriendlyMinionDeathsThisGame);
 
             tavern.Shop = RestoreCards(scenario.Shop, BoardSide.Player);
             tavern.Hand = RestoreCards(scenario.Hand, BoardSide.Player);

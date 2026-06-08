@@ -51,9 +51,21 @@ namespace LearnHearthstone.Application.Services
         private const string TadCardId = "BG22_202";
         private const string MetallicHunterCardId = "BG32_170";
         private const string SlimyShieldCardId = "SLIMY_SHIELD";
+        private const string BristlebackBloodGemCardId = "BRISTLEBACK_BLOOD_GEM";
+        private const string PointyArrowCardId = "100596";
         private const string LabAssistantCardId = "BG35_150";
         private const string DemonFodderCardId = "DEMON_FODDER";
         private const string HastyExcavationCardId = "104559";
+        private const string TarecgosaCardId = "BG21_015";
+        private const string EternalKnightCardId = "BG25_008";
+        private const string AncestralAutomatonCardId = "BG_TTN_401";
+        private const string OldSoulCardId = "BG34_231";
+        private const string ReefRifferCardId = "BG26_501";
+        private const string SurfNSurfCardId = "BG27_004";
+        private const string ReefRifferSpellCardId = "REEF_RIFFER_SPELL";
+        private const string SurfNSurfSpellCardId = "SURF_N_SURF_SPELL";
+        private const string GlobalEternalKnightSourceId = "Eternal Knight";
+        private const string GlobalAutomatonSourceId = "Ancestral Automaton";
         private const string PatientScoutTierCounter = "patient-scout-tier";
         private const string LockedTurnsCounter = "locked-turns";
 
@@ -306,6 +318,17 @@ namespace LearnHearthstone.Application.Services
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
             State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
+            if (target.CardId == AncestralAutomatonCardId)
+            {
+                State.Player.Tavern.AncestralAutomatonSummons += 1;
+                ApplyAncestralAutomatonBonuses();
+            }
+
+            if (target.CardId == EternalKnightCardId)
+            {
+                ApplyEternalKnightBonuses();
+            }
+
             ResolveTierOneBattlecry(target);
             DispatchSourceEvent(MechanicEventType.CardPlayed, target);
             AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
@@ -363,6 +386,8 @@ namespace LearnHearthstone.Application.Services
             }
 
             tavern.Hand.Add(card);
+            ApplyEternalKnightBonuses();
+            ApplyAncestralAutomatonBonuses();
             AddRecruitLog(RecruitLogType.Buy, "Debug add " + card.Name, tavern.Gold, tavern.Gold);
         }
 
@@ -590,7 +615,32 @@ namespace LearnHearthstone.Application.Services
             State.CombatLog.Clear();
             State.LastResult = null;
             AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, tavern.Gold);
+            AddSpellcraftFromBoard();
             DispatchBoardEvent(MechanicEventType.TurnStarted);
+        }
+
+        private void AddSpellcraftFromBoard()
+        {
+            foreach (var source in State.Player.Board.ToList())
+            {
+                if (State.Player.Tavern.Hand.Count >= HandLimit)
+                {
+                    return;
+                }
+
+                switch (source.CardId)
+                {
+                    case ReefRifferCardId:
+                        AddGeneratedSpellsToHand(ReefRifferSpellCardId, 1, "spellcraft-" + source.InstanceId);
+                        State.Player.Tavern.Hand.Last().Counters["spellcraft_multiplier"] = source.Golden ? 2 : 1;
+                        break;
+                    case SurfNSurfCardId:
+                        AddGeneratedSpellsToHand(SurfNSurfSpellCardId, 1, "spellcraft-" + source.InstanceId);
+                        State.Player.Tavern.Hand.Last().Counters["crab_attack"] = source.Golden ? 6 : 3;
+                        State.Player.Tavern.Hand.Last().Counters["crab_health"] = source.Golden ? 4 : 2;
+                        break;
+                }
+            }
         }
 
         private void ChooseDiscover(int optionIndex)
@@ -742,11 +792,133 @@ namespace LearnHearthstone.Application.Services
             };
 
             var playerCombatBoard = CreateCombatStartPlayerBoard();
-            var result = CombatEngine.SimulateBasicCombat(playerCombatBoard, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit, State.Player.Tavern);
+            var result = CombatEngine.SimulateBasicCombat(
+                playerCombatBoard,
+                State.Opponent.Board,
+                nextOptions.Seed,
+                nextOptions.SafetyLimit,
+                State.Player.Tavern,
+                null,
+                State.Player.Tavern.Hand);
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;
             combatTestSnapshot.Result = result;
+            ApplyPermanentCombatBuffs(result);
+            ApplyCombatRewards(result.PlayerRewards);
+        }
+
+        private void ApplyPermanentCombatBuffs(CombatOutput result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            foreach (var original in State.Player.Board.Where(minion => minion.CardId == TarecgosaCardId))
+            {
+                var final = result.FinalPlayerBoard.FirstOrDefault(minion => minion.InstanceId == original.InstanceId);
+                if (final == null)
+                {
+                    continue;
+                }
+
+                var multiplier = original.Golden ? 2 : 1;
+                var attackDelta = Math.Max(0, final.Attack - original.Attack) * multiplier;
+                var healthDelta = Math.Max(0, final.MaxHealth - original.MaxHealth) * multiplier;
+                if (attackDelta > 0 || healthDelta > 0)
+                {
+                    BuffMinion(original, attackDelta, healthDelta, "Tarecgosa");
+                }
+
+                foreach (var keyword in final.Keywords.Where(keyword => !original.Keywords.Contains(keyword)))
+                {
+                    original.Keywords.Add(keyword);
+                }
+            }
+        }
+
+        private void ApplyCombatRewards(IEnumerable<CombatReward> rewards)
+        {
+            foreach (var reward in rewards ?? Enumerable.Empty<CombatReward>())
+            {
+                switch (reward.Type)
+                {
+                    case CombatRewardType.TavernSpellCostReduction:
+                        State.Player.Tavern.NextTavernSpellCostReduction += reward.Amount;
+                        AddRecruitLog(RecruitLogType.Play, "Combat reward: next Tavern spell costs " + reward.Amount + " less", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                        break;
+                    case CombatRewardType.AddGeneratedSpellToHand:
+                        AddGeneratedSpellsToHand(reward.CardId, reward.Amount, "combat-" + reward.SourceCardId);
+                        break;
+                    case CombatRewardType.EternalKnightDied:
+                        State.Player.Tavern.EternalKnightDeaths += reward.Amount;
+                        ApplyEternalKnightBonuses();
+                        break;
+                    case CombatRewardType.FriendlyMinionDied:
+                        State.Player.Tavern.FriendlyMinionDeathsThisGame += reward.Amount;
+                        AdvanceOldSouls(reward.Amount);
+                        break;
+                    case CombatRewardType.BuffHandMinion:
+                        BuffFirstHandMinion(reward.Attack, reward.Health, reward.SourceCardId);
+                        break;
+                }
+            }
+        }
+
+        private void ApplyEternalKnightBonuses()
+        {
+            foreach (var card in State.Player.Board.Concat(State.Player.Tavern.Hand).Concat(State.Player.Tavern.Shop.Where(card => card != null)))
+            {
+                if (card.CardId != EternalKnightCardId)
+                {
+                    continue;
+                }
+
+                var attack = State.Player.Tavern.EternalKnightDeaths * (card.Golden ? 8 : 4);
+                var health = State.Player.Tavern.EternalKnightDeaths * (card.Golden ? 4 : 2);
+                SetTrackedBuff(card, GlobalEternalKnightSourceId, attack, health);
+            }
+        }
+
+        private void ApplyAncestralAutomatonBonuses()
+        {
+            var otherSummons = Math.Max(0, State.Player.Tavern.AncestralAutomatonSummons - 1);
+            foreach (var card in State.Player.Board.Concat(State.Player.Tavern.Hand).Concat(State.Player.Tavern.Shop.Where(card => card != null)))
+            {
+                if (card.CardId != AncestralAutomatonCardId)
+                {
+                    continue;
+                }
+
+                var attack = otherSummons * (card.Golden ? 6 : 3);
+                var health = otherSummons * (card.Golden ? 4 : 2);
+                SetTrackedBuff(card, GlobalAutomatonSourceId, attack, health);
+            }
+        }
+
+        private void AdvanceOldSouls(int deaths)
+        {
+            foreach (var oldSoul in State.Player.Tavern.Hand.Where(card => card.CardId == OldSoulCardId && !card.Golden))
+            {
+                oldSoul.Counters.TryGetValue("old-soul-deaths", out var current);
+                current += deaths;
+                oldSoul.Counters["old-soul-deaths"] = current;
+                if (current >= 15)
+                {
+                    MakeGoldenInPlace(oldSoul);
+                    oldSoul.Counters["old-soul-deaths"] = 15;
+                }
+            }
+        }
+
+        private void BuffFirstHandMinion(int attack, int health, string sourceId)
+        {
+            var target = State.Player.Tavern.Hand.FirstOrDefault(card => card.CardKind == CardKind.Minion);
+            if (target != null)
+            {
+                BuffMinion(target, attack, health, sourceId);
+            }
         }
 
         private void ResetCombatTestSnapshot()
@@ -971,16 +1143,6 @@ namespace LearnHearthstone.Application.Services
                 board.Add(copy);
             }
 
-            var hummingBirds = board.Where(minion => minion.CardId == HummingBirdCardId).ToList();
-            foreach (var hummingBird in hummingBirds)
-            {
-                var attack = hummingBird.Golden ? 2 : 1;
-                foreach (var beast in board.Where(minion => minion.Tribes.Contains(Tribe.Beast)))
-                {
-                    BuffMinion(beast, attack, 0, "哼鸣蜂鸟");
-                }
-            }
-
             return board;
         }
 
@@ -1018,6 +1180,14 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private void AddGeneratedSpellsToHand(string cardId, int count, string source)
+        {
+            for (var index = 0; index < count && State.Player.Tavern.Hand.Count < HandLimit; index += 1)
+            {
+                State.Player.Tavern.Hand.Add(CreateGeneratedSpellCard(cardId, source + "-" + State.Round + "-" + State.Player.Tavern.Hand.Count));
+            }
+        }
+
         private void AddTavernSpellToHand(string cardNumber, string source)
         {
             if (State.Player.Tavern.Hand.Count >= HandLimit)
@@ -1040,6 +1210,14 @@ namespace LearnHearthstone.Application.Services
                     return CreateBloodGemCard(suffix);
                 case SlimyShieldCardId:
                     return CreateSlimyShieldCard(suffix);
+                case BristlebackBloodGemCardId:
+                    return CreateBristlebackBloodGemCard(suffix);
+                case PointyArrowCardId:
+                    return CreatePointyArrowCard(suffix);
+                case ReefRifferSpellCardId:
+                    return CreateReefRifferSpellCard(suffix);
+                case SurfNSurfSpellCardId:
+                    return CreateSurfNSurfSpellCard(suffix);
                 default:
                     throw new InvalidOperationException("Generated spell card id does not exist: " + cardId);
             }
@@ -1187,6 +1365,79 @@ namespace LearnHearthstone.Application.Services
             };
         }
 
+        private static MinionInstance CreateBristlebackBloodGemCard(string suffix)
+        {
+            var card = CreateBloodGemCard("bristleback-" + suffix);
+            card.CardId = BristlebackBloodGemCardId;
+            card.DefinitionId = "bristleback-blood-gem";
+            card.InstanceId = "player-bristleback-blood-gem-" + suffix;
+            card.Tags.Add("quilboar_taunt_grant");
+            card.Text = "Give a friendly minion +1/+1. If it is a Quilboar, also give it Taunt.";
+            return card;
+        }
+
+        private static MinionInstance CreatePointyArrowCard(string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Spell,
+                InstanceId = "player-pointy-arrow-" + suffix,
+                DefinitionId = "pointy-arrow",
+                CardId = PointyArrowCardId,
+                Name = "Pointy Arrow",
+                Cost = 0,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword>(),
+                Text = "Give a minion +4 Attack.",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                Tags = new List<string> { "generated_spell", "targeted_spell", "buff_spell", "attack_buff_spell" }
+            };
+        }
+
+        private static MinionInstance CreateReefRifferSpellCard(string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Spell,
+                InstanceId = "player-reef-riffer-spell-" + suffix,
+                DefinitionId = "reef-riffer-spell",
+                CardId = ReefRifferSpellCardId,
+                Name = "Reef Riff",
+                Cost = 0,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Spellcraft },
+                Text = "Spellcraft: Give a minion stats equal to your Tier until next turn.",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                Counters = new Dictionary<string, int> { { "spellcraft_multiplier", 1 } },
+                Tags = new List<string> { "generated_spell", "spellcraft", "targeted_spell", "buff_spell" }
+            };
+        }
+
+        private static MinionInstance CreateSurfNSurfSpellCard(string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Spell,
+                InstanceId = "player-surf-n-surf-spell-" + suffix,
+                DefinitionId = "surf-n-surf-spell",
+                CardId = SurfNSurfSpellCardId,
+                Name = "Surf n' Surf",
+                Cost = 0,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Spellcraft },
+                Text = "Spellcraft: Give a minion Deathrattle: Summon a 3/2 Crab until next turn.",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                Counters = new Dictionary<string, int> { { "crab_attack", 3 }, { "crab_health", 2 } },
+                Tags = new List<string> { "generated_spell", "spellcraft", "targeted_spell", "deathrattle_grant" }
+            };
+        }
+
         private static MinionInstance CreateGeneratedElementalCard(string suffix)
         {
             return new MinionInstance
@@ -1254,6 +1505,40 @@ namespace LearnHearthstone.Application.Services
                 AttackBonus = attack,
                 HealthBonus = health
             });
+            RefreshScarletSurvivor(target);
+        }
+
+        private static void SetTrackedBuff(MinionInstance target, string sourceId, int attack, int health)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var existing = target.Enchantments.FirstOrDefault(enchantment => enchantment.SourceId == sourceId);
+            var currentAttack = existing?.AttackBonus ?? 0;
+            var currentHealth = existing?.HealthBonus ?? 0;
+            var attackDelta = attack - currentAttack;
+            var healthDelta = health - currentHealth;
+            target.Attack += attackDelta;
+            target.MaxHealth += healthDelta;
+            target.Health += healthDelta;
+
+            if (existing == null)
+            {
+                target.Enchantments.Add(new Enchantment
+                {
+                    Id = sourceId,
+                    SourceId = sourceId,
+                    AttackBonus = attack,
+                    HealthBonus = health
+                });
+                RefreshScarletSurvivor(target);
+                return;
+            }
+
+            existing.AttackBonus = attack;
+            existing.HealthBonus = health;
             RefreshScarletSurvivor(target);
         }
 

@@ -292,6 +292,167 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_TierTwoCombatDeathrattleRewardsApplyAfterCombatTest()
+        {
+            var alarmist = MatchService.CreateWithDefaultCatalog(12345);
+            RunRewardDeathrattleCombat(alarmist, "BG35_340");
+            Assert.AreEqual(1, alarmist.State.Player.Tavern.NextTavernSpellCostReduction);
+
+            var hunter = MatchService.CreateWithDefaultCatalog(12345);
+            RunRewardDeathrattleCombat(hunter, "BG32_170");
+            Assert.IsTrue(hunter.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Spell && card.CardId == "100596"));
+
+            var bully = MatchService.CreateWithDefaultCatalog(12345);
+            RunRewardDeathrattleCombat(bully, "BG35_432");
+            var specialGemIndex = bully.State.Player.Tavern.Hand.FindIndex(card => card.CardKind == CardKind.Spell && card.CardId == "BRISTLEBACK_BLOOD_GEM");
+            Assert.GreaterOrEqual(specialGemIndex, 0);
+
+            bully.State.Player.Board.Clear();
+            bully.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+            bully.Apply(new GameCommand(GameCommandType.PlayMinion, bully.State.Player.Tavern.Hand.Count - 1));
+            var target = bully.State.Player.Board[0];
+            var beforeAttack = target.Attack;
+            bully.Apply(new GameCommand(GameCommandType.PlayMinion, specialGemIndex));
+
+            Assert.AreEqual(beforeAttack + 1, target.Attack);
+            Assert.IsTrue(target.Keywords.Contains(Keyword.Taunt));
+        }
+
+        [Test]
+        public void Apply_TarecgosaPermanentlyKeepsCombatBuffs()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG33_241", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG21_015", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            if (!service.State.Player.Board[0].Keywords.Contains(Keyword.Rally))
+            {
+                service.State.Player.Board[0].Keywords.Add(Keyword.Rally);
+            }
+
+            var tarecgosa = service.State.Player.Board[1];
+            var beforeAttack = tarecgosa.Attack;
+            var beforeHealth = tarecgosa.MaxHealth;
+            service.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            service.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, service.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 0, Health = 20, MaxHealth = 20 }));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 51, SafetyLimit = 1 }));
+
+            Assert.AreEqual(beforeAttack + 2, tarecgosa.Attack);
+            Assert.AreEqual(beforeHealth + 2, tarecgosa.MaxHealth);
+            Assert.IsTrue(tarecgosa.Enchantments.Any(enchantment => enchantment.SourceId == "Tarecgosa"));
+        }
+
+        [Test]
+        public void Apply_TierTwoGlobalDeathAndSummonRecordsResolve()
+        {
+            var eternal = MatchService.CreateWithDefaultCatalog(12345);
+            RunRewardDeathrattleCombat(eternal, "BG25_008");
+            Assert.AreEqual(1, eternal.State.Player.Tavern.EternalKnightDeaths);
+            eternal.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG25_008", CardKind.Minion));
+            var knight = eternal.State.Player.Tavern.Hand.Last(card => card.CardId == "BG25_008");
+            Assert.AreEqual(knight.BaseAttack + 4, knight.Attack);
+            Assert.AreEqual(knight.BaseHealth + 2, knight.MaxHealth);
+
+            var automaton = MatchService.CreateWithDefaultCatalog(12345);
+            automaton.State.Player.Board.Clear();
+            automaton.State.Player.Tavern.Hand.Clear();
+            automaton.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG_TTN_401", CardKind.Minion));
+            automaton.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            automaton.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG_TTN_401", CardKind.Minion));
+            automaton.Apply(new GameCommand(GameCommandType.PlayMinion, automaton.State.Player.Tavern.Hand.Count - 1));
+            Assert.IsTrue(automaton.State.Player.Board.Where(card => card.CardId == "BG_TTN_401").All(card => card.Attack == card.BaseAttack + 3));
+            Assert.IsTrue(automaton.State.Player.Board.Where(card => card.CardId == "BG_TTN_401").All(card => card.MaxHealth == card.BaseHealth + 2));
+        }
+
+        [Test]
+        public void Apply_OldSoulAndWinterfinnerCombatHandEffectsResolve()
+        {
+            var oldSoul = MatchService.CreateWithDefaultCatalog(12345);
+            oldSoul.State.Player.Board.Clear();
+            oldSoul.State.Opponent.Board.Clear();
+            oldSoul.State.Player.Tavern.Hand.Clear();
+            oldSoul.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG34_231", CardKind.Minion));
+            oldSoul.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_135", CardKind.Minion));
+            oldSoul.Apply(new GameCommand(GameCommandType.PlayMinion, oldSoul.State.Player.Tavern.Hand.Count - 1));
+            oldSoul.Apply(new GameCommand(GameCommandType.UpdateMinion, oldSoul.State.Player.Board[0].InstanceId, new MinionPatch { Attack = 0, Health = 1, MaxHealth = 1 }));
+            oldSoul.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            oldSoul.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, oldSoul.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 10, MaxHealth = 10 }));
+            for (var count = 0; count < 15; count += 1)
+            {
+                oldSoul.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 61 + count, SafetyLimit = 1 }));
+            }
+
+            Assert.IsTrue(oldSoul.State.Player.Tavern.Hand.First(card => card.CardId == "BG34_231").Golden);
+
+            var winterfinner = MatchService.CreateWithDefaultCatalog(12345);
+            winterfinner.State.Player.Board.Clear();
+            winterfinner.State.Opponent.Board.Clear();
+            winterfinner.State.Player.Tavern.Hand.Clear();
+            winterfinner.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG29_300", CardKind.Minion));
+            winterfinner.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            winterfinner.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_135", CardKind.Minion));
+            var handTarget = winterfinner.State.Player.Tavern.Hand[0];
+            var beforeAttack = handTarget.Attack;
+            var beforeHealth = handTarget.MaxHealth;
+            winterfinner.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            winterfinner.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, winterfinner.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 20, MaxHealth = 20 }));
+
+            winterfinner.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 71, SafetyLimit = 1 }));
+
+            Assert.AreEqual(beforeAttack + 2, handTarget.Attack);
+            Assert.AreEqual(beforeHealth + 1, handTarget.MaxHealth);
+        }
+
+        [Test]
+        public void Apply_TierTwoSpellcraftSpellsGenerateAndResolveAsNormalSpells()
+        {
+            var reef = MatchService.CreateWithDefaultCatalog(12345);
+            reef.State.Player.Tavern.Tier = 2;
+            reef.State.Player.Board.Clear();
+            reef.State.Player.Tavern.Hand.Clear();
+            reef.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_501", CardKind.Minion));
+            reef.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var target = reef.State.Player.Board[0];
+            var beforeAttack = target.Attack;
+            var beforeHealth = target.MaxHealth;
+
+            reef.Apply(new GameCommand(GameCommandType.NextTurn));
+            var reefSpellIndex = reef.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "REEF_RIFFER_SPELL");
+            Assert.GreaterOrEqual(reefSpellIndex, 0);
+            Assert.AreEqual(CardKind.Spell, reef.State.Player.Tavern.Hand[reefSpellIndex].CardKind);
+            reef.Apply(new GameCommand(GameCommandType.PlayMinion, reefSpellIndex));
+
+            Assert.AreEqual(beforeAttack + 2, target.Attack);
+            Assert.AreEqual(beforeHealth + 2, target.MaxHealth);
+
+            var surf = MatchService.CreateWithDefaultCatalog(12345);
+            surf.State.Player.Board.Clear();
+            surf.State.Opponent.Board.Clear();
+            surf.State.Player.Tavern.Hand.Clear();
+            surf.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG27_004", CardKind.Minion));
+            surf.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            surf.Apply(new GameCommand(GameCommandType.NextTurn));
+            var surfSpellIndex = surf.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "SURF_N_SURF_SPELL");
+            Assert.GreaterOrEqual(surfSpellIndex, 0);
+            surf.Apply(new GameCommand(GameCommandType.PlayMinion, surfSpellIndex));
+            Assert.IsTrue(surf.State.Player.Board[0].Tags.Contains("surf_n_surf_crab"));
+
+            surf.Apply(new GameCommand(GameCommandType.UpdateMinion, surf.State.Player.Board[0].InstanceId, new MinionPatch { Attack = 0, Health = 1, MaxHealth = 1 }));
+            surf.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            surf.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, surf.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 10, MaxHealth = 10 }));
+            surf.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 81, SafetyLimit = 1 }));
+
+            var crab = surf.State.LastResult.FinalPlayerBoard.First(card => card.DefinitionId == "crab");
+            Assert.AreEqual(3, crab.Attack);
+            Assert.AreEqual(2, crab.MaxHealth);
+        }
+
+        [Test]
         public void Apply_BuyPlaySellRoundTripChangesGoldAndBoard()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -467,6 +628,25 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, returnedGoldenIndex));
 
             Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(minion => minion.DefinitionId == "triple-reward"));
+        }
+
+        private static void RunRewardDeathrattleCombat(MatchService service, string cardId)
+        {
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var source = service.State.Player.Board[0];
+            service.Apply(new GameCommand(GameCommandType.UpdateMinion, source.InstanceId, new MinionPatch { Attack = 0, Health = 1, MaxHealth = 1 }));
+            if (!service.State.Player.Board[0].Keywords.Contains(Keyword.Deathrattle))
+            {
+                service.State.Player.Board[0].Keywords.Add(Keyword.Deathrattle);
+            }
+
+            service.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG26_135"));
+            service.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, service.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 10, MaxHealth = 10 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 31, SafetyLimit = 1 }));
         }
 
         private static MinionInstance CloneForHand(MinionInstance source, string suffix)

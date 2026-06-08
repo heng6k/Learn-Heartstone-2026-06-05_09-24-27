@@ -58,6 +58,9 @@ namespace LearnHearthstone.Domain.Models
         public int FutureBallerAttackBonus;
         public int FutureBallerHealthBonus;
         public int UndeadAttackBonus;
+        public int EternalKnightDeaths;
+        public int AncestralAutomatonSummons;
+        public int FriendlyMinionDeathsThisGame;
     }
 
     [Serializable]

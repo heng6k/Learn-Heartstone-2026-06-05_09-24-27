@@ -72,7 +72,7 @@ namespace LearnHearthstone.Tests.EditMode
             var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { other, taunt }, 42, 1);
 
             Assert.AreEqual(1, result.Steps);
-            Assert.AreEqual("o1", result.Log.First(entry => entry.Title == "攻击").TargetId);
+            Assert.AreEqual("o1", result.Log.First(entry => entry.Title == "AttackResolved").TargetId);
             Assert.IsFalse(result.FinalOpponentBoard.Find(m => m.InstanceId == "o1").Keywords.Contains(Keyword.DivineShield));
         }
 
@@ -104,7 +104,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { stealth, visible }, 5, 1);
 
-            Assert.AreEqual("o2", result.Log.First(entry => entry.Title == "攻击").TargetId);
+            Assert.AreEqual("o2", result.Log.First(entry => entry.Title == "AttackResolved").TargetId);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace LearnHearthstone.Tests.EditMode
             defender.MaxHealth = 10;
 
             var result = CombatEngine.SimulateBasicCombat(new[] { first, second }, new[] { defender }, 1, 3);
-            var playerAttacks = result.Log.Where(entry => entry.Title == "攻击" && entry.ActorId.StartsWith("p")).ToList();
+            var playerAttacks = result.Log.Where(entry => entry.Title == "AttackResolved" && entry.ActorId.StartsWith("p")).ToList();
 
             Assert.AreEqual("p1", playerAttacks[0].ActorId);
             Assert.AreEqual("p2", playerAttacks[1].ActorId);
@@ -216,7 +216,7 @@ namespace LearnHearthstone.Tests.EditMode
             var quilboars = glowResult.FinalPlayerBoard.Where(card => card.DefinitionId == "quilboar").ToList();
             Assert.AreEqual(2, quilboars.Count);
             Assert.IsTrue(quilboars.All(card => card.Attack == 2 && card.MaxHealth == 2 && card.Keywords.Contains(Keyword.Taunt)));
-            Assert.IsTrue(quilboars.All(card => card.Enchantments.Any(enchantment => enchantment.SourceId == "鲜血宝石")));
+            Assert.IsTrue(quilboars.All(card => card.Enchantments.Any(enchantment => enchantment.SourceId == "Blood Gem")));
 
             var undeadTarget = TestInstance("p-undead", "undead-target", 0);
             undeadTarget.Attack = 0;
@@ -240,6 +240,201 @@ namespace LearnHearthstone.Tests.EditMode
             var buffed = skullResult.FinalPlayerBoard.First(card => card.InstanceId == "p-undead");
             Assert.AreEqual(undeadTarget.Attack + 1, buffed.Attack);
             Assert.AreEqual(undeadTarget.MaxHealth + 2, buffed.MaxHealth);
+        }
+
+        [Test]
+        public void CombatEngine_ScarletSkullBuffsUndeadBehindIt()
+        {
+            var scarletSkull = TestInstance("p-skull", "scarlet-skull", 0);
+            scarletSkull.CardId = "BG25_022";
+            scarletSkull.Attack = 0;
+            scarletSkull.Health = 1;
+            scarletSkull.MaxHealth = 1;
+            scarletSkull.Tribes = new List<Tribe> { Tribe.Undead };
+            scarletSkull.Keywords.Add(Keyword.Deathrattle);
+            var undeadTarget = TestInstance("p-undead", "undead-target", 0);
+            undeadTarget.Attack = 2;
+            undeadTarget.Health = 4;
+            undeadTarget.MaxHealth = 4;
+            undeadTarget.Tribes = new List<Tribe> { Tribe.Undead };
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 1;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { scarletSkull, undeadTarget }, new[] { opponent }, 7, 1);
+            var buffed = result.FinalPlayerBoard.First(card => card.InstanceId == "p-undead");
+
+            Assert.AreEqual(3, buffed.Attack);
+            Assert.AreEqual(6, buffed.MaxHealth);
+        }
+
+        [Test]
+        public void CombatEngine_HummingBirdAuraBuffsFutureBeastSummons()
+        {
+            var forestRover = TestInstance("p-forest", "forest-rover", 0);
+            forestRover.CardId = "BG31_801";
+            forestRover.Attack = 0;
+            forestRover.Health = 1;
+            forestRover.MaxHealth = 1;
+            forestRover.Tribes = new List<Tribe> { Tribe.Beast };
+            forestRover.Keywords.Add(Keyword.Deathrattle);
+            var hummingBird = TestInstance("p-humming", "humming-bird", 0);
+            hummingBird.CardId = "BG26_805";
+            hummingBird.Attack = 0;
+            hummingBird.Health = 5;
+            hummingBird.MaxHealth = 5;
+            hummingBird.Tribes = new List<Tribe> { Tribe.Beast };
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 1;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { forestRover, hummingBird }, new[] { opponent }, 3, 1);
+            var beetle = result.FinalPlayerBoard.First(card => card.DefinitionId == "beetle");
+
+            Assert.AreEqual(3, beetle.Attack);
+            Assert.IsTrue(beetle.Enchantments.Any(enchantment => enchantment.SourceId == "Humming Bird"));
+        }
+
+        [Test]
+        public void CombatEngine_TwilightHatchlingSummonImmediatelyAttacks()
+        {
+            var hatchling = TestInstance("p-hatchling", "twilight-hatchling", 0);
+            hatchling.CardId = "BG34_630";
+            hatchling.Attack = 0;
+            hatchling.Health = 1;
+            hatchling.MaxHealth = 1;
+            hatchling.Tribes = new List<Tribe> { Tribe.Dragon };
+            hatchling.Keywords.Add(Keyword.Deathrattle);
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 1;
+            opponent.Health = 5;
+            opponent.MaxHealth = 5;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { hatchling }, new[] { opponent }, 11, 2);
+
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "ImmediateAttackQueued"));
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "TriggeredAttackResolved" && entry.ActorId.StartsWith("token-p-hatchling-hatchling")));
+            Assert.AreEqual(2, result.FinalOpponentBoard.First().Health);
+        }
+
+        [Test]
+        public void CombatEngine_WindfuryAttacksTwiceInOneTurn()
+        {
+            var windfury = TestInstance("p-windfury", "windfury", 0);
+            windfury.Attack = 1;
+            windfury.Health = 10;
+            windfury.MaxHealth = 10;
+            windfury.Keywords.Add(Keyword.Windfury);
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 0;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { windfury }, new[] { opponent }, 13, 2);
+            var attacks = result.Log.Count(entry =>
+                (entry.Title == "AttackResolved" || entry.Title == "TriggeredAttackResolved") &&
+                entry.ActorId == "p-windfury");
+
+            Assert.AreEqual(2, attacks);
+            Assert.AreEqual(8, result.FinalOpponentBoard.First().Health);
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "WindfuryResolved"));
+        }
+
+        [Test]
+        public void CombatEngine_TierTwoDeathrattlesQueueRecruitRewards()
+        {
+            var alert = DeathrattleRewardSource("p-alert", "BG35_340");
+            var alertResult = CombatEngine.SimulateBasicCombat(new[] { alert }, new[] { LethalOpponent("o-alert") }, 21, 1);
+            var discountReward = alertResult.PlayerRewards.First(reward => reward.Type == CombatRewardType.TavernSpellCostReduction);
+            Assert.AreEqual(1, discountReward.Amount);
+
+            var bully = DeathrattleRewardSource("p-bully", "BG35_432");
+            var bullyResult = CombatEngine.SimulateBasicCombat(new[] { bully }, new[] { LethalOpponent("o-bully") }, 22, 1);
+            Assert.AreEqual("BRISTLEBACK_BLOOD_GEM", bullyResult.PlayerRewards.First(reward => reward.Type == CombatRewardType.AddGeneratedSpellToHand).CardId);
+
+            var hunter = DeathrattleRewardSource("p-hunter", "BG32_170");
+            var hunterResult = CombatEngine.SimulateBasicCombat(new[] { hunter }, new[] { LethalOpponent("o-hunter") }, 23, 1);
+            Assert.AreEqual("100596", hunterResult.PlayerRewards.First(reward => reward.Type == CombatRewardType.AddGeneratedSpellToHand).CardId);
+            Assert.IsTrue(hunterResult.Log.Any(entry => entry.Title == "CombatRewardQueued"));
+        }
+
+        [Test]
+        public void CombatEngine_TideRaiserCastsShiftingTideOnAdjacentMinion()
+        {
+            var tideRaiser = DeathrattleRewardSource("p-tide", "BG34_920");
+            var adjacentNaga = TestInstance("p-naga", "naga", 0);
+            adjacentNaga.Attack = 2;
+            adjacentNaga.Health = 3;
+            adjacentNaga.MaxHealth = 3;
+            adjacentNaga.Tribes = new List<Tribe> { Tribe.Naga };
+            var opponent = LethalOpponent("o-tide");
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { tideRaiser, adjacentNaga }, new[] { opponent }, 41, 1);
+            var buffed = result.FinalPlayerBoard.First(card => card.InstanceId == "p-naga");
+
+            Assert.AreEqual(6, buffed.Attack);
+            Assert.AreEqual(7, buffed.MaxHealth);
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "CombatSpellCast" && entry.TargetId == "p-naga"));
+        }
+
+        [Test]
+        public void CombatEngine_SleepySupporterRallyBuffsRightMinion()
+        {
+            var supporter = TestInstance("p-supporter", "sleepy-supporter", 0);
+            supporter.CardId = "BG33_241";
+            supporter.Attack = 1;
+            supporter.Health = 5;
+            supporter.MaxHealth = 5;
+            supporter.Keywords.Add(Keyword.Rally);
+            var right = TestInstance("p-right", "right", 0);
+            right.Attack = 2;
+            right.Health = 2;
+            right.MaxHealth = 2;
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 0;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { supporter, right }, new[] { opponent }, 42, 1);
+            var buffed = result.FinalPlayerBoard.First(card => card.InstanceId == "p-right");
+
+            Assert.AreEqual(4, buffed.Attack);
+            Assert.AreEqual(4, buffed.MaxHealth);
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "RallyResolved"));
+        }
+
+        [Test]
+        public void CombatEngine_ExpertAviatorRallySummonsHighestAttackMinionFromHand()
+        {
+            var aviator = TestInstance("p-aviator", "expert-aviator", 0);
+            aviator.CardId = "BG34_140";
+            aviator.Attack = 1;
+            aviator.Health = 5;
+            aviator.MaxHealth = 5;
+            aviator.Keywords.Add(Keyword.Rally);
+            var low = TestInstance("hand-low", "low", 0);
+            low.Attack = 2;
+            var high = TestInstance("hand-high", "high", 0);
+            high.Attack = 7;
+            var opponent = TestInstance("o1", "opponent", 0);
+            opponent.Attack = 0;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { aviator },
+                new[] { opponent },
+                43,
+                1,
+                null,
+                null,
+                new[] { low, high });
+
+            Assert.IsTrue(result.FinalPlayerBoard.Any(card => card.InstanceId.Contains("hand-high")));
+            Assert.IsFalse(result.FinalPlayerBoard.Any(card => card.InstanceId.Contains("hand-low")));
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "RallyResolved" && entry.TargetId.Contains("hand-high")));
         }
 
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
@@ -283,6 +478,26 @@ namespace LearnHearthstone.Tests.EditMode
                 PoolSource = PoolSource.Pool,
                 PoolCopiesHeld = poolCopiesHeld
             };
+        }
+
+        private static MinionInstance DeathrattleRewardSource(string instanceId, string cardId)
+        {
+            var source = TestInstance(instanceId, cardId.ToLowerInvariant(), 0);
+            source.CardId = cardId;
+            source.Attack = 0;
+            source.Health = 1;
+            source.MaxHealth = 1;
+            source.Keywords.Add(Keyword.Deathrattle);
+            return source;
+        }
+
+        private static MinionInstance LethalOpponent(string instanceId)
+        {
+            var opponent = TestInstance(instanceId, "opponent", 0);
+            opponent.Attack = 1;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+            return opponent;
         }
     }
 }

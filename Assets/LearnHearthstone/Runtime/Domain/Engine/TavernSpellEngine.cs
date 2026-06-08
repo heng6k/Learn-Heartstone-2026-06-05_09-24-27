@@ -10,8 +10,11 @@ namespace LearnHearthstone.Domain.Engine
     {
         private const int HandLimit = 10;
         private const string BloodGemCardId = "BLOOD_GEM";
+        private const string BristlebackBloodGemCardId = "BRISTLEBACK_BLOOD_GEM";
         private const string ScarletSurvivorCardId = "BG35_814";
         private const string SlimyShieldCardId = "SLIMY_SHIELD";
+        private const string ReefRifferSpellCardId = "REEF_RIFFER_SPELL";
+        private const string SurfNSurfSpellCardId = "SURF_N_SURF_SPELL";
         private const string LockedTurnsCounter = "locked-turns";
 
         public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng)
@@ -28,6 +31,31 @@ namespace LearnHearthstone.Domain.Engine
                 case BloodGemCardId:
                     Buff(state, FirstFriendlyBoard(state), 1, 1, "鲜血宝石", applyTavernSpellBonus);
                     return "鲜血宝石：目标随从获得+1/+1";
+                case BristlebackBloodGemCardId:
+                    var gemTarget = FirstFriendlyBoard(state);
+                    Buff(state, gemTarget, 1, 1, "Bristleback Blood Gem", applyTavernSpellBonus);
+                    if (gemTarget != null && gemTarget.Tribes.Contains(Tribe.Quilboar))
+                    {
+                        AddKeyword(gemTarget, Keyword.Taunt);
+                    }
+
+                    return "Bristleback Blood Gem: target gains +1/+1 and Quilboar gain Taunt";
+                case ReefRifferSpellCardId:
+                    var reefMultiplier = spell.Counters != null && spell.Counters.TryGetValue("spellcraft_multiplier", out var storedMultiplier) ? Math.Max(1, storedMultiplier) : 1;
+                    var reefAmount = Math.Max(1, state.Player.Tavern.Tier) * reefMultiplier;
+                    Buff(state, FirstAnyMinion(state), reefAmount, reefAmount, "Reef Riffer Spellcraft", false);
+                    return "Reef Riffer Spellcraft: target gains +" + reefAmount + "/+" + reefAmount;
+                case SurfNSurfSpellCardId:
+                    var surfTarget = FirstAnyMinion(state);
+                    AddKeyword(surfTarget, Keyword.Deathrattle);
+                    AddTag(surfTarget, "surf_n_surf_crab");
+                    if (surfTarget != null)
+                    {
+                        surfTarget.Counters["surf_crab_attack"] = spell.Counters != null && spell.Counters.TryGetValue("crab_attack", out var crabAttack) ? crabAttack : 3;
+                        surfTarget.Counters["surf_crab_health"] = spell.Counters != null && spell.Counters.TryGetValue("crab_health", out var crabHealth) ? crabHealth : 2;
+                    }
+
+                    return "Surf n' Surf Spellcraft: target gains a Crab Deathrattle";
                 case SlimyShieldCardId:
                     var shieldTarget = FirstAnyMinion(state);
                     Buff(state, shieldTarget, 1, 1, "黏黏盾", applyTavernSpellBonus);
