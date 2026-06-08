@@ -19,6 +19,20 @@ namespace LearnHearthstone.Application.Services
         private const string TripleRewardDefinitionId = "triple-reward";
         private const string TripleRewardCardId = "TRIPLE_REWARD";
         private const string TripleRewardGrantedCounter = "triple-reward-granted";
+        private const string BloodGemCardId = "BLOOD_GEM";
+        private const string AureateLaureateCardId = "BG32_236";
+        private const string FlightyScoutCardId = "BG32_330";
+        private const string GluttonousTroggCardId = "BG35_801";
+        private const string GluttonousTroggBuyCounter = "gluttonous-trogg-buys";
+        private const string GluttonousTroggClaimedCounter = "gluttonous-trogg-claimed";
+        private const string OminousSeerCardId = "BG31_330";
+        private const string PickyEaterCardId = "BG24_009";
+        private const string RazorfenGeomancerCardId = "BG20_100";
+        private const string RiverSkipperCardId = "BG33_140";
+        private const string ScarletSurvivorCardId = "BG35_814";
+        private const string SouthseaBuskerCardId = "BG26_135";
+        private const string SunBaconRelaxerCardId = "BG20_301";
+        private const string WrathWeaverCardId = "BGS_004";
 
         private readonly MinionCatalog catalog;
         private readonly SpellCatalog spellCatalog;
@@ -184,6 +198,11 @@ namespace LearnHearthstone.Application.Services
 
             var target = tavern.Shop[shopIndex];
             var cost = target.Cost > 0 ? target.Cost : BuyCost;
+            if (target.CardKind == CardKind.TavernSpell && tavern.NextTavernSpellCostReduction > 0)
+            {
+                cost = Math.Max(0, cost - tavern.NextTavernSpellCostReduction);
+            }
+
             if (tavern.Gold < cost)
             {
                 throw new InvalidOperationException("金币不足。");
@@ -193,8 +212,14 @@ namespace LearnHearthstone.Application.Services
             tavern.Gold -= cost;
             tavern.Hand.Add(target);
             tavern.Shop[shopIndex] = null;
+            if (target.CardKind == CardKind.TavernSpell)
+            {
+                tavern.NextTavernSpellCostReduction = 0;
+            }
+
             AddRecruitLog(RecruitLogType.Buy, "购买 " + target.Name, before, tavern.Gold);
             DispatchBoardEvent(MechanicEventType.CardBought);
+            HandleCardBoughtForTierOneMinions();
             ResolvePlayerTriples();
         }
 
@@ -233,8 +258,10 @@ namespace LearnHearthstone.Application.Services
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
             State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
+            ResolveTierOneBattlecry(target);
             DispatchSourceEvent(MechanicEventType.CardPlayed, target);
             AddRecruitLog(RecruitLogType.Play, "打出 " + target.Name, tavern.Gold, tavern.Gold);
+            HandleDemonPlayedForWrathWeavers(target);
             if (target.Golden && !HasGrantedTripleReward(target))
             {
                 MarkTripleRewardGranted(target);
@@ -319,6 +346,7 @@ namespace LearnHearthstone.Application.Services
             var before = tavern.Gold;
             tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + SellValue);
             DispatchSourceEvent(MechanicEventType.MinionSold, target);
+            ResolveTierOneSellEffect(target);
             State.Player.Board.Remove(target);
             ReleaseMinionToPool(target);
             AddRecruitLog(RecruitLogType.Sell, "出售 " + target.Name, before, tavern.Gold);
@@ -471,6 +499,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var nextRound = State.Round + 1;
             var maxGold = TavernRules.GetMaxGoldForRound(nextRound);
+            var bonusGold = tavern.NextTurnBonusGold;
             var wasFrozen = tavern.Frozen;
             var shopState = wasFrozen
                 ? new ShopState { Shop = tavern.Shop, Pool = tavern.Pool }
@@ -478,8 +507,9 @@ namespace LearnHearthstone.Application.Services
 
             State.Round = nextRound;
             State.Phase = MatchPhase.Tavern;
-            tavern.Gold = maxGold;
+            tavern.Gold = maxGold + bonusGold;
             tavern.MaxGold = maxGold;
+            tavern.NextTurnBonusGold = 0;
             tavern.UpgradeCost = TavernRules.DecrementUpgradeCost(tavern.UpgradeCost);
             tavern.Frozen = false;
             tavern.Shop = shopState.Shop;
@@ -493,7 +523,7 @@ namespace LearnHearthstone.Application.Services
             tavern.SearchPlan.HitsThisTurn.Clear();
             State.CombatLog.Clear();
             State.LastResult = null;
-            AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, maxGold);
+            AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, tavern.Gold);
             DispatchBoardEvent(MechanicEventType.TurnStarted);
         }
 
@@ -645,7 +675,8 @@ namespace LearnHearthstone.Application.Services
                 }
             };
 
-            var result = CombatEngine.SimulateBasicCombat(State.Player.Board, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit);
+            var playerCombatBoard = CreateCombatStartPlayerBoard();
+            var result = CombatEngine.SimulateBasicCombat(playerCombatBoard, State.Opponent.Board, nextOptions.Seed, nextOptions.SafetyLimit);
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;
@@ -662,6 +693,225 @@ namespace LearnHearthstone.Application.Services
             TestScenarioMapper.ApplyTo(State, combatTestSnapshot.BeforeCombat);
             State.CombatLog.Clear();
             State.LastResult = null;
+        }
+
+        private void ResolveTierOneBattlecry(MinionInstance target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            switch (target.CardId)
+            {
+                case AureateLaureateCardId:
+                    MakeGoldenInPlace(target);
+                    break;
+                case OminousSeerCardId:
+                    State.Player.Tavern.NextTavernSpellCostReduction += target.Golden ? 2 : 1;
+                    break;
+                case PickyEaterCardId:
+                    DevourRandomShopMinion(target, target.Golden ? 2 : 1);
+                    break;
+                case RazorfenGeomancerCardId:
+                    AddBloodGemsToHand(target.Golden ? 4 : 2, "razorfen");
+                    break;
+                case SouthseaBuskerCardId:
+                    State.Player.Tavern.NextTurnBonusGold += target.Golden ? 2 : 1;
+                    break;
+            }
+        }
+
+        private void ResolveTierOneSellEffect(MinionInstance target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (target.CardId == SunBaconRelaxerCardId)
+            {
+                AddBloodGemsToHand(target.Golden ? 4 : 2, "sun-bacon");
+                return;
+            }
+
+            if (target.CardId == RiverSkipperCardId)
+            {
+                AddRandomTierOneMinionsToHand(target.Golden ? 2 : 1, "river-skipper");
+            }
+        }
+
+        private void HandleCardBoughtForTierOneMinions()
+        {
+            foreach (var trogg in State.Player.Board.Where(minion => minion.CardId == GluttonousTroggCardId))
+            {
+                if (trogg.Counters.TryGetValue(GluttonousTroggClaimedCounter, out var claimed) && claimed > 0)
+                {
+                    continue;
+                }
+
+                trogg.Counters.TryGetValue(GluttonousTroggBuyCounter, out var bought);
+                bought += 1;
+                trogg.Counters[GluttonousTroggBuyCounter] = bought;
+                if (bought < 4)
+                {
+                    continue;
+                }
+
+                BuffMinion(trogg, trogg.Golden ? 8 : 4, trogg.Golden ? 8 : 4, "贪吃的穴居人");
+                trogg.Counters[GluttonousTroggClaimedCounter] = 1;
+            }
+        }
+
+        private void HandleDemonPlayedForWrathWeavers(MinionInstance played)
+        {
+            if (played == null || played.CardKind != CardKind.Minion || !played.Tribes.Contains(Tribe.Demon))
+            {
+                return;
+            }
+
+            foreach (var weaver in State.Player.Board.Where(minion => minion.CardId == WrathWeaverCardId))
+            {
+                var repeat = weaver.Golden ? 2 : 1;
+                for (var index = 0; index < repeat; index += 1)
+                {
+                    State.Player.Health = Math.Max(0, State.Player.Health - 1);
+                    BuffMinion(weaver, 2, 1, "愤怒编织者");
+                }
+            }
+        }
+
+        private List<MinionInstance> CreateCombatStartPlayerBoard()
+        {
+            var board = State.Player.Board.Select(minion => minion.Clone()).ToList();
+            var scouts = State.Player.Tavern.Hand.Where(card => card.CardId == FlightyScoutCardId).ToList();
+            foreach (var scout in scouts)
+            {
+                if (board.Count >= BoardLimit)
+                {
+                    break;
+                }
+
+                var copy = scout.Clone();
+                copy.InstanceId = "combat-scout-copy-" + board.Count + "-" + copy.InstanceId;
+                copy.Owner = BoardSide.Player;
+                copy.PoolSource = PoolSource.Summon;
+                copy.PoolCopiesHeld = 0;
+                if (copy.Golden)
+                {
+                    copy.Attack *= 2;
+                    copy.MaxHealth *= 2;
+                    copy.Health = copy.MaxHealth;
+                }
+
+                board.Add(copy);
+            }
+
+            return board;
+        }
+
+        private void DevourRandomShopMinion(MinionInstance eater, int multiplier)
+        {
+            var candidates = State.Player.Tavern.Shop
+                .Select((card, index) => new { Card = card, Index = index })
+                .Where(item => item.Card != null && item.Card.CardKind == CardKind.Minion)
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 313 + State.Player.Tavern.RecruitLog.Count);
+            var picked = rng.Pick(candidates);
+            State.Player.Tavern.Shop[picked.Index] = null;
+            BuffMinion(eater, picked.Card.Attack * multiplier, picked.Card.Health * multiplier, "挑食魔犬");
+            ReleaseMinionToPool(picked.Card);
+        }
+
+        private void AddBloodGemsToHand(int count, string source)
+        {
+            for (var index = 0; index < count && State.Player.Tavern.Hand.Count < HandLimit; index += 1)
+            {
+                State.Player.Tavern.Hand.Add(CreateBloodGemCard(source + "-" + State.Round + "-" + State.Player.Tavern.Hand.Count));
+            }
+        }
+
+        private void AddRandomTierOneMinionsToHand(int count, string source)
+        {
+            var rng = new SeededRng(State.Seed + State.Round * 431 + State.Player.Tavern.RecruitLog.Count);
+            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == 1).ToList();
+            for (var index = 0; index < count && State.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; index += 1)
+            {
+                State.Player.Tavern.Hand.Add(MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, source + "-" + State.Round + "-" + index, false, PoolSource.Copy, 0));
+            }
+        }
+
+        private static MinionInstance CreateBloodGemCard(string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.TavernSpell,
+                InstanceId = "player-blood-gem-" + suffix,
+                DefinitionId = "blood-gem",
+                CardId = BloodGemCardId,
+                Name = "鲜血宝石",
+                Cost = 0,
+                BaseAttack = 0,
+                BaseHealth = 0,
+                Attack = 0,
+                Health = 0,
+                MaxHealth = 0,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.TavernSpell, Keyword.BloodGem },
+                Text = "使一个友方随从获得+1/+1。",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                Tags = new List<string> { "generated_spell", "blood_gem", "targeted_spell", "buff_spell" }
+            };
+        }
+
+        private static void BuffMinion(MinionInstance target, int attack, int health, string sourceId)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Attack += attack;
+            target.MaxHealth += health;
+            target.Health += health;
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = sourceId,
+                SourceId = sourceId,
+                AttackBonus = attack,
+                HealthBonus = health
+            });
+            RefreshScarletSurvivor(target);
+        }
+
+        private static void MakeGoldenInPlace(MinionInstance target)
+        {
+            if (target == null || target.Golden)
+            {
+                return;
+            }
+
+            target.Golden = true;
+            target.Attack *= 2;
+            target.MaxHealth *= 2;
+            target.Health *= 2;
+            MarkTripleRewardGranted(target);
+            RefreshScarletSurvivor(target);
+        }
+
+        private static void RefreshScarletSurvivor(MinionInstance target)
+        {
+            if (target != null && target.CardId == ScarletSurvivorCardId && target.Attack >= 6 && !target.Keywords.Contains(Keyword.DivineShield))
+            {
+                target.Keywords.Add(Keyword.DivineShield);
+            }
         }
 
         private void ResolvePlayerTriples()

@@ -33,10 +33,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "card_bought_buff_self_1_1"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bgduo_114",
@@ -68,7 +65,7 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
+      "inPool": 0,
       "poolCount": 12
     },
     {
@@ -169,7 +166,7 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
+      "inPool": 0,
       "poolCount": 12
     },
     {
@@ -268,10 +265,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "card_played_buff_hand_1_1"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg24_009",
@@ -338,10 +332,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "battlecry_random_friendly_buff_1_1"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg_gvg_085",
@@ -374,10 +365,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "battlecry_add_taunt_self"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg29_611",
@@ -444,10 +432,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "battlecry_self_buff_2_2"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg32_236",
@@ -519,40 +504,35 @@
       "poolCount": 12
     },
     {
-      "id": "bg31_803",
-      "cardId": "BG31_803",
-      "dbfId": 116240,
-      "name": "嗡鸣害虫",
+      "id": "bg26_800",
+      "cardId": "BG26_800",
+      "dbfId": 98831,
+      "name": "魔刃豹",
       "tavernTier": 1,
-      "attack": 1,
+      "attack": 4,
       "health": 1,
       "tribes": [
         "野兽"
       ],
       "tribesText": "野兽",
       "keywords": [
-        "亡语",
-        "嘲讽"
+        "亡语"
       ],
-      "text": "嘲讽。亡语：召唤一只2/2的甲虫。",
-      "goldenDbfId": 116241,
+      "text": "亡语：召唤两只0/1并具有嘲讽的豹宝宝。",
+      "goldenDbfId": 98834,
       "golden": {
-        "cardId": "BG31_803_G",
-        "dbfId": 116241,
-        "attack": 2,
+        "cardId": "BG26_800_G",
+        "dbfId": 98834,
+        "attack": 8,
         "health": 2,
-        "text": "嘲讽。亡语：召唤两只2/2的甲虫。",
+        "text": "亡语：召唤两只0/2并具有嘲讽的豹宝宝。",
         "keywords": [
-          "亡语",
-          "嘲讽"
+          "亡语"
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "deathrattle_summon_token_1"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg20_100",
@@ -616,10 +596,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "minion_sold_gain_gold_1"
-      ]
+      "poolCount": 12
     },
     {
       "id": "bg32_330",
@@ -742,11 +719,8 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
-      "poolCount": 12,
-      "effectIds": [
-        "turn_ended_self_buff_1_1"
-      ]
+      "inPool": 0,
+      "poolCount": 12
     },
     {
       "id": "bg35_814",
@@ -761,8 +735,7 @@
       ],
       "tribesText": "龙",
       "keywords": [
-        "触发效果",
-        "圣盾"
+        "触发效果"
       ],
       "text": "一旦本随从的攻击力达到6点，获得圣盾。",
       "goldenDbfId": 129750,
@@ -773,8 +746,7 @@
         "health": 6,
         "text": "一旦本随从的攻击力达到6点，获得圣盾。",
         "keywords": [
-          "触发效果",
-          "圣盾"
+          "触发效果"
         ]
       },
       "sourceSet": "BATTLEGROUNDS",

@@ -103,6 +103,107 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_TierOneBattlecriesResolveSpecificEffects()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BLOOD_GEM"));
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_330", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            Assert.AreEqual(1, service.State.Player.Tavern.NextTavernSpellCostReduction);
+
+            var spellIndex = service.State.Player.Tavern.Shop.Count - 1;
+            service.State.Player.Tavern.Shop[spellIndex].Cost = 1;
+            service.State.Player.Tavern.Gold = 0;
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, spellIndex));
+
+            Assert.AreEqual(0, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(0, service.State.Player.Tavern.NextTavernSpellCostReduction);
+        }
+
+        [Test]
+        public void Apply_TierOneSellEffectsGrantCorrectCards()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_301", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board[0].InstanceId));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BLOOD_GEM"));
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG33_140", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board[0].InstanceId));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Minion && card.TavernTier == 1));
+        }
+
+        [Test]
+        public void Apply_TierOneTriggeredMinionsTrackCountersAndDelayedGold()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 20));
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG35_801", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var trogg = service.State.Player.Board[0];
+
+            for (var index = 0; index < service.State.Player.Tavern.Shop.Count; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.BuyMinion, index));
+            }
+
+            Assert.AreEqual(trogg.BaseAttack + 4, trogg.Attack);
+            Assert.AreEqual(trogg.BaseHealth + 4, trogg.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_135", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(5, service.State.Player.Tavern.Gold);
+        }
+
+        [Test]
+        public void Apply_TierOneDemonAndDevourEffectsResolve()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_004", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var weaver = service.State.Player.Board[0];
+
+            Assert.AreEqual(3, weaver.Attack);
+            Assert.AreEqual(5, weaver.MaxHealth);
+            Assert.AreEqual(29, service.State.Player.Health);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG24_009", CardKind.Minion));
+            var shopMinionsBefore = service.State.Player.Tavern.Shop.Count(card => card != null && card.CardKind == CardKind.Minion);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var picky = service.State.Player.Board.Last();
+
+            Assert.Less(service.State.Player.Tavern.Shop.Count(card => card != null && card.CardKind == CardKind.Minion), shopMinionsBefore);
+            Assert.Greater(picky.Attack, picky.BaseAttack);
+            Assert.AreEqual(28, service.State.Player.Health);
+        }
+
+        [Test]
+        public void Apply_TierOneCombatStartSummonsFlightyScoutFromHand()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG32_330", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 7, SafetyLimit = 20 }));
+
+            Assert.AreEqual(1, service.State.LastResult.FinalPlayerBoard.Count);
+            Assert.AreEqual("BG32_330", service.State.LastResult.FinalPlayerBoard[0].CardId);
+        }
+
+        [Test]
         public void Apply_BuyPlaySellRoundTripChangesGoldAndBoard()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);

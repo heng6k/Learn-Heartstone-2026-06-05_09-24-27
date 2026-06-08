@@ -9,6 +9,8 @@ namespace LearnHearthstone.Domain.Engine
     public static class TavernSpellEngine
     {
         private const int HandLimit = 10;
+        private const string BloodGemCardId = "BLOOD_GEM";
+        private const string ScarletSurvivorCardId = "BG35_814";
 
         public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng)
         {
@@ -20,6 +22,9 @@ namespace LearnHearthstone.Domain.Engine
             var cardNumber = spell.CardId;
             switch (cardNumber)
             {
+                case BloodGemCardId:
+                    Buff(FirstFriendlyBoard(state), 1, 1, "鲜血宝石");
+                    return "鲜血宝石：目标随从获得+1/+1";
                 case "100596":
                     Buff(FirstAnyMinion(state), 4, 0, "尖利箭矢");
                     return "尖利箭矢：目标随从获得+4攻击力";
@@ -142,6 +147,7 @@ namespace LearnHearthstone.Domain.Engine
                 AttackBonus = attack,
                 HealthBonus = health
             });
+            RefreshScarletSurvivor(target);
         }
 
         private static void BuffAll(IEnumerable<MinionInstance> targets, int attack, int health, string sourceId)
@@ -188,6 +194,7 @@ namespace LearnHearthstone.Domain.Engine
             target.Attack = attack;
             target.MaxHealth = health;
             target.Health = health;
+            RefreshScarletSurvivor(target);
         }
 
         private static void AddKeyword(MinionInstance target, Keyword keyword)
@@ -216,7 +223,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void GainGold(TavernState tavern, int amount)
         {
-            tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + amount);
+            tavern.Gold += amount;
         }
 
         private static void AddRandomMinionToHand(MatchState state, MinionCatalog catalog, SeededRng rng, int exactTier, string suffix)
@@ -266,6 +273,15 @@ namespace LearnHearthstone.Domain.Engine
             target.Attack *= 2;
             target.MaxHealth *= 2;
             target.Health *= 2;
+            RefreshScarletSurvivor(target);
+        }
+
+        private static void RefreshScarletSurvivor(MinionInstance target)
+        {
+            if (target != null && target.CardId == ScarletSurvivorCardId && target.Attack >= 6 && !target.Keywords.Contains(Keyword.DivineShield))
+            {
+                target.Keywords.Add(Keyword.DivineShield);
+            }
         }
 
         private static void StealRandomShopMinion(MatchState state, SeededRng rng)

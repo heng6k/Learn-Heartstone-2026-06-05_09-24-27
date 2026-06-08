@@ -55,7 +55,8 @@ namespace LearnHearthstone.Adapters.Data
                 InPool = raw.inPool == 1,
                 PoolCount = raw.poolCount,
                 ImagePath = "CardImages/" + raw.cardId,
-                EffectIds = raw.effectIds == null ? new List<string>() : new List<string>(raw.effectIds)
+                EffectIds = raw.effectIds == null ? new List<string>() : new List<string>(raw.effectIds),
+                Tags = raw.tags == null || raw.tags.Count == 0 ? InferTags(raw) : new List<string>(raw.tags)
             };
 
             if (raw.golden != null && !string.IsNullOrEmpty(raw.golden.cardId))
@@ -168,6 +169,113 @@ namespace LearnHearthstone.Adapters.Data
             }
         }
 
+        private static List<string> InferTags(RawMinion raw)
+        {
+            var tags = new List<string>();
+            Add(tags, "minion");
+            Add(tags, "tier_" + raw.tavernTier);
+
+            if (raw.keywords != null)
+            {
+                foreach (var keyword in raw.keywords)
+                {
+                    switch (keyword)
+                    {
+                        case "战吼": Add(tags, "battlecry"); break;
+                        case "亡语": Add(tags, "deathrattle"); break;
+                        case "塑造法术": Add(tags, "spellcraft_generator"); break;
+                        case "战斗开始时": Add(tags, "start_of_combat"); break;
+                        case "鲜血宝石": Add(tags, "blood_gem"); break;
+                        case "吞食": Add(tags, "devour"); break;
+                        case "传递": Add(tags, "duos_pass"); break;
+                    }
+                }
+            }
+
+            var text = raw.text ?? string.Empty;
+            if (text.Contains("出售"))
+            {
+                Add(tags, "sell_trigger");
+            }
+
+            if (text.Contains("购买"))
+            {
+                Add(tags, "buy_trigger");
+            }
+
+            if (text.Contains("酒馆法术"))
+            {
+                Add(tags, "tavern_spell_synergy");
+            }
+
+            if (text.Contains("酒馆中的"))
+            {
+                Add(tags, "shop_interaction");
+            }
+
+            if (text.Contains("获取") || text.Contains("发现"))
+            {
+                Add(tags, "card_generator");
+            }
+
+            switch (raw.cardId)
+            {
+                case "BG32_236":
+                    Add(tags, "self_golden");
+                    break;
+                case "BG31_330":
+                    Add(tags, "spell_discount");
+                    break;
+                case "BGS_004":
+                    Add(tags, "demon_play_trigger");
+                    Add(tags, "hero_damage");
+                    Add(tags, "self_scaling");
+                    break;
+                case "BG35_801":
+                    Add(tags, "buy_counter");
+                    Add(tags, "self_scaling");
+                    break;
+                case "BG35_814":
+                    Add(tags, "attack_threshold");
+                    Add(tags, "keyword_grant");
+                    break;
+                case "BG32_330":
+                    Add(tags, "hand_start_of_combat");
+                    Add(tags, "combat_summon");
+                    break;
+                case "BG20_100":
+                case "BG20_301":
+                    Add(tags, "blood_gem_generator");
+                    break;
+                case "BG33_140":
+                    Add(tags, "tier_1_generator");
+                    break;
+                case "BG31_815":
+                    Add(tags, "shop_aura");
+                    Add(tags, "elemental_synergy");
+                    break;
+                case "BG26_135":
+                    Add(tags, "next_turn_economy");
+                    break;
+                case "BG29_611":
+                case "BG28_300":
+                case "BG26_800":
+                case "BG34_630":
+                    Add(tags, "token_summoner");
+                    break;
+            }
+
+            return tags;
+        }
+
+        private static void Add(List<string> tags, string tag)
+        {
+            if (!tags.Contains(tag))
+            {
+                tags.Add(tag);
+            }
+        }
+
         [Serializable]
         private sealed class RawPayload
         {
@@ -191,6 +299,7 @@ namespace LearnHearthstone.Adapters.Data
             public int inPool;
             public int poolCount;
             public List<string> effectIds;
+            public List<string> tags;
             public RawGolden golden;
         }
 

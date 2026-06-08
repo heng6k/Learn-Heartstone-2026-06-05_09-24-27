@@ -42,7 +42,9 @@ namespace LearnHearthstone.Domain.Engine
                     Gold = tavern.Gold,
                     MaxGold = tavern.MaxGold,
                     UpgradeCost = tavern.UpgradeCost,
-                    Frozen = tavern.Frozen
+                    Frozen = tavern.Frozen,
+                    NextTurnBonusGold = tavern.NextTurnBonusGold,
+                    NextTavernSpellCostReduction = tavern.NextTavernSpellCostReduction
                 },
                 Shop = CaptureCards(tavern.Shop),
                 Hand = CaptureCards(tavern.Hand),
@@ -89,6 +91,8 @@ namespace LearnHearthstone.Domain.Engine
             tavern.MaxGold = Math.Max(tavern.Gold, scenario.Tavern?.MaxGold ?? tavern.MaxGold);
             tavern.UpgradeCost = Math.Max(0, scenario.Tavern?.UpgradeCost ?? tavern.UpgradeCost);
             tavern.Frozen = scenario.Tavern?.Frozen ?? tavern.Frozen;
+            tavern.NextTurnBonusGold = Math.Max(0, scenario.Tavern?.NextTurnBonusGold ?? tavern.NextTurnBonusGold);
+            tavern.NextTavernSpellCostReduction = Math.Max(0, scenario.Tavern?.NextTavernSpellCostReduction ?? tavern.NextTavernSpellCostReduction);
 
             tavern.Shop = RestoreCards(scenario.Shop, BoardSide.Player);
             tavern.Hand = RestoreCards(scenario.Hand, BoardSide.Player);
@@ -143,7 +147,8 @@ namespace LearnHearthstone.Domain.Engine
                 PoolSource = card.PoolSource,
                 PoolCopiesHeld = card.PoolCopiesHeld,
                 ImagePath = card.ImagePath,
-                EffectIds = new List<string>(card.EffectIds)
+                EffectIds = new List<string>(card.EffectIds),
+                Tags = card.Tags == null ? new List<string>() : new List<string>(card.Tags)
             };
         }
 
@@ -202,7 +207,8 @@ namespace LearnHearthstone.Domain.Engine
                 PoolSource = card.PoolSource,
                 PoolCopiesHeld = card.PoolCopiesHeld,
                 ImagePath = card.ImagePath,
-                EffectIds = card.EffectIds == null ? new List<string>() : new List<string>(card.EffectIds)
+                EffectIds = card.EffectIds == null ? new List<string>() : new List<string>(card.EffectIds),
+                Tags = card.Tags == null ? new List<string>() : new List<string>(card.Tags)
             };
         }
     }

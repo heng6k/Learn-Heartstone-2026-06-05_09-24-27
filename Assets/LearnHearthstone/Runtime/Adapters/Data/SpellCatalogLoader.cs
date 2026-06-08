@@ -61,10 +61,105 @@ namespace LearnHearthstone.Adapters.Data
                 ImageUrl = raw.imageUrl,
                 ImagePath = raw.imagePath,
                 EffectIds = raw.effectIds ?? new List<string>(),
-                Tags = raw.tags ?? new List<string>(),
+                Tags = raw.tags == null || raw.tags.Count == 0 ? InferTags(raw) : raw.tags,
                 ImplementationStatus = raw.implementationStatus,
                 Notes = raw.notes
             };
+        }
+
+        private static List<string> InferTags(RawSpell raw)
+        {
+            var tags = new List<string> { "tavern_spell", "tier_" + raw.tavernTier };
+            var text = raw.text ?? string.Empty;
+
+            if (text.Contains("使一个随从"))
+            {
+                Add(tags, "targeted_spell");
+            }
+
+            if (text.Contains("获得+") || text.Contains("获得 +") || text.Contains("+"))
+            {
+                Add(tags, "buff_spell");
+            }
+
+            if (text.Contains("攻击力"))
+            {
+                Add(tags, "attack_buff");
+            }
+
+            if (text.Contains("生命值"))
+            {
+                Add(tags, "health_buff");
+            }
+
+            if (text.Contains("嘲讽") || text.Contains("圣盾"))
+            {
+                Add(tags, "keyword_grant");
+            }
+
+            if (text.Contains("发现"))
+            {
+                Add(tags, "discover_spell");
+            }
+
+            if (text.Contains("随机获取") || text.Contains("获取一张"))
+            {
+                Add(tags, "card_generator");
+            }
+
+            if (text.Contains("酒馆中的"))
+            {
+                Add(tags, "shop_spell");
+            }
+
+            if (text.Contains("偷取"))
+            {
+                Add(tags, "steal_spell");
+            }
+
+            if (text.Contains("铸币"))
+            {
+                Add(tags, "economy_spell");
+            }
+
+            switch (raw.cardNumber)
+            {
+                case "100596":
+                    Add(tags, "targeted_attack_buff");
+                    break;
+                case "103791":
+                    Add(tags, "targeted_health_buff");
+                    Add(tags, "taunt_grant");
+                    break;
+                case "105752":
+                    Add(tags, "targeted_stat_buff");
+                    break;
+                case "104436":
+                    Add(tags, "gain_gold");
+                    break;
+                case "103793":
+                    Add(tags, "random_tier_1_minion");
+                    break;
+                case "122864":
+                    Add(tags, "discover_tier_1_minion");
+                    break;
+                case "105903":
+                    Add(tags, "shop_buff");
+                    break;
+                case "104502":
+                    Add(tags, "shop_steal");
+                    break;
+            }
+
+            return tags;
+        }
+
+        private static void Add(List<string> tags, string tag)
+        {
+            if (!tags.Contains(tag))
+            {
+                tags.Add(tag);
+            }
         }
 
         [Serializable]

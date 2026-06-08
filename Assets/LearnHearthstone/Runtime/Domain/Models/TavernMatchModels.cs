@@ -53,6 +53,8 @@ namespace LearnHearthstone.Domain.Models
         public int MaxGold;
         public int UpgradeCost;
         public bool Frozen;
+        public int NextTurnBonusGold;
+        public int NextTavernSpellCostReduction;
         public List<MinionInstance> Shop = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();

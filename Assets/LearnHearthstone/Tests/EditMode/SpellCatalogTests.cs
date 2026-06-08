@@ -25,7 +25,13 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("CardImages/TavernSpells/EBG_Spell_014", spell.ImagePath);
             Assert.IsNotNull(Resources.Load<Texture2D>(spell.ImagePath));
             Assert.IsTrue(tierOneSpells.Contains(spell));
+            Assert.AreEqual(8, tierOneSpells.Count);
             Assert.IsTrue(tierOneSpells.TrueForAll(candidate => candidate.InPool && candidate.Category == "TavernSpell" && candidate.TavernTier <= 1));
+            Assert.Contains("targeted_spell", spell.Tags);
+            Assert.Contains("targeted_attack_buff", spell.Tags);
+            Assert.Contains("economy_spell", catalog.GetBySourceId(34609).Tags);
+            Assert.Contains("discover_spell", catalog.GetBySourceId(48236).Tags);
+            Assert.Contains("shop_steal", catalog.GetBySourceId(34619).Tags);
             Assert.Throws<System.InvalidOperationException>(() => catalog.GetBySourceId(38647));
             Assert.Throws<System.InvalidOperationException>(() => catalog.GetBySourceId(38648));
             Assert.Throws<System.InvalidOperationException>(() => catalog.GetBySourceId(38649));

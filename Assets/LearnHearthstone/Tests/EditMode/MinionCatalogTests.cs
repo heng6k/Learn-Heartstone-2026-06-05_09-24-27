@@ -36,11 +36,29 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void MinionCatalog_RepresentativeMechanicSliceHasAtLeastFifteenEffectMinions()
+        public void TierOnePool_UsesCurrentSoloPoolAndInferredTags()
         {
             var catalog = MinionCatalogLoader.LoadFromResources();
 
-            var effectMinions = catalog.All.Where(definition => definition.EffectIds != null && definition.EffectIds.Count > 0).ToList();
+            var tierOne = catalog.All.Where(definition => definition.InPool && definition.TavernTier == 1).ToList();
+
+            Assert.AreEqual(20, tierOne.Count);
+            Assert.IsTrue(tierOne.Any(definition => definition.CardId == "BG26_800" && definition.Name == "魔刃豹"));
+            Assert.IsFalse(tierOne.Any(definition => definition.CardId == "BGDUO_114"));
+            Assert.IsFalse(tierOne.Any(definition => definition.CardId == "BG26_529"));
+            Assert.IsFalse(tierOne.Any(definition => definition.CardId == "BG25_013"));
+            Assert.Contains("spell_discount", catalog.GetByCardId("BG31_330").Tags);
+            Assert.Contains("spellcraft_generator", catalog.GetByCardId("BG27_004").Tags);
+            Assert.Contains("buy_counter", catalog.GetByCardId("BG35_801").Tags);
+            Assert.Contains("blood_gem_generator", catalog.GetByCardId("BG20_100").Tags);
+        }
+
+        [Test]
+        public void MinionCatalog_RepresentativeMechanicSliceHasAtLeastFifteenTaggedMechanicMinions()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+
+            var effectMinions = catalog.All.Where(definition => definition.Tags != null && definition.Tags.Any(tag => tag != "minion" && !tag.StartsWith("tier_"))).ToList();
 
             Assert.GreaterOrEqual(effectMinions.Count, 15);
         }

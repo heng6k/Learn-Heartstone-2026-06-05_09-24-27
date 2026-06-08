@@ -5,6 +5,8 @@ namespace LearnHearthstone.Domain.Engine
 {
     public static class MechanicEngine
     {
+        private const string ScarletSurvivorCardId = "BG35_814";
+
         public static void ApplyToMinion(MinionInstance minion, MechanicAction action)
         {
             if (minion == null || action == null)
@@ -39,7 +41,7 @@ namespace LearnHearthstone.Domain.Engine
             switch (action.Type)
             {
                 case MechanicActionType.GainGold:
-                    tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + action.Gold);
+                    tavern.Gold += action.Gold;
                     break;
                 case MechanicActionType.ModifyShopGrowth:
                     tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier
@@ -66,6 +68,10 @@ namespace LearnHearthstone.Domain.Engine
                 AttackBonus = action.Attack,
                 HealthBonus = action.Health
             });
+            if (minion.CardId == ScarletSurvivorCardId && minion.Attack >= 6 && !minion.Keywords.Contains(Keyword.DivineShield))
+            {
+                minion.Keywords.Add(Keyword.DivineShield);
+            }
         }
     }
 }

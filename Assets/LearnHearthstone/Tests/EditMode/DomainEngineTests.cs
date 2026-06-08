@@ -107,6 +107,26 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("o2", result.Log.First(entry => entry.Title == "攻击").TargetId);
         }
 
+        [Test]
+        public void CombatEngine_TierOneDeathrattlesSummonTokens()
+        {
+            var manasaber = TestInstance("p1", "manasaber", 0);
+            manasaber.CardId = "BG26_800";
+            manasaber.Attack = 0;
+            manasaber.Health = 1;
+            manasaber.MaxHealth = 1;
+            manasaber.Keywords.Add(Keyword.Deathrattle);
+            var attacker = TestInstance("o1", "attacker", 0);
+            attacker.Attack = 1;
+            attacker.Health = 1;
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { manasaber }, new[] { attacker }, 1, 1);
+
+            Assert.AreEqual(2, result.FinalPlayerBoard.Count(card => card.CardId == "CUBLING"));
+            Assert.IsTrue(result.FinalPlayerBoard.Where(card => card.CardId == "CUBLING").All(card => card.Keywords.Contains(Keyword.Taunt)));
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "MinionSummoned"));
+        }
+
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
         {
             return new MinionDefinition

@@ -32,6 +32,7 @@ namespace LearnHearthstone.Domain.Models
         public GoldenMinionDefinition Golden;
         public string ImagePath;
         public List<string> EffectIds = new List<string>();
+        public List<string> Tags = new List<string>();
         public string TokenId;
     }
 
@@ -76,6 +77,7 @@ namespace LearnHearthstone.Domain.Models
         public int PoolCopiesHeld;
         public string ImagePath;
         public List<string> EffectIds = new List<string>();
+        public List<string> Tags = new List<string>();
 
         public MinionInstance Clone()
         {
@@ -107,7 +109,8 @@ namespace LearnHearthstone.Domain.Models
                 PoolSource = PoolSource,
                 PoolCopiesHeld = PoolCopiesHeld,
                 ImagePath = ImagePath,
-                EffectIds = new List<string>(EffectIds)
+                EffectIds = new List<string>(EffectIds),
+                Tags = new List<string>(Tags)
             };
         }
     }
@@ -148,7 +151,8 @@ namespace LearnHearthstone.Domain.Models
                 PoolSource = source,
                 PoolCopiesHeld = poolCopiesHeld,
                 ImagePath = definition.ImagePath,
-                EffectIds = new List<string>(definition.EffectIds)
+                EffectIds = new List<string>(definition.EffectIds),
+                Tags = new List<string>(definition.Tags)
             };
         }
 
@@ -182,7 +186,8 @@ namespace LearnHearthstone.Domain.Models
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
                 ImagePath = definition.ImagePath,
-                EffectIds = definition.EffectIds == null ? new List<string>() : new List<string>(definition.EffectIds)
+                EffectIds = definition.EffectIds == null ? new List<string>() : new List<string>(definition.EffectIds),
+                Tags = definition.Tags == null ? new List<string>() : new List<string>(definition.Tags)
             };
         }
     }

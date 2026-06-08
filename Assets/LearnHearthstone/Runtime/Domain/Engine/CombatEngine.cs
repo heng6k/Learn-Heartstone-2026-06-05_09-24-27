@@ -7,6 +7,11 @@ namespace LearnHearthstone.Domain.Engine
 {
     public static class CombatEngine
     {
+        private const string CordPullerCardId = "BG29_611";
+        private const string HarmlessBoneheadCardId = "BG28_300";
+        private const string ManasaberCardId = "BG26_800";
+        private const string TwilightHatchlingCardId = "BG34_630";
+
         public static CombatOutput SimulateBasicCombat(IEnumerable<MinionInstance> playerBoard, IEnumerable<MinionInstance> opponentBoard, int seed, int safetyLimit = 200)
         {
             var player = playerBoard.Select(minion => minion.Clone()).Where(IsAlive).ToList();
@@ -91,6 +96,7 @@ namespace LearnHearthstone.Domain.Engine
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
                 {
                     AddLog(log, "DeathrattleResolved", minion.InstanceId + " deathrattle", minion.InstanceId, null, LogSeverity.Normal);
+                    ResolveDeathrattleSummons(minion, result, log);
                 }
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
@@ -105,6 +111,66 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return result;
+        }
+
+        private static void ResolveDeathrattleSummons(MinionInstance minion, List<MinionInstance> board, List<CombatLogEntry> log)
+        {
+            switch (minion.CardId)
+            {
+                case CordPullerCardId:
+                    AddToken(board, log, minion, "microbot", "微型机器人", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Mech);
+                    break;
+                case HarmlessBoneheadCardId:
+                    AddToken(board, log, minion, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
+                    AddToken(board, log, minion, "skeleton", "骷髅", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
+                    break;
+                case ManasaberCardId:
+                    AddToken(board, log, minion, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
+                    AddToken(board, log, minion, "cubling", "豹宝宝", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
+                    break;
+                case TwilightHatchlingCardId:
+                    AddToken(board, log, minion, "hatchling", "雏龙", 3, 3, Tribe.Dragon);
+                    if (minion.Golden)
+                    {
+                        AddToken(board, log, minion, "hatchling", "雏龙", 3, 3, Tribe.Dragon);
+                    }
+                    break;
+            }
+        }
+
+        private static void AddToken(List<MinionInstance> board, List<CombatLogEntry> log, MinionInstance source, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
+        {
+            if (board.Count >= 7)
+            {
+                return;
+            }
+
+            var keywords = new List<Keyword>();
+            if (keyword.HasValue)
+            {
+                keywords.Add(keyword.Value);
+            }
+
+            board.Add(new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "token-" + source.InstanceId + "-" + tokenId + "-" + board.Count,
+                DefinitionId = tokenId,
+                CardId = tokenId.ToUpperInvariant(),
+                Name = name,
+                BaseAttack = attack,
+                BaseHealth = health,
+                Attack = attack,
+                Health = health,
+                MaxHealth = health,
+                Tribes = new List<Tribe> { tribe },
+                Keywords = keywords,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                PoolSource = PoolSource.Summon,
+                PoolCopiesHeld = 0
+            });
+            AddLog(log, "MinionSummoned", source.InstanceId + " summoned " + name, source.InstanceId, null, LogSeverity.Good);
         }
 
         private static void AddLog(List<CombatLogEntry> log, string title, string detail, string actorId, string targetId, LogSeverity severity)

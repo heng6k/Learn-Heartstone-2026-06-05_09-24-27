@@ -47,6 +47,8 @@ namespace LearnHearthstone.Domain.Models
         public int MaxGold;
         public int UpgradeCost;
         public bool Frozen;
+        public int NextTurnBonusGold;
+        public int NextTavernSpellCostReduction;
     }
 
     [Serializable]
@@ -79,6 +81,7 @@ namespace LearnHearthstone.Domain.Models
         public int PoolCopiesHeld;
         public string ImagePath;
         public List<string> EffectIds = new List<string>();
+        public List<string> Tags = new List<string>();
     }
 
     [Serializable]
