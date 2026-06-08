@@ -1,0 +1,9079 @@
+{
+  "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
+  "targetReference": "https://hsreplay.net/battlegrounds/minions/",
+  "filter": "type=MINION, isBattlegroundsPoolMinion=true, excluding golden cards with battlegroundsNormalDbfId",
+  "count": 279,
+  "minions": [
+    {
+      "id": "bg35_801",
+      "cardId": "BG35_801",
+      "dbfId": 129745,
+      "name": "贪吃的穴居人",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "一旦你购买了4张牌，获得+4/+4。（还剩4张！）",
+      "goldenDbfId": 129746,
+      "golden": {
+        "cardId": "BG35_801_G",
+        "dbfId": 129746,
+        "attack": 4,
+        "health": 6,
+        "text": "一旦你购买了4张牌，获得+8/+8。（还剩4张！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_114",
+      "cardId": "BGDUO_114",
+      "dbfId": 105251,
+      "name": "过路旅客",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果",
+        "传递"
+      ],
+      "text": "每回合中你的队伍第一次传递时，获得+1/+2。",
+      "goldenDbfId": 105254,
+      "golden": {
+        "cardId": "BGDUO_114_G",
+        "dbfId": 105254,
+        "attack": 4,
+        "health": 4,
+        "text": "每回合中你的队伍第一次传递时，获得+2/+4。",
+        "keywords": [
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_001",
+      "cardId": "BG25_001",
+      "dbfId": 95246,
+      "name": "复活的骑兵",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复生",
+        "嘲讽"
+      ],
+      "text": "嘲讽，复生",
+      "goldenDbfId": 95248,
+      "golden": {
+        "cardId": "BG25_001_G",
+        "dbfId": 95248,
+        "attack": 4,
+        "health": 2,
+        "text": "嘲讽，复生",
+        "keywords": [
+          "复生",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "combat_reborn_self"
+      ]
+    },
+    {
+      "id": "bg28_300",
+      "cardId": "BG28_300",
+      "dbfId": 104551,
+      "name": "无害的骨颅",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤两个1/1的骷髅。",
+      "goldenDbfId": 104554,
+      "golden": {
+        "cardId": "BG28_300_G",
+        "dbfId": 104554,
+        "attack": 2,
+        "health": 2,
+        "text": "亡语：召唤四个1/1的骷髅。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_summon_token_1"
+      ]
+    },
+    {
+      "id": "bg25_013",
+      "cardId": "BG25_013",
+      "dbfId": 95271,
+      "name": "腐皮豺狼人",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "光环"
+      ],
+      "text": "在本场战斗中，每有一个友方随从死亡，便拥有+1攻击力。",
+      "goldenDbfId": 95272,
+      "golden": {
+        "cardId": "BG25_013_G",
+        "dbfId": 95272,
+        "attack": 2,
+        "health": 8,
+        "text": "在本场战斗中，每有一个友方随从死亡，便拥有+2攻击力。",
+        "keywords": [
+          "光环"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_815",
+      "cardId": "BG31_815",
+      "dbfId": 116734,
+      "name": "沙丘土著",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使酒馆中的元素在本局对战中获得+1/+1。",
+      "goldenDbfId": 116735,
+      "golden": {
+        "cardId": "BG31_815_G",
+        "dbfId": 116735,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼： 使酒馆中的元素在本局对战中获得+1/+1，触发两次。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "future_shop_typed_buff_1_1"
+      ]
+    },
+    {
+      "id": "bgs_119",
+      "cardId": "BGS_119",
+      "dbfId": 64054,
+      "name": "爆裂飓风",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "圣盾",
+        "风怒"
+      ],
+      "text": "圣盾，风怒",
+      "goldenDbfId": 64055,
+      "golden": {
+        "cardId": "TB_BaconUps_159",
+        "dbfId": 64055,
+        "attack": 4,
+        "health": 2,
+        "text": "圣盾，风怒",
+        "keywords": [
+          "圣盾",
+          "风怒"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_004",
+      "cardId": "BGS_004",
+      "dbfId": 59670,
+      "name": "愤怒编织者",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张恶魔牌后，对你的英雄造成1点伤害并获得+2/+1。",
+      "goldenDbfId": 59679,
+      "golden": {
+        "cardId": "TB_BaconUps_079",
+        "dbfId": 59679,
+        "attack": 2,
+        "health": 8,
+        "text": "在你使用一张恶魔牌后，对你的英雄造成1点伤害并获得+2/+1，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg24_009",
+      "cardId": "BG24_009",
+      "dbfId": 92400,
+      "name": "挑食魔犬",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼",
+        "吞食"
+      ],
+      "text": "战吼：随机吞食酒馆中的一个随从，获得其属性值。",
+      "goldenDbfId": 92427,
+      "golden": {
+        "cardId": "BG24_009_G",
+        "dbfId": 92427,
+        "attack": 2,
+        "health": 2,
+        "text": "战吼：随机吞食酒馆中的一个随从，获得其双倍属性值。",
+        "keywords": [
+          "战吼",
+          "吞食"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_330",
+      "cardId": "BG31_330",
+      "dbfId": 117553,
+      "name": "厄运先知",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "恶魔",
+        "纳迦"
+      ],
+      "tribesText": "恶魔 / 纳迦",
+      "keywords": [
+        "战吼",
+        "酒馆法术"
+      ],
+      "text": "战吼：你购买的下一张酒馆法术牌消耗的铸币减少（1）枚。",
+      "goldenDbfId": 117554,
+      "golden": {
+        "cardId": "BG31_330_G",
+        "dbfId": 117554,
+        "attack": 4,
+        "health": 2,
+        "text": "战吼：你购买的下一张酒馆法术牌消耗的铸币减少（2）枚。",
+        "keywords": [
+          "战吼",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_gvg_085",
+      "cardId": "BG_GVG_085",
+      "dbfId": 103652,
+      "name": "吵吵机器人",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "圣盾",
+        "嘲讽"
+      ],
+      "text": "嘲讽圣盾",
+      "goldenDbfId": 103653,
+      "golden": {
+        "cardId": "BG_GVG_085_G",
+        "dbfId": 103653,
+        "attack": 2,
+        "health": 4,
+        "text": "嘲讽圣盾",
+        "keywords": [
+          "圣盾",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_611",
+      "cardId": "BG29_611",
+      "dbfId": 110101,
+      "name": "拔线机",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "圣盾"
+      ],
+      "text": "圣盾。亡语：召唤一个1/1的微型机器人。",
+      "goldenDbfId": 110102,
+      "golden": {
+        "cardId": "BG29_611_G",
+        "dbfId": 110102,
+        "attack": 2,
+        "health": 2,
+        "text": "圣盾。亡语：召唤一个2/2的微型机器人。",
+        "keywords": [
+          "亡语",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "summon_token_microbot"
+      ]
+    },
+    {
+      "id": "bg26_135",
+      "cardId": "BG26_135",
+      "dbfId": 98501,
+      "name": "南海卖艺者",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 1,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：下回合获得1枚铸币。",
+      "goldenDbfId": 98502,
+      "golden": {
+        "cardId": "BG26_135_G",
+        "dbfId": 98502,
+        "attack": 6,
+        "health": 2,
+        "text": "战吼：下回合获得2枚铸币。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_236",
+      "cardId": "BG32_236",
+      "dbfId": 119996,
+      "name": "夺金健将",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼",
+        "圣盾"
+      ],
+      "text": "圣盾。战吼：使本随从变为金色。",
+      "goldenDbfId": 119997,
+      "golden": {
+        "cardId": "BG32_236_G",
+        "dbfId": 119997,
+        "attack": 2,
+        "health": 2,
+        "text": "圣盾。战吼：使本随从变为金色。",
+        "keywords": [
+          "战吼",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_004",
+      "cardId": "BG27_004",
+      "dbfId": 103674,
+      "name": "海上双雄",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "纳迦",
+        "野兽"
+      ],
+      "tribesText": "纳迦 / 野兽",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "亡语"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得“亡语：召唤一只3/2的螃蟹”。",
+      "goldenDbfId": 103675,
+      "golden": {
+        "cardId": "BG27_004_G",
+        "dbfId": 103675,
+        "attack": 2,
+        "health": 2,
+        "text": "塑造法术：直到下个回合，使一个随从获得“亡语：召唤一只6/4的螃蟹”。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_800",
+      "cardId": "BG26_800",
+      "dbfId": 98831,
+      "name": "魔刃豹",
+      "tavernTier": 1,
+      "attack": 4,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤两只0/1并具有嘲讽的豹宝宝。",
+      "goldenDbfId": 98834,
+      "golden": {
+        "cardId": "BG26_800_G",
+        "dbfId": 98834,
+        "attack": 8,
+        "health": 2,
+        "text": "亡语：召唤两只0/2并具有嘲讽的豹宝宝。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg20_100",
+      "cardId": "BG20_100",
+      "dbfId": 70143,
+      "name": "剃刀沼泽地卜师",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "战吼",
+        "鲜血宝石"
+      ],
+      "text": "战吼：获取2张鲜血宝石。",
+      "goldenDbfId": 70150,
+      "golden": {
+        "cardId": "BG20_100_G",
+        "dbfId": 70150,
+        "attack": 4,
+        "health": 2,
+        "text": "战吼：获取4张鲜血宝石。",
+        "keywords": [
+          "战吼",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg20_301",
+      "cardId": "BG20_301",
+      "dbfId": 70147,
+      "name": "晾膘的游客",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "鲜血宝石"
+      ],
+      "text": "当你出售本随从时，获取2张鲜血宝石。",
+      "goldenDbfId": 70148,
+      "golden": {
+        "cardId": "BG20_301_G",
+        "dbfId": 70148,
+        "attack": 4,
+        "health": 6,
+        "text": "当你出售本随从时，获取4张鲜血宝石。",
+        "keywords": [
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_330",
+      "cardId": "BG32_330",
+      "dbfId": 120677,
+      "name": "好斗的斥候",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：如果本随从在你的手牌中，召唤一个它的复制。",
+      "goldenDbfId": 120678,
+      "golden": {
+        "cardId": "BG32_330_G",
+        "dbfId": 120678,
+        "attack": 6,
+        "health": 6,
+        "text": "战斗开始时：如果本随从在你的手牌中，召唤一个它的具有双倍属性值的复制。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_140",
+      "cardId": "BG33_140",
+      "dbfId": 122092,
+      "name": "江河弹跳鱼",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "当你出售本随从时，随机获取一张等级1的随从牌。",
+      "goldenDbfId": 122093,
+      "golden": {
+        "cardId": "BG33_140_G",
+        "dbfId": 122093,
+        "attack": 2,
+        "health": 2,
+        "text": "当你出售本随从时，随机获取两张等级1的随从牌。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_630",
+      "cardId": "BG34_630",
+      "dbfId": 126741,
+      "name": "暮光龙崽",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤一条3/3并立即发起攻击的雏龙。",
+      "goldenDbfId": 126742,
+      "golden": {
+        "cardId": "BG34_630_G",
+        "dbfId": 126742,
+        "attack": 2,
+        "health": 2,
+        "text": "亡语：召唤两条3/3并立即发起攻击的雏龙。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_529",
+      "cardId": "BG26_529",
+      "dbfId": 101114,
+      "name": "蓄势主唱幼龙",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "回合结束时",
+        "触发效果"
+      ],
+      "text": "每3个回合，在回合结束时，随机获取一张龙牌。（还剩3回合！）",
+      "goldenDbfId": 101115,
+      "golden": {
+        "cardId": "BG26_529_G",
+        "dbfId": 101115,
+        "attack": 2,
+        "health": 2,
+        "text": "每3个回合，在回合结束时，随机获取2张龙牌。（还剩3回合！）",
+        "keywords": [
+          "回合结束时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_814",
+      "cardId": "BG35_814",
+      "dbfId": 129749,
+      "name": "血色幸存飞龙",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "一旦本随从的攻击力达到6点，获得圣盾。",
+      "goldenDbfId": 129750,
+      "golden": {
+        "cardId": "BG35_814_G",
+        "dbfId": 129750,
+        "attack": 6,
+        "health": 6,
+        "text": "一旦本随从的攻击力达到6点，获得圣盾。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_237",
+      "cardId": "BG32_237",
+      "dbfId": 120223,
+      "name": "新锐植物学家",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "抉择",
+        "酒馆法术"
+      ],
+      "text": "抉择：在本局对战中，你的酒馆法术使随从额外获得+1攻击力；或者+1生命值。",
+      "goldenDbfId": 120224,
+      "golden": {
+        "cardId": "BG32_237_G",
+        "dbfId": 120224,
+        "attack": 6,
+        "health": 8,
+        "text": "抉择：在本局对战中，你的酒馆法术使随从额外获得+2攻击力；或者+2生命值。",
+        "keywords": [
+          "抉择",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_104",
+      "cardId": "BGDUO_104",
+      "dbfId": 104538,
+      "name": "热心的沙龙酒保",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：你的队友获取一张酒馆币。",
+      "goldenDbfId": 104539,
+      "golden": {
+        "cardId": "BGDUO_104_G",
+        "dbfId": 104539,
+        "attack": 6,
+        "health": 8,
+        "text": "战吼：你的队友获取2张酒馆币。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg24_715",
+      "cardId": "BG24_715",
+      "dbfId": 97604,
+      "name": "耐心的侦查员",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "回合结束时",
+        "发现"
+      ],
+      "text": "当你出售本随从时，发现一个等级1的随从。（每回合都会提升！）",
+      "goldenDbfId": 97605,
+      "golden": {
+        "cardId": "BG24_715_G",
+        "dbfId": 97605,
+        "attack": 2,
+        "health": 2,
+        "text": "当你出售本随从时，发现两个等级1的随从。（每回合都会提升！）",
+        "keywords": [
+          "回合结束时",
+          "发现"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_002",
+      "cardId": "BG27_002",
+      "dbfId": 103670,
+      "name": "软泥角斗士",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼",
+        "嘲讽"
+      ],
+      "text": "战吼：获取两张可以使随从获得+1/+1和嘲讽的黏黏盾。",
+      "goldenDbfId": 103671,
+      "golden": {
+        "cardId": "BG27_002_G",
+        "dbfId": 103671,
+        "attack": 4,
+        "health": 4,
+        "text": "战吼：获取四张可以使随从获得+1/+1和嘲讽的黏黏盾。",
+        "keywords": [
+          "战吼",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_100",
+      "cardId": "BGDUO_100",
+      "dbfId": 103619,
+      "name": "远行者周卓",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果",
+        "传递"
+      ],
+      "text": "每回合中有一次免费传递。（还剩1次！）",
+      "goldenDbfId": 103620,
+      "golden": {
+        "cardId": "BGDUO_100_G",
+        "dbfId": 103620,
+        "attack": 8,
+        "health": 6,
+        "text": "每回合中有两次免费传递。（还剩2次！）",
+        "keywords": [
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg20_203",
+      "cardId": "BG20_203",
+      "dbfId": 70153,
+      "name": "野猪预言者",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "嘲讽",
+        "触发效果",
+        "鲜血宝石"
+      ],
+      "text": "嘲讽。在你使用一张野猪人后，获取一张鲜血宝石。",
+      "goldenDbfId": 70155,
+      "golden": {
+        "cardId": "BG20_203_G",
+        "dbfId": 70155,
+        "attack": 4,
+        "health": 6,
+        "text": "嘲讽。在你使用一张野猪人后，获取2张鲜血宝石。",
+        "keywords": [
+          "嘲讽",
+          "触发效果",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_231",
+      "cardId": "BG34_231",
+      "dbfId": 126802,
+      "name": "古老之魂",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [],
+      "text": "当本随从在你手牌中时，在15个友方随从死亡后，将本随从变为金色。（还剩15个！）",
+      "goldenDbfId": 126803,
+      "golden": {
+        "cardId": "BG34_231_G",
+        "dbfId": 126803,
+        "attack": 6,
+        "health": 8,
+        "text": "当本随从在你手牌中时，在15个友方随从死亡后，将本随从变为金色。（已完成！）",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_011",
+      "cardId": "BG25_011",
+      "dbfId": 95267,
+      "name": "死亡群居蛛魔",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：在本局对战中，你的亡灵拥有+1攻击力（无论它们在哪）。",
+      "goldenDbfId": 95268,
+      "golden": {
+        "cardId": "BG25_011_G",
+        "dbfId": 95268,
+        "attack": 2,
+        "health": 8,
+        "text": "战吼：在本局对战中，你的亡灵拥有+2攻击力（无论它们在哪）。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_008",
+      "cardId": "BG25_008",
+      "dbfId": 95261,
+      "name": "永恒骑士",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "光环",
+        "隐藏亡语"
+      ],
+      "text": "在本局对战中，每有一个友方永恒骑士死亡，便拥有+4/+2（无论本随从在哪）。",
+      "goldenDbfId": 95262,
+      "golden": {
+        "cardId": "BG25_008_G",
+        "dbfId": 95262,
+        "attack": 8,
+        "health": 4,
+        "text": "在本局对战中，每有一个友方永恒骑士死亡，便拥有+8/+4（无论本随从在哪）。",
+        "keywords": [
+          "光环",
+          "隐藏亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_022",
+      "cardId": "BG25_022",
+      "dbfId": 95280,
+      "name": "血色骷髅",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "复生"
+      ],
+      "text": "复生。亡语：使一个友方亡灵获得+1/+2。",
+      "goldenDbfId": 95281,
+      "golden": {
+        "cardId": "BG25_022_G",
+        "dbfId": 95281,
+        "attack": 4,
+        "health": 2,
+        "text": "复生。亡语：使一个友方亡灵获得+2/+4。",
+        "keywords": [
+          "亡语",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_818",
+      "cardId": "BG31_818",
+      "dbfId": 117667,
+      "name": "冰雪投球手",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "当你出售本随从时，使你的随从获得+1生命值。提升你此后投球手的效果。",
+      "goldenDbfId": 117668,
+      "golden": {
+        "cardId": "BG31_818_G",
+        "dbfId": 117668,
+        "attack": 6,
+        "health": 8,
+        "text": "当你出售本随从时，使你的随从获得+2生命值。提升你此后投球手的效果。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_115",
+      "cardId": "BGS_115",
+      "dbfId": 64038,
+      "name": "商贩元素",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "当你出售本随从时，获取一张3/3的元素牌。",
+      "goldenDbfId": 64041,
+      "golden": {
+        "cardId": "TB_BaconUps_156",
+        "dbfId": 64041,
+        "attack": 6,
+        "health": 6,
+        "text": "当你出售本随从时，获取两张3/3的元素牌。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_816",
+      "cardId": "BG31_816",
+      "dbfId": 116736,
+      "name": "火焰投球手",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "当你出售本随从时，使你的随从获得+1攻击力。提升你此后投球手的效果。",
+      "goldenDbfId": 116737,
+      "golden": {
+        "cardId": "BG31_816_G",
+        "dbfId": 116737,
+        "attack": 8,
+        "health": 6,
+        "text": "当你出售本随从时，使你的随从获得+2攻击力。提升你此后投球手的效果。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_201",
+      "cardId": "BGDUO31_201",
+      "dbfId": 117326,
+      "name": "聚积风暴",
+      "tavernTier": 2,
+      "attack": 5,
+      "health": 1,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "当你出售本随从时，你的队友会获得1枚铸币。（每回合都会提升！）",
+      "goldenDbfId": 117327,
+      "golden": {
+        "cardId": "BGDUO31_201_G",
+        "dbfId": 117327,
+        "attack": 10,
+        "health": 2,
+        "text": "当你出售本随从时，你的队友会获得2枚铸币。（每回合都会提升！）",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_150",
+      "cardId": "BG35_150",
+      "dbfId": 130075,
+      "name": "实验室助理",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼",
+        "刷新"
+      ],
+      "text": "战吼：在你的下3次刷新中各添加一个恶魔饲料。",
+      "goldenDbfId": 130080,
+      "golden": {
+        "cardId": "BG35_150_G",
+        "dbfId": 130080,
+        "attack": 6,
+        "health": 8,
+        "text": "战吼：在你的下3次刷新中各添加两个恶魔饲料。",
+        "keywords": [
+          "战吼",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_174",
+      "cardId": "BG26_174",
+      "dbfId": 100949,
+      "name": "灵魂回溯者",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 1,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你的英雄受到伤害后，回溯该伤害并使本随从获得 +1生命值。",
+      "goldenDbfId": 100950,
+      "golden": {
+        "cardId": "BG26_174_G",
+        "dbfId": 100950,
+        "attack": 8,
+        "health": 2,
+        "text": "在你的英雄受到伤害后，回溯该伤害并使本随从获得 +2生命值。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_ttn_401",
+      "cardId": "BG_TTN_401",
+      "dbfId": 108432,
+      "name": "星元自动机",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "光环"
+      ],
+      "text": "在本局对战中，你每召唤过一个其他星元自动机，便拥有+3/+2（无论本随从在哪）。",
+      "goldenDbfId": 108435,
+      "golden": {
+        "cardId": "BG_TTN_401_G",
+        "dbfId": 108435,
+        "attack": 6,
+        "health": 8,
+        "text": "在本局对战中，你每召唤过一个其他星元自动机，便拥有+6/+4（无论本随从在哪）。",
+        "keywords": [
+          "光环"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_340",
+      "cardId": "BG35_340",
+      "dbfId": 130794,
+      "name": "通报警告机",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "嘲讽",
+        "酒馆法术"
+      ],
+      "text": "嘲讽。亡语：你购买的下一张酒馆法术牌消耗的铸币减少 （1）枚。",
+      "goldenDbfId": 130795,
+      "golden": {
+        "cardId": "BG35_340_G",
+        "dbfId": 130795,
+        "attack": 4,
+        "health": 4,
+        "text": "嘲讽。亡语：你购买的下一张酒馆法术牌消耗的铸币减少 （2）枚。",
+        "keywords": [
+          "亡语",
+          "嘲讽",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_170",
+      "cardId": "BG32_170",
+      "dbfId": 120021,
+      "name": "钢铁猎人",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：获取一张尖利箭矢。",
+      "goldenDbfId": 120022,
+      "golden": {
+        "cardId": "BG32_170_G",
+        "dbfId": 120022,
+        "attack": 8,
+        "health": 4,
+        "text": "亡语：获取2张尖利箭矢。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_235",
+      "cardId": "BG32_235",
+      "dbfId": 119994,
+      "name": "冲浪的希尔梵",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 2,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，使相邻的随从获得+1攻击力。每有一个友方金色随从，重复一次。",
+      "goldenDbfId": 119995,
+      "golden": {
+        "cardId": "BG32_235_G",
+        "dbfId": 119995,
+        "attack": 2,
+        "health": 4,
+        "text": "在你的回合结束时，使相邻的随从获得+2攻击力。每有一个友方金色随从，重复一次。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg21_018",
+      "cardId": "BG21_018",
+      "dbfId": 72061,
+      "name": "挑衅的船工",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 5,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当本随从通过其他来源获得攻击力时，获得+1生命值。",
+      "goldenDbfId": 74899,
+      "golden": {
+        "cardId": "BG21_018_G",
+        "dbfId": 74899,
+        "attack": 4,
+        "health": 10,
+        "text": "每当本随从通过其他来源获得攻击力时，获得+1生命值，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_049",
+      "cardId": "BGS_049",
+      "dbfId": 61049,
+      "name": "白赚赌徒",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "出售本随从可以获得3枚铸币。",
+      "goldenDbfId": 62187,
+      "golden": {
+        "cardId": "TB_BaconUps_127",
+        "dbfId": 62187,
+        "attack": 6,
+        "health": 6,
+        "text": "出售本随从可以获得6枚铸币。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_009",
+      "cardId": "BG23_009",
+      "dbfId": 80747,
+      "name": "熔岩潜伏者",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 5,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果",
+        "塑造法术"
+      ],
+      "text": "每回合从手牌对本随从使用的第一张塑造法术的法术牌永久有效。（还剩1张！）",
+      "goldenDbfId": 80765,
+      "golden": {
+        "cardId": "BG23_009_G",
+        "dbfId": 80765,
+        "attack": 4,
+        "health": 10,
+        "text": "每回合从手牌对本随从使用的前2张塑造法术的法术牌永久有效。（还剩2张！）",
+        "keywords": [
+          "触发效果",
+          "塑造法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_501",
+      "cardId": "BG26_501",
+      "dbfId": 98880,
+      "name": "疾涛吉他手",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得等同于你当前等级的属性值。",
+      "goldenDbfId": 98882,
+      "golden": {
+        "cardId": "BG26_501_G",
+        "dbfId": 98882,
+        "attack": 6,
+        "health": 4,
+        "text": "塑造法术：直到下个回合，使一个随从获得等同于你当前等级两倍的属性值。",
+        "keywords": [
+          "塑造法术",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_002",
+      "cardId": "BG23_002",
+      "dbfId": 80740,
+      "name": "贝类收藏家",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：获取一张酒馆币。",
+      "goldenDbfId": 82646,
+      "golden": {
+        "cardId": "BG23_002_G",
+        "dbfId": 82646,
+        "attack": 8,
+        "health": 6,
+        "text": "战吼：获取2张酒馆币。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_920",
+      "cardId": "BG34_920",
+      "dbfId": 126629,
+      "name": "赶潮纳迦",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "嘲讽。亡语：对一个相邻的随从施放变换之潮。",
+      "goldenDbfId": 126630,
+      "golden": {
+        "cardId": "BG34_920_G",
+        "dbfId": 126630,
+        "attack": 4,
+        "health": 2,
+        "text": "嘲讽。亡语：对相邻的随从施放变换之潮。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_805",
+      "cardId": "BG26_805",
+      "dbfId": 98939,
+      "name": "哼鸣蜂鸟",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：在本场战斗的剩余时间内，你的野兽拥有+1攻击力。",
+      "goldenDbfId": 98941,
+      "golden": {
+        "cardId": "BG26_805_G",
+        "dbfId": 98941,
+        "attack": 2,
+        "health": 8,
+        "text": "战斗开始时：在本场战斗的剩余时间内，你的野兽拥有+2攻击力。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_801",
+      "cardId": "BG31_801",
+      "dbfId": 115577,
+      "name": "森林游虫",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼：在本局对战中，你的甲虫拥有+2/+1。 亡语：召唤一只2/2的甲虫。",
+      "goldenDbfId": 115578,
+      "golden": {
+        "cardId": "BG31_801_G",
+        "dbfId": 115578,
+        "attack": 2,
+        "health": 2,
+        "text": "战吼：在本局对战中，你的甲虫拥有+4/+2。 亡语：召唤两只2/2的甲虫。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_430",
+      "cardId": "BG32_430",
+      "dbfId": 120031,
+      "name": "亮喉督军",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "鲜血宝石",
+        "嘲讽"
+      ],
+      "text": "亡语：召唤两个1/1并具有嘲讽的野猪人。本随从对其使用一张鲜血宝石。",
+      "goldenDbfId": 120032,
+      "golden": {
+        "cardId": "BG32_430_G",
+        "dbfId": 120032,
+        "attack": 4,
+        "health": 4,
+        "text": "亡语：召唤两个2/2并具有嘲讽的野猪人。本随从对其使用2张鲜血宝石。",
+        "keywords": [
+          "亡语",
+          "鲜血宝石",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_432",
+      "cardId": "BG35_432",
+      "dbfId": 130145,
+      "name": "刺背恶霸",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "嘲讽",
+        "鲜血宝石"
+      ],
+      "text": "嘲讽。亡语：获取一张鲜血宝石。该宝石还能使野猪人获得嘲讽。",
+      "goldenDbfId": 130146,
+      "golden": {
+        "cardId": "BG35_432_G",
+        "dbfId": 130146,
+        "attack": 6,
+        "health": 4,
+        "text": "嘲讽。亡语：获取2张鲜血宝石。该宝石还能使野猪人获得嘲讽。",
+        "keywords": [
+          "亡语",
+          "嘲讽",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_111",
+      "cardId": "BGDUO_111",
+      "dbfId": 104957,
+      "name": "大方的地卜师",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "鲜血宝石"
+      ],
+      "text": "亡语： 你和你的队友各获取一张鲜血宝石。",
+      "goldenDbfId": 104958,
+      "golden": {
+        "cardId": "BGDUO_111_G",
+        "dbfId": 104958,
+        "attack": 2,
+        "health": 2,
+        "text": "亡语： 你和你的队友各获取2张鲜血宝石。",
+        "keywords": [
+          "亡语",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg22_202",
+      "cardId": "BG22_202",
+      "dbfId": 87060,
+      "name": "塔德",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "当你出售本随从时，随机获取一张鱼人牌。",
+      "goldenDbfId": 87062,
+      "golden": {
+        "cardId": "BG22_202_G",
+        "dbfId": 87062,
+        "attack": 4,
+        "health": 4,
+        "text": "当你出售本随从时，随机获取2张鱼人牌。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_300",
+      "cardId": "BG29_300",
+      "dbfId": 109879,
+      "name": "巨饿冬鳍鱼人",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "嘲讽",
+        "触发效果"
+      ],
+      "text": "嘲讽。每当本随从受到伤害，使你手牌中的一张随从牌获得+2/+1。",
+      "goldenDbfId": 109881,
+      "golden": {
+        "cardId": "BG29_300_G",
+        "dbfId": 109881,
+        "attack": 4,
+        "health": 10,
+        "text": "嘲讽。每当本随从受到伤害，使你手牌中的一张随从牌获得+4/+2。",
+        "keywords": [
+          "嘲讽",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_140",
+      "cardId": "BG34_140",
+      "dbfId": 126637,
+      "name": "飞行专家",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：召唤你手牌中攻击力最高的随从，其登场仅限本场战斗。",
+      "goldenDbfId": 126638,
+      "golden": {
+        "cardId": "BG34_140_G",
+        "dbfId": 126638,
+        "attack": 6,
+        "health": 8,
+        "text": "进击：召唤你手牌中攻击力最高的2个随从，其登场仅限本场战斗。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg21_015",
+      "cardId": "BG21_015",
+      "dbfId": 72062,
+      "name": "泰蕾苟萨",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "本随从可永久保留战斗阶段获得的额外关键词和属性值。",
+      "goldenDbfId": 73453,
+      "golden": {
+        "cardId": "BG21_015_G",
+        "dbfId": 73453,
+        "attack": 8,
+        "health": 8,
+        "text": "本随从可永久保留战斗阶段获得的额外关键词和双倍属性值。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_241",
+      "cardId": "BG33_241",
+      "dbfId": 122434,
+      "name": "贪睡的援护巨龙",
+      "tavernTier": 2,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使本随从右边的随从获得+2/+2。",
+      "goldenDbfId": 122435,
+      "golden": {
+        "cardId": "BG33_241_G",
+        "dbfId": 122435,
+        "attack": 8,
+        "health": 6,
+        "text": "进击：使本随从右边的随从获得+4/+4。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_119",
+      "cardId": "BGDUO_119",
+      "dbfId": 105799,
+      "name": "兽人指挥",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使一个随从获得+2/+2（在本局对战中，你的队伍每使用过一张兽人指挥都会提升）。",
+      "goldenDbfId": 105808,
+      "golden": {
+        "cardId": "BGDUO_119_G",
+        "dbfId": 105808,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：使一个随从获得+4/+4（在本局对战中，你的队伍每使用过一张兽人指挥都会提升）。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_303",
+      "cardId": "BG28_303",
+      "dbfId": 104610,
+      "name": "变装盗墓贼",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：消灭一个友方亡灵以获取一张它的原始版复制。",
+      "goldenDbfId": 104611,
+      "golden": {
+        "cardId": "BG28_303_G",
+        "dbfId": 104611,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：消灭一个友方亡灵以获取2张它的原始版复制。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_131",
+      "cardId": "BGS_131",
+      "dbfId": 65031,
+      "name": "致命的孢子",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "烈毒"
+      ],
+      "text": "烈毒",
+      "goldenDbfId": 65122,
+      "golden": {
+        "cardId": "TB_BaconUps_251",
+        "dbfId": 65122,
+        "attack": 2,
+        "health": 2,
+        "text": "烈毒",
+        "keywords": [
+          "烈毒"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_323",
+      "cardId": "BG33_323",
+      "dbfId": 122229,
+      "name": "尘骨毁灭者",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 6,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：在本局对战中，你的亡灵拥有+1攻击力（无论它们在哪）。",
+      "goldenDbfId": 122230,
+      "golden": {
+        "cardId": "BG33_323_G",
+        "dbfId": 122230,
+        "attack": 4,
+        "health": 12,
+        "text": "进击：在本局对战中，你的亡灵拥有+2攻击力（无论它们在哪）。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_010",
+      "cardId": "BG25_010",
+      "dbfId": 95265,
+      "name": "断手被遗忘者",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "复生"
+      ],
+      "text": "亡语：召唤一只2/1并具有复生的手。",
+      "goldenDbfId": 95266,
+      "golden": {
+        "cardId": "BG25_010_G",
+        "dbfId": 95266,
+        "attack": 4,
+        "health": 2,
+        "text": "亡语：召唤两只2/1并具有复生的手。",
+        "keywords": [
+          "亡语",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_309",
+      "cardId": "BG28_309",
+      "dbfId": 108992,
+      "name": "木乃伊工匠",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 2,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "复生"
+      ],
+      "text": "亡语：使一个不同的友方亡灵获得复生。",
+      "goldenDbfId": 109003,
+      "golden": {
+        "cardId": "BG28_309_G",
+        "dbfId": 109003,
+        "attack": 10,
+        "health": 4,
+        "text": "亡语：使2个不同的友方亡灵获得复生。",
+        "keywords": [
+          "亡语",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_125",
+      "cardId": "BG30_125",
+      "dbfId": 113158,
+      "name": "遗骸看管者",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤三个1/1的骷髅。",
+      "goldenDbfId": 113159,
+      "golden": {
+        "cardId": "BG30_125_G",
+        "dbfId": 113159,
+        "attack": 6,
+        "health": 6,
+        "text": "亡语：召唤六个1/1的骷髅。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_856",
+      "cardId": "BG34_856",
+      "dbfId": 126169,
+      "name": "幼体水波",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 1,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "亡语",
+        "刷新"
+      ],
+      "text": "亡语：在本局对战中，在酒馆刷新后，使酒馆中一个随机随从获得+3/+3。",
+      "goldenDbfId": 126170,
+      "golden": {
+        "cardId": "BG34_856_G",
+        "dbfId": 126170,
+        "attack": 12,
+        "health": 2,
+        "text": "亡语：在本局对战中，在酒馆刷新后，使酒馆中一个随机随从获得+3/+3，触发两次。",
+        "keywords": [
+          "亡语",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_842",
+      "cardId": "BG32_842",
+      "dbfId": 119951,
+      "name": "辐光余烬",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 1,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：在本局对战中，你元素使随从额外获得+1生命值。",
+      "goldenDbfId": 119952,
+      "golden": {
+        "cardId": "BG32_842_G",
+        "dbfId": 119952,
+        "attack": 6,
+        "health": 2,
+        "text": "亡语：在本局对战中，你元素使随从额外获得+2生命值。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_126",
+      "cardId": "BGS_126",
+      "dbfId": 64189,
+      "name": "野火元素",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在本随从攻击并消灭一个随从后，对一个相邻的随从造成超过目标生命值的伤害。",
+      "goldenDbfId": 64190,
+      "golden": {
+        "cardId": "TB_BaconUps_166",
+        "dbfId": 64190,
+        "attack": 12,
+        "health": 6,
+        "text": "在本随从攻击并消灭一个随从后，对相邻的随从均造成超过目标生命值的伤害。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_041",
+      "cardId": "BG25_041",
+      "dbfId": 97553,
+      "name": "邪能元素",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "元素",
+        "恶魔"
+      ],
+      "tribesText": "元素 / 恶魔",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使酒馆中的随从在本局对战中获得+2/+1。",
+      "goldenDbfId": 97554,
+      "golden": {
+        "cardId": "BG25_041_G",
+        "dbfId": 97554,
+        "attack": 6,
+        "health": 6,
+        "text": "战吼： 使酒馆中的随从在本局对战中获得+2/+1，触发两次。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_859",
+      "cardId": "BG31_859",
+      "dbfId": 119202,
+      "name": "科技元素体",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "元素",
+        "机械"
+      ],
+      "tribesText": "元素 / 机械",
+      "keywords": [
+        "磁力"
+      ],
+      "text": "磁力。可以磁力吸附在机械和元素上。",
+      "goldenDbfId": 119203,
+      "golden": {
+        "cardId": "BG31_859_G",
+        "dbfId": 119203,
+        "attack": 10,
+        "health": 12,
+        "text": "磁力。可以磁力吸附在机械和元素上。",
+        "keywords": [
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_115",
+      "cardId": "BGDUO_115",
+      "dbfId": 105435,
+      "name": "跳跳娃娃",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部种族",
+      "keywords": [
+        "触发效果",
+        "传递"
+      ],
+      "text": "在本随从第一次被出售后，传递本随从。",
+      "goldenDbfId": 105436,
+      "golden": {
+        "cardId": "BGDUO_115_G",
+        "dbfId": 105436,
+        "attack": 6,
+        "health": 8,
+        "text": "在本随从第一次被出售后，传递本随从。",
+        "keywords": [
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_524",
+      "cardId": "BG26_524",
+      "dbfId": 99199,
+      "name": "舞蹈王子玛克扎尔",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果",
+        "刷新"
+      ],
+      "text": "每回合中，有两次刷新会消耗生命值，而非铸币。（还剩2次！）",
+      "goldenDbfId": 99220,
+      "golden": {
+        "cardId": "BG26_524_G",
+        "dbfId": 99220,
+        "attack": 4,
+        "health": 2,
+        "text": "每回合中，有四次刷新会消耗生命值，而非铸币。（还剩4次！）",
+        "keywords": [
+          "触发效果",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_071",
+      "cardId": "BGS_071",
+      "dbfId": 61930,
+      "name": "偏折机器人",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "圣盾",
+        "触发效果"
+      ],
+      "text": "圣盾在战斗阶段中，每当你召唤一个机械，便获得+2攻击力和圣盾。",
+      "goldenDbfId": 61932,
+      "golden": {
+        "cardId": "TB_BaconUps_123",
+        "dbfId": 61932,
+        "attack": 6,
+        "health": 4,
+        "text": "圣盾在战斗阶段中，每当你召唤一个机械，便获得+4攻击力和圣盾。",
+        "keywords": [
+          "圣盾",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_bot_911",
+      "cardId": "BG_BOT_911",
+      "dbfId": 96812,
+      "name": "吵吵模组",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "圣盾",
+        "磁力",
+        "嘲讽"
+      ],
+      "text": "磁力圣盾嘲讽",
+      "goldenDbfId": 60327,
+      "golden": {
+        "cardId": "TB_BaconUps_099",
+        "dbfId": 60327,
+        "attack": 4,
+        "health": 8,
+        "text": "磁力圣盾嘲讽",
+        "keywords": [
+          "圣盾",
+          "磁力",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_147",
+      "cardId": "BG26_147",
+      "dbfId": 98576,
+      "name": "手风琴机器人",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "磁力",
+        "触发效果"
+      ],
+      "text": "磁力。在你的回合开始时，获得1枚铸币。",
+      "goldenDbfId": 98581,
+      "golden": {
+        "cardId": "BG26_147_G",
+        "dbfId": 98581,
+        "attack": 6,
+        "health": 6,
+        "text": "磁力。在你的回合开始时，获得2枚铸币。",
+        "keywords": [
+          "磁力",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_032",
+      "cardId": "BG25_032",
+      "dbfId": 97535,
+      "name": "佩吉·斯特迪伯",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当一张卡牌被置入你的手牌，使另一个友方海盗获得+2/+1。",
+      "goldenDbfId": 97536,
+      "golden": {
+        "cardId": "BG25_032_G",
+        "dbfId": 97536,
+        "attack": 4,
+        "health": 2,
+        "text": "每当一张卡牌被置入你的手牌，使另一个友方海盗获得+2/+1，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_820",
+      "cardId": "BG33_820",
+      "dbfId": 122175,
+      "name": "失落之城掠夺者",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "回合结束时",
+        "嘲讽"
+      ],
+      "text": "嘲讽。在你的回合结束时，随机获取一张悬赏令。",
+      "goldenDbfId": 122176,
+      "golden": {
+        "cardId": "BG33_820_G",
+        "dbfId": 122176,
+        "attack": 2,
+        "health": 2,
+        "text": "嘲讽。在你的回合结束时，随机获取2张悬赏令。",
+        "keywords": [
+          "回合结束时",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_118",
+      "cardId": "BGDUO_118",
+      "dbfId": 105714,
+      "name": "打劫共犯",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你的回合开始时，你和你的队友各获得1枚铸币。",
+      "goldenDbfId": 105715,
+      "golden": {
+        "cardId": "BGDUO_118_G",
+        "dbfId": 105715,
+        "attack": 4,
+        "health": 4,
+        "text": "在你的回合开始时，你和你的队友各获得2枚铸币。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_207",
+      "cardId": "BGDUO31_207",
+      "dbfId": 117353,
+      "name": "摩托水手",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：你的队伍升级酒馆所需的铸币减少（1）枚。",
+      "goldenDbfId": 117354,
+      "golden": {
+        "cardId": "BGDUO31_207_G",
+        "dbfId": 117354,
+        "attack": 12,
+        "health": 6,
+        "text": "亡语：你的队伍升级酒馆所需的铸币减少（2）枚。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_810",
+      "cardId": "BG26_810",
+      "dbfId": 98889,
+      "name": "火药运输工",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你花掉6枚铸币，使你的海盗获得+2攻击力。（还剩6枚！）",
+      "goldenDbfId": 98890,
+      "golden": {
+        "cardId": "BG26_810_G",
+        "dbfId": 98890,
+        "attack": 6,
+        "health": 12,
+        "text": "每当你花掉6枚铸币，使你的海盗获得+2攻击力，触发两次。（还剩6枚！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_502",
+      "cardId": "BG26_502",
+      "dbfId": 98886,
+      "name": "深沉蓝调歌手",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得+2/+2。提升你此后的深沉蓝调效果。",
+      "goldenDbfId": 98887,
+      "golden": {
+        "cardId": "BG26_502_G",
+        "dbfId": 98887,
+        "attack": 4,
+        "health": 4,
+        "text": "塑造法术：直到下个回合，使一个随从获得+4/+4。提升你此后的深沉蓝调效果。",
+        "keywords": [
+          "塑造法术",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_004",
+      "cardId": "BG23_004",
+      "dbfId": 80742,
+      "name": "深海钓客",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "嘲讽"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得+2/+6和嘲讽。",
+      "goldenDbfId": 80760,
+      "golden": {
+        "cardId": "BG23_004_G",
+        "dbfId": 80760,
+        "attack": 4,
+        "health": 6,
+        "text": "塑造法术：直到下个回合，使一个随从获得+4/+12和嘲讽。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_312",
+      "cardId": "BG34_312",
+      "dbfId": 126849,
+      "name": "强韧的虎鲸",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 6,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "嘲讽",
+        "触发效果"
+      ],
+      "text": "嘲讽。每当本随从受到伤害，使你的其他随从获得+1/+1。",
+      "goldenDbfId": 126850,
+      "golden": {
+        "cardId": "BG34_312_G",
+        "dbfId": 126850,
+        "attack": 2,
+        "health": 12,
+        "text": "嘲讽。每当本随从受到伤害，使你的其他随从获得+2/+2。",
+        "keywords": [
+          "嘲讽",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_084",
+      "cardId": "BG27_084",
+      "dbfId": 108909,
+      "name": "机变甲虫",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "抉择",
+        "风怒",
+        "复生"
+      ],
+      "text": "抉择：使一只野兽获得+1/+1和复生；或者+4攻击力和风怒。",
+      "goldenDbfId": 108910,
+      "golden": {
+        "cardId": "BG27_084_G",
+        "dbfId": 108910,
+        "attack": 6,
+        "health": 2,
+        "text": "抉择：使一只野兽获得+2/+2和复生；或者+8攻击力和风怒。",
+        "keywords": [
+          "抉择",
+          "风怒",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_806",
+      "cardId": "BG25_806",
+      "dbfId": 101584,
+      "name": "狡猾的迅猛龙",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 3,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：随机召唤一只野兽，其属性值变为6/6。",
+      "goldenDbfId": 101591,
+      "golden": {
+        "cardId": "BG25_806_G",
+        "dbfId": 101591,
+        "attack": 2,
+        "health": 6,
+        "text": "亡语：随机召唤一只野兽，其属性值变为12/12。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_160",
+      "cardId": "BG26_160",
+      "dbfId": 98946,
+      "name": "刺头吹笛人",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 1,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "鲜血宝石"
+      ],
+      "text": "亡语：在本局对战中，你的鲜血宝石会额外获得+1攻击力。",
+      "goldenDbfId": 98947,
+      "golden": {
+        "cardId": "BG26_160_G",
+        "dbfId": 98947,
+        "attack": 10,
+        "health": 2,
+        "text": "亡语：在本局对战中，你的鲜血宝石会额外获得+2攻击力。",
+        "keywords": [
+          "亡语",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg24_707",
+      "cardId": "BG24_707",
+      "dbfId": 97115,
+      "name": "刺鬃废料铁匠",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "触发效果",
+        "鲜血宝石",
+        "嘲讽"
+      ],
+      "text": "在一个友方嘲讽随从死亡后，获取一张鲜血宝石。",
+      "goldenDbfId": 97116,
+      "golden": {
+        "cardId": "BG24_707_G",
+        "dbfId": 97116,
+        "attack": 8,
+        "health": 8,
+        "text": "在一个友方嘲讽随从死亡后，获取2张鲜血宝石。",
+        "keywords": [
+          "触发效果",
+          "鲜血宝石",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_159",
+      "cardId": "BG26_159",
+      "dbfId": 98930,
+      "name": "暗膘爵士乐手",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "战吼",
+        "鲜血宝石"
+      ],
+      "text": "战吼：在本局对战中，你的鲜血宝石会额外获得+1生命值。",
+      "goldenDbfId": 98934,
+      "golden": {
+        "cardId": "BG26_159_G",
+        "dbfId": 98934,
+        "attack": 4,
+        "health": 10,
+        "text": "战吼：在本局对战中，你的鲜血宝石会额外获得+2生命值。",
+        "keywords": [
+          "战吼",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_683",
+      "cardId": "BG34_683",
+      "dbfId": 126669,
+      "name": "棘背鼓手",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "战吼",
+        "鲜血宝石"
+      ],
+      "text": "战吼：获取一张鲜血宝石弹幕。",
+      "goldenDbfId": 126670,
+      "golden": {
+        "cardId": "BG34_683_G",
+        "dbfId": 126670,
+        "attack": 10,
+        "health": 6,
+        "text": "战吼：获取2张鲜血宝石弹幕。",
+        "keywords": [
+          "战吼",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_434",
+      "cardId": "BG32_434",
+      "dbfId": 120710,
+      "name": "潜藏的刺鬃野猪人",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 2,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "嘲讽",
+        "鲜血宝石"
+      ],
+      "text": "嘲讽。亡语：本随从对相邻的随从各使用一张永久的鲜血宝石。",
+      "goldenDbfId": 120711,
+      "golden": {
+        "cardId": "BG32_434_G",
+        "dbfId": 120711,
+        "attack": 10,
+        "health": 4,
+        "text": "嘲讽。亡语：本随从对相邻的随从各使用2张永久的鲜血宝石。",
+        "keywords": [
+          "亡语",
+          "嘲讽",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_039",
+      "cardId": "BG25_039",
+      "dbfId": 97549,
+      "name": "刺豚野猪",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 6,
+      "tribes": [
+        "野猪人",
+        "纳迦"
+      ],
+      "tribesText": "野猪人 / 纳迦",
+      "keywords": [
+        "触发效果",
+        "烈毒"
+      ],
+      "text": "每当法术被施放在本随从身上，直到下个回合，获得烈毒。",
+      "goldenDbfId": 97550,
+      "golden": {
+        "cardId": "BG25_039_G",
+        "dbfId": 97550,
+        "attack": 4,
+        "health": 12,
+        "text": "每当法术被施放在本随从身上，获得烈毒。",
+        "keywords": [
+          "触发效果",
+          "烈毒"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_894",
+      "cardId": "BG33_894",
+      "dbfId": 122283,
+      "name": "寒光潜水鱼人",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼",
+        "亡语",
+        "酒馆法术"
+      ],
+      "text": "战吼，亡语：随机获取一张等级1的酒馆法术牌。",
+      "goldenDbfId": 122284,
+      "golden": {
+        "cardId": "BG33_894_G",
+        "dbfId": 122284,
+        "attack": 2,
+        "health": 2,
+        "text": "战吼，亡语：随机获取两张等级1的酒馆法术牌。",
+        "keywords": [
+          "战吼",
+          "亡语",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_360",
+      "cardId": "BG26_360",
+      "dbfId": 100930,
+      "name": "寻宝鱼人",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：随机使你手牌中的一张随从牌获得+7/+7。",
+      "goldenDbfId": 100931,
+      "golden": {
+        "cardId": "BG26_360_G",
+        "dbfId": 100931,
+        "attack": 8,
+        "health": 6,
+        "text": "亡语：随机使你手牌中的一张随从牌获得+14/+14。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo33_140",
+      "cardId": "BGDUO33_140",
+      "dbfId": 123637,
+      "name": "底栖饲育者",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，你和你的队友各随机获取一张等级1的牌。",
+      "goldenDbfId": 123638,
+      "golden": {
+        "cardId": "BGDUO33_140_G",
+        "dbfId": 123638,
+        "attack": 6,
+        "health": 8,
+        "text": "在你的回合结束时，你和你的队友各随机获取两张等级1的牌。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_117",
+      "cardId": "BGDUO_117",
+      "dbfId": 105646,
+      "name": "滩涂跳跳鱼",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "触发效果",
+        "传递"
+      ],
+      "text": "在本随从被传递后，获得+4/+4。",
+      "goldenDbfId": 105649,
+      "golden": {
+        "cardId": "BGDUO_117_G",
+        "dbfId": 105649,
+        "attack": 8,
+        "health": 8,
+        "text": "在本随从被传递后，获得+8/+8。",
+        "keywords": [
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_140",
+      "cardId": "BG35_140",
+      "dbfId": 131145,
+      "name": "莫格顿大妈",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使你的其他鱼人获得+2攻击力。（在本局对战中你每使用过一张莫格顿家的鱼人牌都会提升！）",
+      "goldenDbfId": 131146,
+      "golden": {
+        "cardId": "BG35_140_G",
+        "dbfId": 131146,
+        "attack": 10,
+        "health": 6,
+        "text": "战吼：使你的其他鱼人获得+4攻击力。（在本局对战中你每使用过一张莫格顿家的鱼人牌都会提升！）",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_141",
+      "cardId": "BG35_141",
+      "dbfId": 131147,
+      "name": "莫格顿老爹",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使你的其他鱼人获得+2生命值。（在本局对战中你每使用过一张莫格顿家的鱼人牌都会提升！）",
+      "goldenDbfId": 131148,
+      "golden": {
+        "cardId": "BG35_141_G",
+        "dbfId": 131148,
+        "attack": 6,
+        "health": 10,
+        "text": "战吼：使你的其他鱼人获得+4生命值。（在本局对战中你每使用过一张莫格顿家的鱼人牌都会提升！）",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_816",
+      "cardId": "BG29_816",
+      "dbfId": 109806,
+      "name": "咆哮募兵龙",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 8,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当另一条友方的龙攻击时，使其获得+3/+1。",
+      "goldenDbfId": 109807,
+      "golden": {
+        "cardId": "BG29_816_G",
+        "dbfId": 109807,
+        "attack": 4,
+        "health": 16,
+        "text": "每当另一条友方的龙攻击时，使其获得+6/+2。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_107",
+      "cardId": "BGDUO_107",
+      "dbfId": 104545,
+      "name": "护雏的龙希尔",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，使你的队友的随从获得+1攻击力。",
+      "goldenDbfId": 104549,
+      "golden": {
+        "cardId": "BGDUO_107_G",
+        "dbfId": 104549,
+        "attack": 8,
+        "health": 6,
+        "text": "在你的回合结束时，使你的队友的随从获得+2攻击力。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg24_500",
+      "cardId": "BG24_500",
+      "dbfId": 95006,
+      "name": "琥珀卫士",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战斗开始时",
+        "嘲讽",
+        "触发效果",
+        "圣盾"
+      ],
+      "text": "嘲讽。战斗开始时：使另一条友方的龙获得+2/+2和圣盾。",
+      "goldenDbfId": 95010,
+      "golden": {
+        "cardId": "BG24_500_G",
+        "dbfId": 95010,
+        "attack": 6,
+        "health": 4,
+        "text": "嘲讽。战斗开始时：使两条其他友方的龙获得+2/+2和圣盾。",
+        "keywords": [
+          "战斗开始时",
+          "嘲讽",
+          "触发效果",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_638t",
+      "cardId": "BG34_638t",
+      "dbfId": 126718,
+      "name": "红色多彩幼龙",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼",
+        "酒馆法术"
+      ],
+      "text": "战吼： 在本局对战中，你的酒馆法术使随从额外获得+1攻击力。",
+      "goldenDbfId": 126728,
+      "golden": {
+        "cardId": "BG34_638_Gt",
+        "dbfId": 126728,
+        "attack": 12,
+        "health": 8,
+        "text": "战吼： 在本局对战中，你的酒馆法术使随从额外获得+2攻击力。",
+        "keywords": [
+          "战吼",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_636t",
+      "cardId": "BG34_636t",
+      "dbfId": 126715,
+      "name": "绿色多彩幼龙",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使你的其他龙获得+2/+4。",
+      "goldenDbfId": 126729,
+      "golden": {
+        "cardId": "BG34_636_Gt",
+        "dbfId": 126729,
+        "attack": 6,
+        "health": 10,
+        "text": "战吼：使你的其他龙获得+4/+8。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_634t",
+      "cardId": "BG34_634t",
+      "dbfId": 126711,
+      "name": "蓝色多彩幼龙",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼",
+        "酒馆法术"
+      ],
+      "text": "战吼：随机获取一张消耗2枚铸币的酒馆法术牌。",
+      "goldenDbfId": 126724,
+      "golden": {
+        "cardId": "BG34_634_Gt",
+        "dbfId": 126724,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：随机获取两张消耗2枚铸币的酒馆法术牌。",
+        "keywords": [
+          "战吼",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_637t",
+      "cardId": "BG34_637t",
+      "dbfId": 126717,
+      "name": "青铜多彩幼龙",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使你的其他龙获得+4/+2。",
+      "goldenDbfId": 126727,
+      "golden": {
+        "cardId": "BG34_637_Gt",
+        "dbfId": 126727,
+        "attack": 10,
+        "health": 6,
+        "text": "战吼：使你的其他龙获得+8/+4。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_635t",
+      "cardId": "BG34_635t",
+      "dbfId": 126713,
+      "name": "黑色多彩幼龙",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼",
+        "酒馆法术"
+      ],
+      "text": "战吼： 在本局对战中，你的酒馆法术使随从额外获得+1生命值。",
+      "goldenDbfId": 126725,
+      "golden": {
+        "cardId": "BG34_635_Gt",
+        "dbfId": 126725,
+        "attack": 8,
+        "health": 12,
+        "text": "战吼： 在本局对战中，你的酒馆法术使随从额外获得+2生命值。",
+        "keywords": [
+          "战吼",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_005",
+      "cardId": "BG27_005",
+      "dbfId": 103676,
+      "name": "时空船长钩尾",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "龙",
+        "海盗"
+      ],
+      "tribesText": "龙 / 海盗",
+      "keywords": [
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "每当你施放一个酒馆法术，使你的随从获得+1攻击力。",
+      "goldenDbfId": 103677,
+      "golden": {
+        "cardId": "BG27_005_G",
+        "dbfId": 103677,
+        "attack": 2,
+        "health": 8,
+        "text": "每当你施放一个酒馆法术，使你的随从获得+1攻击力，触发两次。",
+        "keywords": [
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_dal_775",
+      "cardId": "BG_DAL_775",
+      "dbfId": 92880,
+      "name": "坑道爆破师",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 7,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "嘲讽，亡语：对所有随从造成3点伤害。",
+      "goldenDbfId": 92881,
+      "golden": {
+        "cardId": "BG_DAL_775_G",
+        "dbfId": 92881,
+        "attack": 6,
+        "health": 14,
+        "text": "嘲讽，亡语：对所有随从造成3点伤害，触发两次。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_639",
+      "cardId": "BG34_639",
+      "dbfId": 126848,
+      "name": "末世龙蛋",
+      "tavernTier": 4,
+      "attack": 0,
+      "health": 5,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在本牌在你手牌中2回合后，选择一条等级6的龙并孵化为所选的龙。（还剩2回合！）",
+      "goldenDbfId": 129953,
+      "golden": {
+        "cardId": "BG34_639_G",
+        "dbfId": 129953,
+        "attack": 0,
+        "health": 10,
+        "text": "在本牌在你手牌中2回合后，选择一条等级6的金色的龙并孵化为所选的龙。（还剩2回合！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_341",
+      "cardId": "BG32_341",
+      "dbfId": 121640,
+      "name": "胡蒙格斯",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "光环",
+        "圣盾",
+        "酒馆法术"
+      ],
+      "text": "圣盾。你的酒馆法术使随从额外获得+1/+2。",
+      "goldenDbfId": 121642,
+      "golden": {
+        "cardId": "BG32_341_G",
+        "dbfId": 121642,
+        "attack": 10,
+        "health": 10,
+        "text": "圣盾。你的酒馆法术使随从额外获得+2/+4。",
+        "keywords": [
+          "光环",
+          "圣盾",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_604",
+      "cardId": "BG34_604",
+      "dbfId": 126966,
+      "name": "英勇的逆袭者",
+      "tavernTier": 4,
+      "attack": 1,
+      "health": 10,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "进击",
+        "潜行"
+      ],
+      "text": "潜行。进击：获得目标的攻击力。",
+      "goldenDbfId": 126967,
+      "golden": {
+        "cardId": "BG34_604_G",
+        "dbfId": 126967,
+        "attack": 2,
+        "health": 20,
+        "text": "潜行。进击：获得目标的双倍攻击力。",
+        "keywords": [
+          "进击",
+          "潜行"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg24_018",
+      "cardId": "BG24_018",
+      "dbfId": 92406,
+      "name": "蓝壳始祖龟",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [],
+      "text": "如果你输掉了上一场战斗，出售本随从可以获得5枚铸币。",
+      "goldenDbfId": 92436,
+      "golden": {
+        "cardId": "BG24_018_G",
+        "dbfId": 92436,
+        "attack": 6,
+        "health": 12,
+        "text": "如果你输掉了上一场战斗，出售本随从可以获得10枚铸币。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_212",
+      "cardId": "BGDUO31_212",
+      "dbfId": 117336,
+      "name": "螳螂妖国王",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果",
+        "传递",
+        "圣盾",
+        "嘲讽",
+        "烈毒"
+      ],
+      "text": "在你的队伍传递后， 直到下个回合，随机从烈毒，嘲讽或圣盾中获得一种。",
+      "goldenDbfId": 117337,
+      "golden": {
+        "cardId": "BGDUO31_212_G",
+        "dbfId": 117337,
+        "attack": 6,
+        "health": 6,
+        "text": "在你的队伍传递后，随机从烈毒，嘲讽或圣盾中获得一种。",
+        "keywords": [
+          "触发效果",
+          "传递",
+          "圣盾",
+          "嘲讽",
+          "烈毒"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_016",
+      "cardId": "BG25_016",
+      "dbfId": 95286,
+      "name": "辛多雷直射手",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "进击",
+        "圣盾",
+        "风怒",
+        "嘲讽",
+        "复生"
+      ],
+      "text": "风怒，圣盾。进击：移除目标的复生和嘲讽。",
+      "goldenDbfId": 95287,
+      "golden": {
+        "cardId": "BG25_016_G",
+        "dbfId": 95287,
+        "attack": 6,
+        "health": 8,
+        "text": "风怒，圣盾。进击：移除目标的复生和嘲讽。",
+        "keywords": [
+          "进击",
+          "圣盾",
+          "风怒",
+          "嘲讽",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_880",
+      "cardId": "BG32_880",
+      "dbfId": 120219,
+      "name": "友善的恶鬼",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "酒馆法术"
+      ],
+      "text": "亡语：在本局对战中，你酒馆法术使随从额外获得+1攻击力。",
+      "goldenDbfId": 120221,
+      "golden": {
+        "cardId": "BG32_880_G",
+        "dbfId": 120221,
+        "attack": 12,
+        "health": 6,
+        "text": "亡语：在本局对战中，你酒馆法术使随从额外获得+2攻击力。",
+        "keywords": [
+          "亡语",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_112",
+      "cardId": "BGDUO_112",
+      "dbfId": 104959,
+      "name": "墓后解说员",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复仇"
+      ],
+      "text": "复仇（3）：你的队友获取一张其多数随从的类型的随从牌。",
+      "goldenDbfId": 104962,
+      "golden": {
+        "cardId": "BGDUO_112_G",
+        "dbfId": 104962,
+        "attack": 4,
+        "health": 14,
+        "text": "复仇（3）：你的队友获取2张其多数随从的类型的随从牌。",
+        "keywords": [
+          "复仇"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_690",
+      "cardId": "BG34_690",
+      "dbfId": 126451,
+      "name": "疫病行尸",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：在本局对战中，你的亡灵拥有+2攻击力，无论它们在哪。（如果本随从在战斗之外死亡，改为+4！）",
+      "goldenDbfId": 126452,
+      "golden": {
+        "cardId": "BG34_690_G",
+        "dbfId": 126452,
+        "attack": 8,
+        "health": 4,
+        "text": "亡语：在本局对战中，你的亡灵拥有+4攻击力，无论它们在哪。（如果本随从在战斗之外死亡，改为+8！）",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_208",
+      "cardId": "BGDUO31_208",
+      "dbfId": 117334,
+      "name": "萨莱因铭文师",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "光环",
+        "隐藏亡语"
+      ],
+      "text": "在本局对战中，每有一个你的队伍的萨莱因铭文师死亡，便拥有+4/+4（无论本随从在哪）。",
+      "goldenDbfId": 117335,
+      "golden": {
+        "cardId": "BGDUO31_208_G",
+        "dbfId": 117335,
+        "attack": 8,
+        "health": 8,
+        "text": "在本局对战中，每有一个你的队伍的萨莱因铭文师死亡，便拥有+8/+8（无论本随从在哪）。",
+        "keywords": [
+          "光环",
+          "隐藏亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_deep_015",
+      "cardId": "BG_DEEP_015",
+      "dbfId": 112364,
+      "name": "义肢假手",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 1,
+      "tribes": [
+        "亡灵",
+        "机械"
+      ],
+      "tribesText": "亡灵 / 机械",
+      "keywords": [
+        "磁力",
+        "复生"
+      ],
+      "text": "磁力。复生可以磁力吸附在机械或亡灵上。",
+      "goldenDbfId": 112366,
+      "golden": {
+        "cardId": "BG_DEEP_015_G",
+        "dbfId": 112366,
+        "attack": 6,
+        "health": 2,
+        "text": "磁力。复生可以磁力吸附在机械或亡灵上。",
+        "keywords": [
+          "磁力",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_116",
+      "cardId": "BGS_116",
+      "dbfId": 64042,
+      "name": "刷新畸体",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼",
+        "刷新"
+      ],
+      "text": "战吼：获得2次免费的刷新。",
+      "goldenDbfId": 64045,
+      "golden": {
+        "cardId": "TB_BaconUps_167",
+        "dbfId": 64045,
+        "attack": 8,
+        "health": 10,
+        "text": "战吼：获得4次免费的刷新。",
+        "keywords": [
+          "战吼",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_841",
+      "cardId": "BG32_841",
+      "dbfId": 119949,
+      "name": "沙尘旋流",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：在本局对战中，你元素使随从额外获得+1攻击力。",
+      "goldenDbfId": 119950,
+      "golden": {
+        "cardId": "BG32_841_G",
+        "dbfId": 119950,
+        "attack": 10,
+        "health": 6,
+        "text": "战吼：在本局对战中，你元素使随从额外获得+2攻击力。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_110",
+      "cardId": "BGDUO_110",
+      "dbfId": 104593,
+      "name": "活泼的淡水元素",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 4,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "亡语",
+        "刷新"
+      ],
+      "text": "亡语：你和你的队友各获得两次免费的刷新。",
+      "goldenDbfId": 104627,
+      "golden": {
+        "cardId": "BGDUO_110_G",
+        "dbfId": 104627,
+        "attack": 12,
+        "health": 8,
+        "text": "亡语：你和你的队友各获得四次免费的刷新。",
+        "keywords": [
+          "亡语",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_865",
+      "cardId": "BG34_865",
+      "dbfId": 126175,
+      "name": "爆焰灯神",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼",
+        "刷新"
+      ],
+      "text": "战吼：在本局对战中，在酒馆刷新后，使酒馆中一个随机随从获得+7/+7。",
+      "goldenDbfId": 126176,
+      "golden": {
+        "cardId": "BG34_865_G",
+        "dbfId": 126176,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：在本局对战中，在酒馆刷新后，使酒馆中一个随机随从获得+7/+7，触发两次。",
+        "keywords": [
+          "战吼",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_123",
+      "cardId": "BGS_123",
+      "dbfId": 64077,
+      "name": "酒馆旋风",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：随机获取一张元素牌。",
+      "goldenDbfId": 64079,
+      "golden": {
+        "cardId": "TB_BaconUps_162",
+        "dbfId": 64079,
+        "attack": 4,
+        "health": 4,
+        "text": "战吼：随机获取2张元素牌。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_881",
+      "cardId": "BG35_881",
+      "dbfId": 130294,
+      "name": "魔网浮灵",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：获取一张奥术吸收。",
+      "goldenDbfId": 130295,
+      "golden": {
+        "cardId": "BG35_881_G",
+        "dbfId": 130295,
+        "attack": 8,
+        "health": 12,
+        "text": "战吼，亡语：获取2张奥术吸收。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_500",
+      "cardId": "BG34_500",
+      "dbfId": 126924,
+      "name": "魔焰执行者",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "元素",
+        "恶魔"
+      ],
+      "tribesText": "元素 / 恶魔",
+      "keywords": [
+        "回合结束时",
+        "吞食"
+      ],
+      "text": "在你的回合结束时，吞食酒馆中生命值最高的随从以获得其属性值。",
+      "goldenDbfId": 126925,
+      "golden": {
+        "cardId": "BG34_500_G",
+        "dbfId": 126925,
+        "attack": 8,
+        "health": 10,
+        "text": "在你的回合结束时，吞食酒馆中生命值最高的随从以获得其双倍属性值。",
+        "keywords": [
+          "回合结束时",
+          "吞食"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_108",
+      "cardId": "BGDUO_108",
+      "dbfId": 104550,
+      "name": "镜中鬼怪",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部种族",
+      "keywords": [
+        "触发效果",
+        "传递",
+        "发现"
+      ],
+      "text": "当你购买或发现本随从时，获取一张额外复制并传递。",
+      "goldenDbfId": 104552,
+      "golden": {
+        "cardId": "BGDUO_108_G",
+        "dbfId": 104552,
+        "attack": 8,
+        "health": 8,
+        "text": "当你购买或发现本随从时，获取2张额外复制并传递。",
+        "keywords": [
+          "触发效果",
+          "传递",
+          "发现"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_525",
+      "cardId": "BG26_525",
+      "dbfId": 99232,
+      "name": "奇瑰打击乐手",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼",
+        "发现"
+      ],
+      "text": "战吼： 发现一张恶魔牌，对你的英雄造成等同于其等级的伤害。",
+      "goldenDbfId": 99233,
+      "golden": {
+        "cardId": "BG26_525_G",
+        "dbfId": 99233,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：发现2张恶魔牌，对你的英雄造成等同于其等级的伤害。",
+        "keywords": [
+          "战吼",
+          "发现"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_151",
+      "cardId": "BG35_151",
+      "dbfId": 130076,
+      "name": "林地亵渎者",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "回合结束时",
+        "刷新"
+      ],
+      "text": "在你的回合结束时，在你的下3次刷新中各添加一个恶魔饲料。",
+      "goldenDbfId": 130081,
+      "golden": {
+        "cardId": "BG35_151_G",
+        "dbfId": 130081,
+        "attack": 10,
+        "health": 12,
+        "text": "在你的回合结束时，在你的下3次刷新中各添加两个恶魔饲料。",
+        "keywords": [
+          "回合结束时",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_156",
+      "cardId": "BG33_156",
+      "dbfId": 122605,
+      "name": "沉默的惩罚者",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 2,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "嘲讽。亡语：对所有随从造成2点伤害（友方恶魔除外）。",
+      "goldenDbfId": 122606,
+      "golden": {
+        "cardId": "BG33_156_G",
+        "dbfId": 122606,
+        "attack": 12,
+        "health": 4,
+        "text": "嘲讽。亡语：对所有随从造成2点伤害，触发两次（友方恶魔除外）。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_155",
+      "cardId": "BG33_155",
+      "dbfId": 122586,
+      "name": "虔诚的萨特唤魔者",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在另一个友方恶魔造成伤害后，永久获得+1/+2。",
+      "goldenDbfId": 122587,
+      "golden": {
+        "cardId": "BG33_155_G",
+        "dbfId": 122587,
+        "attack": 4,
+        "health": 4,
+        "text": "在另一个友方恶魔造成伤害后，永久获得+2/+4。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_503",
+      "cardId": "BG29_503",
+      "dbfId": 113766,
+      "name": "废铁残械",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "战吼",
+        "发现",
+        "磁力"
+      ],
+      "text": "战吼：选择一个友方机械，发现一个机械以对其磁力吸附。",
+      "goldenDbfId": 113767,
+      "golden": {
+        "cardId": "BG29_503_G",
+        "dbfId": 113767,
+        "attack": 6,
+        "health": 8,
+        "text": "战吼：选择一个友方机械，发现2个机械以对其磁力吸附。",
+        "keywords": [
+          "战吼",
+          "发现",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_178",
+      "cardId": "BG31_178",
+      "dbfId": 115680,
+      "name": "招牌计时机",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 7,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "回合结束时",
+        "酒馆法术"
+      ],
+      "text": "在你的回合结束时，随机获取一张酒馆法术牌。",
+      "goldenDbfId": 115681,
+      "golden": {
+        "cardId": "BG31_178_G",
+        "dbfId": 115681,
+        "attack": 6,
+        "health": 14,
+        "text": "在你的回合结束时，随机获取2张酒馆法术牌。",
+        "keywords": [
+          "回合结束时",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_175",
+      "cardId": "BG31_175",
+      "dbfId": 115674,
+      "name": "移动投影仪",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "进击",
+        "磁力"
+      ],
+      "text": "进击：随机获取一张磁力机械牌。",
+      "goldenDbfId": 115675,
+      "golden": {
+        "cardId": "BG31_175_G",
+        "dbfId": 115675,
+        "attack": 8,
+        "health": 8,
+        "text": "进击：随机获取2张磁力机械牌。",
+        "keywords": [
+          "进击",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_172",
+      "cardId": "BG32_172",
+      "dbfId": 120025,
+      "name": "自动装配机",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "磁力"
+      ],
+      "text": "磁力。亡语：召唤一个星元自动机。",
+      "goldenDbfId": 120026,
+      "golden": {
+        "cardId": "BG32_172_G",
+        "dbfId": 120026,
+        "attack": 4,
+        "health": 4,
+        "text": "磁力。亡语： 召唤一个金色的星元自动机。",
+        "keywords": [
+          "亡语",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_341",
+      "cardId": "BG35_341",
+      "dbfId": 130796,
+      "name": "附魔哨卫",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "光环",
+        "磁力",
+        "酒馆法术"
+      ],
+      "text": "磁力。你的酒馆法术使随从额外获得+1/+1。",
+      "goldenDbfId": 130797,
+      "golden": {
+        "cardId": "BG35_341_G",
+        "dbfId": 130797,
+        "attack": 6,
+        "health": 10,
+        "text": "磁力。你的酒馆法术使随从额外获得+2/+2。",
+        "keywords": [
+          "光环",
+          "磁力",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_817",
+      "cardId": "BG26_817",
+      "dbfId": 99035,
+      "name": "刀剑收藏家",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "同时对其攻击目标相邻的随从造成伤害。",
+      "goldenDbfId": 99036,
+      "golden": {
+        "cardId": "BG26_817_G",
+        "dbfId": 99036,
+        "attack": 6,
+        "health": 4,
+        "text": "同时对其攻击目标相邻的随从造成伤害。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_824",
+      "cardId": "BG31_824",
+      "dbfId": 115708,
+      "name": "双持海盗",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你花掉5枚铸币，使两个友方海盗获得+3/+4。 （还剩5枚！）",
+      "goldenDbfId": 115709,
+      "golden": {
+        "cardId": "BG31_824_G",
+        "dbfId": 115709,
+        "attack": 6,
+        "health": 8,
+        "text": "每当你花掉5枚铸币，使两个友方海盗获得+3/+4，触发两次。 （还剩5枚！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_702",
+      "cardId": "BG35_702",
+      "dbfId": 130705,
+      "name": "浪荡水手",
+      "tavernTier": 4,
+      "attack": 7,
+      "health": 3,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼",
+        "酒馆法术"
+      ],
+      "text": "战吼：使一个友方随从获得+2/+2。（在本回合中，你每施放过一个酒馆法术都会提升！）",
+      "goldenDbfId": 130706,
+      "golden": {
+        "cardId": "BG35_702_G",
+        "dbfId": 130706,
+        "attack": 14,
+        "health": 6,
+        "text": "战吼：使一个友方随从获得+2/+2，触发两次。（在本回合中，你每施放过一个酒馆法术都会提升！）",
+        "keywords": [
+          "战吼",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_814",
+      "cardId": "BG26_814",
+      "dbfId": 99011,
+      "name": "苦情民谣歌手",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使一个海盗获得+1生命值。（在本回合中你每花费一枚铸币都会提升！）",
+      "goldenDbfId": 99012,
+      "golden": {
+        "cardId": "BG26_814_G",
+        "dbfId": 99012,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼：使一个海盗获得+1生命值，触发两次。（在本回合中你每花费一枚铸币都会提升！）",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_822",
+      "cardId": "BG33_822",
+      "dbfId": 122179,
+      "name": "顶尖大盗",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：随机获取一张悬赏令。",
+      "goldenDbfId": 122180,
+      "golden": {
+        "cardId": "BG33_822_G",
+        "dbfId": 122180,
+        "attack": 8,
+        "health": 12,
+        "text": "进击：随机获取2张悬赏令。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_925",
+      "cardId": "BG34_925",
+      "dbfId": 126916,
+      "name": "海床招募者",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：对本随从右边的随从施放主厨甄选。",
+      "goldenDbfId": 126917,
+      "golden": {
+        "cardId": "BG34_925_G",
+        "dbfId": 126917,
+        "attack": 6,
+        "health": 10,
+        "text": "进击：对本随从右边的随从施放主厨甄选，触发两次。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_921",
+      "cardId": "BG35_921",
+      "dbfId": 130658,
+      "name": "深渊打手",
+      "tavernTier": 4,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "光环",
+        "圣盾",
+        "酒馆法术"
+      ],
+      "text": "圣盾。在本局对战中，你每施放一个酒馆法术，便拥有+1/+1。",
+      "goldenDbfId": 130659,
+      "golden": {
+        "cardId": "BG35_921_G",
+        "dbfId": 130659,
+        "attack": 2,
+        "health": 2,
+        "text": "圣盾。在本局对战中，你每施放一个酒馆法术，便拥有+2/+2。",
+        "keywords": [
+          "光环",
+          "圣盾",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_117",
+      "cardId": "BG30_117",
+      "dbfId": 114099,
+      "name": "火山访客",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "抉择"
+      ],
+      "text": "塑造法术： 抉择：使你的随从获得+4攻击力；或者+4生命值。",
+      "goldenDbfId": 114100,
+      "golden": {
+        "cardId": "BG30_117_G",
+        "dbfId": 114100,
+        "attack": 8,
+        "health": 8,
+        "text": "塑造法术： 抉择：使你的随从获得+8攻击力；或者+8生命值。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "抉择"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_505",
+      "cardId": "BG26_505",
+      "dbfId": 99054,
+      "name": "热情沙锤手",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 7,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果",
+        "塑造法术"
+      ],
+      "text": "每回合一次：当塑造法术的法术被用于本随从时，获取它的一张新复制。",
+      "goldenDbfId": 99066,
+      "golden": {
+        "cardId": "BG26_505_G",
+        "dbfId": 99066,
+        "attack": 12,
+        "health": 14,
+        "text": "每回合一次：当塑造法术的法术被用于本随从时，获取它的2张新复制。",
+        "keywords": [
+          "触发效果",
+          "塑造法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_209",
+      "cardId": "BGDUO31_209",
+      "dbfId": 117355,
+      "name": "私房主厨",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "传递"
+      ],
+      "text": "塑造法术：选择一个随从。随机获取一张该类型的不同随从牌，然后传递这张牌。",
+      "goldenDbfId": 117356,
+      "golden": {
+        "cardId": "BGDUO31_209_G",
+        "dbfId": 117356,
+        "attack": 10,
+        "health": 8,
+        "text": "塑造法术：选择一个随从。随机获取2张该类型的不同随从牌，然后传递这些牌。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_319",
+      "cardId": "BG33_319",
+      "dbfId": 122221,
+      "name": "霜鳞女祭司",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "塑造法术：随机获取一张能使随从获得属性值的酒馆法术牌。",
+      "goldenDbfId": 122222,
+      "golden": {
+        "cardId": "BG33_319_G",
+        "dbfId": 122222,
+        "attack": 6,
+        "health": 6,
+        "text": "塑造法术：随机获取2张能使随从获得属性值的酒馆法术牌。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_601",
+      "cardId": "BG35_601",
+      "dbfId": 130709,
+      "name": "双足飞龙前锋",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果",
+        "刷新"
+      ],
+      "text": "每当本随从受到伤害，获得一次免费的刷新。（每回合限3次。）",
+      "goldenDbfId": 130710,
+      "golden": {
+        "cardId": "BG35_601_G",
+        "dbfId": 130710,
+        "attack": 4,
+        "health": 16,
+        "text": "每当本随从受到伤害，获得两次免费的刷新。（每回合限3次。）",
+        "keywords": [
+          "触发效果",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_078",
+      "cardId": "BGS_078",
+      "dbfId": 62230,
+      "name": "巨大的金刚鹦鹉",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "进击",
+        "亡语"
+      ],
+      "text": "进击：触发你最左边的亡语（本随从的除外）。",
+      "goldenDbfId": 62231,
+      "golden": {
+        "cardId": "TB_BaconUps_135",
+        "dbfId": 62231,
+        "attack": 10,
+        "health": 8,
+        "text": "进击：触发你最左边的亡语（本随从的除外），触发两次。",
+        "keywords": [
+          "进击",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_203",
+      "cardId": "BGDUO31_203",
+      "dbfId": 117328,
+      "name": "狡捷灵蛇",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：你的队友随机获取一张亡语随从牌。",
+      "goldenDbfId": 117329,
+      "golden": {
+        "cardId": "BGDUO31_203_G",
+        "dbfId": 117329,
+        "attack": 12,
+        "health": 2,
+        "text": "亡语：你的队友随机获取2张亡语随从牌。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_523",
+      "cardId": "BG34_523",
+      "dbfId": 128168,
+      "name": "猎食的虎鲨",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "战吼",
+        "发现"
+      ],
+      "text": "战吼： 发现一张野兽牌。",
+      "goldenDbfId": 128169,
+      "golden": {
+        "cardId": "BG34_523_G",
+        "dbfId": 128169,
+        "attack": 6,
+        "health": 10,
+        "text": "战吼： 发现2张野兽牌。",
+        "keywords": [
+          "战吼",
+          "发现"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_801",
+      "cardId": "BG26_801",
+      "dbfId": 98829,
+      "name": "重金属双头飞龙",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语",
+        "嘲讽",
+        "战吼"
+      ],
+      "text": "嘲讽。亡语：触发一个相邻随从的战吼。",
+      "goldenDbfId": 98830,
+      "golden": {
+        "cardId": "BG26_801_G",
+        "dbfId": 98830,
+        "attack": 10,
+        "health": 6,
+        "text": "嘲讽。亡语：触发相邻随从的战吼。",
+        "keywords": [
+          "亡语",
+          "嘲讽",
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_807",
+      "cardId": "BG29_807",
+      "dbfId": 107930,
+      "name": "鞭笞者特里高雷",
+      "tavernTier": 4,
+      "attack": 9,
+      "health": 3,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当另一只友方野兽受到伤害时，永久获得+2生命值。",
+      "goldenDbfId": 107934,
+      "golden": {
+        "cardId": "BG29_807_G",
+        "dbfId": 107934,
+        "attack": 18,
+        "health": 6,
+        "text": "每当另一只友方野兽受到伤害时，永久获得+4生命值。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_802",
+      "cardId": "BG26_802",
+      "dbfId": 98824,
+      "name": "香蕉猛猿",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在战斗中，在你召唤一只野兽后，使其攻击力翻倍。",
+      "goldenDbfId": 98827,
+      "golden": {
+        "cardId": "BG26_802_G",
+        "dbfId": 98827,
+        "attack": 6,
+        "health": 12,
+        "text": "在战斗中，在你召唤一只野兽后，使其攻击力变为三倍。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_682",
+      "cardId": "BG34_682",
+      "dbfId": 126667,
+      "name": "剃刀沼泽舞扇者",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 2,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "鲜血宝石"
+      ],
+      "text": "亡语：获取一张鲜血宝石弹幕。",
+      "goldenDbfId": 126668,
+      "golden": {
+        "cardId": "BG34_682_G",
+        "dbfId": 126668,
+        "attack": 12,
+        "health": 4,
+        "text": "亡语：获取2张鲜血宝石弹幕。",
+        "keywords": [
+          "亡语",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_583",
+      "cardId": "BG28_583",
+      "dbfId": 104766,
+      "name": "地卜大师鲁古格",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "圣盾",
+        "触发效果",
+        "鲜血宝石"
+      ],
+      "text": "圣盾。每当一张鲜血宝石被用于本随从时，本随从对一个不同的友方随从使用一张鲜血宝石。",
+      "goldenDbfId": 104767,
+      "golden": {
+        "cardId": "BG28_583_G",
+        "dbfId": 104767,
+        "attack": 8,
+        "health": 12,
+        "text": "圣盾。每当一张鲜血宝石被用于本随从时，本随从对一个不同的友方随从使用2张鲜血宝石。",
+        "keywords": [
+          "圣盾",
+          "触发效果",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_123",
+      "cardId": "BG30_123",
+      "dbfId": 113154,
+      "name": "无畏的食客",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 4,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "抉择",
+        "鲜血宝石"
+      ],
+      "text": "抉择：在本局对战中，你的鲜血宝石使随从额外获得+1/+1；或者获取4张鲜血宝石。",
+      "goldenDbfId": 113155,
+      "golden": {
+        "cardId": "BG30_123_G",
+        "dbfId": 113155,
+        "attack": 4,
+        "health": 8,
+        "text": "抉择：在本局对战中，你的鲜血宝石使随从额外获得+2/+2；或者获取8张鲜血宝石。",
+        "keywords": [
+          "抉择",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_433",
+      "cardId": "BG32_433",
+      "dbfId": 120708,
+      "name": "睡梦织棘者",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 8,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "复仇",
+        "鲜血宝石"
+      ],
+      "text": "复仇（3）：在本局对战中，你的鲜血宝石使随从额外获得+1生命值。",
+      "goldenDbfId": 120709,
+      "golden": {
+        "cardId": "BG32_433_G",
+        "dbfId": 120709,
+        "attack": 4,
+        "health": 16,
+        "text": "复仇（3）：在本局对战中，你的鲜血宝石使随从额外获得+2生命值。",
+        "keywords": [
+          "复仇",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_433",
+      "cardId": "BG35_433",
+      "dbfId": 130153,
+      "name": "赤牙荆棘培育师",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 7,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "回合结束时",
+        "鲜血宝石",
+        "复生"
+      ],
+      "text": "在你的回合结束时，获取一张鲜血宝石。该宝石还能使野猪人获得复生。",
+      "goldenDbfId": 130154,
+      "golden": {
+        "cardId": "BG35_433_G",
+        "dbfId": 130154,
+        "attack": 6,
+        "health": 14,
+        "text": "在你的回合结束时，获取2张鲜血宝石。该宝石还能使野猪人获得复生。",
+        "keywords": [
+          "回合结束时",
+          "鲜血宝石",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_556",
+      "cardId": "BG27_556",
+      "dbfId": 108922,
+      "name": "凶饿的觅食者",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "触发效果",
+        "战斗开始时"
+      ],
+      "text": "战斗开始时：当你有空位时，召唤你手牌中攻击力最高的鱼人，其登场仅限本场战斗。",
+      "goldenDbfId": 108930,
+      "golden": {
+        "cardId": "BG27_556_G",
+        "dbfId": 108930,
+        "attack": 10,
+        "health": 12,
+        "text": "战斗开始时：当你有空位时，召唤你手牌中攻击力最高的两个鱼人，其登场仅限本场战斗。",
+        "keywords": [
+          "触发效果",
+          "战斗开始时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_030",
+      "cardId": "BGS_030",
+      "dbfId": 60247,
+      "name": "拜戈尔格国王",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使你手牌中和场上的所有其他鱼人获得+4/+4。",
+      "goldenDbfId": 60396,
+      "golden": {
+        "cardId": "TB_BaconUps_100",
+        "dbfId": 60396,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼：使你手牌中和场上的所有其他鱼人获得+8/+8。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_143",
+      "cardId": "BG35_143",
+      "dbfId": 131216,
+      "name": "深水酋长",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：获取一张深水族群。",
+      "goldenDbfId": 131217,
+      "golden": {
+        "cardId": "BG35_143_G",
+        "dbfId": 131217,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼，亡语：获取2张深水族群。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_137",
+      "cardId": "BG26_137",
+      "dbfId": 98509,
+      "name": "裁脍鱼人",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "当本牌在你手牌中时，在你使用一张鱼人牌后，获得+5/+5。",
+      "goldenDbfId": 98513,
+      "golden": {
+        "cardId": "BG26_137_G",
+        "dbfId": 98513,
+        "attack": 10,
+        "health": 10,
+        "text": "当本牌在你手牌中时，在你使用一张鱼人牌后，获得+10/+10。",
+        "keywords": []
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_632",
+      "cardId": "BG34_632",
+      "dbfId": 126745,
+      "name": "孵化研究员",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 8,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "复仇"
+      ],
+      "text": "复仇（3）：随机获取一张多彩幼龙。",
+      "goldenDbfId": 126746,
+      "golden": {
+        "cardId": "BG34_632_G",
+        "dbfId": 126746,
+        "attack": 4,
+        "health": 16,
+        "text": "复仇（3）：随机获取2张多彩幼龙。",
+        "keywords": [
+          "复仇"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_813",
+      "cardId": "BG29_813",
+      "dbfId": 108463,
+      "name": "执念诗心龙",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "圣盾",
+        "触发效果"
+      ],
+      "text": "圣盾。相邻的龙可永久保留战斗阶段获得的额外关键词和属性值。",
+      "goldenDbfId": 108464,
+      "golden": {
+        "cardId": "BG29_813_G",
+        "dbfId": 108464,
+        "attack": 4,
+        "health": 6,
+        "text": "圣盾。相邻的龙可永久保留战斗阶段获得的额外关键词和双倍属性值。",
+        "keywords": [
+          "圣盾",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_731",
+      "cardId": "BG34_731",
+      "dbfId": 127236,
+      "name": "暮光巢母",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "亡语：召唤2条暮光龙崽并使其获得嘲讽。",
+      "goldenDbfId": 127237,
+      "golden": {
+        "cardId": "BG34_731_G",
+        "dbfId": 127237,
+        "attack": 10,
+        "health": 6,
+        "text": "亡语：召唤4条暮光龙崽并使其获得嘲讽。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg21_014",
+      "cardId": "BG21_014",
+      "dbfId": 72073,
+      "name": "珍稀增强幼龙",
+      "tavernTier": 4,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：使你的龙获得+4/+4。",
+      "goldenDbfId": 73452,
+      "golden": {
+        "cardId": "BG21_014_G",
+        "dbfId": 73452,
+        "attack": 2,
+        "health": 2,
+        "text": "战斗开始时：使你的龙获得+8/+8。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_104",
+      "cardId": "BGS_104",
+      "dbfId": 63626,
+      "name": "“厨房煞星”诺米",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张元素牌后，使酒馆中的元素在本局对战中获得+4/+4。",
+      "goldenDbfId": 64185,
+      "golden": {
+        "cardId": "TB_BaconUps_201",
+        "dbfId": 64185,
+        "attack": 12,
+        "health": 12,
+        "text": "在你使用一张元素牌后，使酒馆中的元素在本局对战中获得+8/+8。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_120",
+      "cardId": "BGDUO_120",
+      "dbfId": 105835,
+      "name": "井边许愿者",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "传递"
+      ],
+      "text": "塑造法术：传递一个不同的非金色随从。",
+      "goldenDbfId": 105837,
+      "golden": {
+        "cardId": "BGDUO_120_G",
+        "dbfId": 105837,
+        "attack": 12,
+        "health": 12,
+        "text": "塑造法术：传递一个不同的非金色随从。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_840",
+      "cardId": "BG29_840",
+      "dbfId": 108393,
+      "name": "噬月者的勇士",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用奇数等级的牌后，使你的奇数等级的随从获得+1/+1。",
+      "goldenDbfId": 108394,
+      "golden": {
+        "cardId": "BG29_840_G",
+        "dbfId": 108394,
+        "attack": 10,
+        "health": 10,
+        "text": "在你使用奇数等级的牌后，使你的奇数等级的随从获得+2/+2。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_012",
+      "cardId": "BGS_012",
+      "dbfId": 59935,
+      "name": "坎格尔的学徒",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤你本场战斗中最先死亡的2个机械的原始版复制。",
+      "goldenDbfId": 59976,
+      "golden": {
+        "cardId": "TB_BaconUps_087",
+        "dbfId": 59976,
+        "attack": 6,
+        "health": 12,
+        "text": "亡语：召唤你本场战斗中最先死亡的4个机械的原始版复制。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg_loe_077",
+      "cardId": "BG_LOE_077",
+      "dbfId": 96786,
+      "name": "布莱恩·铜须",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "光环",
+        "战吼"
+      ],
+      "text": "你的战吼会触发两次。",
+      "goldenDbfId": 58400,
+      "golden": {
+        "cardId": "TB_BaconUps_045",
+        "dbfId": 58400,
+        "attack": 4,
+        "health": 8,
+        "text": "你的战吼会触发三次。",
+        "keywords": [
+          "光环",
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_888",
+      "cardId": "BG33_888",
+      "dbfId": 122737,
+      "name": "护猪牧人",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼",
+        "鲜血宝石",
+        "圣盾"
+      ],
+      "text": "战吼：获取一张鲜血宝石。该宝石还能使野猪人获得圣盾。",
+      "goldenDbfId": 122738,
+      "golden": {
+        "cardId": "BG33_888_G",
+        "dbfId": 122738,
+        "attack": 10,
+        "health": 10,
+        "text": "战吼：获取2张鲜血宝石。该宝石还能使野猪人获得圣盾。",
+        "keywords": [
+          "战吼",
+          "鲜血宝石",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_354",
+      "cardId": "BG25_354",
+      "dbfId": 97408,
+      "name": "提图斯·瑞文戴尔",
+      "tavernTier": 5,
+      "attack": 1,
+      "health": 7,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "光环",
+        "亡语"
+      ],
+      "text": "你的亡语额外触发一次。",
+      "goldenDbfId": 97409,
+      "golden": {
+        "cardId": "BG25_354_G",
+        "dbfId": 97409,
+        "attack": 2,
+        "health": 14,
+        "text": "你的亡语额外触发两次。",
+        "keywords": [
+          "光环",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_551",
+      "cardId": "BG28_551",
+      "dbfId": 104468,
+      "name": "救赎者娜拉",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "每当你施放一个酒馆法术，使每个类型的各一个友方随从获得+4/+3。",
+      "goldenDbfId": 104471,
+      "golden": {
+        "cardId": "BG28_551_G",
+        "dbfId": 104471,
+        "attack": 10,
+        "health": 12,
+        "text": "每当你施放一个酒馆法术，使每个类型的各一个友方随从获得+8/+6。",
+        "keywords": [
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_123",
+      "cardId": "BG35_123",
+      "dbfId": 130884,
+      "name": "灾变先锋",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 10,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "回合结束时",
+        "酒馆法术"
+      ],
+      "text": "在你的回合结束时，获取你施放的上一个酒馆法术的一张复制。",
+      "goldenDbfId": 130885,
+      "golden": {
+        "cardId": "BG35_123_G",
+        "dbfId": 130885,
+        "attack": 12,
+        "health": 20,
+        "text": "在你的回合结束时，获取你施放的上一个酒馆法术的2张复制。",
+        "keywords": [
+          "回合结束时",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_550",
+      "cardId": "BG28_550",
+      "dbfId": 104466,
+      "name": "竞技表演者",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼",
+        "发现",
+        "酒馆法术"
+      ],
+      "text": "战吼：发现一张酒馆法术牌。",
+      "goldenDbfId": 104467,
+      "golden": {
+        "cardId": "BG28_550_G",
+        "dbfId": 104467,
+        "attack": 6,
+        "health": 8,
+        "text": "战吼：发现2张酒馆法术牌。",
+        "keywords": [
+          "战吼",
+          "发现",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_318",
+      "cardId": "BG23_318",
+      "dbfId": 90425,
+      "name": "莽神火车王",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 2,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：消灭击杀本随从的随从。",
+      "goldenDbfId": 90430,
+      "golden": {
+        "cardId": "BG23_318_G",
+        "dbfId": 90430,
+        "attack": 12,
+        "health": 4,
+        "text": "亡语：消灭击杀本随从的随从。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_199",
+      "cardId": "BG26_199",
+      "dbfId": 101092,
+      "name": "蓄势二重唱",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "回合结束时",
+        "触发效果"
+      ],
+      "text": "每2个回合，在回合结束时，获取一张本随从左边随从的原始版复制。（还剩2回合！）",
+      "goldenDbfId": 101095,
+      "golden": {
+        "cardId": "BG26_199_G",
+        "dbfId": 101095,
+        "attack": 12,
+        "health": 12,
+        "text": "每2个回合，在回合结束时，获取本随从相邻随从的各一张原始版复制。（还剩2回合！）",
+        "keywords": [
+          "回合结束时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_862",
+      "cardId": "BG29_862",
+      "dbfId": 114469,
+      "name": "贫瘠之地咒术师",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 2,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "亡语",
+        "战吼"
+      ],
+      "text": "亡语：随机获取一张战吼随从牌。",
+      "goldenDbfId": 114470,
+      "golden": {
+        "cardId": "BG29_862_G",
+        "dbfId": 114470,
+        "attack": 12,
+        "health": 4,
+        "text": "亡语：随机获取2张战吼随从牌。",
+        "keywords": [
+          "亡语",
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_icc_901",
+      "cardId": "BG26_ICC_901",
+      "dbfId": 101314,
+      "name": "达卡莱附魔师",
+      "tavernTier": 5,
+      "attack": 1,
+      "health": 5,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "光环"
+      ],
+      "text": "你的回合结束效果会触发两次。",
+      "goldenDbfId": 101315,
+      "golden": {
+        "cardId": "BG26_ICC_901_G",
+        "dbfId": 101315,
+        "attack": 2,
+        "health": 10,
+        "text": "你的回合结束效果会触发三次。",
+        "keywords": [
+          "光环"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_694",
+      "cardId": "BG34_694",
+      "dbfId": 126955,
+      "name": "冬拥食尸鬼",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：获取一张惊扰墓穴。",
+      "goldenDbfId": 126956,
+      "golden": {
+        "cardId": "BG34_694_G",
+        "dbfId": 126956,
+        "attack": 10,
+        "health": 6,
+        "text": "亡语：获取2张惊扰墓穴。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_129",
+      "cardId": "BG30_129",
+      "dbfId": 114379,
+      "name": "古墓捣蛋鬼",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 10,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你即将召唤随从且你的战队放不下时，使你的随从永久获得+2/+2。",
+      "goldenDbfId": 114380,
+      "golden": {
+        "cardId": "BG30_129_G",
+        "dbfId": 114380,
+        "attack": 8,
+        "health": 20,
+        "text": "每当你即将召唤随从且你的战队放不下时，使你的随从永久获得+4/+4。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_308",
+      "cardId": "BG28_308",
+      "dbfId": 105518,
+      "name": "大巫妖克尔苏加德",
+      "tavernTier": 5,
+      "attack": 10,
+      "health": 8,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，消灭本随从左侧的亡灵并再次召唤完全相同的复制。",
+      "goldenDbfId": 105520,
+      "golden": {
+        "cardId": "BG28_308_G",
+        "dbfId": 105520,
+        "attack": 20,
+        "health": 16,
+        "text": "在你的回合结束时，消灭相邻的亡灵并再次召唤完全相同的复制。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_324",
+      "cardId": "BG32_324",
+      "dbfId": 120104,
+      "name": "德鲁斯特堕落屠夫",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复仇"
+      ],
+      "text": "复仇（3）：获取一张宰割。",
+      "goldenDbfId": 120105,
+      "golden": {
+        "cardId": "BG32_324_G",
+        "dbfId": 120105,
+        "attack": 4,
+        "health": 14,
+        "text": "复仇（3）：获取2张宰割。",
+        "keywords": [
+          "复仇"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_403",
+      "cardId": "BG34_403",
+      "dbfId": 129263,
+      "name": "永恒大亨",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 8,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复仇"
+      ],
+      "text": "复仇（5）：召唤一个永恒骑士并使其立即发起攻击。",
+      "goldenDbfId": 129264,
+      "golden": {
+        "cardId": "BG34_403_G",
+        "dbfId": 129264,
+        "attack": 8,
+        "health": 16,
+        "text": "复仇（5）：召唤一个金色永恒骑士并使其立即发起攻击。",
+        "keywords": [
+          "复仇"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_334",
+      "cardId": "BG35_334",
+      "dbfId": 130552,
+      "name": "骷髅狂射手",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复仇",
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，使你的随从获得+1/+1。复仇（2）：永久提升此效果。",
+      "goldenDbfId": 130553,
+      "golden": {
+        "cardId": "BG35_334_G",
+        "dbfId": 130553,
+        "attack": 12,
+        "health": 12,
+        "text": "在你的回合结束时，使你的随从获得+2/+2。复仇（2）：永久提升此效果。",
+        "keywords": [
+          "复仇",
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_162",
+      "cardId": "BG26_162",
+      "dbfId": 99523,
+      "name": "农场热舞旋风",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：使酒馆中的元素在本局对战中获得+8/+8。",
+      "goldenDbfId": 99734,
+      "golden": {
+        "cardId": "BG26_162_G",
+        "dbfId": 99734,
+        "attack": 8,
+        "health": 8,
+        "text": "战吼，亡语： 使酒馆中的元素在本局对战中获得+8/+8，触发两次。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_882",
+      "cardId": "BG35_882",
+      "dbfId": 130296,
+      "name": "火焰之地的逸火",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 7,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：获取一张燃焰。",
+      "goldenDbfId": 130297,
+      "golden": {
+        "cardId": "BG35_882_G",
+        "dbfId": 130297,
+        "attack": 10,
+        "health": 14,
+        "text": "战吼：获取2张燃焰。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_858",
+      "cardId": "BG34_858",
+      "dbfId": 126173,
+      "name": "空气亡魂",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你花掉7枚铸币后，施放乘借东风。（还剩7枚！）",
+      "goldenDbfId": 126174,
+      "golden": {
+        "cardId": "BG34_858_G",
+        "dbfId": 126174,
+        "attack": 6,
+        "health": 12,
+        "text": "在你花掉7枚铸币后，施放两张乘借东风。（还剩7枚！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_111",
+      "cardId": "BG32_111",
+      "dbfId": 120754,
+      "name": "梦魇茶客",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部种族",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：获取一张乱放的茶具。",
+      "goldenDbfId": 120758,
+      "golden": {
+        "cardId": "BG32_111_G",
+        "dbfId": 120758,
+        "attack": 6,
+        "health": 6,
+        "text": "战吼，亡语：获取2张乱放的茶具。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_121",
+      "cardId": "BGDUO_121",
+      "dbfId": 106320,
+      "name": "堕落者信使",
+      "tavernTier": 5,
+      "attack": 9,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：在本局对战中，你的队伍酒馆中的随从拥有+1/+1。",
+      "goldenDbfId": 106544,
+      "golden": {
+        "cardId": "BGDUO_121_G",
+        "dbfId": 106544,
+        "attack": 18,
+        "health": 12,
+        "text": "战吼：在本局对战中，你的队伍酒馆中的随从拥有+2/+2。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_891",
+      "cardId": "BG32_891",
+      "dbfId": 120662,
+      "name": "影舞者",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "嘲讽。亡语：获取一张富足之杖。",
+      "goldenDbfId": 120663,
+      "golden": {
+        "cardId": "BG32_891_G",
+        "dbfId": 120663,
+        "attack": 10,
+        "health": 6,
+        "text": "嘲讽。亡语：获取2张富足之杖。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_873",
+      "cardId": "BG32_873",
+      "dbfId": 121687,
+      "name": "灰烬腐蚀者",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你的英雄受到伤害后，回溯该伤害并使酒馆中的随从在本回合中获得+1/+1。",
+      "goldenDbfId": 121688,
+      "golden": {
+        "cardId": "BG32_873_G",
+        "dbfId": 121688,
+        "attack": 12,
+        "health": 12,
+        "text": "在你的英雄受到伤害后，回溯该伤害并使酒馆中的随从在本回合中获得+2/+2。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_152",
+      "cardId": "BG35_152",
+      "dbfId": 130078,
+      "name": "虚空幼犬训练师",
+      "tavernTier": 5,
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：在本局对战中，使酒馆中等级3或以下的随从获得+3/+3。",
+      "goldenDbfId": 130082,
+      "golden": {
+        "cardId": "BG35_152_G",
+        "dbfId": 130082,
+        "attack": 14,
+        "health": 14,
+        "text": "战吼：在本局对战中，使酒馆中等级3或以下的随从获得+6/+6。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg21_005",
+      "cardId": "BG21_005",
+      "dbfId": 72067,
+      "name": "饥饿的魔蝠",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "回合结束时",
+        "吞食"
+      ],
+      "text": "在你的回合结束时，你的恶魔各吞食酒馆中的一个随从，获得其属性值。",
+      "goldenDbfId": 72824,
+      "golden": {
+        "cardId": "BG21_005_G",
+        "dbfId": 72824,
+        "attack": 12,
+        "health": 6,
+        "text": "在你的回合结束时，你的恶魔各吞食酒馆中的一个随从，获得其双倍属性值。",
+        "keywords": [
+          "回合结束时",
+          "吞食"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_633",
+      "cardId": "BG28_633",
+      "dbfId": 110664,
+      "name": "邪能野猪人",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 6,
+      "tribes": [
+        "恶魔",
+        "野猪人"
+      ],
+      "tribesText": "恶魔 / 野猪人",
+      "keywords": [
+        "触发效果",
+        "吞食"
+      ],
+      "text": "在你施放3个法术后，吞食酒馆中的一个随从，获得其属性值。（还剩3个！）",
+      "goldenDbfId": 110665,
+      "golden": {
+        "cardId": "BG28_633_G",
+        "dbfId": 110665,
+        "attack": 4,
+        "health": 12,
+        "text": "在你施放3个法术后，吞食酒馆中的一个随从，获得其双倍属性值。（还剩3个！）",
+        "keywords": [
+          "触发效果",
+          "吞食"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_821",
+      "cardId": "BG32_821",
+      "dbfId": 120299,
+      "name": "邪火咒龙",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "恶魔",
+        "龙"
+      ],
+      "tribesText": "恶魔 / 龙",
+      "keywords": [
+        "回合结束时",
+        "酒馆法术"
+      ],
+      "text": "在你的回合结束时，你的酒馆法术在本局对战中使随从额外获得+1/+1。",
+      "goldenDbfId": 120300,
+      "golden": {
+        "cardId": "BG32_821_G",
+        "dbfId": 120300,
+        "attack": 12,
+        "health": 10,
+        "text": "在你的回合结束时，你的酒馆法术在本局对战中使随从额外获得+2/+2。",
+        "keywords": [
+          "回合结束时",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_109",
+      "cardId": "BGDUO_109",
+      "dbfId": 104561,
+      "name": "增援系统",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "回合结束时",
+        "圣盾"
+      ],
+      "text": "在你的回合结束时，使你的队友战队中的一个随从获得圣盾。",
+      "goldenDbfId": 104563,
+      "golden": {
+        "cardId": "BGDUO_109_G",
+        "dbfId": 104563,
+        "attack": 8,
+        "health": 10,
+        "text": "在你的回合结束时，使你的队友战队中的2个随从获得圣盾。",
+        "keywords": [
+          "回合结束时",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_148",
+      "cardId": "BG26_148",
+      "dbfId": 98592,
+      "name": "报废废铁回收机",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "磁力"
+      ],
+      "text": "亡语：随机获取一张磁力机械牌。",
+      "goldenDbfId": 98593,
+      "golden": {
+        "cardId": "BG26_148_G",
+        "dbfId": 98593,
+        "attack": 12,
+        "health": 10,
+        "text": "亡语：随机获取2张磁力机械牌。",
+        "keywords": [
+          "亡语",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_890",
+      "cardId": "BG35_890",
+      "dbfId": 131606,
+      "name": "机巧发明机",
+      "tavernTier": 5,
+      "attack": 9,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "磁力"
+      ],
+      "text": "亡语：在本场战斗中，你的机械拥有+2攻击力。（在本局对战中你每磁力吸附一次都会提升！）",
+      "goldenDbfId": 131607,
+      "golden": {
+        "cardId": "BG35_890_G",
+        "dbfId": 131607,
+        "attack": 18,
+        "health": 8,
+        "text": "亡语：在本场战斗中，你的机械拥有+4攻击力。（在本局对战中你每磁力吸附一次都会提升！）",
+        "keywords": [
+          "亡语",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_809",
+      "cardId": "BG33_809",
+      "dbfId": 123644,
+      "name": "神圣火花机器人",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "亡语",
+        "圣盾",
+        "嘲讽"
+      ],
+      "text": "嘲讽。圣盾。亡语：获取一张圣洁庇护。",
+      "goldenDbfId": 123645,
+      "golden": {
+        "cardId": "BG33_809_G",
+        "dbfId": 123645,
+        "attack": 8,
+        "health": 4,
+        "text": "嘲讽。圣盾。亡语：获取2张圣洁庇护。",
+        "keywords": [
+          "亡语",
+          "圣盾",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg28_741",
+      "cardId": "BG28_741",
+      "dbfId": 110321,
+      "name": "蓄能女沙皇",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 1,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "圣盾",
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "圣盾。每当你施放一个酒馆法术时，使你具有圣盾的随从获得+4攻击力。",
+      "goldenDbfId": 110322,
+      "golden": {
+        "cardId": "BG28_741_G",
+        "dbfId": 110322,
+        "attack": 8,
+        "health": 2,
+        "text": "圣盾。每当你施放一个酒馆法术时，使你具有圣盾的随从获得+8攻击力。",
+        "keywords": [
+          "圣盾",
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_701",
+      "cardId": "BG35_701",
+      "dbfId": 130703,
+      "name": "无耻的海盗",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，使你最左边的海盗获得+3/+3。在本回合中你每使用过一张牌，重复一次。（重复0次）",
+      "goldenDbfId": 130704,
+      "golden": {
+        "cardId": "BG35_701_G",
+        "dbfId": 130704,
+        "attack": 12,
+        "health": 12,
+        "text": "在你的回合结束时，使你最左边的海盗获得+6/+6。在本回合中你每使用过一张牌，重复一次。（重复0次）",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_821",
+      "cardId": "BG33_821",
+      "dbfId": 122177,
+      "name": "船难海贼",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：随机获取一张悬赏令。",
+      "goldenDbfId": 122178,
+      "golden": {
+        "cardId": "BG33_821_G",
+        "dbfId": 122178,
+        "attack": 10,
+        "health": 8,
+        "text": "战吼，亡语：随机获取2张悬赏令。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_825",
+      "cardId": "BG33_825",
+      "dbfId": 122520,
+      "name": "骄傲的私掠者",
+      "tavernTier": 5,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "光环"
+      ],
+      "text": "你的悬赏令会施放两次。",
+      "goldenDbfId": 122521,
+      "golden": {
+        "cardId": "BG33_825_G",
+        "dbfId": 122521,
+        "attack": 16,
+        "health": 16,
+        "text": "你的悬赏令会施放三次。",
+        "keywords": [
+          "光环"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_922",
+      "cardId": "BG34_922",
+      "dbfId": 126633,
+      "name": "大漩涡涌流纳迦",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "光环",
+        "酒馆法术"
+      ],
+      "text": "在战斗中，你的酒馆法术会额外施放一次。",
+      "goldenDbfId": 126634,
+      "golden": {
+        "cardId": "BG34_922_G",
+        "dbfId": 126634,
+        "attack": 4,
+        "health": 14,
+        "text": "在战斗中，你的酒馆法术会额外施放2次。",
+        "keywords": [
+          "光环",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_835",
+      "cardId": "BG32_835",
+      "dbfId": 119942,
+      "name": "宁静的冥想者",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 8,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "塑造法术：在本局对战中，你的酒馆法术使随从额外获得+1/+1。",
+      "goldenDbfId": 119943,
+      "golden": {
+        "cardId": "BG32_835_G",
+        "dbfId": 119943,
+        "attack": 6,
+        "health": 16,
+        "text": "塑造法术：在本局对战中，你的酒馆法术使随从额外获得+2/+2。",
+        "keywords": [
+          "塑造法术",
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_920",
+      "cardId": "BG31_920",
+      "dbfId": 115555,
+      "name": "暗潮战略专家",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "回合结束时",
+        "塑造法术",
+        "触发效果"
+      ],
+      "text": "塑造法术：随机获取一张等级1的纳迦牌。（每回合都会提升！）",
+      "goldenDbfId": 115556,
+      "golden": {
+        "cardId": "BG31_920_G",
+        "dbfId": 115556,
+        "attack": 8,
+        "health": 10,
+        "text": "塑造法术：随机获取两张等级1的纳迦牌。（每回合都会提升！）",
+        "keywords": [
+          "回合结束时",
+          "塑造法术",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_008",
+      "cardId": "BG23_008",
+      "dbfId": 80746,
+      "name": "闪鳞纳迦",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "嘲讽",
+        "触发效果",
+        "圣盾"
+      ],
+      "text": "嘲讽，塑造法术：直到下个回合，使一个随从获得圣盾。",
+      "goldenDbfId": 80764,
+      "golden": {
+        "cardId": "BG23_008_G",
+        "dbfId": 80764,
+        "attack": 8,
+        "health": 12,
+        "text": "嘲讽，塑造法术：直到下个回合，使一个随从获得圣盾。",
+        "keywords": [
+          "塑造法术",
+          "嘲讽",
+          "触发效果",
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_122",
+      "cardId": "BGDUO_122",
+      "dbfId": 107879,
+      "name": "风暴分流者",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果",
+        "传递",
+        "酒馆法术"
+      ],
+      "text": "每回合一次：在你传递酒馆法术牌后，获取一张它的新复制。",
+      "goldenDbfId": 107883,
+      "golden": {
+        "cardId": "BGDUO_122_G",
+        "dbfId": 107883,
+        "attack": 10,
+        "health": 10,
+        "text": "每回合一次：在你传递酒馆法术牌后，获取2张它的新复制。",
+        "keywords": [
+          "触发效果",
+          "传递",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_604",
+      "cardId": "BG35_604",
+      "dbfId": 130996,
+      "name": "下水道老鼠头目",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "亡语：召唤两只下水道老鼠。下水道老鼠能召唤2/3并具有嘲讽的乌龟。",
+      "goldenDbfId": 130997,
+      "golden": {
+        "cardId": "BG35_604_G",
+        "dbfId": 130997,
+        "attack": 8,
+        "health": 12,
+        "text": "亡语：召唤两只金色下水道老鼠。金色下水道老鼠能召唤4/6并具有嘲讽的乌龟。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_105",
+      "cardId": "BGDUO_105",
+      "dbfId": 104540,
+      "name": "宽厚的驼鹿",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 2,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：召唤你的队友战队中一个随从（宽厚的驼鹿除外）的复制，将其生命值变为1。",
+      "goldenDbfId": 104541,
+      "golden": {
+        "cardId": "BGDUO_105_G",
+        "dbfId": 104541,
+        "attack": 10,
+        "health": 4,
+        "text": "亡语：召唤你的队友战队中2个随从（宽厚的驼鹿除外）的复制，将其生命值变为1。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_808",
+      "cardId": "BG29_808",
+      "dbfId": 108439,
+      "name": "尖角救星",
+      "tavernTier": 5,
+      "attack": 8,
+      "health": 2,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语",
+        "复生",
+        "嘲讽"
+      ],
+      "text": "嘲讽。复生亡语：使你的随从获得+1生命值并对其造成1点伤害。",
+      "goldenDbfId": 108455,
+      "golden": {
+        "cardId": "BG29_808_G",
+        "dbfId": 108455,
+        "attack": 16,
+        "health": 4,
+        "text": "嘲讽。复生亡语：使你的随从获得+1生命值并对其造成1点伤害，触发两次。",
+        "keywords": [
+          "亡语",
+          "复生",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_602",
+      "cardId": "BG35_602",
+      "dbfId": 130711,
+      "name": "深潜巨兽",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你召唤野兽时，使其获得+2攻击力并永久提升此效果。",
+      "goldenDbfId": 130712,
+      "golden": {
+        "cardId": "BG35_602_G",
+        "dbfId": 130712,
+        "attack": 6,
+        "health": 16,
+        "text": "每当你召唤野兽时，使其获得+4攻击力并永久提升此效果。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_806",
+      "cardId": "BG29_806",
+      "dbfId": 107937,
+      "name": "炫彩灼天者",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当一只友方野兽受到伤害时，使该受伤野兽之外的一只友方野兽永久获得+3/+2。",
+      "goldenDbfId": 107938,
+      "golden": {
+        "cardId": "BG29_806_G",
+        "dbfId": 107938,
+        "attack": 6,
+        "health": 16,
+        "text": "每当一只友方野兽受到伤害时，使该受伤野兽之外的一只友方野兽永久获得+6/+4。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_809",
+      "cardId": "BG31_809",
+      "dbfId": 119255,
+      "name": "绿松石飞掠虫",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：在本局对战中，你的甲虫拥有+5/+5。召唤一只2/2的甲虫。",
+      "goldenDbfId": 119256,
+      "golden": {
+        "cardId": "BG31_809_G",
+        "dbfId": 119256,
+        "attack": 10,
+        "health": 10,
+        "text": "亡语：在本局对战中，你的甲虫拥有+10/+10。召唤两只2/2的甲虫。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_867",
+      "cardId": "BG26_867",
+      "dbfId": 114486,
+      "name": "三只小野猪",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "亡语",
+        "鲜血宝石"
+      ],
+      "text": "亡语：本随从对你的所有野猪人各使用3张鲜血宝石。",
+      "goldenDbfId": 114487,
+      "golden": {
+        "cardId": "BG26_867_G",
+        "dbfId": 114487,
+        "attack": 6,
+        "health": 6,
+        "text": "亡语：本随从对你的所有野猪人各使用6张鲜血宝石。",
+        "keywords": [
+          "亡语",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_018",
+      "cardId": "BG23_018",
+      "dbfId": 80756,
+      "name": "暗视长者",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 8,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "触发效果",
+        "鲜血宝石"
+      ],
+      "text": "每当你花掉8枚铸币，本随从对你的所有野猪人各使用两张鲜血宝石。（还剩8枚！）",
+      "goldenDbfId": 80774,
+      "golden": {
+        "cardId": "BG23_018_G",
+        "dbfId": 80774,
+        "attack": 12,
+        "health": 16,
+        "text": "每当你花掉8枚铸币，本随从对你的所有野猪人各使用四张鲜血宝石。（还剩8枚！）",
+        "keywords": [
+          "触发效果",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_121",
+      "cardId": "BG30_121",
+      "dbfId": 113152,
+      "name": "热气球测绘员",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 8,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "光环",
+        "鲜血宝石"
+      ],
+      "text": "从你手牌中使用的鲜血宝石会额外施放一次。",
+      "goldenDbfId": 113153,
+      "golden": {
+        "cardId": "BG30_121_G",
+        "dbfId": 113153,
+        "attack": 8,
+        "health": 16,
+        "text": "从你手牌中使用的鲜血宝石会额外施放2次。",
+        "keywords": [
+          "光环",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_142",
+      "cardId": "BG35_142",
+      "dbfId": 131149,
+      "name": "厄戈尔表弟",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，获取一张莫格顿大妈或莫格顿老爹。",
+      "goldenDbfId": 131150,
+      "golden": {
+        "cardId": "BG35_142_G",
+        "dbfId": 131150,
+        "attack": 10,
+        "health": 10,
+        "text": "在你的回合结束时，获取莫格顿大妈和莫格顿老爹各一张。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_318",
+      "cardId": "BG33_318",
+      "dbfId": 122219,
+      "name": "怒胆喷毒鱼人",
+      "tavernTier": 5,
+      "attack": 1,
+      "health": 10,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "进击",
+        "烈毒"
+      ],
+      "text": "烈毒。进击：使另一个友方鱼人获得烈毒。",
+      "goldenDbfId": 122220,
+      "golden": {
+        "cardId": "BG33_318_G",
+        "dbfId": 122220,
+        "attack": 2,
+        "health": 20,
+        "text": "烈毒。进击：使2个其他友方鱼人获得烈毒。",
+        "keywords": [
+          "进击",
+          "烈毒"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_895",
+      "cardId": "BG35_895",
+      "dbfId": 131608,
+      "name": "招潮者先知",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "光环",
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "在本回合中，你的酒馆法术使随从额外获得+1/+1。在你使用2张鱼人牌后，提升此效果。（还剩2张！）",
+      "goldenDbfId": 131609,
+      "golden": {
+        "cardId": "BG35_895_G",
+        "dbfId": 131609,
+        "attack": 10,
+        "health": 12,
+        "text": "在本回合中，你的酒馆法术使随从额外获得+2/+2。在你使用2张鱼人牌后，提升此效果。（还剩2张！）",
+        "keywords": [
+          "光环",
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_020",
+      "cardId": "BGS_020",
+      "dbfId": 60028,
+      "name": "蛮鱼斥候",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战吼",
+        "发现"
+      ],
+      "text": "战吼：如果你控制着其他鱼人，发现一张鱼人牌。",
+      "goldenDbfId": 60027,
+      "golden": {
+        "cardId": "TB_BaconUps_089",
+        "dbfId": 60027,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼：如果你控制着其他鱼人，发现2张鱼人牌。",
+        "keywords": [
+          "战吼",
+          "发现"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg30_122",
+      "cardId": "BG30_122",
+      "dbfId": 114391,
+      "name": "鱼人蟊贼",
+      "tavernTier": 5,
+      "attack": 10,
+      "health": 10,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张鱼人牌后，使一个友方随从和你手牌中的一张随从牌获得+5/+5。",
+      "goldenDbfId": 114392,
+      "golden": {
+        "cardId": "BG30_122_G",
+        "dbfId": 114392,
+        "attack": 20,
+        "health": 20,
+        "text": "在你使用一张鱼人牌后，使一个友方随从和你手牌中的一张随从牌获得+10/+10。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_041",
+      "cardId": "BGS_041",
+      "dbfId": 60630,
+      "name": "奥术守护者卡雷苟斯",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 12,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果",
+        "战吼"
+      ],
+      "text": "在你触发一个战吼后，使你的龙获得+2/+2。",
+      "goldenDbfId": 60667,
+      "golden": {
+        "cardId": "TB_BaconUps_109",
+        "dbfId": 60667,
+        "attack": 8,
+        "health": 24,
+        "text": "在你触发一个战吼后，使你的龙获得+4/+4。",
+        "keywords": [
+          "触发效果",
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_205",
+      "cardId": "BGDUO31_205",
+      "dbfId": 117332,
+      "name": "无私的观光客",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 2,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：你的队伍的铸币上限提高（1）枚。",
+      "goldenDbfId": 117333,
+      "golden": {
+        "cardId": "BGDUO31_205_G",
+        "dbfId": 117333,
+        "attack": 12,
+        "health": 4,
+        "text": "战吼：你的队伍的铸币上限提高（2）枚。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_633",
+      "cardId": "BG34_633",
+      "dbfId": 126860,
+      "name": "龙族看护员",
+      "tavernTier": 5,
+      "attack": 7,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：随机获取一张多彩幼龙。",
+      "goldenDbfId": 126861,
+      "golden": {
+        "cardId": "BG34_633_G",
+        "dbfId": 126861,
+        "attack": 14,
+        "health": 8,
+        "text": "战吼，亡语：随机获取2张多彩幼龙。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_883",
+      "cardId": "BG35_883",
+      "dbfId": 130298,
+      "name": "巴琳达·斯通赫尔斯",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "光环"
+      ],
+      "text": "你的以友方随从为目标的法术会施放两次。",
+      "goldenDbfId": 130299,
+      "golden": {
+        "cardId": "BG35_883_G",
+        "dbfId": 130299,
+        "attack": 12,
+        "health": 12,
+        "text": "你的以友方随从为目标的法术会施放三次。",
+        "keywords": [
+          "光环"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg29_841",
+      "cardId": "BG29_841",
+      "dbfId": 108397,
+      "name": "格雷迈恩的勇士",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用偶数等级的牌后，使你的偶数等级的随从获得+2/+2。",
+      "goldenDbfId": 108400,
+      "golden": {
+        "cardId": "BG29_841_G",
+        "dbfId": 108400,
+        "attack": 8,
+        "health": 8,
+        "text": "在你使用偶数等级的牌后，使你的偶数等级的随从获得+4/+4。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_009",
+      "cardId": "BG25_009",
+      "dbfId": 95263,
+      "name": "永恒召唤者",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 1,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "复生"
+      ],
+      "text": "复生。亡语：召唤1个永恒骑士。",
+      "goldenDbfId": 95264,
+      "golden": {
+        "cardId": "BG25_009_G",
+        "dbfId": 95264,
+        "attack": 16,
+        "health": 2,
+        "text": "复生。亡语：召唤一个金色的永恒骑士。",
+        "keywords": [
+          "亡语",
+          "复生"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_835",
+      "cardId": "BG31_835",
+      "dbfId": 115610,
+      "name": "致命打击者",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "复仇",
+        "亡语"
+      ],
+      "text": "复仇（4）：随机获取一张亡灵牌。亡语：从你的手牌中召唤它，其登场仅限本场战斗。",
+      "goldenDbfId": 115611,
+      "golden": {
+        "cardId": "BG31_835_G",
+        "dbfId": 115611,
+        "attack": 16,
+        "health": 16,
+        "text": "复仇（4）：随机获取2张亡灵牌。亡语：从你的手牌中召唤它们，其登场仅限本场战斗。",
+        "keywords": [
+          "复仇",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_692",
+      "cardId": "BG34_692",
+      "dbfId": 126733,
+      "name": "被遗忘者纺织工",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 10,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "在你施放一个酒馆法术后，你的亡灵在本局对战中拥有+2攻击力（无论它们在哪）。",
+      "goldenDbfId": 126734,
+      "golden": {
+        "cardId": "BG34_692_G",
+        "dbfId": 126734,
+        "attack": 6,
+        "health": 20,
+        "text": "在你施放一个酒馆法术后，你的亡灵在本局对战中拥有+4攻击力（无论它们在哪）。",
+        "keywords": [
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_765",
+      "cardId": "BG34_765",
+      "dbfId": 127240,
+      "name": "死海破坏者",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "亡灵",
+        "海盗"
+      ],
+      "tribesText": "亡灵 / 海盗",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使3个其他友方随从获得本随从的攻击力。",
+      "goldenDbfId": 127241,
+      "golden": {
+        "cardId": "BG34_765_G",
+        "dbfId": 127241,
+        "attack": 10,
+        "health": 10,
+        "text": "进击：使3个其他友方随从获得本随从的攻击力，触发两次。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_175",
+      "cardId": "BG26_175",
+      "dbfId": 101280,
+      "name": "惊喜元素",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "圣盾"
+      ],
+      "text": "圣盾。可以与任意元素三连。",
+      "goldenDbfId": 101281,
+      "golden": {
+        "cardId": "BG26_175_G",
+        "dbfId": 101281,
+        "attack": 16,
+        "health": 16,
+        "text": "圣盾。可以与任意元素三连。",
+        "keywords": [
+          "圣盾"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_846",
+      "cardId": "BG32_846",
+      "dbfId": 120674,
+      "name": "狂放的法力涌流",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张元素牌后，使你的元素获得+4/+4。",
+      "goldenDbfId": 120675,
+      "golden": {
+        "cardId": "BG32_846_G",
+        "dbfId": 120675,
+        "attack": 12,
+        "health": 10,
+        "text": "在你使用一张元素牌后，使你的元素获得+4/+4，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_154",
+      "cardId": "BG33_154",
+      "dbfId": 122116,
+      "name": "废墟领主",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在一个友方恶魔造成伤害后，使其之外的友方随从获得+2/+1。",
+      "goldenDbfId": 122117,
+      "golden": {
+        "cardId": "BG33_154_G",
+        "dbfId": 122117,
+        "attack": 10,
+        "health": 12,
+        "text": "在一个友方恶魔造成伤害后，使其之外的友方随从获得+4/+2。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_155",
+      "cardId": "BG35_155",
+      "dbfId": 130662,
+      "name": "扭曲的愤怒卫士",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果",
+        "刷新"
+      ],
+      "text": "在你出售一个随从后，在你的下一次刷新中添加一个恶魔饲料。",
+      "goldenDbfId": 130663,
+      "golden": {
+        "cardId": "BG35_155_G",
+        "dbfId": 130663,
+        "attack": 16,
+        "health": 16,
+        "text": "在你出售一个随从后，在你的下一次刷新中添加两个恶魔饲料。",
+        "keywords": [
+          "触发效果",
+          "刷新"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_153",
+      "cardId": "BG35_153",
+      "dbfId": 130079,
+      "name": "食力征服者",
+      "tavernTier": 6,
+      "attack": 9,
+      "health": 7,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果",
+        "吞食"
+      ],
+      "text": "每当一个随从被吞食，在本回合中使酒馆中的随从获得+1/+1。",
+      "goldenDbfId": 130083,
+      "golden": {
+        "cardId": "BG35_153_G",
+        "dbfId": 130083,
+        "attack": 18,
+        "health": 14,
+        "text": "每当一个随从被吞食，在本回合中使酒馆中的随从获得+2/+2。",
+        "keywords": [
+          "触发效果",
+          "吞食"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo33_150",
+      "cardId": "BGDUO33_150",
+      "dbfId": 123841,
+      "name": "黑暗炫魔",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 7,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你的队友出售一个随从后，获得该随从的属性值。（每回合一次。）",
+      "goldenDbfId": 123842,
+      "golden": {
+        "cardId": "BGDUO33_150_G",
+        "dbfId": 123842,
+        "attack": 8,
+        "health": 14,
+        "text": "在你的队友出售一个随从后，获得该随从的属性值。（每回合两次。）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_342",
+      "cardId": "BG35_342",
+      "dbfId": 130798,
+      "name": "坠落的飞天魔像",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "光环",
+        "圣盾",
+        "亡语"
+      ],
+      "text": "圣盾。在本局对战中，你每触发过一次亡语，便拥有+4/+2（无论本随从在哪）。",
+      "goldenDbfId": 130799,
+      "golden": {
+        "cardId": "BG35_342_G",
+        "dbfId": 130799,
+        "attack": 8,
+        "health": 4,
+        "text": "圣盾。在本局对战中，你每触发过一次亡语，便拥有+8/+4（无论本随从在哪）。",
+        "keywords": [
+          "光环",
+          "圣盾",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_175",
+      "cardId": "BG34_175",
+      "dbfId": 126830,
+      "name": "废铁枪骑士",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 7,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "触发效果",
+        "磁力"
+      ],
+      "text": "在你磁力吸附一个随从后，使你的随从获得+5/+5。",
+      "goldenDbfId": 126831,
+      "golden": {
+        "cardId": "BG34_175_G",
+        "dbfId": 126831,
+        "attack": 16,
+        "health": 14,
+        "text": "在你磁力吸附一个随从后，使你的随从获得+10/+10。",
+        "keywords": [
+          "触发效果",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_171",
+      "cardId": "BG31_171",
+      "dbfId": 115666,
+      "name": "月铁毁灭战舰",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "回合结束时",
+        "磁力"
+      ],
+      "text": "在你的回合结束时，获取两张6/6的磁力卫星并提升此效果。",
+      "goldenDbfId": 115667,
+      "golden": {
+        "cardId": "BG31_171_G",
+        "dbfId": 115667,
+        "attack": 16,
+        "health": 16,
+        "text": "在你的回合结束时，获取两张12/12的磁力卫星并提升此效果。",
+        "keywords": [
+          "回合结束时",
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_211",
+      "cardId": "BGDUO31_211",
+      "dbfId": 117359,
+      "name": "转运反应堆",
+      "tavernTier": 6,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "光环",
+        "磁力",
+        "传递"
+      ],
+      "text": "磁力。在本局对战中，你的队伍每传递过一次，便拥有+1/+1（无论本随从在哪）。",
+      "goldenDbfId": 117360,
+      "golden": {
+        "cardId": "BGDUO31_211_G",
+        "dbfId": 117360,
+        "attack": 2,
+        "health": 2,
+        "text": "磁力。在本局对战中，你的队伍每传递过一次，便拥有+2/+2（无论本随从在哪）。",
+        "keywords": [
+          "光环",
+          "磁力",
+          "传递"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_234",
+      "cardId": "BG32_234",
+      "dbfId": 119992,
+      "name": "卑鄙的德鲁斯特",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你获取一张海盗牌，使你的随从获得+2/+2，金色随从改为+6/+6。",
+      "goldenDbfId": 119993,
+      "golden": {
+        "cardId": "BG32_234_G",
+        "dbfId": 119993,
+        "attack": 10,
+        "health": 8,
+        "text": "每当你获取一张海盗牌，使你的随从获得+4/+4，金色随从改为+12/+12。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_823",
+      "cardId": "BG33_823",
+      "dbfId": 122516,
+      "name": "空军上将罗杰斯",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你花掉9枚铸币后，随机获取一张悬赏令。（还剩9枚！）",
+      "goldenDbfId": 122517,
+      "golden": {
+        "cardId": "BG33_823_G",
+        "dbfId": 122517,
+        "attack": 8,
+        "health": 10,
+        "text": "在你花掉9枚铸币后，随机获取两张悬赏令。（还剩9枚！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_820",
+      "cardId": "BG31_820",
+      "dbfId": 115593,
+      "name": "空间眺望者",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当另一个友方海盗获得攻击力时，获得+2生命值。",
+      "goldenDbfId": 115594,
+      "golden": {
+        "cardId": "BG31_820_G",
+        "dbfId": 115594,
+        "attack": 6,
+        "health": 12,
+        "text": "每当另一个友方海盗获得攻击力时，获得+4生命值。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_700",
+      "cardId": "BG35_700",
+      "dbfId": 130701,
+      "name": "跳船海盗",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：召唤一个具有本随从攻击力的空中海盗，并使其率先攻击目标。",
+      "goldenDbfId": 130702,
+      "golden": {
+        "cardId": "BG35_700_G",
+        "dbfId": 130702,
+        "attack": 12,
+        "health": 12,
+        "text": "进击：召唤一个具有本随从双倍攻击力的空中海盗，并使其率先攻击目标。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_920",
+      "cardId": "BG33_920",
+      "dbfId": 122094,
+      "name": "怒鳞潜行者",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在另一个友方纳迦获得生命值后，使其获得等量的攻击力。",
+      "goldenDbfId": 122095,
+      "golden": {
+        "cardId": "BG33_920_G",
+        "dbfId": 122095,
+        "attack": 6,
+        "health": 12,
+        "text": "在另一个友方纳迦获得生命值后，使其获得所获生命值两倍的攻击力。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_926",
+      "cardId": "BG34_926",
+      "dbfId": 126918,
+      "name": "无情的女王护卫",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "战吼",
+        "进击",
+        "亡语"
+      ],
+      "text": "战吼，亡语，进击：施放女王的命令。",
+      "goldenDbfId": 126919,
+      "golden": {
+        "cardId": "BG34_926_G",
+        "dbfId": 126919,
+        "attack": 6,
+        "health": 6,
+        "text": "战吼，亡语，进击：施放女王的命令，触发两次。",
+        "keywords": [
+          "战吼",
+          "进击",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_923",
+      "cardId": "BG33_923",
+      "dbfId": 122672,
+      "name": "破碎主母",
+      "tavernTier": 6,
+      "attack": 7,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你施放一个法术，使你的随从获得+3生命值。",
+      "goldenDbfId": 122673,
+      "golden": {
+        "cardId": "BG33_923_G",
+        "dbfId": 122673,
+        "attack": 14,
+        "health": 8,
+        "text": "每当你施放一个法术，使你的随从获得+6生命值。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_035",
+      "cardId": "BG31_035",
+      "dbfId": 114816,
+      "name": "碎地者",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张纳迦牌后，获得+1/+1。（在本局对战中，你每施放4个法术都会提升！）",
+      "goldenDbfId": 114817,
+      "golden": {
+        "cardId": "BG31_035_G",
+        "dbfId": 114817,
+        "attack": 10,
+        "health": 8,
+        "text": "在你使用一张纳迦牌后，获得+2/+2。（在本局对战中，你每施放4个法术都会提升！）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_921",
+      "cardId": "BG34_921",
+      "dbfId": 126631,
+      "name": "护戒纳迦",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "纳迦",
+        "龙"
+      ],
+      "tribesText": "纳迦 / 龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当一个友方随从攻击时，施放闪亮的戒指。",
+      "goldenDbfId": 126632,
+      "golden": {
+        "cardId": "BG34_921_G",
+        "dbfId": 126632,
+        "attack": 10,
+        "health": 20,
+        "text": "每当一个友方随从攻击时，施放闪亮的戒指，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg32_204",
+      "cardId": "BG32_204",
+      "dbfId": 121135,
+      "name": "丝柔烁光蛾",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 12,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "每当本随从受到伤害，在本局对战中，你的甲虫拥有+2/+1。亡语：召唤一只2/2的甲虫。",
+      "goldenDbfId": 121136,
+      "golden": {
+        "cardId": "BG32_204_G",
+        "dbfId": 121136,
+        "attack": 6,
+        "health": 24,
+        "text": "每当本随从受到伤害，在本局对战中，你的甲虫拥有+4/+2。亡语：召唤两只2/2的甲虫。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgs_018",
+      "cardId": "BGS_018",
+      "dbfId": 59955,
+      "name": "巨狼戈德林",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：在本场战斗的剩余时间内，你的野兽拥有+8/+8。",
+      "goldenDbfId": 59956,
+      "golden": {
+        "cardId": "TB_BaconUps_085",
+        "dbfId": 59956,
+        "attack": 16,
+        "health": 16,
+        "text": "亡语：在本场战斗的剩余时间内，你的野兽拥有+16/+16。",
+        "keywords": [
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_321",
+      "cardId": "BG34_321",
+      "dbfId": 127111,
+      "name": "狂乱的猎豹",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张野兽牌后，使你的野兽获得+3/+3并对它们造成1点伤害。",
+      "goldenDbfId": 127112,
+      "golden": {
+        "cardId": "BG34_321_G",
+        "dbfId": 127112,
+        "attack": 8,
+        "health": 16,
+        "text": "在你使用一张野兽牌后，使你的野兽获得+3/+3并对它们造成1点伤害，触发两次。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_157",
+      "cardId": "BG26_157",
+      "dbfId": 100997,
+      "name": "作曲鬃师",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 10,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "复仇",
+        "鲜血宝石"
+      ],
+      "text": "复仇（2）：本随从对你的所有野猪人各使用2张鲜血宝石。",
+      "goldenDbfId": 100999,
+      "golden": {
+        "cardId": "BG26_157_G",
+        "dbfId": 100999,
+        "attack": 6,
+        "health": 20,
+        "text": "复仇（2）：本随从对你的所有野猪人各使用4张鲜血宝石。",
+        "keywords": [
+          "复仇",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_431",
+      "cardId": "BG35_431",
+      "dbfId": 130149,
+      "name": "大地之歌萨满祭司",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "回合结束时",
+        "风怒",
+        "鲜血宝石"
+      ],
+      "text": "风怒。在你的回合结束时，本随从对你的所有随从各使用一张鲜血宝石。本随从每拥有一个额外关键词，重复一次。",
+      "goldenDbfId": 130150,
+      "golden": {
+        "cardId": "BG35_431_G",
+        "dbfId": 130150,
+        "attack": 8,
+        "health": 10,
+        "text": "风怒。在你的回合结束时，本随从对你的所有随从各使用2张鲜血宝石。本随从每拥有一个额外关键词，重复一次。",
+        "keywords": [
+          "回合结束时",
+          "风怒",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo31_202",
+      "cardId": "BGDUO31_202",
+      "dbfId": 117492,
+      "name": "忠实的帮凶",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "回合结束时",
+        "鲜血宝石"
+      ],
+      "text": "在你的回合结束时，本随从对你的队友的所有随从各使用一张鲜血宝石。",
+      "goldenDbfId": 117493,
+      "golden": {
+        "cardId": "BGDUO31_202_G",
+        "dbfId": 117493,
+        "attack": 12,
+        "health": 10,
+        "text": "在你的回合结束时，本随从对你的队友的所有随从各使用2张鲜血宝石。",
+        "keywords": [
+          "回合结束时",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg35_437",
+      "cardId": "BG35_437",
+      "dbfId": 130157,
+      "name": "藤语野猪人",
+      "tavernTier": 6,
+      "attack": 7,
+      "health": 8,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "触发效果",
+        "鲜血宝石",
+        "亡语"
+      ],
+      "text": "在一个友方亡语随从死亡后，你的鲜血宝石会在本局对战中使随从额外获得+1攻击力。",
+      "goldenDbfId": 130158,
+      "golden": {
+        "cardId": "BG35_437_G",
+        "dbfId": 130158,
+        "attack": 14,
+        "health": 16,
+        "text": "在一个友方亡语随从死亡后，你的鲜血宝石会在本局对战中使随从额外获得+2攻击力。",
+        "keywords": [
+          "触发效果",
+          "鲜血宝石",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_893",
+      "cardId": "BG33_893",
+      "dbfId": 122281,
+      "name": "原始鱼人画家",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 8,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你使用一张等级3或以下的牌后，使你的鱼人获得+1/+2。",
+      "goldenDbfId": 122282,
+      "golden": {
+        "cardId": "BG33_893_G",
+        "dbfId": 122282,
+        "attack": 6,
+        "health": 16,
+        "text": "在你使用一张等级3或以下的牌后，使你的鱼人获得+2/+4。",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg26_354",
+      "cardId": "BG26_354",
+      "dbfId": 98948,
+      "name": "合唱鱼人",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：获得你手牌中所有随从牌的属性值。",
+      "goldenDbfId": 98950,
+      "golden": {
+        "cardId": "BG26_354_G",
+        "dbfId": 98950,
+        "attack": 12,
+        "health": 12,
+        "text": "战斗开始时：获得你手牌中所有随从牌的双倍属性值。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_891",
+      "cardId": "BG33_891",
+      "dbfId": 122277,
+      "name": "魔鳍真菌学家",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 8,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "每回合一次。在你购买一个酒馆法术后，获取一张1/1的鱼人并教会它该法术。（还剩1次！）",
+      "goldenDbfId": 122278,
+      "golden": {
+        "cardId": "BG33_891_G",
+        "dbfId": 122278,
+        "attack": 8,
+        "health": 16,
+        "text": "每回合两次。在你购买一个酒馆法术后，获取一张1/1的鱼人并教会它该法术。（还剩2次！）",
+        "keywords": [
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "tavern_spell_cast_buff_self_1_1"
+      ]
+    },
+    {
+      "id": "bg32_822",
+      "cardId": "BG32_822",
+      "dbfId": 120301,
+      "name": "火铸唤魔师",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 5,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战斗开始时",
+        "触发效果",
+        "酒馆法术"
+      ],
+      "text": "战斗开始时：使你的龙获得+2/+1。在你施放一个酒馆法术后永久提升此效果。",
+      "goldenDbfId": 120302,
+      "golden": {
+        "cardId": "BG32_822_G",
+        "dbfId": 120302,
+        "attack": 16,
+        "health": 10,
+        "text": "战斗开始时：使你的龙获得+4/+2。在你施放一个酒馆法术后永久提升此效果。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "tavern_spell_cast_buff_self_1_1"
+      ]
+    },
+    {
+      "id": "bg28_595",
+      "cardId": "BG28_595",
+      "dbfId": 105852,
+      "name": "生火专家",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "回合结束时",
+        "酒馆法术"
+      ],
+      "text": "在你的回合结束时，随机获取2张酒馆法术牌。",
+      "goldenDbfId": 105853,
+      "golden": {
+        "cardId": "BG28_595_G",
+        "dbfId": 105853,
+        "attack": 16,
+        "health": 16,
+        "text": "在你的回合结束时，随机获取4张酒馆法术牌。",
+        "keywords": [
+          "回合结束时",
+          "酒馆法术"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg33_240",
+      "cardId": "BG33_240",
+      "dbfId": 122086,
+      "name": "魅惑之翼",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 10,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使2条友方的龙获得本随从的生命值上限（魅惑之翼除外）。",
+      "goldenDbfId": 122087,
+      "golden": {
+        "cardId": "BG33_240_G",
+        "dbfId": 122087,
+        "attack": 6,
+        "health": 20,
+        "text": "进击：使2条友方的龙获得本随从的生命值上限，触发两次（魅惑之翼除外）。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bgduo_125",
+      "cardId": "BGDUO_125",
+      "dbfId": 107944,
+      "name": "流沙幻象",
+      "tavernTier": 7,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：变形成为你的队友生命值最高的随从的复制。",
+      "goldenDbfId": 107945,
+      "golden": {
+        "cardId": "BGDUO_125_G",
+        "dbfId": 107945,
+        "attack": 2,
+        "health": 2,
+        "text": "战斗开始时：变形成为你的队友生命值最高的随从的金色复制。",
+        "keywords": [
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_319",
+      "cardId": "BG34_319",
+      "dbfId": 127107,
+      "name": "莱，至高守护者",
+      "tavernTier": 7,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "战吼",
+        "进击",
+        "亡语"
+      ],
+      "text": "战吼，亡语，进击：随机获取一张等级6的随从牌。",
+      "goldenDbfId": 127108,
+      "golden": {
+        "cardId": "BG34_319_G",
+        "dbfId": 127108,
+        "attack": 12,
+        "health": 12,
+        "text": "战吼，亡语，进击：随机获取两张等级6的随从牌。",
+        "keywords": [
+          "战吼",
+          "进击",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg31_999",
+      "cardId": "BG31_999",
+      "dbfId": 119666,
+      "name": "缝合回收者",
+      "tavernTier": 7,
+      "attack": 16,
+      "health": 4,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "亡语",
+        "战斗开始时",
+        "触发效果"
+      ],
+      "text": "战斗开始时：消灭本随从左边的随从。亡语：召唤被消灭随从的完全相同的复制。（缝合回收者除外。）",
+      "goldenDbfId": 119669,
+      "golden": {
+        "cardId": "BG31_999_G",
+        "dbfId": 119669,
+        "attack": 32,
+        "health": 8,
+        "text": "战斗开始时：消灭相邻的随从。亡语：召唤被消灭随从的完全相同的复制。（缝合回收者除外。）",
+        "keywords": [
+          "亡语",
+          "战斗开始时",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_950",
+      "cardId": "BG34_950",
+      "dbfId": 126959,
+      "name": "石器时代顽石",
+      "tavernTier": 7,
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你购买一个随从后，使其获得+10/+10并使其属性值翻倍。（每回合一次。）",
+      "goldenDbfId": 126960,
+      "golden": {
+        "cardId": "BG34_950_G",
+        "dbfId": 126960,
+        "attack": 10,
+        "health": 20,
+        "text": "在你购买一个随从后，使其获得+10/+10并使其属性值变为三倍。（每回合一次。）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "card_bought_buff_self_1_1"
+      ]
+    },
+    {
+      "id": "bg34_320",
+      "cardId": "BG34_320",
+      "dbfId": 127109,
+      "name": "最后的生物",
+      "tavernTier": 7,
+      "attack": 12,
+      "health": 12,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部种族",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使每个类型的各一个友方随从永久获得+12/+12。",
+      "goldenDbfId": 127110,
+      "golden": {
+        "cardId": "BG34_320_G",
+        "dbfId": 127110,
+        "attack": 24,
+        "health": 24,
+        "text": "进击：使每个类型的各一个友方随从永久获得+12/+12，触发两次。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_016",
+      "cardId": "BG27_016",
+      "dbfId": 103698,
+      "name": "萨格拉斯的勇士",
+      "tavernTier": 7,
+      "attack": 10,
+      "health": 10,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼，亡语：在本局对战中，酒馆中的随从拥有+5/+5。",
+      "goldenDbfId": 103699,
+      "golden": {
+        "cardId": "BG27_016_G",
+        "dbfId": 103699,
+        "attack": 20,
+        "health": 20,
+        "text": "战吼，亡语：在本局对战中，酒馆中的随从拥有+10/+10。",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_buff_random_friendly_2_2"
+      ]
+    },
+    {
+      "id": "bg26_149",
+      "cardId": "BG26_149",
+      "dbfId": 98713,
+      "name": "极性B-Box拳手",
+      "tavernTier": 7,
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "磁力"
+      ],
+      "text": "每当你对一个不同的随从磁力吸附时，还会对本随从磁力吸附。",
+      "goldenDbfId": 98718,
+      "golden": {
+        "cardId": "BG26_149_G",
+        "dbfId": 98718,
+        "attack": 10,
+        "health": 20,
+        "text": "每当你对一个不同的随从磁力吸附时，还会对本随从磁力吸附两次。",
+        "keywords": [
+          "磁力"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg25_034",
+      "cardId": "BG25_034",
+      "dbfId": 97539,
+      "name": "杉德尔船长",
+      "tavernTier": 7,
+      "attack": 9,
+      "health": 9,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：使一个等级6或以下的友方随从变为金色。",
+      "goldenDbfId": 97540,
+      "golden": {
+        "cardId": "BG25_034_G",
+        "dbfId": 97540,
+        "attack": 18,
+        "health": 18,
+        "text": "战吼：使两个等级6或以下的友方随从变为金色。",
+        "keywords": [
+          "战吼"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg27_514",
+      "cardId": "BG27_514",
+      "dbfId": 103069,
+      "name": "海巫扎尔吉拉",
+      "tavernTier": 7,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术",
+        "触发效果"
+      ],
+      "text": "塑造法术：选择酒馆中一个不同的随从，获取一张复制。",
+      "goldenDbfId": 103075,
+      "golden": {
+        "cardId": "BG27_514_G",
+        "dbfId": 103075,
+        "attack": 8,
+        "health": 10,
+        "text": "塑造法术：选择酒馆中一个不同的随从，获取2张复制。",
+        "keywords": [
+          "塑造法术",
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg34_322",
+      "cardId": "BG34_322",
+      "dbfId": 127113,
+      "name": "坚韧的科多兽",
+      "tavernTier": 7,
+      "attack": 16,
+      "health": 32,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在战斗中，在你召唤一个随从后，使其获得本随从的最大属性值。（每场战斗限3次。）",
+      "goldenDbfId": 127114,
+      "golden": {
+        "cardId": "BG34_322_G",
+        "dbfId": 127114,
+        "attack": 32,
+        "health": 64,
+        "text": "在战斗中，在你召唤一个随从后，使其获得本随从的双倍最大属性值。（每场战斗限3次。）",
+        "keywords": [
+          "触发效果"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    },
+    {
+      "id": "bg23_017",
+      "cardId": "BG23_017",
+      "dbfId": 80755,
+      "name": "鲜血勇士",
+      "tavernTier": 7,
+      "attack": 18,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "战吼",
+        "亡语",
+        "鲜血宝石"
+      ],
+      "text": "战吼，亡语：在本局对战中，你的鲜血宝石使随从额外获得+1/+1。",
+      "goldenDbfId": 80773,
+      "golden": {
+        "cardId": "BG23_017_G",
+        "dbfId": 80773,
+        "attack": 36,
+        "health": 6,
+        "text": "战吼，亡语：在本局对战中，你的鲜血宝石使随从额外获得+2/+2。",
+        "keywords": [
+          "战吼",
+          "亡语",
+          "鲜血宝石"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_buff_random_friendly_2_2"
+      ]
+    },
+    {
+      "id": "bg34_145",
+      "cardId": "BG34_145",
+      "dbfId": 127494,
+      "name": "未来鱼人",
+      "tavernTier": 7,
+      "attack": 7,
+      "health": 13,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "在你的回合结束时，使你手牌中最左边的随从牌获得本随从的属性值。",
+      "goldenDbfId": 127495,
+      "golden": {
+        "cardId": "BG34_145_G",
+        "dbfId": 127495,
+        "attack": 14,
+        "health": 26,
+        "text": "在你的回合结束时，使你手牌中最左边的随从牌获得本随从的双倍属性值。",
+        "keywords": [
+          "回合结束时"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "turn_ended_self_buff_1_1"
+      ]
+    },
+    {
+      "id": "bg27_017",
+      "cardId": "BG27_017",
+      "dbfId": 103700,
+      "name": "黑曜石掠夺者",
+      "tavernTier": 7,
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：对目标及一个相邻的随从造成等同于本随从攻击力的伤害。",
+      "goldenDbfId": 103701,
+      "golden": {
+        "cardId": "BG27_017_G",
+        "dbfId": 103701,
+        "attack": 14,
+        "health": 14,
+        "text": "进击：对目标及相邻的随从造成等同于本随从攻击力的伤害。",
+        "keywords": [
+          "进击"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12
+    }
+  ]
+}
