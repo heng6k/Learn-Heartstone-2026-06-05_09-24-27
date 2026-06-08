@@ -126,12 +126,24 @@ namespace LearnHearthstone.Tests.EditMode
 
                 new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
 
+                var pageScroll = FindChild(rootObject.transform, "TavernTrainerPageScroll");
+                Assert.IsNotNull(pageScroll);
+                var pageScrollRect = pageScroll.GetComponent<ScrollRect>();
+                Assert.IsNotNull(pageScrollRect);
+                Assert.IsNotNull(pageScrollRect.verticalScrollbar);
+                Assert.IsNotNull(FindChild(rootObject.transform, "TopStatusRow"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "TopActionRow"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RightInspectorTabs"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-Info"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-CardAcquisition"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-OpponentCustomization"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "Tab-BattleTest"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "StartCombatButton"));
+                var scroll = FindChild(rootObject.transform, "RightInspectorScroll");
+                Assert.IsNotNull(scroll);
+                var scrollRect = scroll.GetComponent<ScrollRect>();
+                Assert.IsNotNull(scrollRect);
+                Assert.IsNotNull(scrollRect.verticalScrollbar);
             }
             finally
             {

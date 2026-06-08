@@ -17,9 +17,9 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Round);
             Assert.AreEqual(1, service.State.Player.Tavern.Tier);
             Assert.AreEqual(3, service.State.Player.Tavern.Gold);
-            Assert.AreEqual(TavernRules.GetShopSize(1), service.State.Player.Tavern.Shop.Count);
+            Assert.AreEqual(TavernRules.GetShopSize(1) + 1, service.State.Player.Tavern.Shop.Count);
             Assert.AreEqual(CardKind.TavernSpell, service.State.Player.Tavern.Shop.Last().CardKind);
-            Assert.IsTrue(service.State.Player.Tavern.Shop.Take(service.State.Player.Tavern.Shop.Count - 1).All(card => card.CardKind == CardKind.Minion));
+            Assert.AreEqual(TavernRules.GetShopSize(1), service.State.Player.Tavern.Shop.Count(card => card.CardKind == CardKind.Minion));
             Assert.LessOrEqual(service.State.Player.Tavern.Shop.Last().TavernTier, service.State.Player.Tavern.Tier);
         }
 
@@ -32,10 +32,10 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.RerollShop));
 
             var shop = service.State.Player.Tavern.Shop;
-            Assert.AreEqual(TavernRules.GetShopSize(1), shop.Count);
+            Assert.AreEqual(TavernRules.GetShopSize(1) + 1, shop.Count);
             Assert.AreEqual(CardKind.TavernSpell, shop.Last().CardKind);
             Assert.LessOrEqual(shop.Last().TavernTier, 1);
-            Assert.IsTrue(shop.Take(shop.Count - 1).All(card => card.CardKind == CardKind.Minion));
+            Assert.AreEqual(TavernRules.GetShopSize(1), shop.Count(card => card.CardKind == CardKind.Minion));
         }
 
         [Test]

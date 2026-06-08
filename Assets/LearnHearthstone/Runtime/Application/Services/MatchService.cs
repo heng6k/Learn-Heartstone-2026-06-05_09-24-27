@@ -778,8 +778,7 @@ namespace LearnHearthstone.Application.Services
             var pool = new MinionPool(catalog.All, snapshot);
             var rng = new SeededRng(seed);
             var spell = DrawTavernSpell(tier, rng);
-            var minionSlots = spell == null ? size : Math.Max(0, size - 1);
-            var definitions = pool.DrawShop(tier, minionSlots, rng);
+            var definitions = pool.DrawShop(tier, size, rng);
             var shop = definitions
                 .Select((definition, index) => MinionFactory.Create(definition, BoardSide.Player, suffix + "-" + index, false, PoolSource.Pool, 1))
                 .ToList();

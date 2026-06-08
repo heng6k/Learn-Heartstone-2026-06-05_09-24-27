@@ -50,6 +50,68 @@ namespace LearnHearthstone.Presentation.Common
             return button;
         }
 
+        public static Transform ScrollView(string name, Transform parent, Color background, out ScrollRect scrollRect)
+        {
+            var root = Panel(name, parent, background);
+            SetFlexible(root, 1, 1);
+            scrollRect = root.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.scrollSensitivity = 32f;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+            var viewport = new GameObject(name + "Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+            viewport.transform.SetParent(root.transform, false);
+            viewport.GetComponent<Image>().color = background;
+            viewport.GetComponent<Image>().raycastTarget = true;
+            viewport.GetComponent<Mask>().showMaskGraphic = false;
+            var viewportRect = viewport.GetComponent<RectTransform>();
+            Stretch(viewportRect);
+            viewportRect.offsetMax = new Vector2(-12f, 0f);
+
+            var content = new GameObject(name + "Content", typeof(RectTransform));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+
+            var fitter = content.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            var scrollbarObject = new GameObject(name + "Scrollbar", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+            scrollbarObject.transform.SetParent(root.transform, false);
+            var scrollbarRect = scrollbarObject.GetComponent<RectTransform>();
+            scrollbarRect.anchorMin = new Vector2(1f, 0f);
+            scrollbarRect.anchorMax = new Vector2(1f, 1f);
+            scrollbarRect.pivot = new Vector2(1f, 0.5f);
+            scrollbarRect.sizeDelta = new Vector2(8f, 0f);
+            scrollbarRect.anchoredPosition = Vector2.zero;
+            scrollbarObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.08f);
+
+            var slidingArea = new GameObject(name + "ScrollbarSlidingArea", typeof(RectTransform));
+            slidingArea.transform.SetParent(scrollbarObject.transform, false);
+            Stretch(slidingArea.GetComponent<RectTransform>());
+
+            var handle = new GameObject(name + "ScrollbarHandle", typeof(RectTransform), typeof(Image));
+            handle.transform.SetParent(slidingArea.transform, false);
+            handle.GetComponent<Image>().color = new Color(0.74f, 0.8f, 0.86f, 0.42f);
+            Stretch(handle.GetComponent<RectTransform>());
+
+            var scrollbar = scrollbarObject.GetComponent<Scrollbar>();
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            scrollbar.handleRect = handle.GetComponent<RectTransform>();
+            scrollbar.targetGraphic = handle.GetComponent<Image>();
+
+            scrollRect.viewport = viewport.GetComponent<RectTransform>();
+            scrollRect.content = contentRect;
+            scrollRect.verticalScrollbar = scrollbar;
+            return content.transform;
+        }
+
         public static void SetTextColor(Text text, Color color)
         {
             text.color = color;

@@ -49,7 +49,7 @@ namespace LearnHearthstone.Editor
             }
 
             var service = MatchService.CreateWithDefaultCatalog(12345);
-            if (service.State.Player.Tavern.Gold != 3 || service.State.Player.Tavern.Shop.Count != 3)
+            if (service.State.Player.Tavern.Gold != 3 || service.State.Player.Tavern.Shop.Count != 4)
             {
                 throw new System.InvalidOperationException("Initial tavern state is invalid.");
             }
