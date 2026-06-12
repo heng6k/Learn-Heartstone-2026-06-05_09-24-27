@@ -11,6 +11,7 @@ namespace LearnHearthstone.Domain.Models
         public int BaseAttack;
         public int BaseHealth;
         public List<Keyword> Keywords = new List<Keyword>();
+        public List<Keyword> OfficialKeywords = new List<Keyword>();
         public string Text;
     }
 
@@ -26,6 +27,7 @@ namespace LearnHearthstone.Domain.Models
         public int BaseHealth;
         public List<Tribe> Tribes = new List<Tribe>();
         public List<Keyword> Keywords = new List<Keyword>();
+        public List<Keyword> OfficialKeywords = new List<Keyword>();
         public string Text;
         public bool InPool;
         public int PoolCount;
@@ -64,6 +66,7 @@ namespace LearnHearthstone.Domain.Models
         public int TavernTier;
         public List<Tribe> Tribes = new List<Tribe>();
         public List<Keyword> Keywords = new List<Keyword>();
+        public List<Keyword> OfficialKeywords = new List<Keyword>();
         public string Text;
         public bool Golden;
         public BoardSide Owner;
@@ -97,6 +100,7 @@ namespace LearnHearthstone.Domain.Models
                 TavernTier = TavernTier,
                 Tribes = new List<Tribe>(Tribes),
                 Keywords = new List<Keyword>(Keywords),
+                OfficialKeywords = new List<Keyword>(OfficialKeywords),
                 Text = Text,
                 Golden = Golden,
                 Owner = Owner,
@@ -122,6 +126,7 @@ namespace LearnHearthstone.Domain.Models
             var attack = golden && definition.Golden != null ? definition.Golden.BaseAttack : definition.BaseAttack;
             var health = golden && definition.Golden != null ? definition.Golden.BaseHealth : definition.BaseHealth;
             var keywords = golden && definition.Golden != null ? definition.Golden.Keywords : definition.Keywords;
+            var officialKeywords = golden && definition.Golden != null ? definition.Golden.OfficialKeywords : definition.OfficialKeywords;
 
             return new MinionInstance
             {
@@ -139,6 +144,7 @@ namespace LearnHearthstone.Domain.Models
                 TavernTier = definition.TavernTier,
                 Tribes = new List<Tribe>(definition.Tribes),
                 Keywords = new List<Keyword>(keywords),
+                OfficialKeywords = new List<Keyword>(officialKeywords),
                 Text = golden && definition.Golden != null ? definition.Golden.Text : definition.Text,
                 Golden = golden,
                 Owner = owner,

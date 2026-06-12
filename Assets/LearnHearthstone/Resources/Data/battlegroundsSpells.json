@@ -5,7 +5,7 @@
   "filter": {
     "attr18": "法术"
   },
-  "count": 57,
+  "count": 73,
   "schemaVersion": 1,
   "spells": [
     {
@@ -1106,8 +1106,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_825.png",
       "imagePath": "CardImages/TavernSpells/BG28_825",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:defenders-rites"
+      ],
+      "tags": [
+        "targeted_spell",
+        "buff_spell",
+        "taunt_grant"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -1120,7 +1126,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34612"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -1375,8 +1381,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_845.png",
       "imagePath": "CardImages/TavernSpells/BG28_845",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:natural-blessing"
+      ],
+      "tags": [
+        "targeted_spell",
+        "tribe_buff",
+        "buff_spell"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -1389,7 +1401,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34617"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -2186,8 +2198,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_888.png",
       "imagePath": "CardImages/TavernSpells/BG28_888",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:misplaced-tea-set"
+      ],
+      "tags": [
+        "board_buff",
+        "distinct_tribe",
+        "buff_spell"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -2200,7 +2218,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34631"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -2275,8 +2293,13 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_886.png",
       "imagePath": "CardImages/TavernSpells/BG28_886",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:staff-of-enrichment"
+      ],
+      "tags": [
+        "shop_growth",
+        "buff_spell"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -2289,7 +2312,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34632"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -3082,8 +3105,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_601.png",
       "imagePath": "CardImages/TavernSpells/BG28_601",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:cloning-conch"
+      ],
+      "tags": [
+        "generated_minion",
+        "murloc",
+        "copy_reward"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -3096,7 +3125,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34646"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -3173,8 +3202,13 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_606.png",
       "imagePath": "CardImages/TavernSpells/BG28_606",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:spitescale-special"
+      ],
+      "tags": [
+        "generated_spell",
+        "spellcraft"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -3187,7 +3221,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34648"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -3353,8 +3387,15 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG28_698.png",
       "imagePath": "CardImages/TavernSpells/BG28_698",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:gem-confiscation"
+      ],
+      "tags": [
+        "targeted_spell",
+        "blood_gem",
+        "buff_spell",
+        "steal_blood_gems"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -3367,7 +3408,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "34655"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -3622,8 +3663,13 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG31_819.png",
       "imagePath": "CardImages/TavernSpells/BG31_819",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:temperature-shift"
+      ],
+      "tags": [
+        "generated_minion",
+        "elemental"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -3636,7 +3682,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "38646"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -3982,8 +4028,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_815.png",
       "imagePath": "CardImages/TavernSpells/BG32_815",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:shifting-tide"
+      ],
+      "tags": [
+        "targeted_spell",
+        "buff_spell",
+        "naga_bonus"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -3996,7 +4048,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "42838"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -4433,8 +4485,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG33_819.png",
       "imagePath": "CardImages/TavernSpells/BG33_819",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:raptors-revenge"
+      ],
+      "tags": [
+        "combat_reward",
+        "avenge",
+        "beast_reward"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -4447,7 +4505,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "48238"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -4616,8 +4674,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_444.png",
       "imagePath": "CardImages/TavernSpells/BG34_444",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:easterly-winds"
+      ],
+      "tags": [
+        "refresh_growth",
+        "shop_buff",
+        "buff_spell"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -4630,7 +4694,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "53133"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -4707,8 +4771,14 @@
       "description": "",
       "imageUrl": "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG34_888.png",
       "imagePath": "CardImages/TavernSpells/BG34_888",
-      "effectIds": [],
-      "tags": [],
+      "effectIds": [
+        "tier4:tomb-turning"
+      ],
+      "tags": [
+        "discover_spell",
+        "undead",
+        "discover_then_death"
+      ],
       "availability": {
         "modes": [
           "通用"
@@ -4721,7 +4791,7 @@
         "detailEndpoint": "/pc/card/get-card-info",
         "sourceId": "53134"
       },
-      "implementationStatus": "data-only",
+      "implementationStatus": "implemented",
       "notes": "",
       "rawAttributes": [
         {
@@ -5139,6 +5209,390 @@
         "series_cn_abbr": "",
         "price": 0
       },
+      "inPool": 1
+    },
+    {
+      "id": "official-131152",
+      "sourceId": 131152,
+      "cardNumber": "131152",
+      "name": "Might of Stormwind",
+      "englishName": "Might of Stormwind",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 2,
+      "keywords": [],
+      "text": "Give four random friendly minions +1/+2.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/131152",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_2", "board_buff", "buff_spell" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: queues two Taunt Beetles for next combat.",
+      "inPool": 1
+    },
+    {
+      "id": "official-122182",
+      "sourceId": 122182,
+      "cardNumber": "122182",
+      "name": "Healthy Bounty",
+      "englishName": "Healthy Bounty",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "Give four friendly minions +4 Health.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/122182",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_3", "bounty", "board_health_buff", "buff_spell" ],
+      "implementationStatus": "official-data",
+      "notes": "Official current Bounty id; legacy local id remains for compatibility.",
+      "inPool": 1
+    },
+    {
+      "id": "official-122183",
+      "sourceId": 122183,
+      "cardNumber": "122183",
+      "name": "Hostile Bounty",
+      "englishName": "Hostile Bounty",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "Give four friendly minions +4 Attack.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/122183",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_3", "bounty", "board_attack_buff", "buff_spell" ],
+      "implementationStatus": "official-data",
+      "notes": "Official current Bounty id; legacy local id remains for compatibility.",
+      "inPool": 1
+    },
+    {
+      "id": "official-122184",
+      "sourceId": 122184,
+      "cardNumber": "122184",
+      "name": "Selfish Bounty",
+      "englishName": "Selfish Bounty",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "Give your left-most minion +6/+6.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/122184",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_3", "bounty", "targeted_spell", "buff_spell" ],
+      "implementationStatus": "official-data",
+      "notes": "Official current Bounty id; legacy local id remains for compatibility.",
+      "inPool": 1
+    },
+    {
+      "id": "official-122185",
+      "sourceId": 122185,
+      "cardNumber": "122185",
+      "name": "Friendly Bounty",
+      "englishName": "Friendly Bounty",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "Get a random minion of your most common type.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/122185",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_3", "bounty", "card_generator", "tribe_generator" ],
+      "implementationStatus": "official-data",
+      "notes": "Official current Bounty id; legacy local id remains for compatibility.",
+      "inPool": 1
+    },
+    {
+      "id": "official-122186",
+      "sourceId": 122186,
+      "cardNumber": "122186",
+      "name": "Wealthy Bounty",
+      "englishName": "Wealthy Bounty",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 3,
+      "keywords": [],
+      "text": "Gain 2 Gold.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/122186",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_3", "bounty", "economy_spell", "gain_gold" ],
+      "implementationStatus": "official-data",
+      "notes": "Official current Bounty id; legacy local id remains for compatibility.",
+      "inPool": 1
+    },
+    {
+      "id": "official-110401",
+      "sourceId": 110401,
+      "cardNumber": "110401",
+      "name": "Boon of Beetles",
+      "englishName": "Boon of Beetles",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 1,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "When you have space in combat, summon two 1/1 Beetles and give them Taunt.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/110401",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "next_combat", "summon_spell" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: targeted +2/+2 scaling with Elementals played this turn.",
+      "inPool": 1
+    },
+    {
+      "id": "official-130310",
+      "sourceId": 130310,
+      "cardNumber": "130310",
+      "name": "Conflagration",
+      "englishName": "Conflagration",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "Give a minion +2/+2. Improved by each Elemental you played this turn.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/130310",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "targeted_spell", "buff_spell", "elemental_scaling" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: targeted +2/+2 scaling with Elementals played this turn.",
+      "inPool": 1
+    },
+    {
+      "id": "official-130311",
+      "sourceId": 130311,
+      "cardNumber": "130311",
+      "name": "Arcane Absorption",
+      "englishName": "Arcane Absorption",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 1,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "Give a friendly Elemental half the stats of the highest-Health minion in the Tavern.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/130311",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "generated_spell", "arcane_consumption", "elemental_buff" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: buffs a friendly Elemental by half the highest-Health Tavern minion stats.",
+      "inPool": 1
+    },
+    {
+      "id": "official-130312",
+      "sourceId": 130312,
+      "cardNumber": "130312",
+      "name": "Eonar's Favor",
+      "englishName": "Eonar's Favor",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "Choose a minion. Give minions of its type in the Tavern +3/+3 this game.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/130312",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "shop_growth", "tribe_buff" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: selected minion types receive persistent Tavern growth.",
+      "inPool": 1
+    },
+    {
+      "id": "official-131153",
+      "sourceId": 131153,
+      "cardNumber": "131153",
+      "name": "Back to Back",
+      "englishName": "Back to Back",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 1,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "Give a minion +2/+2. Your future Back to Backs give an extra +2/+2.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/131153",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "targeted_spell", "buff_spell", "self_scaling" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: targeted scaling buff and future Back to Back growth.",
+      "inPool": 1
+    },
+    {
+      "id": "official-131218",
+      "sourceId": 131218,
+      "cardNumber": "131218",
+      "name": "Deepwater Clan",
+      "englishName": "Deepwater Clan",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 4,
+      "keywords": [],
+      "text": "Give a minion +2/+2. Give your Murlocs +2/+2.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/131218",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_4", "generated_spell", "deepwater_school", "murloc_buff" ],
+      "implementationStatus": "implemented",
+      "notes": "Implemented in TavernSpellEngine: buffs a target and friendly Murlocs.",
+      "inPool": 1
+    },
+    {
+      "id": "official-110412",
+      "sourceId": 110412,
+      "cardNumber": "110412",
+      "name": "Butchering",
+      "englishName": "Butchering",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "Destroy a friendly Undead. Your Undead have +4 Attack this game wherever they are.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/110412",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_5", "undead_growth", "destroy_friendly" ],
+      "implementationStatus": "official-data",
+      "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
+      "inPool": 1
+    },
+    {
+      "id": "official-130713",
+      "sourceId": 130713,
+      "cardNumber": "130713",
+      "name": "Queen's Command",
+      "englishName": "Queen's Command",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 2,
+      "tavernTier": 5,
+      "keywords": [],
+      "text": "Give your minions +2/+2. Give all your Naga another +2/+2.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/130713",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_5", "board_buff", "naga_buff" ],
+      "implementationStatus": "official-data",
+      "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
+      "inPool": 1
+    },
+    {
+      "id": "official-113902",
+      "sourceId": 113902,
+      "cardNumber": "113902",
+      "name": "Knockoff Wisdomball",
+      "englishName": "Knockoff Wisdomball",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 4,
+      "tavernTier": 6,
+      "keywords": [],
+      "text": "Your next 2 Refreshes are helpful.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/113902",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_6", "refresh_spell" ],
+      "implementationStatus": "official-data",
+      "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
+      "inPool": 1
+    },
+    {
+      "id": "official-130527",
+      "sourceId": 130527,
+      "cardNumber": "130527",
+      "name": "Menagerie Tableware",
+      "englishName": "Menagerie Tableware",
+      "type": "法术",
+      "specialType": "酒馆",
+      "category": "TavernSpell",
+      "faction": "中立",
+      "availableModes": [ "通用" ],
+      "cost": 4,
+      "tavernTier": 7,
+      "keywords": [],
+      "text": "Give your minions +3/+3. Repeat for each different friendly minion type.",
+      "description": "",
+      "imageUrl": "",
+      "imagePath": "CardImages/TavernSpells/130527",
+      "effectIds": [],
+      "tags": [ "tavern_spell", "tier_7", "board_buff", "menagerie" ],
+      "implementationStatus": "official-data",
+      "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
       "inPool": 1
     }
   ]

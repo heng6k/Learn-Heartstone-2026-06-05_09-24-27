@@ -80,6 +80,7 @@ namespace LearnHearthstone.Domain.Models
         public int TavernTier;
         public List<Tribe> Tribes = new List<Tribe>();
         public List<Keyword> Keywords = new List<Keyword>();
+        public List<Keyword> OfficialKeywords = new List<Keyword>();
         public string Text;
         public bool Golden;
         public BoardSide Owner;

@@ -4,8 +4,10 @@ using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
+using LearnHearthstone.Presentation.TavernTrainer.Realistic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -26,6 +28,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private DragContext activeDrag;
         private GameObject dragGhost;
         private RightInspectorTab activeRightTab = RightInspectorTab.Info;
+        private int activeReplayFrameIndex;
+        private bool showCardAcquisitionModal;
+        private CardKind acquisitionKind = CardKind.TavernSpell;
+        private int acquisitionTierFilter;
+        private Tribe acquisitionTypeFilter = Tribe.All;
+
+        private static readonly Color LegacyBackground = ColorFromHex(0x101418);
+        private static readonly Color LegacySurface = ColorFromHex(0x181E24);
+        private static readonly Color LegacySurfaceRaised = ColorFromHex(0x202832);
+        private static readonly Color LegacySurfaceInset = ColorFromHex(0x141B22);
+        private static readonly Color LegacyInk = ColorFromHex(0xEDF2F7);
+        private static readonly Color LegacyMutedInk = ColorFromHex(0xAEB8C4);
+        private static readonly Color LegacyGold = ColorFromHex(0xF1C968);
+        private static readonly Color LegacyBlue = ColorFromHex(0x2F5F7A);
+        private static readonly Color LegacyDanger = ColorFromHex(0x7A2C32);
 
         public TavernTrainerView(Transform root, MatchService service, IAdvisorService advisor, System.Action backToHub)
         {
@@ -49,36 +66,45 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 }
             }
 
-            shell = UiFactory.Panel("TavernTrainer", root, ColorFromHex(0x101418));
+            shell = UiFactory.Panel("TavernTrainer", root, LegacyBackground);
             UiFactory.Stretch(shell.GetComponent<RectTransform>());
             UiFactory.Vertical(shell, 0, 0);
 
-            var pageContent = UiFactory.ScrollView("TavernTrainerPageScroll", shell.transform, ColorFromHex(0x101418), out _);
+            var pageContent = UiFactory.ScrollView("TavernTrainerPageScroll", shell.transform, LegacyBackground, out _);
             UiFactory.Vertical(pageContent.gameObject, 0, 0);
 
             BuildTopToolbar(pageContent);
             BuildWorkspace(pageContent);
             BuildBottomDock(pageContent);
+
+            if (showCardAcquisitionModal)
+            {
+                BuildCardAcquisitionModal(shell.transform);
+            }
         }
 
         private void BuildTopToolbar(Transform parent)
         {
-            var bar = UiFactory.Panel("TopToolbar", parent, ColorFromHex(0x111820));
-            UiFactory.SetHeight(bar, 100);
-            UiFactory.Vertical(bar, 10, 8);
+            var bar = UiFactory.Panel("TopToolbar", parent, ColorFromHex(0x15110D));
+            UiFactory.SetHeight(bar, 116);
+            UiFactory.Vertical(bar, 12, 8);
+
+            var accent = UiFactory.Panel("TopToolbarAccent", bar.transform, LegacyGold);
+            UiFactory.SetHeight(accent, 4);
 
             var statusRow = UiFactory.Panel("TopStatusRow", bar.transform, Color.clear);
-            UiFactory.SetHeight(statusRow, 34);
-            UiFactory.Horizontal(statusRow, 0, 10);
+            UiFactory.SetHeight(statusRow, 42);
+            UiFactory.Horizontal(statusRow, 0, 12);
 
             var brand = UiFactory.Panel("BrandBlock", statusRow.transform, Color.clear);
-            UiFactory.SetWidth(brand, 260);
-            UiFactory.Vertical(brand, 0, 1);
+            UiFactory.SetWidth(brand, 280);
+            UiFactory.Vertical(brand, 0, 2);
             var title = UiFactory.Label("BrandTitle", brand.transform, "酒馆战棋训练器", 15, FontStyle.Bold);
-            UiFactory.SetHeight(title.gameObject, 18);
+            UiFactory.SetTextColor(title, ColorFromHex(0xFFF2C5));
+            UiFactory.SetHeight(title.gameObject, 22);
             var subtitle = UiFactory.Label("BrandSubtitle", brand.transform, "本地单人教学 / Unity 版", 12);
-            UiFactory.SetTextColor(subtitle, ColorFromHex(0x9AA7B4));
-            UiFactory.SetHeight(subtitle.gameObject, 16);
+            UiFactory.SetTextColor(subtitle, ColorFromHex(0xC8B38B));
+            UiFactory.SetHeight(subtitle.gameObject, 18);
 
             var info = UiFactory.Label(
                 "RoundInfo",
@@ -86,15 +112,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 "回合 " + service.State.Round + "  |  " + service.State.Player.Tavern.Tier + " 本  |  金币 " + service.State.Player.Tavern.Gold + "/" + service.State.Player.Tavern.MaxGold,
                 15,
                 FontStyle.Bold);
+            UiFactory.SetTextColor(info, LegacyInk);
             UiFactory.SetFlexible(info.gameObject, 1, 1);
 
             ToolbarButton(statusRow.transform, "返回", false, true, () => backToHub());
 
             var actionRow = UiFactory.Panel("TopActionRow", bar.transform, Color.clear);
-            UiFactory.SetHeight(actionRow, 36);
+            UiFactory.SetHeight(actionRow, 44);
             UiFactory.Horizontal(actionRow, 0, 8);
 
-            var modes = UiFactory.Panel("ModeTabs", actionRow.transform, ColorFromHex(0x181E24));
+            var modes = UiFactory.Panel("ModeTabs", actionRow.transform, ColorFromHex(0x211A14));
             UiFactory.SetWidth(modes, 276);
             UiFactory.Horizontal(modes, 3, 4);
             ToolbarButton(modes.transform, "酒馆练习", true, true, () => { });
@@ -112,18 +139,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildWorkspace(Transform parent)
         {
-            var workspace = UiFactory.Panel("Workspace", parent, ColorFromHex(0x101418));
+            var workspace = UiFactory.Panel("Workspace", parent, LegacyBackground);
             UiFactory.SetHeight(workspace, service.State.Player.Tavern.Discover == null ? 650 : 840);
             UiFactory.Horizontal(workspace, 0, 0);
 
-            var mainStage = UiFactory.Panel("MainStage", workspace.transform, ColorFromHex(0x101418));
+            var mainStage = UiFactory.Panel("MainStage", workspace.transform, LegacyBackground);
             UiFactory.SetFlexible(mainStage, 1, 1);
             UiFactory.Vertical(mainStage, 16, 14);
 
             BuildShopStage(mainStage.transform);
             BuildBoardPanel(mainStage.transform, "玩家战场", service.State.Player.Health, service.State.Player.Armor, service.State.Player.Board, BoardSide.Player, true);
 
-            var inspector = UiFactory.Panel("RightInspector", workspace.transform, ColorFromHex(0x181E24));
+            var inspector = UiFactory.Panel("RightInspector", workspace.transform, LegacySurface);
             UiFactory.SetWidth(inspector, 380);
             UiFactory.Vertical(inspector, 12, 10);
             BuildRightInspector(inspector.transform);
@@ -132,12 +159,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void BuildRightInspector(Transform parent)
         {
             BuildRightInspectorTabs(parent);
-            var scrollContent = UiFactory.ScrollView("RightInspectorScroll", parent, ColorFromHex(0x181E24), out _);
+            var scrollContent = UiFactory.ScrollView("RightInspectorScroll", parent, LegacySurface, out _);
             var scrollContentObject = scrollContent.gameObject;
             UiFactory.Vertical(scrollContentObject, 0, 10);
             if (activeRightTab == RightInspectorTab.CardAcquisition)
             {
-                BuildCardAcquisitionPanel(scrollContent);
+                BuildCardAcquisitionLauncherPanel(scrollContent);
                 return;
             }
 
@@ -162,8 +189,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildRightInspectorTabs(Transform parent)
         {
-            var tabs = UiFactory.Panel("RightInspectorTabs", parent, ColorFromHex(0x141B22));
-            UiFactory.SetHeight(tabs, 40);
+            var tabs = UiFactory.Panel("RightInspectorTabs", parent, ColorFromHex(0x120E0B));
+            UiFactory.SetHeight(tabs, 44);
             UiFactory.Horizontal(tabs, 4, 4);
             InspectorTabButton(tabs.transform, "Tab-Info", "对局", RightInspectorTab.Info);
             InspectorTabButton(tabs.transform, "Tab-CardAcquisition", "获取", RightInspectorTab.CardAcquisition);
@@ -175,37 +202,293 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         {
             var button = UiFactory.Button(name, parent, text, () =>
             {
+                if (tab == RightInspectorTab.CardAcquisition)
+                {
+                    showCardAcquisitionModal = true;
+                    activeRightTab = RightInspectorTab.CardAcquisition;
+                    Rebuild();
+                    return;
+                }
+
+                showCardAcquisitionModal = false;
                 activeRightTab = tab;
                 Rebuild();
             });
             UiFactory.SetFlexible(button.gameObject, 1, 1);
-            UiFactory.SetImageColor(button.gameObject, activeRightTab == tab ? ColorFromHex(0x273F57) : ColorFromHex(0x202832));
+            var active = activeRightTab == tab || (tab == RightInspectorTab.CardAcquisition && showCardAcquisitionModal);
+            ApplyButtonColors(
+                button,
+                active ? ColorFromHex(0x5A3C22) : ColorFromHex(0x2B2118),
+                active ? ColorFromHex(0x75522F) : ColorFromHex(0x3A2C21),
+                active ? ColorFromHex(0x3F2A18) : ColorFromHex(0x211A14),
+                ColorFromHex(0x18130F));
         }
 
-        private void BuildCardAcquisitionPanel(Transform parent)
+        private void BuildCardAcquisitionLauncherPanel(Transform parent)
         {
-            var panel = UiFactory.Panel("CardAcquisitionPanel", parent, ColorFromHex(0x202832));
-            UiFactory.SetHeight(panel, 510);
+            var panel = UiFactory.Panel("CardAcquisitionLauncherPanel", parent, LegacySurfaceRaised);
+            UiFactory.SetHeight(panel, 150);
             UiFactory.Vertical(panel, 10, 7);
-            BuildDockHeader(panel.transform, "获取卡牌", service.State.Player.Tavern.Hand.Count + "/10");
+            BuildDockHeader(panel.transform, "获取卡牌", showCardAcquisitionModal ? "弹窗已打开" : service.State.Player.Tavern.Hand.Count + "/10");
             if (lastError != null)
             {
                 LogLine(panel.transform, lastError);
             }
 
-            var index = 0;
-            foreach (var card in BuildDebugCardChoices().Take(8))
+            EmptyText(panel.transform, "点击获取会在中间打开卡牌浏览器。");
+            var button = UiFactory.Button("OpenCardAcquisitionModalButton", panel.transform, "打开获取页面", () =>
             {
-                var row = UiFactory.Panel("CardAcquisitionRow", panel.transform, ColorFromHex(0x181E24));
-                UiFactory.SetHeight(row, 42);
-                UiFactory.Horizontal(row, 6, 6);
-                var label = UiFactory.Label("CardAcquisitionName", row.transform, card.Name + "  " + card.CardKind, 12, FontStyle.Bold);
-                UiFactory.SetFlexible(label.gameObject, 1, 1);
-                var buttonName = index == 0 ? "AddCardToHandButton" : "AddCardToHandButton-" + card.CardId;
-                var button = UiFactory.Button(buttonName, row.transform, "加入手牌", () => Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind)));
-                UiFactory.SetWidth(button.gameObject, 94);
+                showCardAcquisitionModal = true;
+                Rebuild();
+            });
+            UiFactory.SetHeight(button.gameObject, 34);
+        }
+
+        private void BuildCardAcquisitionModal(Transform parent)
+        {
+            var overlay = UiFactory.Panel("CardAcquisitionModalOverlay", parent, new Color(0f, 0f, 0f, 0.66f));
+            overlay.GetComponent<Image>().raycastTarget = true;
+            var overlayLayout = overlay.AddComponent<LayoutElement>();
+            overlayLayout.ignoreLayout = true;
+            ApplyRect(overlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+
+            var modal = UiFactory.Panel("CardAcquisitionModal", overlay.transform, ColorFromHex(0x1C130E));
+            ApplyRect(modal.GetComponent<RectTransform>(), new Vector2(0.045f, 0.06f), new Vector2(0.955f, 0.94f), Vector2.zero, Vector2.zero);
+            UiFactory.Vertical(modal, 14, 12);
+
+            var header = UiFactory.Panel("CardAcquisitionModalHeader", modal.transform, ColorFromHex(0x2D2117));
+            UiFactory.SetHeight(header, 54);
+            UiFactory.Horizontal(header, 8, 8);
+
+            var modeTabs = UiFactory.Panel("AcquisitionModeTabs", header.transform, ColorFromHex(0x120E0B));
+            UiFactory.SetWidth(modeTabs, 268);
+            UiFactory.Horizontal(modeTabs, 4, 4);
+            AcquisitionFilterButton(modeTabs.transform, "AcquisitionSpellModeButton", "酒馆法术", acquisitionKind == CardKind.TavernSpell, () =>
+            {
+                acquisitionKind = CardKind.TavernSpell;
+                acquisitionTypeFilter = Tribe.All;
+                Rebuild();
+            });
+            AcquisitionFilterButton(modeTabs.transform, "AcquisitionMinionModeButton", "随从", acquisitionKind == CardKind.Minion, () =>
+            {
+                acquisitionKind = CardKind.Minion;
+                acquisitionTypeFilter = Tribe.All;
+                Rebuild();
+            });
+
+            var titleBlock = UiFactory.Panel("AcquisitionTitleBlock", header.transform, Color.clear);
+            UiFactory.SetFlexible(titleBlock, 1, 1);
+            UiFactory.Vertical(titleBlock, 0, 0);
+            var title = UiFactory.Label("AcquisitionTitle", titleBlock.transform, acquisitionKind == CardKind.TavernSpell ? "酒馆法术" : "随从", 22, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleCenter;
+            UiFactory.SetHeight(title.gameObject, 28);
+            var subtitle = UiFactory.Label("AcquisitionSubtitle", titleBlock.transform, AcquisitionSubtitle(), 12, FontStyle.Bold);
+            subtitle.alignment = TextAnchor.MiddleCenter;
+            UiFactory.SetTextColor(subtitle, ColorFromHex(0xC8B38B));
+            UiFactory.SetHeight(subtitle.gameObject, 18);
+
+            var close = UiFactory.Button("AcquisitionCloseButton", header.transform, "关闭", () =>
+            {
+                showCardAcquisitionModal = false;
+                Rebuild();
+            });
+            UiFactory.SetWidth(close.gameObject, 88);
+
+            var body = UiFactory.Panel("CardAcquisitionModalBody", modal.transform, Color.clear);
+            UiFactory.SetFlexible(body, 1, 1);
+            UiFactory.Horizontal(body, 0, 12);
+
+            BuildAcquisitionTierRail(body.transform);
+            BuildAcquisitionCenter(body.transform);
+            BuildAcquisitionTypeRail(body.transform);
+        }
+
+        private void BuildAcquisitionTierRail(Transform parent)
+        {
+            var rail = UiFactory.Panel("AcquisitionTierRail", parent, ColorFromHex(0x2A1C12));
+            UiFactory.SetWidth(rail, 150);
+            UiFactory.Vertical(rail, 10, 8);
+            BuildDockHeader(rail.transform, "等级", acquisitionTierFilter == 0 ? "全部" : acquisitionTierFilter + " 本");
+            AcquisitionFilterButton(rail.transform, "AcquisitionTierAllButton", "全部", acquisitionTierFilter == 0, () =>
+            {
+                acquisitionTierFilter = 0;
+                Rebuild();
+            });
+
+            for (var tier = 1; tier <= 7; tier += 1)
+            {
+                var capturedTier = tier;
+                AcquisitionFilterButton(rail.transform, "AcquisitionTier" + tier + "Button", tier + " 本", acquisitionTierFilter == tier, () =>
+                {
+                    acquisitionTierFilter = capturedTier;
+                    Rebuild();
+                });
+            }
+        }
+
+        private void BuildAcquisitionCenter(Transform parent)
+        {
+            var center = UiFactory.Panel("AcquisitionCenterPanel", parent, ColorFromHex(0x24173A));
+            UiFactory.SetFlexible(center, 1, 1);
+            UiFactory.Vertical(center, 12, 10);
+            BuildDockHeader(center.transform, acquisitionKind == CardKind.TavernSpell ? "酒馆法术展示" : "随从展示", FilteredAcquisitionChoices().Count() + " 张");
+
+            var scrollContent = UiFactory.ScrollView("AcquisitionCardGridScroll", center.transform, ColorFromHex(0x2B1E42), out _);
+            var grid = scrollContent.gameObject.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(154f, 244f);
+            grid.spacing = new Vector2(12f, 14f);
+            grid.padding = new RectOffset(8, 8, 8, 8);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 4;
+
+            var index = 0;
+            foreach (var card in FilteredAcquisitionChoices())
+            {
+                BuildAcquisitionCardCell(scrollContent, card, index);
                 index += 1;
             }
+
+            if (index == 0)
+            {
+                EmptyText(scrollContent, "没有符合筛选条件的卡牌。");
+            }
+        }
+
+        private void BuildAcquisitionTypeRail(Transform parent)
+        {
+            var rail = UiFactory.Panel("AcquisitionTypeRail", parent, ColorFromHex(0x2A1C12));
+            UiFactory.SetWidth(rail, 162);
+            UiFactory.Vertical(rail, 10, 8);
+            BuildDockHeader(rail.transform, "类型", acquisitionKind == CardKind.Minion ? TribeName(acquisitionTypeFilter) : "酒馆法术");
+            AcquisitionFilterButton(rail.transform, "AcquisitionTypeAllButton", "全部", acquisitionTypeFilter == Tribe.All, () =>
+            {
+                acquisitionTypeFilter = Tribe.All;
+                Rebuild();
+            });
+
+            if (acquisitionKind != CardKind.Minion)
+            {
+                AcquisitionFilterButton(rail.transform, "AcquisitionTypeTavernSpellButton", "酒馆法术", true, () => { });
+                return;
+            }
+
+            foreach (var tribe in AcquisitionTribes())
+            {
+                var capturedTribe = tribe;
+                AcquisitionFilterButton(rail.transform, "AcquisitionType" + tribe + "Button", TribeName(tribe), acquisitionTypeFilter == tribe, () =>
+                {
+                    acquisitionTypeFilter = capturedTribe;
+                    Rebuild();
+                });
+            }
+        }
+
+        private void BuildAcquisitionCardCell(Transform parent, MinionInstance card, int index)
+        {
+            var cell = UiFactory.Panel("AcquisitionCardCell-" + card.CardId, parent, ColorFromHex(0x18130F));
+            UiFactory.Vertical(cell, 7, 5);
+
+            var preview = TavernCardView.Create(cell.transform, card, TavernCardVisualMode.Shop, selected =>
+            {
+                selectedMinionId = selected.InstanceId;
+            });
+            preview.name = "AcquisitionCardPreview-" + card.CardId;
+            UiFactory.SetHeight(preview, 176);
+
+            var name = UiFactory.Label("AcquisitionCardName", cell.transform, card.Name, 11, FontStyle.Bold);
+            name.alignment = TextAnchor.MiddleCenter;
+            UiFactory.SetTextColor(name, ColorFromHex(0xF4E4BC));
+            UiFactory.SetHeight(name.gameObject, 24);
+
+            var addButtonName = index == 0 ? "AddCardToHandButton" : "AddCardToHandButton-" + card.CardId;
+            var add = UiFactory.Button(addButtonName, cell.transform, "加入手牌", () =>
+            {
+                showCardAcquisitionModal = true;
+                Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind));
+            });
+            add.interactable = service.State.Player.Tavern.Hand.Count < 10;
+            UiFactory.SetHeight(add.gameObject, 36);
+            UiFactory.SetMinSize(add.gameObject, 44, 36);
+            ApplyButtonColors(add, ColorFromHex(0x5A3C22), ColorFromHex(0x75522F), ColorFromHex(0x3F2A18), ColorFromHex(0x18130F));
+        }
+
+        private Button AcquisitionFilterButton(Transform parent, string name, string text, bool active, UnityAction onClick)
+        {
+            var button = UiFactory.Button(name, parent, text, onClick);
+            UiFactory.SetHeight(button.gameObject, 34);
+            ApplyButtonColors(
+                button,
+                active ? ColorFromHex(0x6A3E1E) : ColorFromHex(0x3A2618),
+                active ? ColorFromHex(0x85622B) : ColorFromHex(0x4A3524),
+                active ? ColorFromHex(0x4A3216) : ColorFromHex(0x211A14),
+                ColorFromHex(0x18130F));
+            return button;
+        }
+
+        private string AcquisitionSubtitle()
+        {
+            var tier = acquisitionTierFilter == 0 ? "全部等级" : acquisitionTierFilter + " 本";
+            var type = acquisitionKind == CardKind.Minion ? TribeName(acquisitionTypeFilter) : "酒馆法术";
+            return tier + " / " + type + " / 手牌 " + service.State.Player.Tavern.Hand.Count + "/10";
+        }
+
+        private IEnumerable<MinionInstance> FilteredAcquisitionChoices()
+        {
+            var choices = acquisitionKind == CardKind.Minion
+                ? BuildAcquisitionMinionChoices()
+                : BuildAcquisitionSpellChoices();
+
+            if (acquisitionTierFilter > 0)
+            {
+                choices = choices.Where(card => card.TavernTier == acquisitionTierFilter);
+            }
+
+            if (acquisitionKind == CardKind.Minion && acquisitionTypeFilter != Tribe.All)
+            {
+                choices = choices.Where(card => card.Tribes != null && card.Tribes.Contains(acquisitionTypeFilter));
+            }
+
+            return choices
+                .OrderBy(card => card.TavernTier)
+                .ThenBy(card => card.Name)
+                .Take(80)
+                .ToList();
+        }
+
+        private IEnumerable<MinionInstance> BuildAcquisitionMinionChoices()
+        {
+            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Where(card => card.InPool && !card.CardId.StartsWith("BGDUO")))
+            {
+                yield return MinionFactory.Create(definition, BoardSide.Player, "ui-acquisition", false, PoolSource.Debug, 0);
+            }
+        }
+
+        private IEnumerable<MinionInstance> BuildAcquisitionSpellChoices()
+        {
+            foreach (var definition in SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.InPool && spell.Category == "TavernSpell" && !spell.CardNumber.StartsWith("BGDUO")))
+            {
+                var spell = MinionFactory.Create(definition, BoardSide.Player, "ui-acquisition");
+                spell.PoolSource = PoolSource.Debug;
+                spell.OriginPoolSource = PoolSource.Debug;
+                yield return spell;
+            }
+        }
+
+        private IEnumerable<Tribe> AcquisitionTribes()
+        {
+            return new[]
+            {
+                Tribe.Beast,
+                Tribe.Murloc,
+                Tribe.Mech,
+                Tribe.Demon,
+                Tribe.Dragon,
+                Tribe.Pirate,
+                Tribe.Elemental,
+                Tribe.Quilboar,
+                Tribe.Undead,
+                Tribe.Naga
+            };
         }
 
         private IEnumerable<MinionInstance> BuildDebugCardChoices()
@@ -240,7 +523,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void BuildBattleTestPanel(Transform parent)
         {
             var panel = UiFactory.Panel("BattleTestPanel", parent, ColorFromHex(0x202832));
-            UiFactory.SetHeight(panel, 600);
+            UiFactory.SetHeight(panel, 980);
             UiFactory.Vertical(panel, 10, 7);
             BuildDockHeader(panel.transform, "战斗测试", "种子 " + DefaultCombatSeed());
 
@@ -291,6 +574,118 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             {
                 LogLine(log.transform, entry.Seq + ". " + entry.Detail);
             }
+
+            BuildReplayDebugger(panel.transform);
+        }
+
+        private void BuildReplayDebugger(Transform parent)
+        {
+            var replay = service.State.LastReplay;
+            var panel = UiFactory.Panel("CombatReplayDebugger", parent, ColorFromHex(0x181E24));
+            UiFactory.SetHeight(panel, replay == null || replay.Frames.Count == 0 ? 120 : 490);
+            UiFactory.Vertical(panel, 8, 6);
+            if (replay == null || replay.Frames.Count == 0)
+            {
+                BuildDockHeader(panel.transform, "Combat Replay", "no frames");
+                EmptyText(panel.transform, "Run combat to inspect replay frames.");
+                return;
+            }
+
+            activeReplayFrameIndex = Mathf.Clamp(activeReplayFrameIndex, 0, replay.Frames.Count - 1);
+            var frame = replay.Frames[activeReplayFrameIndex];
+            BuildDockHeader(panel.transform, "Combat Replay", "seed " + replay.Seed + "  frame " + (activeReplayFrameIndex + 1) + "/" + replay.Frames.Count + "  " + replay.Result);
+
+            var controls = UiFactory.Panel("ReplayFrameControls", panel.transform, Color.clear);
+            UiFactory.SetHeight(controls, 34);
+            UiFactory.Horizontal(controls, 0, 6);
+            ToolbarButton(controls.transform, "|<", false, activeReplayFrameIndex > 0, () => SetReplayFrameIndex(0));
+            ToolbarButton(controls.transform, "<", false, activeReplayFrameIndex > 0, () => SetReplayFrameIndex(activeReplayFrameIndex - 1));
+            ToolbarButton(controls.transform, ">", false, activeReplayFrameIndex + 1 < replay.Frames.Count, () => SetReplayFrameIndex(activeReplayFrameIndex + 1));
+            ToolbarButton(controls.transform, ">|", false, activeReplayFrameIndex + 1 < replay.Frames.Count, () => SetReplayFrameIndex(replay.Frames.Count - 1));
+
+            var frameInfo = UiFactory.Label("ReplayFrameInfo", panel.transform, frame.EventType + "  " + frame.LogText, 13, FontStyle.Bold);
+            UiFactory.SetHeight(frameInfo.gameObject, 26);
+
+            var boards = UiFactory.Panel("ReplayBoards", panel.transform, Color.clear);
+            UiFactory.SetHeight(boards, 168);
+            UiFactory.Horizontal(boards, 0, 8);
+            BuildReplayBoardSnapshot(boards.transform, "Player", frame.PlayerBoardSnapshot, frame);
+            BuildReplayBoardSnapshot(boards.transform, "Opponent", frame.OpponentBoardSnapshot, frame);
+
+            var eventList = UiFactory.Panel("ReplayEventList", panel.transform, LegacySurfaceInset);
+            UiFactory.SetFlexible(eventList, 1, 1);
+            UiFactory.Vertical(eventList, 6, 3);
+            foreach (var eventFrame in replay.Frames.Take(10))
+            {
+                var targetIndex = eventFrame.Index;
+                var button = UiFactory.Button("ReplayEvent-" + targetIndex, eventList.transform, targetIndex + ". " + eventFrame.EventType + "  " + eventFrame.LogText, () => SetReplayFrameIndex(targetIndex));
+                UiFactory.SetHeight(button.gameObject, 30);
+                ApplyButtonColors(
+                    button,
+                    targetIndex == activeReplayFrameIndex ? LegacyBlue : LegacySurfaceRaised,
+                    targetIndex == activeReplayFrameIndex ? ColorFromHex(0x456A82) : ColorFromHex(0x34475A),
+                    ColorFromHex(0x1A242E),
+                    ColorFromHex(0x18130F));
+            }
+        }
+
+        private void SetReplayFrameIndex(int index)
+        {
+            var replay = service.State.LastReplay;
+            activeReplayFrameIndex = replay == null || replay.Frames.Count == 0
+                ? 0
+                : Mathf.Clamp(index, 0, replay.Frames.Count - 1);
+            Rebuild();
+        }
+
+        private void BuildReplayBoardSnapshot(Transform parent, string title, CombatBoardSnapshot snapshot, CombatFrame frame)
+        {
+            var board = UiFactory.Panel("Replay" + title + "Board", parent, ColorFromHex(0x202832));
+            UiFactory.SetFlexible(board, 1, 1);
+            UiFactory.Vertical(board, 6, 4);
+            BuildDockHeader(board.transform, title, snapshot.Minions.Count + "/7");
+            var row = UiFactory.Panel("Replay" + title + "Row", board.transform, Color.clear);
+            UiFactory.SetFlexible(row, 1, 1);
+            UiFactory.Horizontal(row, 0, 4);
+            foreach (var minion in snapshot.Minions.Take(7))
+            {
+                var tile = UiFactory.Panel("ReplayMinion-" + minion.InstanceId, row.transform, ReplayHighlightColor(minion.InstanceId, frame));
+                UiFactory.SetFlexible(tile, 1, 1);
+                UiFactory.Vertical(tile, 4, 1);
+                SmallLabel(tile.transform, minion.Name, ColorFromHex(0xEDF2F7), 10, FontStyle.Bold);
+                SmallLabel(tile.transform, minion.Attack + "/" + minion.Health + "/" + minion.MaxHealth, ColorFromHex(0xDCA94A), 10);
+                SmallLabel(tile.transform, string.Join(" ", minion.Keywords.Take(2).Select(KeywordName).ToArray()), ColorFromHex(0x9AA7B4), 9);
+            }
+        }
+
+        private Color ReplayHighlightColor(string instanceId, CombatFrame frame)
+        {
+            if (frame.ActorId == instanceId)
+            {
+                return ColorFromHex(0x2D5A3A);
+            }
+
+            if (frame.TargetId == instanceId)
+            {
+                return ColorFromHex(0x5A3A2D);
+            }
+
+            if (frame.DeadEntityIds.Contains(instanceId))
+            {
+                return ColorFromHex(0x5A2D33);
+            }
+
+            if (frame.SummonedEntityIds.Contains(instanceId))
+            {
+                return ColorFromHex(0x2D4E5A);
+            }
+
+            if (frame.DamagedEntityIds.Contains(instanceId) || frame.RelatedEntityIds.Contains(instanceId))
+            {
+                return ColorFromHex(0x3F3A25);
+            }
+
+            return ColorFromHex(0x202832);
         }
 
         private int DefaultCombatSeed()
@@ -314,14 +709,69 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 LogLine(panel.transform, lastError);
             }
 
-            BuildCompactBoardGrid(panel.transform, "OpponentCustomizationSlots", service.State.Opponent.Board, BoardSide.Opponent);
-            var firstChoice = MinionCatalogLoader.LoadFromResources().All.First();
-            var addButton = UiFactory.Button("AddOpponentButton", panel.transform, "添加对手", () => Apply(new GameCommand(GameCommandType.AddOpponentMinion, firstChoice.CardId)));
-            UiFactory.SetHeight(addButton.gameObject, 32);
+            BuildOpponentEditorBoard(panel.transform);
+            BuildOpponentBulkActions(panel.transform);
+            BuildOpponentCardSource(panel.transform);
 
             var selected = service.State.Opponent.Board.FirstOrDefault(minion => minion.InstanceId == selectedMinionId);
             BuildOpponentToolbar(panel.transform, selected);
             BuildOpponentStatEditor(panel.transform, selected);
+        }
+
+        private void BuildOpponentEditorBoard(Transform parent)
+        {
+            var slots = new List<MinionInstance>(service.State.Opponent.Board);
+            while (slots.Count < BoardLimit)
+            {
+                slots.Add(null);
+            }
+
+            var boardRow = BuildCardRow(parent, "OpponentEditorSlots", slots, 158, (minion, index) =>
+            {
+                if (minion == null)
+                {
+                    var empty = EmptySlot();
+                    AddDropTarget(empty, DropTarget.OpponentBoard, index);
+                    return empty;
+                }
+
+                return CardWithDrag(minion, DragSource.OpponentBoard, index, DropTarget.OpponentBoard, index);
+            });
+            AddDropTarget(boardRow, DropTarget.OpponentBoard);
+        }
+
+        private void BuildOpponentBulkActions(Transform parent)
+        {
+            var actions = UiFactory.Panel("OpponentBulkActions", parent, Color.clear);
+            UiFactory.SetHeight(actions, 36);
+            UiFactory.Horizontal(actions, 0, 6);
+            ToolbarButton(actions.transform, "Clear", false, service.State.Opponent.Board.Count > 0, () =>
+            {
+                selectedMinionId = null;
+                Apply(new GameCommand(GameCommandType.ClearOpponentBoard));
+            });
+            ToolbarButton(actions.transform, "Copy", false, service.State.Player.Board.Count > 0, () => Apply(new GameCommand(GameCommandType.CopyPlayerBoardToOpponent)));
+            ToolbarButton(actions.transform, "Mirror", false, service.State.Player.Board.Count > 0, () => Apply(new GameCommand(GameCommandType.MirrorPlayerBoardToOpponent)));
+        }
+
+        private void BuildOpponentCardSource(Transform parent)
+        {
+            var source = UiFactory.Panel("OpponentCardSource", parent, ColorFromHex(0x181E24));
+            UiFactory.SetHeight(source, 116);
+            UiFactory.Vertical(source, 8, 5);
+            BuildDockHeader(source.transform, "Card Source", "tier 1-2");
+            var row = UiFactory.Panel("OpponentCardSourceRow", source.transform, Color.clear);
+            UiFactory.SetFlexible(row, 1, 1);
+            UiFactory.Horizontal(row, 0, 6);
+            var index = 0;
+            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Where(card => card.TavernTier <= 2).Take(4))
+            {
+                var captured = definition;
+                var buttonName = index == 0 ? "AddOpponentButton" : "AddOpponent-" + captured.CardId;
+                var button = UiFactory.Button(buttonName, row.transform, captured.Name, () => Apply(new GameCommand(GameCommandType.AddOpponentMinion, captured.CardId)));
+                UiFactory.SetFlexible(button.gameObject, 1, 1);
+                index += 1;
+            }
         }
 
         private void BuildOpponentToolbar(Transform parent, MinionInstance selected)
@@ -348,7 +798,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void BuildOpponentStatEditor(Transform parent, MinionInstance selected)
         {
             var editor = UiFactory.Panel("OpponentStatEditor", parent, ColorFromHex(0x181E24));
-            UiFactory.SetHeight(editor, selected == null ? 140 : 300);
+            UiFactory.SetHeight(editor, selected == null ? 140 : 348);
             UiFactory.Vertical(editor, 8, 6);
             if (selected == null)
             {
@@ -369,6 +819,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             OpponentKeywordToggle(toggles.transform, selected, Keyword.DivineShield, "圣盾");
             OpponentKeywordToggle(toggles.transform, selected, Keyword.Poisonous, "剧毒");
             OpponentKeywordToggle(toggles.transform, selected, Keyword.Venomous, "烈毒");
+            var moreToggles = UiFactory.Panel("OpponentKeywordTogglesMore", editor.transform, Color.clear);
+            UiFactory.SetHeight(moreToggles, 36);
+            UiFactory.Horizontal(moreToggles, 0, 6);
+            OpponentKeywordToggle(moreToggles.transform, selected, Keyword.Reborn, "Reborn");
+            OpponentKeywordToggle(moreToggles.transform, selected, Keyword.Deathrattle, "Death");
+            OpponentKeywordToggle(moreToggles.transform, selected, Keyword.Windfury, "Wind");
+            ToolbarButton(moreToggles.transform, selected.Golden ? "Golden" : "Normal", selected.Golden, true, () => UpdateOpponentSelected(new MinionPatch { Golden = !selected.Golden }));
         }
 
         private void MoveOpponentSelected(int delta)
@@ -418,7 +875,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildShopStage(Transform parent)
         {
-            var stage = UiFactory.Panel("ShopStage", parent, ColorFromHex(0x181E24));
+            var stage = UiFactory.Panel("ShopStage", parent, LegacySurface);
             UiFactory.SetHeight(stage, service.State.Player.Tavern.Discover == null ? 368 : 546);
             UiFactory.Vertical(stage, 12, 8);
 
@@ -432,10 +889,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
             if (service.State.Player.Tavern.Discover != null)
             {
-                BuildDockHeader(stage.transform, "三连发现", "奖励 " + service.State.Player.Tavern.Discover.RewardTier + " 本");
+                var discover = service.State.Player.Tavern.Discover;
+                BuildDockHeader(stage.transform, "发现", "奖励 " + discover.RewardTier + " 本");
+                BuildDiscoverStateStrip(stage.transform, discover);
                 BuildCardRow(stage.transform, "DiscoverRow", service.State.Player.Tavern.Discover.Options, 162, (minion, index) =>
                     CardWithDrag(minion, DragSource.Discover, index, null));
             }
+        }
+
+        private void BuildDiscoverStateStrip(Transform parent, DiscoverState discover)
+        {
+            var strip = UiFactory.Panel("DiscoverStateStrip", parent, LegacySurfaceInset);
+            UiFactory.SetHeight(strip, 26);
+            UiFactory.Horizontal(strip, 8, 6);
+            var source = string.IsNullOrEmpty(discover.Source) ? "DISCOVER" : discover.Source;
+            var label = UiFactory.Label("DiscoverStateText", strip.transform, source + "  选项 " + discover.Options.Count, 12, FontStyle.Bold);
+            UiFactory.SetTextColor(label, ColorFromHex(0xD6DEE6));
+            UiFactory.SetFlexible(label.gameObject, 1, 1);
         }
 
         private void BuildTavernControls(Transform parent)
@@ -453,11 +923,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildBottomDock(Transform parent)
         {
-            var dock = UiFactory.Panel("BottomDock", parent, ColorFromHex(0x111820));
-            UiFactory.SetHeight(dock, 220);
+            var dock = UiFactory.Panel("BottomDock", parent, ColorFromHex(0x15110D));
+            UiFactory.SetHeight(dock, 232);
             UiFactory.Horizontal(dock, 12, 12);
 
-            var hand = UiFactory.Panel("HandPanel", dock.transform, ColorFromHex(0x181E24));
+            var hand = UiFactory.Panel("HandPanel", dock.transform, LegacySurface);
             UiFactory.SetFlexible(hand, 1, 1);
             UiFactory.Vertical(hand, 10, 8);
             BuildDockHeader(hand.transform, "手牌", service.State.Player.Tavern.Hand.Count + "/10");
@@ -466,7 +936,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 CardWithDrag(minion, DragSource.Hand, index, DropTarget.Hand));
             AddDropTarget(handRow, DropTarget.Hand);
 
-            var replay = UiFactory.Panel("ReplayPanel", dock.transform, ColorFromHex(0x181E24));
+            var replay = UiFactory.Panel("ReplayPanel", dock.transform, LegacySurface);
             UiFactory.SetWidth(replay, 410);
             UiFactory.Vertical(replay, 10, 8);
             BuildDockHeader(replay.transform, "回放控制", service.State.CombatLog.Count + " 条战斗日志");
@@ -482,7 +952,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildBoardPanel(Transform parent, string title, int health, int armor, List<MinionInstance> board, BoardSide side, bool flexible)
         {
-            var panel = UiFactory.Panel(title + "Panel", parent, ColorFromHex(0x181E24));
+            var panel = UiFactory.Panel(title + "Panel", parent, LegacySurface);
             if (flexible)
             {
                 UiFactory.SetFlexible(panel, 1, 1);
@@ -494,6 +964,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
             UiFactory.Vertical(panel, 12, 8);
             BuildDockHeader(panel.transform, title, "生命 " + health + "  护甲 " + armor + "  随从 " + board.Count + "/7");
+            if (side == BoardSide.Player)
+            {
+                BuildBoardTribeDistribution(panel.transform, board);
+            }
 
             if (!flexible)
             {
@@ -526,9 +1000,37 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             AddDropTarget(boardRow, DropTarget.PlayerBoard);
         }
 
+        private void BuildBoardTribeDistribution(Transform parent, List<MinionInstance> board)
+        {
+            var row = UiFactory.Panel("PlayerBoardTribeDistribution", parent, LegacySurfaceInset);
+            UiFactory.SetHeight(row, 30);
+            UiFactory.Horizontal(row, 8, 4);
+
+            var distribution = BoardTribeAnalyzer.Build(board);
+            var text = "种族分布：空战场";
+            if (distribution.Count > 0)
+            {
+                var maxCount = distribution.Values.Max();
+                var parts = distribution
+                    .OrderByDescending(pair => pair.Value)
+                    .ThenBy(pair => TribeDisplaySortIndex(pair.Key))
+                    .Select(pair =>
+                    {
+                        var part = TribeName(pair.Key) + " " + pair.Value;
+                        return pair.Value == maxCount ? "<color=#F1C968><b>" + part + "</b></color>" : part;
+                    });
+                text = "种族分布：" + string.Join(" / ", parts.ToArray());
+            }
+
+            var label = UiFactory.Label("PlayerBoardTribeDistributionText", row.transform, text, 12, FontStyle.Bold);
+            label.supportRichText = true;
+            UiFactory.SetTextColor(label, ColorFromHex(0xD6DEE6));
+            UiFactory.SetFlexible(label.gameObject, 1, 1);
+        }
+
         private void BuildCompactBoardGrid(Transform parent, string name, List<MinionInstance> board, BoardSide side)
         {
-            var grid = UiFactory.Panel(name, parent, ColorFromHex(0x141B22));
+            var grid = UiFactory.Panel(name, parent, LegacySurfaceInset);
             UiFactory.SetFlexible(grid, 1, 1);
             UiFactory.Vertical(grid, 8, 6);
 
@@ -557,7 +1059,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildMinionEditor(Transform parent)
         {
-            var panel = UiFactory.Panel("MinionEditor", parent, ColorFromHex(0x202832));
+            var panel = UiFactory.Panel("MinionEditor", parent, LegacySurfaceRaised);
             UiFactory.SetHeight(panel, 258);
             UiFactory.Vertical(panel, 10, 7);
             BuildDockHeader(panel.transform, "随从编辑", "选择卡牌后编辑");
@@ -586,8 +1088,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildSellDropZone(Transform parent)
         {
-            var zone = UiFactory.Panel("SellDropZone", parent, ColorFromHex(0x2A1D20));
-            UiFactory.SetHeight(zone, 78);
+            var zone = UiFactory.Panel("SellDropZone", parent, Color.Lerp(LegacyDanger, LegacyBackground, 0.55f));
+            UiFactory.SetHeight(zone, 88);
             UiFactory.Horizontal(zone, 12, 8);
             AddDropTarget(zone, DropTarget.SellZone);
 
@@ -599,7 +1101,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildHints(Transform parent)
         {
-            var panel = UiFactory.Panel("AdvisorPanel", parent, ColorFromHex(0x202832));
+            var panel = UiFactory.Panel("AdvisorPanel", parent, LegacySurfaceRaised);
             UiFactory.SetHeight(panel, 132);
             UiFactory.Vertical(panel, 10, 6);
             BuildDockHeader(panel.transform, "搜索计划 / AI 提示", "本地建议");
@@ -614,7 +1116,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildLogs(Transform parent)
         {
-            var panel = UiFactory.Panel("LogPanel", parent, ColorFromHex(0x202832));
+            var panel = UiFactory.Panel("LogPanel", parent, LegacySurfaceRaised);
             UiFactory.SetHeight(panel, 220);
             UiFactory.Vertical(panel, 10, 5);
             BuildDockHeader(panel.transform, "日志", lastError == null ? "招募 / 战斗" : lastError);
@@ -633,21 +1135,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void BuildDockHeader(Transform parent, string title, string meta)
         {
             var header = UiFactory.Panel(title + "Header", parent, Color.clear);
-            UiFactory.SetHeight(header, 28);
+            UiFactory.SetHeight(header, 32);
             UiFactory.Horizontal(header, 0, 8);
             var titleLabel = UiFactory.Label(title + "Title", header.transform, title, 16, FontStyle.Bold);
             UiFactory.SetFlexible(titleLabel.gameObject, 1, 1);
             var metaLabel = UiFactory.Label(title + "Meta", header.transform, meta, 12);
             metaLabel.alignment = TextAnchor.MiddleRight;
-            UiFactory.SetTextColor(metaLabel, ColorFromHex(0x9AA7B4));
-            UiFactory.SetWidth(metaLabel.gameObject, 160);
+            UiFactory.SetTextColor(metaLabel, LegacyMutedInk);
+            UiFactory.SetWidth(metaLabel.gameObject, 178);
         }
 
         private GameObject BuildCardRow(Transform parent, string name, List<MinionInstance> minions, float height, System.Func<MinionInstance, int, GameObject> builder)
         {
-            var row = UiFactory.Panel(name, parent, ColorFromHex(0x141B22));
+            var row = UiFactory.Panel(name, parent, LegacySurfaceInset);
             UiFactory.SetHeight(row, height);
-            UiFactory.Horizontal(row, 8, 8);
+            UiFactory.Horizontal(row, 10, 10);
 
             if (minions.Count == 0)
             {
@@ -659,7 +1161,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             {
                 var item = builder(minions[index], index);
                 item.transform.SetParent(row.transform, false);
-                UiFactory.SetWidth(item, 118);
+                UiFactory.SetWidth(item, 124);
             }
 
             return row;
@@ -673,16 +1175,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             }
 
             var holder = UiFactory.Panel("CardHolder", null, Color.clear);
-            UiFactory.SetMinSize(holder, 118, 145);
-            UiFactory.Vertical(holder, 0, 5);
+            UiFactory.SetMinSize(holder, 124, 150);
+            UiFactory.Vertical(holder, 0, 6);
 
             var card = new GameObject("Card-" + minion.InstanceId, typeof(RectTransform), typeof(Image), typeof(Button));
             card.transform.SetParent(holder.transform, false);
-            UiFactory.SetHeight(card, 136);
+            UiFactory.SetHeight(card, 142);
             var image = card.GetComponent<Image>();
-            image.color = minion.InstanceId == selectedMinionId
-                ? ColorFromHex(0x273F57)
-                : minion.Golden ? ColorFromHex(0x5B4718) : ColorFromHex(0x202832);
+            image.color = CardSurfaceColor(minion);
+            ApplyButtonColors(
+                card.GetComponent<Button>(),
+                image.color,
+                Color.Lerp(image.color, ColorFromHex(0x456A82), 0.45f),
+                Color.Lerp(image.color, ColorFromHex(0x0D141A), 0.35f),
+                ColorFromHex(0x18130F));
             var drag = card.AddComponent<DragCardBehaviour>();
             drag.Initialize(this, minion, source, index);
             if (dropTarget.HasValue)
@@ -696,6 +1202,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             SmallLabel(card.transform, minion.Name, ColorFromHex(0xEDF2F7), 13, FontStyle.Bold);
             var effect = SmallLabel(card.transform, EffectText(minion), ColorFromHex(0xD6DEE6), 11);
             UiFactory.SetHeight(effect.gameObject, 32);
+            if (dropTarget == DropTarget.PlayerBoard && targetIndex >= 0)
+            {
+                var badge = SmallLabel(card.transform, "目标 / 位置 " + (targetIndex + 1), ColorFromHex(0x7DD3FC), 10, FontStyle.Bold);
+                badge.gameObject.name = "DropIntentBadge";
+            }
+
             SmallLabel(card.transform, KeywordsText(minion), ColorFromHex(0xDCA94A), 10);
             SmallLabel(card.transform, minion.Attack + " / " + minion.Health, ColorFromHex(0xEDF2F7), 15, FontStyle.Bold);
             return holder;
@@ -709,10 +1221,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             var card = new GameObject("MiniCard-" + minion.InstanceId, typeof(RectTransform), typeof(Image), typeof(Button));
             card.transform.SetParent(holder.transform, false);
             UiFactory.SetFlexible(card, 1, 1);
-            card.GetComponent<Image>().color = minion.InstanceId == selectedMinionId
-                ? ColorFromHex(0x273F57)
-                : minion.Golden ? ColorFromHex(0x5B4718) : ColorFromHex(0x202832);
-            card.GetComponent<Button>().onClick.AddListener(() =>
+            var image = card.GetComponent<Image>();
+            image.color = CardSurfaceColor(minion);
+            var button = card.GetComponent<Button>();
+            ApplyButtonColors(
+                button,
+                image.color,
+                Color.Lerp(image.color, ColorFromHex(0x456A82), 0.45f),
+                Color.Lerp(image.color, ColorFromHex(0x0D141A), 0.35f),
+                ColorFromHex(0x18130F));
+            button.onClick.AddListener(() =>
             {
                 Select(minion);
                 Rebuild();
@@ -725,11 +1243,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private GameObject EmptySlot()
         {
-            var empty = UiFactory.Panel("EmptySlot", null, ColorFromHex(0x101418));
+            var empty = UiFactory.Panel("EmptySlot", null, ColorFromHex(0x121A1E));
+            UiFactory.SetMinSize(empty, 44, 44);
             UiFactory.Vertical(empty, 6, 4);
-            var label = UiFactory.Label("EmptySlotText", empty.transform, "空位", 13);
+            var label = UiFactory.Label("EmptySlotText", empty.transform, "位置", 13);
             label.alignment = TextAnchor.MiddleCenter;
-            UiFactory.SetTextColor(label, ColorFromHex(0x9AA7B4));
+            UiFactory.SetTextColor(label, LegacyMutedInk);
             return empty;
         }
 
@@ -752,8 +1271,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             UiFactory.Horizontal(row, 0, 6);
             var text = UiFactory.Label(label + "Label", row.transform, label + "  " + value, 13);
             UiFactory.SetFlexible(text.gameObject, 1, 1);
-            ToolbarButton(row.transform, "-", false, true, () => onChange(value - 1));
-            ToolbarButton(row.transform, "+", false, true, () => onChange(value + 1));
+            ToolbarButton(row.transform, "-", false, true, () => onChange(value - 1), 40);
+            ToolbarButton(row.transform, "+", false, true, () => onChange(value + 1), 40);
         }
 
         private void KeywordToggle(Transform parent, MinionInstance minion, Keyword keyword, string label)
@@ -777,26 +1296,68 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void ResourcePill(Transform parent, string text)
         {
-            var pill = UiFactory.Panel("ResourcePill", parent, ColorFromHex(0x202832));
-            UiFactory.SetWidth(pill, 126);
+            var pill = UiFactory.Panel("ResourcePill", parent, ColorFromHex(0x2B2118));
+            UiFactory.SetWidth(pill, 132);
+            UiFactory.SetMinSize(pill, 44, 34);
             UiFactory.Horizontal(pill, 8, 0);
             var label = UiFactory.Label("ResourceText", pill.transform, text, 13, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
+            UiFactory.SetTextColor(label, ColorFromHex(0xFFF2C5));
         }
 
-        private Button ToolbarButton(Transform parent, string text, bool active, bool enabled, UnityAction onClick)
+        private Button ToolbarButton(Transform parent, string text, bool active, bool enabled, UnityAction onClick, float width = 84f)
         {
             var button = UiFactory.Button(text + "Button", parent, text, onClick);
             button.interactable = enabled;
-            UiFactory.SetHeight(button.gameObject, 32);
-            UiFactory.SetWidth(button.gameObject, 84);
-            UiFactory.SetImageColor(button.gameObject, active ? ColorFromHex(0x273F57) : ColorFromHex(0x202832));
-            if (!enabled)
+            UiFactory.SetHeight(button.gameObject, 40);
+            UiFactory.SetMinSize(button.gameObject, 44, 40);
+            UiFactory.SetWidth(button.gameObject, width);
+            var normal = active ? ColorFromHex(0x5A3C22) : ColorFromHex(0x26313C);
+            ApplyButtonColors(
+                button,
+                normal,
+                active ? ColorFromHex(0x75522F) : ColorFromHex(0x34475A),
+                active ? ColorFromHex(0x3F2A18) : ColorFromHex(0x1A242E),
+                ColorFromHex(0x18130F));
+
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
             {
-                UiFactory.SetImageColor(button.gameObject, ColorFromHex(0x181E24));
+                UiFactory.SetTextColor(label, enabled ? ColorFromHex(0xFFF2C5) : ColorFromHex(0x6F7780));
             }
 
             return button;
+        }
+
+        private Color CardSurfaceColor(MinionInstance minion)
+        {
+            if (minion.InstanceId == selectedMinionId)
+            {
+                return ColorFromHex(0x2F5F7A);
+            }
+
+            return minion.Golden ? ColorFromHex(0x5B4718) : LegacySurfaceRaised;
+        }
+
+        private static void ApplyButtonColors(Button button, Color normal, Color highlighted, Color pressed, Color disabled)
+        {
+            button.transition = Selectable.Transition.ColorTint;
+            var target = button.GetComponent<Image>();
+            button.targetGraphic = target;
+            if (target != null)
+            {
+                target.color = button.interactable ? normal : disabled;
+            }
+
+            var colors = button.colors;
+            colors.normalColor = normal;
+            colors.highlightedColor = highlighted;
+            colors.pressedColor = pressed;
+            colors.selectedColor = highlighted;
+            colors.disabledColor = disabled;
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.16f;
+            button.colors = colors;
         }
 
         private Text SmallLabel(Transform parent, string text, Color color, int size, FontStyle style = FontStyle.Normal)
@@ -818,6 +1379,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void LogLine(Transform parent, string text)
         {
             var label = UiFactory.Label("LogLine", parent, text, 12);
+            UiFactory.SetTextColor(label, ColorFromHex(0xD6DEE6));
             UiFactory.SetHeight(label.gameObject, 22);
         }
 
@@ -916,6 +1478,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             if (drag.Source == DragSource.PlayerBoard && target == DropTarget.SellZone)
             {
                 command = new GameCommand(GameCommandType.SellMinion, drag.Minion.InstanceId);
+                return true;
+            }
+
+            if (drag.Source == DragSource.OpponentBoard && target == DropTarget.OpponentBoard)
+            {
+                command = new GameCommand(GameCommandType.MoveOpponentMinion, drag.Minion.InstanceId, targetIndex);
                 return true;
             }
 
@@ -1092,9 +1660,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private static string KeywordsText(MinionInstance minion)
         {
-            return minion.Keywords == null || minion.Keywords.Count == 0
+            var keywords = minion.OfficialKeywords != null && minion.OfficialKeywords.Count > 0
+                ? minion.OfficialKeywords
+                : minion.Keywords;
+            return keywords == null || keywords.Count == 0
                 ? "无关键词"
-                : string.Join(" ", minion.Keywords.Take(3).Select(KeywordName).ToArray());
+                : string.Join(" ", keywords.Take(3).Select(KeywordName).ToArray());
         }
 
         private static string TribeName(Tribe tribe)
@@ -1116,6 +1687,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             }
         }
 
+        private static int TribeDisplaySortIndex(Tribe tribe)
+        {
+            switch (tribe)
+            {
+                case Tribe.Beast: return 0;
+                case Tribe.Murloc: return 1;
+                case Tribe.Mech: return 2;
+                case Tribe.Demon: return 3;
+                case Tribe.Dragon: return 4;
+                case Tribe.Pirate: return 5;
+                case Tribe.Elemental: return 6;
+                case Tribe.Quilboar: return 7;
+                case Tribe.Undead: return 8;
+                case Tribe.Naga: return 9;
+                default: return int.MaxValue;
+            }
+        }
+
         private static string KeywordName(Keyword keyword)
         {
             switch (keyword)
@@ -1129,6 +1718,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 case Keyword.Battlecry: return "战吼";
                 case Keyword.Windfury: return "风怒";
                 case Keyword.Cleave: return "顺劈";
+                case Keyword.Bounty: return "Bounty";
                 default: return keyword.ToString();
             }
         }
@@ -1147,6 +1737,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 ((rgb >> 8) & 0xFF) / 255f,
                 (rgb & 0xFF) / 255f);
         }
+
+        private static void ApplyRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+        }
     }
 
     internal enum DragSource
@@ -1162,6 +1760,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
     {
         Hand,
         PlayerBoard,
+        OpponentBoard,
         SellZone
     }
 
@@ -1294,6 +1893,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x2F5F6F), 0.65f);
                 case DropTarget.PlayerBoard:
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x3D5B38), 0.65f);
+                case DropTarget.OpponentBoard:
+                    return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x3D445B), 0.65f);
                 case DropTarget.SellZone:
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x7A2C32), 0.65f);
                 default:

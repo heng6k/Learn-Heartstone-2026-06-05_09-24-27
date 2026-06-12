@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using LearnHearthstone.Adapters.Advisor;
@@ -64,6 +65,35 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Build_PlayerBoardShowsTribeDistributionWithMostCommonHighlighted()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                service.State.Player.Board.Clear();
+                service.State.Player.Board.Add(TestBoardMinion("dragon-1", "Dragon One", Tribe.Dragon));
+                service.State.Player.Board.Add(TestBoardMinion("dragon-murloc", "Dragon Murloc", Tribe.Dragon, Tribe.Murloc));
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var row = FindChild(rootObject.transform, "PlayerBoardTribeDistribution");
+                var textTransform = FindChild(rootObject.transform, "PlayerBoardTribeDistributionText");
+                Assert.IsNotNull(row);
+                Assert.IsNotNull(textTransform);
+                var text = textTransform.GetComponent<Text>();
+                Assert.IsNotNull(text);
+                Assert.IsTrue(text.supportRichText);
+                Assert.IsTrue(text.text.Contains("<color=#F1C968><b>龙 2</b></color>"), text.text);
+                Assert.IsTrue(text.text.Contains("鱼人 1"), text.text);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void Build_UsesDragCardsAndDropZonesForRecruitActions()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -82,6 +112,89 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsTrue(HasBehaviourNamed(shopCard, "DragCardBehaviour"), "Shop cards should be draggable.");
                 Assert.IsTrue(HasBehaviourNamed(handPanel, "DropTargetBehaviour"), "Hand panel should accept bought cards.");
                 Assert.IsTrue(HasBehaviourNamed(sellDropZone, "DropTargetBehaviour"), "Sell zone should accept board minions.");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_PlayerBoardShowsTargetPositionAndEmptySlotState()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                service.State.Player.Board.Clear();
+                service.State.Player.Board.Add(TestBoardMinion("board-a", "Board A", Tribe.Beast));
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var badge = FindChild(rootObject.transform, "DropIntentBadge");
+                var emptySlot = FindChild(rootObject.transform, "EmptySlotText");
+                Assert.IsNotNull(badge);
+                Assert.IsNotNull(emptySlot);
+                Assert.That(badge.GetComponent<Text>().text, Does.Contain("目标 / 位置 1"));
+                Assert.AreEqual("位置", emptySlot.GetComponent<Text>().text);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_DiscoverPanelShowsSourceAndOptionState()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                service.State.Player.Tavern.Discover = new DiscoverState
+                {
+                    Source = "arena-showman",
+                    RewardTier = 4,
+                    Options = new List<MinionInstance> { TestBoardMinion("discover-a", "Discover A", Tribe.Elemental) }
+                };
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var strip = FindChild(rootObject.transform, "DiscoverStateStrip");
+                var text = FindChild(rootObject.transform, "DiscoverStateText");
+                Assert.IsNotNull(strip);
+                Assert.IsNotNull(text);
+                Assert.That(text.GetComponent<Text>().text, Does.Contain("arena-showman"));
+                Assert.That(text.GetComponent<Text>().text, Does.Contain("选项 1"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_CardUsesOfficialKeywordsForDisplay()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                service.State.Player.Tavern.Shop.Clear();
+                service.State.Player.Tavern.Hand.Clear();
+                service.State.Player.Board.Clear();
+                var minion = TestBoardMinion("official-keyword-card", "Official Keyword Card", Tribe.Beast);
+                minion.Keywords = new List<Keyword> { Keyword.Battlecry };
+                minion.OfficialKeywords = new List<Keyword> { Keyword.Taunt };
+                service.State.Player.Board.Add(minion);
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var card = FindChild(rootObject.transform, "Card-official-keyword-card");
+                Assert.IsNotNull(card);
+                var labels = card.GetComponentsInChildren<Text>();
+                Assert.IsTrue(labels.Any(label => label.text == "嘲讽"));
+                Assert.IsFalse(labels.Any(label => label.text == "战吼"));
             }
             finally
             {
@@ -152,7 +265,61 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Build_CardAcquisitionTabShowsAddToHandEntry()
+        public void Build_LegacyPolishUsesTouchSizedControlsAndTintStates()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var accent = FindChild(rootObject.transform, "TopToolbarAccent");
+                var tabs = FindChild(rootObject.transform, "RightInspectorTabs");
+                var infoTab = FindChild(rootObject.transform, "Tab-Info").GetComponent<Button>();
+                var sellDropZone = FindChild(rootObject.transform, "SellDropZone");
+
+                Assert.IsNotNull(accent);
+                Assert.GreaterOrEqual(accent.GetComponent<LayoutElement>().preferredHeight, 4f);
+                Assert.GreaterOrEqual(tabs.GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.AreEqual(Selectable.Transition.ColorTint, infoTab.transition);
+                Assert.AreNotEqual(infoTab.colors.normalColor, infoTab.colors.highlightedColor);
+                Assert.GreaterOrEqual(sellDropZone.GetComponent<LayoutElement>().preferredHeight, 88f);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_LegacyCardsUsePolishedSurfacesAndPointerStates()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var card = FindChild(rootObject.transform, "Card-" + service.State.Player.Tavern.Shop[0].InstanceId);
+                var holder = card.parent;
+                var button = card.GetComponent<Button>();
+
+                Assert.IsNotNull(card);
+                Assert.GreaterOrEqual(holder.GetComponent<LayoutElement>().minWidth, 124f);
+                Assert.GreaterOrEqual(holder.GetComponent<LayoutElement>().minHeight, 150f);
+                Assert.AreEqual(Selectable.Transition.ColorTint, button.transition);
+                Assert.AreNotEqual(button.colors.normalColor, button.colors.highlightedColor);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_CardAcquisitionTabOpensCenteredModal()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
             try
@@ -162,8 +329,64 @@ namespace LearnHearthstone.Tests.EditMode
 
                 FindChild(rootObject.transform, "Tab-CardAcquisition").GetComponent<Button>().onClick.Invoke();
 
-                Assert.IsNotNull(FindChild(rootObject.transform, "CardAcquisitionPanel"));
+                Assert.IsNull(FindChild(rootObject.transform, "CardAcquisitionPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "CardAcquisitionModalOverlay"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "CardAcquisitionModal"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionSpellModeButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionMinionModeButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionTierRail"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionCenterPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionTypeRail"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionCardGridScroll"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "AddCardToHandButton"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_CardAcquisitionModalFiltersByKindTierAndType()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "Tab-CardAcquisition").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "AcquisitionMinionModeButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "AcquisitionTier1Button").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "AcquisitionTypeBeastButton").GetComponent<Button>().onClick.Invoke();
+
+                var subtitle = FindChild(rootObject.transform, "AcquisitionSubtitle").GetComponent<Text>().text;
+                Assert.That(subtitle, Does.Contain("1 本"));
+                Assert.That(subtitle, Does.Contain("野兽"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionTypeAllButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionCardGridScroll"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Build_CardAcquisitionModalAddButtonAddsCardToHand()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345);
+                new TavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "Tab-CardAcquisition").GetComponent<Button>().onClick.Invoke();
+                var before = service.State.Player.Tavern.Hand.Count;
+                FindChild(rootObject.transform, "AddCardToHandButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(before + 1, service.State.Player.Tavern.Hand.Count);
+                Assert.IsNotNull(FindChild(rootObject.transform, "CardAcquisitionModal"));
             }
             finally
             {
@@ -345,6 +568,23 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             return false;
+        }
+
+        private static MinionInstance TestBoardMinion(string id, string name, params Tribe[] tribes)
+        {
+            return new MinionInstance
+            {
+                InstanceId = id,
+                DefinitionId = id,
+                CardId = id,
+                Name = name,
+                Attack = 2,
+                Health = 2,
+                MaxHealth = 2,
+                TavernTier = 1,
+                Tribes = new List<Tribe>(tribes),
+                Owner = BoardSide.Player
+            };
         }
 
         private static GameCommand BuildDropCommandByReflection(MinionInstance minion, string sourceName, string targetName, int targetIndex = -1)

@@ -437,6 +437,85 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.Log.Any(entry => entry.Title == "RallyResolved" && entry.TargetId.Contains("hand-high")));
         }
 
+        [Test]
+        public void BoardTribeAnalyzer_CountsDualTribeAndAllMinions()
+        {
+            var dragonMurloc = TestInstance("dual", "dual", 0);
+            dragonMurloc.Tribes = new List<Tribe> { Tribe.Dragon, Tribe.Murloc };
+            var all = TestInstance("all", "all", 0);
+            all.Tribes = new List<Tribe> { Tribe.All };
+
+            var distribution = BoardTribeAnalyzer.Build(new[] { dragonMurloc, all });
+
+            Assert.AreEqual(2, distribution[Tribe.Dragon]);
+            Assert.AreEqual(2, distribution[Tribe.Murloc]);
+            Assert.AreEqual(1, distribution[Tribe.Beast]);
+            Assert.AreEqual(10, distribution.Count);
+        }
+
+        [Test]
+        public void BoardTribeAnalyzer_MostCommonUsesNoneForEmptyBoardAndStableTieOrder()
+        {
+            var player = new LocalPlayerState();
+            Assert.AreEqual(Tribe.None, BoardTribeAnalyzer.GetMostCommonTribe(player));
+
+            var dragon = TestInstance("dragon", "dragon", 0);
+            dragon.Tribes = new List<Tribe> { Tribe.Dragon };
+            var murloc = TestInstance("murloc", "murloc", 0);
+            murloc.Tribes = new List<Tribe> { Tribe.Murloc };
+            player.Board.Add(dragon);
+            player.Board.Add(murloc);
+
+            Assert.AreEqual(Tribe.Murloc, BoardTribeAnalyzer.GetMostCommonTribe(player));
+        }
+
+        [Test]
+        public void BoardTribeAnalyzer_SelectOneOfEachTribeDoesNotSelectSameAllMinionMoreThanOnce()
+        {
+            var board = new List<MinionInstance>();
+            for (var index = 0; index < 6; index += 1)
+            {
+                var minion = TestInstance("typed-" + index, "typed-" + index, 0);
+                minion.Tribes = new List<Tribe> { (Tribe)index };
+                board.Add(minion);
+            }
+
+            var all = TestInstance("all", "all", 0);
+            all.Tribes = new List<Tribe> { Tribe.All };
+            board.Add(all);
+
+            var selected = BoardTribeAnalyzer.SelectOneOfEachTribe(board);
+
+            Assert.LessOrEqual(selected.Count, 7);
+            Assert.AreEqual(selected.Count, selected.Select(minion => minion.InstanceId).Distinct().Count());
+            Assert.AreEqual(7, selected.Count);
+        }
+
+        [Test]
+        public void BoardTribeAnalyzer_RefreshRecomputesAfterSummonAndRebornBoardChanges()
+        {
+            var player = new LocalPlayerState();
+            var dragon = TestInstance("dragon", "dragon", 0);
+            dragon.Tribes = new List<Tribe> { Tribe.Dragon };
+            player.Board.Add(dragon);
+
+            BoardTribeAnalyzer.Refresh(player);
+            Assert.AreEqual(1, player.BoardTribeDistribution[Tribe.Dragon]);
+
+            var summoned = TestInstance("summoned", "summoned", 0);
+            summoned.Tribes = new List<Tribe> { Tribe.Beast };
+            player.Board.Add(summoned);
+            BoardTribeAnalyzer.Refresh(player);
+            Assert.AreEqual(1, player.BoardTribeDistribution[Tribe.Beast]);
+
+            var reborn = TestInstance("reborn", "reborn", 0);
+            reborn.Tribes = new List<Tribe> { Tribe.Undead };
+            player.Board[1] = reborn;
+            BoardTribeAnalyzer.Refresh(player);
+            Assert.IsFalse(player.BoardTribeDistribution.ContainsKey(Tribe.Beast));
+            Assert.AreEqual(1, player.BoardTribeDistribution[Tribe.Undead]);
+        }
+
         private static MinionDefinition TestMinion(string id, int tier, int attack, int health, int poolCount)
         {
             return new MinionDefinition

@@ -51,6 +51,7 @@ namespace LearnHearthstone.Adapters.Data
                 BaseHealth = raw.health,
                 Tribes = MapTribes(raw.tribes),
                 Keywords = MapKeywords(raw.keywords),
+                OfficialKeywords = MapKeywords(raw.officialKeywords ?? raw.keywords),
                 Text = raw.text,
                 InPool = raw.inPool == 1,
                 PoolCount = raw.poolCount,
@@ -68,7 +69,8 @@ namespace LearnHearthstone.Adapters.Data
                     BaseAttack = raw.golden.attack,
                     BaseHealth = raw.golden.health,
                     Text = raw.golden.text,
-                    Keywords = MapKeywords(raw.golden.keywords)
+                    Keywords = MapKeywords(raw.golden.keywords),
+                    OfficialKeywords = MapKeywords(raw.golden.officialKeywords ?? raw.officialKeywords ?? raw.golden.keywords ?? raw.keywords)
                 };
             }
 
@@ -169,6 +171,32 @@ namespace LearnHearthstone.Adapters.Data
                 case "抉择": return Keyword.ChooseOne;
                 case "隐藏亡语": return Keyword.HiddenDeathrattle;
                 case "潜行": return Keyword.Stealth;
+                case "Taunt": return Keyword.Taunt;
+                case "DivineShield": return Keyword.DivineShield;
+                case "Poisonous": return Keyword.Poisonous;
+                case "Venomous": return Keyword.Venomous;
+                case "Reborn": return Keyword.Reborn;
+                case "Deathrattle": return Keyword.Deathrattle;
+                case "Battlecry": return Keyword.Battlecry;
+                case "Windfury": return Keyword.Windfury;
+                case "Cleave": return Keyword.Cleave;
+                case "Magnetic": return Keyword.Magnetic;
+                case "Avenge": return Keyword.Avenge;
+                case "StartOfCombat": return Keyword.StartOfCombat;
+                case "EndOfTurn": return Keyword.EndOfTurn;
+                case "Rally": return Keyword.Rally;
+                case "Spellcraft": return Keyword.Spellcraft;
+                case "BloodGem": return Keyword.BloodGem;
+                case "Discover": return Keyword.Discover;
+                case "Refresh": return Keyword.Refresh;
+                case "Aura": return Keyword.Aura;
+                case "Devour": return Keyword.Devour;
+                case "TavernSpell": return Keyword.TavernSpell;
+                case "ChooseOne": return Keyword.ChooseOne;
+                case "HiddenDeathrattle": return Keyword.HiddenDeathrattle;
+                case "Stealth": return Keyword.Stealth;
+                case "Pass": return Keyword.Pass;
+                case "Bounty": return Keyword.Bounty;
                 default: return Keyword.Trigger;
             }
         }
@@ -375,6 +403,7 @@ namespace LearnHearthstone.Adapters.Data
             public int health;
             public List<string> tribes;
             public List<string> keywords;
+            public List<string> officialKeywords;
             public string text;
             public int inPool;
             public int poolCount;
@@ -392,6 +421,7 @@ namespace LearnHearthstone.Adapters.Data
             public int health;
             public string text;
             public List<string> keywords;
+            public List<string> officialKeywords;
         }
     }
 }

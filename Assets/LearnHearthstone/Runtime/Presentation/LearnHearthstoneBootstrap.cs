@@ -2,6 +2,8 @@ using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer;
+using LearnHearthstone.Presentation.TavernTrainer.Realistic;
+using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEngine.InputSystem.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -24,6 +26,8 @@ namespace LearnHearthstone.Presentation
                 canvas = CreateCanvas();
             }
 
+            ConfigureCanvas(canvas);
+
             matchService = MatchService.CreateWithDefaultCatalog();
             advisor = new LocalAdvisorService();
             ShowHub();
@@ -32,10 +36,22 @@ namespace LearnHearthstone.Presentation
         private void ShowHub()
         {
             ClearCanvas();
-            new MainHubView(canvas.transform, ShowTrainer).Build();
+            new MainHubView(canvas.transform, ShowLegacyTrainer, ShowRealisticTrainer, ShowUnityTrainer).Build();
         }
 
-        private void ShowTrainer()
+        private void ShowUnityTrainer()
+        {
+            ClearCanvas();
+            new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+        }
+
+        private void ShowRealisticTrainer()
+        {
+            ClearCanvas();
+            new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+        }
+
+        private void ShowLegacyTrainer()
         {
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
@@ -45,14 +61,26 @@ namespace LearnHearthstone.Presentation
         {
             var canvasObject = new GameObject("LearnHearthstoneCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
-            var created = canvasObject.GetComponent<Canvas>();
-            created.renderMode = RenderMode.ScreenSpaceOverlay;
-            created.pixelPerfect = true;
-            var scaler = canvasObject.GetComponent<CanvasScaler>();
+            return canvasObject.GetComponent<Canvas>();
+        }
+
+        public static void ConfigureCanvas(Canvas target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            target.renderMode = RenderMode.ScreenSpaceOverlay;
+            target.pixelPerfect = false;
+
+            var scaler = UnityTavernUiStyle.EnsureComponent<CanvasScaler>(target.gameObject);
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280, 720);
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
-            return created;
+
+            UnityTavernUiStyle.EnsureComponent<GraphicRaycaster>(target.gameObject);
         }
 
         private void ClearCanvas()

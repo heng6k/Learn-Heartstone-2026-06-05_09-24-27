@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
@@ -628,6 +629,75 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_TargetedSpellRecordsExplicitTargetAndBuffsThatMinion()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("alpha", "Alpha", "ALPHA", 4, 4, Tribe.None, 1));
+            service.State.Player.Board.Add(TestBoardMinion("beta", "Beta", "BETA", 5, 5, Tribe.Quilboar, 1));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
+
+            Assert.AreEqual(4, service.State.Player.Board[0].Attack);
+            Assert.AreEqual(6, service.State.Player.Board[1].Attack);
+            Assert.That(service.State.Player.Tavern.RecruitLog.Last().Message, Does.Contain("-> Beta"));
+        }
+
+        [Test]
+        public void Apply_InvalidExplicitGraverobberTargetDoesNotFallbackOrConsumeCard()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("undead", "Undead", "UNDEAD", 2, 2, Tribe.Undead, 3));
+            service.State.Player.Board.Add(TestBoardMinion("beast", "Beast", "BEAST", 3, 3, Tribe.Beast, 3));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG28_303", CardKind.Minion));
+
+            Assert.Throws<System.InvalidOperationException>(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1)));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count);
+            Assert.IsTrue(service.State.Player.Board.Any(minion => minion.InstanceId == "undead"));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BG28_303"));
+        }
+
+        [Test]
+        public void Apply_InvalidExplicitEyesTargetDoesNotFallbackOrConsumeCard()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Tier = 7;
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("tier-five", "Tier Five", "TIER_FIVE", 5, 5, Tribe.None, 5));
+            service.State.Player.Board.Add(TestBoardMinion("tier-four", "Tier Four", "TIER_FOUR", 4, 4, Tribe.Dragon, 4));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "100601", CardKind.TavernSpell));
+
+            Assert.Throws<System.InvalidOperationException>(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0)));
+
+            Assert.IsFalse(service.State.Player.Board[0].Golden);
+            Assert.IsFalse(service.State.Player.Board[1].Golden);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "100601"));
+        }
+
+        [Test]
+        public void Apply_DestroyedSpellTargetDoesNotTriggerPufferquilFallback()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Tier = 7;
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("puffer", "Pufferquil", "BG25_039", 2, 6, Tribe.Quilboar, 3));
+            service.State.Player.Board.Add(TestBoardMinion("undead", "Undead", "UNDEAD", 2, 2, Tribe.Undead, 3));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "110412", CardKind.TavernSpell));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
+
+            Assert.IsFalse(service.State.Player.Board.Any(minion => minion.InstanceId == "undead"));
+            Assert.IsFalse(service.State.Player.Board.Single(minion => minion.InstanceId == "puffer").Keywords.Contains(Keyword.Venomous));
+        }
+
+        [Test]
         public void Apply_ReplayingReturnedGoldenDoesNotGrantDuplicateTripleReward()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -684,6 +754,31 @@ namespace LearnHearthstone.Tests.EditMode
             clone.InstanceId = "player-" + source.DefinitionId + "-" + suffix;
             clone.Owner = BoardSide.Player;
             return clone;
+        }
+
+        private static MinionInstance TestBoardMinion(string id, string name, string cardId, int attack, int health, Tribe tribe, int tavernTier)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = id,
+                DefinitionId = id,
+                CardId = cardId,
+                Name = name,
+                Attack = attack,
+                BaseAttack = attack,
+                Health = health,
+                MaxHealth = health,
+                BaseHealth = health,
+                TavernTier = tavernTier,
+                Tribes = new List<Tribe> { tribe },
+                Keywords = new List<Keyword>(),
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                Tags = new List<string>(),
+                Owner = BoardSide.Player,
+                CanAttack = true
+            };
         }
     }
 }

@@ -35,6 +35,8 @@ namespace LearnHearthstone.Domain.Models
     {
         public string Source = "TRIPLE";
         public int RewardTier;
+        public string TargetInstanceId;
+        public int RemainingPicks;
         public List<MinionInstance> Options = new List<MinionInstance>();
     }
 
@@ -54,11 +56,39 @@ namespace LearnHearthstone.Domain.Models
         public int UpgradeCost;
         public bool Frozen;
         public int NextTurnBonusGold;
+        public int PendingCombatWinGold;
+        public int PendingCombatDrawGold;
+        public int NextCombatBoardAttack;
+        public int NextCombatBoardHealth;
         public int NextTavernSpellCostReduction;
         public int FreeRefreshes;
         public int DemonFodderRefreshes;
         public int TavernSpellBonusAttack;
         public int TavernSpellBonusHealth;
+        public int TavernSpellsCastThisTurn;
+        public int CardsPlayedThisTurn;
+        public string LastTavernSpellCardId;
+        public int GoldSpentThisTurn;
+        public int BloodGemBonusAttack;
+        public int BloodGemBonusHealth;
+        public int DeepBlueBonusAttack;
+        public int DeepBlueBonusHealth;
+        public int HealthCostRefreshes;
+        public int RefreshBuffAttack;
+        public int RefreshBuffHealth;
+        public int RefreshRightmostBuffAttack;
+        public int RefreshRightmostBuffHealth;
+        public int TemporaryAvengeBeastRewards;
+        public int NextCombatBeetles;
+        public int NextCombatEnemyHealthToOne;
+        public bool NextCombatLeftmostCopiesNearestEnemyStats;
+        public bool NextCombatLeftmostDoubleAttack;
+        public bool NextCombatTriggerMixedMechanics;
+        public int ElementalsPlayedThisTurn;
+        public int BackToBackBonus;
+        public int HelpfulRefreshes;
+        public bool LostLastCombat;
+        public int ElementalHealthBonus;
         public int BeetleAttackBonus;
         public int BeetleHealthBonus;
         public int FutureBallerAttackBonus;
@@ -67,6 +97,9 @@ namespace LearnHearthstone.Domain.Models
         public int EternalKnightDeaths;
         public int AncestralAutomatonSummons;
         public int FriendlyMinionDeathsThisGame;
+        public int DeathrattlesTriggeredThisGame;
+        public int MurgleAttackBattlecries;
+        public int MurgleHealthBattlecries;
         public List<MinionInstance> Shop = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();
@@ -92,6 +125,7 @@ namespace LearnHearthstone.Domain.Models
         public int Armor;
         public TavernState Tavern = new TavernState();
         public List<MinionInstance> Board = new List<MinionInstance>();
+        public Dictionary<Tribe, int> BoardTribeDistribution = new Dictionary<Tribe, int>();
     }
 
     [Serializable]
@@ -118,5 +152,6 @@ namespace LearnHearthstone.Domain.Models
         public List<SearchHint> RecruitHints = new List<SearchHint>();
         public List<CombatLogEntry> CombatLog = new List<CombatLogEntry>();
         public CombatOutput LastResult;
+        public CombatReplay LastReplay;
     }
 }

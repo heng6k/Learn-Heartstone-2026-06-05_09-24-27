@@ -9,11 +9,13 @@ namespace LearnHearthstone.Presentation.MainHub
     {
         private readonly Transform root;
         private readonly Action openTrainer;
+        private readonly Action openUnityTrainer;
 
-        public MainHubView(Transform root, Action openTrainer)
+        public MainHubView(Transform root, Action openTrainer, Action openRealisticTrainer, Action openUnityTrainer = null)
         {
             this.root = root;
             this.openTrainer = openTrainer;
+            this.openUnityTrainer = openUnityTrainer;
         }
 
         public void Build()
@@ -37,12 +39,12 @@ namespace LearnHearthstone.Presentation.MainHub
             gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             gridLayout.constraintCount = 3;
 
-            ModuleButton(grid.transform, "酒馆训练器", "商店、手牌、战场、日志与回放", true, openTrainer);
+            var primaryTrainer = openUnityTrainer ?? openTrainer;
+            ModuleButton(grid.transform, "酒馆训练器", "Unity prefab 化酒馆桌面、卡牌拖拽与战斗回放", primaryTrainer != null, primaryTrainer);
             ModuleButton(grid.transform, "英雄训练", "后续扩展入口", false, null);
             ModuleButton(grid.transform, "阵容库", "后续扩展入口", false, null);
             ModuleButton(grid.transform, "教学场景", "后续扩展入口", false, null);
             ModuleButton(grid.transform, "数据浏览", "后续扩展入口", false, null);
-            ModuleButton(grid.transform, "设置", "后续扩展入口", false, null);
         }
 
         private static void ModuleButton(Transform parent, string title, string body, bool enabled, Action action)

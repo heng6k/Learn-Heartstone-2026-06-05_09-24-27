@@ -78,6 +78,7 @@ namespace LearnHearthstone.Domain.Models
     {
         public BuffScope Scope;
         public Tribe Tribe = Tribe.None;
+        public int TierCap;
         public int Attack;
         public int Health;
         public string SourceId;

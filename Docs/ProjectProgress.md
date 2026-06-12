@@ -203,3 +203,22 @@ Docs/ProjectProgress.md
 - 所有随机逻辑必须通过 seed 控制。
 - 数据兼容逻辑放在 Adapter 层。
 - 后续补随从效果时优先按单个效果文件拆分。
+# Project Scope Notice
+
+This project is single-player Tavern/training only. Duos systems and cards are intentionally out of scope; do not add teammate, Passing, team reward, or BGDUO gameplay behavior. See `PROJECT_SCOPE.md`.
+
+## 2026-06-11 Official Consistency Pass
+
+- Added `Tools/validate-official-battlegrounds-minions.mjs`.
+- Official solo minion hard checks now pass: 248 official solo minions, 248 local solo minions, 0 missing, 0 unexpected, 0 stat/tier mismatches.
+- Restored current official solo entries: `BG31_803`, `BG25_013`, `BG26_529`.
+- Retained but removed from current in-pool solo validation: `BG26_800`, `BG33_809`, `BG31_920`.
+- Added `Docs/OfficialConsistencyRoadmap.md` for remaining deterministic trainer differences and next official-fidelity work.
+
+## 2026-06-11 Official Keyword Consistency Pass
+
+- Added `officialKeywords` as the official/API keyword display channel for minions.
+- Kept local gameplay mechanism keywords and tags separate so Battlecry, Deathrattle, Magnetic, and combat logic continue to use trainer semantics.
+- Added `Tools/sync-official-battlegrounds-minion-keywords.mjs` to refresh local `officialKeywords` from Blizzard `keywordIds`.
+- `Tools/validate-official-battlegrounds-minions.mjs` now treats official keyword mismatches as hard failures.
+- Latest validation: official solo minions 248, local solo minions 248, missing 0, unexpected 0, stat mismatches 0, keyword mismatches 0.

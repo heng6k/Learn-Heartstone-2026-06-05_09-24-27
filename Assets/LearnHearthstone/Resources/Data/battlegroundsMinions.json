@@ -2,7 +2,7 @@
   "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
   "targetReference": "https://hsreplay.net/battlegrounds/minions/",
   "filter": "type=MINION, isBattlegroundsPoolMinion=true, excluding golden cards with battlegroundsNormalDbfId",
-  "count": 279,
+  "count": 280,
   "minions": [
     {
       "id": "bg35_801",
@@ -33,7 +33,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_114",
@@ -66,7 +67,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 0,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Pass"
+      ]
     },
     {
       "id": "bg25_001",
@@ -102,6 +106,10 @@
       "poolCount": 12,
       "effectIds": [
         "combat_reborn_self"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Reborn"
       ]
     },
     {
@@ -136,6 +144,9 @@
       "poolCount": 12,
       "effectIds": [
         "deathrattle_summon_token_1"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
       ]
     },
     {
@@ -166,8 +177,56 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 0,
-      "poolCount": 12
+      "inPool": 1,
+      "poolCount": 12,
+      "officialKeywords": []
+    },
+    {
+      "id": "bg31_803",
+      "cardId": "BG31_803",
+      "dbfId": 116240,
+      "name": "嗡鸣害虫",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语",
+        "嘲讽"
+      ],
+      "text": "嘲讽。亡语：召唤一只2/2的甲虫。",
+      "goldenDbfId": 116241,
+      "golden": {
+        "cardId": "BG31_803_G",
+        "dbfId": 116241,
+        "attack": 2,
+        "health": 2,
+        "text": "嘲讽。亡语：召唤两只2/2的甲虫。",
+        "keywords": [
+          "亡语",
+          "嘲讽"
+        ]
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 12,
+      "effectIds": [
+        "deathrattle_summon_beetle_2_2"
+      ],
+      "tags": [
+        "minion",
+        "tier_1",
+        "deathrattle",
+        "token_summoner",
+        "beetle"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg31_815",
@@ -201,6 +260,9 @@
       "poolCount": 12,
       "effectIds": [
         "future_shop_typed_buff_1_1"
+      ],
+      "officialKeywords": [
+        "Battlecry"
       ]
     },
     {
@@ -234,7 +296,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield",
+        "Windfury"
+      ]
     },
     {
       "id": "bgs_004",
@@ -265,7 +331,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg24_009",
@@ -298,7 +365,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg31_330",
@@ -332,7 +402,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg_gvg_085",
@@ -365,7 +438,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield"
+      ]
     },
     {
       "id": "bg29_611",
@@ -401,6 +478,10 @@
       "poolCount": 12,
       "effectIds": [
         "summon_token_microbot"
+      ],
+      "officialKeywords": [
+        "DivineShield",
+        "Deathrattle"
       ]
     },
     {
@@ -432,7 +513,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg32_236",
@@ -465,7 +549,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield",
+        "Battlecry"
+      ]
     },
     {
       "id": "bg27_004",
@@ -501,7 +589,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg26_800",
@@ -531,7 +623,7 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
+      "inPool": 0,
       "poolCount": 12
     },
     {
@@ -565,7 +657,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg20_301",
@@ -596,7 +692,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem"
+      ]
     },
     {
       "id": "bg32_330",
@@ -629,7 +728,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_140",
@@ -656,7 +756,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_630",
@@ -687,7 +788,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_529",
@@ -719,8 +823,9 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 0,
-      "poolCount": 12
+      "inPool": 1,
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_814",
@@ -751,7 +856,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg32_237",
@@ -784,7 +892,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_104",
@@ -815,7 +924,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg24_715",
@@ -848,7 +960,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Discover"
+      ]
     },
     {
       "id": "bg27_002",
@@ -881,7 +996,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Battlecry"
+      ]
     },
     {
       "id": "bgduo_100",
@@ -914,7 +1033,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Pass"
+      ]
     },
     {
       "id": "bg20_203",
@@ -949,7 +1071,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg34_231",
@@ -976,7 +1102,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg25_011",
@@ -1007,7 +1134,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg25_008",
@@ -1040,7 +1170,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg25_022",
@@ -1073,7 +1204,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Reborn"
+      ]
     },
     {
       "id": "bg31_818",
@@ -1100,7 +1235,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_115",
@@ -1127,7 +1263,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_816",
@@ -1154,7 +1291,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo31_201",
@@ -1185,7 +1323,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_150",
@@ -1218,7 +1357,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Refresh"
+      ]
     },
     {
       "id": "bg26_174",
@@ -1249,7 +1392,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg_ttn_401",
@@ -1280,7 +1424,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_340",
@@ -1315,7 +1460,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg32_170",
@@ -1346,7 +1495,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg32_235",
@@ -1377,7 +1529,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg21_018",
@@ -1408,7 +1561,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_049",
@@ -1435,7 +1589,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg23_009",
@@ -1468,7 +1623,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg26_501",
@@ -1501,7 +1659,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg23_002",
@@ -1532,7 +1693,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg34_920",
@@ -1565,7 +1729,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_805",
@@ -1598,7 +1766,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_801",
@@ -1631,7 +1800,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg32_430",
@@ -1666,7 +1839,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg35_432",
@@ -1701,7 +1879,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bgduo_111",
@@ -1734,7 +1917,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg22_202",
@@ -1761,7 +1948,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg29_300",
@@ -1794,7 +1982,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt"
+      ]
     },
     {
       "id": "bg34_140",
@@ -1825,7 +2016,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg21_015",
@@ -1856,7 +2050,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_241",
@@ -1887,7 +2082,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bgduo_119",
@@ -1918,7 +2116,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg28_303",
@@ -1949,7 +2150,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bgs_131",
@@ -1980,7 +2184,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Venomous"
+      ]
     },
     {
       "id": "bg33_323",
@@ -2011,7 +2218,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg25_010",
@@ -2044,7 +2254,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Reborn"
+      ]
     },
     {
       "id": "bg28_309",
@@ -2077,7 +2291,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Reborn"
+      ]
     },
     {
       "id": "bg30_125",
@@ -2108,7 +2326,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_856",
@@ -2141,7 +2362,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Refresh"
+      ]
     },
     {
       "id": "bg32_842",
@@ -2172,7 +2397,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgs_126",
@@ -2203,7 +2431,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg25_041",
@@ -2235,7 +2464,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg31_859",
@@ -2267,7 +2499,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bgduo_115",
@@ -2300,7 +2535,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Pass"
+      ]
     },
     {
       "id": "bg26_524",
@@ -2333,7 +2571,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Refresh"
+      ]
     },
     {
       "id": "bgs_071",
@@ -2366,7 +2607,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg_bot_911",
@@ -2401,7 +2645,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield",
+        "Magnetic"
+      ]
     },
     {
       "id": "bg26_147",
@@ -2434,7 +2683,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bg25_032",
@@ -2465,7 +2717,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_820",
@@ -2498,7 +2751,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Bounty"
+      ]
     },
     {
       "id": "bgduo_118",
@@ -2529,7 +2786,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo31_207",
@@ -2560,7 +2818,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_810",
@@ -2591,7 +2852,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg26_502",
@@ -2624,7 +2886,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg23_004",
@@ -2659,7 +2924,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg34_312",
@@ -2692,7 +2961,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt"
+      ]
     },
     {
       "id": "bg27_084",
@@ -2727,7 +2999,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Reborn"
+      ]
     },
     {
       "id": "bg25_806",
@@ -2758,7 +3033,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_160",
@@ -2791,7 +3069,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg24_707",
@@ -2826,7 +3108,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg26_159",
@@ -2859,7 +3145,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg34_683",
@@ -2892,7 +3182,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg32_434",
@@ -2927,7 +3221,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg25_039",
@@ -2961,7 +3260,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Venomous"
+      ]
     },
     {
       "id": "bg33_894",
@@ -2996,7 +3298,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_360",
@@ -3027,7 +3333,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgduo33_140",
@@ -3058,7 +3367,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_117",
@@ -3091,7 +3401,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Pass"
+      ]
     },
     {
       "id": "bg35_140",
@@ -3122,7 +3435,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg35_141",
@@ -3153,7 +3469,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg29_816",
@@ -3184,7 +3503,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_107",
@@ -3215,7 +3535,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg24_500",
@@ -3252,7 +3573,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield"
+      ]
     },
     {
       "id": "bg34_638t",
@@ -3285,7 +3610,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg34_636t",
@@ -3316,7 +3645,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg34_634t",
@@ -3349,7 +3682,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg34_637t",
@@ -3380,7 +3717,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg34_635t",
@@ -3413,7 +3754,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg27_005",
@@ -3447,7 +3792,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg_dal_775",
@@ -3480,7 +3826,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_639",
@@ -3511,7 +3861,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_341",
@@ -3546,7 +3897,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg34_604",
@@ -3579,7 +3933,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Stealth",
+        "Rally"
+      ]
     },
     {
       "id": "bg24_018",
@@ -3606,7 +3964,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo31_212",
@@ -3645,7 +4004,13 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield",
+        "Venomous",
+        "Pass"
+      ]
     },
     {
       "id": "bg25_016",
@@ -3684,7 +4049,14 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield",
+        "Windfury",
+        "Reborn",
+        "Rally"
+      ]
     },
     {
       "id": "bg32_880",
@@ -3717,7 +4089,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgduo_112",
@@ -3748,7 +4123,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Avenge"
+      ]
     },
     {
       "id": "bg34_690",
@@ -3779,7 +4157,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgduo31_208",
@@ -3812,7 +4193,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg_deep_015",
@@ -3846,7 +4228,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic",
+        "Reborn"
+      ]
     },
     {
       "id": "bgs_116",
@@ -3879,7 +4265,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Refresh"
+      ]
     },
     {
       "id": "bg32_841",
@@ -3910,7 +4300,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bgduo_110",
@@ -3943,7 +4336,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Refresh"
+      ]
     },
     {
       "id": "bg34_865",
@@ -3976,7 +4373,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Refresh"
+      ]
     },
     {
       "id": "bgs_123",
@@ -4007,7 +4408,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg35_881",
@@ -4040,7 +4444,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_500",
@@ -4074,7 +4482,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_108",
@@ -4109,7 +4518,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Discover",
+        "Pass"
+      ]
     },
     {
       "id": "bg26_525",
@@ -4142,7 +4555,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Discover"
+      ]
     },
     {
       "id": "bg35_151",
@@ -4175,7 +4592,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Refresh"
+      ]
     },
     {
       "id": "bg33_156",
@@ -4208,7 +4628,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg33_155",
@@ -4239,7 +4663,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg29_503",
@@ -4274,7 +4699,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Discover",
+        "Magnetic"
+      ]
     },
     {
       "id": "bg31_178",
@@ -4307,7 +4737,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_175",
@@ -4340,7 +4771,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic",
+        "Rally"
+      ]
     },
     {
       "id": "bg32_172",
@@ -4373,7 +4808,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Magnetic"
+      ]
     },
     {
       "id": "bg35_341",
@@ -4408,7 +4847,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bg26_817",
@@ -4435,7 +4877,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_824",
@@ -4466,7 +4909,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_702",
@@ -4499,7 +4943,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg26_814",
@@ -4530,7 +4977,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg33_822",
@@ -4561,7 +5011,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally",
+        "Bounty"
+      ]
     },
     {
       "id": "bg34_925",
@@ -4592,7 +5046,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg35_921",
@@ -4627,7 +5084,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg30_117",
@@ -4662,7 +5122,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg26_505",
@@ -4695,7 +5158,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bgduo31_209",
@@ -4730,7 +5196,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft",
+        "Pass"
+      ]
     },
     {
       "id": "bg33_319",
@@ -4765,7 +5235,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg35_601",
@@ -4798,7 +5271,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Refresh"
+      ]
     },
     {
       "id": "bgs_078",
@@ -4831,7 +5307,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Rally"
+      ]
     },
     {
       "id": "bgduo31_203",
@@ -4862,7 +5342,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_523",
@@ -4895,7 +5378,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Discover"
+      ]
     },
     {
       "id": "bg26_801",
@@ -4930,7 +5417,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg29_807",
@@ -4961,7 +5453,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg26_802",
@@ -4992,7 +5485,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_682",
@@ -5025,7 +5519,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg28_583",
@@ -5060,7 +5558,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg30_123",
@@ -5093,7 +5595,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem"
+      ]
     },
     {
       "id": "bg32_433",
@@ -5126,7 +5631,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem",
+        "Avenge"
+      ]
     },
     {
       "id": "bg35_433",
@@ -5161,7 +5670,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem",
+        "Reborn"
+      ]
     },
     {
       "id": "bg27_556",
@@ -5194,7 +5707,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_030",
@@ -5225,7 +5739,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg35_143",
@@ -5258,7 +5775,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_137",
@@ -5285,7 +5806,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_632",
@@ -5316,7 +5838,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Avenge",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg29_813",
@@ -5349,7 +5875,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg34_731",
@@ -5382,7 +5911,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg21_014",
@@ -5415,7 +5948,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_104",
@@ -5446,7 +5980,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_120",
@@ -5481,7 +6016,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft",
+        "Pass"
+      ]
     },
     {
       "id": "bg29_840",
@@ -5512,7 +6051,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_012",
@@ -5543,7 +6083,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg_loe_077",
@@ -5576,7 +6119,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg33_888",
@@ -5611,7 +6157,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield",
+        "Battlecry",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg25_354",
@@ -5644,7 +6195,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg28_551",
@@ -5677,7 +6231,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_123",
@@ -5710,7 +6265,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg28_550",
@@ -5745,7 +6301,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Discover"
+      ]
     },
     {
       "id": "bg23_318",
@@ -5776,7 +6336,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_199",
@@ -5809,7 +6372,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg29_862",
@@ -5842,7 +6406,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_icc_901",
@@ -5873,7 +6441,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_694",
@@ -5904,7 +6473,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg30_129",
@@ -5935,7 +6507,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg28_308",
@@ -5966,7 +6539,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_324",
@@ -5997,7 +6571,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Avenge"
+      ]
     },
     {
       "id": "bg34_403",
@@ -6028,7 +6605,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Avenge"
+      ]
     },
     {
       "id": "bg35_334",
@@ -6061,7 +6641,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Avenge"
+      ]
     },
     {
       "id": "bg26_162",
@@ -6094,7 +6677,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg35_882",
@@ -6125,7 +6712,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg34_858",
@@ -6156,7 +6746,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_111",
@@ -6189,7 +6780,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgduo_121",
@@ -6220,7 +6815,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg32_891",
@@ -6253,7 +6851,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg32_873",
@@ -6284,7 +6886,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_152",
@@ -6315,7 +6918,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg21_005",
@@ -6348,7 +6954,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg28_633",
@@ -6382,7 +6989,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_821",
@@ -6416,7 +7024,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo_109",
@@ -6449,7 +7058,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg26_148",
@@ -6482,7 +7094,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Magnetic"
+      ]
     },
     {
       "id": "bg35_890",
@@ -6515,7 +7131,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Magnetic"
+      ]
     },
     {
       "id": "bg33_809",
@@ -6549,7 +7169,7 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
+      "inPool": 0,
       "poolCount": 12
     },
     {
@@ -6585,7 +7205,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg35_701",
@@ -6616,7 +7239,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_821",
@@ -6649,7 +7273,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle",
+        "Bounty"
+      ]
     },
     {
       "id": "bg33_825",
@@ -6680,7 +7309,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Bounty"
+      ]
     },
     {
       "id": "bg34_922",
@@ -6713,7 +7345,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_835",
@@ -6748,7 +7381,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg31_920",
@@ -6782,7 +7418,7 @@
         ]
       },
       "sourceSet": "BATTLEGROUNDS",
-      "inPool": 1,
+      "inPool": 0,
       "poolCount": 12
     },
     {
@@ -6820,7 +7456,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "DivineShield",
+        "Spellcraft"
+      ]
     },
     {
       "id": "bgduo_122",
@@ -6855,7 +7496,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Pass"
+      ]
     },
     {
       "id": "bg35_604",
@@ -6888,7 +7532,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgduo_105",
@@ -6919,7 +7567,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg29_808",
@@ -6954,7 +7605,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle",
+        "Reborn"
+      ]
     },
     {
       "id": "bg35_602",
@@ -6985,7 +7641,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg29_806",
@@ -7016,7 +7673,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_809",
@@ -7047,7 +7705,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg26_867",
@@ -7080,7 +7741,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg23_018",
@@ -7113,7 +7778,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem"
+      ]
     },
     {
       "id": "bg30_121",
@@ -7146,7 +7814,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem"
+      ]
     },
     {
       "id": "bg35_142",
@@ -7177,7 +7848,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_318",
@@ -7210,7 +7882,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Venomous",
+        "Rally"
+      ]
     },
     {
       "id": "bg35_895",
@@ -7245,7 +7921,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_020",
@@ -7278,7 +7955,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Discover"
+      ]
     },
     {
       "id": "bg30_122",
@@ -7309,7 +7990,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgs_041",
@@ -7342,7 +8024,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bgduo31_205",
@@ -7373,7 +8058,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg34_633",
@@ -7406,7 +8094,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle",
+        "TavernSpell"
+      ]
     },
     {
       "id": "bg35_883",
@@ -7437,7 +8130,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg29_841",
@@ -7468,7 +8162,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg25_009",
@@ -7501,7 +8196,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Reborn"
+      ]
     },
     {
       "id": "bg31_835",
@@ -7534,7 +8233,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "Avenge"
+      ]
     },
     {
       "id": "bg34_692",
@@ -7567,7 +8270,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_765",
@@ -7599,7 +8303,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg26_175",
@@ -7630,7 +8337,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield"
+      ]
     },
     {
       "id": "bg32_846",
@@ -7661,7 +8371,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_154",
@@ -7692,7 +8403,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_155",
@@ -7725,7 +8437,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Refresh"
+      ]
     },
     {
       "id": "bg35_153",
@@ -7758,7 +8473,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bgduo33_150",
@@ -7789,7 +8505,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_342",
@@ -7824,7 +8541,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "DivineShield",
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_175",
@@ -7857,7 +8578,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bg31_171",
@@ -7890,7 +8614,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bgduo31_211",
@@ -7925,7 +8652,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic",
+        "Pass"
+      ]
     },
     {
       "id": "bg32_234",
@@ -7956,7 +8687,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_823",
@@ -7987,7 +8719,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Bounty"
+      ]
     },
     {
       "id": "bg31_820",
@@ -8018,7 +8753,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg35_700",
@@ -8049,7 +8785,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg33_920",
@@ -8080,7 +8819,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_926",
@@ -8115,7 +8855,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle",
+        "Rally"
+      ]
     },
     {
       "id": "bg33_923",
@@ -8146,7 +8891,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg31_035",
@@ -8177,7 +8923,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_921",
@@ -8209,7 +8956,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg32_204",
@@ -8240,7 +8988,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bgs_018",
@@ -8271,7 +9022,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_321",
@@ -8302,7 +9056,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg26_157",
@@ -8335,7 +9090,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem",
+        "Avenge"
+      ]
     },
     {
       "id": "bg35_431",
@@ -8370,7 +9129,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Windfury",
+        "BloodGem"
+      ]
     },
     {
       "id": "bgduo31_202",
@@ -8403,7 +9166,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "BloodGem"
+      ]
     },
     {
       "id": "bg35_437",
@@ -8438,7 +9204,11 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle",
+        "BloodGem"
+      ]
     },
     {
       "id": "bg33_893",
@@ -8469,7 +9239,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg26_354",
@@ -8502,7 +9273,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_891",
@@ -8538,7 +9310,8 @@
       "poolCount": 12,
       "effectIds": [
         "tavern_spell_cast_buff_self_1_1"
-      ]
+      ],
+      "officialKeywords": []
     },
     {
       "id": "bg32_822",
@@ -8576,7 +9349,8 @@
       "poolCount": 12,
       "effectIds": [
         "tavern_spell_cast_buff_self_1_1"
-      ]
+      ],
+      "officialKeywords": []
     },
     {
       "id": "bg28_595",
@@ -8609,7 +9383,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg33_240",
@@ -8640,7 +9415,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bgduo_125",
@@ -8673,7 +9451,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg34_319",
@@ -8708,7 +9487,12 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle",
+        "Rally"
+      ]
     },
     {
       "id": "bg31_999",
@@ -8743,7 +9527,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Deathrattle"
+      ]
     },
     {
       "id": "bg34_950",
@@ -8777,7 +9564,8 @@
       "poolCount": 12,
       "effectIds": [
         "card_bought_buff_self_1_1"
-      ]
+      ],
+      "officialKeywords": []
     },
     {
       "id": "bg34_320",
@@ -8808,7 +9596,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     },
     {
       "id": "bg27_016",
@@ -8844,6 +9635,10 @@
       "poolCount": 12,
       "effectIds": [
         "deathrattle_buff_random_friendly_2_2"
+      ],
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
       ]
     },
     {
@@ -8875,7 +9670,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Magnetic"
+      ]
     },
     {
       "id": "bg25_034",
@@ -8906,7 +9704,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Battlecry"
+      ]
     },
     {
       "id": "bg27_514",
@@ -8939,7 +9740,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Spellcraft"
+      ]
     },
     {
       "id": "bg34_322",
@@ -8970,7 +9774,8 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": []
     },
     {
       "id": "bg23_017",
@@ -9008,6 +9813,11 @@
       "poolCount": 12,
       "effectIds": [
         "deathrattle_buff_random_friendly_2_2"
+      ],
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle",
+        "BloodGem"
       ]
     },
     {
@@ -9042,7 +9852,8 @@
       "poolCount": 12,
       "effectIds": [
         "turn_ended_self_buff_1_1"
-      ]
+      ],
+      "officialKeywords": []
     },
     {
       "id": "bg27_017",
@@ -9073,7 +9884,10 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12
+      "poolCount": 12,
+      "officialKeywords": [
+        "Rally"
+      ]
     }
   ]
 }

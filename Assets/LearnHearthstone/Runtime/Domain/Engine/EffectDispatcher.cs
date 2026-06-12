@@ -139,6 +139,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
+            var attack = action.Attack <= 0 ? 1 : action.Attack;
+            var health = action.Health <= 0 ? 1 : action.Health;
+            var tribe = action.Tribe == Tribe.None ? Tribe.Mech : action.Tribe;
+
             context.FriendlyBoard.Add(new MinionInstance
             {
                 CardKind = CardKind.Minion,
@@ -146,12 +150,12 @@ namespace LearnHearthstone.Domain.Engine
                 DefinitionId = action.TokenDefinitionId,
                 CardId = action.TokenDefinitionId.ToUpperInvariant(),
                 Name = action.TokenDefinitionId,
-                BaseAttack = 1,
-                BaseHealth = 1,
-                Attack = 1,
-                Health = 1,
-                MaxHealth = 1,
-                Tribes = new List<Tribe> { Tribe.Mech },
+                BaseAttack = attack,
+                BaseHealth = health,
+                Attack = attack,
+                Health = health,
+                MaxHealth = health,
+                Tribes = new List<Tribe> { tribe },
                 Keywords = new List<Keyword>(),
                 Enchantments = new List<Enchantment>(),
                 Counters = new Dictionary<string, int>(),

@@ -33,6 +33,7 @@ namespace LearnHearthstone.Tests.EditMode
                 "battlecry_add_taunt_self",
                 "combat_reborn_self",
                 "deathrattle_summon_token_1",
+                "deathrattle_summon_beetle_2_2",
                 "deathrattle_buff_random_friendly_2_2",
                 "avenge_2_buff_self_2_2",
                 "card_bought_buff_shop_elemental_1_1",
@@ -43,6 +44,22 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 Assert.AreEqual(effectId, catalog.Get(effectId).Id);
             }
+        }
+
+        [Test]
+        public void DefaultCatalog_ReturnsBuzzingVerminBeetleDeathrattle()
+        {
+            var catalog = MinionEffectCatalog.CreateDefault();
+
+            var effect = catalog.Get("deathrattle_summon_beetle_2_2");
+            var action = effect.Actions[0].Action;
+
+            Assert.AreEqual(MechanicEventType.MinionDied, effect.Triggers[0].EventType);
+            Assert.AreEqual(MechanicActionType.SummonToken, action.Type);
+            Assert.AreEqual("beetle", action.TokenDefinitionId);
+            Assert.AreEqual(2, action.Attack);
+            Assert.AreEqual(2, action.Health);
+            Assert.AreEqual(Tribe.Beast, action.Tribe);
         }
     }
 }

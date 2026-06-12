@@ -1,3 +1,4 @@
+using System.Linq;
 using LearnHearthstone.Adapters.Data;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,7 +14,8 @@ namespace LearnHearthstone.Tests.EditMode
             var spell = catalog.GetBySourceId(34597);
             var tierOneSpells = catalog.GetTavernSpellsForTier(1);
 
-            Assert.AreEqual(57, catalog.All.Count);
+            Assert.AreEqual(73, catalog.All.Count);
+            Assert.AreEqual(69, catalog.All.Count(candidate => candidate.InPool && candidate.Category == "TavernSpell" && !new[] { "119603", "122489", "123553", "127642" }.Contains(candidate.CardNumber)));
             Assert.AreEqual("\u5c16\u5229\u7bad\u77e2", spell.Name);
             Assert.AreEqual("Pointy Arrow", spell.EnglishName);
             Assert.AreEqual("100596", spell.CardNumber);

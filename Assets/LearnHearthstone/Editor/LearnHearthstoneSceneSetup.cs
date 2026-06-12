@@ -13,7 +13,8 @@ namespace LearnHearthstone.Editor
     public static class LearnHearthstoneSceneSetup
     {
         private const string PlayHubRequest = "hub";
-        private const string PlayTrainerRequest = "trainer";
+        private const string PlayTrainerRequest = "unity-trainer";
+        private const string PlayLegacyTrainerRequest = "legacy-trainer";
         private const string PlayRequestPath = "Library/LearnHearthstonePlayRequest.txt";
         private const string PlaySessionKey = "LearnHearthstone.PlayRequest";
 
@@ -43,9 +44,9 @@ namespace LearnHearthstone.Editor
         public static void SmokeTest()
         {
             var catalog = MinionCatalogLoader.LoadFromResources();
-            if (catalog.All.Count != 279)
+            if (catalog.All.Count != 280)
             {
-                throw new System.InvalidOperationException("Expected 279 minions, got " + catalog.All.Count);
+                throw new System.InvalidOperationException("Expected 280 minions, got " + catalog.All.Count);
             }
 
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -69,6 +70,13 @@ namespace LearnHearthstone.Editor
         {
             ConfigureSampleScene();
             RequestPlayMode(PlayTrainerRequest);
+        }
+
+        [MenuItem("Learn Heartstone/Play Legacy Tavern Trainer")]
+        public static void OpenLegacyTrainerAndPlay()
+        {
+            ConfigureSampleScene();
+            RequestPlayMode(PlayLegacyTrainerRequest);
         }
 
         private static void RequestPlayMode(string request)
@@ -108,7 +116,12 @@ namespace LearnHearthstone.Editor
 
             var request = SessionState.GetString(PlaySessionKey, string.Empty);
             SessionState.EraseString(PlaySessionKey);
-            if (request != PlayTrainerRequest)
+            var methodName = request == PlayTrainerRequest
+                ? "ShowUnityTrainer"
+                : request == PlayLegacyTrainerRequest
+                    ? "ShowLegacyTrainer"
+                    : null;
+            if (methodName == null)
             {
                 return;
             }
@@ -116,7 +129,7 @@ namespace LearnHearthstone.Editor
             EditorApplication.delayCall += () =>
             {
                 var bootstrap = Object.FindAnyObjectByType<LearnHearthstoneBootstrap>();
-                var method = typeof(LearnHearthstoneBootstrap).GetMethod("ShowTrainer", BindingFlags.Instance | BindingFlags.NonPublic);
+                var method = typeof(LearnHearthstoneBootstrap).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
                 method?.Invoke(bootstrap, null);
             };
         }

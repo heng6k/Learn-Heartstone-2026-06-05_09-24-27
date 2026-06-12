@@ -1,0 +1,143 @@
+# Unity Component UI Progress
+
+- Started scoped implementation plan for a new Unity-style tavern UI entry.
+- Added `UnityStyle` runtime UI components and a new `UnityTavernTrainerView`.
+- Added a third MainHub option and wired Bootstrap to open the new view.
+- Added focused EditMode tests for the MainHub entry, component zones, buy action, and combat action.
+- Fixed `Application.isPlaying` namespace ambiguity by fully qualifying `UnityEngine.Application.isPlaying`.
+- Verified runtime and test assemblies with Unity bundled compiler; batchmode test runner was blocked by the currently open Unity Editor project lock.
+- Added `Docs/UnityPrefabUiImplementationPlan.md` as the canonical Chinese implementation plan for the full UGUI + prefab migration.
+- Resumed implementation against the document. `rg` was unavailable with Access denied, so duplicate checks used PowerShell `Select-String`.
+- Updated `task_plan.md` for phased prefab UI migration. Current slice: split controller/view and make card component prefab-reference-ready while keeping generated fallback.
+- Split `UnityTavernTrainerController` into its own runtime file and left `UnityTavernTrainerView` as a thin shell.
+- Added optional root prefab loading/injection to `UnityTavernTrainerView`; generated `UnityTavernRoot.prefab` through `UnityTavernPrefabBuilder`.
+- Added serialized-reference card binding to `UnityTavernCardComponent` and created `TavernCard.prefab`, `BoardMinion.prefab`, and `CardSlot.prefab`.
+- Routed zone cards, selected-card detail, and discover cards through the card prefab factory with generated fallback.
+- Added EditMode coverage for root prefab injection, configured card references, and real card prefab binding.
+- Verified Runtime, Editor, and Tests assemblies with Unity bundled `csc`; warnings are the existing JSON loader CS0649 warnings.
+- Unity built-in `-runTests` did not create a result file; the repository `BatchEditModeTestRunner` starts tests, but running without `-quit` hit a Unity project lock in this desktop environment.
+- Added zone prefab loading to `UnityTavernZoneComponent` and routed controller zone creation through `UnityTavernZoneKind`.
+- Extended `UnityTavernPrefabBuilder` to generate `ShopZone.prefab`, `HandZone.prefab`, `PlayerBoardZone.prefab`, and `OpponentBoardZone.prefab`.
+- Added prefab asset checks for zone roots in `UnityTavernTrainerViewTests`.
+- Generated all current prefabs successfully through Unity batchmode: root, card slot, tavern card, board minion, and four zone roots.
+- Phase 4 root-prefab slice is complete; remaining Phase 4 work is serialized zone references for title/subtitle/slot parent/card prefab.
+- Completed Phase 4 serialized zone binding: `UnityTavernZoneComponent` now supports serialized title text, subtitle text, slot parent, slot prefab, tavern card prefab, and board minion prefab references with generated fallback still preserved.
+- Updated `UnityTavernPrefabBuilder` so zone prefabs are generated after card prefabs and bind prefab-authored `UnityZoneHeader`, `UnityZoneTitle`, `UnityZoneSubtitle`, and `UnityZoneCardRow` references.
+- Confirmed zone prefab YAML for `ShopZone`, `HandZone`, `PlayerBoardZone`, and `OpponentBoardZone` includes serialized `titleText`, `subtitleText`, `slotParent`, `slotPrefab`, `tavernCardPrefab`, and `boardMinionPrefab` references.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.`
+- Unity batchmode EditMode tests passed: 248 total, 248 passed, 0 failed. `UnityTavernTrainerViewTests` passed 9/9, including `ZonePrefab_BindsSerializedHeaderAndSlotParent`.
+- Phase 4 is complete. Next slice is Phase 5 drag/drop command mapping on top of prefab-authored zones.
+- Started and completed Phase 5 first implementation slice.
+- Added `UnityTavernDragController.cs` with drag source/drop target enums, pure `TryBuildDropCommand` mapping, card drag behaviour, and drop target behaviour with highlight feedback.
+- Wired `UnityTavernTrainerController` to add drag sources to shop, discover, hand, player board, and opponent board cards; added drop targets to hand slots, player board slots, opponent board slots, and a compact `UnitySellDropZone` in the action panel.
+- `UnityTavernZoneComponent.Build` now accepts optional card/slot configuration callbacks so controller-owned behaviours can be attached without moving command logic into the zone component.
+- Drag/drop commands now map to existing application commands only: `BuyMinion`, `ChooseDiscover`, `PlayMinion`, `MoveBoardMinion`, `MoveOpponentMinion`, and `SellMinion`.
+- Added EditMode coverage for the pure drag command mapper, runtime drag/drop component attachment, and controller drop flow applying buy/play/move/sell through `MatchService`.
+- Unity batchmode EditMode tests passed: 251 total, 251 passed, 0 failed. `UnityTavernTrainerViewTests` passed 12/12, including the three Phase 5 tests.
+- Phase 5 is complete. Next slice is Phase 6 prefab extraction for the right panel, action strip, logs, selected-card detail, discover modal, and toast.
+- Started Phase 6 prefab extraction.
+- Added `UnityTavernRightPanelComponent`, `UnityTavernDiscoverModalComponent`, and `UnityTavernToastComponent` with serialized references and generated fallbacks.
+- Routed `UnityTavernTrainerController` through prefab-backed hosts for `UnityRightPanel`, `UnityDiscoverOverlay`, and `UnityErrorToast`; existing action strip, selected-card detail, advisor, log, discover option, and command binding code remains controller-owned.
+- Extended `UnityTavernPrefabBuilder` to generate `Prefabs/Panels/RightInspectorPanel.prefab`, `Prefabs/Modals/DiscoverModal.prefab`, and `Prefabs/Modals/ErrorToast.prefab`.
+- Confirmed prefab YAML contains serialized references for right panel section hosts, discover option parent, and toast message text.
+- Added EditMode coverage for panel/modal prefab roots, right panel serialized section binding, and runtime use of panel/modal/toast prefabs.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.`
+- Unity batchmode EditMode tests passed: 254 total, 254 passed, 0 failed. `UnityTavernTrainerViewTests` passed 15/15, including the three Phase 6 tests.
+- Phase 6 first slice is complete. Remaining Phase 6 work: extract action strip, selected-card detail/card detail modal, advisor panel, recruit log panel, and combat log panel into smaller prefab-backed components.
+- Added the requested right inspector interaction before continuing Phase 6: `RightInspectorPanel.prefab` now has a prefab-authored header with a `Float`/`Dock` toggle button.
+- `UnityTavernTrainerController` now keeps a `rightPanelFloating` UI state; docked mode keeps the panel in the right layout column, floating mode moves the same panel content to a stretched right-side overlay on the tavern root.
+- The floating panel uses right-side stretch anchors and a shadow while preserving controller-owned action buttons, selected card detail, advisor lines, logs, drag/drop, and all `MatchService.Apply(GameCommand)` command flow.
+- Added EditMode coverage for the right-panel toggle binding and the docked/floating/docked runtime transition.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.`
+- Unity batchmode EditMode tests passed: 256 total, 256 passed, 0 failed. `UnityTavernTrainerViewTests` now includes the two right-panel floating tests.
+- Continued Phase 6 by extracting right-panel child sections into prefab-backed components:
+  - `UnityTavernActionPanelComponent`
+  - `UnityTavernSelectedCardPanelComponent`
+  - `UnityTavernAdvisorPanelComponent`
+  - `UnityTavernLogPanelComponent`
+- Added generated prefabs under `Prefabs/Panels`: `ActionPanel.prefab`, `SelectedCardDetailPanel.prefab`, `AdvisorPanel.prefab`, `RecruitLogPanel.prefab`, and `CombatLogPanel.prefab`.
+- Routed the active right panel build path through these prefab hosts while leaving all action button callbacks, selected-card binding, advisor retrieval, log selection, drag/drop setup, and `MatchService.Apply(GameCommand)` calls in `UnityTavernTrainerController`.
+- Kept older generated right-panel section builders in place as fallback/history while the prefab-backed callbacks are now used by `RightInspectorPanel`.
+- Added EditMode coverage for child panel prefab assets, serialized content containers, runtime usage of the child panel components, and child panel build callbacks.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.`
+- Unity batchmode EditMode tests passed: 257 total, 257 passed, 0 failed.
+- Remaining Phase 6 choices: add `CardDetailModal.prefab`, then proceed to Phase 7 combat replay prefab work.
+- Completed the next two planned UI slices:
+  - Added `CardDetailModal.prefab` support through `UnityTavernCardDetailModalComponent` and routed selected-card detail expansion from the right panel into the modal.
+  - Added `CombatReplayPanel.prefab` support through `UnityTavernCombatReplayPanelComponent`, including replay frame summary, timeline entries, previous/next navigation, close handling, and empty-state handling.
+- Added `TrainerToolsModal.prefab` support through `UnityTavernToolsModalComponent` to expose existing C# commands that were not yet reachable in the Unity-style UI.
+- The tools modal now exposes debug gold, add-card shortcuts, opponent-board add/clear/copy/mirror actions, selected-minion stat/golden patches, combat test run/reset, and test scenario save/load flows while keeping all command execution in `UnityTavernTrainerController`.
+- Corrected selected-card patch routing so opponent-board cards use `UpdateOpponentMinion` and player-side cards continue to use `UpdateMinion`.
+- Updated `UnityTavernPrefabBuilder` to generate `CardDetailModal.prefab`, `TrainerToolsModal.prefab`, and `Prefabs/Replay/CombatReplayPanel.prefab`.
+- Added focused EditMode coverage for the new modal/replay prefabs and for the Unity-style UI command gap pass.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.`
+- Unity batchmode EditMode tests passed: 260 total, 260 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-carddetail-replay-tools-2.xml`.
+- Continued Phase 7 replay polish:
+  - `UnityTavernCombatReplayPanelComponent` now supports play/pause and speed controls, a dedicated event-highlight chip row, timeline windowing around the active frame, event-colored timeline entries, stable 7-slot replay boards, attack-pointer slot tinting, and safer highlight binding for actor/target/damage/death/summon/trigger events.
+  - `UnityTavernTrainerController` now owns replay playback state (`replayPlaying`, speed index, elapsed time) and advances frames in `Update` without changing Domain/Application rules.
+  - `UnityTavernPrefabBuilder` now generates the `UnityCombatReplayEventHighlights` container in `CombatReplayPanel.prefab`.
+  - `UnityTavernTrainerViewTests` now covers the new replay controls and runtime play/speed state transitions.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-replay-playback-2.log`.
+- Unity batchmode EditMode tests passed: 261 total, 261 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-replay-playback.xml`.
+- Phase 7 is complete enough to move into Phase 8: restrained hover/selected/action animation and feedback polish.
+- Started Phase 8 first slice:
+  - `UnityTavernCardComponent` now owns lightweight card feedback: selected state, hover scale, press scale, frame tinting, Outline, and Shadow.
+  - `UnityTavernTrainerController` now forwards the current `selectedInstanceId` into zone/discover/detail card components so selected cards keep a gold highlight after rebuilds.
+  - `UnityTavernDropTargetBehaviour` now exposes/restores a clearer drop highlight with slot tinting and Outline.
+  - `UnityTavernPrefabBuilder` now writes disabled `Outline` and `Shadow` effects into `TavernCard.prefab` and `BoardMinion.prefab`.
+  - `UnityTavernTrainerViewTests` now covers card feedback state transitions, drop target highlight/restore, and card prefab feedback components.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-phase8-feedback.log`.
+- Unity batchmode EditMode tests passed: 262 total, 262 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-phase8-feedback.xml`.
+- Remaining Phase 8 work: command-driven micro feedback for buy/play/sell/refresh and drag ghost polish.
+- Runtime UI self-audit/fix pass after Unity editor screenshots:
+  - Confirmed `Assets/Scenes/SampleScene.unity` is the correct scene and the scene contains `LearnHearthstoneBootstrap`.
+  - Fixed the drag ghost `MissingComponentException` by replacing Unity-object `GetComponent<T>() ?? AddComponent<T>()` paths with explicit `UnityTavernUiStyle.EnsureComponent<T>()`, including the `CanvasGroup` path in `UnityTavernTrainerController.CreateDragGhost`.
+  - Applied the same component-ensure pattern across the UnityStyle card, zone, modal, panel, toast, tools, drag/drop, and shell paths to avoid Unity fake-null component access.
+  - `LearnHearthstoneBootstrap` now configures both existing and newly created canvases for responsive window scaling (`ScaleWithScreenSize`, 1920x1080 reference, 0.5 width/height match) and ensures a `GraphicRaycaster`.
+  - Fixed the editor play menu so `Learn Heartstone/Play Tavern Trainer` opens the new Unity-style trainer; legacy trainer remains available as `Play Legacy Tavern Trainer`.
+  - Added EditMode coverage for pointer-driven drag ghost creation and existing-canvas responsive scaling.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-ui-fix.log`.
+- Unity batchmode EditMode tests passed: 264 total, 264 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-ui-fix.xml`.
+- Right panel drawer update:
+  - Changed the Unity-style right panel from an always-visible docked/floating panel into a collapsed right-edge drawer button (`UnityRightPanelDrawerToggle`) that opens the full right-side floating panel and closes through the panel header button.
+  - Localized visible right-panel/action/tool text to Chinese, including action buttons, selected-card panel, advice/log headings, sell drop zone, and trainer tools modal labels.
+  - Expanded the tavern table background to the right edge now that the right panel no longer reserves fixed layout space.
+  - Updated `RightInspectorPanel.prefab` generation defaults to Chinese labels (`功能面板`, `展开`, `建议`, `招募日志`, `战斗日志`) and rebuilt prefabs.
+  - Added/updated EditMode coverage for collapsed drawer default state, drawer expand/collapse flow, and right-panel tool access through the drawer.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-right-drawer-cn.log`.
+- Unity batchmode EditMode tests passed: 264 total, 264 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-right-drawer-cn-2.xml`.
+- Completed Phase 8 final polish:
+  - Added command-driven success feedback through `UnityFeedbackToast` while preserving the existing red `UnityErrorToast` for failures.
+  - Successful buy, sell, play, refresh, freeze, upgrade, next-turn, combat, replay-test, debug, opponent-edit, scenario, and patch commands now show concise Chinese feedback after `MatchService.Apply(GameCommand)` succeeds.
+  - Localized the remaining visible Unity-style UI strings in discover selection, card detail modal, combat replay overlay, replay controls, replay empty states, event chips, board labels, and prefab default labels.
+  - Kept prefab/object names stable so serialized references and tests continue to bind.
+  - Added EditMode coverage for command success feedback and updated replay control assertions to Chinese.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-phase8-final.log`.
+- Unity batchmode EditMode tests passed: 265 total, 265 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-phase8-final.xml`.
+- Added a Unity-side combat animation layer:
+  - Added `UnityTavernReplayTileAnimator` for procedural UGUI replay motion.
+  - `UnityTavernCombatReplayPanelComponent` now maps `CombatFrame` actor/target/damaged/dead/summoned/trigger/related ids into tile motions.
+  - Attackers pulse and tilt, targets shake/red-flash, death markers fade out from the previous slot when the dead entity disappears from the current snapshot, summons pop in, and trigger/related tiles pulse with highlight colors.
+  - `ApplyAndOpenReplay` now starts playback automatically when a combat replay with multiple frames opens.
+  - Added EditMode coverage for strike/hit/death tile animation and updated combat replay playback expectations for auto-play.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-combat-animation.log`.
+- Unity batchmode EditMode tests passed: 266 total, 266 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-combat-animation.xml`.
+- Completed Phase 9 feature parity and old-entry retirement:
+  - Added a Unity tools card library inside `UnityTavernTrainerController` so the prefab UI now covers the old generated UI's card acquisition flow.
+  - The card library supports minion/tavern-spell mode switching, tier filters, minion tribe filters, compact filtered rows, and direct `AddCardToHand` commands.
+  - Kept all card acquisition mutations routed through `MatchService.Apply(new GameCommand(GameCommandType.AddCardToHand, ...))`.
+  - Changed MainHub so the normal `酒馆训练器` tile opens the Unity prefab UI; separate old generated and Realistic tavern tiles are no longer normal user paths.
+  - Removed the Unity top-bar `旧工具` button, leaving legacy generated UI reachable through the editor menu `Learn Heartstone/Play Legacy Tavern Trainer`.
+  - Removed unused generated fallback builders from `UnityTavernTrainerController` after prefab-backed right panel, discover modal, and toast paths covered them.
+  - Added EditMode coverage for the tools card library filters/add flow, primary MainHub routing, hidden old tavern entries, and the removed Unity legacy button.
+- Unity batchmode prefab rebuild succeeded with `Unity tavern prefabs rebuilt.` Result file: `%TEMP%\learnhs-prefab-builder-phase9.log`.
+- Unity batchmode EditMode tests passed after Phase 9 implementation: 267 total, 267 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-phase9.xml`.
+- Unity batchmode EditMode tests passed again after the follow-up cleanup: 267 total, 267 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-phase9-cleanup.xml`.
+- Added a partial user-acceptance simulation for the Unity prefab UI:
+  - The test starts from `MainHubView`, clicks the normal `酒馆训练器` entry, and verifies it does not route to legacy/Realistic UI.
+  - It buys a shop minion through the visible card action button.
+  - It simulates dragging the hand minion onto the player board.
+  - It opens the right drawer, opens tools, adds an opponent minion, closes the tools modal, starts combat, and verifies the combat replay panel/playback controls appear.
+  - Initial run found a test-side object-name mismatch for the replay play/pause button; corrected the test to use the actual `UnityReplayPlayPauseButton` object.
+- Targeted user-journey EditMode test passed: 1 total, 1 passed, 0 failed. Result file: `%TEMP%\learnhs-userjourney-editmode-2.xml`.
+- Full Unity batchmode EditMode suite passed after user-acceptance simulation: 268 total, 268 passed, 0 failed. Result file: `%TEMP%\learnhs-editmode-user-acceptance.xml`.

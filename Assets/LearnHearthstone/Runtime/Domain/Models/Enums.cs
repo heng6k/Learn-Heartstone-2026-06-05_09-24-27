@@ -27,7 +27,8 @@ namespace LearnHearthstone.Domain.Models
         TavernSpell,
         ChooseOne,
         HiddenDeathrattle,
-        Stealth
+        Stealth,
+        Bounty
     }
 
     public enum Tribe

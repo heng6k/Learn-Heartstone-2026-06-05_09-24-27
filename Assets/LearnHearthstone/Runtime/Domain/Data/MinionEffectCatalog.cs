@@ -252,6 +252,7 @@ namespace LearnHearthstone.Domain.Data
                 },
                 CreateSummonEffect("deathrattle_summon_token_1"),
                 CreateSummonEffect("summon_token_microbot"),
+                CreateSummonEffect("deathrattle_summon_beetle_2_2", "beetle", 2, 2, Tribe.Beast),
                 new MinionEffectDefinition
                 {
                     Id = "card_bought_buff_shop_elemental_1_1",
@@ -307,7 +308,7 @@ namespace LearnHearthstone.Domain.Data
             };
         }
 
-        private static MinionEffectDefinition CreateSummonEffect(string id)
+        private static MinionEffectDefinition CreateSummonEffect(string id, string tokenDefinitionId = "microbot", int attack = 1, int health = 1, Tribe tribe = Tribe.Mech)
         {
             return new MinionEffectDefinition
             {
@@ -321,7 +322,10 @@ namespace LearnHearthstone.Domain.Data
                         Action = new MechanicAction
                         {
                             Type = MechanicActionType.SummonToken,
-                            TokenDefinitionId = "microbot",
+                            TokenDefinitionId = tokenDefinitionId,
+                            Attack = attack,
+                            Health = health,
+                            Tribe = tribe,
                             SourceId = id
                         }
                     }
