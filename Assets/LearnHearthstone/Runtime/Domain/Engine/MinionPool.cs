@@ -11,9 +11,11 @@ namespace LearnHearthstone.Domain.Engine
         private readonly List<MinionDefinition> definitions;
         private readonly Dictionary<string, int> counts = new Dictionary<string, int>();
 
-        public MinionPool(IEnumerable<MinionDefinition> definitions, IDictionary<string, int> initial = null)
+        public MinionPool(IEnumerable<MinionDefinition> definitions, IDictionary<string, int> initial = null, IReadOnlyCollection<Tribe> activeTribes = null)
         {
-            this.definitions = definitions.ToList();
+            this.definitions = definitions
+                .Where(definition => TribeAvailabilityRules.IsMinionAvailable(definition, activeTribes))
+                .ToList();
             definitionsById = this.definitions.ToDictionary(definition => definition.Id, definition => definition);
 
             foreach (var definition in this.definitions)

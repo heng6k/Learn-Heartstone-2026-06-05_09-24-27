@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEditor;
@@ -546,26 +547,17 @@ namespace LearnHearthstone.Editor
                 var panel = new GameObject("UnityTrainerToolsPanel", typeof(RectTransform), typeof(Image));
                 panel.transform.SetParent(root.transform, false);
                 UnityTavernToolsModalComponent.ConfigurePanel(panel.GetComponent<RectTransform>());
-                panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
-
-                var layout = panel.AddComponent<VerticalLayoutGroup>();
-                layout.padding = new RectOffset(18, 18, 16, 18);
-                layout.spacing = 12;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
+                UnityTavernToolsModalComponent.ConfigurePanelChrome(panel);
+                UnityTavernToolsModalComponent.ConfigurePanelLayout(panel);
 
                 var header = new GameObject("UnityTrainerToolsHeader", typeof(RectTransform));
                 header.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(header, 34f);
-                var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
-                headerLayout.spacing = 8;
-                headerLayout.childControlWidth = true;
-                headerLayout.childControlHeight = true;
-                headerLayout.childForceExpandWidth = true;
+                UnityTavernToolsModalComponent.ConfigureHeader(header.transform);
 
                 var title = CreateText("UnityTrainerToolsTitle", header.transform, "训练工具", 20, FontStyle.Bold, TextAnchor.MiddleLeft, UnityTavernUiStyle.Text);
                 UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
                 var close = CreateModalButton("UnityTrainerToolsCloseButton", header.transform, "关闭", 84f, out var closeText);
+                close.targetGraphic = UnityTavernToolsModalComponent.ConfigureCloseButtonChrome(close.gameObject);
 
                 var content = UiFactory.ScrollView("UnityTrainerToolsScroll", panel.transform, UnityTavernUiStyle.Panel, out _);
                 UnityTavernToolsModalComponent.ConfigureContentLayout(content.gameObject);
@@ -632,58 +624,46 @@ namespace LearnHearthstone.Editor
                 var panel = new GameObject("UnityCombatReplayPanelSurface", typeof(RectTransform), typeof(Image));
                 panel.transform.SetParent(root.transform, false);
                 UnityTavernCombatReplayPanelComponent.ConfigurePanel(panel.GetComponent<RectTransform>());
-                panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+                UnityTavernCombatReplayPanelComponent.ConfigurePanelChrome(panel);
 
                 var layout = panel.AddComponent<VerticalLayoutGroup>();
                 layout.padding = new RectOffset(18, 18, 16, 18);
-                layout.spacing = 10;
+                layout.spacing = 12;
                 layout.childControlWidth = true;
                 layout.childControlHeight = true;
 
                 var header = new GameObject("UnityCombatReplayHeader", typeof(RectTransform));
                 header.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(header, 34f);
-                var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
-                headerLayout.spacing = 8;
-                headerLayout.childControlWidth = true;
-                headerLayout.childControlHeight = true;
-                headerLayout.childForceExpandWidth = true;
+                UnityTavernCombatReplayPanelComponent.ConfigureHeader(header.transform);
 
                 var title = CreateText("UnityCombatReplayTitle", header.transform, "战斗回放", 20, FontStyle.Bold, TextAnchor.MiddleLeft, UnityTavernUiStyle.Text);
                 UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
                 var close = CreateModalButton("UnityCombatReplayCloseButton", header.transform, "关闭", 84f, out var closeText);
+                close.targetGraphic = UnityTavernCombatReplayPanelComponent.ConfigureButtonChrome(close.gameObject, UnityTavernUiStyle.PanelRaised, true);
 
                 var summary = CreateText("UnityCombatReplaySummary", panel.transform, "暂无回放帧。", 13, FontStyle.Bold, TextAnchor.MiddleLeft, UnityTavernUiStyle.Gold);
                 UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, 26f);
 
                 var controls = new GameObject("UnityCombatReplayControls", typeof(RectTransform));
                 controls.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(controls, 34f);
-                var controlsLayout = controls.AddComponent<HorizontalLayoutGroup>();
-                controlsLayout.spacing = 8;
-                controlsLayout.childControlWidth = false;
-                controlsLayout.childControlHeight = true;
+                UnityTavernCombatReplayPanelComponent.ConfigureControlsLayout(controls);
 
                 var frame = CreateText("UnityCombatReplayFrameText", panel.transform, "运行战斗后可查看回放帧。", 13, FontStyle.Bold, TextAnchor.MiddleLeft, UnityTavernUiStyle.MutedText);
                 UnityTavernUiStyle.SetPreferredHeight(frame.gameObject, 34f);
 
                 var eventHighlights = new GameObject("UnityCombatReplayEventHighlights", typeof(RectTransform));
                 eventHighlights.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(eventHighlights, 30f);
+                UnityTavernUiStyle.SetPreferredHeight(eventHighlights, 34f);
                 UnityTavernCombatReplayPanelComponent.ConfigureEventHighlightsLayout(eventHighlights);
 
                 var boards = new GameObject("UnityCombatReplayBoards", typeof(RectTransform));
                 boards.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(boards, 170f);
-                var boardsLayout = boards.AddComponent<HorizontalLayoutGroup>();
-                boardsLayout.spacing = 10;
-                boardsLayout.childControlWidth = true;
-                boardsLayout.childControlHeight = true;
-                boardsLayout.childForceExpandWidth = true;
-                boardsLayout.childForceExpandHeight = true;
+                UnityTavernUiStyle.SetPreferredHeight(boards, 360f);
+                UnityTavernUiStyle.SetFlexible(boards, 1f, 1f);
+                UnityTavernCombatReplayPanelComponent.ConfigureBoardsLayout(boards);
 
-                var playerBoard = CreateReplayBoardHost("UnityCombatReplayPlayerBoard", boards.transform);
-                var opponentBoard = CreateReplayBoardHost("UnityCombatReplayOpponentBoard", boards.transform);
+                var opponentBoard = CreateReplayBoardHost("UnityCombatReplayOpponentBoard", boards.transform, BoardSide.Opponent);
+                var playerBoard = CreateReplayBoardHost("UnityCombatReplayPlayerBoard", boards.transform, BoardSide.Player);
 
                 var timeline = UiFactory.ScrollView("UnityCombatReplayTimeline", panel.transform, UnityTavernUiStyle.Panel, out _);
                 UnityTavernCombatReplayPanelComponent.ConfigureTimelineLayout(timeline.gameObject);
@@ -891,19 +871,11 @@ namespace LearnHearthstone.Editor
             return button;
         }
 
-        private static GameObject CreateReplayBoardHost(string name, Transform parent)
+        private static GameObject CreateReplayBoardHost(string name, Transform parent, BoardSide side)
         {
             var board = new GameObject(name, typeof(RectTransform), typeof(Image));
             board.transform.SetParent(parent, false);
-            board.GetComponent<Image>().color = UnityTavernUiStyle.Panel;
-            UnityTavernUiStyle.SetFlexible(board, 1f, 1f);
-            var layout = board.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 8, 8);
-            layout.spacing = 6;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            UnityTavernCombatReplayPanelComponent.ConfigureBoardHost(board, side);
             return board;
         }
 

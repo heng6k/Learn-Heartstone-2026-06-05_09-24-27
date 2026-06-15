@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using UnityEngine;
@@ -66,18 +67,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         public static Sprite LoadSprite(MinionInstance card)
         {
-            if (card == null || string.IsNullOrEmpty(card.ImagePath))
-            {
-                return null;
-            }
-
-            var sprite = Resources.Load<Sprite>(card.ImagePath);
-            if (sprite != null)
-            {
-                return sprite;
-            }
-
-            return Resources.LoadAll<Sprite>(card.ImagePath).FirstOrDefault();
+            return CardImageProvider.LoadSprite(card);
         }
 
         private static void BuildArtwork(Transform parent, MinionInstance card, TavernCardVisualMode mode, Sprite sprite)

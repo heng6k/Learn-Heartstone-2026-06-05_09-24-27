@@ -105,11 +105,57 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static void ConfigurePanel(RectTransform rect)
         {
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchorMin = new Vector2(0.06f, 0.04f);
+            rect.anchorMax = new Vector2(0.94f, 0.96f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(920f, 540f);
+            rect.sizeDelta = Vector2.zero;
             rect.anchoredPosition = Vector2.zero;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        public static void ConfigurePanelChrome(GameObject target)
+        {
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.42f),
+                new Vector2(1.5f, -1.5f));
+        }
+
+        public static void ConfigureHeader(Transform header)
+        {
+            if (header == null)
+            {
+                return;
+            }
+
+            UnityTavernUiStyle.ConfigureSurface(header.gameObject, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureOutline(
+                header.gameObject,
+                new Color(0f, 0f, 0f, 0.32f),
+                new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, 40f);
+
+            var layout = UnityTavernUiStyle.EnsureComponent<HorizontalLayoutGroup>(header.gameObject);
+            layout.padding = new RectOffset(8, 6, 4, 4);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = true;
+
+            var accent = header.Find("UnityCombatReplayHeaderAccent");
+            if (accent == null)
+            {
+                var accentObject = new GameObject("UnityCombatReplayHeaderAccent", typeof(RectTransform), typeof(Image));
+                accentObject.transform.SetParent(header, false);
+                accent = accentObject.transform;
+            }
+
+            accent.SetAsFirstSibling();
+            UnityTavernUiStyle.SetFixedSize(accent.gameObject, 4f, 28f);
+            UnityTavernUiStyle.ConfigureSurface(accent.gameObject, UnityTavernUiStyle.Blue);
         }
 
         public static void ConfigureBoardRow(GameObject target)
@@ -122,8 +168,88 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandHeight = true;
         }
 
+        public static void ConfigureBoardsLayout(GameObject target)
+        {
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(0f, 0f, 0f, 0.34f),
+                new Vector2(1f, -1f));
+
+            var layout = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(target);
+            layout.padding = new RectOffset(8, 8, 8, 8);
+            layout.spacing = 10;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = true;
+        }
+
+        public static void ConfigureControlsLayout(GameObject target)
+        {
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(0f, 0f, 0f, 0.28f),
+                new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetPreferredHeight(target, 40f);
+
+            var layout = UnityTavernUiStyle.EnsureComponent<HorizontalLayoutGroup>(target);
+            layout.padding = new RectOffset(6, 6, 4, 4);
+            layout.spacing = 8;
+            layout.childControlWidth = false;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+        }
+
+        public static void ConfigureBoardHost(GameObject target, BoardSide side)
+        {
+            var surface = side == BoardSide.Player
+                ? new Color(UnityTavernUiStyle.Blue.r * 0.52f, UnityTavernUiStyle.Blue.g * 0.52f, UnityTavernUiStyle.Blue.b * 0.52f, 1f)
+                : new Color(UnityTavernUiStyle.Red.r * 0.52f, UnityTavernUiStyle.Red.g * 0.52f, UnityTavernUiStyle.Red.b * 0.52f, 1f);
+            var accent = side == BoardSide.Player ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Red;
+
+            UnityTavernUiStyle.ConfigureSurface(target, surface);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(accent.r, accent.g, accent.b, 0.48f),
+                new Vector2(1.2f, -1.2f));
+            UnityTavernUiStyle.SetFlexible(target, 1f, 1f);
+
+            var layout = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(target);
+            layout.padding = new RectOffset(8, 8, 7, 8);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var accentTransform = target.transform.Find("UnityReplayBoardAccent");
+            if (accentTransform == null)
+            {
+                var accentObject = new GameObject("UnityReplayBoardAccent", typeof(RectTransform), typeof(Image));
+                accentObject.transform.SetParent(target.transform, false);
+                accentTransform = accentObject.transform;
+            }
+
+            accentTransform.SetAsFirstSibling();
+            UnityTavernUiStyle.SetPreferredHeight(accentTransform.gameObject, 4f);
+            UnityTavernUiStyle.ConfigureSurface(accentTransform.gameObject, accent);
+        }
+
         public static void ConfigureTimelineLayout(GameObject target)
         {
+            var scrollRoot = ResolveScrollRoot(target);
+            if (scrollRoot != null)
+            {
+                UnityTavernUiStyle.ConfigureSurface(scrollRoot, UnityTavernUiStyle.Panel);
+                UnityTavernUiStyle.ConfigureOutline(
+                    scrollRoot,
+                    new Color(0f, 0f, 0f, 0.34f),
+                    new Vector2(1f, -1f));
+            }
+
             var layout = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(target);
             layout.padding = new RectOffset(8, 8, 8, 8);
             layout.spacing = 4;
@@ -143,6 +269,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action cycleSpeed,
             Action close)
         {
+            ConfigureChromeFromReferences();
             ConfigureClose(close);
             var hasFrames = replay != null && replay.Frames != null && replay.Frames.Count > 0;
             var clampedIndex = hasFrames ? Mathf.Clamp(frameIndex, 0, replay.Frames.Count - 1) : 0;
@@ -175,22 +302,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var panel = new GameObject("UnityCombatReplayPanelSurface", typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(transform, false);
             ConfigurePanel(panel.GetComponent<RectTransform>());
-            panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+            ConfigurePanelChrome(panel);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(18, 18, 16, 18);
-            layout.spacing = 10;
+            layout.spacing = 12;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
 
             var header = new GameObject("UnityCombatReplayHeader", typeof(RectTransform));
             header.transform.SetParent(panel.transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(header, 34f);
-            var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
-            headerLayout.spacing = 8;
-            headerLayout.childControlWidth = true;
-            headerLayout.childControlHeight = true;
-            headerLayout.childForceExpandWidth = true;
+            ConfigureHeader(header.transform);
 
             titleText = UiFactory.Label("UnityCombatReplayTitle", header.transform, "战斗回放", 20, FontStyle.Bold);
             titleText.color = UnityTavernUiStyle.Text;
@@ -204,11 +326,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             controlParent = new GameObject("UnityCombatReplayControls", typeof(RectTransform)).transform;
             controlParent.SetParent(panel.transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(controlParent.gameObject, 34f);
-            var controlsLayout = controlParent.gameObject.AddComponent<HorizontalLayoutGroup>();
-            controlsLayout.spacing = 8;
-            controlsLayout.childControlWidth = false;
-            controlsLayout.childControlHeight = true;
+            ConfigureControlsLayout(controlParent.gameObject);
 
             frameText = UiFactory.Label("UnityCombatReplayFrameText", panel.transform, string.Empty, 13, FontStyle.Bold);
             frameText.color = UnityTavernUiStyle.MutedText;
@@ -216,21 +334,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             eventHighlightParent = new GameObject("UnityCombatReplayEventHighlights", typeof(RectTransform)).transform;
             eventHighlightParent.SetParent(panel.transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(eventHighlightParent.gameObject, 30f);
+            UnityTavernUiStyle.SetPreferredHeight(eventHighlightParent.gameObject, 34f);
             ConfigureEventHighlightsLayout(eventHighlightParent.gameObject);
 
             var boards = new GameObject("UnityCombatReplayBoards", typeof(RectTransform));
             boards.transform.SetParent(panel.transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(boards, 170f);
-            var boardsLayout = boards.AddComponent<HorizontalLayoutGroup>();
-            boardsLayout.spacing = 10;
-            boardsLayout.childControlWidth = true;
-            boardsLayout.childControlHeight = true;
-            boardsLayout.childForceExpandWidth = true;
-            boardsLayout.childForceExpandHeight = true;
+            UnityTavernUiStyle.SetPreferredHeight(boards, 360f);
+            UnityTavernUiStyle.SetFlexible(boards, 1f, 1f);
+            ConfigureBoardsLayout(boards);
 
-            playerBoardParent = CreateBoardHost("UnityCombatReplayPlayerBoard", boards.transform).transform;
-            opponentBoardParent = CreateBoardHost("UnityCombatReplayOpponentBoard", boards.transform).transform;
+            opponentBoardParent = CreateBoardHost("UnityCombatReplayOpponentBoard", boards.transform, BoardSide.Opponent).transform;
+            playerBoardParent = CreateBoardHost("UnityCombatReplayPlayerBoard", boards.transform, BoardSide.Player).transform;
 
             timelineParent = UiFactory.ScrollView("UnityCombatReplayTimeline", panel.transform, UnityTavernUiStyle.Panel, out _);
             ConfigureTimelineLayout(timelineParent.gameObject);
@@ -245,6 +359,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
+            closeButton.targetGraphic = ConfigureButtonChrome(closeButton.gameObject, UnityTavernUiStyle.PanelRaised, true);
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => close?.Invoke());
             SetText(closeButtonText, "关闭");
@@ -252,7 +367,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static void ConfigureEventHighlightsLayout(GameObject target)
         {
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(0f, 0f, 0f, 0.24f),
+                new Vector2(1f, -1f));
+
             var layout = UnityTavernUiStyle.EnsureComponent<HorizontalLayoutGroup>(target);
+            layout.padding = new RectOffset(6, 6, 2, 2);
             layout.spacing = 6;
             layout.childControlWidth = false;
             layout.childControlHeight = true;
@@ -276,14 +398,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             ClearChildren(parent);
+            ConfigureControlsLayout(parent.gameObject);
             var hasFrames = replay != null && replay.Frames != null && replay.Frames.Count > 0;
             var lastIndex = hasFrames ? replay.Frames.Count - 1 : 0;
-            CreateButton("UnityReplayFirstButton", parent, "|<", () => setFrame?.Invoke(0), 58f).interactable = hasFrames && frameIndex > 0;
-            CreateButton("UnityReplayPrevButton", parent, "<", () => setFrame?.Invoke(frameIndex - 1), 58f).interactable = hasFrames && frameIndex > 0;
-            CreateButton("UnityReplayPlayPauseButton", parent, replayPlaying ? "暂停" : "播放", () => togglePlayback?.Invoke(), 74f).interactable = hasFrames;
+            CreateButton("UnityReplayFirstButton", parent, "返回", () => setFrame?.Invoke(0), 54f).interactable = hasFrames && frameIndex > 0;
+            CreateButton("UnityReplayPrevButton", parent, "上帧", () => setFrame?.Invoke(frameIndex - 1), 54f).interactable = hasFrames && frameIndex > 0;
+            CreateButton("UnityReplayPlayPauseButton", parent, replayPlaying ? "暂停" : "播放", () => togglePlayback?.Invoke(), 74f, replayPlaying ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Blue, true).interactable = hasFrames;
             CreateButton("UnityReplayNextButton", parent, ">", () => setFrame?.Invoke(frameIndex + 1), 58f).interactable = hasFrames && frameIndex < lastIndex;
             CreateButton("UnityReplayLastButton", parent, ">|", () => setFrame?.Invoke(lastIndex), 58f).interactable = hasFrames && frameIndex < lastIndex;
-            CreateButton("UnityReplaySpeedButton", parent, "速度 " + (string.IsNullOrEmpty(speedLabel) ? "1x" : speedLabel), () => cycleSpeed?.Invoke(), 92f).interactable = hasFrames;
+            CreateButton("UnityReplaySpeedButton", parent, "速度 " + (string.IsNullOrEmpty(speedLabel) ? "1x" : speedLabel), () => cycleSpeed?.Invoke(), 92f, UnityTavernUiStyle.TableLit, false).interactable = hasFrames;
         }
 
         private static void BuildEventHighlights(Transform parent, CombatFrame frame)
@@ -338,6 +461,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             ClearChildren(parent);
+            ConfigureBoardHost(parent.gameObject, side);
             var heading = UiFactory.Label("UnityReplay" + title + "Title", parent, BoardTitleText(title) + " " + (snapshot == null ? "0/7" : snapshot.Minions.Count + "/7"), 13, FontStyle.Bold);
             heading.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(heading.gameObject, 24f);
@@ -372,6 +496,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             tile.transform.SetParent(parent, false);
             var tileColor = ReplayHighlightColor(side, minion.Position, minion.InstanceId, frame);
             tile.GetComponent<Image>().color = tileColor;
+            ConfigureTileOutline(tile, tileColor);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
             var layout = tile.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(5, 5, 5, 5);
@@ -391,6 +516,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             tile.transform.SetParent(parent, false);
             var tileColor = new Color(0.24f, 0.08f, 0.08f, 0.92f);
             tile.GetComponent<Image>().color = tileColor;
+            ConfigureTileOutline(tile, UnityTavernUiStyle.Red);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
             var layout = tile.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(5, 5, 5, 5);
@@ -412,6 +538,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             tile.GetComponent<Image>().color = IsAttackPointer(side, slot, frame)
                 ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.36f)
                 : UnityTavernUiStyle.PanelQuiet;
+            ConfigureTileOutline(tile, IsAttackPointer(side, slot, frame) ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.PanelRaised);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
         }
 
@@ -554,10 +681,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void AddTimelineLine(Transform parent, string text, bool selected, Color eventColor, Action onClick)
         {
-            var button = CreateButton("UnityReplayEventLine", parent, text, onClick, 0f);
-            UnityTavernUiStyle.SetPreferredHeight(button.gameObject, 28f);
+            var lineColor = selected ? UnityTavernUiStyle.Blue : new Color(eventColor.r, eventColor.g, eventColor.b, 0.56f);
+            var button = CreateButton("UnityReplayEventLine", parent, text, onClick, 0f, lineColor, selected);
+            UnityTavernUiStyle.SetPreferredHeight(button.gameObject, 30f);
             var image = button.GetComponent<Image>();
-            image.color = selected ? UnityTavernUiStyle.Blue : new Color(eventColor.r, eventColor.g, eventColor.b, 0.56f);
+            image.color = lineColor;
         }
 
         private static void AddEventChip(Transform parent, string suffix, string text, Color color)
@@ -565,6 +693,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var chip = new GameObject("UnityReplayEventChip-" + suffix, typeof(RectTransform), typeof(Image));
             chip.transform.SetParent(parent, false);
             chip.GetComponent<Image>().color = color;
+            UnityTavernUiStyle.ConfigureOutline(chip, new Color(0f, 0f, 0f, 0.34f), new Vector2(1f, -1f));
             UnityTavernUiStyle.SetFixedSize(chip, Mathf.Clamp(42f + (text ?? string.Empty).Length * 5.5f, 78f, 136f), 26f);
 
             var label = UiFactory.Label("UnityReplayEventChipText-" + suffix, chip.transform, text, 11, FontStyle.Bold);
@@ -591,34 +720,31 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return label;
         }
 
-        private static GameObject CreateBoardHost(string name, Transform parent)
+        private static GameObject CreateBoardHost(string name, Transform parent, BoardSide side)
         {
             var board = new GameObject(name, typeof(RectTransform), typeof(Image));
             board.transform.SetParent(parent, false);
-            board.GetComponent<Image>().color = UnityTavernUiStyle.Panel;
-            UnityTavernUiStyle.SetFlexible(board, 1f, 1f);
-            var layout = board.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 8, 8);
-            layout.spacing = 6;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            ConfigureBoardHost(board, side);
             return board;
         }
 
         private static Button CreateButton(string name, Transform parent, string text, Action onClick, float width)
         {
+            return CreateButton(name, parent, text, onClick, width, UnityTavernUiStyle.PanelRaised, false);
+        }
+
+        private static Button CreateButton(string name, Transform parent, string text, Action onClick, float width, Color backgroundColor, bool emphasized)
+        {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            buttonObject.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+            var image = ConfigureButtonChrome(buttonObject, backgroundColor, emphasized);
             if (width > 0f)
             {
                 UnityTavernUiStyle.SetFixedSize(buttonObject, width, 32f);
             }
 
             var button = buttonObject.GetComponent<Button>();
-            button.targetGraphic = buttonObject.GetComponent<Image>();
+            button.targetGraphic = image;
             button.onClick.AddListener(() => onClick?.Invoke());
             UnityTavernUiStyle.TintSelectable(button, Color.white, new Color(1f, 0.91f, 0.62f, 1f), new Color(0.72f, 0.62f, 0.42f, 1f));
 
@@ -627,6 +753,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             label.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.Stretch(label.rectTransform);
             return button;
+        }
+
+        public static Image ConfigureButtonChrome(GameObject buttonObject, Color backgroundColor, bool emphasized)
+        {
+            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, backgroundColor, true);
+            UnityTavernUiStyle.ConfigureOutline(
+                buttonObject,
+                emphasized
+                    ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.56f)
+                    : new Color(0f, 0f, 0f, 0.26f),
+                new Vector2(1f, -1f));
+            return image;
+        }
+
+        private static void ConfigureTileOutline(GameObject tile, Color color)
+        {
+            UnityTavernUiStyle.ConfigureOutline(
+                tile,
+                new Color(color.r, color.g, color.b, 0.42f),
+                new Vector2(1f, -1f));
         }
 
         private static Color ReplayHighlightColor(BoardSide side, int position, string instanceId, CombatFrame frame)
@@ -794,6 +940,71 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 || opponentBoardParent != null
                 || timelineParent != null
                 || closeButton != null;
+        }
+
+        private void ConfigureChromeFromReferences()
+        {
+            var header = titleText != null ? titleText.transform.parent : closeButton != null ? closeButton.transform.parent : null;
+            if (header != null)
+            {
+                if (header.parent != null)
+                {
+                    ConfigurePanelChrome(header.parent.gameObject);
+                }
+
+                ConfigureHeader(header);
+            }
+
+            if (controlParent != null)
+            {
+                ConfigureControlsLayout(controlParent.gameObject);
+            }
+
+            if (eventHighlightParent != null)
+            {
+                ConfigureEventHighlightsLayout(eventHighlightParent.gameObject);
+            }
+
+            if (playerBoardParent != null)
+            {
+                ConfigureBoardHost(playerBoardParent.gameObject, BoardSide.Player);
+            }
+
+            if (opponentBoardParent != null)
+            {
+                ConfigureBoardHost(opponentBoardParent.gameObject, BoardSide.Opponent);
+            }
+
+            if (playerBoardParent != null && playerBoardParent.parent != null)
+            {
+                ConfigureBoardsLayout(playerBoardParent.parent.gameObject);
+            }
+            else if (opponentBoardParent != null && opponentBoardParent.parent != null)
+            {
+                ConfigureBoardsLayout(opponentBoardParent.parent.gameObject);
+            }
+
+            if (timelineParent != null)
+            {
+                ConfigureTimelineLayout(timelineParent.gameObject);
+            }
+        }
+
+        private static GameObject ResolveScrollRoot(GameObject content)
+        {
+            if (content == null)
+            {
+                return null;
+            }
+
+            var viewport = content.transform.parent;
+            if (viewport == null)
+            {
+                return content;
+            }
+
+            var root = viewport.parent;
+            return root == null ? content : root.gameObject;
         }
 
         private static void SetText(Text label, string value)

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         Detail
     }
 
-    public sealed class UnityTavernCardComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public sealed class UnityTavernCardComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
         public const string TavernCardPrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Card/TavernCard.prefab";
         public const string BoardMinionPrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Card/BoardMinion.prefab";
@@ -45,6 +46,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private MinionInstance card;
         private Action<MinionInstance> selectAction;
         private Action<MinionInstance> primaryAction;
+        private Action<MinionInstance> contextAction;
+        private Action<MinionInstance, RectTransform> hoverStartAction;
+        private Action<MinionInstance> hoverEndAction;
         private Outline feedbackOutline;
         private Shadow feedbackShadow;
         private Color baseFrameColor;
@@ -135,6 +139,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             card = value;
             selectAction = onSelect;
             primaryAction = onPrimaryAction;
+            contextAction = null;
+            hoverStartAction = null;
+            hoverEndAction = null;
             selected = isSelected && card != null;
             hovered = false;
             pressed = false;
@@ -158,6 +165,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ApplyFeedbackVisuals();
         }
 
+        public void ConfigureInteractionCallbacks(
+            Action<MinionInstance> onContextAction,
+            Action<MinionInstance, RectTransform> onHoverStart,
+            Action<MinionInstance> onHoverEnd)
+        {
+            contextAction = onContextAction;
+            hoverStartAction = onHoverStart;
+            hoverEndAction = onHoverEnd;
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (card == null)
@@ -167,10 +184,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             hovered = true;
             ApplyFeedbackVisuals();
+            hoverStartAction?.Invoke(card, transform as RectTransform);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if (card != null)
+            {
+                hoverEndAction?.Invoke(card);
+            }
+
             hovered = false;
             pressed = false;
             ApplyFeedbackVisuals();
@@ -191,6 +214,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             pressed = false;
             ApplyFeedbackVisuals();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (card == null || eventData == null || eventData.button != PointerEventData.InputButton.Right)
+            {
+                return;
+            }
+
+            contextAction?.Invoke(card);
         }
 
         private void BindPrefabReferences(UnityTavernCardMode mode, string primaryActionLabel)
@@ -221,25 +254,36 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             var sprite = LoadSprite(card);
+            var usesFullCardArt = sprite != null;
             if (artImage != null)
             {
-                artImage.sprite = sprite;
-                artImage.preserveAspect = true;
-                artImage.color = sprite == null ? FallbackArtColor(card) : Color.white;
-                artImage.gameObject.SetActive(true);
+                ConfigureArtImage(artImage, sprite, card, mode, mode == UnityTavernCardMode.Board ? 9 : 11);
             }
 
-            SetText(nameText, mode == UnityTavernCardMode.Board ? string.Empty : card.Name);
-            SetText(subtitleText, mode == UnityTavernCardMode.Board ? string.Empty : KeywordText(card));
+            SetTextVisible(nameText, mode != UnityTavernCardMode.Board && !usesFullCardArt, card.Name);
             SetText(kindText, card.CardKind == CardKind.TavernSpell ? "法术" : TribeText(card));
-            SetText(tierText, card.TavernTier.ToString());
-            SetActive(tierBadge, true);
+            if (kindText != null)
+            {
+                kindText.gameObject.SetActive(!usesFullCardArt);
+            }
 
             var isSpell = card.CardKind == CardKind.TavernSpell;
+            ConfigureKeywordLabel(subtitleText, string.Empty, mode, false);
+            SetBadge(tierBadge, tierText, !isSpell || !usesFullCardArt, card.TavernTier.ToString());
+            ConfigurePrefabBadge(
+                tierBadge,
+                tierText,
+                isSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold,
+                new Vector2(0f, 1f),
+                mode == UnityTavernCardMode.Board ? new Vector2(17f, -17f) : new Vector2(19f, -19f),
+                mode);
             SetBadge(attackBadge, attackText, !isSpell, card.Attack.ToString());
+            ConfigurePrefabBadge(attackBadge, attackText, UnityTavernUiStyle.ColorFromHex(0xBA6A31), new Vector2(0f, 0f), new Vector2(19f, 20f), mode);
             SetBadge(healthBadge, healthText, !isSpell, card.Health.ToString());
-            SetBadge(costBadge, costText, isSpell, Math.Max(0, card.Cost).ToString());
-            BindPrimaryButton(primaryActionLabel);
+            ConfigurePrefabBadge(healthBadge, healthText, UnityTavernUiStyle.Red, new Vector2(1f, 0f), new Vector2(-19f, 20f), mode);
+            SetBadge(costBadge, costText, isSpell && !usesFullCardArt, Math.Max(0, card.Cost).ToString());
+            ConfigurePrefabBadge(costBadge, costText, UnityTavernUiStyle.Blue, new Vector2(1f, 0f), new Vector2(-19f, 20f), mode);
+            BindPrimaryButton(primaryActionLabel, usesFullCardArt);
             ApplyFeedbackVisuals();
         }
 
@@ -249,6 +293,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 artImage.sprite = null;
                 artImage.color = UnityTavernUiStyle.PanelQuiet;
+                ClearArtFallbackLabel(artImage.transform);
             }
 
             SetText(nameText, "空位");
@@ -263,7 +308,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ApplyFeedbackVisuals();
         }
 
-        private void BindPrimaryButton(string primaryActionLabel)
+        private void BindPrimaryButton(string primaryActionLabel, bool usesFullCardArt = false)
         {
             var hasAction = card != null && !string.IsNullOrEmpty(primaryActionLabel) && actionButton != null;
             if (actionButton != null)
@@ -283,10 +328,54 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         Color.white,
                         new Color(1f, 0.92f, 0.65f, 1f),
                         new Color(0.78f, 0.66f, 0.42f, 1f));
+                    ConfigurePrimaryActionButton(actionButton, actionText, usesFullCardArt);
                 }
             }
 
             SetText(actionText, hasAction ? primaryActionLabel : string.Empty);
+        }
+
+        private static void ConfigurePrimaryActionButton(Button button, Text label, bool usesFullCardArt)
+        {
+            ConfigurePrimaryActionRect(button.GetComponent<RectTransform>(), usesFullCardArt);
+
+            var image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = usesFullCardArt
+                    ? new Color(0.08f, 0.10f, 0.10f, 0.82f)
+                    : new Color(0.09f, 0.12f, 0.12f, 0.9f);
+            }
+
+            if (label == null)
+            {
+                return;
+            }
+
+            label.fontSize = usesFullCardArt ? 10 : 11;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = usesFullCardArt ? Color.white : UnityTavernUiStyle.Text;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+        }
+
+        private static void ConfigurePrimaryActionRect(RectTransform rect, bool usesFullCardArt)
+        {
+            if (usesFullCardArt)
+            {
+                rect.anchorMin = new Vector2(1f, 1f);
+                rect.anchorMax = new Vector2(1f, 1f);
+                rect.pivot = new Vector2(1f, 1f);
+                rect.sizeDelta = new Vector2(50f, 24f);
+                rect.anchoredPosition = new Vector2(-6f, -6f);
+                return;
+            }
+
+            rect.anchorMin = new Vector2(0.14f, 0f);
+            rect.anchorMax = new Vector2(0.86f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = new Vector2(0f, 4f);
+            rect.offsetMax = new Vector2(0f, 28f);
         }
 
         private bool HasPrefabReferences()
@@ -315,12 +404,89 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             SetText(label, visible ? value : string.Empty);
         }
 
+        private static void ConfigurePrefabBadge(GameObject badge, Text label, Color color, Vector2 anchor, Vector2 position, UnityTavernCardMode mode)
+        {
+            if (badge == null)
+            {
+                return;
+            }
+
+            var rect = UnityTavernUiStyle.EnsureComponent<RectTransform>(badge);
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = mode == UnityTavernCardMode.Board ? new Vector2(30f, 30f) : new Vector2(34f, 34f);
+
+            var image = UnityTavernUiStyle.EnsureComponent<Image>(badge);
+            image.color = new Color(color.r, color.g, color.b, 0.94f);
+            image.raycastTarget = false;
+
+            if (label == null)
+            {
+                return;
+            }
+
+            label.fontSize = mode == UnityTavernCardMode.Board ? 14 : 16;
+            label.fontStyle = FontStyle.Bold;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = Color.white;
+            label.raycastTarget = false;
+            UnityTavernUiStyle.Stretch(label.rectTransform);
+        }
+
+        private static void ConfigureKeywordLabel(Text label, string value, UnityTavernCardMode mode, bool overlayStyle)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            var visible = !string.IsNullOrWhiteSpace(value);
+            label.text = visible ? value : string.Empty;
+            label.gameObject.SetActive(visible);
+            if (!visible)
+            {
+                return;
+            }
+
+            label.fontSize = mode == UnityTavernCardMode.Board ? 8 : 9;
+            label.fontStyle = FontStyle.Bold;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = overlayStyle ? Color.white : UnityTavernUiStyle.Gold;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+
+            var rect = label.rectTransform;
+            rect.anchorMin = new Vector2(0.18f, 0f);
+            rect.anchorMax = new Vector2(0.82f, 0f);
+            rect.offsetMin = new Vector2(0f, overlayStyle ? 34f : 24f);
+            rect.offsetMax = new Vector2(0f, overlayStyle ? 54f : 42f);
+
+            var outline = UnityTavernUiStyle.EnsureComponent<Outline>(label.gameObject);
+            outline.enabled = overlayStyle;
+            outline.effectColor = new Color(0f, 0f, 0f, 0.88f);
+            outline.effectDistance = new Vector2(1f, -1f);
+            outline.useGraphicAlpha = false;
+        }
+
         private static void SetText(Text label, string value)
         {
             if (label != null)
             {
                 label.text = value ?? string.Empty;
             }
+        }
+
+        private static void SetTextVisible(Text label, bool visible, string value)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.text = visible ? value ?? string.Empty : string.Empty;
+            label.gameObject.SetActive(visible);
         }
 
         private static void SetActive(GameObject target, bool active)
@@ -360,38 +526,42 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            BuildArt(mode);
-            BuildHeader(mode);
-            BuildStats(mode);
-
-            if (mode != UnityTavernCardMode.Board)
+            var sprite = BuildArt(mode);
+            var usesFullCardArt = sprite != null;
+            if (!usesFullCardArt)
             {
-                BuildName(mode);
-                BuildSubtitle(mode);
+                BuildHeader(mode);
+                BuildStats(mode);
+
+                if (mode != UnityTavernCardMode.Board)
+                {
+                    BuildName(mode);
+                }
+            }
+            else
+            {
+                BuildFullArtTierBadge(mode);
+                if (card.CardKind != CardKind.TavernSpell)
+                {
+                    BuildStats(mode);
+                }
             }
 
             if (!string.IsNullOrEmpty(primaryActionLabel))
             {
-                BuildPrimaryAction(primaryActionLabel);
+                BuildPrimaryAction(primaryActionLabel, usesFullCardArt);
             }
         }
 
-        private void BuildArt(UnityTavernCardMode mode)
+        private Sprite BuildArt(UnityTavernCardMode mode)
         {
             var art = new GameObject("UnityCardArt", typeof(RectTransform), typeof(Image));
             art.transform.SetParent(transform, false);
-            var rect = art.GetComponent<RectTransform>();
-            rect.anchorMin = mode == UnityTavernCardMode.Board ? new Vector2(0.06f, 0.20f) : new Vector2(0.06f, 0.28f);
-            rect.anchorMax = new Vector2(0.94f, 0.92f);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
 
             var image = art.GetComponent<Image>();
             var sprite = LoadSprite(card);
-            image.sprite = sprite;
-            image.preserveAspect = true;
-            image.color = sprite == null ? FallbackArtColor(card) : Color.white;
-            image.raycastTarget = false;
+            ConfigureArtImage(image, sprite, card, mode, mode == UnityTavernCardMode.Board ? 9 : 11);
+            return sprite;
         }
 
         private void BuildHeader(UnityTavernCardMode mode)
@@ -427,18 +597,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.offsetMax = new Vector2(0f, 72f);
         }
 
-        private void BuildSubtitle(UnityTavernCardMode mode)
-        {
-            var subtitle = UiFactory.Label("UnityCardSubtitle", transform, KeywordText(card), 9, FontStyle.Bold);
-            subtitle.alignment = TextAnchor.MiddleCenter;
-            subtitle.color = UnityTavernUiStyle.Gold;
-            var rect = subtitle.rectTransform;
-            rect.anchorMin = new Vector2(0.08f, 0f);
-            rect.anchorMax = new Vector2(0.92f, 0f);
-            rect.offsetMin = new Vector2(0f, 24f);
-            rect.offsetMax = new Vector2(0f, 42f);
-        }
-
         private void BuildStats(UnityTavernCardMode mode)
         {
             if (card.CardKind == CardKind.TavernSpell)
@@ -451,17 +609,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BadgeAt("UnityHealthBadge", card.Health.ToString(), UnityTavernUiStyle.Red, new Vector2(1f, 0f), new Vector2(-19f, 20f));
         }
 
-        private void BuildPrimaryAction(string primaryActionLabel)
+        private void BuildFullArtTierBadge(UnityTavernCardMode mode)
+        {
+            if (card.CardKind == CardKind.TavernSpell)
+            {
+                return;
+            }
+
+            var tier = Badge("UnityTierBadge", card.TavernTier.ToString(), UnityTavernUiStyle.Gold);
+            var rect = tier.GetComponent<RectTransform>();
+            rect.sizeDelta = mode == UnityTavernCardMode.Board ? new Vector2(30f, 30f) : new Vector2(34f, 34f);
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = mode == UnityTavernCardMode.Board ? new Vector2(17f, -17f) : new Vector2(19f, -19f);
+        }
+
+        private void BuildPrimaryAction(string primaryActionLabel, bool usesFullCardArt)
         {
             var actionButtonObject = new GameObject("UnityCardAction-" + card.InstanceId, typeof(RectTransform), typeof(Image), typeof(Button));
             actionButtonObject.transform.SetParent(transform, false);
             var rect = actionButtonObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.14f, 0f);
-            rect.anchorMax = new Vector2(0.86f, 0f);
-            rect.offsetMin = new Vector2(0f, 4f);
-            rect.offsetMax = new Vector2(0f, 28f);
+            ConfigurePrimaryActionRect(rect, usesFullCardArt);
 
-            actionButtonObject.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.12f, 0.9f);
             var actionButton = actionButtonObject.GetComponent<Button>();
             actionButton.onClick.AddListener(() =>
             {
@@ -474,9 +644,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 new Color(1f, 0.92f, 0.65f, 1f),
                 new Color(0.78f, 0.66f, 0.42f, 1f));
 
-            var label = UiFactory.Label("UnityCardActionText", actionButtonObject.transform, primaryActionLabel, 11, FontStyle.Bold);
-            label.alignment = TextAnchor.MiddleCenter;
-            label.color = UnityTavernUiStyle.Text;
+            var label = UiFactory.Label("UnityCardActionText", actionButtonObject.transform, primaryActionLabel, usesFullCardArt ? 10 : 11, FontStyle.Bold);
+            ConfigurePrimaryActionButton(actionButton, label, usesFullCardArt);
             UnityTavernUiStyle.Stretch(label.rectTransform);
         }
 
@@ -484,7 +653,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var badge = new GameObject(name, typeof(RectTransform), typeof(Image));
             badge.transform.SetParent(transform, false);
-            badge.GetComponent<Image>().color = color;
+            badge.GetComponent<Image>().color = new Color(color.r, color.g, color.b, 0.94f);
             badge.GetComponent<Image>().raycastTarget = false;
             badge.GetComponent<RectTransform>().sizeDelta = new Vector2(34f, 34f);
 
@@ -612,18 +781,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Sprite LoadSprite(MinionInstance minion)
         {
-            if (minion == null || string.IsNullOrEmpty(minion.ImagePath))
-            {
-                return null;
-            }
-
-            var sprite = Resources.Load<Sprite>(minion.ImagePath);
-            if (sprite != null)
-            {
-                return sprite;
-            }
-
-            return Resources.LoadAll<Sprite>(minion.ImagePath).FirstOrDefault();
+            return CardImageProvider.LoadSprite(minion);
         }
 
         private static GameObject ResolveCardPrefab(UnityTavernCardMode mode)
@@ -684,17 +842,100 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return UnityTavernUiStyle.ColorFromHex(0x4A3525);
         }
 
-        private static string KeywordText(MinionInstance minion)
+        private static void ConfigureArtImage(Image image, Sprite sprite, MinionInstance minion, UnityTavernCardMode mode, int fallbackFontSize)
         {
-            var keywords = minion.OfficialKeywords != null && minion.OfficialKeywords.Count > 0
-                ? minion.OfficialKeywords
-                : minion.Keywords;
-            if (keywords == null || keywords.Count == 0)
+            ConfigureArtRect(image.rectTransform, sprite != null, minion, mode);
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.color = sprite == null ? FallbackArtColor(minion) : Color.white;
+            image.raycastTarget = false;
+            image.gameObject.SetActive(true);
+
+            if (sprite == null)
+            {
+                BuildArtFallbackLabel(image.transform, minion, fallbackFontSize);
+                return;
+            }
+
+            ClearArtFallbackLabel(image.transform);
+        }
+
+        private static void ConfigureArtRect(RectTransform rect, bool fullCardArt, MinionInstance minion, UnityTavernCardMode mode)
+        {
+            if (fullCardArt)
+            {
+                var inset = minion != null && minion.CardKind == CardKind.TavernSpell ? 0f : 2f;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(inset, inset);
+                rect.offsetMax = new Vector2(-inset, -inset);
+                return;
+            }
+
+            rect.anchorMin = mode == UnityTavernCardMode.Board ? new Vector2(0.06f, 0.20f) : new Vector2(0.06f, 0.28f);
+            rect.anchorMax = new Vector2(0.94f, 0.92f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        private static void BuildArtFallbackLabel(Transform parent, MinionInstance minion, int fontSize)
+        {
+            ClearArtFallbackLabel(parent);
+            var label = UiFactory.Label("UnityCardArtFallbackText", parent, ArtFallbackText(minion), fontSize, FontStyle.Bold);
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = UnityTavernUiStyle.MutedText;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            label.raycastTarget = false;
+            UnityTavernUiStyle.Stretch(label.rectTransform);
+        }
+
+        private static void ClearArtFallbackLabel(Transform parent)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            var existing = parent.Find("UnityCardArtFallbackText");
+            if (existing == null)
+            {
+                return;
+            }
+
+            if (UnityEngine.Application.isPlaying)
+            {
+                UnityEngine.Object.Destroy(existing.gameObject);
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(existing.gameObject);
+            }
+        }
+
+        private static string ArtFallbackText(MinionInstance minion)
+        {
+            if (minion == null)
             {
                 return string.Empty;
             }
 
-            return string.Join(" ", keywords.Take(3).Select(KeywordName).ToArray());
+            if (minion.CardKind == CardKind.TavernSpell)
+            {
+                return "SPELL";
+            }
+
+            if (minion.Tribes != null)
+            {
+                var tribe = minion.Tribes.FirstOrDefault(value => value != Tribe.None);
+                if (tribe != Tribe.None)
+                {
+                    return tribe.ToString().ToUpperInvariant();
+                }
+            }
+
+            return "CARD";
         }
 
         private static string TribeText(MinionInstance minion)
@@ -724,25 +965,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 case Tribe.Naga: return "纳迦";
                 case Tribe.All: return "全部";
                 default: return "中立";
-            }
-        }
-
-        private static string KeywordName(Keyword keyword)
-        {
-            switch (keyword)
-            {
-                case Keyword.Taunt: return "嘲讽";
-                case Keyword.DivineShield: return "圣盾";
-                case Keyword.Poisonous: return "剧毒";
-                case Keyword.Venomous: return "烈毒";
-                case Keyword.Reborn: return "复生";
-                case Keyword.Deathrattle: return "亡语";
-                case Keyword.Battlecry: return "战吼";
-                case Keyword.Windfury: return "风怒";
-                case Keyword.Magnetic: return "磁力";
-                case Keyword.Stealth: return "潜行";
-                case Keyword.TavernSpell: return "酒馆法术";
-                default: return keyword.ToString();
             }
         }
     }

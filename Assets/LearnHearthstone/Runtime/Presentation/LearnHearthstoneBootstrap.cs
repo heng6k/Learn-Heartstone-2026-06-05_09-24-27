@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer;
 using LearnHearthstone.Presentation.TavernTrainer.Realistic;
@@ -28,7 +31,6 @@ namespace LearnHearthstone.Presentation
 
             ConfigureCanvas(canvas);
 
-            matchService = MatchService.CreateWithDefaultCatalog();
             advisor = new LocalAdvisorService();
             ShowHub();
         }
@@ -42,17 +44,27 @@ namespace LearnHearthstone.Presentation
         private void ShowUnityTrainer()
         {
             ClearCanvas();
+            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub).Build();
+        }
+
+        private void StartUnityTrainer(List<Tribe> activeTribes)
+        {
+            matchService = MatchService.CreateWithDefaultCatalog(
+                setup: new MatchSetupOptions { ActiveTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList() });
+            ClearCanvas();
             new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
         }
 
         private void ShowRealisticTrainer()
         {
+            matchService = MatchService.CreateWithDefaultCatalog();
             ClearCanvas();
             new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
         }
 
         private void ShowLegacyTrainer()
         {
+            matchService = MatchService.CreateWithDefaultCatalog();
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
         }
@@ -66,6 +78,11 @@ namespace LearnHearthstone.Presentation
 
         public static void ConfigureCanvas(Canvas target)
         {
+            ConfigureCanvas(target, UnityTavernLayoutContext.Current());
+        }
+
+        public static void ConfigureCanvas(Canvas target, UnityTavernLayoutContext layout)
+        {
             if (target == null)
             {
                 return;
@@ -78,7 +95,7 @@ namespace LearnHearthstone.Presentation
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.matchWidthOrHeight = layout.IsCompact ? 0f : 0.5f;
 
             UnityTavernUiStyle.EnsureComponent<GraphicRaycaster>(target.gameObject);
         }

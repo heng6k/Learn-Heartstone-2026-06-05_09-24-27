@@ -114,6 +114,7 @@ namespace LearnHearthstone.Adapters.Data
                 case "亡灵": return Tribe.Undead;
                 case "纳迦": return Tribe.Naga;
                 case "全部种族": return Tribe.All;
+                case "中立": return Tribe.None;
                 default: return Tribe.None;
             }
         }

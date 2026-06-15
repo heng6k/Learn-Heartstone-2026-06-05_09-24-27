@@ -6,6 +6,8 @@ namespace LearnHearthstone.Presentation.Common
 {
     public static class UiFactory
     {
+        public const float MinimumButtonHeight = 44f;
+
         private static Font uiFont;
 
         public static GameObject Panel(string name, Transform parent, Color color)
@@ -41,8 +43,15 @@ namespace LearnHearthstone.Presentation.Common
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
             buttonObject.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f);
+            SetMinSize(buttonObject, 0f, MinimumButtonHeight);
             var button = buttonObject.GetComponent<Button>();
             button.onClick.AddListener(onClick);
+            var colors = button.colors;
+            colors.highlightedColor = new Color(0.22f, 0.30f, 0.36f, 1f);
+            colors.pressedColor = new Color(0.10f, 0.14f, 0.18f, 1f);
+            colors.disabledColor = new Color(0.18f, 0.18f, 0.18f, 0.48f);
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
 
             var label = Label(name + "Label", buttonObject.transform, text, 16, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
@@ -134,7 +143,19 @@ namespace LearnHearthstone.Presentation.Common
             }
 
             uiFont = Font.CreateDynamicFontFromOSFont(
-                new[] { "Microsoft YaHei UI", "Microsoft YaHei", "SimHei", "Noto Sans CJK SC", "Arial" },
+                new[]
+                {
+                    "Microsoft YaHei UI",
+                    "Microsoft YaHei",
+                    "SimHei",
+                    "Noto Sans CJK SC",
+                    "Noto Sans SC",
+                    "Source Han Sans SC",
+                    "PingFang SC",
+                    "Hiragino Sans GB",
+                    "Arial Unicode MS",
+                    "Arial"
+                },
                 Mathf.Max(16, size));
             return uiFont;
         }

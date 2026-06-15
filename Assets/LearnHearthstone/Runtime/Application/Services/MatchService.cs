@@ -244,13 +244,15 @@ namespace LearnHearthstone.Application.Services
         private readonly SpellCatalog spellCatalog;
         private readonly MinionEffectCatalog effectCatalog;
         private readonly ITestScenarioRepository scenarioRepository;
+        private readonly List<Tribe> activeTribes;
         private CombatTestSnapshot combatTestSnapshot;
 
-        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed, ITestScenarioRepository scenarioRepository)
+        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, int seed, ITestScenarioRepository scenarioRepository, MatchSetupOptions setup)
         {
             this.catalog = catalog;
             this.spellCatalog = spellCatalog;
             this.scenarioRepository = scenarioRepository ?? new FileTestScenarioRepository();
+            activeTribes = TribeAvailabilityRules.Normalize(setup?.ActiveTribes);
             effectCatalog = MinionEffectCatalog.CreateDefault();
             State = CreateMatch(seed);
         }
@@ -263,9 +265,9 @@ namespace LearnHearthstone.Application.Services
 
         public IReadOnlyList<string> TestScenarioNames => scenarioRepository.ListScenarioNames();
 
-        public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null)
+        public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
         {
-            return new MatchService(MinionCatalogLoader.LoadFromResources(), SpellCatalogLoader.LoadFromResources(), seed, scenarios);
+            return new MatchService(MinionCatalogLoader.LoadFromResources(), SpellCatalogLoader.LoadFromResources(), seed, scenarios, setup);
         }
 
         public MatchState Apply(GameCommand command)
@@ -311,8 +313,11 @@ namespace LearnHearthstone.Application.Services
                 case GameCommandType.AddCardToHand:
                     AddCardToHand(command.CardId, command.CardKind);
                     break;
+                case GameCommandType.DebugCastCard:
+                    CastDebugCard(command.CardId, command.CardKind, command.TargetIndex);
+                    break;
                 case GameCommandType.AddOpponentMinion:
-                    AddOpponentMinion(command.InstanceId);
+                    AddOpponentMinion(command.InstanceId, command.Flag);
                     break;
                 case GameCommandType.RemoveOpponentMinion:
                     RemoveOpponentMinion(command.InstanceId);
@@ -363,6 +368,7 @@ namespace LearnHearthstone.Application.Services
                 Phase = MatchPhase.Tavern,
                 Round = 1,
                 Seed = seed,
+                ActiveTribes = new List<Tribe>(activeTribes),
                 Player = new LocalPlayerState
                 {
                     Health = 30,
@@ -404,6 +410,34 @@ namespace LearnHearthstone.Application.Services
         private void RefreshPlayerBoardTribeDistribution()
         {
             BoardTribeAnalyzer.Refresh(State.Player);
+        }
+
+        private IReadOnlyCollection<Tribe> CurrentActiveTribes()
+        {
+            if (State == null)
+            {
+                return activeTribes;
+            }
+
+            State.ActiveTribes = TribeAvailabilityRules.Normalize(State.ActiveTribes == null || State.ActiveTribes.Count == 0
+                ? activeTribes
+                : State.ActiveTribes);
+            return State.ActiveTribes;
+        }
+
+        private IEnumerable<MinionDefinition> AvailableMinions()
+        {
+            var active = CurrentActiveTribes();
+            return catalog.All.Where(minion => TribeAvailabilityRules.IsMinionAvailable(minion, active));
+        }
+
+        private IEnumerable<TavernSpellDefinition> AvailableTavernSpells()
+        {
+            var active = CurrentActiveTribes();
+            return spellCatalog.All.Where(spell =>
+                spell.InPool &&
+                spell.Category == "TavernSpell" &&
+                TribeAvailabilityRules.IsTavernSpellAvailable(spell, active));
         }
 
         private void BuyMinion(int shopIndex)
@@ -734,28 +768,134 @@ namespace LearnHearthstone.Application.Services
         private void AddCardToHand(string cardId, CardKind cardKind)
         {
             var tavern = State.Player.Tavern;
-            if (string.IsNullOrEmpty(cardId))
-            {
-                throw new InvalidOperationException("Card id is required.");
-            }
-
             if (tavern.Hand.Count >= HandLimit)
             {
                 throw new InvalidOperationException("Hand is full.");
+            }
+
+            var card = CreateDebugCard(cardId, cardKind, "debug-hand-" + State.Round + "-" + tavern.Hand.Count);
+
+            tavern.Hand.Add(card);
+            HandleCardsAddedToHand(1, "debug");
+            ApplyEternalKnightBonuses();
+            ApplyAncestralAutomatonBonuses();
+            ApplyFallenSkyGolemBonuses();
+            AddRecruitLog(RecruitLogType.Buy, "Debug add " + card.Name, tavern.Gold, tavern.Gold);
+        }
+
+        private void CastDebugCard(string cardId, CardKind cardKind, int targetIndex)
+        {
+            if (cardKind == CardKind.Minion)
+            {
+                AddOpponentMinion(cardId);
+                return;
+            }
+
+            if (cardKind != CardKind.TavernSpell && cardKind != CardKind.Spell)
+            {
+                throw new InvalidOperationException("Unsupported card kind: " + cardKind);
+            }
+
+            var tavern = State.Player.Tavern;
+            var spell = CreateDebugCard(cardId, cardKind, "debug-cast-" + State.Round + "-" + tavern.RecruitLog.Count);
+            var resolvedTargetIndex = ResolveDebugSpellTargetIndex(spell, targetIndex);
+            ValidateExplicitPlayTarget(spell, resolvedTargetIndex);
+
+            var spellTargetId = ResolveFriendlyBoardTargetId(resolvedTargetIndex);
+            var spellTargetName = ResolveFriendlyBoardTargetName(resolvedTargetIndex);
+            var dynamicBonus = GetBoardTavernSpellBonus();
+            tavern.TavernSpellBonusAttack += dynamicBonus.Attack;
+            tavern.TavernSpellBonusHealth += dynamicBonus.Health;
+            string spellResult;
+            try
+            {
+                spellResult = TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count), resolvedTargetIndex);
+                for (var extraCast = 0; extraCast < GetTavernSpellExtraCasts(spell); extraCast += 1)
+                {
+                    spellResult += " + " + TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1), resolvedTargetIndex);
+                }
+            }
+            finally
+            {
+                tavern.TavernSpellBonusAttack -= dynamicBonus.Attack;
+                tavern.TavernSpellBonusHealth -= dynamicBonus.Health;
+            }
+
+            HandleSpellCastOnTarget(spell, spellTargetId);
+            if (spell.CardKind == CardKind.TavernSpell)
+            {
+                tavern.TavernSpellsCastThisTurn += 1;
+                tavern.CardsPlayedThisTurn += 1;
+                tavern.LastTavernSpellCardId = spell.CardId;
+                DispatchBoardEvent(MechanicEventType.TavernSpellCast);
+                HandleTavernSpellCastForTierThreeMinions(spell);
+                HandleTavernSpellCastForTierFourMinions(spell);
+                HandleTavernSpellCastForTierFiveMinions(spell);
+                HandleTavernSpellCastForTierSixSevenMinions(spell);
+            }
+
+            HandleCardPlayedForTierFiveMinions(spell);
+            HandleCardPlayedForTierSixSevenMinions(spell);
+            AddRecruitLog(RecruitLogType.Play, "Debug cast " + spell.Name + FormatTargetSuffix(spellTargetName) + " - " + spellResult, tavern.Gold, tavern.Gold);
+        }
+
+        private int ResolveDebugSpellTargetIndex(MinionInstance spell, int targetIndex)
+        {
+            if (targetIndex >= 0 || spell == null || !IsFriendlyBoardTargetedSpell(spell.CardId) || State.Player.Board.Count == 0)
+            {
+                return targetIndex;
+            }
+
+            var candidates = new List<int>();
+            for (var index = 0; index < State.Player.Board.Count; index += 1)
+            {
+                if (IsValidDebugSpellTarget(spell, State.Player.Board[index]))
+                {
+                    candidates.Add(index);
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                return targetIndex;
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 1879 + State.Player.Tavern.RecruitLog.Count);
+            return candidates[rng.NextInt(candidates.Count)];
+        }
+
+        private static bool IsValidDebugSpellTarget(MinionInstance spell, MinionInstance target)
+        {
+            try
+            {
+                ValidateTargetedSpellTarget(spell, target);
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
+
+        private MinionInstance CreateDebugCard(string cardId, CardKind cardKind, string instanceId)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                throw new InvalidOperationException("Card id is required.");
             }
 
             MinionInstance card;
             if (cardKind == CardKind.Minion)
             {
                 var definition = catalog.GetByCardId(cardId);
-                card = MinionFactory.Create(definition, BoardSide.Player, "debug-hand-" + State.Round + "-" + tavern.Hand.Count, false, PoolSource.Debug, 0);
+                card = MinionFactory.Create(definition, BoardSide.Player, instanceId, false, PoolSource.Debug, 0);
             }
             else if (cardKind == CardKind.TavernSpell)
             {
                 var definition = spellCatalog.All.FirstOrDefault(spell => spell.CardNumber == cardId || spell.Id == cardId);
                 if (definition == null && IsBountyCardId(cardId))
                 {
-                    card = CreateGeneratedSpellCard(cardId, "debug-hand-" + State.Round + "-" + tavern.Hand.Count);
+                    card = CreateGeneratedSpellCard(cardId, instanceId);
                     card.PoolSource = PoolSource.Debug;
                     card.OriginPoolSource = PoolSource.Debug;
                 }
@@ -765,14 +905,14 @@ namespace LearnHearthstone.Application.Services
                 }
                 else
                 {
-                    card = MinionFactory.Create(definition, BoardSide.Player, "debug-hand-" + State.Round + "-" + tavern.Hand.Count);
+                    card = MinionFactory.Create(definition, BoardSide.Player, instanceId);
                     card.PoolSource = PoolSource.Debug;
                     card.OriginPoolSource = PoolSource.Debug;
                 }
             }
             else if (cardKind == CardKind.Spell)
             {
-                card = CreateGeneratedSpellCard(cardId, "debug-hand-" + State.Round + "-" + tavern.Hand.Count);
+                card = CreateGeneratedSpellCard(cardId, instanceId);
                 card.PoolSource = PoolSource.Debug;
                 card.OriginPoolSource = PoolSource.Debug;
             }
@@ -781,12 +921,7 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("Unsupported card kind: " + cardKind);
             }
 
-            tavern.Hand.Add(card);
-            HandleCardsAddedToHand(1, "debug");
-            ApplyEternalKnightBonuses();
-            ApplyAncestralAutomatonBonuses();
-            ApplyFallenSkyGolemBonuses();
-            AddRecruitLog(RecruitLogType.Buy, "Debug add " + card.Name, tavern.Gold, tavern.Gold);
+            return card;
         }
 
         private void DispatchSourceEvent(MechanicEventType eventType, MinionInstance source)
@@ -872,7 +1007,7 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(RecruitLogType.Play, "Reorder " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
-        private void AddOpponentMinion(string cardId)
+        private void AddOpponentMinion(string cardId, bool golden = false)
         {
             if (string.IsNullOrEmpty(cardId))
             {
@@ -885,7 +1020,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var definition = catalog.GetByCardId(cardId);
-            var minion = MinionFactory.Create(definition, BoardSide.Opponent, "debug-board-" + State.Round + "-" + State.Opponent.Board.Count, false, PoolSource.Debug, 0);
+            var minion = MinionFactory.Create(definition, BoardSide.Opponent, "debug-board-" + State.Round + "-" + State.Opponent.Board.Count, golden, PoolSource.Debug, 0);
             State.Opponent.Board.Add(minion);
             AddRecruitLog(RecruitLogType.Play, "Debug opponent add " + minion.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
@@ -1383,6 +1518,7 @@ namespace LearnHearthstone.Application.Services
 
             var scenario = scenarioRepository.Load(scenarioName.Trim());
             TestScenarioMapper.ApplyTo(State, scenario);
+            CurrentActiveTribes();
             combatTestSnapshot = null;
             State.LastReplay = null;
             AddRecruitLog(RecruitLogType.Play, "加载测试场景 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
@@ -1864,7 +2000,7 @@ namespace LearnHearthstone.Application.Services
 
             egg.Tags.Remove("doomsday_hatch_ready");
             var rng = new SeededRng(State.Seed + State.Round * 811 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All
+            var candidates = AvailableMinions()
                 .Where(minion => minion.InPool && minion.TavernTier == 6 && minion.Tribes.Contains(Tribe.Dragon))
                 .ToList();
             var options = new List<MinionInstance>();
@@ -3145,8 +3281,8 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomTavernSpellToHand(int maxTier, int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 541 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = spellCatalog.All
-                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier <= Math.Max(1, maxTier))
+            var candidates = AvailableTavernSpells()
+                .Where(spell => spell.TavernTier <= Math.Max(1, maxTier))
                 .ToList();
             AddRandomTavernSpellsFromCandidates(candidates, count, source, rng);
         }
@@ -3154,8 +3290,8 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomTavernSpellToHandByCost(int cost, int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 547 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = spellCatalog.All
-                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.Cost == cost)
+            var candidates = AvailableTavernSpells()
+                .Where(spell => spell.Cost == cost)
                 .ToList();
             AddRandomTavernSpellsFromCandidates(candidates, count, source, rng);
         }
@@ -3565,7 +3701,7 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomTierOneMinionsToHand(int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 431 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == 1).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && minion.TavernTier == 1).ToList();
             var before = State.Player.Tavern.Hand.Count;
             for (var index = 0; index < count && State.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; index += 1)
             {
@@ -3578,21 +3714,21 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomTierMinionsToHand(int tier, int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 673 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == tier && !minion.CardId.StartsWith("BGDUO", StringComparison.Ordinal)).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && minion.TavernTier == tier && !minion.CardId.StartsWith("BGDUO", StringComparison.Ordinal)).ToList();
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
         private void AddRandomTierOneNagaToHand(int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 653 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == 1 && MatchesTribe(minion, Tribe.Naga)).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && minion.TavernTier == 1 && MatchesTribe(minion, Tribe.Naga)).ToList();
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
         private void AddRandomBattlecryMinionToHand(int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 659 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && minion.Keywords.Contains(Keyword.Battlecry)).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && minion.Keywords.Contains(Keyword.Battlecry)).ToList();
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
@@ -3780,8 +3916,8 @@ namespace LearnHearthstone.Application.Services
         private void StartTavernSpellDiscover(string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 661 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = spellCatalog.All
-                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier <= Math.Max(1, State.Player.Tavern.Tier))
+            var candidates = AvailableTavernSpells()
+                .Where(spell => spell.TavernTier <= Math.Max(1, State.Player.Tavern.Tier))
                 .ToList();
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
@@ -3798,7 +3934,7 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomTribeMinionToHand(Tribe tribe, int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 457 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && MatchesTribe(minion, tribe)).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && MatchesTribe(minion, tribe)).ToList();
             var before = State.Player.Tavern.Hand.Count;
             for (var index = 0; index < count && State.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; index += 1)
             {
@@ -3811,7 +3947,7 @@ namespace LearnHearthstone.Application.Services
         private void AddRandomMagneticMechToHand(int count, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 601 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All
+            var candidates = AvailableMinions()
                 .Where(minion => minion.InPool && minion.Tribes.Contains(Tribe.Mech) && minion.Keywords.Contains(Keyword.Magnetic))
                 .ToList();
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
@@ -3855,7 +3991,7 @@ namespace LearnHearthstone.Application.Services
         private void StartTierDiscover(int tier, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 467 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == tier).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && minion.TavernTier == tier).ToList();
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
             {
@@ -3871,7 +4007,7 @@ namespace LearnHearthstone.Application.Services
         private void StartTribeDiscover(Tribe tribe, string source)
         {
             var rng = new SeededRng(State.Seed + State.Round * 587 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All.Where(minion => minion.InPool && MatchesTribe(minion, tribe)).ToList();
+            var candidates = AvailableMinions().Where(minion => minion.InPool && MatchesTribe(minion, tribe)).ToList();
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
             {
@@ -3898,7 +4034,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var rng = new SeededRng(State.Seed + State.Round * 593 + State.Player.Tavern.RecruitLog.Count);
-            var candidates = catalog.All
+            var candidates = AvailableMinions()
                 .Where(minion => minion.InPool && minion.Tribes.Contains(Tribe.Mech))
                 .ToList();
             if (candidates.Count == 0)
@@ -4702,10 +4838,10 @@ namespace LearnHearthstone.Application.Services
         private DiscoverState CreateTripleDiscover()
         {
             var rewardTier = Math.Min(TavernRules.MaxTavernTier, State.Player.Tavern.Tier + 1);
-            var candidates = catalog.All.Where(definition => definition.InPool && definition.TavernTier == rewardTier).ToList();
+            var candidates = AvailableMinions().Where(definition => definition.InPool && definition.TavernTier == rewardTier).ToList();
             if (candidates.Count < 3)
             {
-                candidates = catalog.All.Where(definition => definition.InPool && definition.TavernTier <= rewardTier).ToList();
+                candidates = AvailableMinions().Where(definition => definition.InPool && definition.TavernTier <= rewardTier).ToList();
             }
 
             var rng = new SeededRng(State.Seed + State.Round * 7919 + State.Player.Tavern.RecruitLog.Count);
@@ -4723,7 +4859,7 @@ namespace LearnHearthstone.Application.Services
 
         private ShopState CreateShopFromPool(IDictionary<string, int> snapshot, int tier, int size, int seed, string suffix)
         {
-            var pool = new MinionPool(catalog.All, snapshot);
+            var pool = new MinionPool(catalog.All, snapshot, CurrentActiveTribes());
             var rng = new SeededRng(seed);
             var spell = DrawTavernSpell(tier, rng);
             var definitions = pool.DrawShop(tier, size, rng);
@@ -4745,7 +4881,9 @@ namespace LearnHearthstone.Application.Services
 
         private TavernSpellDefinition DrawTavernSpell(int tier, SeededRng rng)
         {
-            var candidates = spellCatalog.GetTavernSpellsForTier(tier);
+            var candidates = AvailableTavernSpells()
+                .Where(spell => spell.TavernTier <= tier)
+                .ToList();
             return candidates.Count == 0 ? null : rng.Pick(candidates);
         }
 
@@ -4799,7 +4937,7 @@ namespace LearnHearthstone.Application.Services
 
         private Dictionary<string, int> ReleaseShopToPool()
         {
-            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool);
+            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool, CurrentActiveTribes());
             foreach (var minion in State.Player.Tavern.Shop)
             {
                 if (minion != null && minion.PoolCopiesHeld > 0)
@@ -4813,7 +4951,7 @@ namespace LearnHearthstone.Application.Services
 
         private void ReleaseMinionToPool(MinionInstance minion)
         {
-            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool);
+            var pool = new MinionPool(catalog.All, State.Player.Tavern.Pool, CurrentActiveTribes());
             if (minion.PoolCopiesHeld > 0)
             {
                 pool.Release(minion.DefinitionId, minion.PoolCopiesHeld);

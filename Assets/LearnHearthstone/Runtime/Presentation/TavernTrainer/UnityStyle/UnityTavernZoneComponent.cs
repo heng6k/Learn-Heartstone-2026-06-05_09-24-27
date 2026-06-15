@@ -32,6 +32,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         [SerializeField] private GameObject slotPrefab;
         [SerializeField] private GameObject tavernCardPrefab;
         [SerializeField] private GameObject boardMinionPrefab;
+        [SerializeField] private UnityTavernZoneKind zoneKind;
 
         private Transform row;
 
@@ -49,11 +50,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 zoneObject.AddComponent<Image>();
             }
 
-            if (zoneObject.GetComponent<UnityTavernZoneComponent>() == null)
+            var component = zoneObject.GetComponent<UnityTavernZoneComponent>();
+            if (component == null)
             {
-                zoneObject.AddComponent<UnityTavernZoneComponent>();
+                component = zoneObject.AddComponent<UnityTavernZoneComponent>();
             }
 
+            component.zoneKind = kind;
             return zoneObject;
         }
 
@@ -83,30 +86,38 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onSelect,
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard = null,
-            Action<GameObject, int> configureSlot = null)
+            Action<GameObject, int> configureSlot = null,
+            UnityTavernLayoutContext? layoutContext = null)
         {
+            var resolvedLayout = layoutContext ?? UnityTavernLayoutContext.Current();
             var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
-            image.color = UnityTavernUiStyle.Panel;
+            image.color = ZoneSurfaceColor(zoneKind);
             image.raycastTarget = false;
+            ConfigureZoneFrame();
 
             if (HasPrefabReferences())
             {
-                BuildPrefabZone(title, subtitle, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot);
+                var rootLayout = GetComponent<VerticalLayoutGroup>();
+                if (rootLayout != null)
+                {
+                    ConfigureRootLayout(rootLayout, resolvedLayout);
+                }
+
+                BuildPrefabZone(title, subtitle, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout);
                 return;
             }
 
             ClearChildren();
 
             var vertical = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(gameObject);
-            vertical.padding = new RectOffset(12, 12, 10, 12);
-            vertical.spacing = 8;
+            ConfigureRootLayout(vertical, resolvedLayout);
             vertical.childControlWidth = true;
             vertical.childControlHeight = true;
             vertical.childForceExpandWidth = true;
             vertical.childForceExpandHeight = false;
 
             BuildHeader(title, subtitle);
-            BuildGeneratedRow(cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot);
+            BuildGeneratedRow(cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout);
         }
 
         private void BuildPrefabZone(
@@ -119,14 +130,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onSelect,
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
-            Action<GameObject, int> configureSlot)
+            Action<GameObject, int> configureSlot,
+            UnityTavernLayoutContext layout)
         {
             SetText(titleText, title);
             SetText(subtitleText, subtitle);
+            ConfigureHeaderVisuals(ResolveHeader(), titleText, subtitleText);
 
             var parent = slotParent != null ? slotParent : transform;
             ClearChildren(parent);
-            BuildSlots(parent, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot);
+            BuildSlots(parent, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layout);
         }
 
         private void BuildHeader(string title, string subtitle)
@@ -148,6 +161,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var subtitleLabel = UiFactory.Label("UnityZoneSubtitle", header.transform, subtitle, 11, FontStyle.Bold);
             subtitleLabel.color = UnityTavernUiStyle.MutedText;
             subtitleLabel.alignment = TextAnchor.MiddleRight;
+            ConfigureHeaderVisuals(header.transform, titleLabel, subtitleLabel);
         }
 
         private void BuildGeneratedRow(
@@ -158,21 +172,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onSelect,
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
-            Action<GameObject, int> configureSlot)
+            Action<GameObject, int> configureSlot,
+            UnityTavernLayoutContext layoutContext)
         {
             var rowObject = new GameObject("UnityZoneCardRow", typeof(RectTransform));
             rowObject.transform.SetParent(transform, false);
             UnityTavernUiStyle.SetFlexible(rowObject, 1f, 1f);
             row = rowObject.transform;
 
+            var metrics = layoutContext.ZoneMetrics(zoneKind, cardMode);
             var layout = rowObject.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 8;
+            layout.spacing = metrics.SlotSpacing;
             layout.childControlWidth = false;
             layout.childControlHeight = false;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            BuildSlots(row, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot);
+            BuildSlots(row, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layoutContext);
         }
 
         private void BuildSlots(
@@ -184,14 +200,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onSelect,
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
-            Action<GameObject, int> configureSlot)
+            Action<GameObject, int> configureSlot,
+            UnityTavernLayoutContext layout)
         {
+            var metrics = layout.ZoneMetrics(zoneKind, cardMode);
+            ConfigureSlotParent(parent, metrics);
+            ConfigureRowVisuals(parent);
+
             var totalSlots = stableSlotCount > 0 ? stableSlotCount : cards.Count;
             for (var index = 0; index < totalSlots; index += 1)
             {
                 var card = index < cards.Count ? cards[index] : null;
                 var slot = CreateSlot(parent, gameObject.name + "Slot-" + index, cardMode, card == null);
-                UnityTavernUiStyle.SetFixedSize(slot, cardMode == UnityTavernCardMode.Board ? 118f : 136f, cardMode == UnityTavernCardMode.Board ? 132f : 190f);
+                UnityTavernUiStyle.SetFixedSize(slot, metrics.SlotSize.x, metrics.SlotSize.y);
                 configureSlot?.Invoke(slot, index);
 
                 var fallbackName = card == null ? "UnityEmptySlotCard" : "UnityCardHost-" + card.InstanceId;
@@ -208,6 +229,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     card == null ? null : actionLabel?.Invoke(card),
                     onSelect,
                     onPrimaryAction);
+                cardObject.transform.localScale = new Vector3(metrics.CardScale, metrics.CardScale, 1f);
                 configureCard?.Invoke(cardObject, card, index);
             }
         }
@@ -222,7 +244,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             slot.name = name;
             slot.transform.SetParent(parent, false);
             var image = UnityTavernUiStyle.EnsureComponent<Image>(slot);
-            image.color = empty ? new Color(0.05f, 0.065f, 0.065f, 0.62f) : Color.clear;
+            image.color = SlotColor(zoneKind, empty);
             image.raycastTarget = false;
             if (slot.GetComponent<RectTransform>() == null)
             {
@@ -235,6 +257,171 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private GameObject CardPrefabFor(UnityTavernCardMode cardMode)
         {
             return cardMode == UnityTavernCardMode.Board ? boardMinionPrefab : tavernCardPrefab;
+        }
+
+        private static void ConfigureRootLayout(VerticalLayoutGroup layout, UnityTavernLayoutContext context)
+        {
+            if (context.IsCompact)
+            {
+                layout.padding = new RectOffset(8, 8, 6, 8);
+                layout.spacing = 4;
+                return;
+            }
+
+            layout.padding = new RectOffset(12, 12, 10, 12);
+            layout.spacing = 8;
+        }
+
+        private static void ConfigureSlotParent(Transform parent, UnityTavernZoneMetrics metrics)
+        {
+            var layout = parent.GetComponent<HorizontalLayoutGroup>();
+            if (layout == null)
+            {
+                return;
+            }
+
+            layout.spacing = metrics.SlotSpacing;
+            layout.childControlWidth = false;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+        }
+
+        private void ConfigureZoneFrame()
+        {
+            var outline = UnityTavernUiStyle.EnsureComponent<Outline>(gameObject);
+            var accent = ZoneAccentColor(zoneKind);
+            outline.enabled = true;
+            outline.effectColor = new Color(accent.r, accent.g, accent.b, 0.48f);
+            outline.effectDistance = new Vector2(2f, -2f);
+            outline.useGraphicAlpha = false;
+        }
+
+        private void ConfigureHeaderVisuals(Transform header, Text title, Text subtitle)
+        {
+            if (header == null)
+            {
+                return;
+            }
+
+            var headerImage = UnityTavernUiStyle.EnsureComponent<Image>(header.gameObject);
+            headerImage.color = ZoneHeaderColor(zoneKind);
+            headerImage.raycastTarget = false;
+
+            var layout = header.GetComponent<HorizontalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.padding = new RectOffset(10, 0, 0, 0);
+            }
+
+            var mark = header.Find("UnityZoneAccentMark") as RectTransform;
+            if (mark == null)
+            {
+                var markObject = new GameObject("UnityZoneAccentMark", typeof(RectTransform), typeof(Image));
+                markObject.transform.SetParent(header, false);
+                mark = markObject.GetComponent<RectTransform>();
+            }
+
+            mark.SetSiblingIndex(0);
+            UnityTavernUiStyle.SetFixedSize(mark.gameObject, 5f, 20f);
+            var markElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(mark.gameObject);
+            markElement.ignoreLayout = true;
+            mark.anchorMin = new Vector2(0f, 0.5f);
+            mark.anchorMax = new Vector2(0f, 0.5f);
+            mark.pivot = new Vector2(0f, 0.5f);
+            mark.sizeDelta = new Vector2(5f, 20f);
+            mark.anchoredPosition = new Vector2(0f, 0f);
+            var markImage = UnityTavernUiStyle.EnsureComponent<Image>(mark.gameObject);
+            markImage.color = ZoneAccentColor(zoneKind);
+            markImage.raycastTarget = false;
+
+            if (title != null)
+            {
+                title.color = UnityTavernUiStyle.Text;
+            }
+
+            if (subtitle != null)
+            {
+                var accent = ZoneAccentColor(zoneKind);
+                subtitle.color = new Color(accent.r, accent.g, accent.b, 0.95f);
+            }
+        }
+
+        private void ConfigureRowVisuals(Transform parent)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            var image = UnityTavernUiStyle.EnsureComponent<Image>(parent.gameObject);
+            image.color = ZoneRowColor(zoneKind);
+            image.raycastTarget = false;
+        }
+
+        private Transform ResolveHeader()
+        {
+            if (titleText != null && titleText.transform.parent != null)
+            {
+                return titleText.transform.parent;
+            }
+
+            return subtitleText != null ? subtitleText.transform.parent : null;
+        }
+
+        private static Color ZoneSurfaceColor(UnityTavernZoneKind kind)
+        {
+            switch (kind)
+            {
+                case UnityTavernZoneKind.Shop:
+                    return UnityTavernUiStyle.ColorFromHex(0x2E2619);
+                case UnityTavernZoneKind.PlayerBoard:
+                    return UnityTavernUiStyle.ColorFromHex(0x1C2D23);
+                case UnityTavernZoneKind.OpponentBoard:
+                    return UnityTavernUiStyle.ColorFromHex(0x232A38);
+                case UnityTavernZoneKind.Hand:
+                    return UnityTavernUiStyle.ColorFromHex(0x182A34);
+                default:
+                    return UnityTavernUiStyle.Panel;
+            }
+        }
+
+        private static Color ZoneAccentColor(UnityTavernZoneKind kind)
+        {
+            switch (kind)
+            {
+                case UnityTavernZoneKind.Shop:
+                    return UnityTavernUiStyle.Gold;
+                case UnityTavernZoneKind.PlayerBoard:
+                    return UnityTavernUiStyle.Green;
+                case UnityTavernZoneKind.OpponentBoard:
+                    return UnityTavernUiStyle.ColorFromHex(0x6D7FA8);
+                case UnityTavernZoneKind.Hand:
+                    return UnityTavernUiStyle.Blue;
+                default:
+                    return UnityTavernUiStyle.MutedText;
+            }
+        }
+
+        private static Color ZoneHeaderColor(UnityTavernZoneKind kind)
+        {
+            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), 0.16f);
+            color.a = 0.88f;
+            return color;
+        }
+
+        private static Color ZoneRowColor(UnityTavernZoneKind kind)
+        {
+            var color = Color.Lerp(ZoneSurfaceColor(kind), Color.black, 0.18f);
+            color.a = 0.38f;
+            return color;
+        }
+
+        private static Color SlotColor(UnityTavernZoneKind kind, bool empty)
+        {
+            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), empty ? 0.18f : 0.08f);
+            color.a = empty ? 0.66f : 0.28f;
+            return color;
         }
 
         private bool HasPrefabReferences()

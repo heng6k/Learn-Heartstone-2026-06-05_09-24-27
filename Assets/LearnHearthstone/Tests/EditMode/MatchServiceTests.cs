@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Collections.Generic;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
@@ -22,6 +23,67 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(CardKind.TavernSpell, service.State.Player.Tavern.Shop.Last().CardKind);
             Assert.AreEqual(TavernRules.GetShopSize(1), service.State.Player.Tavern.Shop.Count(card => card.CardKind == CardKind.Minion));
             Assert.LessOrEqual(service.State.Player.Tavern.Shop.Last().TavernTier, service.State.Player.Tavern.Tier);
+        }
+
+        [Test]
+        public void CreateNewMatch_DefaultsToAllPlayableTribes()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            CollectionAssert.AreEqual(TribeAvailabilityRules.PlayableTribes, service.State.ActiveTribes);
+        }
+
+        [Test]
+        public void CreateWithSetup_FiltersShopAcrossInitialRerollAndNextTurn()
+        {
+            var active = new List<Tribe>
+            {
+                Tribe.Beast,
+                Tribe.Murloc,
+                Tribe.Mech,
+                Tribe.Demon,
+                Tribe.Dragon
+            };
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions { ActiveTribes = active });
+
+            CollectionAssert.AreEqual(active, service.State.ActiveTribes);
+            AssertShopMatchesActiveTribes(service);
+
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
+            for (var reroll = 0; reroll < 5; reroll += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+                AssertShopMatchesActiveTribes(service);
+            }
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            AssertShopMatchesActiveTribes(service);
+        }
+
+        [Test]
+        public void Apply_TavernSpellDiscoverRespectsActiveTribes()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions { ActiveTribes = new List<Tribe> { Tribe.Beast } });
+            service.State.Player.Tavern.Tier = TavernRules.MaxTavernTier;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG28_550", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            Assert.Greater(service.State.Player.Tavern.Discover.Options.Count, 0);
+            foreach (var option in service.State.Player.Tavern.Discover.Options)
+            {
+                AssertTavernSpellMatchesActiveTribes(option, service.State.ActiveTribes);
+            }
         }
 
         [Test]
@@ -718,6 +780,47 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, returnedGoldenIndex));
 
             Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(minion => minion.DefinitionId == "triple-reward"));
+        }
+
+        private static void AssertShopMatchesActiveTribes(MatchService service)
+        {
+            foreach (var card in service.State.Player.Tavern.Shop.Where(card => card != null))
+            {
+                if (card.CardKind == CardKind.Minion)
+                {
+                    AssertMinionMatchesActiveTribes(card, service.State.ActiveTribes);
+                }
+                else if (card.CardKind == CardKind.TavernSpell)
+                {
+                    AssertTavernSpellMatchesActiveTribes(card, service.State.ActiveTribes);
+                }
+            }
+        }
+
+        private static void AssertMinionMatchesActiveTribes(MinionInstance card, IReadOnlyCollection<Tribe> activeTribes)
+        {
+            Assert.IsTrue(
+                card.Tribes == null ||
+                card.Tribes.Count == 0 ||
+                card.Tribes.Contains(Tribe.None) ||
+                card.Tribes.Contains(Tribe.All) ||
+                card.Tribes.Any(activeTribes.Contains),
+                card.Name + " should match the active tribe pool.");
+        }
+
+        private static void AssertTavernSpellMatchesActiveTribes(MinionInstance card, IReadOnlyCollection<Tribe> activeTribes)
+        {
+            var definition = SpellCatalogLoader.LoadFromResources().All
+                .FirstOrDefault(spell => spell.CardNumber == card.CardId || spell.Id == card.DefinitionId);
+            var tribes = TribeAvailabilityRules.SpellTribes(definition ?? new TavernSpellDefinition
+            {
+                CardNumber = card.CardId,
+                Id = card.DefinitionId
+            });
+
+            Assert.IsTrue(
+                tribes.Count == 0 || tribes.Any(activeTribes.Contains),
+                card.Name + " should match the active tavern spell tribe pool.");
         }
 
         private static void RunRewardDeathrattleCombat(MatchService service, string cardId)

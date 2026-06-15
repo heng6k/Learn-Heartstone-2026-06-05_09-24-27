@@ -364,7 +364,16 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.That(subtitle, Does.Contain("1 本"));
                 Assert.That(subtitle, Does.Contain("野兽"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionTypeAllButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionTypeNoneButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionCardGridScroll"));
+
+                FindChild(rootObject.transform, "AcquisitionTier5Button").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "AcquisitionTypeNoneButton").GetComponent<Button>().onClick.Invoke();
+
+                subtitle = FindChild(rootObject.transform, "AcquisitionSubtitle").GetComponent<Text>().text;
+                Assert.That(subtitle, Does.Contain("5 本"));
+                Assert.That(subtitle, Does.Contain("中立"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "AcquisitionCardCell-BG_LOE_077"));
             }
             finally
             {

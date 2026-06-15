@@ -39,6 +39,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
     public static class UnityTavernDragController
     {
+        public static bool CanDrop(UnityTavernDragContext drag, UnityTavernDropTarget target, int targetIndex)
+        {
+            return TryBuildDropCommand(drag, target, targetIndex, out _);
+        }
+
         public static bool TryBuildDropCommand(
             UnityTavernDragContext drag,
             UnityTavernDropTarget target,
@@ -136,19 +141,43 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private Outline outline;
         private Color normalColor;
         private bool highlighted;
+        private bool cueVisible;
+        private bool cueAllowed;
+        private bool raycastOnlyWhenAllowed;
+        private bool activeOnlyWhenAllowed;
+        private bool cueOnlyWhenAllowed;
+        private bool resolveTargetIndexFromPointer;
+        private int pointerIndexSlotCount;
 
         public bool IsHighlighted => highlighted;
+        public bool IsDropCueVisible => cueVisible;
+        public bool IsDropAllowed => cueAllowed;
+        public UnityTavernDropTarget Target => target;
+        public int TargetIndex => targetIndex;
         public Color HighlightColor => Highlight(target);
 
-        public void Initialize(UnityTavernTrainerController controller, UnityTavernDropTarget dropTarget, int index)
+        public void Initialize(
+            UnityTavernTrainerController controller,
+            UnityTavernDropTarget dropTarget,
+            int index,
+            bool raycastOnlyWhenAllowed = false,
+            bool activeOnlyWhenAllowed = false,
+            bool cueOnlyWhenAllowed = false,
+            bool resolveIndexFromPointer = false,
+            int indexSlotCount = 0)
         {
             owner = controller;
             target = dropTarget;
             targetIndex = index;
+            this.raycastOnlyWhenAllowed = raycastOnlyWhenAllowed;
+            this.activeOnlyWhenAllowed = activeOnlyWhenAllowed;
+            this.cueOnlyWhenAllowed = cueOnlyWhenAllowed;
+            resolveTargetIndexFromPointer = resolveIndexFromPointer;
+            pointerIndexSlotCount = indexSlotCount;
             image = GetComponent<Image>();
             if (image != null)
             {
-                image.raycastTarget = true;
+                image.raycastTarget = !raycastOnlyWhenAllowed;
                 normalColor = image.color;
             }
 
@@ -156,48 +185,128 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             outline.enabled = false;
             outline.effectDistance = new Vector2(2f, -2f);
             outline.useGraphicAlpha = false;
+            cueVisible = false;
+            cueAllowed = false;
+            highlighted = false;
+            ApplyVisuals();
         }
 
         public void OnDrop(PointerEventData eventData)
         {
-            Restore();
-            owner?.HandleDrop(target, targetIndex);
+            ClearDropCue();
+            owner?.HandleDrop(target, ResolveTargetIndex(eventData));
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (image == null)
-            {
-                return;
-            }
-
             highlighted = true;
-            var color = Highlight(target);
-            image.color = Color.Lerp(normalColor, color, 0.55f);
-            if (outline != null)
-            {
-                outline.enabled = true;
-                outline.effectColor = new Color(color.r, color.g, color.b, 0.9f);
-            }
+            ApplyVisuals();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Restore();
+            highlighted = false;
+            ApplyVisuals();
         }
 
-        private void Restore()
+        public void SetDropCue(UnityTavernDragContext drag)
+        {
+            var allowed = UnityTavernDragController.CanDrop(drag, target, targetIndex);
+            cueVisible = cueOnlyWhenAllowed ? allowed : drag != null;
+            cueAllowed = allowed;
+
+            if (image != null && raycastOnlyWhenAllowed)
+            {
+                image.raycastTarget = allowed;
+            }
+
+            if (activeOnlyWhenAllowed)
+            {
+                gameObject.SetActive(allowed);
+            }
+
+            ApplyVisuals();
+        }
+
+        public void ClearDropCue()
+        {
+            cueVisible = false;
+            cueAllowed = false;
+            highlighted = false;
+            ApplyVisuals();
+
+            if (image != null && raycastOnlyWhenAllowed)
+            {
+                image.raycastTarget = false;
+            }
+
+            if (activeOnlyWhenAllowed)
+            {
+                gameObject.SetActive(false);
+            }
+        }
+
+        private int ResolveTargetIndex(PointerEventData eventData)
+        {
+            if (!resolveTargetIndexFromPointer || eventData == null || pointerIndexSlotCount <= 0)
+            {
+                return targetIndex;
+            }
+
+            var rect = transform as RectTransform;
+            if (rect == null || rect.rect.width <= 0f)
+            {
+                return targetIndex;
+            }
+
+            var camera = eventData.pressEventCamera != null ? eventData.pressEventCamera : eventData.enterEventCamera;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, camera, out var localPoint))
+            {
+                return targetIndex;
+            }
+
+            var normalized = Mathf.InverseLerp(rect.rect.xMin, rect.rect.xMax, localPoint.x);
+            var index = Mathf.FloorToInt(Mathf.Clamp01(normalized) * pointerIndexSlotCount);
+            return Mathf.Clamp(index, 0, pointerIndexSlotCount - 1);
+        }
+
+        private void ApplyVisuals()
         {
             if (image != null)
             {
-                image.color = normalColor;
+                image.color = ResolveColor();
             }
 
-            highlighted = false;
             if (outline != null)
             {
-                outline.enabled = false;
+                var showOutline = highlighted || cueVisible && cueAllowed;
+                outline.enabled = showOutline;
+                if (showOutline)
+                {
+                    var color = cueVisible && !cueAllowed ? UnityTavernUiStyle.Red : Highlight(target);
+                    outline.effectColor = new Color(color.r, color.g, color.b, highlighted ? 0.95f : 0.72f);
+                    outline.effectDistance = cueVisible ? new Vector2(3f, -3f) : new Vector2(2f, -2f);
+                }
             }
+        }
+
+        private Color ResolveColor()
+        {
+            if (!cueVisible)
+            {
+                return highlighted
+                    ? Color.Lerp(normalColor, Highlight(target), 0.55f)
+                    : normalColor;
+            }
+
+            if (cueAllowed)
+            {
+                return Color.Lerp(normalColor, Highlight(target), highlighted ? 0.72f : 0.38f);
+            }
+
+            var dimmed = Color.Lerp(normalColor, Color.black, 0.34f);
+            dimmed.a = Mathf.Max(normalColor.a * 0.72f, 0.2f);
+            return highlighted ? Color.Lerp(dimmed, UnityTavernUiStyle.Red, 0.28f) : dimmed;
         }
 
         private static Color Highlight(UnityTavernDropTarget dropTarget)

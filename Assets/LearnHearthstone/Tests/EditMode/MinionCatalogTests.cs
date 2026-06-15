@@ -12,12 +12,14 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var catalog = MinionCatalogLoader.LoadFromResources();
             var minion = catalog.GetByCardId("BG35_801");
+            var brann = catalog.GetByCardId("BG_LOE_077");
 
             Assert.AreEqual(280, catalog.All.Count);
             Assert.AreEqual("贪吃的穴居人", minion.Name);
             Assert.AreEqual(1, minion.TavernTier);
             Assert.AreEqual(2, minion.BaseAttack);
             Assert.AreEqual(3, minion.BaseHealth);
+            CollectionAssert.AreEqual(new[] { Tribe.None }, brann.Tribes);
         }
 
         [Test]

@@ -40,9 +40,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public void Build(Action<Transform> buildContent)
         {
-            var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
-            image.color = UnityTavernUiStyle.Panel;
-            image.raycastTarget = false;
+            ConfigurePanelSurface(gameObject);
 
             var target = contentParent ?? transform;
             ConfigureLayout(target.gameObject);
@@ -53,13 +51,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public static void ConfigureLayout(GameObject target)
         {
             var layout = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(target.gameObject);
-            layout.padding = new RectOffset(12, 12, 12, 12);
-            layout.spacing = 8;
+            layout.padding = new RectOffset(12, 12, 14, 14);
+            layout.spacing = 10;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = false;
             layout.childControlHeight = false;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
+        }
+
+        private static void ConfigurePanelSurface(GameObject target)
+        {
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureOutline(
+                target,
+                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.16f),
+                new Vector2(1f, -1f));
         }
 
         private static GameObject ResolvePrefab()

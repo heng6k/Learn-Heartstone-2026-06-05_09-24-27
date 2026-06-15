@@ -19,6 +19,7 @@ namespace LearnHearthstone.Application.Commands
         DebugAddGold,
         SimulateCombat,
         AddCardToHand,
+        DebugCastCard,
         AddOpponentMinion,
         RemoveOpponentMinion,
         MoveOpponentMinion,
@@ -53,6 +54,13 @@ namespace LearnHearthstone.Application.Commands
             InstanceId = instanceId;
         }
 
+        public GameCommand(GameCommandType type, string instanceId, bool flag)
+        {
+            Type = type;
+            InstanceId = instanceId;
+            Flag = flag;
+        }
+
         public GameCommand(GameCommandType type, string instanceId, int targetIndex)
         {
             Type = type;
@@ -72,6 +80,14 @@ namespace LearnHearthstone.Application.Commands
             Type = type;
             CardId = cardId;
             CardKind = cardKind;
+        }
+
+        public GameCommand(GameCommandType type, string cardId, CardKind cardKind, int targetIndex)
+        {
+            Type = type;
+            CardId = cardId;
+            CardKind = cardKind;
+            TargetIndex = targetIndex;
         }
 
         public GameCommand(GameCommandType type, string scenarioName, CombatTestOptions combatTestOptions)

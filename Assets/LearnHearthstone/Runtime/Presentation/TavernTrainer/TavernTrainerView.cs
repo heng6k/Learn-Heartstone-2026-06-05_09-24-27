@@ -445,7 +445,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
             if (acquisitionKind == CardKind.Minion && acquisitionTypeFilter != Tribe.All)
             {
-                choices = choices.Where(card => card.Tribes != null && card.Tribes.Contains(acquisitionTypeFilter));
+                choices = choices.Where(card => MatchesAcquisitionTribe(card, acquisitionTypeFilter));
             }
 
             return choices
@@ -478,6 +478,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         {
             return new[]
             {
+                Tribe.None,
                 Tribe.Beast,
                 Tribe.Murloc,
                 Tribe.Mech,
@@ -1648,9 +1649,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private static string TribesText(MinionInstance minion)
         {
-            return minion.Tribes == null || minion.Tribes.Count == 0
-                ? "无种族"
+            return IsNeutralMinion(minion)
+                ? "中立"
                 : string.Join(" / ", minion.Tribes.Select(TribeName).ToArray());
+        }
+
+        private static bool MatchesAcquisitionTribe(MinionInstance card, Tribe tribe)
+        {
+            if (tribe == Tribe.All)
+            {
+                return true;
+            }
+
+            if (tribe == Tribe.None)
+            {
+                return IsNeutralMinion(card);
+            }
+
+            return card != null && card.Tribes != null && (card.Tribes.Contains(tribe) || card.Tribes.Contains(Tribe.All));
+        }
+
+        private static bool IsNeutralMinion(MinionInstance minion)
+        {
+            return minion == null || minion.Tribes == null || minion.Tribes.Count == 0 || minion.Tribes.All(tribe => tribe == Tribe.None);
         }
 
         private static string EffectText(MinionInstance minion)
@@ -1683,6 +1704,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 case Tribe.Undead: return "亡灵";
                 case Tribe.Naga: return "纳迦";
                 case Tribe.All: return "全部";
+                case Tribe.None: return "中立";
                 default: return "无";
             }
         }
@@ -1701,6 +1723,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 case Tribe.Quilboar: return 7;
                 case Tribe.Undead: return 8;
                 case Tribe.Naga: return 9;
+                case Tribe.None: return -1;
                 default: return int.MaxValue;
             }
         }

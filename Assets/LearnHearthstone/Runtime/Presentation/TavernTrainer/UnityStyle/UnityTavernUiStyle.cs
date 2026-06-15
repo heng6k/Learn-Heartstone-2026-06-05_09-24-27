@@ -5,6 +5,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 {
     public static class UnityTavernUiStyle
     {
+        public const float SpacingXs = 4f;
+        public const float SpacingSm = 8f;
+        public const float SpacingMd = 12f;
+        public const float SpacingLg = 18f;
+        public const float TouchHeight = 44f;
+        public const float CompactTouchHeight = 52f;
+
         public static readonly Color BackWall = ColorFromHex(0x151915);
         public static readonly Color TableDark = ColorFromHex(0x2A2118);
         public static readonly Color TableLit = ColorFromHex(0x5A3B21);
@@ -39,8 +46,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var element = EnsureComponent<LayoutElement>(target);
             element.minWidth = width;
             element.preferredWidth = width;
+            element.flexibleWidth = 0f;
             element.minHeight = height;
             element.preferredHeight = height;
+            element.flexibleHeight = 0f;
+
+            var rect = target.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.sizeDelta = new Vector2(width, height);
+            }
         }
 
         public static void SetPreferredHeight(GameObject target, float height)
@@ -54,6 +69,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var element = EnsureComponent<LayoutElement>(target);
             element.flexibleWidth = width;
             element.flexibleHeight = height;
+        }
+
+        public static Image ConfigureSurface(GameObject target, Color color, bool raycastTarget = false)
+        {
+            var image = EnsureComponent<Image>(target);
+            image.color = color;
+            image.raycastTarget = raycastTarget;
+            return image;
+        }
+
+        public static Outline ConfigureOutline(GameObject target, Color color, Vector2 distance)
+        {
+            var outline = EnsureComponent<Outline>(target);
+            outline.enabled = true;
+            outline.effectColor = color;
+            outline.effectDistance = distance;
+            outline.useGraphicAlpha = false;
+            return outline;
         }
 
         public static T EnsureComponent<T>(GameObject target) where T : Component

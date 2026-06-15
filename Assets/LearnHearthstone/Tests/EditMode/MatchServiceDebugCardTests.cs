@@ -71,5 +71,67 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(before, service.State.Player.Tavern.Pool[source.DefinitionId]);
         }
+
+        [Test]
+        public void Apply_AddOpponentMinionCanCreateGoldenMinion()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var source = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion);
+
+            service.Apply(new GameCommand(GameCommandType.AddOpponentMinion, source.CardId, true));
+
+            Assert.AreEqual(1, service.State.Opponent.Board.Count);
+            var added = service.State.Opponent.Board[0];
+            Assert.AreEqual(source.CardId, added.CardId);
+            Assert.AreEqual(BoardSide.Opponent, added.Owner);
+            Assert.IsTrue(added.Golden);
+            Assert.AreEqual(PoolSource.Debug, added.PoolSource);
+            Assert.AreEqual(0, added.PoolCopiesHeld);
+        }
+
+        [Test]
+        public void Apply_DebugCastTavernSpellDoesNotAddCardToHand()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var target = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion).Clone();
+            target.InstanceId = "debug-target-0";
+            target.Owner = BoardSide.Player;
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Hand.Clear();
+
+            var attackBefore = target.Attack;
+            var handBefore = service.State.Player.Tavern.Hand.Count;
+
+            service.Apply(new GameCommand(GameCommandType.DebugCastCard, "100596", CardKind.TavernSpell, -1));
+
+            Assert.AreEqual(handBefore, service.State.Player.Tavern.Hand.Count);
+            Assert.AreEqual(1, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(attackBefore + 4, service.State.Player.Board[0].Attack);
+        }
+
+        [Test]
+        public void Apply_DebugCastTargetedTavernSpellRandomlyTargetsFriendlyBoard()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(54321);
+            var source = service.State.Player.Tavern.Shop.First(card => card.CardKind == CardKind.Minion);
+            service.State.Player.Board.Add(source.Clone());
+            service.State.Player.Board.Add(source.Clone());
+            service.State.Player.Board[0].InstanceId = "debug-target-0";
+            service.State.Player.Board[1].InstanceId = "debug-target-1";
+            service.State.Player.Board[0].Owner = BoardSide.Player;
+            service.State.Player.Board[1].Owner = BoardSide.Player;
+            service.State.Player.Tavern.Hand.Clear();
+
+            var firstAttackBefore = service.State.Player.Board[0].Attack;
+            var secondAttackBefore = service.State.Player.Board[1].Attack;
+
+            service.Apply(new GameCommand(GameCommandType.DebugCastCard, "100596", CardKind.TavernSpell, -1));
+
+            var firstGained = service.State.Player.Board[0].Attack - firstAttackBefore;
+            var secondGained = service.State.Player.Board[1].Attack - secondAttackBefore;
+            Assert.AreEqual(4, firstGained + secondGained);
+            Assert.IsTrue(firstGained == 4 || secondGained == 4);
+            Assert.AreEqual(0, service.State.Player.Tavern.Hand.Count);
+        }
     }
 }

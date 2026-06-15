@@ -4,6 +4,12 @@ using System.Collections.Generic;
 namespace LearnHearthstone.Domain.Models
 {
     [Serializable]
+    public sealed class MatchSetupOptions
+    {
+        public List<Tribe> ActiveTribes = new List<Tribe>();
+    }
+
+    [Serializable]
     public sealed class SearchTarget
     {
         public string DefinitionId;
@@ -147,6 +153,7 @@ namespace LearnHearthstone.Domain.Models
         public MatchPhase Phase;
         public int Round;
         public int Seed;
+        public List<Tribe> ActiveTribes = new List<Tribe>();
         public LocalPlayerState Player = new LocalPlayerState();
         public LocalOpponentState Opponent = new LocalOpponentState();
         public List<SearchHint> RecruitHints = new List<SearchHint>();

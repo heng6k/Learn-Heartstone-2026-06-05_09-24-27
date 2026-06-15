@@ -41,6 +41,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             optionParent = options;
         }
 
+        public void SetBackdropRaycastBlocking(bool blocksRaycasts)
+        {
+            var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
+            image.raycastTarget = blocksRaycasts;
+        }
+
         public void Build(string title, Action<Transform> buildOptions)
         {
             var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
