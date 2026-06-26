@@ -114,6 +114,7 @@ namespace LearnHearthstone.Domain.Models
         public int GemDonationSoldRound;
         public int DarnassusPieSoldMinionsThisTurn;
         public int WildfeatherDusterBeastSummons;
+        public int GoosePortraitBeastSummons;
         public int FangAnkletBonusAttack;
         public int FangAnkletBonusHealth;
         public int AllPurposeKibbleAttack;

@@ -77,10 +77,10 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(330, catalog.All.Count);
             Assert.AreEqual(157, catalog.Lesser.Count);
             Assert.AreEqual(173, catalog.Greater.Count);
-            Assert.AreEqual(285, catalog.Implemented.Count);
-            Assert.AreEqual(284, catalog.Offerable.Count);
-            Assert.AreEqual(129, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
-            Assert.AreEqual(155, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
+            Assert.AreEqual(322, catalog.Implemented.Count);
+            Assert.AreEqual(321, catalog.Offerable.Count);
+            Assert.AreEqual(151, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
+            Assert.AreEqual(170, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
             Assert.IsTrue(catalog.All.All(trinket => !string.IsNullOrWhiteSpace(trinket.ImagePath)));
             Assert.IsTrue(catalog.All.All(trinket => Resources.Load<Texture2D>(trinket.ImagePath) != null));
             Assert.IsTrue(catalog.All.All(trinket => !string.IsNullOrWhiteSpace(trinket.EffectFamily)));
@@ -1273,6 +1273,43 @@ namespace LearnHearthstone.Tests.EditMode
             AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_981"), "eye_of_dalaran", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "combat_event", "tavern_spell", "combat_event");
             AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_923"), "elementium_chest", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "economy", "combat_event", "tribe_pool");
             AssertCatalogTrinket(catalog.GetByCardId("BG35_MagicItem_742"), "accord_o_tron_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "turn_end", "magnetic", "tribe_pool", "turn_end");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_921"), "flagbearer_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "deathrattle", "deathrattle", "combat_event", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_156"), "flaming_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "turn_end", "ProxySafe", "turn_end", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_204"), "kelthuzad_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "tribe_specific", "destroy", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_943"), "surveyor_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "tribe_specific", "blood_gem", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG35_MagicItem_433"), "vinespeaker_portrait", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "tribe_specific", "blood_gem", "deathrattle", "combat_event", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_869"), "felblood_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "battlecry", "shop_refresh", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_830"), "felemental_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "battlecry", "shop_refresh", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_953"), "goldgrubber_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_777"), "goose_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "ProxySafe", "combat_event", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_824"), "implicator_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "consume", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_820"), "impulsive_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "deathrattle", "ProxySafe", "deathrattle", "combat_event", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_803"), "kaboom_bot_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "deathrattle", "deathrattle", "combat_event", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_803"), "macaw_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "battlecry", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_868"), "rewinder_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "hero_damage", "hero_damage", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_887"), "shadowy_elixir", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "hero_damage", "hero_damage", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_825"), "smuggler_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "tribe_specific", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_416"), "war_drum", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "battlecry", "battlecry", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG35_MagicItem_154"), "urzul_sticker", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "tribe_specific", "consume", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG35_MagicItem_713"), "trusty_crowbar", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "add_to_hand", "add_to_hand", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_282"), "turbocharged_drill", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "magnetic", "magnetic", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_843t"), "horde_keychain", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "tribe_specific", "tribe_pool");
+            AssertCatalogTrinket(catalog.GetByCardId("BG32_MagicItem_804"), "selfless_portrait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "battlecry", "battlecry");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_367"), "ghastly_sticker", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "turn_end", "ProxySafe", "turn_end");
+            AssertCatalogTrinket(catalog.GetByCardId("BG35_MagicItem_752"), "young_murk_eye_sticker", TrinketSlotKind.Greater, TrinketPowerLevel.Medium, "turn_end", "battlecry", "turn_end", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_703"), "mystery_cube", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "trinket_choice");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_816"), "orb_of_the_unknown", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "trinket_choice", "ProxySafe", "trinket_choice");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_816t"), "orb_of_the_unknown", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "economy", "ProxySafe", "trinket_choice", "gold");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_994"), "yogg_tastic_pastry", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "yogg_proxy");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426"), "colorful_compass", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426t"), "colorful_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_901"), "gold_plated_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "shop_refresh", "ProxySafe", "official_placeholder_92", "golden_triple", "shop_refresh");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_973"), "minion_bait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "shop_refresh", "ProxySafe", "official_placeholder_92", "tribe_pool", "shop_refresh");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_823"), "timeworn_candelabra", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "discover", "ProxySafe", "discover", "timewarp_proxy");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_823t"), "timeworn_candelabra", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "discover", "ProxySafe", "discover", "timewarp_proxy");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_930"), "burgling_claw", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "opponent_history");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_888"), "souvenir_stand", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "buy_trigger", "ProxySafe", "trinket_choice");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_891"), "trip_vouchers", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "buy_trigger", "ProxySafe", "trinket_choice");
         }
 
         [Test]
@@ -2018,6 +2055,173 @@ namespace LearnHearthstone.Tests.EditMode
             AssertSpecifiedMinionPortrait("BG32_MagicItem_283", ChargingCzarinaCardId, 5, Tribe.Mech, Keyword.DivineShield, Keyword.TavernSpell);
             AssertSpecifiedMinionPortrait("BG35_MagicItem_151t", WoodlandDefilerCardId, 4, Tribe.Demon);
             AssertSpecifiedMinionPortrait("BG35_MagicItem_151", WoodlandDefilerCardId, 4, Tribe.Demon);
+            AssertSpecifiedMinionPortrait("BG30_MagicItem_921", "BG30_119", 5, Tribe.Pirate, Keyword.Deathrattle);
+            AssertSpecifiedMinionPortrait("BG35_MagicItem_156", "BG34_500", 4, Tribe.Demon);
+            AssertSpecifiedMinionPortrait("BG32_MagicItem_204", "BG28_308", 5, Tribe.Undead);
+            AssertSpecifiedMinionPortrait("BG30_MagicItem_943", "BG30_121", 5, Tribe.Quilboar);
+            AssertSpecifiedMinionPortrait("BG35_MagicItem_433", "BG35_437", 6, Tribe.Quilboar);
+            AssertSpecifiedMinionPortrait("BG30_MagicItem_869", "BG29_873", 3, Tribe.Demon, Keyword.Battlecry);
+            AssertSpecifiedMinionPortrait("BG32_MagicItem_830", "BG25_041", 3, Tribe.Elemental, Keyword.Battlecry);
+            AssertSpecifiedMinionPortrait("BG30_MagicItem_777", "BG29_801", 2, Tribe.Beast, Keyword.Deathrattle);
+            AssertSpecifiedMinionPortrait("BG32_MagicItem_820", "BG21_006", 1, Tribe.Demon, Keyword.Deathrattle);
+            AssertSpecifiedMinionPortrait("BG30_MagicItem_803", "BG_BOT_606", 2, Tribe.Mech, Keyword.Deathrattle);
+            AssertSpecifiedMinionPortrait("BG32_MagicItem_803", "BGS_078", 4, Tribe.Beast);
+            AssertSpecifiedMinionPortrait("BG32_MagicItem_804", "BG_OG_221", 1, null, Keyword.Battlecry);
+
+            AssertSingleEquipAdds("BG32_MagicItem_953", 1, card => card.CardId == "BGS_066");
+            AssertSingleEquipAdds("BG32_MagicItem_953", 1, card => card.CardId == "BG32_236");
+            AssertSingleEquipAdds("BG32_MagicItem_824", 2, card => card.CardId == "BG29_140");
+            AssertSingleEquipAdds("BG30_MagicItem_868", 1, card => card.CardId == "BG26_174");
+            AssertSingleEquipAdds("BG30_MagicItem_868", 1, card => card.CardId == "BGS_004");
+            AssertSingleEquipAdds(
+                "BG32_MagicItem_282",
+                5,
+                card => card.Tribes.Contains(Tribe.Mech) && card.Keywords.Contains(Keyword.Magnetic));
+
+            var smugglerService = MatchService.CreateWithDefaultCatalog(12345);
+            smugglerService.State.Player.Tavern.Gold = 20;
+            EquipTrinket(smugglerService, "BG30_MagicItem_825");
+            var smuggler = smugglerService.State.Player.Tavern.Hand.Single(card => card.CardId == "BG21_013");
+            Assert.AreEqual(12, smuggler.Attack);
+            Assert.AreEqual(12, smuggler.MaxHealth);
+            CollectionAssert.Contains(BoardTribeAnalyzer.GetCountedTribes(smuggler), Tribe.Dragon);
+        }
+
+        [Test]
+        public void Batch6TribePortraits_TavernPhaseHooksApplyModifiedEffects()
+        {
+            var surveyor = MatchService.CreateWithDefaultCatalog(12345);
+            var gemTarget = TestShopMinion("surveyor-gem-target", 2, 3);
+            surveyor.State.Player.Board.Add(gemTarget);
+            surveyor.State.Player.Tavern.Gold = 20;
+            EquipTrinket(surveyor, "BG30_MagicItem_943");
+            AddBloodGemSpellToHand(surveyor, "surveyor");
+            surveyor.Apply(new GameCommand(GameCommandType.PlayMinion, surveyor.State.Player.Tavern.Hand.Count - 1, 0));
+            Assert.AreEqual(9, gemTarget.Attack);
+            Assert.AreEqual(10, gemTarget.MaxHealth);
+
+            var felemental = MatchService.CreateWithDefaultCatalog(12345);
+            var felementalShop = TestShopMinion("felemental-shop", 1, 1);
+            felemental.State.Player.Tavern.Shop = new List<MinionInstance> { felementalShop };
+            felemental.State.Player.Tavern.Gold = 20;
+            EquipTrinket(felemental, "BG32_MagicItem_830");
+            PlayHandCard(felemental, felemental.State.Player.Tavern.Hand.Single(card => card.CardId == "BG25_041"));
+            Assert.AreEqual(5, felementalShop.Attack);
+            Assert.AreEqual(4, felementalShop.MaxHealth);
+
+            var felblood = MatchService.CreateWithDefaultCatalog(12345);
+            var felbloodShop = TestShopMinion("felblood-shop", 1, 1);
+            felblood.State.Player.Tavern.Shop = new List<MinionInstance> { felbloodShop };
+            felblood.State.Player.Tavern.Gold = 20;
+            EquipTrinket(felblood, "BG30_MagicItem_869");
+            PlayHandCard(felblood, felblood.State.Player.Tavern.Hand.Single(card => card.CardId == "BG29_873"));
+            Assert.AreEqual(3, felbloodShop.Attack);
+            Assert.AreEqual(3, felbloodShop.MaxHealth);
+
+            var implicator = MatchService.CreateWithDefaultCatalog(12345);
+            implicator.State.Player.Tavern.Gold = 20;
+            EquipTrinket(implicator, "BG32_MagicItem_824");
+            implicator.State.Player.Tavern.Hand.Clear();
+            implicator.State.Player.Tavern.Shop = new List<MinionInstance>
+            {
+                TestShopMinion("implicator-low", 2, 2),
+                TestShopMinion("implicator-high", 4, 6)
+            };
+            var demon = TestTribeMinion("implicator-played-demon", 1, 1, Tribe.Demon);
+            implicator.State.Player.Tavern.Hand.Add(demon);
+            PlayHandCard(implicator, demon);
+            Assert.AreEqual(5, demon.Attack);
+            Assert.AreEqual(7, demon.MaxHealth);
+            Assert.IsFalse(implicator.State.Player.Tavern.Shop.Any(card => card.CardId == "implicator-high"));
+
+            var shadowy = MatchService.CreateWithDefaultCatalog(12345);
+            shadowy.State.Player.Health = 30;
+            shadowy.State.Player.Armor = 0;
+            shadowy.State.Player.Tavern.Gold = 20;
+            EquipTrinket(shadowy, "BG32_MagicItem_887");
+            Assert.AreEqual(5, shadowy.State.Player.Armor);
+            var shadowyDemon = TestTribeMinion("shadowy-played-demon", 1, 1, Tribe.Demon);
+            shadowy.State.Player.Tavern.Hand.Add(shadowyDemon);
+            PlayHandCard(shadowy, shadowyDemon);
+            Assert.AreEqual(4, shadowy.State.Player.Armor);
+            Assert.AreEqual(30, shadowy.State.Player.Health);
+
+            var horde = MatchService.CreateWithDefaultCatalog(12345);
+            var existingLowTier = TestShopMinion("horde-existing-low", 1, 1);
+            existingLowTier.TavernTier = 3;
+            var existingHighTier = TestShopMinion("horde-existing-high", 1, 1);
+            existingHighTier.TavernTier = 4;
+            horde.State.Player.Board.Add(existingLowTier);
+            horde.State.Player.Board.Add(existingHighTier);
+            horde.State.Player.Tavern.Gold = 20;
+            EquipTrinket(horde, "BG30_MagicItem_843t");
+            Assert.AreEqual(8, existingLowTier.Attack);
+            Assert.AreEqual(6, existingLowTier.MaxHealth);
+            Assert.AreEqual(1, existingHighTier.Attack);
+            var playedLowTier = TestShopMinion("horde-played-low", 2, 2);
+            playedLowTier.TavernTier = 2;
+            horde.State.Player.Tavern.Hand.Add(playedLowTier);
+            PlayHandCard(horde, playedLowTier);
+            Assert.AreEqual(9, playedLowTier.Attack);
+            Assert.AreEqual(7, playedLowTier.MaxHealth);
+
+            var crowbar = MatchService.CreateWithDefaultCatalog(12345);
+            var left = TestShopMinion("crowbar-left", 1, 1);
+            var right = TestShopMinion("crowbar-right", 1, 1);
+            crowbar.State.Player.Board.Add(left);
+            crowbar.State.Player.Board.Add(right);
+            crowbar.State.Player.Tavern.Gold = 20;
+            EquipTrinket(crowbar, "BG35_MagicItem_713");
+            crowbar.State.Player.Tavern.Shop = new List<MinionInstance> { TestTribeMinion("crowbar-pirate", 2, 2, Tribe.Pirate) };
+            crowbar.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+            Assert.AreEqual(13, left.Attack);
+            Assert.AreEqual(13, left.MaxHealth);
+            Assert.AreEqual(1, right.Attack);
+
+            var rewinder = MatchService.CreateWithDefaultCatalog(12345);
+            rewinder.State.Player.Health = 30;
+            rewinder.State.Player.Tavern.Gold = 20;
+            EquipTrinket(rewinder, "BG30_MagicItem_868");
+            rewinder.State.Player.Tavern.Hand.Clear();
+            var soulRewinder = TestShopMinion("BG26_174", 3, 1);
+            rewinder.State.Player.Board.Add(soulRewinder);
+            rewinder.State.Player.Tavern.Shop = new List<MinionInstance> { TestTavernSpell(HastyExcavationCardId, "rewinder", 2) };
+            rewinder.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+            Assert.AreEqual(30, rewinder.State.Player.Health);
+            Assert.AreEqual(4, soulRewinder.Attack);
+            Assert.AreEqual(2, soulRewinder.MaxHealth);
+        }
+
+        [Test]
+        public void WarDrum_RepeatsOneBattlecryEachTurn()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var shopMinion = TestShopMinion("war-drum-shop", 1, 1);
+            service.State.Player.Tavern.Shop = new List<MinionInstance> { shopMinion };
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG32_MagicItem_416");
+
+            var first = TestTribeMinion("BG25_041", 3, 3, Tribe.Elemental, Keyword.Battlecry);
+            service.State.Player.Tavern.Hand.Add(first);
+            PlayHandCard(service, first);
+
+            Assert.AreEqual(7, shopMinion.Attack);
+            Assert.AreEqual(4, shopMinion.MaxHealth);
+
+            var second = TestTribeMinion("BG25_041", 3, 3, Tribe.Elemental, Keyword.Battlecry);
+            service.State.Player.Tavern.Hand.Add(second);
+            PlayHandCard(service, second);
+
+            Assert.AreEqual(9, shopMinion.Attack);
+            Assert.AreEqual(5, shopMinion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            var third = TestTribeMinion("BG25_041", 3, 3, Tribe.Elemental, Keyword.Battlecry);
+            service.State.Player.Tavern.Hand.Add(third);
+            PlayHandCard(service, third);
+
+            Assert.AreEqual(15, shopMinion.Attack);
+            Assert.AreEqual(8, shopMinion.MaxHealth);
         }
 
         [Test]
@@ -7245,6 +7449,84 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.Greater(right.MaxHealth, 2);
         }
 
+        [Test]
+        public void MysteryCube_OffersFreeLesserReplacementAfterEquip()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7201);
+            service.State.Player.Tavern.Gold = 20;
+
+            EquipTrinket(service, "BG30_MagicItem_703");
+
+            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            Assert.IsNotNull(request);
+            Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
+            Assert.AreEqual(2, request.Options.Count);
+            Assert.IsTrue(request.Source.StartsWith("trinket-replace-free:"));
+            Assert.IsTrue(request.Options.All(option =>
+                service.TrinketCatalog.GetByCardId(option.SourceId).SlotKind == TrinketSlotKind.Lesser));
+        }
+
+        [Test]
+        public void OrbOfTheUnknown_ReplacesItselfWithRandomOfferableTrinket()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7202);
+            service.State.Player.Tavern.Gold = 20;
+
+            EquipTrinket(service, "BG35_MagicItem_816");
+
+            var equipped = service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId;
+            Assert.IsFalse(string.Equals("BG35_MagicItem_816", equipped, System.StringComparison.OrdinalIgnoreCase));
+            var replacement = service.TrinketCatalog.GetByCardId(equipped);
+            Assert.AreEqual(TrinketSlotKind.Lesser, replacement.SlotKind);
+            Assert.AreEqual(TrinketOfferPoolStatus.Offerable, replacement.OfferPoolStatus);
+            Assert.AreEqual(TrinketImplementationStatus.Implemented, replacement.ImplementationStatus);
+        }
+
+        [Test]
+        public void TimewornCandelabra_OpensTimewarpDiscover()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7203);
+            service.State.Player.Tavern.Gold = 20;
+
+            EquipTrinket(service, "BG35_MagicItem_823");
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual(3, discover.Options.Count);
+            Assert.IsTrue(discover.Options.All(option => option.Name.Contains("Timewarped")));
+        }
+
+        [Test]
+        public void BurglingClaw_CopiesHighestTierMinionFromLastOpponentWarband()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7204);
+            service.State.Player.Tavern.Gold = 20;
+            service.State.OpponentHistory.LastOpponentWarband.Add(CreateTestOpponentMinion("low-test", "Low Test", 2, 2, 2));
+            service.State.OpponentHistory.LastOpponentWarband.Add(CreateTestOpponentMinion("high-test", "High Test", 6, 7, 8));
+
+            EquipTrinket(service, "BG30_MagicItem_930");
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var copied = service.State.Player.Tavern.Hand.SingleOrDefault(card => card.CardId == "high-test");
+            Assert.IsNotNull(copied);
+            Assert.AreEqual(PoolSource.Copy, copied.PoolSource);
+            Assert.AreEqual(6, copied.TavernTier);
+        }
+
+        [Test]
+        public void SouvenirStand_TransformsLesserSlotWhenGreaterTrinketEquipped()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7205);
+            service.State.Player.Tavern.Gold = 20;
+
+            EquipTrinket(service, "BG30_MagicItem_888");
+            EquipTrinket(service, "BG30_MagicItem_426t");
+
+            var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
+            Assert.AreEqual("BG30_MagicItem_426t", trinkets.GreaterTrinketId);
+            Assert.AreEqual("BG30_MagicItem_426t", trinkets.LesserTrinketId);
+        }
+
         private static void QueueTrinketChoice(MatchService service, string cardId)
         {
             var definition = service.TrinketCatalog.GetByCardId(cardId);
@@ -7279,6 +7561,32 @@ namespace LearnHearthstone.Tests.EditMode
         {
             QueueTrinketChoice(service, cardId);
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+        }
+
+        private static MinionInstance CreateTestOpponentMinion(string cardId, string name, int tier, int attack, int health)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "opponent-" + cardId,
+                DefinitionId = cardId,
+                CardId = cardId,
+                Name = name,
+                Cost = 3,
+                BaseAttack = attack,
+                BaseHealth = health,
+                Attack = attack,
+                Health = health,
+                MaxHealth = health,
+                TavernTier = tier,
+                Owner = BoardSide.Opponent,
+                Tribes = new List<Tribe> { Tribe.Beast },
+                Keywords = new List<Keyword>(),
+                OfficialKeywords = new List<Keyword>(),
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                Tags = new List<string>()
+            };
         }
 
         private static void AssertCopyCardMetadata(MinionInstance card)

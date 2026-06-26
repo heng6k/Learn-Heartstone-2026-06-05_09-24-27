@@ -417,9 +417,13 @@ namespace LearnHearthstone.Domain.Models
         public int TrinketPromoPortraitExtraTriggers;
         public int TrinketJarredFrostlingTargets;
         public int TrinketPowderKegTargets;
+        public int TrinketSkyPirateAttackBonus;
         public bool TrinketHoggyBankActive;
         public int TrinketRustyTridentTriggers;
         public int TrinketSkyGolemDeathrattleTriggers;
+        public bool TrinketVinespeakerPortraitHealthActive;
+        public bool TrinketImpulsivePortraitActive;
+        public bool TrinketKaboomBotPortraitActive;
         public int TrinketJarOGemsAttackThreshold;
         public int TrinketJarOGemsAttackCounter;
         public int TrinketElementiumChestAttackThreshold;

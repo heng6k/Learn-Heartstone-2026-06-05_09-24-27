@@ -318,7 +318,7 @@
                          "name":  "Balladist Portrait",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "[x]Get a Lovesick Balladist.\nAt the start of each turn,\nget another. Your Lovesick\n閼卞€熶迹Balladists also give Attack.",
+                         "text":  "[x]Get a Lovesick Balladist.\nAt the start of each turn,\nget another. Your Lovesick\n闁煎崬鈧喍杩笲alladists also give Attack.",
                          "mechanics":  [
                                            "AURA",
                                            "TRIGGER_VISUAL"
@@ -1447,17 +1447,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "colorful_compass"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 with two current-tier random minions as placeholder-92 proxies on equip and turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_426t",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_426t.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "turn_start",
-                         "requires":  "official_placeholder_92",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "official_placeholder_92",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_547t",
@@ -2942,21 +2945,21 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "flagbearer_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_921",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_921.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "tribe_specific",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "deathrattle",
                          "requires":  [
                                           "deathrattle",
                                           "combat_event",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_156",
@@ -2982,17 +2985,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "flaming_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG35_MagicItem_156",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_156.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "turn_end",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_802t",
@@ -3097,17 +3103,19 @@
                                       "end_of_turn"
                                   ],
                          "effectIds":  [
-
+                                           "ghastly_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_367",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_367.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_end",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "turn_end"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_231t",
@@ -3254,20 +3262,21 @@
                                       "economy"
                                   ],
                          "effectIds":  [
-
+                                           "gold_plated_compass"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as 5 free Refreshes plus a one-shot Golden-next-bought-minion placeholder-92 proxy.",
                          "imagePath":  "CardImages/BG32_MagicItem_901",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_901.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "shop_refresh",
                          "requires":  [
+                                          "official_placeholder_92",
                                           "golden_triple",
-                                          "official_placeholder_92"
+                                          "shop_refresh"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_988t",
@@ -3570,17 +3579,19 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "horde_keychain"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_843t",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_843t.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_362t",
@@ -3708,7 +3719,7 @@
                          "name":  "Jar o\u0027 Gems",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "[x]After 2 friendly minions\nattack each combat, this\nplays a \u003cb\u003eBlood Gem\u003c/b\u003e on all\n閼卞€熶迹閼卞€熶迹your Quilboar. \u003ci\u003e(2 left!)\u003c/i\u003e",
+                         "text":  "[x]After 2 friendly minions\nattack each combat, this\nplays a \u003cb\u003eBlood Gem\u003c/b\u003e on all\n闁煎崬鈧喍杩归柤鍗炩偓鐔惰抗your Quilboar. \u003ci\u003e(2 left!)\u003c/i\u003e",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -3883,17 +3894,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "kelthuzad_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_204",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_204.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "destroy",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_414t",
@@ -4557,7 +4571,7 @@
                          "name":  "Nether Pendant",
                          "slotKind":  "Greater",
                          "cost":  5,
-                         "text":  "[x]Minions in the Tavern have\n+2/+2. Improves every 3\ntimes your hero takes damage\n閼卞€熶迹outside combat. \u003ci\u003e(3 left!)\u003c/i\u003e",
+                         "text":  "[x]Minions in the Tavern have\n+2/+2. Improves every 3\ntimes your hero takes damage\n闁煎崬鈧喍杩筼utside combat. \u003ci\u003e(3 left!)\u003c/i\u003e",
                          "mechanics":  [
                                            "AURA",
                                            "TRIGGER_VISUAL"
@@ -4655,17 +4669,20 @@
                                       "economy"
                                   ],
                          "effectIds":  [
-
+                                           "orb_of_the_unknown"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a random offerable Greater Trinket replacement proxy plus 4 Gold.",
                          "imagePath":  "CardImages/BG35_MagicItem_816t",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_816t.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "economy",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "trinket_choice",
+                                          "gold"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_993",
@@ -5776,20 +5793,20 @@
                                       "blood_gem"
                                   ],
                          "effectIds":  [
-
+                                           "surveyor_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_943",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_943.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "blood_gem",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_920",
@@ -5974,17 +5991,20 @@
                                       "discover"
                                   ],
                          "effectIds":  [
-
+                                           "timeworn_candelabra"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a Discover among existing Major Timewarp proxy minions.",
                          "imagePath":  "CardImages/BG35_MagicItem_823t",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_823t.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "discover",
-                         "requires":  "discover",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "discover",
+                                          "timewarp_proxy"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_441",
@@ -6126,17 +6146,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "trusty_crowbar"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG35_MagicItem_713",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_713.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "add_to_hand",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_282",
@@ -6162,20 +6185,20 @@
                                       "magnetic"
                                   ],
                          "effectIds":  [
-
+                                           "turbocharged_drill"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_282",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_282.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "tribe_specific",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "magnetic",
                          "requires":  [
                                           "magnetic",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_822",
@@ -6358,17 +6381,20 @@
                                       "shop_interaction"
                                   ],
                          "effectIds":  [
-
+                                           "urzul_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG35_MagicItem_154",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_154.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "consume",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_365",
@@ -6472,20 +6498,22 @@
                                       "blood_gem"
                                   ],
                          "effectIds":  [
-
+                                           "vinespeaker_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG35_MagicItem_433",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_433.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "blood_gem",
+                                          "deathrattle",
+                                          "combat_event",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_930",
@@ -6741,20 +6769,21 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "young_murk_eye_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG35_MagicItem_752",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_752.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_end",
                          "requires":  [
                                           "battlecry",
+                                          "turn_end",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_433",
@@ -7713,17 +7742,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "burgling_claw"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 by copying the highest-tier minion from the recorded last opponent warband at turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_930",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_930.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "opponent_history"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_925",
@@ -7907,17 +7938,20 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "colorful_compass"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 with current-tier random minions as placeholder-92 proxies on equip and turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_426",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_426.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  "official_placeholder_92",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "official_placeholder_92",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_547",
@@ -8691,17 +8725,21 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "felblood_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_869",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_869.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "battlecry",
+                                          "shop_refresh",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_830",
@@ -8727,17 +8765,21 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "felemental_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_830",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_830.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "battlecry",
+                                          "shop_refresh",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_880",
@@ -9194,17 +9236,19 @@
                                       "economy"
                                   ],
                          "effectIds":  [
-
+                                           "goldgrubber_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_953",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_953.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_777",
@@ -9229,20 +9273,20 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "goose_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_777",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_777.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "combat_event",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_988",
@@ -9544,17 +9588,20 @@
                                       "shop_interaction"
                                   ],
                          "effectIds":  [
-
+                                           "implicator_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_824",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_824.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "consume",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_820",
@@ -9580,21 +9627,21 @@
                                       "deathrattle"
                                   ],
                          "effectIds":  [
-
+                                           "impulsive_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_820",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_820.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "deathrattle",
                                           "combat_event",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_362",
@@ -9783,21 +9830,21 @@
                                       "deathrattle"
                                   ],
                          "effectIds":  [
-
+                                           "kaboom_bot_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_803",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_803.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "deathrattle",
                                           "combat_event",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_821",
@@ -10124,20 +10171,20 @@
                                       "battlecry"
                                   ],
                          "effectIds":  [
-
+                                           "macaw_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_803",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_803.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
                          "requires":  [
                                           "battlecry",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_815",
@@ -10317,17 +10364,21 @@
                                       "shop_interaction"
                                   ],
                          "effectIds":  [
-
+                                           "minion_bait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 by adding two current-tier placeholder-92 proxy minions to each refresh.",
                          "imagePath":  "CardImages/BG30_MagicItem_973",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG30_MagicItem_973.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "shop_refresh",
-                         "requires":  "official_placeholder_92",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "official_placeholder_92",
+                                          "tribe_pool",
+                                          "shop_refresh"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG35_MagicItem_818",
@@ -10390,17 +10441,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "mystery_cube"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a free Lesser Trinket replacement choice on equip and at turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_703",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_703.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "trinket_choice"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_914",
@@ -10543,17 +10596,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "orb_of_the_unknown"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a random offerable Lesser Trinket replacement proxy.",
                          "imagePath":  "CardImages/BG35_MagicItem_816",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_816.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "pending",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "trinket_choice",
+                         "requires":  [
+                                          "trinket_choice"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_271",
@@ -10993,17 +11048,20 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "rewinder_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_868",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_868.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "hero_damage",
+                         "requires":  [
+                                          "hero_damage",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_430",
@@ -11268,17 +11326,19 @@
                                       "battlecry"
                                   ],
                          "effectIds":  [
-
+                                           "selfless_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_804",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_804.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "pending",
-                         "requires":  "battlecry",
-                         "proxyLevel":  "Blocked"
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "battlecry",
+                         "requires":  [
+                                          "battlecry"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_831",
@@ -11338,17 +11398,17 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "shadowy_elixir"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_887",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_887.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "tribe_specific",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "hero_damage",
                          "requires":  [
-                                          "combat_event",
+                                          "hero_damage",
                                           "tribe_pool"
                                       ],
                          "proxyLevel":  "Exact"
@@ -11533,17 +11593,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "smuggler_portrait"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG30_MagicItem_825",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_825.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_801",
@@ -11605,17 +11667,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "souvenir_stand"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a proxy: when a Greater Trinket is equipped, the Lesser slot transforms into a copy of it.",
                          "imagePath":  "CardImages/BG30_MagicItem_888",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_888.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "buy_trigger",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "trinket_choice"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_170",
@@ -12111,17 +12175,20 @@
                                       "discover"
                                   ],
                          "effectIds":  [
-
+                                           "timeworn_candelabra"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 as a Discover among existing Minor Timewarp proxy minions.",
                          "imagePath":  "CardImages/BG35_MagicItem_823",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_823.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "discover",
-                         "requires":  "discover",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "discover",
+                                          "timewarp_proxy"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG30_MagicItem_416",
@@ -12301,17 +12368,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "trip_vouchers"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 by scheduling a Greater Trinket replacement choice two turns later.",
                          "imagePath":  "CardImages/BG30_MagicItem_891",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_891.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "buy_trigger",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "trinket_choice"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_862",
@@ -12496,20 +12565,20 @@
                                       "battlecry"
                                   ],
                          "effectIds":  [
-
+                                           "war_drum"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 6 tribe portrait and specified-minion rewrite pass.",
                          "imagePath":  "CardImages/BG32_MagicItem_416",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_416.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "tribe_specific",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "battlecry",
                          "requires":  [
                                           "battlecry",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_851",
@@ -12764,17 +12833,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "yogg_tastic_pastry"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented in Batch 7 using the existing Wheel of Yogg-Saron proxy result table on equip and turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_994",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_994.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  null,
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "yogg_proxy"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_419",

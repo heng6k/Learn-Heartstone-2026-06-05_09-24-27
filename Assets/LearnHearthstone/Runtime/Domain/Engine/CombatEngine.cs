@@ -122,6 +122,8 @@ namespace LearnHearthstone.Domain.Engine
         private const string FallenSkyGolemCardId = "BG35_342";
         private const string ThornedTrailblazerCardId = "BG35_437";
         private const string SkyPirateCardId = "SKY_PIRATE";
+        private const string ImpulsiveTricksterCardId = "BG21_006";
+        private const string KaboomBotCardId = "BG_BOT_606";
         private const string BloodChampionCardId = "BG23_017";
         private const string SargerasChampionCardId = "BG27_016";
         private const string ObsidianRavagerDragonCardId = "BG27_017";
@@ -1236,6 +1238,10 @@ namespace LearnHearthstone.Domain.Engine
             if (thornedTrailblazerBonus > 0)
             {
                 AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemAttack, ThornedTrailblazerCardId, null, thornedTrailblazerBonus);
+                if (owner.Tavern != null && owner.Tavern.TrinketVinespeakerPortraitHealthActive)
+                {
+                    AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemHealth, ThornedTrailblazerCardId, null, thornedTrailblazerBonus);
+                }
             }
 
             var inserted = 0;
@@ -1404,6 +1410,12 @@ namespace LearnHearthstone.Domain.Engine
             inserted += ResolveTrinketCounterDeathrattles(context, owner, minion, insertIndex, newEntityIds);
             switch (minion.CardId)
             {
+                case ImpulsiveTricksterCardId:
+                    ResolveImpulsivePortraitDeathrattle(context, owner, minion, insertIndex);
+                    break;
+                case KaboomBotCardId:
+                    ResolveKaboomBotPortraitDeathrattle(context, owner, minion);
+                    break;
                 case FishOfNzothCardId:
                     inserted += ResolveFishOfNzothCopiedDeathrattles(context, owner, minion, insertIndex + inserted, newEntityIds);
                     break;
@@ -1683,6 +1695,70 @@ namespace LearnHearthstone.Domain.Engine
             return inserted;
         }
 
+        private static void ResolveImpulsivePortraitDeathrattle(CombatContext context, CombatSideState owner, MinionInstance minion, int insertIndex)
+        {
+            if (owner.Tavern == null || !owner.Tavern.TrinketImpulsivePortraitActive)
+            {
+                return;
+            }
+
+            var health = Math.Max(0, minion.MaxHealth);
+            if (health <= 0)
+            {
+                return;
+            }
+
+            var targets = new List<MinionInstance>();
+            var leftIndex = insertIndex - 1;
+            if (leftIndex >= 0 && leftIndex < owner.Board.Count && IsAlive(owner.Board[leftIndex]))
+            {
+                targets.Add(owner.Board[leftIndex]);
+            }
+
+            if (insertIndex >= 0 && insertIndex < owner.Board.Count && IsAlive(owner.Board[insertIndex]))
+            {
+                targets.Add(owner.Board[insertIndex]);
+            }
+
+            foreach (var target in targets)
+            {
+                BuffMinion(target, 0, health, "Impulsive Portrait");
+            }
+
+            if (targets.Count > 0)
+            {
+                AddLog(context.Log, "DeathrattleResolved", minion.InstanceId + " gave Health to adjacent minions", minion.InstanceId, targets.First().InstanceId, LogSeverity.Good);
+            }
+        }
+
+        private static void ResolveKaboomBotPortraitDeathrattle(CombatContext context, CombatSideState owner, MinionInstance minion)
+        {
+            if (owner.Tavern == null || !owner.Tavern.TrinketKaboomBotPortraitActive)
+            {
+                return;
+            }
+
+            var enemy = context.Get(owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+            var candidates = enemy.Board.Where(IsAlive).ToList();
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var amount = minion.Golden ? 16 : 8;
+            var rng = new SeededRng(context.Seed + context.AttackSequence * 997 + context.Replay.Frames.Count * 37 + candidates.Count);
+            var target = rng.Pick(candidates);
+            var result = DealDamage(target, amount, false);
+            ReplaceByInstanceId(enemy.Board, result.Minion);
+            if (result.Minion.Health <= 0)
+            {
+                MarkKilledBy(result.Minion, minion.InstanceId, owner.Side, minion.CardId);
+            }
+
+            AddLog(context.Log, "DeathrattleResolved", minion.InstanceId + " dealt " + amount + " Kaboom Bot Portrait damage to " + target.InstanceId, minion.InstanceId, target.InstanceId, LogSeverity.Good);
+            ResolveDeaths(context, enemy.Side);
+        }
+
         private static int ResolveTrinketCounterDeathrattles(CombatContext context, CombatSideState owner, MinionInstance minion, int insertIndex, List<string> newEntityIds)
         {
             if (minion?.Counters == null)
@@ -1730,7 +1806,11 @@ namespace LearnHearthstone.Domain.Engine
                     insertIndex + inserted,
                     "powder-keg-sky-pirate",
                     "Sky Pirate",
-                    StatMath.SaturatingAdd(1, Math.Max(0, source.Attack), 0, StatMath.MaxStat),
+                    StatMath.SaturatingAdd(
+                        StatMath.SaturatingAdd(1, Math.Max(0, source.Attack), 0, StatMath.MaxStat),
+                        owner.Tavern?.TrinketSkyPirateAttackBonus ?? 0,
+                        0,
+                        StatMath.MaxStat),
                     1,
                     Tribe.Pirate);
                 if (token == null)
@@ -3218,7 +3298,16 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var token = AddToken(context, owner, attacker, Math.Min(attackerIndex + 1, owner.Board.Count), "sky-pirate", "Sky Pirate", attacker.Attack, 1, Tribe.Pirate);
+            var token = AddToken(
+                context,
+                owner,
+                attacker,
+                Math.Min(attackerIndex + 1, owner.Board.Count),
+                "sky-pirate",
+                "Sky Pirate",
+                StatMath.SaturatingAdd(attacker.Attack, owner.Tavern?.TrinketSkyPirateAttackBonus ?? 0, 0, StatMath.MaxStat),
+                1,
+                Tribe.Pirate);
             if (token == null)
             {
                 return;
