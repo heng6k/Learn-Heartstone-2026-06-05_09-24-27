@@ -261,19 +261,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             SetTextVisible(nameText, mode != UnityTavernCardMode.Board && !usesFullCardArt, card.Name);
-            SetText(kindText, card.CardKind == CardKind.TavernSpell ? "法术" : TribeText(card));
+            SetText(kindText, CardKindText(card));
             if (kindText != null)
             {
                 kindText.gameObject.SetActive(!usesFullCardArt);
             }
 
-            var isSpell = card.CardKind == CardKind.TavernSpell;
+            var isSpell = IsSpellLike(card);
             ConfigureKeywordLabel(subtitleText, string.Empty, mode, false);
-            SetBadge(tierBadge, tierText, !isSpell || !usesFullCardArt, card.TavernTier.ToString());
+            SetBadge(tierBadge, tierText, !isSpell || !usesFullCardArt, HeaderBadgeText(card));
             ConfigurePrefabBadge(
                 tierBadge,
                 tierText,
-                isSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold,
+                HeaderBadgeColor(card),
                 new Vector2(0f, 1f),
                 mode == UnityTavernCardMode.Board ? new Vector2(17f, -17f) : new Vector2(19f, -19f),
                 mode);
@@ -566,14 +566,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildHeader(UnityTavernCardMode mode)
         {
-            var tier = Badge("UnityTierBadge", card.TavernTier.ToString(), card.CardKind == CardKind.TavernSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold);
+            var tier = Badge("UnityTierBadge", HeaderBadgeText(card), HeaderBadgeColor(card));
             var rect = tier.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0f, 1f);
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = mode == UnityTavernCardMode.Board ? new Vector2(17f, -17f) : new Vector2(19f, -19f);
 
-            var kind = UiFactory.Label("UnityCardKind", transform, card.CardKind == CardKind.TavernSpell ? "法术" : TribeText(card), 9, FontStyle.Bold);
+            var kind = UiFactory.Label("UnityCardKind", transform, CardKindText(card), 9, FontStyle.Bold);
             kind.alignment = TextAnchor.MiddleRight;
             kind.color = UnityTavernUiStyle.MutedText;
             var kindRect = kind.rectTransform;
@@ -599,7 +599,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildStats(UnityTavernCardMode mode)
         {
-            if (card.CardKind == CardKind.TavernSpell)
+            if (IsSpellLike(card))
             {
                 BadgeAt("UnityCostBadge", Math.Max(0, card.Cost).ToString(), UnityTavernUiStyle.Blue, new Vector2(1f, 0f), new Vector2(-19f, 20f));
                 return;
@@ -611,12 +611,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildFullArtTierBadge(UnityTavernCardMode mode)
         {
-            if (card.CardKind == CardKind.TavernSpell)
+            if (IsSpellLike(card))
             {
                 return;
             }
 
-            var tier = Badge("UnityTierBadge", card.TavernTier.ToString(), UnityTavernUiStyle.Gold);
+            var tier = Badge("UnityTierBadge", HeaderBadgeText(card), HeaderBadgeColor(card));
             var rect = tier.GetComponent<RectTransform>();
             rect.sizeDelta = mode == UnityTavernCardMode.Board ? new Vector2(30f, 30f) : new Vector2(34f, 34f);
             rect.anchorMin = new Vector2(0f, 1f);
@@ -822,9 +822,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return UnityTavernUiStyle.ColorFromHex(0x735425);
             }
 
-            if (card != null && card.CardKind == CardKind.TavernSpell)
+            if (card != null && (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.HeroPower))
             {
                 return UnityTavernUiStyle.ColorFromHex(0x223A4B);
+            }
+
+            if (card != null && card.CardKind == CardKind.Hero)
+            {
+                return UnityTavernUiStyle.ColorFromHex(0x4B2525);
+            }
+
+            if (card != null && card.CardKind == CardKind.HeroBuddy)
+            {
+                return UnityTavernUiStyle.ColorFromHex(0x263C2A);
             }
 
             return mode == UnityTavernCardMode.Board
@@ -834,9 +844,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Color FallbackArtColor(MinionInstance minion)
         {
-            if (minion != null && minion.CardKind == CardKind.TavernSpell)
+            if (minion != null && (minion.CardKind == CardKind.TavernSpell || minion.CardKind == CardKind.HeroPower))
             {
                 return UnityTavernUiStyle.ColorFromHex(0x2A526D);
+            }
+
+            if (minion != null && minion.CardKind == CardKind.Hero)
+            {
+                return UnityTavernUiStyle.ColorFromHex(0x5F3434);
+            }
+
+            if (minion != null && minion.CardKind == CardKind.HeroBuddy)
+            {
+                return UnityTavernUiStyle.ColorFromHex(0x365436);
             }
 
             return UnityTavernUiStyle.ColorFromHex(0x4A3525);
@@ -865,7 +885,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (fullCardArt)
             {
-                var inset = minion != null && minion.CardKind == CardKind.TavernSpell ? 0f : 2f;
+                var inset = IsSpellLike(minion) ? 0f : 2f;
                 rect.anchorMin = Vector2.zero;
                 rect.anchorMax = Vector2.one;
                 rect.offsetMin = new Vector2(inset, inset);
@@ -921,9 +941,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return string.Empty;
             }
 
-            if (minion.CardKind == CardKind.TavernSpell)
+            if (minion.CardKind == CardKind.TavernSpell || minion.CardKind == CardKind.Spell)
             {
                 return "SPELL";
+            }
+
+            if (minion.CardKind == CardKind.HeroPower)
+            {
+                return "POWER";
+            }
+
+            if (minion.CardKind == CardKind.Hero)
+            {
+                return "HERO";
+            }
+
+            if (minion.CardKind == CardKind.HeroBuddy)
+            {
+                return "BUDDY";
             }
 
             if (minion.Tribes != null)
@@ -936,6 +971,69 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return "CARD";
+        }
+
+        private static bool IsSpellLike(MinionInstance minion)
+        {
+            return minion != null &&
+                (minion.CardKind == CardKind.TavernSpell ||
+                    minion.CardKind == CardKind.Spell ||
+                    minion.CardKind == CardKind.HeroPower);
+        }
+
+        private static string HeaderBadgeText(MinionInstance minion)
+        {
+            if (minion == null)
+            {
+                return string.Empty;
+            }
+
+            if (minion.CardKind == CardKind.Hero)
+            {
+                return "英";
+            }
+
+            return minion.CardKind == CardKind.HeroPower ? "技" : minion.TavernTier.ToString();
+        }
+
+        private static Color HeaderBadgeColor(MinionInstance minion)
+        {
+            if (minion != null && minion.CardKind == CardKind.Hero)
+            {
+                return UnityTavernUiStyle.Red;
+            }
+
+            if (minion != null && (minion.CardKind == CardKind.TavernSpell || minion.CardKind == CardKind.Spell || minion.CardKind == CardKind.HeroPower))
+            {
+                return UnityTavernUiStyle.Blue;
+            }
+
+            return minion != null && minion.CardKind == CardKind.HeroBuddy
+                ? UnityTavernUiStyle.Green
+                : UnityTavernUiStyle.Gold;
+        }
+
+        private static string CardKindText(MinionInstance minion)
+        {
+            if (minion == null)
+            {
+                return string.Empty;
+            }
+
+            switch (minion.CardKind)
+            {
+                case CardKind.TavernSpell:
+                case CardKind.Spell:
+                    return "法术";
+                case CardKind.Hero:
+                    return "英雄";
+                case CardKind.HeroPower:
+                    return "英雄技能";
+                case CardKind.HeroBuddy:
+                    return "英雄宝宝";
+                default:
+                    return TribeText(minion);
+            }
         }
 
         private static string TribeText(MinionInstance minion)

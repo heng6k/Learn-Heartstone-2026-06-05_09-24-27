@@ -65,6 +65,37 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void CreateWithSetup_CardPoolVersionFiltersShopAcrossInitialRerollAndNextTurn()
+        {
+            var minion = MinionCatalogLoader.LoadFromResources().All
+                .First(card => card.InPool && card.TavernTier == 1 && card.PoolCount > 0 && !card.CardId.StartsWith("BGDUO"));
+            var spell = SpellCatalogLoader.LoadFromResources().All
+                .First(card => card.InPool && card.Category == "TavernSpell" && card.TavernTier <= 1);
+            var setup = new MatchSetupOptions
+            {
+                ActiveTribes = TribeAvailabilityRules.AllPlayableTribes(),
+                CardPoolVersionId = "test-version",
+                CardPoolVersionName = "测试版本",
+                IsDefaultCardPoolVersion = false,
+                EnabledMinionCardIds = new List<string> { minion.CardId },
+                EnabledTavernSpellCardNumbers = new List<string> { spell.CardNumber }
+            };
+            var service = MatchService.CreateWithDefaultCatalog(12345, null, setup);
+
+            Assert.AreEqual("test-version", service.State.CardPoolVersionId);
+            Assert.AreEqual("测试版本", service.State.CardPoolVersionName);
+            Assert.IsFalse(service.State.IsDefaultCardPoolVersion);
+            AssertShopMatchesCardPool(service, minion.CardId, spell.CardNumber);
+
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+            AssertShopMatchesCardPool(service, minion.CardId, spell.CardNumber);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            AssertShopMatchesCardPool(service, minion.CardId, spell.CardNumber);
+        }
+
+        [Test]
         public void Apply_TavernSpellDiscoverRespectsActiveTribes()
         {
             var service = MatchService.CreateWithDefaultCatalog(
@@ -235,6 +266,7 @@ namespace LearnHearthstone.Tests.EditMode
         public void Apply_TierOneDemonAndDevourEffectsResolve()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
+            var startingHealth = service.State.Player.Health;
 
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_004", CardKind.Minion));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
@@ -242,7 +274,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(3, weaver.Attack);
             Assert.AreEqual(5, weaver.MaxHealth);
-            Assert.AreEqual(29, service.State.Player.Health);
+            Assert.AreEqual(startingHealth - 1, service.State.Player.Health);
 
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG24_009", CardKind.Minion));
             var shopMinionsBefore = service.State.Player.Tavern.Shop.Count(card => card != null && card.CardKind == CardKind.Minion);
@@ -251,7 +283,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.Less(service.State.Player.Tavern.Shop.Count(card => card != null && card.CardKind == CardKind.Minion), shopMinionsBefore);
             Assert.Greater(picky.Attack, picky.BaseAttack);
-            Assert.AreEqual(28, service.State.Player.Health);
+            Assert.AreEqual(startingHealth - 2, service.State.Player.Health);
         }
 
         [Test]
@@ -318,12 +350,13 @@ namespace LearnHearthstone.Tests.EditMode
         public void Apply_TierTwoGlobalAndCombatEffectsResolve()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
+            var startingHealth = service.State.Player.Health;
 
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_004", CardKind.Minion));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_174", CardKind.Minion));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
-            Assert.AreEqual(29, service.State.Player.Health);
+            Assert.AreEqual(startingHealth - 1, service.State.Player.Health);
             Assert.Greater(service.State.Player.Board.Last().MaxHealth, service.State.Player.Board.Last().BaseHealth);
 
             service.State.Player.Board.Clear();
@@ -795,6 +828,17 @@ namespace LearnHearthstone.Tests.EditMode
                     AssertTavernSpellMatchesActiveTribes(card, service.State.ActiveTribes);
                 }
             }
+        }
+
+        private static void AssertShopMatchesCardPool(MatchService service, string minionCardId, string tavernSpellCardNumber)
+        {
+            var minions = service.State.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
+            Assert.Greater(minions.Count, 0);
+            Assert.IsTrue(minions.All(card => card.CardId == minionCardId));
+
+            var spells = service.State.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.TavernSpell).ToList();
+            Assert.AreEqual(1, spells.Count);
+            Assert.AreEqual(tavernSpellCardNumber, spells[0].CardId);
         }
 
         private static void AssertMinionMatchesActiveTribes(MinionInstance card, IReadOnlyCollection<Tribe> activeTribes)

@@ -11,10 +11,16 @@ namespace LearnHearthstone.Domain.Engine
         private readonly List<MinionDefinition> definitions;
         private readonly Dictionary<string, int> counts = new Dictionary<string, int>();
 
-        public MinionPool(IEnumerable<MinionDefinition> definitions, IDictionary<string, int> initial = null, IReadOnlyCollection<Tribe> activeTribes = null)
+        public MinionPool(
+            IEnumerable<MinionDefinition> definitions,
+            IDictionary<string, int> initial = null,
+            IReadOnlyCollection<Tribe> activeTribes = null,
+            Func<MinionDefinition, bool> availability = null)
         {
             this.definitions = definitions
-                .Where(definition => TribeAvailabilityRules.IsMinionAvailable(definition, activeTribes))
+                .Where(definition =>
+                    (availability == null || availability(definition)) &&
+                    TribeAvailabilityRules.IsMinionAvailable(definition, activeTribes))
                 .ToList();
             definitionsById = this.definitions.ToDictionary(definition => definition.Id, definition => definition);
 
@@ -58,13 +64,18 @@ namespace LearnHearthstone.Domain.Engine
             counts[definitionId] = Math.Min(definition.PoolCount, Remaining(definitionId) + copies);
         }
 
-        public List<MinionDefinition> DrawShop(int tier, int size, SeededRng rng)
+        public List<MinionDefinition> DrawShop(int tier, int size, SeededRng rng, int minimumTier = TavernRules.MinTavernTier)
         {
             var drawn = new List<MinionDefinition>();
+            var minTier = Math.Max(TavernRules.MinTavernTier, minimumTier);
             for (var index = 0; index < size; index += 1)
             {
                 var candidates = definitions
-                    .Where(definition => definition.InPool && definition.TavernTier <= tier && Remaining(definition.Id) > 0)
+                    .Where(definition =>
+                        definition.InPool &&
+                        definition.TavernTier >= minTier &&
+                        definition.TavernTier <= tier &&
+                        Remaining(definition.Id) > 0)
                     .ToList();
                 if (candidates.Count == 0)
                 {

@@ -1,0 +1,5159 @@
+{
+  "sourcePage": "https://www.firestoneapp.com/battlegrounds/heroes?time=all-time",
+  "mainBundleSource": "https://www.firestoneapp.com/main.d11d28f54fb2e2d6.js",
+  "cardsSource": "https://static.zerotoheroes.com/data/cards/cards_enUS.gz.json",
+  "generatedAt": "2026-06-15T07:08:23.053Z",
+  "count": 114,
+  "heroPowerCount": 69,
+  "buddyCount": 108,
+  "missingBuddyCount": 6,
+  "missingHeroPowerCount": 45,
+  "heroes": [
+    {
+      "heroCardId": "TB_BaconShop_HERO_35",
+      "heroDbfId": 59805,
+      "name": "Yogg-Saron, Hope's End",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_35",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_039t",
+        "dbfId": 122958,
+        "name": "Puzzle Box",
+        "cost": 0,
+        "text": "[x]At the start of your turn,\ncast a random Tavern\nspell. <i>(Unlocks on Turn 3.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_039t",
+        "primaryCategory": "Passive",
+        "tags": [
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_35_Buddy",
+        "dbfId": 77853,
+        "name": "Acolyte of Yogg-Saron",
+        "tavernTier": 5,
+        "attack": 6,
+        "health": 4,
+        "text": "At the start of your turn, spin the Wheel of\nYogg-Saron.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_35_Buddy",
+        "tribes": [
+          "Murloc"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 19285,
+        "totalPicked": 19208,
+        "totalOffered": 60364,
+        "averagePosition": 3.83
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_27",
+      "heroDbfId": 58435,
+      "name": "Sindragosa",
+      "health": 30,
+      "armor": 7,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_27",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_014",
+        "dbfId": 57945,
+        "name": "Stay Frosty",
+        "cost": 0,
+        "text": "[x] Minions cost (2).\nThe Tavern offers one\nfewer minion and <b><b>Freeze</b>s</b>\nat the end of each turn.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_014",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_27_Buddy",
+        "dbfId": 77724,
+        "name": "Thawed Champion",
+        "tavernTier": 6,
+        "attack": 4,
+        "health": 5,
+        "text": "[x]At the end of your turn,\nmake a random <b>Frozen</b>\nminion in the Tavern\nGolden.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_27_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 16219,
+        "totalPicked": 16148,
+        "totalOffered": 61738,
+        "averagePosition": 4.14
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_93",
+      "heroDbfId": 66483,
+      "name": "N'Zoth",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_93",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_105",
+        "dbfId": 66484,
+        "name": "Avatar of N'Zoth",
+        "cost": 0,
+        "text": "[x]Start the game with a 2/2\nFish that gains all your\n<b>Deathrattles</b> in combat.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_105",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "initialonly"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_93_Buddy",
+        "dbfId": 77811,
+        "name": "Baby N'Zoth",
+        "tavernTier": 4,
+        "attack": 8,
+        "health": 4,
+        "text": "[x]<b>Battlecry:</b> Make a friendly\n<b>Deathrattle</b> minion Golden.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_93_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10760,
+        "totalPicked": 10729,
+        "totalOffered": 50537,
+        "averagePosition": 3.95
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG30_HERO_304",
+      "heroDbfId": 113310,
+      "name": "Marin the Manager",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG30_HERO_304",
+      "heroPower": {
+        "cardId": "BG30_HERO_304p",
+        "dbfId": 113311,
+        "name": "Fantastic Treasure",
+        "cost": 0,
+        "text": "[x]On Turn 5, choose a\nLesser <b>Trinket</b> to buy.\n<i>(4 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG30_HERO_304p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "disabled",
+          "trinket"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG30_HERO_304_Buddy",
+        "dbfId": 122323,
+        "name": "Fantastic Bellhop",
+        "tavernTier": 5,
+        "attack": 6,
+        "health": 6,
+        "text": "[x]At the end of your turn,\nget a helpful card.",
+        "imagePath": "HeroBuddyImages/buddies/BG30_HERO_304_Buddy",
+        "tribes": [
+          "Pirate"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 76056,
+        "totalPicked": 75770,
+        "totalOffered": 102581,
+        "averagePosition": 4.02
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG34_HERO_004",
+      "heroDbfId": 129173,
+      "name": "Morchie",
+      "health": 30,
+      "armor": 8,
+      "imagePath": "HeroBuddyImages/heroes/BG34_HERO_004",
+      "heroPower": {
+        "cardId": "BG34_HERO_004p",
+        "dbfId": 129174,
+        "name": "Warped Conflux",
+        "cost": 0,
+        "text": "[x]On Turn 5, visit the Minor\n<b>Timewarp</b>. <i>(4 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG34_HERO_004p",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "disabled",
+          "timewarp"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 34910,
+        "totalPicked": 34750,
+        "totalOffered": 62169,
+        "averagePosition": 3.83
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_90",
+      "heroDbfId": 64480,
+      "name": "Silas Darkmoon",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_90",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_101",
+        "dbfId": 64481,
+        "name": "Come One, Come All!",
+        "cost": 0,
+        "text": "[x]Darkmoon Tickets are in\nthe Tavern! Get 3 to\n<b>Discover</b> a minion of\nyour Tier.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_101",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_90_Buddy",
+        "dbfId": 77829,
+        "name": "Burth",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 7,
+        "text": "After you <b>Discover</b> a minion, give it +{1}/+{1} and improve this.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_90_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 15716,
+        "totalPicked": 15654,
+        "totalOffered": 63450,
+        "averagePosition": 4.07
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_301",
+      "heroDbfId": 71916,
+      "name": "Mutanus the Devourer",
+      "health": 30,
+      "armor": 20,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_301",
+      "heroPower": {
+        "cardId": "BG20_HERO_301p",
+        "dbfId": 71914,
+        "name": "Devour",
+        "cost": 0,
+        "text": "[x]Sell a friendly minion.\nSpit its stats onto\nanother.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_301p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_301_Buddy",
+        "dbfId": 77809,
+        "name": "Nightmare Ectoplasm",
+        "tavernTier": 1,
+        "attack": 6,
+        "health": 6,
+        "text": "When you 'Devour' this, spit its stats onto 1 extra minion.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_301_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7821,
+        "totalPicked": 7790,
+        "totalOffered": 32501,
+        "averagePosition": 4.04
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG23_HERO_201",
+      "heroDbfId": 86013,
+      "name": "Ozumat",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG23_HERO_201",
+      "heroPower": {
+        "cardId": "BG23_HERO_201p",
+        "dbfId": 86014,
+        "name": "Tentacular",
+        "cost": 0,
+        "text": "[x]When you have space in\ncombat, summon a 2/2\nTentacle with <b>Taunt</b>. <i>(Gains\n+1/+1 after you sell a minion!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_201p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "initialonly",
+          "passive",
+          "combat",
+          "summon",
+          "buff"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG23_HERO_201_Buddy",
+        "dbfId": 98635,
+        "name": "Tamuzo",
+        "tavernTier": 5,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]After you summon a\nminion in combat,\ndouble its stats.",
+        "imagePath": "HeroBuddyImages/buddies/BG23_HERO_201_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 4557,
+        "totalPicked": 4539,
+        "totalOffered": 60216,
+        "averagePosition": 4.23
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG21_HERO_020",
+      "heroDbfId": 77516,
+      "name": "Cookie the Cook",
+      "health": 30,
+      "armor": 8,
+      "imagePath": "HeroBuddyImages/heroes/BG21_HERO_020",
+      "heroPower": {
+        "cardId": "BG21_HERO_020p",
+        "dbfId": 77434,
+        "name": "Stir the Pot",
+        "cost": 0,
+        "text": "[x]Throw a minion in your pot.\nWhen you've gathered 3,\n<b>Discover</b> from their types.\n<i>(3 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG21_HERO_020p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG21_HERO_020_Buddy",
+        "dbfId": 77872,
+        "name": "Sous Chef",
+        "tavernTier": 1,
+        "attack": 2,
+        "health": 5,
+        "text": "You can use your Hero Power an extra time each turn.",
+        "imagePath": "HeroBuddyImages/buddies/BG21_HERO_020_Buddy",
+        "tribes": [
+          "Murloc"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10808,
+        "totalPicked": 10760,
+        "totalOffered": 63396,
+        "averagePosition": 4.14
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_76",
+      "heroDbfId": 64403,
+      "name": "Al'Akir",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_76",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_086",
+        "dbfId": 64402,
+        "name": "Swatting Insects",
+        "cost": 0,
+        "text": "[x]<b>Start of Combat:</b> Give\nyour left-most minion\n<b>Windfury</b>, <b>Divine Shield</b>,\nand <b>Taunt</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_086",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_76_Buddy",
+        "dbfId": 77447,
+        "name": "Spirit of Air",
+        "tavernTier": 1,
+        "attack": 5,
+        "health": 2,
+        "text": "[x]<b>Deathrattle:</b> Give a random\nfriendly minion <b>Windfury</b>,\n <b>Divine Shield</b>, and <b>Taunt</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_76_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 14493,
+        "totalPicked": 14441,
+        "totalOffered": 64443,
+        "averagePosition": 3.95
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_16",
+      "heroDbfId": 57944,
+      "name": "A. F. Kay",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_16",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_044",
+        "dbfId": 59891,
+        "name": "Procrastinate",
+        "cost": 0,
+        "text": "[x]Skip your first two turns,\nthen <b>Discover</b> a minion\nfrom Tier 3 and Tier 4.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_044",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "initialonly"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_16_Buddy",
+        "dbfId": 77774,
+        "name": "Snack Vendor",
+        "tavernTier": 6,
+        "attack": 6,
+        "health": 6,
+        "text": "[x]At the end of your turn,\ngive this minion's stats\nto a Tier 3 minion.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_16_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 23842,
+        "totalPicked": 23748,
+        "totalOffered": 55998,
+        "averagePosition": 3.99
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG34_HERO_002",
+      "heroDbfId": 126532,
+      "name": "Mister Clocksworth",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG34_HERO_002",
+      "heroPower": {
+        "cardId": "BG34_HERO_002p",
+        "dbfId": 126533,
+        "name": "Double Time",
+        "cost": 0,
+        "text": "[x]You only need 2 copies to\nmake minions Golden.\n They give Tavern Coins\ninstead of Triple Rewards.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG34_HERO_002p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "discover",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 19568,
+        "totalPicked": 19500,
+        "totalOffered": 64335,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_02",
+      "heroDbfId": 57635,
+      "name": "Galakrond",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_02",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_011",
+        "dbfId": 57555,
+        "name": "Galakrond's Greed",
+        "cost": 1,
+        "text": "[x]Choose a minion in the\nTavern. Then choose a\nhigher Tier minion to\nreplace it.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_011",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_02_Buddy",
+        "dbfId": 77494,
+        "name": "Apostle of Galakrond",
+        "tavernTier": 2,
+        "attack": 2,
+        "health": 4,
+        "text": "[x]<b>Battlecry:</b> Replace\ncards in the Tavern with\nones from a Tier higher.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_02_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 18400,
+        "totalPicked": 18341,
+        "totalOffered": 57883,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG25_HERO_105",
+      "heroDbfId": 101345,
+      "name": "E.T.C., Band Manager",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG25_HERO_105",
+      "heroPower": {
+        "cardId": "BG25_HERO_105p",
+        "dbfId": 101346,
+        "name": "Sign a New Artist",
+        "cost": 3,
+        "text": "<b>Discover</b> a <b>Buddy</b>.\n<i>(Unlocks at Tier 2.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG25_HERO_105p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "buddy"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG25_HERO_105_Buddy",
+        "dbfId": 101349,
+        "name": "Talent Scout",
+        "tavernTier": 5,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]<b>Battlecry:</b> Make a\n<b>Buddy</b> Golden.",
+        "imagePath": "HeroBuddyImages/buddies/BG25_HERO_105_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 20739,
+        "totalPicked": 20662,
+        "totalOffered": 56011,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_43",
+      "heroDbfId": 60214,
+      "name": "Dinotamer Brann",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_43",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_048",
+        "dbfId": 60218,
+        "name": "Battle Brand",
+        "cost": 0,
+        "text": "[x]After you buy 4 <b>Battlecry</b>\nminions, get a Brann\nBronzebeard.\n<i>(Once per game.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_048",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion",
+          "initialonly",
+          "passive"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_43_Buddy",
+        "dbfId": 77784,
+        "name": "Brann's Epic Egg",
+        "tavernTier": 3,
+        "attack": 0,
+        "health": 3,
+        "text": "[x]<b>Taunt</b>\n <b>Deathrattle:</b> Summon\nand get a random\n<b>Battlecry</b> minion.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_43_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Deathrattle",
+          "Taunt"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 26537,
+        "totalPicked": 26414,
+        "totalOffered": 62154,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_23",
+      "heroDbfId": 58027,
+      "name": "Shudderwock",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_23",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_022",
+        "dbfId": 58028,
+        "name": "Snicker-snack",
+        "cost": 0,
+        "text": "[x]Trigger a friendly\nminion's <b>Battlecry</b>.\n<i>(Unlocks on Turn 3.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_022",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_23_Buddy",
+        "dbfId": 77827,
+        "name": "Muckslinger",
+        "tavernTier": 4,
+        "attack": 5,
+        "health": 5,
+        "text": "<b>Battlecry:</b> Get a random <b>Battlecry</b> minion.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_23_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 22787,
+        "totalPicked": 22706,
+        "totalOffered": 63446,
+        "averagePosition": 4.07
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_68",
+      "heroDbfId": 62268,
+      "name": "Skycap'n Kragg",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_68",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_076",
+        "dbfId": 62269,
+        "name": "Piggy Bank",
+        "cost": 0,
+        "text": "[x]Gain 2 Gold.\nIncreases by 1 each turn.\n<i>(Once per game.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_076",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_68_Buddy",
+        "dbfId": 77833,
+        "name": "Sharkbait",
+        "tavernTier": 5,
+        "attack": 5,
+        "health": 3,
+        "text": "When you sell this, refresh your Hero Power.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_68_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9356,
+        "totalPicked": 9322,
+        "totalOffered": 63189,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_92",
+      "heroDbfId": 66196,
+      "name": "Y'Shaarj",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_92",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_103",
+        "dbfId": 66197,
+        "name": "Embrace Your Rage",
+        "cost": 2,
+        "text": "[x]<b>Start of Combat:\n</b>Summon and get\na minion of your Tier.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_103",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_92_Buddy",
+        "dbfId": 77857,
+        "name": "Baby Y'Shaarj",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 6,
+        "text": "After you summon a minion of your Tier, give your minions +1/+1.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_92_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9459,
+        "totalPicked": 9410,
+        "totalOffered": 61188,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_40",
+      "heroDbfId": 60211,
+      "name": "Sir Finley Mrrgglton",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_40",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_057",
+        "dbfId": 60450,
+        "name": "Adventure!",
+        "cost": 0,
+        "text": "[x]At the start of the game,\n<b>Discover</b> a Hero Power.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_057",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "initialonly",
+          "passive",
+          "discover"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_40_Buddy",
+        "dbfId": 77831,
+        "name": "Maxwell, Mighty Steed",
+        "tavernTier": 4,
+        "attack": 1,
+        "health": 1,
+        "text": "When you sell this, get the <b>Buddy</b> of your Hero Power.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_40_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 24677,
+        "totalPicked": 24566,
+        "totalOffered": 64346,
+        "averagePosition": 4.05
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_59",
+      "heroDbfId": 61910,
+      "name": "Aranna Starseeker",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_59",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_065",
+        "dbfId": 61915,
+        "name": "Demon Hunter Training",
+        "cost": 0,
+        "text": "[x]After 14 friendly minions\nattack, the first minion\nyou buy each turn is free.\n<i>(14 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_065",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "initialonly",
+          "passive"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_59_Buddy",
+        "dbfId": 77468,
+        "name": "Sklibb, Demon Hunter",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 4,
+        "text": "The Tavern offers an extra minion of a higher Tier whenever it is <b>Refreshed</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_59_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8313,
+        "totalPicked": 8291,
+        "totalOffered": 60073,
+        "averagePosition": 4.27
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG23_HERO_303",
+      "heroDbfId": 84867,
+      "name": "Murloc Holmes",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG23_HERO_303",
+      "heroPower": {
+        "cardId": "BG23_HERO_303p2",
+        "dbfId": 90403,
+        "name": "Detective for Hire",
+        "cost": 0,
+        "text": "[x]Look at 2 minions.\nGuess which one your next\nopponent had last combat\nfor a Tavern Coin.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_303p2",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG23_HERO_303_Buddy",
+        "dbfId": 98656,
+        "name": "Watfin",
+        "tavernTier": 2,
+        "attack": 2,
+        "health": 5,
+        "text": "After you guess correctly with 'Detective for Hire', get a plain copy of the minion.",
+        "imagePath": "HeroBuddyImages/buddies/BG23_HERO_303_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12444,
+        "totalPicked": 12407,
+        "totalOffered": 63023,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_49",
+      "heroDbfId": 60366,
+      "name": "Millhouse Manastorm",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_49",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_054",
+        "dbfId": 60405,
+        "name": "Manastorm",
+        "cost": 0,
+        "text": "[x]Minions and <b>Refreshes</b>\ncost 2 Gold. Upgrading\nthe Tavern costs (1) more.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_054",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold",
+          "refresh",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_49_Buddy",
+        "dbfId": 77803,
+        "name": "Magnus Manastorm",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]Two <b>Refreshes</b> each turn\nare free. <i>(0 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_49_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7088,
+        "totalPicked": 7056,
+        "totalOffered": 56939,
+        "averagePosition": 4.07
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_22",
+      "heroDbfId": 58024,
+      "name": "The Lich King",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_22",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_024",
+        "dbfId": 58040,
+        "name": "Reborn Rites",
+        "cost": 0,
+        "text": "[x]Give a minion <b>Reborn</b>\nuntil next turn.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_024",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_22_Buddy",
+        "dbfId": 77841,
+        "name": "Arfus",
+        "tavernTier": 2,
+        "attack": 8,
+        "health": 4,
+        "text": "After a friendly minion is <b>Reborn</b>, give it this minion's Attack.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_22_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 24666,
+        "totalPicked": 24570,
+        "totalOffered": 63355,
+        "averagePosition": 3.87
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG32_HERO_001",
+      "heroDbfId": 116920,
+      "name": "Forest Lord Cenarius",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/BG32_HERO_001",
+      "heroPower": {
+        "cardId": "BG32_HERO_001p",
+        "dbfId": 116921,
+        "name": "Wisdom of Ancients",
+        "cost": 3,
+        "text": "Increase your maximum Gold by 1.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG32_HERO_001p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG32_HERO_001_Buddy",
+        "dbfId": 122335,
+        "name": "Malorne",
+        "tavernTier": 3,
+        "attack": 1,
+        "health": 1,
+        "text": "[x]Has +1/+1 for every 3 Gold\nyou've spent this game.",
+        "imagePath": "HeroBuddyImages/buddies/BG32_HERO_001_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 22339,
+        "totalPicked": 22230,
+        "totalOffered": 64924,
+        "averagePosition": 4.18
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_003",
+      "heroDbfId": 80247,
+      "name": "Vanndar Stormpike",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_003",
+      "heroPower": {
+        "cardId": "BG22_HERO_003p",
+        "dbfId": 80248,
+        "name": "Stormpike Strength",
+        "cost": 0,
+        "text": "[x]When you have space in\ncombat, summon a copy of\nyour highest-Health minion.\n<i>(Unlocks on Turn 7.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_003p",
+        "primaryCategory": "Health",
+        "tags": [
+          "health",
+          "passive",
+          "combat",
+          "summon",
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_003_Buddy",
+        "dbfId": 77886,
+        "name": "Stormpike Lieutenant",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 7,
+        "text": "At the end of your turn, give your right-most minion +10 Health.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_003_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 16672,
+        "totalPicked": 16606,
+        "totalOffered": 64561,
+        "averagePosition": 3.93
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG26_HERO_104",
+      "heroDbfId": 99033,
+      "name": "Rock Master Voone",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG26_HERO_104",
+      "heroPower": {
+        "cardId": "BG26_HERO_104p",
+        "dbfId": 99034,
+        "name": "Upbeat Harmony",
+        "cost": 0,
+        "text": "[x]At the end of every 3 turns,\nget a plain copy of the left-\nmost card in your hand.\n<i>(3 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG26_HERO_104p",
+        "primaryCategory": "Other",
+        "tags": [
+          "other"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG26_HERO_104_Buddy",
+        "dbfId": 113629,
+        "name": "Akali, Rock Rhino",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 6,
+        "text": "[x]At the end of every 2\n turns, get a plain copy of the\nleft-most card in your hand.\n<i>(2 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG26_HERO_104_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10682,
+        "totalPicked": 10641,
+        "totalOffered": 37540,
+        "averagePosition": 4.07
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_005",
+      "heroDbfId": 117409,
+      "name": "Zerek, Master Cloner",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_005",
+      "heroPower": {
+        "cardId": "BG31_HERO_005p",
+        "dbfId": 117410,
+        "name": "Cloning Gallery",
+        "cost": 0,
+        "text": "[x]Once per game, summon\nan exact copy of a friendly\nminion.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_005p",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG31_HERO_005_Buddy",
+        "dbfId": 122327,
+        "name": "Mini-Zerek",
+        "tavernTier": 2,
+        "attack": 1,
+        "health": 1,
+        "text": "<b>Battlecry:</b> Choose a minion in the Tavern. Transform into a copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/BG31_HERO_005_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 16314,
+        "totalPicked": 16232,
+        "totalOffered": 62749,
+        "averagePosition": 4.17
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_000",
+      "heroDbfId": 77987,
+      "name": "Tavish Stormpike",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_000",
+      "heroPower": {
+        "cardId": "BG22_HERO_000p",
+        "dbfId": 77990,
+        "name": "Deadeye",
+        "cost": 0,
+        "text": "[x]Take aim!\n<b>Start of Combat:</b> Deal {1}\ndamage to your target.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_000p",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_000_Buddy",
+        "dbfId": 77880,
+        "name": "Crabby",
+        "tavernTier": 3,
+        "attack": 2,
+        "health": 3,
+        "text": "After you remove a minion with 'Lock and Load,' get a plain copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_000_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 11563,
+        "totalPicked": 11526,
+        "totalOffered": 63199,
+        "averagePosition": 4.05
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_75",
+      "heroDbfId": 64400,
+      "name": "Rakanishu",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_75",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_085",
+        "dbfId": 64401,
+        "name": "Tavern Lighting",
+        "cost": 1,
+        "text": "Get a Lantern Light that gives a minion stats equal to your Tier.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_085",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_75_Buddy",
+        "dbfId": 77823,
+        "name": "Lantern Tender",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 4,
+        "text": "[x]At the end of your turn,\nget 2 random Tavern\nspells that give stats.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_75_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12619,
+        "totalPicked": 12576,
+        "totalOffered": 65223,
+        "averagePosition": 3.97
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG27_HERO_801",
+      "heroDbfId": 103477,
+      "name": "Thorim, Stormlord",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG27_HERO_801",
+      "heroPower": {
+        "cardId": "BG27_HERO_801p2",
+        "dbfId": 104628,
+        "name": "Choose Your Champion",
+        "cost": 0,
+        "text": "[x]<b><b>Passive</b>.</b> At the start of the\ngame, <b>Discover</b> a Tier 7\nminion to get after you\n spend 60 Gold. <i>(60 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG27_HERO_801p2",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "initialonly",
+          "passive",
+          "discover",
+          "gold"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG27_HERO_801_Buddy",
+        "dbfId": 113557,
+        "name": "Veranus, Stormlord's Mount",
+        "tavernTier": 2,
+        "attack": 5,
+        "health": 2,
+        "text": "[x]At the end of your turn,\n transform the minion to the \nleft of this into one from a\n Tier higher <i>(up to Tier 7!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG27_HERO_801_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 28774,
+        "totalPicked": 28654,
+        "totalOffered": 65261,
+        "averagePosition": 3.94
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG33_HERO_001",
+      "heroDbfId": 122925,
+      "name": "Loh, the Living Legend",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/BG33_HERO_001",
+      "heroPower": {
+        "cardId": "BG33_HERO_001p_ALT",
+        "dbfId": 129164,
+        "name": "Heroic Inspiration",
+        "cost": 0,
+        "text": "[x]After 15 friendly minions\nattack, get a Triple\nReward. <i>(15 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG33_HERO_001p_ALT",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "initialonly",
+          "passive",
+          "discover"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG33_HERO_000_Buddy",
+        "dbfId": 123075,
+        "name": "Stoneshell Guardian",
+        "tavernTier": 5,
+        "attack": 5,
+        "health": 5,
+        "text": "[x]The first Triple Reward you\nplay each turn <b><b>Discover</b>s</b>\nfrom Golden minions.\n<i>(1 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG33_HERO_000_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 16778,
+        "totalPicked": 16720,
+        "totalOffered": 64827,
+        "averagePosition": 4.05
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG28_HERO_400",
+      "heroDbfId": 105314,
+      "name": "Snake Eyes",
+      "health": 30,
+      "armor": 5,
+      "imagePath": "HeroBuddyImages/heroes/BG28_HERO_400",
+      "heroPower": {
+        "cardId": "BG28_HERO_400p",
+        "dbfId": 105315,
+        "name": "Lucky Roll",
+        "cost": 1,
+        "text": "[x]Roll a 6-sided die.\nGain that much Gold.\n<i>(Cannot be used again\nfor that many turns!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG28_HERO_400p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG28_HERO_400_Buddy",
+        "dbfId": 113559,
+        "name": "Box Cars",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "[x]At the start of your turn, roll\na 6-sided die. <b>Discover</b> a\n Tavern spell of that Tier.",
+        "imagePath": "HeroBuddyImages/buddies/BG28_HERO_400_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 15973,
+        "totalPicked": 15909,
+        "totalOffered": 64512,
+        "averagePosition": 4.31
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG34_HERO_000",
+      "heroDbfId": 127696,
+      "name": "Murozond, Unbounded",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG34_HERO_000",
+      "heroPower": {
+        "cardId": "BG34_HERO_000p",
+        "dbfId": 127697,
+        "name": "Alternate Timeline",
+        "cost": 0,
+        "text": "[x]On Turn 8, visit the Major\n<b>Timewarp</b>. <i>(7 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG34_HERO_000p",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "disabled",
+          "timewarp"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 32371,
+        "totalPicked": 32237,
+        "totalOffered": 62230,
+        "averagePosition": 3.92
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_17",
+      "heroDbfId": 57946,
+      "name": "Millificent Manastorm",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_17",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_015",
+        "dbfId": 57949,
+        "name": "Tinker",
+        "cost": 1,
+        "text": "[x]<b>Discover</b> a\n<b>Magnetic</b> Mech.\n<i>(Unlocks at Tier 4.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_015",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_17_Buddy",
+        "dbfId": 77805,
+        "name": "Elementium Squirrel Bomb",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]<b>Deathrattle:</b> Deal 4 damage\nto a random enemy minion\nfor each of your Mechs that\ndied this combat.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_17_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12844,
+        "totalPicked": 12795,
+        "totalOffered": 32444,
+        "averagePosition": 3.56
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_305",
+      "heroDbfId": 82110,
+      "name": "Onyxia",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_305",
+      "heroPower": {
+        "cardId": "BG22_HERO_305p",
+        "dbfId": 82114,
+        "name": "Broodmother",
+        "cost": 0,
+        "text": "[x]<b>Avenge (4):</b> Summon a\n{0}/{0} Whelp that attacks\nimmediately. Improve this\nby +1/+1.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_305p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_305_Buddy",
+        "dbfId": 77890,
+        "name": "Many Whelps",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 2,
+        "text": "Whenever you summon a Whelp, gain +2/+2 permanently.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_305_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9267,
+        "totalPicked": 9240,
+        "totalOffered": 49035,
+        "averagePosition": 4.07
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_283",
+      "heroDbfId": 75702,
+      "name": "Galewing",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_283",
+      "heroPower": {
+        "cardId": "BG20_HERO_283p",
+        "dbfId": 75703,
+        "name": "Dungar's Gryphon",
+        "cost": 0,
+        "text": "Choose a new flightpath. Complete it to get a bonus!",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_283p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_283_Buddy",
+        "dbfId": 77788,
+        "name": "Flight Trainer",
+        "tavernTier": 1,
+        "attack": 2,
+        "health": 2,
+        "text": "Your flightpaths trigger twice.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_283_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 11145,
+        "totalPicked": 11104,
+        "totalOffered": 63262,
+        "averagePosition": 4.18
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG21_HERO_000",
+      "heroDbfId": 73940,
+      "name": "Cariel Roame",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG21_HERO_000",
+      "heroPower": {
+        "cardId": "BG21_HERO_000p",
+        "dbfId": 73941,
+        "name": "Conviction",
+        "cost": 1,
+        "text": "[x]Give {2} random friendly\n minions +1/+1.\n<b><b>Passive</b>:</b> After each combat,\nchoose an improvement.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG21_HERO_000p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "initialonly",
+          "passive",
+          "discover",
+          "combat"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG21_HERO_000_Buddy",
+        "dbfId": 77778,
+        "name": "Captain Fairmount",
+        "tavernTier": 2,
+        "attack": 7,
+        "health": 5,
+        "text": "At the end of your turn, randomly improve 'Conviction'.",
+        "imagePath": "HeroBuddyImages/buddies/BG21_HERO_000_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 4315,
+        "totalPicked": 4306,
+        "totalOffered": 63125,
+        "averagePosition": 4.17
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_50",
+      "heroDbfId": 60367,
+      "name": "Tess Greymane",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_50",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_077",
+        "dbfId": 63162,
+        "name": "Bob's Burgles",
+        "cost": 1,
+        "text": "[x]<b>Refresh</b> the Tavern with\nplain copies of your last\n opponent's warband.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_077",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "refresh"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_50_Buddy",
+        "dbfId": 77835,
+        "name": "Hunter of Old",
+        "tavernTier": 4,
+        "attack": 5,
+        "health": 3,
+        "text": "At the start of your turn,\nget your last opponent's <b>Buddy</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_50_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 15901,
+        "totalPicked": 15824,
+        "totalOffered": 61352,
+        "averagePosition": 4.3
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_15",
+      "heroDbfId": 57929,
+      "name": "George the Fallen",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_15",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_010",
+        "dbfId": 57562,
+        "name": "Boon of Light",
+        "cost": 1,
+        "text": "Give a minion\n<b>Divine Shield</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_010",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_15_Buddy",
+        "dbfId": 77495,
+        "name": "Karl the Lost",
+        "tavernTier": 2,
+        "attack": 3,
+        "health": 4,
+        "text": "After you use your Hero Power, give your <b>Divine Shield</b> minions +2 Attack.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_15_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12522,
+        "totalPicked": 12480,
+        "totalOffered": 63262,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_53",
+      "heroDbfId": 60370,
+      "name": "Ysera",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_53",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_062",
+        "dbfId": 61408,
+        "name": "Dream Portal",
+        "cost": 0,
+        "text": "[x]The Tavern offers an\nextra Dragon whenever\nit is <b>Refreshed</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_062",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "refresh"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_53_Buddy",
+        "dbfId": 77855,
+        "name": "Valithria Dreamwalker",
+        "tavernTier": 1,
+        "attack": 6,
+        "health": 4,
+        "text": "Whenever a Dragon enters your warband or the Tavern, gain +1/+1.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_53_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8212,
+        "totalPicked": 8180,
+        "totalOffered": 32447,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_41",
+      "heroDbfId": 60212,
+      "name": "Reno Jackson",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_41",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_046",
+        "dbfId": 60216,
+        "name": "Gonna Be Rich!",
+        "cost": 0,
+        "text": "[x]Once per game, make a\nfriendly minion Golden.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_046",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_41_Buddy",
+        "dbfId": 77825,
+        "name": "Sr. Tomb Diver",
+        "tavernTier": 1,
+        "attack": 5,
+        "health": 1,
+        "text": "<b>Taunt</b>\n<b>Deathrattle:</b> Make your\nright-most minion Golden.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_41_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Deathrattle",
+          "Taunt"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 19817,
+        "totalPicked": 19742,
+        "totalOffered": 62440,
+        "averagePosition": 4.14
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_10",
+      "heroDbfId": 57891,
+      "name": "Trade Prince Gallywix",
+      "health": 30,
+      "armor": 5,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_10",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_008",
+        "dbfId": 57559,
+        "name": "Smart Savings",
+        "cost": 1,
+        "text": "[x]After you sell a minion,\ngain 1 Gold next turn.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_008",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_10_Buddy",
+        "dbfId": 77847,
+        "name": "Bilgewater Mogul",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 5,
+        "text": "At the end of your turn, increase your maximum Gold by 1.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_10_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9022,
+        "totalPicked": 8965,
+        "totalOffered": 31973,
+        "averagePosition": 4.22
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_34",
+      "heroDbfId": 59397,
+      "name": "Patchwerk",
+      "health": 60,
+      "armor": 0,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_34",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_035",
+        "dbfId": 59399,
+        "name": "All Patched Up",
+        "cost": 0,
+        "text": "[x]Start the game with\n30 extra Health.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_035",
+        "primaryCategory": "Health",
+        "tags": [
+          "health",
+          "initialonly",
+          "buff"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_34_Buddy",
+        "dbfId": 77817,
+        "name": "Weebomination",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "[x]At the end of your turn, give the\nminion to the left +1 Health.\n<i>(Improved by each Health\nyour hero is missing!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_34_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 18531,
+        "totalPicked": 18456,
+        "totalOffered": 64757,
+        "averagePosition": 3.82
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG23_HERO_305",
+      "heroDbfId": 86291,
+      "name": "Heistbaron Togwaggle",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG23_HERO_305",
+      "heroPower": {
+        "cardId": "BG23_HERO_305p",
+        "dbfId": 86292,
+        "name": "The Perfect Crime",
+        "cost": 11,
+        "text": "[x]Steal all cards from\nthe Tavern. Each turn,\nyour next Hero Power\ncosts (1) less.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_305p",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG23_HERO_305_Buddy",
+        "dbfId": 98650,
+        "name": "Waxadred, the Drippy",
+        "tavernTier": 4,
+        "attack": 7,
+        "health": 5,
+        "text": "[x]<b><b>Battlecry:</b> Refresh</b> the\nTavern with the highest-\nTier minion from each\nopponent's warband.",
+        "imagePath": "HeroBuddyImages/buddies/BG23_HERO_305_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8714,
+        "totalPicked": 8676,
+        "totalOffered": 60958,
+        "averagePosition": 4.27
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_282",
+      "heroDbfId": 74646,
+      "name": "Tamsin Roame",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_282",
+      "heroPower": {
+        "cardId": "BG20_HERO_282p",
+        "dbfId": 77911,
+        "name": "Fragrant Phylactery",
+        "cost": 0,
+        "text": "[x]<b>Start of Combat:</b> Give your\nlowest-Attack minion\n\"<b>Deathrattle:</b> Give your other\nminions this minion's stats.\"",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_282p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_282_Buddy",
+        "dbfId": 77878,
+        "name": "Monstrosity",
+        "tavernTier": 4,
+        "attack": 5,
+        "health": 10,
+        "text": "After a friendly minion dies, gain its Attack.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_282_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 2913,
+        "totalPicked": 2898,
+        "totalOffered": 31031,
+        "averagePosition": 4.3
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_201",
+      "heroDbfId": 71463,
+      "name": "Vol'jin",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_201",
+      "heroPower": {
+        "cardId": "BG20_HERO_201p",
+        "dbfId": 71464,
+        "name": "Spirit Swap",
+        "cost": 0,
+        "text": "Choose 2 minions. They gain each other's Attack until next turn.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_201p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_201_Buddy",
+        "dbfId": 77849,
+        "name": "Master Gadrin",
+        "tavernTier": 4,
+        "attack": 7,
+        "health": 6,
+        "text": "[x]<b>Start of Combat:</b> Give the\nminion to the left of this\n Health equal to its Attack.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_201_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6948,
+        "totalPicked": 6923,
+        "totalOffered": 63252,
+        "averagePosition": 4.04
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_007",
+      "heroDbfId": 79618,
+      "name": "Queen Azshara",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_007",
+      "heroPower": {
+        "cardId": "BG22_HERO_007p",
+        "dbfId": 79619,
+        "name": "Azshara's Ambition",
+        "cost": 0,
+        "text": "[x]When your warband\nreaches 30 total Attack,\nbegin your Naga Conquest.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_007p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive",
+          "quest"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_007_Buddy",
+        "dbfId": 77894,
+        "name": "Imperial Defender",
+        "tavernTier": 3,
+        "attack": 3,
+        "health": 4,
+        "text": "[x]After you cast a spell on a\ndifferent friendly minion,\nyou also cast it on this.\n<i>(Once per turn.)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_007_Buddy",
+        "tribes": [
+          "Naga"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7786,
+        "totalPicked": 7777,
+        "totalOffered": 27754,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_28",
+      "heroDbfId": 58534,
+      "name": "Infinite Toki",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_28",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_028",
+        "dbfId": 58537,
+        "name": "Temporal Tavern",
+        "cost": 1,
+        "text": "[x]<b>Refresh</b> the Tavern.\n Include two minions from\na Tier higher than yours.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_028",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "refresh"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_28_Buddy",
+        "dbfId": 77507,
+        "name": "Clockwork Assistant",
+        "tavernTier": 5,
+        "attack": 3,
+        "health": 3,
+        "text": "<b>Battlecry:</b> <b>Discover</b> a minion from a Tier\nhigher than yours.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_28_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 14000,
+        "totalPicked": 13950,
+        "totalOffered": 63442,
+        "averagePosition": 4.31
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_70",
+      "heroDbfId": 63319,
+      "name": "Mr. Bigglesworth",
+      "health": 30,
+      "armor": 19,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_70",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_080",
+        "dbfId": 63320,
+        "name": "Kel'Thuzad's Kitty",
+        "cost": 0,
+        "text": "[x]After another hero dies,\n<b>Discover</b> a minion from\ntheir warband. It keeps\nenchantments.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_080",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_70_Buddy",
+        "dbfId": 77807,
+        "name": "Lil' K.T.",
+        "tavernTier": 3,
+        "attack": 5,
+        "health": 4,
+        "text": "[x]At the start of your turn,\nget a plain minion from\nyour lowest-Health\nopponent's warband.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_70_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8999,
+        "totalPicked": 8972,
+        "totalOffered": 64390,
+        "averagePosition": 4.16
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_29",
+      "heroDbfId": 58535,
+      "name": "C'Thun",
+      "health": 30,
+      "armor": 20,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_29",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_104",
+        "dbfId": 66246,
+        "name": "Saturday C'Thuns!",
+        "cost": 1,
+        "text": "[x]At end of turn, give a\nfriendly minion +1/+1.\n Repeat 0 times.\n<i> (Improves each turn!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_104",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_29_Buddy",
+        "dbfId": 77475,
+        "name": "Tentacle of C'Thun",
+        "tavernTier": 2,
+        "attack": 3,
+        "health": 3,
+        "text": "After a different friendly minion gains stats, gain +1/+1 until next turn.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_29_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5156,
+        "totalPicked": 5144,
+        "totalOffered": 57508,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_201",
+      "heroDbfId": 81569,
+      "name": "Ambassador Faelin",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_201",
+      "heroPower": {
+        "cardId": "BG22_HERO_201p",
+        "dbfId": 81570,
+        "name": "Expedition Plans",
+        "cost": 0,
+        "text": "[x]Skip your first turn.\n<b>Discover</b> minions from\nTiers 6, 4, and 2 to get\nat those Tiers.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_201p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "initialonly"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_201_Buddy",
+        "dbfId": 82604,
+        "name": "Submersible Chef",
+        "tavernTier": 5,
+        "attack": 4,
+        "health": 3,
+        "text": "<b>Battlecry:</b> Get a random minion each from\nTiers 1, 3, and 5.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_201_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 23502,
+        "totalPicked": 23412,
+        "totalOffered": 57790,
+        "averagePosition": 4.03
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_78",
+      "heroDbfId": 64475,
+      "name": "Chenvaala",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_78",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_088",
+        "dbfId": 64476,
+        "name": "Avalanche",
+        "cost": 0,
+        "text": "[x]After you play 3\nElementals, reduce the\nCost of upgrading the\nTavern by (3).",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_088",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_78_Buddy",
+        "dbfId": 77780,
+        "name": "Snow Elemental",
+        "tavernTier": 3,
+        "attack": 5,
+        "health": 4,
+        "text": "[x]The Tavern offers an extra\n<b>Frozen</b> Elemental\n whenever it is <b>Refreshed</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_78_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8126,
+        "totalPicked": 8095,
+        "totalOffered": 28630,
+        "averagePosition": 4.09
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_21",
+      "heroDbfId": 58021,
+      "name": "The Great Akazamzarak",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_21",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_020",
+        "dbfId": 58022,
+        "name": "Prestidigitation",
+        "cost": 0,
+        "text": "Choose a <b>Secret</b>.\nPut it into the battlefield.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_020",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_21_Buddy",
+        "dbfId": 77839,
+        "name": "Street Magician",
+        "tavernTier": 2,
+        "attack": 3,
+        "health": 5,
+        "text": "'Prestidigitation' chooses from Better <b>Secrets</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_21_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 15111,
+        "totalPicked": 15054,
+        "totalOffered": 63272,
+        "averagePosition": 3.92
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_006",
+      "heroDbfId": 117425,
+      "name": "Exarch Othaar",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_006",
+      "heroPower": {
+        "cardId": "BG31_HERO_006p",
+        "dbfId": 117426,
+        "name": "Arcane Knowledge",
+        "cost": 0,
+        "text": "[x]The next Tavern spell\nyou buy costs (1) less.\n<i>(Unlocks on Turn 3.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_006p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "cost",
+          "tavern_spell"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG31_HERO_006_Buddy",
+        "dbfId": 122342,
+        "name": "The Celestial Archive",
+        "tavernTier": 1,
+        "attack": 4,
+        "health": 4,
+        "text": "Whenever you buy a Tavern spell that costs (0), get a copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/BG31_HERO_006_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8714,
+        "totalPicked": 8672,
+        "totalOffered": 62660,
+        "averagePosition": 4.04
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG23_HERO_304",
+      "heroDbfId": 85125,
+      "name": "Lady Vashj",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/BG23_HERO_304",
+      "heroPower": {
+        "cardId": "BG23_HERO_304p",
+        "dbfId": 85126,
+        "name": "Relics of the Deep",
+        "cost": 0,
+        "text": "[x]At the start of each turn,\nget a random <b>Spellcraft</b>\nspell.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_304p",
+        "primaryCategory": "Passive",
+        "tags": [
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG23_HERO_304_Buddy",
+        "dbfId": 101458,
+        "name": "Coilfang Elite",
+        "tavernTier": 1,
+        "attack": 3,
+        "health": 2,
+        "text": "[x]After a <b>Spellcraft</b> minion\nappears in the Tavern,\nget a copy of its spell.",
+        "imagePath": "HeroBuddyImages/buddies/BG23_HERO_304_Buddy",
+        "tribes": [
+          "Naga"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7423,
+        "totalPicked": 7395,
+        "totalOffered": 30864,
+        "averagePosition": 3.9
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_101",
+      "heroDbfId": 70956,
+      "name": "Xyrella",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_101",
+      "heroPower": {
+        "cardId": "BG20_HERO_101p",
+        "dbfId": 70957,
+        "name": "See the Light",
+        "cost": 2,
+        "text": "[x]Choose a minion in the\nTavern. Set its stats to 2\nand add it to your hand.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_101p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_101_Buddy",
+        "dbfId": 77851,
+        "name": "Baby Elekk",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 4,
+        "text": "Whenever you play a minion with less Attack than this, give it +{0}/+{1} and improve this.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_101_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10355,
+        "totalPicked": 10295,
+        "totalOffered": 59014,
+        "averagePosition": 4.17
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_100",
+      "heroDbfId": 70838,
+      "name": "Rokara",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_100",
+      "heroPower": {
+        "cardId": "BG20_HERO_100p",
+        "dbfId": 80229,
+        "name": "Glory of Combat",
+        "cost": 0,
+        "text": "[x]After a friendly minion\nkills an enemy, give it\n+1 Attack permanently.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_100p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_100_Buddy",
+        "dbfId": 77876,
+        "name": "Icesnarl the Mighty",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 2,
+        "text": "[x]After a friendly minion\nkills an enemy, gain\n+3 Health permanently.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_100_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5933,
+        "totalPicked": 5915,
+        "totalOffered": 64374,
+        "averagePosition": 4.13
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG23_HERO_306",
+      "heroDbfId": 89293,
+      "name": "Sylvanas Windrunner",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG23_HERO_306",
+      "heroPower": {
+        "cardId": "BG23_HERO_306p",
+        "dbfId": 89294,
+        "name": "Reclaimed Souls",
+        "cost": 2,
+        "text": "[x]<b>Discover</b> a plain copy of\na minion that died\nlast combat.\n<i>(Unlocks on Turn 3.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_306p",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG23_HERO_306_Buddy",
+        "dbfId": 98660,
+        "name": "Nathanos Blightcaller",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 7,
+        "text": "<b>Battlecry:</b> Sell a friendly minion. Split its stats evenly amongst its neighbors.",
+        "imagePath": "HeroBuddyImages/buddies/BG23_HERO_306_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 25993,
+        "totalPicked": 25882,
+        "totalOffered": 61467,
+        "averagePosition": 4.03
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_004",
+      "heroDbfId": 79615,
+      "name": "Varden Dawngrasp",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_004",
+      "heroPower": {
+        "cardId": "BG22_HERO_004p",
+        "dbfId": 80539,
+        "name": "Twice as Nice",
+        "cost": 0,
+        "text": "[x]After the Tavern is\n<b>Refreshed</b>, copy its\nhighest-Tier minion and\n<b>Freeze</b> them both.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_004p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "refresh"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_004_Buddy",
+        "dbfId": 77888,
+        "name": "Varden's Aquarrior",
+        "tavernTier": 1,
+        "attack": 3,
+        "health": 6,
+        "text": "[x]'Twice as Nice' also\ngives both minions stats\nequal to your Tier.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_004_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 15054,
+        "totalPicked": 15001,
+        "totalOffered": 59763,
+        "averagePosition": 4.09
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG24_HERO_204",
+      "heroDbfId": 96870,
+      "name": "Enhance-o Mechano",
+      "health": 30,
+      "armor": 20,
+      "imagePath": "HeroBuddyImages/heroes/BG24_HERO_204",
+      "heroPower": {
+        "cardId": "BG24_HERO_204p",
+        "dbfId": 96872,
+        "name": "Enhancification",
+        "cost": 0,
+        "text": "[x]After the Tavern is\n<b>Refreshed</b>, give a random\nminion in it a random\n<b>Bonus Keyword</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG24_HERO_204p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "refresh",
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG24_HERO_204_Buddy",
+        "dbfId": 101973,
+        "name": "Enhance-o Medico",
+        "tavernTier": 1,
+        "attack": 3,
+        "health": 3,
+        "text": "[x]After you buy a minion,\ngain +3/+3 for each\n<b>Bonus Keyword</b> it has.",
+        "imagePath": "HeroBuddyImages/buddies/BG24_HERO_204_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12641,
+        "totalPicked": 12595,
+        "totalOffered": 63432,
+        "averagePosition": 4
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_002",
+      "heroDbfId": 80239,
+      "name": "Drek'Thar",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_002",
+      "heroPower": {
+        "cardId": "BG22_HERO_002p",
+        "dbfId": 80244,
+        "name": "Frostwolf Fervor",
+        "cost": 0,
+        "text": "[x]When you have space in\ncombat, summon a copy of\nyour highest-Attack minion.\n<i>(Unlocks on Turn 7.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_002p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive",
+          "combat",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_002_Buddy",
+        "dbfId": 77884,
+        "name": "Frostwolf Lieutenant",
+        "tavernTier": 2,
+        "attack": 7,
+        "health": 4,
+        "text": "At the end of your turn, give your left-most minion +10 Attack.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_002_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 14394,
+        "totalPicked": 14363,
+        "totalOffered": 65249,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_242",
+      "heroDbfId": 68129,
+      "name": "Guff Runetotem",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_242",
+      "heroPower": {
+        "cardId": "BG20_HERO_242p",
+        "dbfId": 68130,
+        "name": "Natural Balance",
+        "cost": 0,
+        "text": "[x]After you buy 20 Tiers'\nworth of cards, get a\nTriple Reward. <i>(20 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_242p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_242_Buddy",
+        "dbfId": 77790,
+        "name": "Baby Kodo",
+        "tavernTier": 4,
+        "attack": 3,
+        "health": 6,
+        "text": "<b>Battlecry: Refresh</b> the Tavern with a minion of each Tier.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_242_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 17223,
+        "totalPicked": 17160,
+        "totalOffered": 61266,
+        "averagePosition": 4.12
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG32_HERO_002",
+      "heroDbfId": 120649,
+      "name": "Buttons",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/BG32_HERO_002",
+      "heroPower": {
+        "cardId": "BG32_HERO_002p",
+        "dbfId": 120650,
+        "name": "Growing Collection",
+        "cost": 0,
+        "text": "[x]On Turn 8, choose a\nGreater <b>Trinket</b> to buy.\n<i>(7 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG32_HERO_002p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "disabled",
+          "trinket"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG32_HERO_002_Buddy",
+        "dbfId": 122325,
+        "name": "Zippers",
+        "tavernTier": 4,
+        "attack": 5,
+        "health": 5,
+        "text": "<b>Deathrattle:</b> Get a helpful card.",
+        "imagePath": "HeroBuddyImages/buddies/BG32_HERO_002_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 28108,
+        "totalPicked": 27989,
+        "totalOffered": 56280,
+        "averagePosition": 3.87
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_33",
+      "heroDbfId": 59203,
+      "name": "The Curator",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_33",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_033",
+        "dbfId": 59201,
+        "name": "Menagerist",
+        "cost": 0,
+        "text": "[x]Start the game with a\n2/2 Amalgam with\n<b>Venomous</b> and all\nminion types.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_033",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "initialonly"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_33_Buddy",
+        "dbfId": 77837,
+        "name": "Mishmash",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 4,
+        "text": "Whenever your Amalgam gains stats, this gains them too.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_33_Buddy",
+        "tribes": [
+          "All"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12952,
+        "totalPicked": 12909,
+        "totalOffered": 63762,
+        "averagePosition": 4.08
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_12",
+      "heroDbfId": 57893,
+      "name": "The Rat King",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_12",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_041",
+        "dbfId": 63127,
+        "name": "A Tale of Kings",
+        "cost": 2,
+        "text": "[x]<b>Discover</b> a minion of a\nspecific minion type.\nSwaps type each turn.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_041",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_12_Buddy",
+        "dbfId": 77843,
+        "name": "Pigeon Lord",
+        "tavernTier": 1,
+        "attack": 3,
+        "health": 4,
+        "text": "[x]Your <b>Refreshes</b> are free\nwhile the Tavern doesn't\nhave the minion type of\nyour Hero Power.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_12_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9014,
+        "totalPicked": 8979,
+        "totalOffered": 59640,
+        "averagePosition": 4.18
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_60",
+      "heroDbfId": 61912,
+      "name": "Kael'thas Sunstrider",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_60",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_066",
+        "dbfId": 61917,
+        "name": "Verdant Spheres",
+        "cost": 0,
+        "text": "[x]After you buy 3 minions,\nget a Tavern Coin.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_066",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_60_Buddy",
+        "dbfId": 77794,
+        "name": "Crimson Hand Centurion",
+        "tavernTier": 2,
+        "attack": 3,
+        "health": 3,
+        "text": "[x]<b>Divine Shield</b>. After\n'Verdant Spheres' triggers,\ngain the stats of the last\nminion you bought.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_60_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "DivineShield"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8576,
+        "totalPicked": 8536,
+        "totalOffered": 63140,
+        "averagePosition": 4.12
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_56",
+      "heroDbfId": 61488,
+      "name": "Alexstrasza",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_56",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_064",
+        "dbfId": 61517,
+        "name": "Queen of Dragons",
+        "cost": 1,
+        "text": "<b>Discover</b> a Dragon.\n<i>(Unlocks at Tier 4.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_064",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_56_Buddy",
+        "dbfId": 77448,
+        "name": "Vaelastrasz",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "<b>Rally:</b> Get a random Dragon.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_56_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12142,
+        "totalPicked": 12105,
+        "totalOffered": 33243,
+        "averagePosition": 3.89
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG24_HERO_100",
+      "heroDbfId": 92960,
+      "name": "Sire Denathrius",
+      "health": 30,
+      "armor": 11,
+      "imagePath": "HeroBuddyImages/heroes/BG24_HERO_100",
+      "heroPower": {
+        "cardId": "BG24_HERO_100p",
+        "dbfId": 92961,
+        "name": "Whodunit?",
+        "cost": 0,
+        "text": "At the start of the game, choose one of two <b>Quests</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG24_HERO_100p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "disabled",
+          "passive",
+          "quest"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG24_HERO_100_Buddy",
+        "dbfId": 101435,
+        "name": "Shady Aristocrat",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]When you sell this, <b>Discover</b>\na <b>Quest</b>. Complete it to get\nan 8-Gold Coin Pouch.",
+        "imagePath": "HeroBuddyImages/buddies/BG24_HERO_100_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 33540,
+        "totalPicked": 33392,
+        "totalOffered": 63673,
+        "averagePosition": 4.15
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_94",
+      "heroDbfId": 67356,
+      "name": "Tickatus",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_94",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_106",
+        "dbfId": 67357,
+        "name": "Prize Wall",
+        "cost": 0,
+        "text": "[x]Every 4 turns, <b>Discover</b>\na Darkmoon Prize.\n<i>(3 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_106",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_94_Buddy",
+        "dbfId": 77845,
+        "name": "Ticket Collector",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "When you sell this,\n<b>Discover</b> a Darkmoon Prize from the next Tier.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_94_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 16581,
+        "totalPicked": 16521,
+        "totalOffered": 62066,
+        "averagePosition": 4.03
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_702",
+      "heroDbfId": 97186,
+      "name": "The Jailer",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_702",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_702",
+        "dbfId": 97185,
+        "name": "Runic Empowerment",
+        "cost": 1,
+        "text": "[x]Give a minion +1/+{1}.\nImproves after five\n friendly minions die.\n <i>(5 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_702",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_702_Buddy",
+        "dbfId": 98690,
+        "name": "Mawsworn Soulkeeper",
+        "tavernTier": 4,
+        "attack": 2,
+        "health": 2,
+        "text": "<b>Deathrattle:</b> Summon 2 random Undead.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_702_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8773,
+        "totalPicked": 8745,
+        "totalOffered": 31517,
+        "averagePosition": 4
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_58",
+      "heroDbfId": 61490,
+      "name": "Malygos",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_58",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_052",
+        "dbfId": 60378,
+        "name": "Arcane Alteration",
+        "cost": 0,
+        "text": "[x]Replace a card with a\n random one of the same\nTier. <i>(Twice per turn.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_052",
+        "primaryCategory": "Other",
+        "tags": [
+          "other"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_58_Buddy",
+        "dbfId": 77723,
+        "name": "Nexus Lord",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 6,
+        "text": "'Arcane Alteration' replaces with a card from one Tier higher.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_58_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 11459,
+        "totalPicked": 11412,
+        "totalOffered": 63717,
+        "averagePosition": 4.15
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_42",
+      "heroDbfId": 60213,
+      "name": "Elise Starseeker",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_42",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_047",
+        "dbfId": 60217,
+        "name": "Lead Explorer",
+        "cost": 1,
+        "text": "[x]<b>Discover</b> a minion\nfrom your Tier. Costs (1)\nmore after each use.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_047",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "discover",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_42_Buddy",
+        "dbfId": 77484,
+        "name": "Jr. Navigator",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 4,
+        "text": "<b>Battlecry:</b> Reduce the Cost of 'Lead Explorer' by (2).",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_42_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8521,
+        "totalPicked": 8472,
+        "totalOffered": 62004,
+        "averagePosition": 4.19
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_36",
+      "heroDbfId": 59806,
+      "name": "Dancin' Deryl",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_36",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_042",
+        "dbfId": 59860,
+        "name": "Hat Trick",
+        "cost": 0,
+        "text": "[x]When you play a minion,\ngive it a +1/+1 hat\n that passes to a friendly\nminion when sold.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_042",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_36_Buddy",
+        "dbfId": 77477,
+        "name": "Asher the Haberdasher",
+        "tavernTier": 2,
+        "attack": 2,
+        "health": 2,
+        "text": "[x]After you sell a minion,\ngain two +1/+1 hats that\npass to a friendly minion\nwhen sold.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_36_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12258,
+        "totalPicked": 12212,
+        "totalOffered": 64660,
+        "averagePosition": 3.95
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG26_HERO_102",
+      "heroDbfId": 103500,
+      "name": "Inge, the Iron Hymn",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/BG26_HERO_102",
+      "heroPower": {
+        "cardId": "BG26_HERO_102p",
+        "dbfId": 103501,
+        "name": "Major Hymn",
+        "cost": 0,
+        "text": "[x]Give a minion Attack\nequal to your Tier. <i>(Swaps\nto Health next turn!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG26_HERO_102p",
+        "primaryCategory": "Health",
+        "tags": [
+          "health",
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG26_HERO_102_Buddy",
+        "dbfId": 113627,
+        "name": "Solemn Serenader",
+        "tavernTier": 2,
+        "attack": 6,
+        "health": 5,
+        "text": "[x]After you use your Hero Power\non a minion, it gains half this\nminion's Attack. <i>(Swaps to\nHealth next turn!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG26_HERO_102_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8050,
+        "totalPicked": 8034,
+        "totalOffered": 63308,
+        "averagePosition": 3.89
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_202",
+      "heroDbfId": 71908,
+      "name": "Master Nguyen",
+      "health": 30,
+      "armor": 10,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_202",
+      "heroPower": {
+        "cardId": "BG20_HERO_202p",
+        "dbfId": 71909,
+        "name": "Power of the Storm",
+        "cost": 0,
+        "text": "At the start of every turn, choose from 2 new Hero Powers.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_202p",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "passive",
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_202_Buddy",
+        "dbfId": 77514,
+        "name": "Lei Flamepaw",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 6,
+        "text": "[x]At the start of your turn,\nget the <b>Buddy</b> of your\nHero Power.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_202_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 28126,
+        "totalPicked": 28020,
+        "totalOffered": 63753,
+        "averagePosition": 4.06
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG21_HERO_010",
+      "heroDbfId": 76562,
+      "name": "Scabbs Cutterbutter",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG21_HERO_010",
+      "heroPower": {
+        "cardId": "BG21_HERO_010p",
+        "dbfId": 76563,
+        "name": "I Spy",
+        "cost": 2,
+        "text": "[x]<b>Discover</b> a plain copy of\na minion from your next\nopponent's warband.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG21_HERO_010p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG21_HERO_010_Buddy",
+        "dbfId": 77870,
+        "name": "Warden Thelwater",
+        "tavernTier": 3,
+        "attack": 2,
+        "health": 6,
+        "text": "At the start of your turn,\nget your next opponent's Buddy.",
+        "imagePath": "HeroBuddyImages/buddies/BG21_HERO_010_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12033,
+        "totalPicked": 11977,
+        "totalOffered": 60847,
+        "averagePosition": 4.27
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG25_HERO_103",
+      "heroDbfId": 98726,
+      "name": "Teron Gorefiend",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG25_HERO_103",
+      "heroPower": {
+        "cardId": "BG25_HERO_103p",
+        "dbfId": 98728,
+        "name": "Rapid Reanimation",
+        "cost": 0,
+        "text": "[x]Choose a friendly minion.\n<b>Start of Combat:</b> Destroy it.\nWhen you have space,\n resummon an exact copy.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG25_HERO_103p",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "passive",
+          "discover",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG25_HERO_103_Buddy",
+        "dbfId": 101459,
+        "name": "Shadowy Construct",
+        "tavernTier": 2,
+        "attack": 4,
+        "health": 4,
+        "text": "Whenever a friendly minion dies, gain its maximum stats. <i>(Once per combat.)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG25_HERO_103_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 18689,
+        "totalPicked": 18608,
+        "totalOffered": 50531,
+        "averagePosition": 3.95
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_45",
+      "heroDbfId": 60362,
+      "name": "Arch-Villain Rafaam",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_45",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_053",
+        "dbfId": 60381,
+        "name": "I'll Take That!",
+        "cost": 1,
+        "text": "[x]Next combat, get a\nplain copy of the\nfirst minion you kill.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_053",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_45_Buddy",
+        "dbfId": 77470,
+        "name": "Loyal Henchman",
+        "tavernTier": 2,
+        "attack": 4,
+        "health": 6,
+        "text": "[x]After you kill a second\nminion each combat,\nget a plain copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_45_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 13271,
+        "totalPicked": 13215,
+        "totalOffered": 64172,
+        "averagePosition": 4.11
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_64",
+      "heroDbfId": 62242,
+      "name": "Captain Eudora",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_64",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_074",
+        "dbfId": 62250,
+        "name": "Buried Treasure",
+        "cost": 1,
+        "text": "[x] Dig for a Golden minion!\n<i>(4 Digs left.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_074",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_64_Buddy",
+        "dbfId": 77472,
+        "name": "Dagwik Stickytoe",
+        "tavernTier": 2,
+        "attack": 5,
+        "health": 5,
+        "text": "[x]At the end of your turn,\ngive a random friendly\nGolden minion +5/+5.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_64_Buddy",
+        "tribes": [
+          "Pirate"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 17214,
+        "totalPicked": 17143,
+        "totalOffered": 62048,
+        "averagePosition": 4.1
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_57",
+      "heroDbfId": 61489,
+      "name": "Nozdormu",
+      "health": 30,
+      "armor": 13,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_57",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_063",
+        "dbfId": 61491,
+        "name": "Clairvoyance",
+        "cost": 0,
+        "text": "At the start of your turn, gain a free <b>Refresh</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_063",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "refresh"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_57_Buddy",
+        "dbfId": 77512,
+        "name": "Chromie",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "One <b>Refresh</b> each turn is helpful! <i>(1 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_57_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 12119,
+        "totalPicked": 12072,
+        "totalOffered": 63808,
+        "averagePosition": 4.1
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_37",
+      "heroDbfId": 59807,
+      "name": "Lord Jaraxxus",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_37",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_036",
+        "dbfId": 59808,
+        "name": "Bloodfury",
+        "cost": 0,
+        "text": "[x]After friendly minions\ndeal 150 damage, open\na portal to the Twisting\nNether! <i>(150 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_036",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_37_Buddy",
+        "dbfId": 77798,
+        "name": "Kil'rek",
+        "tavernTier": 3,
+        "attack": 3,
+        "health": 6,
+        "text": "<b>Taunt</b>\n<b>Deathrattle:</b> Get a\nrandom Demon.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_37_Buddy",
+        "tribes": [
+          "Demon"
+        ],
+        "keywords": [
+          "Deathrattle",
+          "Taunt"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 11704,
+        "totalPicked": 11665,
+        "totalOffered": 32319,
+        "averagePosition": 3.97
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_25",
+      "heroDbfId": 58044,
+      "name": "Lich Baz'hial",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_25",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_049",
+        "dbfId": 60285,
+        "name": "Graveyard Shift",
+        "cost": 2,
+        "text": "[x]Steal a card from the\nTavern. Take 2 damage.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_049",
+        "primaryCategory": "Health",
+        "tags": [
+          "health"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_25_Buddy",
+        "dbfId": 77510,
+        "name": "Unearthed Underling",
+        "tavernTier": 1,
+        "attack": 5,
+        "health": 5,
+        "text": "Whenever your hero takes damage, rewind it and gain stats equal to that amount.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_25_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 3826,
+        "totalPicked": 3808,
+        "totalOffered": 30072,
+        "averagePosition": 4.34
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_18",
+      "heroDbfId": 57947,
+      "name": "Patches the Pirate",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_18",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_072",
+        "dbfId": 62243,
+        "name": "Pirate Parrrrty!",
+        "cost": 3,
+        "text": "[x]Get a Pirate. After you buy\na Pirate, your next Hero\nPower costs (1) less.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_072",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_18_Buddy",
+        "dbfId": 77815,
+        "name": "Tuskarr Raider",
+        "tavernTier": 5,
+        "attack": 6,
+        "health": 6,
+        "text": "<b>Battlecry, Deathrattle, and Rally:</b> Get a random <b>Bounty</b>.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_18_Buddy",
+        "tribes": [
+          "Pirate"
+        ],
+        "keywords": [
+          "Battlecry",
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 11734,
+        "totalPicked": 11679,
+        "totalOffered": 31875,
+        "averagePosition": 3.65
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_52",
+      "heroDbfId": 60369,
+      "name": "Deathwing",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_52",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_061",
+        "dbfId": 61406,
+        "name": "ALL Will Burn!",
+        "cost": 0,
+        "text": "[x]<b>Start of Combat:</b> Give\nALL minions +2 Attack\npermanently.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_061",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_52_Buddy",
+        "dbfId": 77782,
+        "name": "Sinestra",
+        "tavernTier": 2,
+        "attack": 2,
+        "health": 6,
+        "text": "Whenever a friendly minion gains Attack during combat, give it +1 Health permanently.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_52_Buddy",
+        "tribes": [
+          "Dragon"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6486,
+        "totalPicked": 6457,
+        "totalOffered": 63897,
+        "averagePosition": 3.98
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_103",
+      "heroDbfId": 71458,
+      "name": "Death Speaker Blackthorn",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_103",
+      "heroPower": {
+        "cardId": "BG20_HERO_103p",
+        "dbfId": 71459,
+        "name": "Bloodbound",
+        "cost": 1,
+        "text": "Get 2 <b>Blood Gems</b>.\n<i>(Twice per turn.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_103p",
+        "primaryCategory": "Other",
+        "tags": [
+          "other",
+          "initialonly"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_103_Buddy",
+        "dbfId": 77478,
+        "name": "Death's Head Sage",
+        "tavernTier": 3,
+        "attack": 3,
+        "health": 7,
+        "text": "After you get a <b>Blood Gem</b>, get an extra copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_103_Buddy",
+        "tribes": [
+          "Quilboar"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 3653,
+        "totalPicked": 3641,
+        "totalOffered": 33462,
+        "averagePosition": 4.29
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG21_HERO_030",
+      "heroDbfId": 76521,
+      "name": "Sneed",
+      "health": 30,
+      "armor": 20,
+      "imagePath": "HeroBuddyImages/heroes/BG21_HERO_030",
+      "heroPower": {
+        "cardId": "BG21_HERO_030p",
+        "dbfId": 76520,
+        "name": "Pilot the Shredder",
+        "cost": 0,
+        "text": "[x]Start the game with a 2/1\nShredder that summons a\nminion from your hand and\ngives it <b>Divine Shield</b>.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG21_HERO_030p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "initialonly",
+          "summon"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": {
+        "cardId": "BG21_HERO_030_Buddy",
+        "dbfId": 77874,
+        "name": "Piloted Whirl-O-Tron",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 4,
+        "text": "[x]<b>Start of Combat:</b> Copy your\ntwo left-most <b>Deathrattles</b>\n<i>(except other\nWhirl-O-Trons)</i>.",
+        "imagePath": "HeroBuddyImages/buddies/BG21_HERO_030_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8656,
+        "totalPicked": 8616,
+        "totalOffered": 48474,
+        "averagePosition": 3.76
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_003",
+      "heroDbfId": 116926,
+      "name": "Farseer Nobundo",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_003",
+      "heroPower": {
+        "cardId": "BG31_HERO_003p",
+        "dbfId": 116924,
+        "name": "The Galaxy's Lens",
+        "cost": 3,
+        "text": "[x]Get a copy of the last\nTavern spell you cast.\nEach turn, your next Hero\nPower costs (1) less.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_003p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "cost",
+          "tavern_spell"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 11000,
+        "totalPicked": 10947,
+        "totalOffered": 64501,
+        "averagePosition": 4.12
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_67",
+      "heroDbfId": 62266,
+      "name": "Captain Hooktusk",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_67",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_075",
+        "dbfId": 62267,
+        "name": "Trash for Treasure",
+        "cost": 0,
+        "text": "[x]Remove a friendly\nminion. <b>Discover</b> one\nfrom a Tier lower to get.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_075",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_67_Buddy",
+        "dbfId": 77776,
+        "name": "Raging Contender",
+        "tavernTier": 6,
+        "attack": 6,
+        "health": 5,
+        "text": "[x]After you use 'Trash for\n Treasure', gain Gold\nequal to the removed\nminion's Tier.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_67_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9716,
+        "totalPicked": 9675,
+        "totalOffered": 63679,
+        "averagePosition": 4.12
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_280",
+      "heroDbfId": 74631,
+      "name": "Kurtrus Ashfallen",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_280",
+      "heroPower": {
+        "cardId": "BG20_HERO_280p5",
+        "dbfId": 104875,
+        "name": "Glaive Ricochet",
+        "cost": 0,
+        "text": "[x]Once per turn, after you\nbuy 3 minions, get a plain\ncopy of one of them.\n<i>(3 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_280p5",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_280_Buddy",
+        "dbfId": 77796,
+        "name": "Living Nightmare",
+        "tavernTier": 2,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]After you buy a card,\nminions in the Tavern\nhave +2/+2 this turn.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_280_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8409,
+        "totalPicked": 8371,
+        "totalOffered": 61221,
+        "averagePosition": 4.21
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG35_HERO_001",
+      "heroDbfId": 129684,
+      "name": "Genn, Worgen King",
+      "health": 30,
+      "armor": 7,
+      "imagePath": "HeroBuddyImages/heroes/BG35_HERO_001",
+      "heroPower": {
+        "cardId": "BG35_HERO_001p",
+        "dbfId": 129685,
+        "name": "King of Duality",
+        "cost": 0,
+        "text": "On Turn 4, <b>Discover</b> two Hero Powers to replace this. <i>(3 turns left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG35_HERO_001p",
+        "primaryCategory": "HeroSwap",
+        "tags": [
+          "heroswap",
+          "initialonly",
+          "discover"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 22963,
+        "totalPicked": 22880,
+        "totalOffered": 48460,
+        "averagePosition": 4.21
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_55",
+      "heroDbfId": 60372,
+      "name": "Fungalmancer Flurgl",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_55",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_056",
+        "dbfId": 60448,
+        "name": "Gone Fishing",
+        "cost": 0,
+        "text": "[x]After you sell 5 minions,\nget a random Murloc.\n<i>(5 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_056",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_55_Buddy",
+        "dbfId": 77786,
+        "name": "Sparkfin Soothsayer",
+        "tavernTier": 2,
+        "attack": 4,
+        "health": 3,
+        "text": "[x]<b>Battlecry:</b> Transform\nminions in the Tavern into\n Murlocs of the same Tier.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_55_Buddy",
+        "tribes": [
+          "Murloc"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6198,
+        "totalPicked": 6173,
+        "totalOffered": 29791,
+        "averagePosition": 3.94
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_39",
+      "heroDbfId": 59831,
+      "name": "Pyramad",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_39",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_040",
+        "dbfId": 59832,
+        "name": "Brick by Brick",
+        "cost": 2,
+        "text": "[x]Steal a random minion\nfrom the Tavern.\nDouble its Health.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_040",
+        "primaryCategory": "Health",
+        "tags": [
+          "health",
+          "buff"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_39_Buddy",
+        "dbfId": 77819,
+        "name": "Titanic Guardian",
+        "tavernTier": 3,
+        "attack": 5,
+        "health": 2,
+        "text": "[x]Whenever a different minion\nin your hand or board gains\nHealth, this also gains it.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_39_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5406,
+        "totalPicked": 5386,
+        "totalOffered": 62050,
+        "averagePosition": 4.28
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG20_HERO_102",
+      "heroDbfId": 71454,
+      "name": "Overlord Saurfang",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG20_HERO_102",
+      "heroPower": {
+        "cardId": "BG20_HERO_102p",
+        "dbfId": 71455,
+        "name": "For the Horde!",
+        "cost": 0,
+        "text": "[x]Minions in the Tavern have\n+1/+{1}. Improves after\nyou buy 4 minions.\n<i>(4 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG20_HERO_102p",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG20_HERO_102_Buddy",
+        "dbfId": 77813,
+        "name": "Dranosh Saurfang",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 6,
+        "text": "After you buy a minion, gain half its stats.",
+        "imagePath": "HeroBuddyImages/buddies/BG20_HERO_102_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 9444,
+        "totalPicked": 9409,
+        "totalOffered": 58086,
+        "averagePosition": 3.86
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_71",
+      "heroDbfId": 63601,
+      "name": "Jandice Barov",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_71",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_084",
+        "dbfId": 63607,
+        "name": "Swap, Lock, & Shop It",
+        "cost": 0,
+        "text": "[x]Swap a friendly\nnon-Golden minion with a\nrandom one in the Tavern.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_084",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_71_Buddy",
+        "dbfId": 77792,
+        "name": "Jandice's Apprentice",
+        "tavernTier": 5,
+        "attack": 5,
+        "health": 6,
+        "text": "[x]After you play a minion\nyou've already played this\nturn, give your minions\n stats equal to your Tier.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_71_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 4584,
+        "totalPicked": 4560,
+        "totalOffered": 31885,
+        "averagePosition": 4.23
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG28_HERO_800",
+      "heroDbfId": 105431,
+      "name": "Tae'thelan Bloodwatcher",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG28_HERO_800",
+      "heroPower": {
+        "cardId": "BG28_HERO_800p",
+        "dbfId": 105432,
+        "name": "Reliquary Research",
+        "cost": 0,
+        "text": "[x]Every fourth Tavern spell\nyou buy costs (0).",
+        "imagePath": "HeroBuddyImages/heroPowers/BG28_HERO_800p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "cost",
+          "tavern_spell"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG28_HERO_800_Buddy",
+        "dbfId": 113650,
+        "name": "Reliquary Attendant",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 4,
+        "text": "Once per turn, after you cast a Tavern spell, get a new copy of it.",
+        "imagePath": "HeroBuddyImages/buddies/BG28_HERO_800_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 4470,
+        "totalPicked": 4455,
+        "totalOffered": 64457,
+        "averagePosition": 4.21
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_95",
+      "heroDbfId": 67553,
+      "name": "Greybough",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_95",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_107",
+        "dbfId": 67554,
+        "name": "Sprout It Out!",
+        "cost": 0,
+        "text": "[x]Give +1/+2 and <b>Taunt</b>\nto minions you summon\nduring combat.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_107",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "combat",
+          "summon"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_95_Buddy",
+        "dbfId": 77502,
+        "name": "Wandering Treant",
+        "tavernTier": 4,
+        "attack": 3,
+        "health": 9,
+        "text": "[x]Whenever a friendly <b>Taunt</b>\nminion is attacked, give\nyour minions +1/+1\npermanently.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_95_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6771,
+        "totalPicked": 6743,
+        "totalOffered": 26533,
+        "averagePosition": 4.17
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_38",
+      "heroDbfId": 59814,
+      "name": "King Mukla",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_38",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_038",
+        "dbfId": 59815,
+        "name": "Bananarama",
+        "cost": 0,
+        "text": "[x]At the start of your turn,\nget 2 Bananas and give\neveryone else one.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_038",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_38_Buddy",
+        "dbfId": 77508,
+        "name": "Crazy Monkey",
+        "tavernTier": 1,
+        "attack": 1,
+        "health": 4,
+        "text": "[x]When you sell this, feed {2}\nBanana to your minions.\n After you cast 2 spells,\n improve this. <i>(2 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_38_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6983,
+        "totalPicked": 6953,
+        "totalOffered": 63974,
+        "averagePosition": 4
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_01",
+      "heroDbfId": 57633,
+      "name": "Edwin VanCleef",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_01",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_001",
+        "dbfId": 57567,
+        "name": "Sharpen Blades",
+        "cost": 1,
+        "text": "[x]Give a minion +{1}/+{1}.\nImproves after you\nbuy 5 cards. <i>({0} left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_001",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_01_Buddy",
+        "dbfId": 77479,
+        "name": "SI:7 Scout",
+        "tavernTier": 1,
+        "attack": 2,
+        "health": 2,
+        "text": "After you buy a card, gain +2/+2.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_01_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5062,
+        "totalPicked": 5045,
+        "totalOffered": 58331,
+        "averagePosition": 4.2
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG34_HERO_001",
+      "heroDbfId": 126537,
+      "name": "Time Twister Chromie",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG34_HERO_001",
+      "heroPower": {
+        "cardId": "BG34_HERO_001p",
+        "dbfId": 126538,
+        "name": "Mana Per Minute",
+        "cost": 0,
+        "text": "<b>Refresh</b> the Tavern\nwith Tavern spells.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG34_HERO_001p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "refresh",
+          "tavern_spell"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 9882,
+        "totalPicked": 9840,
+        "totalOffered": 64772,
+        "averagePosition": 4.3
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_62",
+      "heroDbfId": 61914,
+      "name": "Maiev Shadowsong",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_62",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_068",
+        "dbfId": 61919,
+        "name": "Imprison",
+        "cost": 1,
+        "text": "[x]Choose a card in the\nTavern to lock in your\nhand. After 2 turns,\nunlock it.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_068",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_62_Buddy",
+        "dbfId": 77800,
+        "name": "Shadow Warden",
+        "tavernTier": 2,
+        "attack": 5,
+        "health": 5,
+        "text": "<b>Battlecry:</b> Your next Hero Power makes the target Golden.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_62_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [
+          "Battlecry"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7411,
+        "totalPicked": 7377,
+        "totalOffered": 55849,
+        "averagePosition": 4.14
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_91",
+      "heroDbfId": 64485,
+      "name": "Zephrys, the Great",
+      "health": 30,
+      "armor": 17,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_91",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_102",
+        "dbfId": 64486,
+        "name": "Three Wishes",
+        "cost": 3,
+        "text": "[x]If you have two copies of\na minion, find the third.\n<i>(3 Wishes left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_102",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_91_Buddy",
+        "dbfId": 77859,
+        "name": "Phyresz",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]When you sell this,\n<b>Discover</b> a plain copy of a\ndifferent minion that you\nhave exactly one of.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_91_Buddy",
+        "tribes": [
+          "Elemental"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5814,
+        "totalPicked": 5793,
+        "totalOffered": 30560,
+        "averagePosition": 4.24
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_08",
+      "heroDbfId": 57634,
+      "name": "Illidan Stormrage",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_08",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_069",
+        "dbfId": 61851,
+        "name": "Wingmen",
+        "cost": 0,
+        "text": "[x]<b>Start of Combat:</b> Your left-\nand right-most minions\ngain +2/+1 and attack\nimmediately.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_069",
+        "primaryCategory": "Buff",
+        "tags": [
+          "buff",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_08_Buddy",
+        "dbfId": 77626,
+        "name": "Eclipsion Illidari",
+        "tavernTier": 2,
+        "attack": 6,
+        "health": 3,
+        "text": "[x]Your first minion that\nattacks has \"<b>Immune</b>\nwhile Attacking\" for one\nattack only.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_08_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7533,
+        "totalPicked": 7492,
+        "totalOffered": 31238,
+        "averagePosition": 3.98
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_74",
+      "heroDbfId": 63604,
+      "name": "Forest Warden Omu",
+      "health": 30,
+      "armor": 6,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_74",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_082",
+        "dbfId": 63605,
+        "name": "Everbloom",
+        "cost": 0,
+        "text": "[x]After you upgrade the\nTavern, gain 2 Gold.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_082",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "gold",
+          "cost"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_74_Buddy",
+        "dbfId": 77493,
+        "name": "Evergreen Botani",
+        "tavernTier": 4,
+        "attack": 8,
+        "health": 5,
+        "text": "At the end of your turn,\nget a random minion\nof your Tier.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_74_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 14780,
+        "totalPicked": 14732,
+        "totalOffered": 59750,
+        "averagePosition": 4.21
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_001",
+      "heroDbfId": 79719,
+      "name": "Bru'kan",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_001",
+      "heroPower": {
+        "cardId": "BG22_HERO_001p",
+        "dbfId": 79720,
+        "name": "Embrace the Elements",
+        "cost": 0,
+        "text": "[x]Choose an Element.\n<b>Start of Combat:</b> Call\nupon that Element.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_001p",
+        "primaryCategory": "Combat",
+        "tags": [
+          "combat",
+          "discover"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_001_Buddy",
+        "dbfId": 77882,
+        "name": "Spirit Raptor",
+        "tavernTier": 1,
+        "attack": 3,
+        "health": 2,
+        "text": "[x]After you call upon a new\nElement, this remembers it.\n<b>Deathrattle:</b> Call upon\nthose Elements.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_001_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6797,
+        "totalPicked": 6772,
+        "totalOffered": 63054,
+        "averagePosition": 4.08
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_11",
+      "heroDbfId": 57892,
+      "name": "Ragnaros the Firelord",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_11",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_087",
+        "dbfId": 64424,
+        "name": "BUY, INSECT!",
+        "cost": 0,
+        "text": "[x]After you buy 16 cards,\nget Sulfuras. <i>(16 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_087",
+        "primaryCategory": "Passive",
+        "tags": [
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_11_Buddy",
+        "dbfId": 77821,
+        "name": "Lucifron",
+        "tavernTier": 5,
+        "attack": 6,
+        "health": 5,
+        "text": "Your end of turn effects trigger an extra time.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_11_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 4887,
+        "totalPicked": 4867,
+        "totalOffered": 64324,
+        "averagePosition": 4.3
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_14",
+      "heroDbfId": 57924,
+      "name": "Queen Wagtoggle",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_14",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_037a",
+        "dbfId": 59863,
+        "name": "Wax Warband",
+        "cost": 0,
+        "text": "[x]<b>Start of Combat:</b> Give a\nfriendly minion of each\ntype +{2}/+{2}. <i>(Improves\nafter you spend 10 Gold!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_037a",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "gold",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_14_Buddy",
+        "dbfId": 77629,
+        "name": "Elder Taggawag",
+        "tavernTier": 4,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]<b>Start of Combat:</b> If you control\n4 minions with different types,\ngain your minions' highest\nAttack and Health.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_14_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10581,
+        "totalPicked": 10542,
+        "totalOffered": 64222,
+        "averagePosition": 3.87
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_811",
+      "heroDbfId": 120358,
+      "name": "Kerrigan, Queen of Blades",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_811",
+      "heroPower": {
+        "cardId": "BG31_HERO_811p",
+        "dbfId": 120362,
+        "name": "Spawning Pool",
+        "cost": 6,
+        "text": "[x]Unlock Tier 2 Zerg.\nCosts (1) less each turn.\n<b><b>Passive</b>:</b> Start the game\nwith a 2/2 Larva.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_811p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "disabled",
+          "passive",
+          "cost",
+          "out_of_scope_system"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG31_HERO_811_Buddy",
+        "dbfId": 122333,
+        "name": "Broken Horn",
+        "tavernTier": 6,
+        "attack": 4,
+        "health": 4,
+        "text": "[x]When you sell this,\n<b>Discover</b> a Zerg minion\nand set its stats to 6/6. \nIt doesn't morph.",
+        "imagePath": "HeroBuddyImages/buddies/BG31_HERO_811_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5088,
+        "totalPicked": 5072,
+        "totalOffered": 63296,
+        "averagePosition": 4.16
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG28_HERO_801",
+      "heroDbfId": 105434,
+      "name": "Doctor Holli'dae",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/BG28_HERO_801",
+      "heroPower": {
+        "cardId": "BG28_HERO_801p",
+        "dbfId": 110472,
+        "name": "Blessing of the Nine Frogs",
+        "cost": 1,
+        "text": "Get a random\nTavern spell.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG28_HERO_801p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "tavern_spell"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG28_HERO_801_Buddy",
+        "dbfId": 113631,
+        "name": "The Nine Frogs",
+        "tavernTier": 6,
+        "attack": 9,
+        "health": 9,
+        "text": "[x]After you buy a minion, get a\nrandom Tavern spell from\nthe same Tier. <i>(9 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG28_HERO_801_Buddy",
+        "tribes": [
+          "Beast"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10100,
+        "totalPicked": 10041,
+        "totalOffered": 64437,
+        "averagePosition": 4.1
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_801",
+      "heroDbfId": 118509,
+      "name": "Jim Raynor",
+      "health": 30,
+      "armor": 16,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_801",
+      "heroPower": {
+        "cardId": "BG31_HERO_801p",
+        "dbfId": 118681,
+        "name": "Lift Off",
+        "cost": 0,
+        "text": "[x]Start the game with a 2/2\n Battlecruiser. Whenever the\nTavern is <b>Refreshed</b>, add a\n Battlecruiser Upgrade to it.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_801p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "disabled",
+          "passive",
+          "refresh",
+          "cost"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG31_HERO_801_Buddy",
+        "dbfId": 122369,
+        "name": "Tychus Findlay",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 6,
+        "text": "[x]After you cast two Tavern\nspells, get a random\nBattlecruiser Upgrade.\n<i>(2 left!)</i>",
+        "imagePath": "HeroBuddyImages/buddies/BG31_HERO_801_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 6121,
+        "totalPicked": 6100,
+        "totalOffered": 31200,
+        "averagePosition": 4.12
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG31_HERO_802",
+      "heroDbfId": 118510,
+      "name": "Artanis",
+      "health": 30,
+      "armor": 18,
+      "imagePath": "HeroBuddyImages/heroes/BG31_HERO_802",
+      "heroPower": {
+        "cardId": "BG31_HERO_802p",
+        "dbfId": 119196,
+        "name": "Warp Gate",
+        "cost": 0,
+        "text": "[x]At the start of the game,\nchoose from 2 Protoss\nminions to get after you\nbuy 14 cards. <i>(14 left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_802p",
+        "primaryCategory": "Discover",
+        "tags": [
+          "discover",
+          "disabled",
+          "passive",
+          "out_of_scope_system"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG31_HERO_802_Buddy",
+        "dbfId": 122329,
+        "name": "Probius",
+        "tavernTier": 4,
+        "attack": 8,
+        "health": 4,
+        "text": "[x]<b>Magnetic</b>\nAfter you <b>Magnetize</b> this to\n a Mech, make it Golden.",
+        "imagePath": "HeroBuddyImages/buddies/BG31_HERO_802_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 5274,
+        "totalPicked": 5256,
+        "totalOffered": 31773,
+        "averagePosition": 4.09
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG26_HERO_101",
+      "heroDbfId": 101130,
+      "name": "Cap'n Hoggarr",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG26_HERO_101",
+      "heroPower": {
+        "cardId": "BG26_HERO_101p",
+        "dbfId": 101132,
+        "name": "I'm the Cap'n Now",
+        "cost": 0,
+        "text": "After you buy a Pirate, gain 1 Gold.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG26_HERO_101p",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "passive",
+          "gold"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG26_HERO_101_Buddy",
+        "dbfId": 114598,
+        "name": "Shining Sailor",
+        "tavernTier": 3,
+        "attack": 4,
+        "health": 5,
+        "text": "<b>Divine Shield</b>\nThe Tavern offers an extra Pirate whenever it is <b>Refreshed</b>.",
+        "imagePath": "HeroBuddyImages/buddies/BG26_HERO_101_Buddy",
+        "tribes": [
+          "Pirate"
+        ],
+        "keywords": [
+          "DivineShield"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 10691,
+        "totalPicked": 10644,
+        "totalOffered": 32072,
+        "averagePosition": 3.84
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG22_HERO_200",
+      "heroDbfId": 80832,
+      "name": "Ini Stormcoil",
+      "health": 30,
+      "armor": 15,
+      "imagePath": "HeroBuddyImages/heroes/BG22_HERO_200",
+      "heroPower": {
+        "cardId": "BG22_HERO_200p",
+        "dbfId": 81572,
+        "name": "MechGyver",
+        "cost": 0,
+        "text": "[x]After 9 friendly minions\ndie, get a random Mech.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG22_HERO_200p",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion",
+          "passive"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "BG22_HERO_200_Buddy",
+        "dbfId": 82600,
+        "name": "Sub Scrubber",
+        "tavernTier": 3,
+        "attack": 6,
+        "health": 6,
+        "text": "After you play a Mech,\ngain +3/+3.",
+        "imagePath": "HeroBuddyImages/buddies/BG22_HERO_200_Buddy",
+        "tribes": [
+          "Mech"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 7679,
+        "totalPicked": 7657,
+        "totalOffered": 32958,
+        "averagePosition": 3.93
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG25_HERO_100",
+      "heroDbfId": 97813,
+      "name": "Professor Putricide",
+      "health": 30,
+      "armor": 12,
+      "imagePath": "HeroBuddyImages/heroes/BG25_HERO_100",
+      "heroPower": {
+        "cardId": "BG25_HERO_100p",
+        "dbfId": 97814,
+        "name": "Build-An-Undead",
+        "cost": 3,
+        "text": "[x]Craft a custom Undead.\n<i>(3 Creations left!)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG25_HERO_100p",
+        "primaryCategory": "Minion",
+        "tags": [
+          "minion",
+          "disabled",
+          "out_of_scope_system"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": {
+        "cardId": "BG25_HERO_100_Buddy",
+        "dbfId": 101442,
+        "name": "Festergut",
+        "tavernTier": 4,
+        "attack": 6,
+        "health": 2,
+        "text": "[x]<b>Deathrattle:</b> Summon\nand get a random\nUndead Creation.",
+        "imagePath": "HeroBuddyImages/buddies/BG25_HERO_100_Buddy",
+        "tribes": [
+          "Undead"
+        ],
+        "keywords": [
+          "Deathrattle"
+        ],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 3912,
+        "totalPicked": 3897,
+        "totalOffered": 31662,
+        "averagePosition": 4.29
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "TB_BaconShop_HERO_72",
+      "heroDbfId": 63602,
+      "name": "Lord Barov",
+      "health": 30,
+      "armor": 14,
+      "imagePath": "HeroBuddyImages/heroes/TB_BaconShop_HERO_72",
+      "heroPower": {
+        "cardId": "TB_BaconShop_HP_081",
+        "dbfId": 63600,
+        "name": "Friendly Wager",
+        "cost": 1,
+        "text": "[x]Guess which player will\nwin their next combat.\nIf you're correct,\nget 3 Tavern Coins.",
+        "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_081",
+        "primaryCategory": "Economy",
+        "tags": [
+          "economy",
+          "gold",
+          "combat"
+        ],
+        "replacementEligibility": "DiscoverableAfterStart"
+      },
+      "buddy": {
+        "cardId": "TB_BaconShop_HERO_72_Buddy",
+        "dbfId": 77511,
+        "name": "Barov's Apprentice",
+        "tavernTier": 4,
+        "attack": 5,
+        "health": 4,
+        "text": "After you play a Coin, gain 1 Gold.",
+        "imagePath": "HeroBuddyImages/buddies/TB_BaconShop_HERO_72_Buddy",
+        "tribes": [
+          "None"
+        ],
+        "keywords": [],
+        "excludedFromBuddyDiscover": false
+      },
+      "stats": {
+        "dataPoints": 8866,
+        "totalPicked": 8825,
+        "totalOffered": 41557,
+        "averagePosition": 4.14
+      },
+      "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    }
+  ]
+}

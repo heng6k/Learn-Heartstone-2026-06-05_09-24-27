@@ -12,7 +12,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         Discover,
         Hand,
         PlayerBoard,
-        OpponentBoard
+        OpponentBoard,
+        HeroPower
     }
 
     public enum UnityTavernDropTarget
@@ -65,6 +66,28 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (drag.Source == UnityTavernDragSource.Discover && target == UnityTavernDropTarget.Hand)
             {
                 command = new GameCommand(GameCommandType.ChooseDiscover, drag.Index);
+                return true;
+            }
+
+            if (drag.Source == UnityTavernDragSource.HeroPower && target == UnityTavernDropTarget.PlayerBoard)
+            {
+                if (targetIndex < 0)
+                {
+                    return false;
+                }
+
+                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.FriendlyBoard);
+                return true;
+            }
+
+            if (drag.Source == UnityTavernDragSource.HeroPower && target == UnityTavernDropTarget.OpponentBoard)
+            {
+                if (targetIndex < 0)
+                {
+                    return false;
+                }
+
+                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.OpponentBoard);
                 return true;
             }
 

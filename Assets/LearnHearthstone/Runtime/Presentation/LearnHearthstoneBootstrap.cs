@@ -3,6 +3,7 @@ using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Models;
+using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer;
 using LearnHearthstone.Presentation.TavernTrainer.Realistic;
@@ -39,20 +40,23 @@ namespace LearnHearthstone.Presentation
         {
             ClearCanvas();
             new MainHubView(canvas.transform, ShowLegacyTrainer, ShowRealisticTrainer, ShowUnityTrainer).Build();
+            AddDebugAspectRatioOverlay();
         }
 
         private void ShowUnityTrainer()
         {
             ClearCanvas();
             new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub).Build();
+            AddDebugAspectRatioOverlay();
         }
 
-        private void StartUnityTrainer(List<Tribe> activeTribes)
+        private void StartUnityTrainer(MatchSetupOptions setup)
         {
             matchService = MatchService.CreateWithDefaultCatalog(
-                setup: new MatchSetupOptions { ActiveTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList() });
+                setup: setup ?? new MatchSetupOptions());
             ClearCanvas();
             new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+            AddDebugAspectRatioOverlay();
         }
 
         private void ShowRealisticTrainer()
@@ -60,6 +64,7 @@ namespace LearnHearthstone.Presentation
             matchService = MatchService.CreateWithDefaultCatalog();
             ClearCanvas();
             new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+            AddDebugAspectRatioOverlay();
         }
 
         private void ShowLegacyTrainer()
@@ -67,6 +72,7 @@ namespace LearnHearthstone.Presentation
             matchService = MatchService.CreateWithDefaultCatalog();
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
+            AddDebugAspectRatioOverlay();
         }
 
         private Canvas CreateCanvas()
@@ -106,6 +112,11 @@ namespace LearnHearthstone.Presentation
             {
                 Destroy(canvas.transform.GetChild(index).gameObject);
             }
+        }
+
+        private void AddDebugAspectRatioOverlay()
+        {
+            DebugAspectRatioOverlay.Build(canvas.transform);
         }
 
         private static void EnsureEventSystem()

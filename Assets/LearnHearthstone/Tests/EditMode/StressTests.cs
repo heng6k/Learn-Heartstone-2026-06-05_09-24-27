@@ -101,6 +101,86 @@ namespace LearnHearthstone.Tests.EditMode
 
         [Test]
         [Category("Stress")]
+        public void ExtremeStatGainBeyondThirtyTwoBitTotal_SaturatesWithoutWrapping()
+        {
+            var target = StressCard("overflow-target", BoardSide.Player, "STRESS_OVERFLOW_TARGET", int.MaxValue - 2, int.MaxValue - 2, 1);
+            var overflowBuff = new MechanicAction
+            {
+                Type = MechanicActionType.BuffStats,
+                Attack = int.MaxValue,
+                Health = int.MaxValue,
+                SourceId = "overflow-stress"
+            };
+
+            Assert.DoesNotThrow(() =>
+            {
+                MechanicEngine.ApplyToMinion(target, overflowBuff);
+                MechanicEngine.ApplyToMinion(target, overflowBuff);
+            });
+
+            Assert.AreEqual(int.MaxValue, target.Attack);
+            Assert.AreEqual(int.MaxValue, target.MaxHealth);
+            Assert.AreEqual(int.MaxValue, target.Health);
+            Assert.LessOrEqual(target.Health, target.MaxHealth);
+            Assert.GreaterOrEqual(target.Attack, 0);
+        }
+
+        [Test]
+        [Category("Stress")]
+        public void ExtremeStatCombat_DamageAtStatCapDoesNotWrap()
+        {
+            var result = CombatEngine.SimulateBasicCombat(
+                new[]
+                {
+                    Card("cap-attacker", BoardSide.Player, "STRESS_CAP_ATTACKER", int.MaxValue, int.MaxValue, Tribe.Mech, 6)
+                },
+                new[]
+                {
+                    Card("cap-defender", BoardSide.Opponent, "STRESS_CAP_DEFENDER", 1, int.MaxValue, Tribe.Demon, 6)
+                },
+                900001,
+                10);
+
+            Assert.IsFalse(result.SafetyStopped);
+            Assert.AreEqual(1, result.Steps);
+            Assert.AreEqual(1, result.FinalPlayerBoard.Count);
+            Assert.AreEqual(0, result.FinalOpponentBoard.Count);
+            Assert.AreEqual(int.MaxValue - 1, result.FinalPlayerBoard[0].Health);
+            AssertCombatBoard(result.FinalPlayerBoard, "extreme stat cap player board");
+        }
+
+        [Test]
+        [Category("Stress")]
+        public void LowAttackHighHealthCombat_StopsAtSafetyLimit()
+        {
+            const int safetyLimit = 25;
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[]
+                {
+                    Card("slow-player", BoardSide.Player, "STRESS_SLOW_PLAYER", 1, int.MaxValue, Tribe.Beast, 1)
+                },
+                new[]
+                {
+                    Card("slow-opponent", BoardSide.Opponent, "STRESS_SLOW_OPPONENT", 1, int.MaxValue, Tribe.Demon, 1)
+                },
+                900002,
+                safetyLimit);
+
+            Assert.IsTrue(result.SafetyStopped);
+            Assert.AreEqual(safetyLimit, result.Steps);
+            Assert.AreEqual(CombatWinner.Draw, result.Winner);
+            Assert.AreEqual(1, result.FinalPlayerBoard.Count);
+            Assert.AreEqual(1, result.FinalOpponentBoard.Count);
+            AssertCombatBoard(result.FinalPlayerBoard, "slow combat player board");
+            AssertCombatBoard(result.FinalOpponentBoard, "slow combat opponent board");
+            Assert.Greater(result.FinalPlayerBoard[0].Health, int.MaxValue - safetyLimit - 1);
+            Assert.Greater(result.FinalOpponentBoard[0].Health, int.MaxValue - safetyLimit - 1);
+            Assert.LessOrEqual(result.Replay.Frames.Count, safetyLimit * 4 + 4);
+        }
+
+        [Test]
+        [Category("Stress")]
         public void SoloMinionCatalog_AllInPoolTierOneToSevenMinionsCanEnterRecruitFlow()
         {
             var definitions = MinionCatalogLoader.LoadFromResources().All

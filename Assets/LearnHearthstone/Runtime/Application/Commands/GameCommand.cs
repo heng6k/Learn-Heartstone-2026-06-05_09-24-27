@@ -14,9 +14,15 @@ namespace LearnHearthstone.Application.Commands
         MoveBoardMinion,
         UpdateMinion,
         PlayMinion,
+        DiscardCardFromHand,
+        UseHeroPower,
         ChooseDiscover,
+        ChooseMechanicOption,
         NextTurn,
         DebugAddGold,
+        DebugOfferLesserTrinkets,
+        DebugOfferGreaterTrinkets,
+        DebugOfferQuests,
         SimulateCombat,
         AddCardToHand,
         DebugCastCard,
@@ -46,6 +52,56 @@ namespace LearnHearthstone.Application.Commands
             Type = type;
             Index = index;
             TargetIndex = targetIndex;
+        }
+
+        public GameCommand(GameCommandType type, int index, int targetIndex, int secondaryTargetIndex)
+        {
+            Type = type;
+            Index = index;
+            TargetIndex = targetIndex;
+            SecondaryTargetIndex = secondaryTargetIndex;
+        }
+
+        public GameCommand(
+            GameCommandType type,
+            int index,
+            int targetIndex,
+            TargetZone targetZone,
+            int secondaryTargetIndex,
+            TargetZone secondaryTargetZone,
+            string targetInstanceId = null,
+            string secondaryTargetInstanceId = null,
+            string choiceId = null)
+        {
+            Type = type;
+            Index = index;
+            TargetIndex = targetIndex;
+            TargetZone = targetZone;
+            SecondaryTargetIndex = secondaryTargetIndex;
+            SecondaryTargetZone = secondaryTargetZone;
+            TargetInstanceId = targetInstanceId;
+            SecondaryTargetInstanceId = secondaryTargetInstanceId;
+            ChoiceId = choiceId;
+        }
+
+        public GameCommand(
+            GameCommandType type,
+            int targetIndex,
+            TargetZone targetZone,
+            int secondaryTargetIndex = -1,
+            TargetZone secondaryTargetZone = TargetZone.Unspecified,
+            string targetInstanceId = null,
+            string secondaryTargetInstanceId = null,
+            string choiceId = null)
+        {
+            Type = type;
+            TargetIndex = targetIndex;
+            TargetZone = targetZone;
+            SecondaryTargetIndex = secondaryTargetIndex;
+            SecondaryTargetZone = secondaryTargetZone;
+            TargetInstanceId = targetInstanceId;
+            SecondaryTargetInstanceId = secondaryTargetInstanceId;
+            ChoiceId = choiceId;
         }
 
         public GameCommand(GameCommandType type, string instanceId)
@@ -117,6 +173,12 @@ namespace LearnHearthstone.Application.Commands
         public GameCommandType Type { get; }
         public int Index { get; }
         public int TargetIndex { get; } = -1;
+        public TargetZone TargetZone { get; } = TargetZone.Unspecified;
+        public int SecondaryTargetIndex { get; } = -1;
+        public TargetZone SecondaryTargetZone { get; } = TargetZone.Unspecified;
+        public string TargetInstanceId { get; }
+        public string SecondaryTargetInstanceId { get; }
+        public string ChoiceId { get; }
         public string InstanceId { get; }
         public string CardId { get; }
         public CardKind CardKind { get; }

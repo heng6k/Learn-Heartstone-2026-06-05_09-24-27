@@ -10,6 +10,7 @@ namespace LearnHearthstone.Editor
     {
         private const string ResultPathArg = "-batchTestResults";
         private const string CategoryArg = "-batchTestCategory";
+        private const string TestNameArg = "-batchTestName";
         private const string DefaultResultPath = "TestResults-OfficialConsistency.xml";
 
         public static void RunEditMode()
@@ -26,6 +27,7 @@ namespace LearnHearthstone.Editor
         {
             var resultPath = ReadArgument(ResultPathArg) ?? DefaultResultPath;
             var categories = ReadListArgument(CategoryArg) ?? defaultCategories;
+            var testNames = ReadListArgument(TestNameArg);
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
             api.RegisterCallbacks(new ExitOnFinishedCallback(resultPath));
 
@@ -39,12 +41,17 @@ namespace LearnHearthstone.Editor
                 filter.categoryNames = categories;
             }
 
+            if (testNames != null && testNames.Length > 0)
+            {
+                filter.testNames = testNames;
+            }
+
             var settings = new ExecutionSettings(filter)
             {
                 runSynchronously = true
             };
 
-            Debug.Log("Starting LearnHearthstone EditMode tests. Categories: " + FormatCategories(categories));
+            Debug.Log("Starting LearnHearthstone EditMode tests. Categories: " + FormatCategories(categories) + ", Tests: " + FormatCategories(testNames));
             api.Execute(settings);
         }
 

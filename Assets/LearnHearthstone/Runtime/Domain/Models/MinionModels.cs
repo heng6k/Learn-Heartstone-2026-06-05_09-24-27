@@ -196,5 +196,145 @@ namespace LearnHearthstone.Domain.Models
                 Tags = definition.Tags == null ? new List<string>() : new List<string>(definition.Tags)
             };
         }
+
+        public static MinionInstance Create(HeroPowerDefinition definition, BoardSide owner, string suffix)
+        {
+            var tags = definition.Tags == null ? new List<string>() : new List<string>(definition.Tags);
+            var categoryTag = "category:" + definition.PrimaryCategory;
+            var eligibilityTag = "eligibility:" + definition.ReplacementEligibility;
+            if (!tags.Contains(categoryTag))
+            {
+                tags.Add(categoryTag);
+            }
+
+            if (!tags.Contains(eligibilityTag))
+            {
+                tags.Add(eligibilityTag);
+            }
+
+            return new MinionInstance
+            {
+                CardKind = CardKind.HeroPower,
+                InstanceId = owner.ToString().ToLowerInvariant() + "-hero-power-" + suffix,
+                DefinitionId = definition.CardId,
+                CardId = definition.CardId,
+                Name = definition.Name,
+                Cost = definition.Cost,
+                BaseAttack = 0,
+                BaseHealth = 0,
+                Attack = 0,
+                Health = 0,
+                MaxHealth = 0,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword>(),
+                OfficialKeywords = new List<Keyword>(),
+                Text = definition.Text,
+                Golden = false,
+                Owner = owner,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                CanAttack = false,
+                AttacksThisCombat = 0,
+                OriginPoolSource = PoolSource.Debug,
+                CanReturnToPoolAfterAttach = false,
+                PoolSource = PoolSource.Debug,
+                PoolCopiesHeld = 0,
+                ImagePath = definition.ImagePath,
+                EffectIds = new List<string>(),
+                Tags = tags
+            };
+        }
+
+        public static MinionInstance Create(HeroDefinition definition, BoardSide owner, string suffix)
+        {
+            var tags = new List<string>
+            {
+                "hero",
+                "armor:" + Math.Max(0, definition.Armor)
+            };
+            if (definition.HeroPower != null)
+            {
+                tags.Add("hero_power:" + definition.HeroPower.Name);
+                tags.Add("hero_power_card:" + definition.HeroPower.CardId);
+            }
+
+            return new MinionInstance
+            {
+                CardKind = CardKind.Hero,
+                InstanceId = owner.ToString().ToLowerInvariant() + "-hero-" + suffix,
+                DefinitionId = definition.HeroCardId,
+                CardId = definition.HeroCardId,
+                Name = definition.Name,
+                Cost = 0,
+                BaseAttack = Math.Max(0, definition.Armor),
+                BaseHealth = definition.Health > 0 ? definition.Health : 30,
+                Attack = Math.Max(0, definition.Armor),
+                Health = definition.Health > 0 ? definition.Health : 30,
+                MaxHealth = definition.Health > 0 ? definition.Health : 30,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword>(),
+                OfficialKeywords = new List<Keyword>(),
+                Text = definition.HeroPower == null ? string.Empty : definition.HeroPower.Text,
+                Golden = false,
+                Owner = owner,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                CanAttack = false,
+                AttacksThisCombat = 0,
+                OriginPoolSource = PoolSource.Debug,
+                CanReturnToPoolAfterAttach = false,
+                PoolSource = PoolSource.Debug,
+                PoolCopiesHeld = 0,
+                ImagePath = definition.ImagePath,
+                EffectIds = new List<string>(),
+                Tags = tags
+            };
+        }
+
+        public static MinionInstance Create(HeroBuddyDefinition definition, BoardSide owner, string suffix, PoolSource source = PoolSource.Debug)
+        {
+            var keywords = new List<Keyword>(definition.Keywords);
+            if (!string.IsNullOrWhiteSpace(definition.Text) &&
+                definition.Text.IndexOf("Magnetic", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                !keywords.Contains(Keyword.Magnetic))
+            {
+                keywords.Add(Keyword.Magnetic);
+            }
+
+            return new MinionInstance
+            {
+                CardKind = CardKind.HeroBuddy,
+                InstanceId = owner.ToString().ToLowerInvariant() + "-hero-buddy-" + suffix,
+                DefinitionId = definition.CardId,
+                CardId = definition.CardId,
+                Name = definition.Name,
+                Cost = 3,
+                BaseAttack = definition.Attack,
+                BaseHealth = definition.Health,
+                Attack = definition.Attack,
+                Health = definition.Health,
+                MaxHealth = definition.Health,
+                TavernTier = definition.TavernTier,
+                Tribes = new List<Tribe>(definition.Tribes),
+                Keywords = keywords,
+                OfficialKeywords = new List<Keyword>(keywords),
+                Text = definition.Text,
+                Golden = false,
+                Owner = owner,
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                CanAttack = true,
+                AttacksThisCombat = 0,
+                OriginPoolSource = source,
+                CanReturnToPoolAfterAttach = false,
+                PoolSource = source,
+                PoolCopiesHeld = 0,
+                ImagePath = definition.ImagePath,
+                EffectIds = new List<string>(),
+                Tags = new List<string> { "hero_buddy" }
+            };
+        }
     }
 }

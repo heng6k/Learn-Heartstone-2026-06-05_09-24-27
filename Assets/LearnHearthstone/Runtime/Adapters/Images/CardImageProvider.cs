@@ -7,6 +7,7 @@ namespace LearnHearthstone.Adapters.Images
 {
     public sealed class CardImageProvider
     {
+        private const float FullTexturePixelsPerUnit = 100f;
         private static readonly Dictionary<string, Sprite> fullTextureSpriteCache = new Dictionary<string, Sprite>();
         private readonly Sprite fallback;
 
@@ -49,7 +50,7 @@ namespace LearnHearthstone.Adapters.Images
         {
             foreach (var candidate in CandidatePaths(imagePath, cardId, cardKind))
             {
-                if (cardKind == CardKind.TavernSpell)
+                if (ShouldLoadFullTexture(cardKind))
                 {
                     var fullTextureSprite = LoadFullTextureSprite(candidate);
                     if (fullTextureSprite != null)
@@ -83,10 +84,21 @@ namespace LearnHearthstone.Adapters.Images
 
             if (fullTextureSpriteCache.TryGetValue(path, out var cached))
             {
-                return cached;
+                if (cached != null)
+                {
+                    return cached;
+                }
+
+                fullTextureSpriteCache.Remove(path);
             }
 
             var texture = Resources.Load<Texture2D>(path);
+            if (texture == null)
+            {
+                texture = Resources.Load<Sprite>(path)?.texture
+                    ?? Resources.LoadAll<Sprite>(path).FirstOrDefault()?.texture;
+            }
+
             if (texture == null)
             {
                 return null;
@@ -96,7 +108,7 @@ namespace LearnHearthstone.Adapters.Images
                 texture,
                 new Rect(0f, 0f, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f),
-                100f,
+                FullTexturePixelsPerUnit,
                 0,
                 SpriteMeshType.FullRect);
             sprite.name = texture.name + "_FullCard";
@@ -116,11 +128,34 @@ namespace LearnHearthstone.Adapters.Images
                 {
                     AddCandidate(paths, seen, "CardImages/TavernSpells/" + cardId);
                 }
+                else if (cardKind == CardKind.HeroPower)
+                {
+                    AddCandidate(paths, seen, "HeroBuddyImages/heroPowers/" + cardId);
+                }
+                else if (cardKind == CardKind.HeroBuddy)
+                {
+                    AddCandidate(paths, seen, "HeroBuddyImages/buddies/" + cardId);
+                }
+                else if (cardKind == CardKind.Hero)
+                {
+                    AddCandidate(paths, seen, "HeroBuddyImages/heroes/" + cardId);
+                }
 
                 AddCandidate(paths, seen, "CardImages/" + cardId);
             }
 
             return paths;
+        }
+
+        private static bool ShouldLoadFullTexture(CardKind cardKind)
+        {
+            return cardKind == CardKind.TavernSpell
+                || cardKind == CardKind.Hero
+                || cardKind == CardKind.HeroPower
+                || cardKind == CardKind.HeroBuddy
+                || cardKind == CardKind.Trinket
+                || cardKind == CardKind.Quest
+                || cardKind == CardKind.QuestReward;
         }
 
         private static void AddCandidate(List<string> paths, HashSet<string> seen, string value)

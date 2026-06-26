@@ -21,6 +21,19 @@ namespace LearnHearthstone.Domain.Engine
         private const string VolcanicVisitorAttackSpellCardId = "VOLCANIC_VISITOR_ATTACK_SPELL";
         private const string VolcanicVisitorHealthSpellCardId = "VOLCANIC_VISITOR_HEALTH_SPELL";
         private const string FrostlingPriestessSpellCardId = "FROSTLING_PRIESTESS_SPELL";
+        private const string PreciousPearlSpellCardId = "TRINKET_PRECIOUS_PEARL_SPELL";
+        private const string OphidianStaffSpellCardId = "TRINKET_OPHIDIAN_STAFF_SPELL";
+        private const string CoinPouch3GoldProxyCardId = "TRINKET_COIN_POUCH_3";
+        private const string VibrantBubbleSpellCardId = "TRINKET_VIBRANT_BUBBLE_SPELL";
+        private const string DoubleStitchNeedleSpellCardId = "TRINKET_DOUBLE_STITCH_NEEDLE_SPELL";
+        private const string TokenOfTheOldGodsSpellCardId = "TRINKET_TOKEN_OF_THE_OLD_GODS_SPELL";
+        private const string ChillmereMosaicSpellCardId = "TRINKET_CHILLMERE_MOSAIC_SPELL";
+        private const string JailerStickerSpellCardId = "TRINKET_JAILER_STICKER_SPELL";
+        private const string DemonbloodGourdSpellCardId = "TRINKET_DEMONBLOOD_GOURD_SPELL";
+        private const string ShiftingTideSpellCardId = "TRINKET_SHIFTING_TIDE_SPELL";
+        private const string TimewarpedGlowscaleSpellCardId = "TIMEWARPED_GLOWSCALE_SPELL";
+        private const string WearyMageSpellCardId = "WEARY_MAGE_SPELL";
+        private const string ThaumaturgistSpellCardId = "THAUMATURGIST_SPELL";
         private const string HealthyBountyCardId = "BG33_811";
         private const string HostileBountyCardId = "BG33_812";
         private const string SelfishBountyCardId = "BG33_813";
@@ -31,8 +44,17 @@ namespace LearnHearthstone.Domain.Engine
         private const string OfficialSelfishBountyCardId = "122184";
         private const string OfficialFriendlyBountyCardId = "122185";
         private const string OfficialWealthyBountyCardId = "122186";
+        private const string LanternLightCardId = "RAKANISHU_LANTERN_LIGHT";
+        private const string MuklaBananaCardId = "MUKLA_BANANA";
+        private const string BattlecruiserUpgradeCardId = "BATTLECRUISER_UPGRADE";
+        private const string BetterSecretProxyCardId = "BETTER_SECRET_PROXY";
         private const string DeepwaterSchoolCardId = "131218";
         private const string ArcaneConsumptionCardId = "130311";
+        private const string EnhanceAMaticTauntSpellCardId = "BG24_Reward_715t";
+        private const string EnhanceAMaticWindfurySpellCardId = "BG24_Reward_715t2";
+        private const string EnhanceAMaticDivineShieldSpellCardId = "BG24_Reward_715t3";
+        private const string EnhanceAMaticRebornSpellCardId = "BG24_Reward_715t4";
+        private const string RushingWindsSpellCardId = "BG33_Reward_006t";
         private const string LegacyDeepwaterSchoolCardId = "DEEPWATER_SCHOOL";
         private const string LegacyArcaneConsumptionCardId = "ARCANE_CONSUMPTION";
         private const string FireBallerCardId = "BG31_816";
@@ -45,7 +67,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string LockedTurnsCounter = "locked-turns";
         [ThreadStatic] private static MinionInstance explicitTarget;
 
-        public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1)
+        public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1, HeroCatalog heroes = null)
         {
             if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
@@ -56,7 +78,7 @@ namespace LearnHearthstone.Domain.Engine
             explicitTarget = ResolveExplicitTarget(state, targetIndex);
             try
             {
-                return CastInternal(spell, state, minions, spells, rng);
+                return CastInternal(spell, state, minions, spells, rng, heroes);
             }
             finally
             {
@@ -64,7 +86,7 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng)
+        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes)
         {
             var cardNumber = spell.CardId;
             var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
@@ -135,6 +157,98 @@ namespace LearnHearthstone.Domain.Engine
                     var frostlingCount = spell.Counters != null && spell.Counters.TryGetValue("spellcraft_multiplier", out var storedFrostlingCount) ? Math.Max(1, storedFrostlingCount) : 1;
                     AddRandomStatTavernSpellsToHand(state, spells, rng, frostlingCount);
                     return "Frostling Priestess Spellcraft: add stat Tavern spell";
+                case PreciousPearlSpellCardId:
+                    var pearlTarget = FirstAnyMinion(state);
+                    Buff(state, pearlTarget, 30, 30, TemporarySpellcraftSourceId, false);
+                    AddTag(pearlTarget, "temporary_spellcraft");
+                    return "Precious Pearl Spellcraft: target gains +30/+30 until next turn";
+                case OphidianStaffSpellCardId:
+                    var ophidianTarget = FirstTribeTarget(state, Tribe.Beast);
+                    Buff(state, ophidianTarget, 2, 2, TemporarySpellcraftSourceId, false);
+                    AddTemporarySpellcraftKeyword(ophidianTarget, Keyword.Reborn);
+                    return "Ophidian Staff Spellcraft: Beast gains +2/+2 and Reborn until next turn";
+                case VibrantBubbleSpellCardId:
+                    var bubbleTarget = FirstTribeTarget(state, Tribe.Murloc);
+                    var keyword = RandomBonusKeyword(rng);
+                    AddTemporarySpellcraftKeyword(bubbleTarget, keyword);
+                    return "Vibrant Bubble Spellcraft: Murloc gains " + keyword + " until next turn";
+                case DoubleStitchNeedleSpellCardId:
+                    var stitchTarget = FirstFriendlyBoard(state);
+                    if (stitchTarget == null)
+                    {
+                        return "Double Stitch Needle Spellcraft: no friendly target";
+                    }
+
+                    if (state.Player.Tavern.Hand.Count >= HandLimit)
+                    {
+                        return "Double Stitch Needle Spellcraft: hand is full";
+                    }
+
+                    var stitchAttack = stitchTarget.Attack;
+                    var stitchHealth = stitchTarget.MaxHealth;
+                    Buff(state, stitchTarget, stitchAttack, stitchHealth, "Double Stitch Needle", false);
+                    stitchTarget.Health = stitchTarget.MaxHealth;
+                    state.Player.Board.Remove(stitchTarget);
+                    stitchTarget.Counters[LockedTurnsCounter] = 1;
+                    AddTag(stitchTarget, "locked_in_hand");
+                    state.Player.Tavern.Hand.Add(stitchTarget);
+                    return "Double Stitch Needle Spellcraft: target doubled and locked in hand";
+                case TokenOfTheOldGodsSpellCardId:
+                    var tokenTarget = FirstFriendlyBoard(state);
+                    if (TransformMinionOneTierHigher(tokenTarget, minions, rng))
+                    {
+                        return "Token of the Old Gods Spellcraft: target transformed one Tier higher";
+                    }
+
+                    return "Token of the Old Gods Spellcraft: no higher-Tier transform target";
+                case ChillmereMosaicSpellCardId:
+                    return "Chillmere Mosaic Spellcraft: refresh handled by Trinket";
+                case JailerStickerSpellCardId:
+                    return "Jailer Sticker Spellcraft: destroy reward handled by Trinket";
+                case DemonbloodGourdSpellCardId:
+                    return "Demonblood Gourd Spellcraft: devour handled by Trinket";
+                case ShiftingTideSpellCardId:
+                    return "Shifting Tide Spellcraft: buff handled by Trinket";
+                case TimewarpedGlowscaleSpellCardId:
+                    AddKeyword(FirstFriendlyBoard(state), Keyword.DivineShield);
+                    return "Timewarped Glowscale Spellcraft: target gains Divine Shield";
+                case WearyMageSpellCardId:
+                    var wearyTarget = FirstAnyMinion(state);
+                    var wearyPermanent = spell.Tags != null && spell.Tags.Contains("permanent_weary_spellcraft");
+                    Buff(state, wearyTarget, 2, 2, wearyPermanent ? PermanentSpellcraftSourceId : TemporarySpellcraftSourceId, false);
+                    if (wearyPermanent)
+                    {
+                        if (wearyTarget != null && wearyTarget.Tribes.Contains(Tribe.Naga))
+                        {
+                            AddKeyword(wearyTarget, Keyword.Reborn);
+                        }
+                    }
+                    else
+                    {
+                        AddTag(wearyTarget, "temporary_spellcraft");
+                        if (wearyTarget != null && wearyTarget.Tribes.Contains(Tribe.Naga))
+                        {
+                            AddTemporarySpellcraftKeyword(wearyTarget, Keyword.Reborn);
+                        }
+                    }
+
+                    return wearyPermanent
+                        ? "Weary Mage Spellcraft: target permanently gains +2/+2"
+                        : "Weary Mage Spellcraft: target gains +2/+2 until next turn";
+                case ThaumaturgistSpellCardId:
+                    var thaumaturgistTarget = FirstAnyMinion(state);
+                    var thaumaturgistAmount = spell.Counters != null && spell.Counters.TryGetValue("spellcraft_amount", out var storedThaumaturgistAmount) ? Math.Max(1, storedThaumaturgistAmount) : 1;
+                    var thaumaturgistPermanent = spell.Tags != null && spell.Tags.Contains("permanent_thaumaturgist_spellcraft");
+                    var thaumaturgistConsumesPermanent = thaumaturgistPermanent || ConsumePermanentSpellcraft(thaumaturgistTarget);
+                    Buff(state, thaumaturgistTarget, thaumaturgistAmount, thaumaturgistAmount, thaumaturgistConsumesPermanent ? PermanentSpellcraftSourceId : TemporarySpellcraftSourceId, false);
+                    if (!thaumaturgistConsumesPermanent)
+                    {
+                        AddTag(thaumaturgistTarget, "temporary_spellcraft");
+                    }
+
+                    return thaumaturgistConsumesPermanent
+                        ? "Thaumaturgist Spellcraft: target permanently gains +" + thaumaturgistAmount + "/+" + thaumaturgistAmount
+                        : "Thaumaturgist Spellcraft: target gains +" + thaumaturgistAmount + "/+" + thaumaturgistAmount + " until next turn";
                 case HealthyBountyCardId:
                 case OfficialHealthyBountyCardId:
                     BuffAll(state, state.Player.Board.Take(4), 0, 4, "Healthy Bounty", applyTavernSpellBonus);
@@ -155,6 +269,24 @@ namespace LearnHearthstone.Domain.Engine
                 case OfficialWealthyBountyCardId:
                     GainGold(state.Player.Tavern, 2);
                     return "Wealthy Bounty: gain 2 Gold";
+                case LanternLightCardId:
+                    var lanternAmount = spell.Counters != null && spell.Counters.TryGetValue("lantern_amount", out var storedLanternAmount)
+                        ? Math.Max(1, storedLanternAmount)
+                        : Math.Max(1, state.Player.Tavern.Tier);
+                    Buff(state, FirstAnyMinion(state), lanternAmount, lanternAmount, "Lantern Light", false);
+                    return "Lantern Light: target gains +" + lanternAmount + "/+" + lanternAmount;
+                case MuklaBananaCardId:
+                    Buff(state, FirstFriendlyBoard(state), 1, 1, "Banana", false);
+                    return "Banana: friendly minion gains +1/+1";
+                case BattlecruiserUpgradeCardId:
+                    var battlecruiser = state.Player.Board.FirstOrDefault(card =>
+                        card.Tags.Contains("battlecruiser") ||
+                        card.Name.IndexOf("Battlecruiser", StringComparison.OrdinalIgnoreCase) >= 0);
+                    Buff(state, battlecruiser ?? FirstFriendlyBoard(state), 3, 3, "Battlecruiser Upgrade", applyTavernSpellBonus);
+                    return "Battlecruiser Upgrade: Battlecruiser or left-most minion gains +3/+3";
+                case BetterSecretProxyCardId:
+                    Buff(state, FirstFriendlyBoard(state), 2, 2, "Better Secret", false);
+                    return "Better Secret proxy: left-most minion gains +2/+2";
                 case DeepwaterSchoolCardId:
                 case LegacyDeepwaterSchoolCardId:
                     ResolveDeepwaterClan(state, applyTavernSpellBonus);
@@ -166,6 +298,21 @@ namespace LearnHearthstone.Domain.Engine
                 case LegacyArcaneConsumptionCardId:
                     ResolveArcaneConsumption(state);
                     return "Arcane Consumption: friendly Elemental gains half of highest Health Tavern minion stats";
+                case EnhanceAMaticTauntSpellCardId:
+                    ResolveQuestKeywordSpell(state, 5, 5, Keyword.Taunt, "Mega Horn");
+                    return "Mega Horn: target gains +5/+5 and Taunt";
+                case EnhanceAMaticWindfurySpellCardId:
+                    ResolveQuestKeywordSpell(state, 5, 5, Keyword.Windfury, "Blazing Blades");
+                    return "Blazing Blades: target gains +5/+5 and Windfury";
+                case EnhanceAMaticDivineShieldSpellCardId:
+                    ResolveQuestKeywordSpell(state, 5, 5, Keyword.DivineShield, "Bunker Plating");
+                    return "Bunker Plating: target gains +5/+5 and Divine Shield";
+                case EnhanceAMaticRebornSpellCardId:
+                    ResolveQuestKeywordSpell(state, 5, 5, Keyword.Reborn, "Death Rewinder");
+                    return "Death Rewinder: target gains +5/+5 and Reborn";
+                case RushingWindsSpellCardId:
+                    ResolveRushingWinds(state);
+                    return "Rushing Winds: target gains Windfury and Divine Shield";
                 case ReefRifferSpellCardId:
                     var reefMultiplier = spell.Counters != null && spell.Counters.TryGetValue("spellcraft_multiplier", out var storedMultiplier) ? Math.Max(1, storedMultiplier) : 1;
                     var reefAmount = Math.Max(1, state.Player.Tavern.Tier) * reefMultiplier;
@@ -267,6 +414,9 @@ namespace LearnHearthstone.Domain.Engine
                 case "109230":
                     BuffAll(state, state.Player.Board, 1, 1, "闪亮的戒指", applyTavernSpellBonus);
                     return "闪亮的戒指：你的随从获得+1/+1";
+                case CoinPouch3GoldProxyCardId:
+                    state.Player.Tavern.Gold = StatMath.SaturatingAdd(state.Player.Tavern.Gold, 3, 0, StatMath.MaxStat);
+                    return "3-Gold Coin Pouch: gain 3 Gold";
                 case "113901":
                     TransformFirstMinionOneTierHigher(state, minions, rng);
                     return "Steady Mutation: transform first minion one tier higher";
@@ -313,8 +463,9 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveInvokeTheDevourer(state);
                     return "Invoke the Devourer: sell a minion and pass its stats";
                 case "100910":
-                    state.Player.Tavern.FreeRefreshes += 1;
-                    return "Identity Revealed: deterministic hero-power training reward";
+                case "EBG_Spell_037":
+                    StartHeroPowerDiscover(state, heroes, rng);
+                    return "Unmasked Identity: discover a new Hero Power";
                 case "104494":
                     RefreshShopWithTavernSpells(state, spells, rng);
                     return "Top Shelf: refresh the Tavern into Tavern Spells";
@@ -377,15 +528,23 @@ namespace LearnHearthstone.Domain.Engine
                     state.Player.Tavern.TemporaryAvengeBeastRewards += 1;
                     return "迅猛龙的复仇：下场战斗复仇4获取野兽，持续1回合";
                 case "126909":
-                    state.Player.Tavern.RefreshRightmostBuffAttack += 5;
-                    state.Player.Tavern.RefreshRightmostBuffHealth += 5;
+                    state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 5, 0, StatMath.MaxStat);
+                    state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 5, 0, StatMath.MaxStat);
                     return "乘借东风：本局刷新后最右侧酒馆随从+5/+5";
                 case "126957":
                     StartTribeDiscoverWithTag(state, minions, rng, Tribe.Undead, "惊扰墓穴", "discover_then_death");
                     return "惊扰墓穴：发现亡灵，本回合使用则死亡";
                 case "126676":
-                    var barrageAttack = 1 + state.Player.Tavern.TavernSpellBonusAttack + state.Player.Tavern.BloodGemBonusAttack;
-                    var barrageHealth = 1 + state.Player.Tavern.TavernSpellBonusHealth + state.Player.Tavern.BloodGemBonusHealth;
+                    var barrageAttack = StatMath.SaturatingAdd(
+                        StatMath.SaturatingAdd(1, state.Player.Tavern.TavernSpellBonusAttack, 0, StatMath.MaxStat),
+                        state.Player.Tavern.BloodGemBonusAttack,
+                        0,
+                        StatMath.MaxStat);
+                    var barrageHealth = StatMath.SaturatingAdd(
+                        StatMath.SaturatingAdd(1, state.Player.Tavern.TavernSpellBonusHealth, 0, StatMath.MaxStat),
+                        state.Player.Tavern.BloodGemBonusHealth,
+                        0,
+                        StatMath.MaxStat);
                     state.Player.Tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier
                     {
                         Scope = BuffScope.ShopGlobal,
@@ -420,6 +579,18 @@ namespace LearnHearthstone.Domain.Engine
         private static MinionInstance FirstAnyMinion(MatchState state)
         {
             return ExplicitAnyTarget(state) ?? FirstFriendlyBoard(state) ?? state.Player.Tavern.Shop.FirstOrDefault(card => card != null && card.CardKind == CardKind.Minion);
+        }
+
+        private static MinionInstance FirstTribeTarget(MatchState state, Tribe tribe)
+        {
+            var explicitTarget = ExplicitAnyTarget(state);
+            if (MatchesTribe(explicitTarget, tribe))
+            {
+                return explicitTarget;
+            }
+
+            return state.Player.Board.FirstOrDefault(minion => MatchesTribe(minion, tribe))
+                ?? state.Player.Tavern.Shop.FirstOrDefault(card => card != null && card.CardKind == CardKind.Minion && MatchesTribe(card, tribe));
         }
 
         private static MinionInstance FirstFriendlyBoard(MatchState state)
@@ -479,13 +650,11 @@ namespace LearnHearthstone.Domain.Engine
 
             if (applyTavernSpellBonus && (attack != 0 || health != 0))
             {
-                attack += state.Player.Tavern.TavernSpellBonusAttack;
-                health += state.Player.Tavern.TavernSpellBonusHealth;
+                attack = StatMath.SaturatingAdd(attack, state.Player.Tavern.TavernSpellBonusAttack);
+                health = StatMath.SaturatingAdd(health, state.Player.Tavern.TavernSpellBonusHealth);
             }
 
-            target.Attack += attack;
-            target.MaxHealth += health;
-            target.Health += health;
+            StatMath.ApplyStatDelta(target, attack, health);
             target.Enchantments.Add(new Enchantment
             {
                 Id = sourceId,
@@ -687,6 +856,31 @@ namespace LearnHearthstone.Domain.Engine
             };
         }
 
+        private static void StartHeroPowerDiscover(MatchState state, HeroCatalog catalog, SeededRng rng)
+        {
+            if (catalog == null)
+            {
+                return;
+            }
+
+            var candidates = catalog.GetDiscoverableHeroPowers(state.Player.HeroPowerCardId);
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "unmasked-identity-" + options.Count));
+            }
+
+            state.Player.Tavern.Discover = new DiscoverState
+            {
+                Source = "hero-power:unmasked-identity",
+                RewardTier = 0,
+                Options = options
+            };
+        }
+
         private static void StartMajorityTribeDiscover(MatchState state, MinionCatalog catalog, SeededRng rng, string source)
         {
             var tribe = BoardTribeAnalyzer.GetMostCommonTribe(state.Player);
@@ -742,17 +936,21 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void TransformFirstMinionOneTierHigher(MatchState state, MinionCatalog catalog, SeededRng rng)
         {
-            var target = FirstAnyMinion(state);
+            TransformMinionOneTierHigher(FirstAnyMinion(state), catalog, rng);
+        }
+
+        private static bool TransformMinionOneTierHigher(MinionInstance target, MinionCatalog catalog, SeededRng rng)
+        {
             if (target == null)
             {
-                return;
+                return false;
             }
 
             var nextTier = Math.Min(7, Math.Max(1, target.TavernTier) + 1);
             var candidates = catalog.All.Where(minion => minion.InPool && minion.TavernTier == nextTier).ToList();
             if (candidates.Count == 0)
             {
-                return;
+                return false;
             }
 
             var attack = target.Attack;
@@ -770,6 +968,7 @@ namespace LearnHearthstone.Domain.Engine
             target.Attack = attack;
             target.Health = Math.Max(1, health);
             target.MaxHealth = Math.Max(1, maxHealth);
+            return true;
         }
 
         private static void BuffAllTemporary(MatchState state, IEnumerable<MinionInstance> targets, int attack, int health, string sourceId)
@@ -853,6 +1052,20 @@ namespace LearnHearthstone.Domain.Engine
                 2,
                 "Deepwater Clan Murlocs",
                 applyTavernSpellBonus);
+        }
+
+        private static void ResolveQuestKeywordSpell(MatchState state, int attack, int health, Keyword keyword, string source)
+        {
+            var target = FirstAnyMinion(state);
+            Buff(state, target, attack, health, source, false);
+            AddKeyword(target, keyword);
+        }
+
+        private static void ResolveRushingWinds(MatchState state)
+        {
+            var target = FirstAnyMinion(state);
+            AddKeyword(target, Keyword.Windfury);
+            AddKeyword(target, Keyword.DivineShield);
         }
 
         private static void ResolveButchering(MatchState state)
@@ -1040,12 +1253,11 @@ namespace LearnHearthstone.Domain.Engine
                     .ToList();
                 foreach (var gem in gems)
                 {
-                    adjacent.Attack -= gem.AttackBonus;
-                    adjacent.MaxHealth = Math.Max(1, adjacent.MaxHealth - gem.HealthBonus);
-                    adjacent.Health = Math.Min(adjacent.Health, adjacent.MaxHealth);
-                    target.Attack += gem.AttackBonus;
-                    target.MaxHealth += gem.HealthBonus;
-                    target.Health += gem.HealthBonus;
+                    StatMath.ApplyStatDeltaPreservingDamage(
+                        adjacent,
+                        StatMath.SaturatingSubtract(0, gem.AttackBonus),
+                        StatMath.SaturatingSubtract(0, gem.HealthBonus));
+                    StatMath.ApplyStatDelta(target, gem.AttackBonus, gem.HealthBonus);
                     target.Enchantments.Add(new Enchantment
                     {
                         Id = "Stolen Blood Gem",
@@ -1145,9 +1357,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             target.Golden = true;
-            target.Attack *= 2;
-            target.MaxHealth *= 2;
-            target.Health *= 2;
+            StatMath.DoubleCurrentStats(target, false);
             RefreshScarletSurvivor(target);
         }
 
@@ -1190,6 +1400,7 @@ namespace LearnHearthstone.Domain.Engine
                 var card = MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spellcraft-" + state.Round + "-" + count);
                 AddTag(card, "generated_spell");
                 AddTag(card, "spellcraft");
+                AddTag(card, "temporary_spellcraft_card");
                 state.Player.Tavern.Hand.Add(card);
             }
         }
@@ -1220,6 +1431,12 @@ namespace LearnHearthstone.Domain.Engine
             return tribe == Tribe.All || minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All);
         }
 
+        private static bool MatchesTribe(MinionInstance minion, Tribe tribe)
+        {
+            return minion != null &&
+                (tribe == Tribe.All || minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All));
+        }
+
         private static bool MatchesAnyTribe(MinionDefinition minion, IEnumerable<Tribe> tribes)
         {
             var tribeList = (tribes ?? Enumerable.Empty<Tribe>()).ToList();
@@ -1239,6 +1456,51 @@ namespace LearnHearthstone.Domain.Engine
             if (target != null && !target.Tags.Contains(tag))
             {
                 target.Tags.Add(tag);
+            }
+        }
+
+        private static Keyword RandomBonusKeyword(SeededRng rng)
+        {
+            var keywords = new[]
+            {
+                Keyword.Taunt,
+                Keyword.DivineShield,
+                Keyword.Windfury,
+                Keyword.Reborn
+            };
+            return keywords[rng.NextInt(keywords.Length)];
+        }
+
+        private static void AddTemporarySpellcraftKeyword(MinionInstance target, Keyword keyword)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var hadKeyword = target.Keywords.Contains(keyword);
+            AddKeyword(target, keyword);
+            AddTag(target, "temporary_spellcraft");
+            if (!hadKeyword)
+            {
+                AddTag(target, TemporarySpellcraftKeywordTag(keyword));
+            }
+        }
+
+        private static string TemporarySpellcraftKeywordTag(Keyword keyword)
+        {
+            switch (keyword)
+            {
+                case Keyword.Reborn:
+                    return "temporary_spellcraft_added_reborn";
+                case Keyword.Taunt:
+                    return "temporary_spellcraft_added_taunt";
+                case Keyword.DivineShield:
+                    return "temporary_spellcraft_added_divine_shield";
+                case Keyword.Windfury:
+                    return "temporary_spellcraft_added_windfury";
+                default:
+                    return "temporary_spellcraft_added_keyword";
             }
         }
 

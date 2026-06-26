@@ -53,6 +53,15 @@ namespace LearnHearthstone.Domain.Models
         Opponent
     }
 
+    public enum TargetZone
+    {
+        Unspecified,
+        FriendlyBoard,
+        TavernShop,
+        OpponentBoard,
+        Hand
+    }
+
     public enum PoolSource
     {
         Pool,
@@ -66,7 +75,13 @@ namespace LearnHearthstone.Domain.Models
     {
         Minion,
         TavernSpell,
-        Spell
+        Spell,
+        Hero,
+        HeroPower,
+        HeroBuddy,
+        Trinket,
+        Quest,
+        QuestReward
     }
 
     public enum MatchMode

@@ -58,9 +58,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ApplyStatBuff(MinionInstance minion, MechanicAction action)
         {
-            minion.Attack += action.Attack;
-            minion.MaxHealth += action.Health;
-            minion.Health += action.Health;
+            StatMath.ApplyStatDelta(minion, action.Attack, action.Health);
             minion.Enchantments.Add(new Enchantment
             {
                 Id = action.SourceId,

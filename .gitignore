@@ -110,3 +110,14 @@ Unity*.png
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Local agent workspaces and planning cache.
+.mimocode/
+/.planning/*
+!/.planning/scripts/
+!/.planning/scripts/**

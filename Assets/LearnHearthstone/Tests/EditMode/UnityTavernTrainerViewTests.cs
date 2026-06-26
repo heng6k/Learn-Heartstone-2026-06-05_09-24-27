@@ -1,12 +1,17 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Images;
+using LearnHearthstone.Adapters.Persistence;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation;
+using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
@@ -14,6 +19,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace LearnHearthstone.Tests.EditMode
 {
@@ -29,6 +35,9 @@ namespace LearnHearthstone.Tests.EditMode
             Keyword.Windfury,
             Keyword.Stealth
         };
+        private const string MillhouseHeroCardId = "TB_BaconShop_HERO_49";
+        private const string MillhouseHeroPowerCardId = "TB_BaconShop_HP_054";
+        private const string GeorgeHeroCardId = "TB_BaconShop_HERO_15";
 
         [Test]
         public void MainHub_BuildCreatesUnityComponentTavernEntry()
@@ -88,6 +97,63 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DebugAspectRatioOverlay_BuildOpensPresetPopupAndAppliesSelection()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var appliedWidth = 0;
+                var appliedHeight = 0;
+                DebugAspectRatioOverlay.Build(
+                    rootObject.transform,
+                    (width, height) =>
+                    {
+                        appliedWidth = width;
+                        appliedHeight = height;
+                    });
+
+                var button = FindChild(rootObject.transform, DebugAspectRatioOverlay.ButtonName);
+                Assert.IsNotNull(button);
+
+                var buttonRect = button.GetComponent<RectTransform>();
+                Assert.AreEqual(new Vector2(1f, 0f), buttonRect.anchorMin);
+                Assert.AreEqual(new Vector2(1f, 0f), buttonRect.anchorMax);
+                Assert.AreEqual(new Vector2(1f, 0f), buttonRect.pivot);
+                Assert.AreEqual(new Vector2(-16f, 16f), buttonRect.anchoredPosition);
+
+                button.GetComponent<Button>().onClick.Invoke();
+                var panel = FindChild(rootObject.transform, DebugAspectRatioOverlay.ModalPanelName);
+                Assert.IsNotNull(panel);
+                Assert.AreEqual(new Vector2(300f, 292f), panel.GetComponent<RectTransform>().sizeDelta);
+                Assert.IsNotNull(FindChild(rootObject.transform, DebugAspectRatioOverlay.CurrentLabelName));
+                Assert.IsNotNull(FindChild(rootObject.transform, DebugAspectRatioOverlay.PresetButtonPrefix + "1920x1080"));
+
+                FindChild(rootObject.transform, DebugAspectRatioOverlay.PresetButtonPrefix + "994x384")
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+
+                Assert.AreEqual(994, appliedWidth);
+                Assert.AreEqual(384, appliedHeight);
+                Assert.IsNull(FindChild(rootObject.transform, DebugAspectRatioOverlay.ModalOverlayName));
+
+                button.GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, DebugAspectRatioOverlay.PresetButtonPrefix + "1920x1080")
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+
+                Assert.AreEqual(1920, appliedWidth);
+                Assert.AreEqual(1080, appliedHeight);
+                Assert.IsNull(FindChild(rootObject.transform, DebugAspectRatioOverlay.ModalOverlayName));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void TribeSelectionView_RequiresFiveManualChoicesAndSupportsShortcuts()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -127,6 +193,410 @@ namespace LearnHearthstone.Tests.EditMode
             finally
             {
                 Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_CardPoolPanelCopiesDefaultAndPassesCustomSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-card-pool-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                var repository = new JsonCardPoolVersionRepository(directory, "versions.json");
+                var minionCatalog = MinionCatalogLoader.LoadFromResources();
+                var spellCatalog = SpellCatalogLoader.LoadFromResources();
+                var disabledMinion = minionCatalog.All
+                    .Where(card => card.InPool)
+                    .OrderBy(card => card.TavernTier)
+                    .ThenBy(card => card.Name)
+                    .First();
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    repository,
+                    minionCatalog,
+                    spellCatalog).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionPanel"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionOverlay"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionCopyButton").GetComponent<Button>().onClick.Invoke();
+
+                var minionToggle = FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + disabledMinion.CardId);
+                Assert.IsNotNull(minionToggle);
+                minionToggle.GetComponent<Toggle>().isOn = false;
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(startedWith);
+                Assert.IsFalse(startedWith.IsDefaultCardPoolVersion);
+                Assert.IsFalse(startedWith.EnabledMinionCardIds.Contains(disabledMinion.CardId));
+                Assert.Greater(startedWith.EnabledTavernSpellCardNumbers.Count, 0);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_HeroStripSelectsHeroAndPassesSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-hero-selection-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                var heroCatalog = HeroCatalogLoader.LoadFromResources();
+                var targetHero = heroCatalog.GetInitialSelectableHeroes()
+                    .First(hero => !string.Equals(hero.Name, "Patchwerk", StringComparison.OrdinalIgnoreCase));
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources(),
+                    heroCatalog).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTribeSelectionHeroPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTribeSelectionChooseHeroButton"));
+
+                FindChild(rootObject.transform, "UnityTribeSelectionChooseHeroButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionOverlay"));
+                FindChild(rootObject.transform, "UnityHeroSelectionHeroButton-" + HeroSelectionSafeName(targetHero.HeroCardId)).GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(targetHero.Name, FindChild(rootObject.transform, "UnityTribeSelectionHeroName").GetComponent<Text>().text);
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(targetHero.HeroCardId, startedWith.SelectedHeroCardId);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void HeroSelectionModal_SearchFiltersAndDirectChooseUpdatesOpeningStrip()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-hero-search-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var heroCatalog = HeroCatalogLoader.LoadFromResources();
+                var targetHero = heroCatalog.GetInitialSelectableHeroes()
+                    .First(hero => !string.Equals(hero.Name, "Patchwerk", StringComparison.OrdinalIgnoreCase));
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources(),
+                    heroCatalog).Build();
+
+                FindChild(rootObject.transform, "UnityTribeSelectionChooseHeroButton").GetComponent<Button>().onClick.Invoke();
+                Assert.Greater(FindChildren(rootObject.transform, "UnityHeroSelectionHeroButton-").Count, 1);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionSearchInput")
+                    .GetComponent<InputField>()
+                    .onEndEdit
+                    .Invoke(targetHero.HeroCardId);
+
+                Assert.AreEqual("1 个英雄", FindChild(rootObject.transform, "UnityHeroSelectionResultCount").GetComponent<Text>().text);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionHeroButton-" + HeroSelectionSafeName(targetHero.HeroCardId)));
+                Assert.AreEqual(1, FindChildren(rootObject.transform, "UnityHeroSelectionHeroButton-").Count);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityHeroSelectionClearSearchButton").GetComponent<Button>().interactable);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionClearSearchButton")
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+                Assert.Greater(FindChildren(rootObject.transform, "UnityHeroSelectionHeroButton-").Count, 1);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionSearchInput")
+                    .GetComponent<InputField>()
+                    .onEndEdit
+                    .Invoke(targetHero.HeroCardId);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionHeroChooseButton-" + HeroSelectionSafeName(targetHero.HeroCardId))
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+
+                Assert.AreEqual(targetHero.Name, FindChild(rootObject.transform, "UnityTribeSelectionHeroName").GetComponent<Text>().text);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityHeroSelectionOverlay"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void HeroSelectionModal_CompactWindowKeepsCriticalControlsReachable()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-hero-compact-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var rootRect = rootObject.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(994f, 384f);
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(994f, 384f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources(),
+                    HeroCatalogLoader.LoadFromResources()).Build();
+
+                FindChild(rootObject.transform, "UnityTribeSelectionChooseHeroButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionSearchInput"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionCloseButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionHeroScroll"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void HeroSelectionModal_CategoryFilterReducesVisibleHeroes()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-hero-category-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var heroCatalog = HeroCatalogLoader.LoadFromResources();
+                var selectable = heroCatalog.GetInitialSelectableHeroes();
+                var categoryGroup = selectable
+                    .Where(hero => hero.HeroPower != null)
+                    .GroupBy(hero => hero.HeroPower.PrimaryCategory)
+                    .First(group => group.Count() > 0 && group.Count() < selectable.Count);
+                var includedHero = categoryGroup.First();
+                var excludedHero = selectable.First(hero => hero.HeroPower == null || hero.HeroPower.PrimaryCategory != categoryGroup.Key);
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources(),
+                    heroCatalog).Build();
+
+                FindChild(rootObject.transform, "UnityTribeSelectionChooseHeroButton").GetComponent<Button>().onClick.Invoke();
+                var allVisible = FindChildren(rootObject.transform, "UnityHeroSelectionHeroButton-").Count;
+
+                FindChild(rootObject.transform, "UnityHeroSelectionCategory" + categoryGroup.Key + "Button")
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+
+                Assert.Less(FindChildren(rootObject.transform, "UnityHeroSelectionHeroButton-").Count, allVisible);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionHeroButton-" + HeroSelectionSafeName(includedHero.HeroCardId)));
+                Assert.IsNull(FindChild(rootObject.transform, "UnityHeroSelectionHeroButton-" + HeroSelectionSafeName(excludedHero.HeroCardId)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_CardPoolModalRenamesFiltersAndBulkExcludes()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-card-pool-filter-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var repository = new JsonCardPoolVersionRepository(directory, "versions.json");
+                var minionCatalog = MinionCatalogLoader.LoadFromResources();
+                var spellCatalog = SpellCatalogLoader.LoadFromResources();
+                var filteredMinion = minionCatalog.All
+                    .Where(card => card.InPool && !card.CardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase) && card.Tribes != null && card.Tribes.Any(tribe => tribe != Tribe.None && tribe != Tribe.All))
+                    .OrderBy(card => card.TavernTier)
+                    .ThenBy(card => card.Name)
+                    .First();
+                var filteredTribe = filteredMinion.Tribes.First(tribe => tribe != Tribe.None && tribe != Tribe.All);
+                var duoMinion = minionCatalog.All.First(card => card.InPool && card.CardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase));
+                var lazyLoadedMinion = minionCatalog.All
+                    .Where(card => card.InPool && !card.CardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(card => card.TavernTier)
+                    .ThenBy(card => card.Name)
+                    .Skip(100)
+                    .First();
+                var defaultSelection = CardPoolVersionFactory.CreateDefaultSelection(minionCatalog, spellCatalog);
+                Assert.IsFalse(defaultSelection.EnabledMinionCardIds.Any(cardId => cardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase)));
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    repository,
+                    minionCatalog,
+                    spellCatalog).Build();
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                Assert.AreEqual("版本名称", FindChild(rootObject.transform, "UnityCardPoolVersionNameLabel").GetComponent<Text>().text);
+                Assert.AreEqual("默认只读", FindChild(rootObject.transform, "UnityCardPoolVersionNameHint").GetComponent<Text>().text);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + lazyLoadedMinion.CardId));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionBulkHint").GetComponent<Text>().text.Contains("列表已显示"));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionSearchInput").GetComponent<InputField>().onEndEdit.Invoke(duoMinion.CardId);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + duoMinion.CardId));
+                Assert.AreEqual("当前筛选无卡牌", FindChild(rootObject.transform, "UnityCardPoolVersionLoadState").GetComponent<Text>().text);
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionSearchInput").GetComponent<InputField>().onEndEdit.Invoke(string.Empty);
+                FindChild(rootObject.transform, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>().onValueChanged.Invoke(Vector2.zero);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + lazyLoadedMinion.CardId));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionCopyButton").GetComponent<Button>().onClick.Invoke();
+                Assert.AreEqual("点击改名", FindChild(rootObject.transform, "UnityCardPoolVersionNameHint").GetComponent<Text>().text);
+
+                var nameInput = FindChild(rootObject.transform, "UnityCardPoolVersionNameInput").GetComponent<InputField>();
+                Assert.IsNotNull(nameInput.GetComponent<Outline>());
+                nameInput.onEndEdit.Invoke("野兽削弱测试版");
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionTier" + filteredMinion.TavernTier + "Button").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardPoolVersionTribe" + filteredTribe + "Button").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + filteredMinion.CardId + "ImageFrame"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionFilterCount"));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionBulkHint").GetComponent<Text>().text.Contains("批量操作会影响当前筛选的全部"));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionExcludeFilteredButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + filteredMinion.CardId).GetComponent<Toggle>().isOn);
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionSaveButton").GetComponent<Button>().onClick.Invoke();
+
+                var saved = repository.Load();
+                Assert.AreEqual(1, saved.Versions.Count);
+                Assert.AreEqual("野兽削弱测试版", saved.Versions[0].Name);
+                CollectionAssert.DoesNotContain(saved.Versions[0].EnabledMinionCardIds, filteredMinion.CardId);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_CardPoolModalPromptsBeforeSwitchingUnsavedVersion()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-card-pool-unsaved-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var repository = new JsonCardPoolVersionRepository(directory, "versions.json");
+                var minionCatalog = MinionCatalogLoader.LoadFromResources();
+                var spellCatalog = SpellCatalogLoader.LoadFromResources();
+                var disabledMinion = minionCatalog.All
+                    .Where(card => card.InPool)
+                    .OrderBy(card => card.TavernTier)
+                    .ThenBy(card => card.Name)
+                    .First();
+
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    repository,
+                    minionCatalog,
+                    spellCatalog).Build();
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardPoolVersionCopyButton").GetComponent<Button>().onClick.Invoke();
+
+                FindChild(rootObject.transform, "UnityCardPoolMinionToggle-" + disabledMinion.CardId).GetComponent<Toggle>().isOn = false;
+
+                var saveButton = FindChild(rootObject.transform, "UnityCardPoolVersionSaveButton").GetComponent<Button>();
+                Assert.IsTrue(saveButton.interactable);
+                Assert.AreEqual("保存*", saveButton.GetComponentInChildren<Text>().text);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionModalSummary").GetComponent<Text>().text.Contains("未保存"));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionDefaultButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionUnsavedDialog"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionConfirmSaveAndSwitchButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionConfirmDiscardButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionConfirmCancelButton"));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionConfirmCancelButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardPoolVersionUnsavedDialog"));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionModalSummary").GetComponent<Text>().text.Contains("未保存"));
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionDefaultButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardPoolVersionConfirmSaveAndSwitchButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityCardPoolVersionSaveButton").GetComponent<Button>().interactable);
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityCardPoolVersionModalSummary").GetComponent<Text>().text.Contains("未保存"));
+
+                var saved = repository.Load();
+                Assert.AreEqual(1, saved.Versions.Count);
+                CollectionAssert.DoesNotContain(saved.Versions[0].EnabledMinionCardIds, disabledMinion.CardId);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
             }
         }
 
@@ -176,12 +646,99 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuickCombatButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuickReplayButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuickToolsButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadge"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadgeName"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadgePower"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityRightPanelDrawerToggle"));
                 Assert.IsNull(FindChild(rootObject.transform, "UnityRightPanel"));
                 Assert.IsNull(FindChild(rootObject.transform, "UnityRefreshButton"));
                 Assert.AreEqual(7, FindChildren(rootObject.transform, "UnityPlayerBoardZoneSlot-").Count);
                 Assert.AreEqual(10, FindChildren(rootObject.transform, "UnityHandZoneSlot-").Count);
                 Assert.GreaterOrEqual(FindComponentsNamed(rootObject.transform, "UnityTavernCardComponent").Count, service.State.Player.Tavern.Shop.Count);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void HeroBadgeSelection_ReplacesCurrentHeroAndRefreshesTopBar()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                var targetHero = service.HeroCatalog.GetInitialSelectableHeroes()
+                    .First(hero => string.Equals(hero.HeroCardId, MillhouseHeroCardId, StringComparison.OrdinalIgnoreCase));
+                service.State.Player.Health = 7;
+                service.State.Player.MaxHealth = 9;
+                service.State.Player.Armor = 0;
+                service.State.Player.Tavern.Gold = targetHero.HeroPower == null ? service.State.Player.Tavern.Gold : service.State.Player.Tavern.UpgradeCost;
+                var upgradeCostBeforeSwap = service.State.Player.Tavern.UpgradeCost;
+                var logCountBeforeSwap = service.State.Player.Tavern.RecruitLog.Count;
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "UnityHeroBadge").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionOverlay"));
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().interactable);
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityHeroSelectionHeroChooseButton-" + HeroSelectionSafeName(service.State.Player.HeroId)).GetComponent<Button>().interactable);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionHeroChooseButton-" + HeroSelectionSafeName(targetHero.HeroCardId)).GetComponent<Button>().onClick.Invoke();
+                Assert.AreNotEqual(targetHero.HeroCardId, service.State.Player.HeroId);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().interactable);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponentInChildren<Text>().text.Contains(targetHero.Name));
+
+                FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(targetHero.HeroCardId, service.State.Player.HeroId);
+                Assert.AreEqual(MillhouseHeroPowerCardId, service.State.Player.HeroPowerCardId);
+                Assert.AreEqual(targetHero.Health, service.State.Player.Health);
+                Assert.AreEqual(targetHero.Health, service.State.Player.MaxHealth);
+                Assert.AreEqual(targetHero.Armor, service.State.Player.Armor);
+                Assert.AreEqual(logCountBeforeSwap + 1, service.State.Player.Tavern.RecruitLog.Count);
+                Assert.AreEqual(RecruitLogType.Discover, service.State.Player.Tavern.RecruitLog.Last().Type);
+                Assert.AreEqual("Hero set: " + targetHero.Name, service.State.Player.Tavern.RecruitLog.Last().Message);
+                Assert.AreEqual(targetHero.Name, FindChild(rootObject.transform, "UnityHeroBadgeName").GetComponent<Text>().text);
+                Assert.AreEqual(targetHero.HeroPower.Name, FindChild(rootObject.transform, "UnityHeroBadgePower").GetComponent<Text>().text);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityFeedbackToast").GetComponentInChildren<Text>().text.Contains(targetHero.Name));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityQuickRefreshButton").GetComponentInChildren<Text>().text.Contains("2"));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityQuickUpgradeButton").GetComponentInChildren<Text>().text.Contains((upgradeCostBeforeSwap + 1).ToString()));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void HeroSelectionModal_ToolsEntryUsesInMatchPreviewConfirmation()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                var targetHero = service.HeroCatalog.GetInitialSelectableHeroes()
+                    .First(hero => !string.Equals(hero.HeroCardId, service.State.Player.HeroId, StringComparison.OrdinalIgnoreCase));
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                FindChild(rootObject.transform, "UnityQuickToolsButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityToolsSwapHeroButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroSelectionOverlay"));
+                Assert.IsNull(FindChild(rootObject.transform, "UnityToolsModal"));
+                Assert.IsFalse(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().interactable);
+
+                FindChild(rootObject.transform, "UnityHeroSelectionHeroChooseButton-" + HeroSelectionSafeName(targetHero.HeroCardId))
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+
+                Assert.AreNotEqual(targetHero.HeroCardId, service.State.Player.HeroId);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponent<Button>().interactable);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityHeroSelectionConfirmButton").GetComponentInChildren<Text>().text.Contains(targetHero.Name));
             }
             finally
             {
@@ -442,6 +999,42 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void HeroPowerUi_TargetsFriendlyMinionAndAppliesGeorgeShield()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(
+                    12345,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions { SelectedHeroCardId = GeorgeHeroCardId });
+                service.State.Player.Tavern.Gold = 5;
+                service.State.Player.Board.Clear();
+                service.State.Opponent.Board.Clear();
+                var target = CreateBoardMinion(service, "george-ui-target", BoardSide.Player, 2, 3);
+                service.State.Player.Board.Add(target);
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var heroPowerButton = FindChild(rootObject.transform, "UnityQuickHeroPowerButton").GetComponent<Button>();
+                Assert.IsTrue(heroPowerButton.interactable);
+                Assert.IsNotNull(heroPowerButton.GetComponent<UnityTavernCardDragBehaviour>());
+
+                heroPowerButton.onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCard-" + target.InstanceId).GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(4, service.State.Player.Tavern.Gold);
+                Assert.IsTrue(target.Keywords.Contains(Keyword.DivineShield));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityFeedbackToast"));
+                Assert.IsNull(FindChild(rootObject.transform, "UnityErrorToast"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void DragCommandMapper_BuildsExpectedCommands()
         {
             var card = new MinionInstance { InstanceId = "drag-card" };
@@ -463,6 +1056,16 @@ namespace LearnHearthstone.Tests.EditMode
                 1,
                 -1,
                 null);
+
+            AssertDropCommand(
+                new UnityTavernDragContext(new MinionInstance { InstanceId = "hero-power-card", CardKind = CardKind.HeroPower }, UnityTavernDragSource.HeroPower, 0),
+                UnityTavernDropTarget.PlayerBoard,
+                2,
+                GameCommandType.UseHeroPower,
+                0,
+                2,
+                null,
+                TargetZone.FriendlyBoard);
 
             AssertDropCommand(
                 new UnityTavernDragContext(card, UnityTavernDragSource.Hand, 0),
@@ -2256,6 +2859,7 @@ namespace LearnHearthstone.Tests.EditMode
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryTypePanel").GetComponent<Outline>());
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryMinionTab"));
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibrarySpellTab"));
+                    Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryHeroTab"));
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryTier1Button"));
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryTier1ButtonIcon"));
                     Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibraryTribeBeastButton"));
@@ -2292,6 +2896,15 @@ namespace LearnHearthstone.Tests.EditMode
                     FirstCardLibraryCard(rootObject.transform).GetComponent<Button>().onClick.Invoke();
                     Assert.AreEqual(handBeforeLibrarySpell + 1, service.State.Player.Tavern.Hand.Count);
                     Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
+
+                    FindChild(rootObject.transform, "UnityCardLibraryHeroTab").GetComponent<Button>().onClick.Invoke();
+                    Assert.IsTrue(FindChild(rootObject.transform, "UnityCardLibraryHeroTab").GetComponent<Outline>().enabled);
+                    var renoCard = FindCardLibraryCard(rootObject.transform, "TB_BaconShop_HERO_41");
+                    Assert.IsNotNull(renoCard);
+                    var handBeforeHero = service.State.Player.Tavern.Hand.Count;
+                    renoCard.GetComponent<Button>().onClick.Invoke();
+                    Assert.AreEqual(handBeforeHero, service.State.Player.Tavern.Hand.Count);
+                    Assert.AreEqual("TB_BaconShop_HERO_41", service.State.Player.HeroId);
                     return;
                 }
 
@@ -2305,6 +2918,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryTribeGrid").GetComponent<Outline>());
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryMinionModeButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibrarySpellModeButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryHeroModeButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryTier1Button"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryTribeBeastButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsCardLibraryTribeNoneButton"));
@@ -2334,6 +2948,10 @@ namespace LearnHearthstone.Tests.EditMode
                 FindChild(rootObject.transform, "UnityToolsCardLibraryAddButton").GetComponent<Button>().onClick.Invoke();
                 Assert.AreEqual(handBeforeSpell + 1, service.State.Player.Tavern.Hand.Count);
                 Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
+
+                FindChild(rootObject.transform, "UnityToolsCardLibraryHeroModeButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityToolsCardLibraryHeroModeButton").GetComponent<Outline>().enabled);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityToolsCardLibraryCountText").GetComponent<Text>().text.Contains("英雄"));
             }
             finally
             {
@@ -2685,12 +3303,14 @@ namespace LearnHearthstone.Tests.EditMode
             GameCommandType expectedType,
             int expectedIndex,
             int expectedTargetIndex,
-            string expectedInstanceId)
+            string expectedInstanceId,
+            TargetZone expectedTargetZone = TargetZone.Unspecified)
         {
             Assert.IsTrue(UnityTavernDragController.TryBuildDropCommand(drag, target, targetIndex, out var command));
             Assert.AreEqual(expectedType, command.Type);
             Assert.AreEqual(expectedIndex, command.Index);
             Assert.AreEqual(expectedTargetIndex, command.TargetIndex);
+            Assert.AreEqual(expectedTargetZone, command.TargetZone);
             Assert.AreEqual(expectedInstanceId, command.InstanceId);
         }
 
@@ -2778,6 +3398,16 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             return results;
+        }
+
+        private static string HeroSelectionSafeName(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return "Unknown";
+            }
+
+            return value.Replace(' ', '_').Replace('/', '_').Replace('\\', '_').Replace(':', '_');
         }
 
         private static Image ImageChild(Transform parent, string name)

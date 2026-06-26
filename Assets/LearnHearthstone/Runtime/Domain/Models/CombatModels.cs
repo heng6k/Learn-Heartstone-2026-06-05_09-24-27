@@ -130,7 +130,8 @@ namespace LearnHearthstone.Domain.Models
         RebornOverflowed,
         CombatRewardQueued,
         CombatSpellCast,
-        CombatEnded
+        CombatEnded,
+        TrinketTriggered
     }
 
     [Serializable]
@@ -139,10 +140,14 @@ namespace LearnHearthstone.Domain.Models
         public CombatRewardType Type;
         public BoardSide Side;
         public string SourceCardId;
+        public string SourceInstanceId;
+        public string TargetInstanceId;
         public string CardId;
         public int Amount;
         public int Attack;
         public int Health;
+        public int TavernTier;
+        public List<Tribe> Tribes = new List<Tribe>();
     }
 
     public enum CombatRewardType
@@ -152,6 +157,8 @@ namespace LearnHearthstone.Domain.Models
         EternalKnightDied,
         FriendlyMinionDied,
         FriendlyDeathrattleTriggered,
+        FriendlyMinionKilledEnemy,
+        FriendlyMinionSummoned,
         BuffHandMinion,
         ImproveBloodGemAttack,
         ImproveElementalHealth,
@@ -172,6 +179,14 @@ namespace LearnHearthstone.Domain.Models
         AddBountyToHand,
         ImproveElementalShopStats,
         ImproveTavernMinionStats,
-        AddRandomTierSixMinionToHand
+        AddRandomTierSixMinionToHand,
+        FriendlyDeathrattleMinionDied,
+        AddRandomTavernSpellToHand,
+        BuffOriginalFriendlyMinion,
+        ImproveAllPurposeKibble,
+        TriggerFriendlyBattlecry,
+        GainNextTurnGold,
+        ImproveBloodGemsUntilNextCombat,
+        AddRandomSpellcraftSpellToHand
     }
 }

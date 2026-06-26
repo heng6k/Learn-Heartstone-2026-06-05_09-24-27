@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
@@ -18,8 +20,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
     {
         private const int BoardLimit = 7;
         private const int HandLimit = 10;
+        private const string HeroPowerDragInstanceId = "unity-current-hero-power";
         private static readonly float[] ReplayFrameDurations = { 0.65f, 0.36f, 0.18f };
         private static readonly string[] ReplaySpeedLabels = { "1x", "2x", "4x" };
+        private static readonly Regex RichTextTagPattern = new Regex("<.*?>", RegexOptions.Compiled);
         private static readonly Tribe[] ToolsAcquisitionTribes =
         {
             Tribe.None,
@@ -76,6 +80,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool combatReplayOpen;
         private bool toolsOpen;
         private bool cardLibraryOpen;
+        private bool heroSelectionOpen;
         private string minionEditorInstanceId;
         private BoardSide minionEditorSide;
         private GameObject keywordTooltip;
@@ -89,6 +94,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private UnityCardLibraryDestination cardLibraryDestination = UnityCardLibraryDestination.PlayerHand;
         private bool opponentCardLibraryGolden;
         private bool toolsShowAllCards;
+        private HeroPowerCategory? toolsHeroPowerCategoryFilter;
+        private HeroPowerReplacementEligibility? toolsHeroPowerEligibilityFilter;
 
         public void Initialize(MatchService matchService, IAdvisorService advisorService, Action backAction, Action legacyAction)
         {
@@ -111,6 +118,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildBackground();
             BuildTopBar();
             BuildPlaySurface();
+            BuildQuestTrackerOverlay();
             BuildQuickActionBar();
             BuildRightPanelDrawerToggle();
 
@@ -139,6 +147,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 BuildCardLibraryOverlay();
             }
 
+            if (heroSelectionOpen)
+            {
+                BuildHeroSelectionOverlay();
+            }
+
             if (!string.IsNullOrEmpty(minionEditorInstanceId))
             {
                 BuildMinionEditModal();
@@ -147,6 +160,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (service.State.Player.Tavern.Discover != null)
             {
                 BuildDiscoverModal();
+            }
+
+            if (service.State.Player.Tavern.AdvancedMechanics?.PendingChoice != null)
+            {
+                BuildAdvancedMechanicChoiceModal();
             }
 
             if (!string.IsNullOrEmpty(lastError))
@@ -202,6 +220,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Text;
             UiFactory.Label("UnitySubtitle", titleBlock.transform, "组件式 UGUI / 可继续 prefab 化", 12, FontStyle.Normal).color = UnityTavernUiStyle.MutedText;
 
+            BuildHeroBadge(bar.transform);
             ResourcePill(bar.transform, "回合", service.State.Round.ToString(), UnityTavernUiStyle.TableLit);
             ResourcePill(bar.transform, "金币", service.State.Player.Tavern.Gold + "/" + service.State.Player.Tavern.MaxGold, UnityTavernUiStyle.Gold);
             ResourcePill(bar.transform, "酒馆", service.State.Player.Tavern.Tier + " 本", UnityTavernUiStyle.Blue);
@@ -213,6 +232,76 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFlexible(spacer, 1f, 0f);
 
             SmallButton("UnityBackButton", bar.transform, "返回", () => backToHub?.Invoke(), 48f);
+        }
+
+        private void BuildHeroBadge(Transform parent)
+        {
+            var hero = CurrentHero();
+            var badge = new GameObject("UnityHeroBadge", typeof(RectTransform), typeof(Image), typeof(Button));
+            badge.transform.SetParent(parent, false);
+            UnityTavernUiStyle.SetFixedSize(badge, 210f, 54f);
+            var image = badge.GetComponent<Image>();
+            image.color = UnityTavernUiStyle.PanelRaised;
+            image.raycastTarget = true;
+            UnityTavernUiStyle.ConfigureOutline(badge, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.42f), new Vector2(1f, -1f));
+
+            var button = badge.GetComponent<Button>();
+            button.onClick.AddListener(OpenHeroSelection);
+            UnityTavernUiStyle.TintSelectable(button, UnityTavernUiStyle.PanelRaised, Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.16f), Color.Lerp(UnityTavernUiStyle.PanelRaised, Color.black, 0.16f));
+
+            var row = badge.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(6, 8, 5, 5);
+            row.spacing = 7;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = true;
+
+            BuildHeroBadgeImage(badge.transform, hero);
+
+            var stack = Panel("UnityHeroBadgeTextStack", badge.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(stack, 1f, 0f);
+            var stackLayout = stack.AddComponent<VerticalLayoutGroup>();
+            stackLayout.spacing = 1;
+            stackLayout.childControlWidth = true;
+            stackLayout.childControlHeight = true;
+            stackLayout.childForceExpandWidth = true;
+            stackLayout.childForceExpandHeight = false;
+
+            var name = UiFactory.Label("UnityHeroBadgeName", stack.transform, hero == null ? "未设置" : hero.Name, 12, FontStyle.Bold);
+            name.color = UnityTavernUiStyle.Text;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 21f);
+
+            var power = UiFactory.Label("UnityHeroBadgePower", stack.transform, CurrentHeroPowerName(), 11, FontStyle.Bold);
+            power.color = UnityTavernUiStyle.Gold;
+            power.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(power.gameObject, 19f);
+        }
+
+        private void BuildHeroBadgeImage(Transform parent, HeroDefinition hero)
+        {
+            var frame = Panel("UnityHeroBadgeImage", parent, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.SetFixedSize(frame, 44f, 44f);
+            UnityTavernUiStyle.ConfigureOutline(frame, new Color(0f, 0f, 0f, 0.32f), new Vector2(1f, -1f));
+
+            var sprite = hero == null ? null : CardImageProvider.LoadSprite(hero.ImagePath, hero.HeroCardId, CardKind.Hero);
+            if (sprite == null)
+            {
+                var missing = UiFactory.Label("UnityHeroBadgeImageMissing", frame.transform, "无图", 9, FontStyle.Bold);
+                missing.alignment = TextAnchor.MiddleCenter;
+                missing.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.Stretch(missing.rectTransform);
+                return;
+            }
+
+            var spriteObject = new GameObject("UnityHeroBadgeImageSprite", typeof(RectTransform), typeof(Image));
+            spriteObject.transform.SetParent(frame.transform, false);
+            UnityTavernUiStyle.Stretch(spriteObject.GetComponent<RectTransform>());
+            var image = spriteObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
         }
 
         private void BuildPlaySurface()
@@ -481,6 +570,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var flexibleWidth = quickBar;
             var minWidth = quickBar ? (layout.IsCompact ? 84f : 108f) : 0f;
 
+            var heroPower = CurrentHeroPower();
+            var heroPowerButton = ActionButton(
+                namePrefix + "HeroPowerButton",
+                parent,
+                HeroPowerActionLabel(heroPower),
+                BeginHeroPowerTargeting,
+                minWidth,
+                height,
+                flexibleWidth,
+                UnityTavernActionButtonRole.Primary,
+                heroPower != null);
+            AddHeroPowerDrag(heroPowerButton.gameObject, heroPower);
             ActionButton(namePrefix + "RefreshButton", parent, RefreshActionLabel(), () => Apply(new GameCommand(GameCommandType.RerollShop)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanRefreshShop());
             ActionButton(namePrefix + "FreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy);
             ActionButton(namePrefix + "UpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
@@ -503,13 +604,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return service.State.Player.Health > 1;
             }
 
-            return tavern.Gold >= 1;
+            return tavern.Gold >= CurrentRefreshCost();
         }
 
         private bool CanUpgradeTavern()
         {
             var tavern = service.State.Player.Tavern;
-            return tavern.UpgradeCost > 0 && tavern.Gold >= tavern.UpgradeCost;
+            var upgradeCost = CurrentUpgradeCost();
+            return tavern.UpgradeCost > 0 && tavern.Gold >= upgradeCost;
         }
 
         private bool HasCombatReplay()
@@ -527,18 +629,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return "免费刷新";
             }
 
-            return tavern.HealthCostRefreshes > 0 ? "刷新 1血" : "刷新 1";
+            return tavern.HealthCostRefreshes > 0 ? "刷新 1血" : "刷新 " + CurrentRefreshCost();
         }
 
         private string UpgradeActionLabel()
         {
             var tavern = service.State.Player.Tavern;
-            return tavern.UpgradeCost > 0 ? "升本 " + tavern.UpgradeCost : "满本";
+            return tavern.UpgradeCost > 0 ? "升本 " + CurrentUpgradeCost() : "满本";
+        }
+
+        private int CurrentRefreshCost()
+        {
+            return HeroEffectEngine.ModifyRefreshCost(service.State, service.State.Player.HeroPowerCardId, 1);
+        }
+
+        private int CurrentUpgradeCost()
+        {
+            return HeroEffectEngine.ModifyUpgradeCost(service.State, service.State.Player.HeroPowerCardId, service.State.Player.Tavern.UpgradeCost);
         }
 
         private string ReplayActionLabel()
         {
             return HasCombatReplay() ? "回放" : "无回放";
+        }
+
+        private static string HeroPowerActionLabel(HeroPowerDefinition heroPower)
+        {
+            return heroPower == null ? "无技能" : "技能 " + Math.Max(0, heroPower.Cost);
         }
 
         private void BuildSelectedCardPrefab(Transform parent)
@@ -961,6 +1078,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             toolsOpen = true;
             cardLibraryOpen = false;
+            heroSelectionOpen = false;
             Rebuild();
         }
 
@@ -970,10 +1088,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Rebuild();
         }
 
+        private void OpenHeroSelection()
+        {
+            heroSelectionOpen = true;
+            cardLibraryOpen = false;
+            toolsOpen = false;
+            Rebuild();
+        }
+
+        private void CloseHeroSelection()
+        {
+            heroSelectionOpen = false;
+            Rebuild();
+        }
+
         private void OpenCardLibrary()
         {
             toolsOpen = false;
             cardLibraryOpen = true;
+            heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.PlayerHand;
             Rebuild();
         }
@@ -982,6 +1115,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             toolsOpen = false;
             cardLibraryOpen = true;
+            heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentBoard;
             opponentCardLibraryGolden = false;
             Rebuild();
@@ -1009,6 +1143,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var modal = UnityTavernToolsModalComponent.CreateModalHost(transform, "UnityTrainerToolsOverlay");
             modal.transform.SetAsLastSibling();
             modal.GetComponent<UnityTavernToolsModalComponent>().Build("训练工具", BuildToolsContent, CloseTools);
+        }
+
+        private void BuildHeroSelectionOverlay()
+        {
+            var modal = UnityHeroSelectionModalComponent.CreateModalHost(transform, "UnityHeroSelectionOverlay");
+            modal.transform.SetAsLastSibling();
+            modal.GetComponent<UnityHeroSelectionModalComponent>().Build(
+                service.HeroCatalog,
+                service.State.Player.HeroId,
+                true,
+                ApplyHeroSelection,
+                CloseHeroSelection,
+                "更换英雄");
         }
 
         private void BuildMinionEditModal()
@@ -1043,6 +1190,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 ToolButton("UnityToolsAddMinionButton", grid, "加随从", service.State.Player.Tavern.Hand.Count < HandLimit, AddFirstMinionToHand);
                 ToolButton("UnityToolsAddSpellButton", grid, "加法术", service.State.Player.Tavern.Hand.Count < HandLimit, AddFirstSpellToHand);
+                ToolButton("UnityToolsSwapHeroButton", grid, "换英雄", true, OpenHeroSelection);
             });
 
             BuildToolsSection(parent, "UnityToolsCardLibraryEntrySection", "卡牌库", 1, grid =>
@@ -1185,10 +1333,53 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildCardLibraryTypePanel(body.transform);
         }
 
+        private void SelectToolsAcquisitionKind(CardKind kind)
+        {
+            toolsAcquisitionKind = kind;
+            toolsAcquisitionTierFilter = 0;
+            toolsAcquisitionTribeFilter = Tribe.All;
+            toolsHeroPowerCategoryFilter = null;
+            toolsHeroPowerEligibilityFilter = null;
+            opponentCardLibraryGolden = false;
+        }
+
+        private string CardLibraryKindTitle()
+        {
+            switch (toolsAcquisitionKind)
+            {
+                case CardKind.TavernSpell: return "酒馆法术";
+                case CardKind.Hero: return "英雄";
+                case CardKind.HeroPower: return "英雄技能";
+                case CardKind.HeroBuddy: return "英雄宝宝";
+                default: return "随从";
+            }
+        }
+
+        private Color CardLibraryAccent()
+        {
+            return CardKindAccent(toolsAcquisitionKind);
+        }
+
+        private static Color CardKindAccent(CardKind kind)
+        {
+            switch (kind)
+            {
+                case CardKind.Hero:
+                    return UnityTavernUiStyle.Red;
+                case CardKind.TavernSpell:
+                case CardKind.HeroPower:
+                    return UnityTavernUiStyle.Blue;
+                case CardKind.HeroBuddy:
+                    return UnityTavernUiStyle.Green;
+                default:
+                    return UnityTavernUiStyle.Gold;
+            }
+        }
+
         private void BuildCardLibraryHeader(Transform parent)
         {
             var header = Panel("UnityCardLibraryHeader", parent, UnityTavernUiStyle.Panel);
-            ConfigureToolsSurface(header, UnityTavernUiStyle.Gold, 0.22f);
+            ConfigureToolsSurface(header, CardLibraryAccent(), 0.22f);
             UnityTavernUiStyle.SetPreferredHeight(header, 64f);
             var layout = header.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 8, 8);
@@ -1200,19 +1391,35 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             CardLibraryBadgeButton("UnityCardLibraryMinionTab", header.transform, "随从", "随", null, toolsAcquisitionKind == CardKind.Minion, new Vector2(74f, 48f), UnityTavernUiStyle.Gold, () =>
             {
-                toolsAcquisitionKind = CardKind.Minion;
-                toolsAcquisitionTribeFilter = Tribe.All;
+                SelectToolsAcquisitionKind(CardKind.Minion);
                 Rebuild();
             });
 
             CardLibraryBadgeButton("UnityCardLibrarySpellTab", header.transform, "酒馆法术", "法", null, toolsAcquisitionKind == CardKind.TavernSpell, new Vector2(86f, 48f), UnityTavernUiStyle.Blue, () =>
             {
-                toolsAcquisitionKind = CardKind.TavernSpell;
-                toolsAcquisitionTribeFilter = Tribe.All;
+                SelectToolsAcquisitionKind(CardKind.TavernSpell);
                 Rebuild();
             });
 
-            var title = UiFactory.Label("UnityCardLibraryTitle", header.transform, toolsAcquisitionKind == CardKind.TavernSpell ? "酒馆法术" : "随从", 20, FontStyle.Bold);
+            CardLibraryBadgeButton("UnityCardLibraryHeroTab", header.transform, "英雄", "英", null, toolsAcquisitionKind == CardKind.Hero, new Vector2(74f, 48f), UnityTavernUiStyle.Red, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.Hero);
+                Rebuild();
+            });
+
+            CardLibraryBadgeButton("UnityCardLibraryHeroPowerTab", header.transform, "英雄技能", "技", null, toolsAcquisitionKind == CardKind.HeroPower, new Vector2(86f, 48f), UnityTavernUiStyle.Blue, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.HeroPower);
+                Rebuild();
+            });
+
+            CardLibraryBadgeButton("UnityCardLibraryHeroBuddyTab", header.transform, "英雄宝宝", "宝", null, toolsAcquisitionKind == CardKind.HeroBuddy, new Vector2(86f, 48f), UnityTavernUiStyle.Green, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.HeroBuddy);
+                Rebuild();
+            });
+
+            var title = UiFactory.Label("UnityCardLibraryTitle", header.transform, CardLibraryKindTitle(), 20, FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
@@ -1257,6 +1464,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildCardLibraryTierPanel(Transform parent)
         {
+            if (toolsAcquisitionKind == CardKind.Hero)
+            {
+                BuildCardLibraryHeroInfoPanel(parent, "当前英雄", CurrentHeroName());
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                BuildCardLibraryHeroPowerCategoryPanel(parent);
+                return;
+            }
+
             var panel = Panel("UnityCardLibraryTierPanel", parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureCardLibrarySidePanel(panel, 172f, UnityTavernUiStyle.Gold);
             BuildCardLibraryPanelTitle(panel.transform, "UnityCardLibraryTierTitle", "等级", UnityTavernUiStyle.Gold);
@@ -1306,11 +1525,67 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private void BuildCardLibraryHeroPowerCategoryPanel(Transform parent)
+        {
+            var panel = Panel("UnityCardLibraryHeroPowerCategoryPanel", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureCardLibrarySidePanel(panel, 172f, UnityTavernUiStyle.Blue);
+            BuildCardLibraryPanelTitle(panel.transform, "UnityCardLibraryHeroPowerCategoryTitle", "分类", UnityTavernUiStyle.Blue);
+
+            var grid = new GameObject("UnityCardLibraryHeroPowerCategoryGrid", typeof(RectTransform));
+            grid.transform.SetParent(panel.transform, false);
+            UnityTavernUiStyle.SetFlexible(grid, 1f, 1f);
+            var gridLayout = grid.AddComponent<GridLayoutGroup>();
+            gridLayout.padding = new RectOffset(8, 8, 8, 8);
+            gridLayout.spacing = new Vector2(8f, 8f);
+            gridLayout.cellSize = new Vector2(68f, 58f);
+            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            gridLayout.constraintCount = 2;
+
+            CardLibraryBadgeButton("UnityCardLibraryHeroPowerCategoryAllButton", grid.transform, "全部", "全", null, !toolsHeroPowerCategoryFilter.HasValue, new Vector2(68f, 58f), UnityTavernUiStyle.Blue, () =>
+            {
+                toolsHeroPowerCategoryFilter = null;
+                Rebuild();
+            });
+
+            foreach (HeroPowerCategory category in Enum.GetValues(typeof(HeroPowerCategory)))
+            {
+                var capturedCategory = category;
+                CardLibraryBadgeButton(
+                    "UnityCardLibraryHeroPowerCategory" + category + "Button",
+                    grid.transform,
+                    HeroPowerCategoryName(category),
+                    HeroPowerCategorySymbol(category),
+                    null,
+                    toolsHeroPowerCategoryFilter == category,
+                    new Vector2(68f, 58f),
+                    UnityTavernUiStyle.Blue,
+                    () =>
+                {
+                    toolsHeroPowerCategoryFilter = capturedCategory;
+                    Rebuild();
+                });
+            }
+        }
+
+        private void BuildCardLibraryHeroInfoPanel(Transform parent, string title, string value)
+        {
+            var panel = Panel("UnityCardLibraryHeroInfoPanel", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureCardLibrarySidePanel(panel, 172f, UnityTavernUiStyle.Red);
+            BuildCardLibraryPanelTitle(panel.transform, "UnityCardLibraryHeroInfoTitle", title, UnityTavernUiStyle.Red);
+
+            var info = UiFactory.Label("UnityCardLibraryHeroInfoText", panel.transform, value, 13, FontStyle.Bold);
+            info.alignment = TextAnchor.MiddleCenter;
+            info.color = UnityTavernUiStyle.MutedText;
+            info.horizontalOverflow = HorizontalWrapMode.Wrap;
+            info.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFlexible(info.gameObject, 1f, 1f);
+        }
+
         private void BuildCardLibraryCenterPanel(Transform parent)
         {
             var choices = FilteredToolsAcquisitionChoices().ToList();
             var center = Panel("UnityCardLibraryCenterPanel", parent, UnityTavernUiStyle.Panel);
-            ConfigureToolsSurface(center, toolsAcquisitionKind == CardKind.TavernSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold, 0.20f);
+            ConfigureToolsSurface(center, CardLibraryAccent(), 0.20f);
             UnityTavernUiStyle.SetFlexible(center, 1f, 1f);
             var layout = center.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(12, 12, 10, 12);
@@ -1323,8 +1598,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildCardLibraryPanelTitle(
                 center.transform,
                 "UnityCardLibraryCenterTitle",
-                toolsAcquisitionKind == CardKind.TavernSpell ? "酒馆法术" : "随从",
-                toolsAcquisitionKind == CardKind.TavernSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold);
+                CardLibraryKindTitle(),
+                CardLibraryAccent());
 
             var content = UiFactory.ScrollView("UnityCardLibraryScroll", center.transform, UnityTavernUiStyle.PanelQuiet, out _);
             UnityTavernUiStyle.SetFlexible(content.gameObject, 1f, 1f);
@@ -1341,7 +1616,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var gridLayout = content.gameObject.AddComponent<GridLayoutGroup>();
             gridLayout.padding = new RectOffset(12, 12, 12, 18);
             gridLayout.spacing = new Vector2(16f, 18f);
-            gridLayout.cellSize = toolsAcquisitionKind == CardKind.TavernSpell
+            gridLayout.cellSize = toolsAcquisitionKind == CardKind.TavernSpell || toolsAcquisitionKind == CardKind.HeroPower
                 ? new Vector2(150f, 230f)
                 : new Vector2(148f, 226f);
             gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -1357,7 +1632,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var panel = Panel("UnityCardLibraryTypePanel", parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureCardLibrarySidePanel(panel, 210f, UnityTavernUiStyle.Green);
-            BuildCardLibraryPanelTitle(panel.transform, "UnityCardLibraryTypeTitle", "类型", UnityTavernUiStyle.Green);
+            BuildCardLibraryPanelTitle(panel.transform, "UnityCardLibraryTypeTitle", toolsAcquisitionKind == CardKind.HeroPower ? "替换" : toolsAcquisitionKind == CardKind.Hero ? "说明" : "类型", UnityTavernUiStyle.Green);
 
             var grid = new GameObject("UnityCardLibraryTypeGrid", typeof(RectTransform));
             grid.transform.SetParent(panel.transform, false);
@@ -1369,7 +1644,42 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             gridLayout.constraintCount = 2;
 
-            if (toolsAcquisitionKind != CardKind.Minion)
+            if (toolsAcquisitionKind == CardKind.Hero)
+            {
+                CardLibraryBadgeButton("UnityCardLibraryHeroAllButton", grid.transform, "全部英雄", "英", null, true, new Vector2(88f, 58f), UnityTavernUiStyle.Red, () => { });
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                CardLibraryBadgeButton("UnityCardLibraryEligibilityAllButton", grid.transform, "全部", "全", null, !toolsHeroPowerEligibilityFilter.HasValue, new Vector2(88f, 58f), UnityTavernUiStyle.Green, () =>
+                {
+                    toolsHeroPowerEligibilityFilter = null;
+                    Rebuild();
+                });
+
+                foreach (HeroPowerReplacementEligibility eligibility in Enum.GetValues(typeof(HeroPowerReplacementEligibility)))
+                {
+                    var capturedEligibility = eligibility;
+                    CardLibraryBadgeButton(
+                        "UnityCardLibraryEligibility" + eligibility + "Button",
+                        grid.transform,
+                        HeroPowerEligibilityName(eligibility),
+                        HeroPowerEligibilitySymbol(eligibility),
+                        null,
+                        toolsHeroPowerEligibilityFilter == eligibility,
+                        new Vector2(88f, 58f),
+                        UnityTavernUiStyle.Green,
+                        () =>
+                    {
+                        toolsHeroPowerEligibilityFilter = capturedEligibility;
+                        Rebuild();
+                    });
+                }
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.TavernSpell)
             {
                 CardLibraryBadgeButton("UnityCardLibraryTypeAllButton", grid.transform, "全部", "全", null, toolsAcquisitionTribeFilter == Tribe.All, new Vector2(88f, 58f), UnityTavernUiStyle.Blue, () =>
                 {
@@ -1539,11 +1849,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     : card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell;
             }
 
+            if (card.CardKind == CardKind.Hero || card.CardKind == CardKind.HeroPower)
+            {
+                return true;
+            }
+
             return service.State.Player.Tavern.Hand.Count < HandLimit;
         }
 
         private string CardLibraryActionText(MinionInstance card)
         {
+            if (card != null && card.CardKind == CardKind.Hero)
+            {
+                return cardLibraryDestination == UnityCardLibraryDestination.OpponentBoard ? "不可用" : "设为英雄";
+            }
+
+            if (card != null && card.CardKind == CardKind.HeroPower)
+            {
+                return "设为技能";
+            }
+
             if (cardLibraryDestination != UnityCardLibraryDestination.OpponentBoard)
             {
                 return "加入";
@@ -1641,14 +1966,27 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             LibraryFilterButton("UnityToolsCardLibraryMinionModeButton", row.transform, "随从", toolsAcquisitionKind == CardKind.Minion, 92f, () =>
             {
-                toolsAcquisitionKind = CardKind.Minion;
-                toolsAcquisitionTribeFilter = Tribe.All;
+                SelectToolsAcquisitionKind(CardKind.Minion);
                 Rebuild();
             });
             LibraryFilterButton("UnityToolsCardLibrarySpellModeButton", row.transform, "酒馆法术", toolsAcquisitionKind == CardKind.TavernSpell, 112f, () =>
             {
-                toolsAcquisitionKind = CardKind.TavernSpell;
-                toolsAcquisitionTribeFilter = Tribe.All;
+                SelectToolsAcquisitionKind(CardKind.TavernSpell);
+                Rebuild();
+            });
+            LibraryFilterButton("UnityToolsCardLibraryHeroModeButton", row.transform, "英雄", toolsAcquisitionKind == CardKind.Hero, 82f, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.Hero);
+                Rebuild();
+            });
+            LibraryFilterButton("UnityToolsCardLibraryHeroPowerModeButton", row.transform, "英雄技能", toolsAcquisitionKind == CardKind.HeroPower, 112f, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.HeroPower);
+                Rebuild();
+            });
+            LibraryFilterButton("UnityToolsCardLibraryHeroBuddyModeButton", row.transform, "英雄宝宝", toolsAcquisitionKind == CardKind.HeroBuddy, 112f, () =>
+            {
+                SelectToolsAcquisitionKind(CardKind.HeroBuddy);
                 Rebuild();
             });
             LibraryFilterButton("UnityToolsCardLibraryShowAllToggle", row.transform, toolsShowAllCards ? "显示全部" : "当前局", toolsShowAllCards, 92f, () =>
@@ -1661,6 +1999,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildToolsAcquisitionTierRow(Transform parent)
         {
+            if (toolsAcquisitionKind == CardKind.Hero)
+            {
+                BuildToolsHeroInfoRow(parent, "当前英雄", CurrentHeroName(), UnityTavernUiStyle.Red);
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                BuildToolsHeroPowerCategoryRow(parent);
+                return;
+            }
+
             var row = Panel("UnityToolsCardLibraryTierRow", parent, UnityTavernUiStyle.Panel);
             ConfigureToolsSurface(row, UnityTavernUiStyle.Gold, 0.14f);
             UnityTavernUiStyle.SetPreferredHeight(row, 40f);
@@ -1689,11 +2039,107 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private void BuildToolsHeroInfoRow(Transform parent, string title, string value, Color accent)
+        {
+            var row = Panel("UnityToolsCardLibraryHeroInfoRow", parent, UnityTavernUiStyle.Panel);
+            ConfigureToolsSurface(row, accent, 0.14f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 40f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 4, 4);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = true;
+
+            var label = UiFactory.Label("UnityToolsCardLibraryHeroInfoLabel", row.transform, title, 12, FontStyle.Bold);
+            label.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetFixedSize(label.gameObject, 86f, 32f);
+
+            var text = UiFactory.Label("UnityToolsCardLibraryHeroInfoValue", row.transform, value, 12, FontStyle.Bold);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.MiddleLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFlexible(text.gameObject, 1f, 0f);
+        }
+
+        private void BuildToolsHeroPowerCategoryRow(Transform parent)
+        {
+            var grid = Panel("UnityToolsCardLibraryHeroPowerCategoryGrid", parent, UnityTavernUiStyle.Panel);
+            ConfigureToolsSurface(grid, UnityTavernUiStyle.Blue, 0.14f);
+            UnityTavernUiStyle.SetPreferredHeight(grid, 84f);
+            var gridLayout = grid.AddComponent<GridLayoutGroup>();
+            gridLayout.padding = new RectOffset(8, 8, 6, 6);
+            gridLayout.spacing = new Vector2(6f, 6f);
+            gridLayout.cellSize = new Vector2(132f, 32f);
+            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            gridLayout.constraintCount = 4;
+
+            LibraryFilterButton("UnityToolsCardLibraryHeroPowerCategoryAllButton", grid.transform, "全部分类", !toolsHeroPowerCategoryFilter.HasValue, 136f, () =>
+            {
+                toolsHeroPowerCategoryFilter = null;
+                Rebuild();
+            });
+
+            foreach (HeroPowerCategory category in Enum.GetValues(typeof(HeroPowerCategory)))
+            {
+                var capturedCategory = category;
+                LibraryFilterButton("UnityToolsCardLibraryHeroPowerCategory" + category + "Button", grid.transform, HeroPowerCategoryName(category), toolsHeroPowerCategoryFilter == category, 136f, () =>
+                {
+                    toolsHeroPowerCategoryFilter = capturedCategory;
+                    Rebuild();
+                });
+            }
+        }
+
         private void BuildToolsAcquisitionTribeRow(Transform parent)
         {
             var grid = Panel("UnityToolsCardLibraryTribeGrid", parent, UnityTavernUiStyle.Panel);
             ConfigureToolsSurface(grid, UnityTavernUiStyle.Green, 0.14f);
-            if (toolsAcquisitionKind != CardKind.Minion)
+            if (toolsAcquisitionKind == CardKind.Hero)
+            {
+                UnityTavernUiStyle.SetPreferredHeight(grid, 40f);
+                var rowLayout = grid.AddComponent<HorizontalLayoutGroup>();
+                rowLayout.padding = new RectOffset(8, 8, 4, 4);
+                rowLayout.childControlWidth = true;
+                rowLayout.childControlHeight = true;
+                rowLayout.childForceExpandWidth = true;
+                rowLayout.childForceExpandHeight = true;
+                var info = UiFactory.Label("UnityToolsCardLibraryHeroInfoText", grid.transform, "点击条目可设为当前英雄。", 12, FontStyle.Bold);
+                info.alignment = TextAnchor.MiddleCenter;
+                info.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.SetFlexible(info.gameObject, 1f, 0f);
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                UnityTavernUiStyle.SetPreferredHeight(grid, 84f);
+                var eligibilityGridLayout = grid.AddComponent<GridLayoutGroup>();
+                eligibilityGridLayout.padding = new RectOffset(8, 8, 6, 6);
+                eligibilityGridLayout.spacing = new Vector2(6f, 6f);
+                eligibilityGridLayout.cellSize = new Vector2(132f, 32f);
+                eligibilityGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                eligibilityGridLayout.constraintCount = 4;
+                LibraryFilterButton("UnityToolsCardLibraryHeroPowerEligibilityAllButton", grid.transform, "全部资格", !toolsHeroPowerEligibilityFilter.HasValue, 136f, () =>
+                {
+                    toolsHeroPowerEligibilityFilter = null;
+                    Rebuild();
+                });
+                foreach (HeroPowerReplacementEligibility eligibility in Enum.GetValues(typeof(HeroPowerReplacementEligibility)))
+                {
+                    var capturedEligibility = eligibility;
+                    LibraryFilterButton("UnityToolsCardLibraryHeroPowerEligibility" + eligibility + "Button", grid.transform, HeroPowerEligibilityName(eligibility), toolsHeroPowerEligibilityFilter == eligibility, 136f, () =>
+                    {
+                        toolsHeroPowerEligibilityFilter = capturedEligibility;
+                        Rebuild();
+                    });
+                }
+                return;
+            }
+
+            if (toolsAcquisitionKind == CardKind.TavernSpell)
             {
                 UnityTavernUiStyle.SetPreferredHeight(grid, 120f);
                 var spellGridLayout = grid.AddComponent<GridLayoutGroup>();
@@ -1752,7 +2198,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildToolsAcquisitionChoiceRow(Transform parent, MinionInstance card, int index)
         {
             var row = Panel("UnityToolsCardLibraryChoice-" + index + "-" + SafeObjectName(card.CardId), parent, index % 2 == 0 ? UnityTavernUiStyle.PanelQuiet : UnityTavernUiStyle.PanelRaised);
-            ConfigureToolsSurface(row, card.CardKind == CardKind.TavernSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold, 0.12f);
+            ConfigureToolsSurface(row, CardKindAccent(card.CardKind), 0.12f);
             UnityTavernUiStyle.SetPreferredHeight(row, 46f);
             var layout = row.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(6, 8, 5, 5);
@@ -1765,7 +2211,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var accent = new GameObject("UnityToolsCardLibraryChoiceAccent", typeof(RectTransform), typeof(Image));
             accent.transform.SetParent(row.transform, false);
             UnityTavernUiStyle.SetFixedSize(accent, 4f, 32f);
-            UnityTavernUiStyle.ConfigureSurface(accent, card.CardKind == CardKind.TavernSpell ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold);
+            UnityTavernUiStyle.ConfigureSurface(accent, CardKindAccent(card.CardKind));
 
             var name = UiFactory.Label("UnityToolsCardLibraryChoiceName", row.transform, card.Name, 12, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
@@ -1779,9 +2225,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFixedSize(meta.gameObject, 190f, 34f);
 
             var addButtonName = index == 0 ? "UnityToolsCardLibraryAddButton" : "UnityToolsCardLibraryAddButton-" + SafeObjectName(card.CardId);
-            var add = ToolButton(addButtonName, row.transform, "加入", service.State.Player.Tavern.Hand.Count < HandLimit, () =>
+            var add = ToolButton(addButtonName, row.transform, CardLibraryActionText(card), CanApplyCardLibraryChoice(card), () =>
             {
-                Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind));
+                ApplyCardLibraryChoice(card);
             });
             UnityTavernUiStyle.SetFixedSize(add.gameObject, 72f, 34f);
         }
@@ -1943,11 +2389,67 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private string ToolsAcquisitionSubtitle(int visibleCount)
         {
-            var kind = toolsAcquisitionKind == CardKind.TavernSpell ? "酒馆法术" : "随从";
+            if (toolsAcquisitionKind == CardKind.Hero)
+            {
+                return "英雄 / " + visibleCount + "张 / 当前英雄 " + CurrentHeroName();
+            }
+
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                var category = toolsHeroPowerCategoryFilter.HasValue ? HeroPowerCategoryName(toolsHeroPowerCategoryFilter.Value) : "全部分类";
+                var eligibility = toolsHeroPowerEligibilityFilter.HasValue ? HeroPowerEligibilityName(toolsHeroPowerEligibilityFilter.Value) : "全部资格";
+                return "英雄技能 / " + category + " / " + eligibility + " / " + visibleCount + "张 / 当前技能 " + CurrentHeroPowerName();
+            }
+
+            var kind = CardLibraryKindTitle();
             var tier = toolsAcquisitionTierFilter == 0 ? "全部等级" : toolsAcquisitionTierFilter + "本";
             var tribe = ToolsAcquisitionFilterName();
-            var scope = toolsShowAllCards ? "显示全部" : "当前局";
+            var scope = toolsShowAllCards && toolsAcquisitionKind != CardKind.HeroBuddy ? "显示全部" : "当前局";
             return kind + " / " + tier + " / " + tribe + " / " + scope + " / " + visibleCount + "张 / 手牌 " + service.State.Player.Tavern.Hand.Count + "/" + HandLimit;
+        }
+
+        private string CurrentHeroPowerName()
+        {
+            var cardId = service?.State?.Player?.HeroPowerCardId;
+            var power = CurrentHeroPower();
+            return power == null ? string.IsNullOrEmpty(cardId) ? "未设置" : cardId : power.Name;
+        }
+
+        private HeroPowerDefinition CurrentHeroPower()
+        {
+            var cardId = service?.State?.Player?.HeroPowerCardId;
+            if (string.IsNullOrEmpty(cardId) || service?.HeroCatalog == null)
+            {
+                return null;
+            }
+
+            return service.HeroCatalog.AllHeroPowers.FirstOrDefault(item =>
+                string.Equals(item.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string CurrentHeroName()
+        {
+            var cardId = service?.State?.Player?.HeroId;
+            if (string.IsNullOrEmpty(cardId) || service?.HeroCatalog == null)
+            {
+                return "未设置";
+            }
+
+            var hero = service.HeroCatalog.AllHeroes.FirstOrDefault(item =>
+                string.Equals(item.HeroCardId, cardId, StringComparison.OrdinalIgnoreCase));
+            return hero == null ? cardId : hero.Name;
+        }
+
+        private HeroDefinition CurrentHero()
+        {
+            var cardId = service?.State?.Player?.HeroId;
+            if (string.IsNullOrEmpty(cardId) || service?.HeroCatalog == null)
+            {
+                return null;
+            }
+
+            return service.HeroCatalog.AllHeroes.FirstOrDefault(item =>
+                string.Equals(item.HeroCardId, cardId, StringComparison.OrdinalIgnoreCase));
         }
 
         private List<Tribe> ActiveLibraryTribes()
@@ -1959,6 +2461,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             yield return Tribe.None;
             var active = toolsShowAllCards
+                || toolsAcquisitionKind == CardKind.HeroBuddy
                 ? TribeAvailabilityRules.AllPlayableTribes()
                 : ActiveLibraryTribes();
             foreach (var tribe in active)
@@ -1969,6 +2472,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void NormalizeToolsAcquisitionTribeFilter()
         {
+            if (toolsAcquisitionKind == CardKind.Hero || toolsAcquisitionKind == CardKind.HeroPower || toolsAcquisitionKind == CardKind.HeroBuddy)
+            {
+                return;
+            }
+
             if (toolsAcquisitionTribeFilter == Tribe.All || toolsAcquisitionTribeFilter == Tribe.None || toolsShowAllCards)
             {
                 return;
@@ -1982,6 +2490,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private string ToolsAcquisitionFilterName()
         {
+            if (toolsAcquisitionKind == CardKind.HeroPower)
+            {
+                return toolsHeroPowerCategoryFilter.HasValue ? HeroPowerCategoryName(toolsHeroPowerCategoryFilter.Value) : "全部分类";
+            }
+
             if (toolsAcquisitionTribeFilter == Tribe.All)
             {
                 return "全部";
@@ -1998,16 +2511,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private IEnumerable<MinionInstance> FilteredToolsAcquisitionChoices()
         {
             NormalizeToolsAcquisitionTribeFilter();
-            var choices = toolsAcquisitionKind == CardKind.Minion
-                ? BuildToolsAcquisitionMinionChoices()
-                : BuildToolsAcquisitionSpellChoices();
+            var choices = BuildToolsAcquisitionChoices();
 
-            if (toolsAcquisitionTierFilter > 0)
+            if (toolsAcquisitionKind != CardKind.Hero && toolsAcquisitionKind != CardKind.HeroPower && toolsAcquisitionTierFilter > 0)
             {
                 choices = choices.Where(card => card.TavernTier == toolsAcquisitionTierFilter);
             }
 
-            if (toolsAcquisitionKind == CardKind.Minion && toolsAcquisitionTribeFilter != Tribe.All)
+            if ((toolsAcquisitionKind == CardKind.Minion || toolsAcquisitionKind == CardKind.HeroBuddy) && toolsAcquisitionTribeFilter != Tribe.All)
             {
                 choices = choices.Where(card => MatchesToolsAcquisitionTribe(card, toolsAcquisitionTribeFilter));
             }
@@ -2019,14 +2530,43 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return choices
                 .OrderBy(card => card.TavernTier)
                 .ThenBy(card => card.Name)
-                .Take(80)
+                .Take(toolsAcquisitionKind == CardKind.Hero ? 160 : 80)
                 .ToList();
+        }
+
+        private IEnumerable<MinionInstance> BuildToolsAcquisitionChoices()
+        {
+            switch (toolsAcquisitionKind)
+            {
+                case CardKind.TavernSpell:
+                    return BuildToolsAcquisitionSpellChoices();
+                case CardKind.Hero:
+                    return BuildToolsAcquisitionHeroChoices();
+                case CardKind.HeroPower:
+                    return BuildToolsAcquisitionHeroPowerChoices();
+                case CardKind.HeroBuddy:
+                    return BuildToolsAcquisitionHeroBuddyChoices();
+                default:
+                    return BuildToolsAcquisitionMinionChoices();
+            }
+        }
+
+        private IEnumerable<MinionInstance> BuildToolsAcquisitionHeroChoices()
+        {
+            var definitions = service.HeroCatalog.AllHeroes
+                .Where(hero => !string.IsNullOrEmpty(hero.HeroCardId))
+                .GroupBy(hero => hero.HeroCardId, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First());
+            foreach (var definition in definitions)
+            {
+                yield return MinionFactory.Create(definition, BoardSide.Player, "unity-tools-library");
+            }
         }
 
         private IEnumerable<MinionInstance> BuildToolsAcquisitionMinionChoices()
         {
             var definitions = MinionCatalogLoader.LoadFromResources().All
-                .Where(card => card.InPool && !card.CardId.StartsWith("BGDUO"));
+                .Where(card => service.IsMinionAllowedByCardPool(card) && !card.CardId.StartsWith("BGDUO"));
             if (!toolsShowAllCards)
             {
                 var active = ActiveLibraryTribes();
@@ -2042,7 +2582,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private IEnumerable<MinionInstance> BuildToolsAcquisitionSpellChoices()
         {
             var definitions = SpellCatalogLoader.LoadFromResources().All
-                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && !spell.CardNumber.StartsWith("BGDUO"));
+                .Where(spell => service.IsTavernSpellAllowedByCardPool(spell) && !spell.CardNumber.StartsWith("BGDUO"));
             if (!toolsShowAllCards)
             {
                 var active = ActiveLibraryTribes();
@@ -2060,6 +2600,43 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private IEnumerable<MinionInstance> BuildToolsAcquisitionHeroPowerChoices()
+        {
+            var definitions = service.HeroCatalog.AllHeroPowers.AsEnumerable();
+            if (toolsHeroPowerCategoryFilter.HasValue)
+            {
+                definitions = definitions.Where(power => power.PrimaryCategory == toolsHeroPowerCategoryFilter.Value);
+            }
+
+            if (toolsHeroPowerEligibilityFilter.HasValue)
+            {
+                definitions = definitions.Where(power => power.ReplacementEligibility == toolsHeroPowerEligibilityFilter.Value);
+            }
+
+            foreach (var definition in definitions)
+            {
+                yield return MinionFactory.Create(definition, BoardSide.Player, "unity-tools-library");
+            }
+        }
+
+        private IEnumerable<MinionInstance> BuildToolsAcquisitionHeroBuddyChoices()
+        {
+            var heroes = service.HeroCatalog.AllHeroes
+                .Where(hero => hero.Buddy != null && !string.IsNullOrEmpty(hero.Buddy.CardId))
+                .GroupBy(hero => hero.Buddy.CardId, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First());
+            foreach (var hero in heroes)
+            {
+                var buddy = MinionFactory.Create(hero.Buddy, BoardSide.Player, "unity-tools-library", PoolSource.Debug);
+                if (!string.IsNullOrEmpty(hero.Name))
+                {
+                    buddy.Tags.Add("hero:" + hero.Name);
+                }
+
+                yield return buddy;
+            }
+        }
+
         private static string ToolsAcquisitionCardMeta(MinionInstance card)
         {
             if (card.CardKind == CardKind.TavernSpell)
@@ -2067,7 +2644,117 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return card.TavernTier + "本 / " + card.Cost + "费 / " + SpellTribesText(card);
             }
 
+            if (card.CardKind == CardKind.HeroPower)
+            {
+                return Math.Max(0, card.Cost) + "费 / " + HeroPowerTagValue(card, "category") + " / " + HeroPowerTagValue(card, "eligibility");
+            }
+
+            if (card.CardKind == CardKind.Hero)
+            {
+                return card.Health + "生命 / " + card.Attack + "护甲" + HeroPowerSuffix(card);
+            }
+
+            if (card.CardKind == CardKind.HeroBuddy)
+            {
+                return card.TavernTier + "本 / " + card.Attack + "/" + card.Health + " / " + TribesText(card) + HeroBuddyHeroSuffix(card);
+            }
+
             return card.TavernTier + "本 / " + card.Attack + "/" + card.Health + " / " + TribesText(card);
+        }
+
+        private static string HeroPowerTagValue(MinionInstance card, string prefix)
+        {
+            if (card?.Tags == null)
+            {
+                return "未分类";
+            }
+
+            var value = card.Tags.FirstOrDefault(tag => tag.StartsWith(prefix + ":", StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(value))
+            {
+                return "未分类";
+            }
+
+            var raw = value.Substring(prefix.Length + 1);
+            if (prefix == "category" && Enum.TryParse(raw, out HeroPowerCategory category))
+            {
+                return HeroPowerCategoryName(category);
+            }
+
+            if (prefix == "eligibility" && Enum.TryParse(raw, out HeroPowerReplacementEligibility eligibility))
+            {
+                return HeroPowerEligibilityName(eligibility);
+            }
+
+            return raw;
+        }
+
+        private static string HeroBuddyHeroSuffix(MinionInstance card)
+        {
+            var hero = card?.Tags?.FirstOrDefault(tag => tag.StartsWith("hero:", StringComparison.OrdinalIgnoreCase));
+            return string.IsNullOrEmpty(hero) ? string.Empty : " / " + hero.Substring("hero:".Length);
+        }
+
+        private static string HeroPowerSuffix(MinionInstance card)
+        {
+            var power = card?.Tags?.FirstOrDefault(tag => tag.StartsWith("hero_power:", StringComparison.OrdinalIgnoreCase));
+            return string.IsNullOrEmpty(power) ? string.Empty : " / " + power.Substring("hero_power:".Length);
+        }
+
+        private static string HeroPowerCategoryName(HeroPowerCategory category)
+        {
+            switch (category)
+            {
+                case HeroPowerCategory.Economy: return "经济";
+                case HeroPowerCategory.Buff: return "增益";
+                case HeroPowerCategory.Combat: return "战斗";
+                case HeroPowerCategory.Minion: return "随从";
+                case HeroPowerCategory.Discover: return "发现";
+                case HeroPowerCategory.Health: return "生命";
+                case HeroPowerCategory.Passive: return "被动";
+                case HeroPowerCategory.HeroSwap: return "换技能";
+                default: return "其他";
+            }
+        }
+
+        private static string HeroPowerCategorySymbol(HeroPowerCategory category)
+        {
+            switch (category)
+            {
+                case HeroPowerCategory.Economy: return "金";
+                case HeroPowerCategory.Buff: return "增";
+                case HeroPowerCategory.Combat: return "战";
+                case HeroPowerCategory.Minion: return "随";
+                case HeroPowerCategory.Discover: return "发";
+                case HeroPowerCategory.Health: return "命";
+                case HeroPowerCategory.Passive: return "被";
+                case HeroPowerCategory.HeroSwap: return "换";
+                default: return "其";
+            }
+        }
+
+        private static string HeroPowerEligibilityName(HeroPowerReplacementEligibility eligibility)
+        {
+            switch (eligibility)
+            {
+                case HeroPowerReplacementEligibility.DiscoverableAfterStart: return "可替换";
+                case HeroPowerReplacementEligibility.InitialOnly: return "开局限定";
+                case HeroPowerReplacementEligibility.NonSelectable: return "不可选择";
+                case HeroPowerReplacementEligibility.Disabled: return "未启用";
+                default: return "未知";
+            }
+        }
+
+        private static string HeroPowerEligibilitySymbol(HeroPowerReplacementEligibility eligibility)
+        {
+            switch (eligibility)
+            {
+                case HeroPowerReplacementEligibility.DiscoverableAfterStart: return "可";
+                case HeroPowerReplacementEligibility.InitialOnly: return "初";
+                case HeroPowerReplacementEligibility.NonSelectable: return "禁";
+                case HeroPowerReplacementEligibility.Disabled: return "停";
+                default: return "？";
+            }
         }
 
         private static string TribesText(MinionInstance card)
@@ -2169,7 +2856,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var active = ActiveLibraryTribes();
             var definition = MinionCatalogLoader.LoadFromResources().All.FirstOrDefault(card =>
-                card.InPool &&
+                service.IsMinionAllowedByCardPool(card) &&
                 card.TavernTier <= Math.Max(1, service.State.Player.Tavern.Tier) &&
                 TribeAvailabilityRules.IsMinionAvailable(card, active));
             if (definition != null)
@@ -2182,8 +2869,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var active = ActiveLibraryTribes();
             var definition = SpellCatalogLoader.LoadFromResources().All.FirstOrDefault(spell =>
-                spell.InPool &&
-                spell.Category == "TavernSpell" &&
+                service.IsTavernSpellAllowedByCardPool(spell) &&
                 TribeAvailabilityRules.IsTavernSpellAvailable(spell, active));
             if (definition != null)
             {
@@ -2195,7 +2881,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var active = ActiveLibraryTribes();
             var definition = MinionCatalogLoader.LoadFromResources().All.FirstOrDefault(card =>
-                card.InPool &&
+                service.IsMinionAllowedByCardPool(card) &&
                 card.TavernTier <= Math.Max(1, service.State.Player.Tavern.Tier) &&
                 TribeAvailabilityRules.IsMinionAvailable(card, active));
             if (definition != null)
@@ -2519,6 +3205,247 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             modal.GetComponent<UnityTavernDiscoverModalComponent>().Build("发现奖励", BuildDiscoverOptions);
         }
 
+        private void BuildQuestTrackerOverlay()
+        {
+            var questState = service.State.Player.Tavern.AdvancedMechanics?.Quests;
+            var active = new[] { questState?.MainQuest, questState?.BonusQuest }
+                .Where(quest => quest != null)
+                .ToList();
+            if (active.Count == 0)
+            {
+                return;
+            }
+
+            var panel = Panel("UnityQuestTrackerPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            ConfigureInspectorSurface(panel, UnityTavernUiStyle.Blue, 0.28f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(18f, -86f);
+            rect.sizeDelta = new Vector2(330f, 46f + active.Count * 58f);
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 9, 10);
+            layout.spacing = 7;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityQuestTrackerTitle", panel.transform, "Quests", 14, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+
+            for (var index = 0; index < active.Count; index += 1)
+            {
+                BuildQuestTrackerRow(panel.transform, active[index], index == 0 ? "Main" : "Bonus");
+            }
+        }
+
+        private static void BuildQuestTrackerRow(Transform parent, ActiveQuestState quest, string slot)
+        {
+            var row = Panel("UnityQuestTrackerRow-" + slot, parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold, 0.18f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 52f);
+            var layout = row.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 5, 6);
+            layout.spacing = 4;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var heading = UiFactory.Label("UnityQuestTrackerHeading", row.transform, slot + ": " + quest.QuestName + "  " + quest.Progress + "/" + quest.RequiredAmount, 11, FontStyle.Bold);
+            heading.color = quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Text;
+            heading.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(heading.gameObject, 17f);
+
+            var reward = UiFactory.Label("UnityQuestTrackerReward", row.transform, (quest.RewardActive ? "Active: " : "Reward: ") + quest.RewardName, 10, FontStyle.Normal);
+            reward.color = UnityTavernUiStyle.MutedText;
+            reward.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, 15f);
+
+            var barBack = Panel("UnityQuestProgressBack", row.transform, new Color(0f, 0f, 0f, 0.28f));
+            UnityTavernUiStyle.SetPreferredHeight(barBack, 5f);
+            var fill = Panel("UnityQuestProgressFill", barBack.transform, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold);
+            var fillRect = fill.GetComponent<RectTransform>();
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = new Vector2(Mathf.Clamp01(quest.RequiredAmount <= 0 ? 1f : (float)quest.Progress / quest.RequiredAmount), 1f);
+            fillRect.offsetMin = Vector2.zero;
+            fillRect.offsetMax = Vector2.zero;
+        }
+
+        private void BuildAdvancedMechanicChoiceModal()
+        {
+            var request = service.State.Player.Tavern.AdvancedMechanics?.PendingChoice;
+            if (request == null)
+            {
+                return;
+            }
+
+            var overlay = Panel("UnityAdvancedMechanicChoiceOverlay", transform, new Color(0f, 0f, 0f, 0.62f));
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            overlay.GetComponent<Image>().raycastTarget = true;
+            overlay.transform.SetAsLastSibling();
+
+            var layoutContext = UnityTavernLayoutContext.Current();
+            var panel = Panel("UnityAdvancedMechanicChoicePanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            ConfigureInspectorSurface(panel, request.Kind == AdvancedMechanicKind.Quest ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold, 0.32f);
+            var panelRect = panel.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.sizeDelta = new Vector2(layoutContext.IsCompact ? 620f : 820f, layoutContext.IsCompact ? 430f : 470f);
+            panelRect.anchoredPosition = Vector2.zero;
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(18, 18, 16, 18);
+            panelLayout.spacing = 12;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityAdvancedMechanicChoiceTitle", panel.transform, AdvancedMechanicChoiceTitle(request), 20, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleCenter;
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 32f);
+
+            var options = Panel("UnityAdvancedMechanicChoiceOptions", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(options, 1f, 1f);
+            var row = options.AddComponent<HorizontalLayoutGroup>();
+            row.spacing = 12;
+            row.childAlignment = TextAnchor.UpperCenter;
+            row.childControlWidth = false;
+            row.childControlHeight = false;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+
+            for (var index = 0; index < request.Options.Count; index += 1)
+            {
+                BuildAdvancedMechanicChoiceCard(options.transform, request, request.Options[index], index);
+            }
+        }
+
+        private void BuildAdvancedMechanicChoiceCard(Transform parent, MechanicChoiceRequest request, MechanicChoiceOption option, int index)
+        {
+            var card = Panel("UnityAdvancedMechanicChoiceCard-" + index, parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(card, request.Kind == AdvancedMechanicKind.Quest ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold, 0.22f);
+            UnityTavernUiStyle.SetFixedSize(card, request.Kind == AdvancedMechanicKind.Quest ? 250f : 190f, 366f);
+
+            var layout = card.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 10, 10);
+            layout.spacing = 7;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            if (request.Kind == AdvancedMechanicKind.Quest)
+            {
+                BuildQuestChoiceImages(card.transform, option);
+            }
+            else
+            {
+                BuildMechanicChoiceImage(card.transform, option.ImagePath, option.SourceId, CardKind.Trinket, 128f, 184f);
+            }
+
+            var name = UiFactory.Label("UnityAdvancedMechanicChoiceName", card.transform, option.DisplayName, 14, FontStyle.Bold);
+            name.alignment = TextAnchor.MiddleCenter;
+            name.color = UnityTavernUiStyle.Text;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 36f);
+
+            var text = UiFactory.Label("UnityAdvancedMechanicChoiceText", card.transform, CleanCardText(option.Text), 11, FontStyle.Normal);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.UpperCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, request.Kind == AdvancedMechanicKind.Quest ? 42f : 48f);
+
+            if (request.Kind == AdvancedMechanicKind.Quest)
+            {
+                var reward = UiFactory.Label("UnityAdvancedMechanicChoiceReward", card.transform, option.RewardName + "\n" + CleanCardText(option.RewardText), 10, FontStyle.Bold);
+                reward.color = UnityTavernUiStyle.Gold;
+                reward.alignment = TextAnchor.UpperCenter;
+                reward.horizontalOverflow = HorizontalWrapMode.Wrap;
+                reward.verticalOverflow = VerticalWrapMode.Truncate;
+                UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, 50f);
+            }
+
+            var label = request.Kind == AdvancedMechanicKind.Trinket && option.Cost > 0 ? "Choose (" + option.Cost + ")" : "Choose";
+            ActionButton(
+                "UnityAdvancedMechanicChoiceButton-" + index,
+                card.transform,
+                label,
+                () => Apply(new GameCommand(GameCommandType.ChooseMechanicOption, index)),
+                0f,
+                36f,
+                true,
+                UnityTavernActionButtonRole.Primary);
+        }
+
+        private void BuildQuestChoiceImages(Transform parent, MechanicChoiceOption option)
+        {
+            var row = Panel("UnityQuestChoiceImageRow", parent, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(row, 132f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = false;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            BuildMechanicChoiceImage(row.transform, option.ImagePath, option.SourceId, CardKind.Quest, 88f, 124f);
+            BuildMechanicChoiceImage(row.transform, option.RewardImagePath, option.RewardId, CardKind.QuestReward, 88f, 124f);
+        }
+
+        private static void BuildMechanicChoiceImage(Transform parent, string imagePath, string cardId, CardKind kind, float width, float height)
+        {
+            var frame = Panel("UnityMechanicChoiceImageFrame", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(frame, kind == CardKind.QuestReward ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue, 0.18f);
+            UnityTavernUiStyle.SetFixedSize(frame, width, height);
+
+            var image = new GameObject("UnityMechanicChoiceImage", typeof(RectTransform), typeof(Image));
+            image.transform.SetParent(frame.transform, false);
+            UnityTavernUiStyle.Stretch(image.GetComponent<RectTransform>());
+            var imageComponent = image.GetComponent<Image>();
+            imageComponent.sprite = CardImageProvider.LoadSprite(imagePath, cardId, kind);
+            imageComponent.preserveAspect = true;
+            imageComponent.color = imageComponent.sprite == null ? UnityTavernUiStyle.PanelRaised : Color.white;
+            imageComponent.raycastTarget = false;
+        }
+
+        private static string AdvancedMechanicChoiceTitle(MechanicChoiceRequest request)
+        {
+            if (request.Kind == AdvancedMechanicKind.Quest)
+            {
+                return string.Equals(request.Slot, "Bonus", StringComparison.OrdinalIgnoreCase)
+                    ? "Choose a Bonus Quest + Reward"
+                    : "Choose a Quest + Reward";
+            }
+
+            return string.Equals(request.Slot, "Greater", StringComparison.OrdinalIgnoreCase)
+                ? "Choose a Greater Trinket"
+                : "Choose a Lesser Trinket";
+        }
+
+        private static string CleanCardText(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            var cleaned = value.Replace("[x]", string.Empty).Replace("\n", " ");
+            cleaned = RichTextTagPattern.Replace(cleaned, string.Empty);
+            return Regex.Replace(cleaned, "\\s+", " ").Trim();
+        }
+
         private void BuildDiscoverOptions(Transform parent)
         {
             var options = service.State.Player.Tavern.Discover.Options;
@@ -2547,6 +3474,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var toast = UnityTavernToastComponent.CreateToastHost(transform, "UnityFeedbackToast");
             toast.GetComponent<UnityTavernToastComponent>().Build(message, new Color(0.08f, 0.34f, 0.28f, 0.94f));
+        }
+
+        private void BeginHeroPowerTargeting()
+        {
+            var card = CurrentHeroPowerDragCard();
+            if (card == null)
+            {
+                return;
+            }
+
+            BeginDrag(card, UnityTavernDragSource.HeroPower, 0);
         }
 
         public void BeginDrag(MinionInstance card, UnityTavernDragSource source, int index, PointerEventData eventData = null)
@@ -2603,11 +3541,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            selectedInstanceId = target == UnityTavernDropTarget.SellZone ? null : drag.Card.InstanceId;
+            selectedInstanceId = target == UnityTavernDropTarget.SellZone ? null : ResolveDropTargetInstanceId(target, targetIndex) ?? drag.Card.InstanceId;
             activeDrag = null;
             SetDiscoverBackdropRaycastBlocking(true);
             DestroyDragGhost();
             Apply(command);
+        }
+
+        private string ResolveDropTargetInstanceId(UnityTavernDropTarget target, int targetIndex)
+        {
+            if (target == UnityTavernDropTarget.PlayerBoard && targetIndex >= 0 && targetIndex < service.State.Player.Board.Count)
+            {
+                return service.State.Player.Board[targetIndex]?.InstanceId;
+            }
+
+            if (target == UnityTavernDropTarget.OpponentBoard && targetIndex >= 0 && targetIndex < service.State.Opponent.Board.Count)
+            {
+                return service.State.Opponent.Board[targetIndex]?.InstanceId;
+            }
+
+            return null;
         }
 
         private void CreateDragGhost(MinionInstance card, PointerEventData eventData)
@@ -2679,6 +3632,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
+            if (TryHandleTargetedHeroPowerClick(card))
+            {
+                return;
+            }
+
             selectedInstanceId = card.InstanceId;
             if (rightPanelOpen)
             {
@@ -2686,6 +3644,48 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             Rebuild();
+        }
+
+        private bool TryHandleTargetedHeroPowerClick(MinionInstance card)
+        {
+            if (activeDrag == null || activeDrag.Source != UnityTavernDragSource.HeroPower)
+            {
+                return false;
+            }
+
+            if (TryResolveBoardDropTarget(card, out var target, out var targetIndex))
+            {
+                HandleDrop(target, targetIndex);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryResolveBoardDropTarget(MinionInstance card, out UnityTavernDropTarget target, out int targetIndex)
+        {
+            target = UnityTavernDropTarget.PlayerBoard;
+            targetIndex = -1;
+            if (card == null)
+            {
+                return false;
+            }
+
+            targetIndex = service.State.Player.Board.FindIndex(item => string.Equals(item.InstanceId, card.InstanceId, StringComparison.OrdinalIgnoreCase));
+            if (targetIndex >= 0)
+            {
+                target = UnityTavernDropTarget.PlayerBoard;
+                return true;
+            }
+
+            targetIndex = service.State.Opponent.Board.FindIndex(item => string.Equals(item.InstanceId, card.InstanceId, StringComparison.OrdinalIgnoreCase));
+            if (targetIndex >= 0)
+            {
+                target = UnityTavernDropTarget.OpponentBoard;
+                return true;
+            }
+
+            return false;
         }
 
         private void BuyCard(MinionInstance card)
@@ -2722,6 +3722,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 service.Apply(command);
                 lastFeedback = FeedbackForCommand(command);
                 selectedInstanceId = FindSelectedCard()?.InstanceId ?? service.State.Player.Tavern.Shop.FirstOrDefault(card => card != null)?.InstanceId;
+            }
+            catch (Exception ex)
+            {
+                lastError = ex.Message;
+                lastFeedback = null;
+            }
+
+            Rebuild();
+        }
+
+        private void ApplyHeroSelection(HeroDefinition hero)
+        {
+            if (hero == null || string.IsNullOrEmpty(hero.HeroCardId))
+            {
+                return;
+            }
+
+            try
+            {
+                lastError = null;
+                service.Apply(new GameCommand(GameCommandType.AddCardToHand, hero.HeroCardId, CardKind.Hero));
+                lastFeedback = "已更换为 " + hero.Name;
+                selectedInstanceId = FindSelectedCard()?.InstanceId ?? service.State.Player.Tavern.Shop.FirstOrDefault(card => card != null)?.InstanceId;
+                heroSelectionOpen = false;
+                toolsOpen = false;
+                cardLibraryOpen = false;
             }
             catch (Exception ex)
             {
@@ -2782,8 +3808,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "已更新随从";
                 case GameCommandType.PlayMinion:
                     return "已打出手牌";
+                case GameCommandType.UseHeroPower:
+                    return "英雄技能已使用";
                 case GameCommandType.ChooseDiscover:
                     return "已选择发现奖励";
+                case GameCommandType.ChooseMechanicOption:
+                    return "Advanced mechanic selected";
                 case GameCommandType.NextTurn:
                     return "进入下一回合";
                 case GameCommandType.DebugAddGold:
@@ -2880,6 +3910,37 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var drag = UnityTavernUiStyle.EnsureComponent<UnityTavernCardDragBehaviour>(target);
             drag.Initialize(this, card, source, index);
+        }
+
+        private void AddHeroPowerDrag(GameObject target, HeroPowerDefinition heroPower)
+        {
+            if (target == null || heroPower == null)
+            {
+                return;
+            }
+
+            AddDrag(target, CurrentHeroPowerDragCard(heroPower), UnityTavernDragSource.HeroPower, 0);
+        }
+
+        private MinionInstance CurrentHeroPowerDragCard(HeroPowerDefinition heroPower = null)
+        {
+            var power = heroPower ?? CurrentHeroPower();
+            if (power == null)
+            {
+                return null;
+            }
+
+            return new MinionInstance
+            {
+                CardKind = CardKind.HeroPower,
+                InstanceId = HeroPowerDragInstanceId,
+                DefinitionId = power.CardId,
+                CardId = power.CardId,
+                Name = power.Name,
+                Cost = Math.Max(0, power.Cost),
+                Text = power.Text,
+                Owner = BoardSide.Player
+            };
         }
 
         private void ConfigureDraggableCard(GameObject target, MinionInstance card, UnityTavernDragSource source, int index)
