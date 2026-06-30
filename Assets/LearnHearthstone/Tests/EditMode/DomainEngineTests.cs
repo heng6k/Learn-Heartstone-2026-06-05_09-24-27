@@ -454,6 +454,40 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void BoardTribeAnalyzer_HasTribeExpandsAllMinions()
+        {
+            var all = TestInstance("all", "all", 0);
+            all.Tribes = new List<Tribe> { Tribe.All };
+            var none = TestInstance("none", "none", 0);
+
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(all, Tribe.Beast));
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(all, Tribe.Naga));
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(all, Tribe.All));
+            Assert.IsFalse(BoardTribeAnalyzer.HasTribe(all, Tribe.None));
+            Assert.IsFalse(BoardTribeAnalyzer.HasTribe(none, Tribe.Beast));
+        }
+
+        [Test]
+        public void BoardTribeAnalyzer_SelectByTribeAndCountTribeIncludeAllMinions()
+        {
+            var naga = TestInstance("naga", "naga", 0);
+            naga.Tribes = new List<Tribe> { Tribe.Naga };
+            var demonNaga = TestInstance("demon-naga", "demon-naga", 0);
+            demonNaga.Tribes = new List<Tribe> { Tribe.Demon, Tribe.Naga };
+            var all = TestInstance("all", "all", 0);
+            all.Tribes = new List<Tribe> { Tribe.All };
+            var beast = TestInstance("beast", "beast", 0);
+            beast.Tribes = new List<Tribe> { Tribe.Beast };
+
+            var board = new[] { naga, demonNaga, all, beast };
+            var nagaTargets = BoardTribeAnalyzer.SelectByTribe(board, Tribe.Naga);
+
+            CollectionAssert.AreEqual(new[] { "naga", "demon-naga", "all" }, nagaTargets.Select(minion => minion.InstanceId).ToArray());
+            Assert.AreEqual(3, BoardTribeAnalyzer.CountTribe(board, Tribe.Naga));
+            Assert.AreEqual(2, BoardTribeAnalyzer.CountTribe(board, Tribe.Demon));
+        }
+
+        [Test]
         public void BoardTribeAnalyzer_MostCommonUsesNoneForEmptyBoardAndStableTieOrder()
         {
             var player = new LocalPlayerState();
@@ -489,6 +523,32 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.LessOrEqual(selected.Count, 7);
             Assert.AreEqual(selected.Count, selected.Select(minion => minion.InstanceId).Distinct().Count());
             Assert.AreEqual(7, selected.Count);
+        }
+
+        [Test]
+        public void BoardTribeAnalyzer_SumStatsFromDifferentTribesExcludesSourceAndRespectsMaxCount()
+        {
+            var source = TestInstance("source", "source", 0);
+            source.Tribes = new List<Tribe> { Tribe.Naga };
+            source.Attack = 20;
+            source.MaxHealth = 20;
+            var beast = TestInstance("beast", "beast", 0);
+            beast.Tribes = new List<Tribe> { Tribe.Beast };
+            beast.Attack = 3;
+            beast.MaxHealth = 5;
+            var all = TestInstance("all", "all", 0);
+            all.Tribes = new List<Tribe> { Tribe.All };
+            all.Attack = 7;
+            all.MaxHealth = 11;
+            var demon = TestInstance("demon", "demon", 0);
+            demon.Tribes = new List<Tribe> { Tribe.Demon };
+            demon.Attack = 13;
+            demon.MaxHealth = 17;
+
+            var stats = BoardTribeAnalyzer.SumStatsFromDifferentTribes(new[] { source, beast, all, demon }, source, 2);
+
+            Assert.AreEqual(10, stats.Attack);
+            Assert.AreEqual(16, stats.Health);
         }
 
         [Test]

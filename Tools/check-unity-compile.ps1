@@ -66,8 +66,9 @@ Write-Host "Unity: $unityExe"
 Write-Host "Project: $projectRoot"
 Write-Host "Log: $logPath"
 
-& $unityExe -batchmode -quit -projectPath $projectRoot -logFile $logPath
-$unityExitCode = $LASTEXITCODE
+$unityArgs = '-batchmode -quit -projectPath "{0}" -logFile "{1}"' -f $projectRoot, $logPath
+$unityProcess = Start-Process -FilePath $unityExe -ArgumentList $unityArgs -NoNewWindow -Wait -PassThru
+$unityExitCode = $unityProcess.ExitCode
 
 for ($attempt = 0; $attempt -lt 20 -and -not (Test-Path -LiteralPath $logPath); $attempt += 1) {
     Start-Sleep -Milliseconds 250

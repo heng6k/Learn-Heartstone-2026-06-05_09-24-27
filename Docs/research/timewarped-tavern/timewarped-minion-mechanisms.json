@@ -1,0 +1,6037 @@
+{
+  "generatedAt": "2026-06-27T01:47:35.416Z",
+  "filter": "Firestone cards where type == Minion, premium != true, mechanics includes BACON_TIMEWARPED. Current pool additionally requires isBaconPool == true.",
+  "count": 158,
+  "currentCount": 125,
+  "historicalExtraCount": 33,
+  "minions": [
+    {
+      "cardId": "BG34_Giant_591",
+      "dbfId": 127761,
+      "name": "Timewarped Acolyte",
+      "zhName": "时空扭曲侍战者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "At the start of your turn, spin the Wheel of\nYogg-Saron.",
+      "zhText": "在你的回合开始时，转动尤格-萨隆的命运之轮。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_591_G",
+      "goldenDbfId": 127762,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_591.jpg",
+      "plainText": "At the start of your turn, spin the Wheel of Yogg-Saron.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "special"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_009",
+      "dbfId": 126343,
+      "name": "Timewarped Alleycat",
+      "zhName": "时空扭曲雄斑虎",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "At the end of your turn, summon a Tabbycat with this minion's stats.",
+      "zhText": "在你的回合结束时，召唤一只具有本随从属性值的雌斑虎。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_009_G",
+      "goldenDbfId": 127360,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_009.jpg",
+      "plainText": "At the end of your turn, summon a Tabbycat with this minion's stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_007",
+      "dbfId": 126239,
+      "name": "Timewarped Annoy-o-Tron",
+      "zhName": "时空扭曲吵吵机器人",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "REBORN",
+        "TAUNT"
+      ],
+      "text": "<b>Taunt</b>\n<b>Divine Shield</b>\n<b>Reborn</b>",
+      "zhText": "<b>嘲讽</b>。<b>圣盾</b>。<b>复生</b>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_007_G",
+      "goldenDbfId": 127338,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_007.jpg",
+      "plainText": "Taunt Divine Shield Reborn",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_212",
+      "dbfId": 127250,
+      "name": "Timewarped Archer",
+      "zhName": "时空扭曲鳗缚弓箭手",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 9,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "BACON_SPELLCRAFT_ID",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Spellcraft:</b> Give a minion +12 Attack.",
+      "zhText": "<b>塑造法术：</b>使一个随从获得+12攻击力。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_212_G",
+      "goldenDbfId": 127350,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_212.jpg",
+      "plainText": "Spellcraft: Give a minion +12 Attack.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_071",
+      "dbfId": 127128,
+      "name": "Timewarped Bassgill",
+      "zhName": "时空扭曲低音提琴鱼人",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 7,
+      "health": 4,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "GIVES_DIVINE_SHIELD"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Summon the\nhighest-Health minion from\nyour hand and give it <b>Divine\n Shield</b> for this combat only.",
+      "zhText": "<b>亡语：</b>召唤你手牌中生命值最高的随从并使其获得<b>圣盾</b>，其登场仅限本场战斗。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_071_G",
+      "goldenDbfId": 127341,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_071.jpg",
+      "plainText": "Deathrattle: Summon the highest-Health minion from your hand and give it Divine Shield for this combat only.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon",
+          "combat_only"
+        ],
+        "implementationNotes": [
+          "需要战斗临时召唤/临时增益清理。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_201",
+      "dbfId": 127097,
+      "name": "Timewarped Boar",
+      "zhName": "时空扭曲野猪",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever every third friendly\nTimewarped Boar dies, get\na random Golden Beast.\n<i>(0 left!)</i>",
+      "zhText": "每有三只友方时空扭曲野猪死亡，随机获取一张金色野兽牌。<i>（还剩0只！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_201_G",
+      "goldenDbfId": 127328,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_201.jpg",
+      "plainText": "Whenever every third friendly Timewarped Boar dies, get a random Golden Beast. (0 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "economy",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_594",
+      "dbfId": 127767,
+      "name": "Timewarped Botani",
+      "zhName": "时空扭曲绿植",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 8,
+      "health": 6,
+      "tribes": [],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "At the end of your turn,\nget a random minion\nof your Tier.",
+      "zhText": "在你的回合结束时，随机获取一张你当前等级的随从牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_594_G",
+      "goldenDbfId": 127768,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_594.jpg",
+      "plainText": "At the end of your turn, get a random minion of your Tier.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_001",
+      "dbfId": 126235,
+      "name": "Timewarped Busker",
+      "zhName": "时空扭曲卖艺者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "BATTLECRY",
+        "DEATHRATTLE"
+      ],
+      "text": "<b>Battlecry and Deathrattle:</b> Gain 1 Gold next turn.",
+      "zhText": "<b>战吼，亡语：</b>下回合获得1枚铸币。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_001_G",
+      "goldenDbfId": 127346,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_001.jpg",
+      "plainText": "Battlecry and Deathrattle: Gain 1 Gold next turn.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "economy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_679",
+      "dbfId": 129428,
+      "name": "Timewarped Chimera",
+      "zhName": "时空扭曲奇美拉",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 1,
+      "health": 8,
+      "tribes": [
+        "ALL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "Whenever this takes damage, give a friendly minion of each type +2/+1 permanently.",
+      "zhText": "每当本随从受到伤害，使每个类型的各一个友方随从永久获得+2/+1。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_679_G",
+      "goldenDbfId": 129429,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_679.jpg",
+      "plainText": "Whenever this takes damage, give a friendly minion of each type +2/+1 permanently.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_210",
+      "dbfId": 127247,
+      "name": "Timewarped Commander",
+      "zhName": "时空扭曲滩头指挥官",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "BACON_SPELLCRAFT_ID",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Spellcraft:</b> Give a minion\n+2/+2 for each friendly\nNaga.",
+      "zhText": "<b>塑造法术：</b>每有一个友方纳迦，使一个随从获得+2/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_210_G",
+      "goldenDbfId": 127348,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_210.jpg",
+      "plainText": "Spellcraft: Give a minion +2/+2 for each friendly Naga.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "spellcraft",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_302",
+      "dbfId": 127517,
+      "name": "Timewarped Copter",
+      "zhName": "时空扭曲旋翼机",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "AVENGE",
+        "DIVINE_SHIELD"
+      ],
+      "text": "<b>Divine Shield</b>\n<b>Avenge (3):</b> Get a\nrandom Mech.",
+      "zhText": "<b>圣盾</b>。<b>复仇（3）：</b>随机获取一张机械牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_302_G",
+      "goldenDbfId": 127557,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_302.jpg",
+      "plainText": "Divine Shield Avenge (3): Get a random Mech.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_012",
+      "dbfId": 126346,
+      "name": "Timewarped Cyclone",
+      "zhName": "时空扭曲飓风",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 1,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "REBORN",
+        "WINDFURY"
+      ],
+      "text": "<b>Divine Shield</b>\n <b>Windfury</b>\n <b>Reborn</b>",
+      "zhText": "<b>圣盾</b>。<b>风怒</b>。<b>复生</b>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_012_G",
+      "goldenDbfId": 127335,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_012.jpg",
+      "plainText": "Divine Shield Windfury Reborn",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_081",
+      "dbfId": 126761,
+      "name": "Timewarped Deathswarmer",
+      "zhName": "时空扭曲群居蛛魔",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 1,
+      "health": 9,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever this takes\ndamage, your Undead have\n+1 Attack this game\n<i>(wherever they are)</i>.",
+      "zhText": "每当本随从受到伤害时，在本局对战中，你的亡灵拥有+1攻击力<i>（无论它们在哪）</i>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_081_G",
+      "goldenDbfId": 127355,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_081.jpg",
+      "plainText": "Whenever this takes damage, your Undead have +1 Attack this game (wherever they are).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_583",
+      "dbfId": 127721,
+      "name": "Timewarped Devourer",
+      "zhName": "时空扭曲吞噬者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]At the start of your turn,\nconsume the Demon to\nthe right to gain its stats\nand 3 Gold.",
+      "zhText": "在你的回合开始时，吞食本随从右边的恶魔以获得其属性值以及3枚铸币。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_583_G",
+      "goldenDbfId": 127722,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_583.jpg",
+      "plainText": "At the start of your turn, consume the Demon to the right to gain its stats and 3 Gold.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "economy",
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_029",
+      "dbfId": 126511,
+      "name": "Timewarped Dragonling",
+      "zhName": "时空扭曲龙崽",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Give this\nminion and its neighbors\n stats equal to your Tier.",
+      "zhText": "<b>战斗开始时：</b>使本随从和相邻的随从获得等同于你当前等级的属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_029_G",
+      "goldenDbfId": 127332,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_029.jpg",
+      "plainText": "Start of Combat: Give this minion and its neighbors stats equal to your Tier.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_038",
+      "dbfId": 126521,
+      "name": "Timewarped Elise",
+      "zhName": "时空扭曲伊莉斯",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 7,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you <b>Refresh</b> 5 times, make the highest-Tier minion in the Tavern Golden. <i>(5 left!)</i>",
+      "zhText": "在你<b>刷新</b>5次后，\n使酒馆中等级最高的随从变为金色。<i>（还剩5次！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_038_G",
+      "goldenDbfId": 127359,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_038.jpg",
+      "plainText": "After you Refresh 5 times, make the highest-Tier minion in the Tavern Golden. (5 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "economy",
+          "shop_or_refresh"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_332",
+      "dbfId": 127446,
+      "name": "Timewarped Embalmer",
+      "zhName": "时空扭曲入殓师",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 10,
+      "health": 10,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]One minion you summon\neach turn gains <b>Reborn</b>.\n<i>(1 left!)</i>",
+      "zhText": "每回合中，你召唤的一个随从获得<b>复生</b>。<i>（还剩1个！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_332_G",
+      "goldenDbfId": 127566,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_332.jpg",
+      "plainText": "One minion you summon each turn gains Reborn. (1 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "summon"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_590",
+      "dbfId": 127735,
+      "name": "Timewarped Festergut",
+      "zhName": "时空扭曲烂肠",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 7,
+      "health": 3,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Summon\nand get a random\nUndead Creation.",
+      "zhText": "<b>亡语：</b>召唤并获取一个随机亡灵造物。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_590_G",
+      "goldenDbfId": 127736,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_590.jpg",
+      "plainText": "Deathrattle: Summon and get a random Undead Creation.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "summon",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_305",
+      "dbfId": 127430,
+      "name": "Timewarped Geomancer",
+      "zhName": "时空扭曲地卜师",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 2,
+      "health": 9,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "AVENGE"
+      ],
+      "text": "<b>Avenge (5):</b> Get a\n<b>Blood Gem</b>. Your <b>Blood Gems</b> give an extra +1/+1 this game.",
+      "zhText": "<b>复仇（5）：</b>获取一张<b>鲜血宝石</b>。在本局对战中，你的<b>鲜血宝石</b>使随从额外获得+1/+1。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_305_G",
+      "goldenDbfId": 127432,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_305.jpg",
+      "plainText": "Avenge (5): Get a Blood Gem. Your Blood Gems give an extra +1/+1 this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_041",
+      "dbfId": 126524,
+      "name": "Timewarped Greenskeeper",
+      "zhName": "时空扭曲护植绿龙",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 9,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "BACON_RALLY"
+      ],
+      "text": "[x]<b>Rally:</b> Trigger your\nright-most <b>Battlecry</b> and\n<b>Deathrattle</b>.",
+      "zhText": "<b>进击：</b>触发你最右边的<b>战吼</b>和<b>亡语</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_041_G",
+      "goldenDbfId": 127371,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_041.jpg",
+      "plainText": "Rally: Trigger your right-most Battlecry and Deathrattle.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle",
+          "rally"
+        ],
+        "effectFamilies": [
+          "special"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_593",
+      "dbfId": 127765,
+      "name": "Timewarped Henchman",
+      "zhName": "时空扭曲匪徒",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 7,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you kill a second\nminion each combat,\nget a plain copy of it.",
+      "zhText": "每场战斗中，在你消灭第二个随从后，获取一张它的原始版\n复制。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_593_G",
+      "goldenDbfId": 127766,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_593.jpg",
+      "plainText": "After you kill a second minion each combat, get a plain copy of it.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "combat_kill"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "copy"
+        ],
+        "implementationNotes": [
+          "需要生成新 InstanceId，避免复用源实例。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_581",
+      "dbfId": 127714,
+      "name": "Timewarped Hyena",
+      "zhName": "时空扭曲土狼",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "Whenever a friendly Beast dies, gain +2/+2 permanently.",
+      "zhText": "每当一只友方野兽死亡，永久获得+2/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_581_G",
+      "goldenDbfId": 127718,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_581.jpg",
+      "plainText": "Whenever a friendly Beast dies, gain +2/+2 permanently.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_306",
+      "dbfId": 127431,
+      "name": "Timewarped Jazzer",
+      "zhName": "时空扭曲爵士乐手",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Your\n<b>Blood Gems</b> give an extra\n+{1} Health this game.",
+      "zhText": "<b>亡语：</b>在本局对战中，你的<b>鲜血宝石</b>会额外获得+{1}生命值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_306_G",
+      "goldenDbfId": 127433,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_306.jpg",
+      "plainText": "Deathrattle: Your Blood Gems give an extra +{1} Health this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_584",
+      "dbfId": 127723,
+      "name": "Timewarped Kil'rek",
+      "zhName": "时空扭曲基尔里克",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 7,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "TAUNT"
+      ],
+      "text": "<b>Taunt</b>\n<b>Deathrattle:</b> Get a\nrandom Demon.",
+      "zhText": "<b>嘲讽</b>。<b>亡语：</b>随机获取一张恶魔牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_584_G",
+      "goldenDbfId": 127724,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_584.jpg",
+      "plainText": "Taunt Deathrattle: Get a random Demon.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_031",
+      "dbfId": 126513,
+      "name": "Timewarped Leapfrogger",
+      "zhName": "时空扭曲跳蛙骑士",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "BG_SOLO_EXCLUSIVE",
+        "DEATHRATTLE",
+        "REBORN",
+        "TAUNT"
+      ],
+      "text": "[x]<b>Taunt</b>, <b>Reborn</b>\n<b>Deathrattle:</b> Give a friendly\nBeast +1/+1 and\nthis <b>Deathrattle</b>.",
+      "zhText": "<b>嘲讽</b>。<b>复生</b>。<b>亡语：</b>使一只友方野兽获得+1/+1以及此<b>亡语</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_031_G",
+      "goldenDbfId": 127326,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_031.jpg",
+      "plainText": "Taunt, Reborn Deathrattle: Give a friendly Beast +1/+1 and this Deathrattle.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_602",
+      "dbfId": 127790,
+      "name": "Timewarped Lei",
+      "zhName": "时空扭曲的雷",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 3,
+      "health": 5,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]At the start of your turn,\nget the <b>Buddy</b> of your\nHero Power.",
+      "zhText": "在你的回合开始时，获取你的英雄技能对应的<b>伙伴</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_602_G",
+      "goldenDbfId": 127791,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_602.jpg",
+      "plainText": "At the start of your turn, get the Buddy of your Hero Power.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "hero_or_buddy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_066",
+      "dbfId": 126756,
+      "name": "Timewarped Lubber",
+      "zhName": "时空扭曲旱地元素",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 7,
+      "tribes": [
+        "ELEMENTAL",
+        "PIRATE"
+      ],
+      "keywords": [
+        "AURA",
+        "BACON_BUFFS_TAVERN_SPELL"
+      ],
+      "text": "[x]The Tavern always offers\n1 extra Tavern spells.\nYour Tavern spells\ngive an extra +1/+1.",
+      "zhText": "酒馆总会额外提供1张酒馆法术牌。你的酒馆法术使随从额外获得+1/+1。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_066_G",
+      "goldenDbfId": 127357,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_066.jpg",
+      "plainText": "The Tavern always offers 1 extra Tavern spells. Your Tavern spells give an extra +1/+1.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_598",
+      "dbfId": 127776,
+      "name": "Timewarped Mothership",
+      "zhName": "时空扭曲母舰",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 7,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "AVENGE",
+        "PROTOSS"
+      ],
+      "text": "<b>Avenge (4):</b> Get a random Protoss minion.",
+      "zhText": "<b>复仇（4）：</b>随机获取一张星灵随从牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_598_G",
+      "goldenDbfId": 127777,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_598.jpg",
+      "plainText": "Avenge (4): Get a random Protoss minion.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_207",
+      "dbfId": 127181,
+      "name": "Timewarped Murcules",
+      "zhName": "时空扭曲摩拉克力斯",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 10,
+      "health": 5,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Divine Shield</b>\nWhenever this kills a minion,\ngive the left-most minion in\nyour hand +4/+4.",
+      "zhText": "<b>圣盾</b>。每当本随从消灭一个随从时，使你手牌中最左边的随从牌获得+4/+4。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_207_G",
+      "goldenDbfId": 127345,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_207.jpg",
+      "plainText": "Divine Shield Whenever this kills a minion, give the left-most minion in your hand +4/+4.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "hand_state",
+          "combat_kill"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_074t",
+      "dbfId": 127556,
+      "name": "Timewarped Nellie's Ship",
+      "zhName": "时空扭曲奈利的船",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 2,
+      "health": 6,
+      "tribes": [
+        "BEAST",
+        "PIRATE"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "DEATHRATTLE"
+      ],
+      "text": "[x]At the start of each turn,\n<b>Discover</b> a Pirate to crew the\nship. <b>Deathrattle:</b> Summon\n and get that Pirate.",
+      "zhText": "在每个回合开始时，为这艘船<b>发现</b>一位海盗船员。<b>亡语：</b>召唤并获取船上的海盗。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_074t_G",
+      "goldenDbfId": 128116,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_074t.jpg",
+      "plainText": "At the start of each turn, Discover a Pirate to crew the ship. Deathrattle: Summon and get that Pirate.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle",
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "summon",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_208",
+      "dbfId": 127182,
+      "name": "Timewarped Pagle",
+      "zhName": "时空扭曲帕格",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 8,
+      "health": 6,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Once per combat, when this\nattacks and kills a minion,\nget a Triple Reward.",
+      "zhText": "每场战斗一次：当本随从攻击并消灭一个随从时，获取一份三连奖励。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_208_G",
+      "goldenDbfId": 127347,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_208.jpg",
+      "plainText": "Once per combat, when this attacks and kills a minion, get a Triple Reward.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "combat_kill"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_211",
+      "dbfId": 127249,
+      "name": "Timewarped Pashmar",
+      "zhName": "时空扭曲帕什玛",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 9,
+      "health": 10,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "AVENGE",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL",
+        "GENERATES_SPELLCRAFT_SPELL"
+      ],
+      "text": "[x]<b>Avenge (3):</b> Get a random\n<b>Spellcraft</b> spell and\nTavern spell.",
+      "zhText": "<b>复仇（3）：</b>随机获取<b>塑造法术</b>的法术牌和酒馆法术牌各一张。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_211_G",
+      "goldenDbfId": 127349,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_211.jpg",
+      "plainText": "Avenge (3): Get a random Spellcraft spell and Tavern spell.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge",
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_204",
+      "dbfId": 127132,
+      "name": "Timewarped Pillager",
+      "zhName": "时空扭曲匪贼",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "REBORN",
+        "TAUNT"
+      ],
+      "text": "[x]<b>Taunt</b>, <b>Reborn</b>\n<b>Deathrattle:</b> Get a\nTavern Coin.",
+      "zhText": "<b>嘲讽</b>。<b>复生</b>。<b>亡语：</b>获取一张酒馆币。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_204_G",
+      "goldenDbfId": 127554,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_204.jpg",
+      "plainText": "Taunt, Reborn Deathrattle: Get a Tavern Coin.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "economy",
+          "shop_or_refresh",
+          "keyword_grant_or_keyword_body",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_069",
+      "dbfId": 127096,
+      "name": "Timewarped Piper",
+      "zhName": "时空扭曲吹笛人",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 2,
+      "health": 8,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever this takes damage,\nyour <b>Blood Gems</b> give an\nextra +1 Attack this game.\n<i>({2} times per combat.)</i>",
+      "zhText": "每当本随从受到伤害，在本局对战中，你的<b>鲜血宝石</b>使随从额外获得+1攻击力。<i>（每场战斗限{2}次。）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_069_G",
+      "goldenDbfId": 127352,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_069.jpg",
+      "plainText": "Whenever this takes damage, your Blood Gems give an extra +1 Attack this game. ({2} times per combat.)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "blood_gem",
+          "damage"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_580",
+      "dbfId": 127246,
+      "name": "Timewarped Ragnaros",
+      "zhName": "时空扭曲拉格纳罗斯",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Start of Combat:</b> Deal this minion's Attack to the highest-Health enemy minion.",
+      "zhText": "<b>战斗开始时：</b>对生命值最高的敌方随从造成等同于本随从攻击力的伤害。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_580_G",
+      "goldenDbfId": 127428,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_580.jpg",
+      "plainText": "Start of Combat: Deal this minion's Attack to the highest-Health enemy minion.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_082",
+      "dbfId": 126762,
+      "name": "Timewarped Recycler",
+      "zhName": "时空扭曲回收师",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "AVENGE"
+      ],
+      "text": "<b>Avenge (4):</b> Increase your maximum Gold by (1).",
+      "zhText": "<b>复仇（4）：</b>你的铸币上限提高（1）枚。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_082_G",
+      "goldenDbfId": 127354,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_082.jpg",
+      "plainText": "Avenge (4): Increase your maximum Gold by (1).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "economy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_091",
+      "dbfId": 127515,
+      "name": "Timewarped Red Whelp",
+      "zhName": "时空扭曲红色雏龙",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "WHELP",
+        "DEAL_DAMAGE"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Deal 3\ndamage to two random\nenemy minions. <i>(Improves\n after you play a Dragon!)</i>",
+      "zhText": "<b>战斗开始时：</b>随机对两个敌方随从造成3点伤害。<i>（在你使用一张龙牌后提升！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_091_G",
+      "goldenDbfId": 127529,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_091.jpg",
+      "plainText": "Start of Combat: Deal 3 damage to two random enemy minions. (Improves after you play a Dragon!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat",
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "damage",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_300",
+      "dbfId": 127539,
+      "name": "Timewarped Rewinder",
+      "zhName": "时空扭曲回溯者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After your hero takes\ndamage, rewind it and\ngive your Demons\n+{2} Health.",
+      "zhText": "在你的英雄受到伤害后，回溯该伤害并使你的恶魔获得+{2}生命值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_300_G",
+      "goldenDbfId": 127540,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_300.jpg",
+      "plainText": "After your hero takes damage, rewind it and give your Demons +{2} Health.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_589",
+      "dbfId": 127733,
+      "name": "Timewarped Sailor",
+      "zhName": "时空扭曲水手",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 4,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Divine Shield</b>\nThe Tavern offers an extra Pirate whenever it is <b>Refreshed</b>.",
+      "zhText": "<b>圣盾</b>。每当酒馆<b>刷新</b>时，总会额外提供一个海盗。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_589_G",
+      "goldenDbfId": 127734,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_589.jpg",
+      "plainText": "Divine Shield The Tavern offers an extra Pirate whenever it is Refreshed.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_304",
+      "dbfId": 127562,
+      "name": "Timewarped Sapper",
+      "zhName": "时空扭曲工兵",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 10,
+      "health": 6,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "TAUNT"
+      ],
+      "text": "[x]<b>Taunt</b>\n<b>Deathrattle:</b> Get a\nSpitescale Special.",
+      "zhText": "<b>嘲讽</b>。<b>亡语：</b>获取一张恶鳞套餐。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_304_G",
+      "goldenDbfId": 127563,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_304.jpg",
+      "plainText": "Taunt Deathrattle: Get a Spitescale Special.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_202",
+      "dbfId": 127126,
+      "name": "Timewarped Saurolisk",
+      "zhName": "时空扭曲巨蜥",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you trigger a <b>Deathrattle</b>, gain +3/+2 permanently.",
+      "zhText": "在你触发一个<b>亡语</b>后，永久获得+3/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_202_G",
+      "goldenDbfId": 127329,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_202.jpg",
+      "plainText": "After you trigger a Deathrattle, gain +3/+2 permanently.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_017",
+      "dbfId": 126351,
+      "name": "Timewarped Scourfin",
+      "zhName": "时空扭曲寻宝鱼人",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "TAUNT"
+      ],
+      "text": "[x]<b><b>Taunt</b>.</b> <b>Deathrattle:</b> Give a\nrandom minion in your hand\n+7/+7 and summon it for\nthis combat only.",
+      "zhText": "<b><b>嘲讽</b>。</b><b>亡语：</b>随机使你手牌中的一张随从牌获得+7/+7并召唤它，其登场仅限本场\n战斗。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_017_G",
+      "goldenDbfId": 127343,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_017.jpg",
+      "plainText": "Taunt. Deathrattle: Give a random minion in your hand +7/+7 and summon it for this combat only.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle",
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "summon",
+          "combat_only"
+        ],
+        "implementationNotes": [
+          "需要战斗临时召唤/临时增益清理。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_067",
+      "dbfId": 126757,
+      "name": "Timewarped Sellemental",
+      "zhName": "时空扭曲商贩元素",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn,\nget a Sellemental.",
+      "zhText": "在你的回合结束时，获取一张商贩元素。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_067_G",
+      "goldenDbfId": 127336,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_067.jpg",
+      "plainText": "At the end of your turn, get a Sellemental.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_209",
+      "dbfId": 127245,
+      "name": "Timewarped Sensei",
+      "zhName": "时空扭曲武道家",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "At the end of your turn, give adjacent Mechs +3/+3.",
+      "zhText": "在你的回合结束时，使相邻的机械获得+3/+3。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_209_G",
+      "goldenDbfId": 127340,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_209.jpg",
+      "plainText": "At the end of your turn, give adjacent Mechs +3/+3.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_360",
+      "dbfId": 128003,
+      "name": "Timewarped Shadowdancer",
+      "zhName": "时空扭曲影舞者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "TAUNT",
+        "END_OF_TURN"
+      ],
+      "text": "[x]<b>Taunt</b>\nAt the end of your turn, cast\nStaff of Enrichment.",
+      "zhText": "<b>嘲讽</b>。在你的回合结束时，施放富足之杖。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_360_G",
+      "goldenDbfId": 128005,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_360.jpg",
+      "plainText": "Taunt At the end of your turn, cast Staff of Enrichment.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_072",
+      "dbfId": 127129,
+      "name": "Timewarped Skipper",
+      "zhName": "时空扭曲弹跳鱼",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you sell a Tier 2\nminion, get a random\nTier 1 minion.",
+      "zhText": "在你出售一个等级2的随从后，随机获取一张等级1的随从牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_072_G",
+      "goldenDbfId": 127342,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_072.jpg",
+      "plainText": "After you sell a Tier 2 minion, get a random Tier 1 minion.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_586",
+      "dbfId": 127727,
+      "name": "Timewarped Snow Elemental",
+      "zhName": "时空扭曲冰雪元素",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]The Tavern offers an extra\n<b>Frozen</b> Elemental\n whenever it is <b>Refreshed</b>.",
+      "zhText": "每当酒馆<b>刷新</b>时，总会额外提供一个<b>冻结</b>的元素。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_586_G",
+      "goldenDbfId": 127728,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_586.jpg",
+      "plainText": "The Tavern offers an extra Frozen Elemental whenever it is Refreshed.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_582",
+      "dbfId": 127719,
+      "name": "Timewarped Sporebat",
+      "zhName": "时空扭曲孢子蝠",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 9,
+      "health": 2,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "TAUNT",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "<b>Taunt</b>\n<b>Deathrattle:</b> Get a random Tavern spell that costs (2) or more.",
+      "zhText": "<b>嘲讽</b>。<b>亡语：</b>随机获取一张消耗为（2）或以上的酒馆法术牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_582_G",
+      "goldenDbfId": 127720,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_582.jpg",
+      "plainText": "Taunt Deathrattle: Get a random Tavern spell that costs (2) or more.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "keyword_grant_or_keyword_body",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_078",
+      "dbfId": 126758,
+      "name": "Timewarped Thorncaller",
+      "zhName": "时空扭曲荆棘召唤者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "BATTLECRY",
+        "DEATHRATTLE"
+      ],
+      "text": "<b>Battlecry and Deathrattle:</b> Get a Blood Gem Barrage.",
+      "zhText": "<b>战吼，亡语：</b>获取一张鲜血宝石弹幕。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_078_G",
+      "goldenDbfId": 127353,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_078.jpg",
+      "plainText": "Battlecry and Deathrattle: Get a Blood Gem Barrage.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_604",
+      "dbfId": 127948,
+      "name": "Timewarped Tipper",
+      "zhName": "时空扭曲小费酒客",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]If you have any unspent Gold\nat the end of your turn,\nincrease your maximum\nGold by 1.",
+      "zhText": "在你的回合结束时，如果你有未花费的铸币，你的铸币上限提高1枚。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_604_G",
+      "goldenDbfId": 127949,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_604.jpg",
+      "plainText": "If you have any unspent Gold at the end of your turn, increase your maximum Gold by 1.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "economy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_605",
+      "dbfId": 127962,
+      "name": "Timewarped Traveler",
+      "zhName": "时空扭曲旅行者",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 4,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "AVENGE"
+      ],
+      "text": "<b>Avenge (4):</b> Get a random 1-Cost card from the Minor <b>Timewarp</b>.",
+      "zhText": "<b>复仇（4）：</b>随机获取一张来自小型<b>时空扭曲</b>的消耗为1的牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_605_G",
+      "goldenDbfId": 127964,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_605.jpg",
+      "plainText": "Avenge (4): Get a random 1-Cost card from the Minor Timewarp.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_585",
+      "dbfId": 127725,
+      "name": "Timewarped Vaelastrasz",
+      "zhName": "时空扭曲瓦拉斯塔兹",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "BACON_RALLY"
+      ],
+      "text": "<b>Rally:</b> Get a random Dragon.",
+      "zhText": "<b>进击：</b>随机获取一张龙牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_585_G",
+      "goldenDbfId": 127726,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_585.jpg",
+      "plainText": "Rally: Get a random Dragon.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "rally"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_064",
+      "dbfId": 126754,
+      "name": "Timewarped Whelp Smuggler",
+      "zhName": "时空扭曲雏龙走私商",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 3,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever a friendly\nminion gains Attack,\ngive it +{1} Health.",
+      "zhText": "每当一个友方随从获得攻击力，使其获得+{1}生命值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_064_G",
+      "goldenDbfId": 127334,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_064.jpg",
+      "plainText": "Whenever a friendly minion gains Attack, give it +{1} Health.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_039",
+      "dbfId": 126522,
+      "name": "Timewarped Winner",
+      "zhName": "时空扭曲大奖得主",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 6,
+      "tribes": [],
+      "keywords": [
+        "BG_SOLO_EXCLUSIVE",
+        "STEALTH",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Stealth</b>\nAt the start of your turn, if this\nminion survived last combat,\nget a Triple Reward.",
+      "zhText": "<b>潜行</b>。在你的回合开始时，如果本随从在上一场战斗中存活下来，获取一份\n三连奖励。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_039_G",
+      "goldenDbfId": 127358,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_039.jpg",
+      "plainText": "Stealth At the start of your turn, if this minion survived last combat, get a Triple Reward.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_671",
+      "dbfId": 128917,
+      "name": "Timewarped Zerus",
+      "zhName": "时空扭曲泽鲁斯",
+      "tavernTier": 3,
+      "timewarpKind": "minor",
+      "attack": 6,
+      "health": 6,
+      "tribes": [],
+      "keywords": [],
+      "text": "[x]Once per turn, choose from\n2 Minor <b>Timewarped</b> minions\nto transform into. Keep this\nminion's stats.",
+      "zhText": "每回合一次：从2个来自小型<b>时空扭曲</b>的随从中选择一个，变形成为该随从，并保留本随从的属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_671_G",
+      "goldenDbfId": 128918,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_671.jpg",
+      "plainText": "Once per turn, choose from 2 Minor Timewarped minions to transform into. Keep this minion's stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "transform"
+        ],
+        "implementationNotes": [
+          "需要生成新 InstanceId，避免复用源实例。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_083",
+      "dbfId": 126584,
+      "name": "Timewarped Anub'arak",
+      "zhName": "时空扭曲阿努巴拉克",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 8,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play an Undead, your Undead have an extra +3 Attack this game.",
+      "zhText": "在你使用一张亡灵牌后，在本局对战中，你的亡灵额外拥有+3攻击力。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_083_G",
+      "goldenDbfId": 127394,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_083.jpg",
+      "plainText": "After you play an Undead, your Undead have an extra +3 Attack this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_596",
+      "dbfId": 127771,
+      "name": "Timewarped Archimonde",
+      "zhName": "时空扭曲阿克蒙德",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After your hero takes\ndamage, rewind it and\nreduce the Cost of your next\nTavern spell by (1).",
+      "zhText": "在你的英雄受到伤害后，回溯该伤害并使你下一个酒馆法术消耗的铸币减少（1）枚。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_596_G",
+      "goldenDbfId": 127772,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_596.jpg",
+      "plainText": "After your hero takes damage, rewind it and reduce the Cost of your next Tavern spell by (1).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "damage"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_801",
+      "dbfId": 130290,
+      "name": "Timewarped Astrogill",
+      "zhName": "时空扭曲航天鱼人",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [],
+      "text": "While this is in your hand, after a different friendly Murloc gains stats, gain +3/+2.",
+      "zhText": "当本牌在你手牌中时，在一个不同的友方鱼人获得属性值后，获得+3/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_801_G",
+      "goldenDbfId": 130291,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_801.jpg",
+      "plainText": "While this is in your hand, after a different friendly Murloc gains stats, gain +3/+2.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_078",
+      "dbfId": 127868,
+      "name": "Timewarped Bandit",
+      "zhName": "时空扭曲强盗",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 13,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]At the start of your turn,\ndiscard a spell for this to\nplay 4 <b>Blood Gems</b> on\nall your minions.",
+      "zhText": "在你的回合开始时，弃掉一张法术牌，以使本随从对你的所有随从各使用4张<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_078_G",
+      "goldenDbfId": 127874,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_078.jpg",
+      "plainText": "At the start of your turn, discard a spell for this to play 4 Blood Gems on all your minions.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_777",
+      "dbfId": 127710,
+      "name": "Timewarped Behemoth",
+      "zhName": "时空扭曲巨怪",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 9,
+      "health": 11,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TAUNT",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Taunt</b>\nAfter you buy an Elemental,\ngain its stats.",
+      "zhText": "<b>嘲讽</b>。在你购买一个元素后，获得其\n属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_777_G",
+      "goldenDbfId": 127809,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_777.jpg",
+      "plainText": "Taunt After you buy an Elemental, gain its stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_076",
+      "dbfId": 126583,
+      "name": "Timewarped Bloodbinder",
+      "zhName": "时空扭曲血缚野猪人",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 8,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "[x]At the start of your turn, get\n5 <b>Blood Gems</b>. They also\ncount as Tavern spells.",
+      "zhText": "在你的回合开始时，获取5张视为酒馆法术的<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_076_G",
+      "goldenDbfId": 127389,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_076.jpg",
+      "plainText": "At the start of your turn, get 5 Blood Gems. They also count as Tavern spells.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_turn"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_102",
+      "dbfId": 126974,
+      "name": "Timewarped Bonker",
+      "zhName": "时空扭曲狂棍野猪人",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 14,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "BACON_RALLY",
+        "WINDFURY"
+      ],
+      "text": "[x]<b>Windfury</b>\n<b>Rally:</b> This plays 2\npermanent <b>Blood Gems</b> on\n all your other minions.",
+      "zhText": "<b>风怒</b>。<b>进击：</b>本随从对你的所有其他随从各使用2张永久的<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_102_G",
+      "goldenDbfId": 127392,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_102.jpg",
+      "plainText": "Windfury Rally: This plays 2 permanent Blood Gems on all your other minions.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "rally"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_091",
+      "dbfId": 127976,
+      "name": "Timewarped Calligrapher",
+      "zhName": "时空扭曲书画家",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 14,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "BACON_RALLY",
+        "BATTLECRY",
+        "DEATHRATTLE",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "[x]<b>Battlecry, Deathrattle,\nand Rally:</b> Get a random\nTavern spell.",
+      "zhText": "<b>战吼，亡语，进击：</b>随机获取一张酒馆法术牌。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_091_G",
+      "goldenDbfId": 127977,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_091.jpg",
+      "plainText": "Battlecry, Deathrattle, and Rally: Get a random Tavern spell.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle",
+          "rally"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_618",
+      "dbfId": 128177,
+      "name": "Timewarped Caretaker",
+      "zhName": "时空扭曲看管者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Summon five 1/1\nSkeletons. Any that don't fit\ngive your Undead +1 Attack this\n game <i>(wherever they are)</i>.",
+      "zhText": "<b>亡语：</b>召唤五个1/1的骷髅。每有一个放不下的骷髅，使你的亡灵在本局对战中\n获得+1攻击力<i>（无论它们在哪）</i>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_618_G",
+      "goldenDbfId": 128178,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_618.jpg",
+      "plainText": "Deathrattle: Summon five 1/1 Skeletons. Any that don't fit give your Undead +1 Attack this game (wherever they are).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_200",
+      "dbfId": 127293,
+      "name": "Timewarped Centurion",
+      "zhName": "时空扭曲百夫长",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you cast a Tavern spell,\nget an extra copy of it.\n<i>(3 times per turn.)</i>",
+      "zhText": "在你施放一个酒馆法术后，额外获取它的一张复制。<i>（每回合限3次。）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_200_G",
+      "goldenDbfId": 127440,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_200.jpg",
+      "plainText": "After you cast a Tavern spell, get an extra copy of it. (3 times per turn.)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "copy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要生成新 InstanceId，避免复用源实例。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_042",
+      "dbfId": 126525,
+      "name": "Timewarped Chameleon",
+      "zhName": "时空扭曲变色龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 15,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Start of Combat:</b> Transform into a copy of the minion to the left of this.",
+      "zhText": "<b>战斗开始时：</b>变形成为本随从左边的随从的复制。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_042_G",
+      "goldenDbfId": 127363,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_042.jpg",
+      "plainText": "Start of Combat: Transform into a copy of the minion to the left of this.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "transform",
+          "copy"
+        ],
+        "implementationNotes": [
+          "需要生成新 InstanceId，避免复用源实例。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_090",
+      "dbfId": 127974,
+      "name": "Timewarped Clefthoof",
+      "zhName": "时空扭曲裂蹄牛",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 1,
+      "health": 10,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN",
+        "DEAL_DAMAGE"
+      ],
+      "text": "[x]At the end of your turn,\ngive your Beasts +2/+2\nand deal 1 damage to\nthem, three times.",
+      "zhText": "在你的回合结束时，使你的野兽获得+2/+2并对它们造成1点伤害，触发三次。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_090_G",
+      "goldenDbfId": 127975,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_090.jpg",
+      "plainText": "At the end of your turn, give your Beasts +2/+2 and deal 1 damage to them, three times.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_680",
+      "dbfId": 129114,
+      "name": "Timewarped Collector",
+      "zhName": "时空扭曲收藏家",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 12,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "BACON_RALLY"
+      ],
+      "text": "[x]Also damages adjacent\nminions. <b>Rally:</b> If you control\n4 Golden minions, gain\n<b>Divine Shield</b>.",
+      "zhText": "同时对其攻击目标相邻的随从造成伤害。<b>进击：</b>如果你控制着4个金色随从，获得<b>圣盾</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_680_G",
+      "goldenDbfId": 129115,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_680.jpg",
+      "plainText": "Also damages adjacent minions. Rally: If you control 4 Golden minions, gain Divine Shield.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "rally"
+        ],
+        "effectFamilies": [
+          "economy",
+          "keyword_grant_or_keyword_body",
+          "damage"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_654",
+      "dbfId": 128175,
+      "name": "Timewarped Deadstomper",
+      "zhName": "时空扭曲暴亡龙践踏者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 12,
+      "tribes": [
+        "UNDEAD",
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you summon a minion,\ngive your minions\n+4 Attack permanently.",
+      "zhText": "在你召唤一个随从后，使你的随从永久获得+4攻击力。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_654_G",
+      "goldenDbfId": 128176,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_654.jpg",
+      "plainText": "After you summon a minion, give your minions +4 Attack permanently.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_020",
+      "dbfId": 126563,
+      "name": "Timewarped Duskmaw",
+      "zhName": "时空扭曲暮喉龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 14,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "AVENGE"
+      ],
+      "text": "<b>Avenge (1):</b> Give your Dragons +6/+{2}.",
+      "zhText": "<b>复仇（1）：</b>使你的龙获得+6/+{2}。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_020_G",
+      "goldenDbfId": 127367,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_020.jpg",
+      "plainText": "Avenge (1): Give your Dragons +6/+{2}.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_034",
+      "dbfId": 126516,
+      "name": "Timewarped Geist",
+      "zhName": "时空扭曲恶鬼",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 10,
+      "health": 6,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "BACON_BUFFS_TAVERN_SPELL"
+      ],
+      "text": "<b>Deathrattle:</b> Your Tavern spells give an extra +2/+2 this game.",
+      "zhText": "<b>亡语：</b>在本局对战中，你的酒馆法术使随从额外获得+2/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_034_G",
+      "goldenDbfId": 127396,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_034.jpg",
+      "plainText": "Deathrattle: Your Tavern spells give an extra +2/+2 this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_644",
+      "dbfId": 128117,
+      "name": "Timewarped Gemsplitter",
+      "zhName": "时空扭曲宝石切分者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Divine Shield</b>. After a friendly\nminion loses <b>Divine Shield</b>,\nyour <b>Blood Gems</b> give an extra\n+1 Attack this game.",
+      "zhText": "<b>圣盾</b>。在一个友方随从失去<b>圣盾</b>后，你的<b>鲜血宝石</b>会在本局对战中使随从额外获得+1攻击力。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_644_G",
+      "goldenDbfId": 128118,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_644.jpg",
+      "plainText": "Divine Shield. After a friendly minion loses Divine Shield, your Blood Gems give an extra +1 Attack this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_609",
+      "dbfId": 128044,
+      "name": "Timewarped Ghoul-acabra",
+      "zhName": "时空扭曲食尸卡布拉",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 15,
+      "tribes": [
+        "UNDEAD",
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you trigger a\n<b>Deathrattle</b>, give your\nminions +3/+2\npermanently.",
+      "zhText": "在你触发一个<b>亡语</b>后，使你的随从永久获得+3/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_609_G",
+      "goldenDbfId": 128048,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_609.jpg",
+      "plainText": "After you trigger a Deathrattle, give your minions +3/+2 permanently.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_035",
+      "dbfId": 126517,
+      "name": "Timewarped Glowscale",
+      "zhName": "时空扭曲闪鳞纳迦",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 12,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "BACON_SPELLCRAFT_ID",
+        "TAUNT",
+        "TRIGGER_VISUAL",
+        "GIVES_DIVINE_SHIELD"
+      ],
+      "text": "<b>Taunt</b>\n<b>Spellcraft:</b> Give a minion <b>Divine Shield</b>.",
+      "zhText": "<b>嘲讽</b>。<b>塑造法术：</b>使一个随从获得<b>圣盾</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_035_G",
+      "goldenDbfId": 127386,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_035.jpg",
+      "plainText": "Taunt Spellcraft: Give a minion Divine Shield.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_342",
+      "dbfId": 129119,
+      "name": "Timewarped Hag",
+      "zhName": "时空扭曲魔巫",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 8,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Give the\nUndead to the right <b>Reborn</b> and\n\"This is <b>Reborn</b> with full Health\nand enchantments\".",
+      "zhText": "<b>战斗开始时：</b>使本随从右边的亡灵获得<b>复生</b>和“本随从<b>复生</b>时会具有所有生命值和附加效果”。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_342_G",
+      "goldenDbfId": 129121,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_342.jpg",
+      "plainText": "Start of Combat: Give the Undead to the right Reborn and \"This is Reborn with full Health and enchantments\".",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_370",
+      "dbfId": 128211,
+      "name": "Timewarped Hawkstrider",
+      "zhName": "时空扭曲陆行鸟",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 4,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Trigger\nall friendly <b>Deathrattles</b>.",
+      "zhText": "<b>战斗开始时：</b>触发所有友方<b>亡语</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_370_G",
+      "goldenDbfId": 128212,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_370.jpg",
+      "plainText": "Start of Combat: Trigger all friendly Deathrattles.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "special"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_015",
+      "dbfId": 126349,
+      "name": "Timewarped Hooktail",
+      "zhName": "时空扭曲钩尾",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 12,
+      "tribes": [
+        "DRAGON",
+        "PIRATE"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever you cast a\nTavern spell, give your\nminions +2/+2.",
+      "zhText": "每当你施放一个酒馆法术，使你的随从获得+2/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_015_G",
+      "goldenDbfId": 127370,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_015.jpg",
+      "plainText": "Whenever you cast a Tavern spell, give your minions +2/+2.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_040",
+      "dbfId": 126523,
+      "name": "Timewarped Ichoron",
+      "zhName": "时空扭曲艾库隆",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 4,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL",
+        "GIVES_DIVINE_SHIELD"
+      ],
+      "text": "[x]<b>Divine Shield</b>\nWhenever you play a minion,\ngive it <b>Divine Shield</b>.",
+      "zhText": "<b>圣盾</b>。每当你使用一张随从牌，使其获得<b>圣盾</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_040_G",
+      "goldenDbfId": 127378,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_040.jpg",
+      "plainText": "Divine Shield Whenever you play a minion, give it Divine Shield.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_674",
+      "dbfId": 129083,
+      "name": "Timewarped Icky Imp",
+      "zhName": "时空扭曲粗鄙小鬼",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 12,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "IMP"
+      ],
+      "text": "<b>Deathrattle:</b> Summon 2 Imps with this minion's maximum stats.",
+      "zhText": "<b>亡语：</b>召唤2个具有本随从最大属性值的\n小鬼。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_674_G",
+      "goldenDbfId": 129084,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_674.jpg",
+      "plainText": "Deathrattle: Summon 2 Imps with this minion's maximum stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_597",
+      "dbfId": 127773,
+      "name": "Timewarped Immortal",
+      "zhName": "时空扭曲不朽者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "PROTOSS",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Start of Combat:</b> Gain the stats of adjacent minions.",
+      "zhText": "<b>战斗开始时：</b>获得相邻随从的属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_597_G",
+      "goldenDbfId": 127775,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_597.jpg",
+      "plainText": "Start of Combat: Gain the stats of adjacent minions.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_013",
+      "dbfId": 126560,
+      "name": "Timewarped Imp-filtrator",
+      "zhName": "时空扭曲小鬼渗透者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 13,
+      "health": 7,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you spend {4} Gold,\ngive minions in the Tavern\n+{2}/+{3} this game.\n<i>(8 Gold left!)</i>",
+      "zhText": "在你花掉{4}枚铸币后，使酒馆中的随从在本局对战中获得+{2}/+{3}。<i>（还剩8枚！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_013_G",
+      "goldenDbfId": 127365,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_013.jpg",
+      "plainText": "After you spend {4} Gold, give minions in the Tavern +{2}/+{3} this game. (8 Gold left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "economy",
+          "shop_or_refresh",
+          "stats"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_120",
+      "dbfId": 127739,
+      "name": "Timewarped Interpreter",
+      "zhName": "时空扭曲解译者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 8,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever you play or\n<b>Magnetize</b> a Mech, give\nyour Mechs +3/+3.",
+      "zhText": "每当你使用或<b>磁力吸附</b>一个机械时，使你的机械获得+3/+3。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_120_G",
+      "goldenDbfId": 127741,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_120.jpg",
+      "plainText": "Whenever you play or Magnetize a Mech, give your Mechs +3/+3.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_004",
+      "dbfId": 126548,
+      "name": "Timewarped Jungle King",
+      "zhName": "时空扭曲丛林狮王",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 12,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "STEALTH",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Stealth</b>\nAfter you summon a Beast,\ngive it +4/+3. Improves\nafter you cast a spell.",
+      "zhText": "<b>潜行</b>。在你召唤一只野兽后，使其获得+4/+3。在你施放一个法术后提升。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_004_G",
+      "goldenDbfId": 127362,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_004.jpg",
+      "plainText": "Stealth After you summon a Beast, give it +4/+3. Improves after you cast a spell.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "summon",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_313",
+      "dbfId": 127780,
+      "name": "Timewarped Kil'jaeden",
+      "zhName": "时空扭曲基尔加丹",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]The Tavern offers two extra\nDemons with +7/+{0}\nwhenever it is <b><b>Refreshed</b>.</b>\n <i>(Upgrades each turn!)</i>",
+      "zhText": "每当酒馆<b><b>刷新</b></b>，酒馆额外提供两个具有+7/+{0}的恶魔。<i>（每回合都会升级！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_313_G",
+      "goldenDbfId": 127867,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_313.jpg",
+      "plainText": "The Tavern offers two extra Demons with +7/+{0} whenever it is Refreshed. (Upgrades each turn!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_678",
+      "dbfId": 129103,
+      "name": "Timewarped Lava Lurker",
+      "zhName": "时空扭曲熔岩潜伏者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 9,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "BG_SOLO_EXCLUSIVE",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you cast a <b>Spellcraft</b>\nspell from hand on a minion,\nalso cast a permanent copy\n on this. <i>(Twice per turn.)</i>",
+      "zhText": "在你从手牌中对一个随从施放<b>塑造法术</b>的法术后，还会对本随从施放一张永久的复制。<i>（每回合两次。）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_678_G",
+      "goldenDbfId": 129104,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_678.jpg",
+      "plainText": "After you cast a Spellcraft spell from hand on a minion, also cast a permanent copy on this. (Twice per turn.)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive",
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_608",
+      "dbfId": 127877,
+      "name": "Timewarped Lil' Quilboar",
+      "zhName": "时空扭曲小野猪",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "REBORN"
+      ],
+      "text": "[x]<b>Reborn</b>\n<b>Deathrattle:</b> This plays 3\n<b>Blood Gems</b> on all your\nQuilboar.",
+      "zhText": "<b>复生</b>。<b>亡语：</b>本随从对你的所有野猪人各使用3张<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_608_G",
+      "goldenDbfId": 127878,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_608.jpg",
+      "plainText": "Reborn Deathrattle: This plays 3 Blood Gems on all your Quilboar.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "blood_gem",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_683",
+      "dbfId": 129124,
+      "name": "Timewarped Lucky Egg",
+      "zhName": "时空扭曲幸运彩蛋",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 2,
+      "health": 2,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]In two turns, choose from \nthree Golden Tier 7 minions \nto transform into.\n<i>(2 turns left!)</i>",
+      "zhText": "两回合后，从三个等级7的金色随从中选择一个并变形成为该随从。<i>（还剩2回合！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_683_G",
+      "goldenDbfId": 129125,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_683.jpg",
+      "plainText": "In two turns, choose from three Golden Tier 7 minions to transform into. (2 turns left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "economy",
+          "transform"
+        ],
+        "implementationNotes": [
+          "需要生成新 InstanceId，避免复用源实例。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_006",
+      "dbfId": 126285,
+      "name": "Timewarped Molten Rock",
+      "zhName": "时空扭曲熔融岩石",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play an Elemental, gain +1/+1 and improve this.",
+      "zhText": "在你使用一张元素牌后，获得+1/+1并提升此效果。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_006_G",
+      "goldenDbfId": 127374,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_006.jpg",
+      "plainText": "After you play an Elemental, gain +1/+1 and improve this.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_321",
+      "dbfId": 127498,
+      "name": "Timewarped Mrrrglr",
+      "zhName": "时空扭曲合唱鱼人",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Give\nadjacent Murlocs the stats\nof all the minions in\nyour hand.",
+      "zhText": "<b>战斗开始时：</b>使相邻的鱼人获得你手牌中所有随从牌的属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_321_G",
+      "goldenDbfId": 127500,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_321.jpg",
+      "plainText": "Start of Combat: Give adjacent Murlocs the stats of all the minions in your hand.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat",
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_318",
+      "dbfId": 127799,
+      "name": "Timewarped Murk-Eye",
+      "zhName": "时空扭曲小瞎眼",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 5,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "END_OF_TURN"
+      ],
+      "text": "At the end of your turn, trigger all friendly <b>Battlecries</b>.",
+      "zhText": "在你的回合结束时，触发所有友方<b>战吼</b>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_318_G",
+      "goldenDbfId": 127803,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_318.jpg",
+      "plainText": "At the end of your turn, trigger all friendly Battlecries.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "special"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_206",
+      "dbfId": 127180,
+      "name": "Timewarped Murky",
+      "zhName": "时空扭曲奔波尔霸",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn,\ngain +2/+2. <i>(Improved\nby each <b>Battlecry</b> you've\ntriggered this game!)</i>",
+      "zhText": "在你的回合结束时，获得+2/+2。<i>（在本局对战中你每触发一个<b>战吼</b>都会提升！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_206_G",
+      "goldenDbfId": 127344,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_206.jpg",
+      "plainText": "At the end of your turn, gain +2/+2. (Improved by each Battlecry you've triggered this game!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_320",
+      "dbfId": 127801,
+      "name": "Timewarped Mystic",
+      "zhName": "时空扭曲秘法师",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "BACON_BUFFS_TAVERN_SPELL"
+      ],
+      "text": "[x]After you sell 3 Murlocs,\nyour Tavern spells give an\nextra +{2}/+{3} this game.\n<i>(3 left!)</i>",
+      "zhText": "在你出售3个鱼人后，在本局对战中，你的酒馆法术使随从额外获得+{2}/+{3}。<i>（还剩3个！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_320_G",
+      "goldenDbfId": 127804,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_320.jpg",
+      "plainText": "After you sell 3 Murlocs, your Tavern spells give an extra +{2}/+{3} this game. (3 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "card_generation",
+          "tavern_spell_synergy",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_684",
+      "dbfId": 129128,
+      "name": "Timewarped Mythrax",
+      "zhName": "时空扭曲米斯拉克斯",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 9,
+      "tribes": [
+        "ALL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Start of Combat:</b> Gain the stats of 3 friendly minions of different types <i>(except Timewarped Mythrax)</i>.",
+      "zhText": "<b>战斗开始时：</b>获得不同类型的3个友方随从的属性值<i>（时空扭曲米斯拉克斯除外）</i>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_684_G",
+      "goldenDbfId": 129129,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_684.jpg",
+      "plainText": "Start of Combat: Gain the stats of 3 friendly minions of different types (except Timewarped Mythrax).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_205",
+      "dbfId": 127168,
+      "name": "Timewarped Nalaa",
+      "zhName": "时空扭曲娜拉",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 12,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever you cast a spell,\ngive a friendly minion\nof each type +4/+3.",
+      "zhText": "每当你施放一个法术，使每个类型的各一个友方随从获得+4/+3。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_205_G",
+      "goldenDbfId": 127399,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_205.jpg",
+      "plainText": "Whenever you cast a spell, give a friendly minion of each type +4/+3.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_687",
+      "dbfId": 129578,
+      "name": "Timewarped Nest Swarmer",
+      "zhName": "时空扭曲巢穴群居虫",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "BACON_RALLY",
+        "BATTLECRY",
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Battlecry, Deathrattle, and\nRally:</b> Your Beetles have\n+{2}/+{3} this game. Summon\na 2/2 Beetle.",
+      "zhText": "<b>战吼，亡语，进击：</b>在本局对战中，你的甲虫拥有+{2}/+{3}。召唤一只2/2的甲虫。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_687_G",
+      "goldenDbfId": 129579,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_687.jpg",
+      "plainText": "Battlecry, Deathrattle, and Rally: Your Beetles have +{2}/+{3} this game. Summon a 2/2 Beetle.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle",
+          "rally"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_309",
+      "dbfId": 127794,
+      "name": "Timewarped Nine Frogs",
+      "zhName": "时空扭曲九蛙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 12,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "[x]After you buy a minion, get a\nrandom Tavern spell from\nthe same Tier. <i>(9 left!)</i>",
+      "zhText": "在你购买随从牌后，随机获取一张相同等级的酒馆法术牌。<i>（还剩9张！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_309_G",
+      "goldenDbfId": 127795,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_309.jpg",
+      "plainText": "After you buy a minion, get a random Tavern spell from the same Tier. (9 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_032",
+      "dbfId": 126514,
+      "name": "Timewarped Nomi",
+      "zhName": "时空扭曲诺米",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 10,
+      "health": 10,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play an Elemental, give minions in the Tavern +4/+3 this game.",
+      "zhText": "在你使用一张元素牌后，使酒馆中的随从在本局对战中获得+4/+3。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_032_G",
+      "goldenDbfId": 127377,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_032.jpg",
+      "plainText": "After you play an Elemental, give minions in the Tavern +4/+3 this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_011",
+      "dbfId": 126558,
+      "name": "Timewarped Overfiend",
+      "zhName": "时空扭曲大恶魔",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 13,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you buy a card,\ngive your Demons\n+4/+4.",
+      "zhText": "在你购买一张牌后，使你的恶魔获得+4/+4。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_011_G",
+      "goldenDbfId": 127364,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_011.jpg",
+      "plainText": "After you buy a card, give your Demons +4/+4.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_319",
+      "dbfId": 127800,
+      "name": "Timewarped Painter",
+      "zhName": "时空扭曲鱼人画家",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 4,
+      "health": 9,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "TRIGGER_VISUAL",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn, give\nadjacent minions +3/+2.\nAfter you play a card from Tier 3\nor below, improve this.",
+      "zhText": "在你的回合结束时，使相邻的随从获得+3/+2。在你使用一张等级3或以下的牌后提升此效果。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_319_G",
+      "goldenDbfId": 127805,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_319.jpg",
+      "plainText": "At the end of your turn, give adjacent minions +3/+2. After you play a card from Tier 3 or below, improve this.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn",
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_327",
+      "dbfId": 127508,
+      "name": "Timewarped Peggy",
+      "zhName": "时空扭曲佩吉",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 9,
+      "health": 5,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "Whenever a card is added to your hand, give your Pirates +1/+1.",
+      "zhText": "每当一张卡牌被置入你的手牌，使你的海盗获得+1/+1。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_327_G",
+      "goldenDbfId": 127509,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_327.jpg",
+      "plainText": "Whenever a card is added to your hand, give your Pirates +1/+1.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_322",
+      "dbfId": 127760,
+      "name": "Timewarped Pioneer",
+      "zhName": "时空扭曲先锋",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 4,
+      "health": 13,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "GENERATES_SPELL",
+        "GENERATES_SPELLCRAFT_SPELL"
+      ],
+      "text": "After you <b>Refresh</b> 3 times, get a random <b>Spellcraft</b> spell. <i>(3 left!)</i>",
+      "zhText": "在你<b>刷新</b>3次后，随机获取一张<b>塑造法术</b>的法术牌。<i>(还剩3次！)</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_322_G",
+      "goldenDbfId": 127806,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_322.jpg",
+      "plainText": "After you Refresh 3 times, get a random Spellcraft spell. (3 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive",
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_067",
+      "dbfId": 126580,
+      "name": "Timewarped Plunderer",
+      "zhName": "时空扭曲掠夺者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 15,
+      "health": 5,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "<b>Deathrattle:</b> Increase your maximum Gold by 2.",
+      "zhText": "<b>亡语：</b>你的铸币上限提高2枚。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_067_G",
+      "goldenDbfId": 127422,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_067.jpg",
+      "plainText": "Deathrattle: Increase your maximum Gold by 2.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "economy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_314",
+      "dbfId": 127441,
+      "name": "Timewarped Poet",
+      "zhName": "时空扭曲诗心龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 7,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Divine Shield</b>\nAll your Dragons keep\n<b><b>Bonus Keyword</b>s</b> and stats\ngained in combat.",
+      "zhText": "<b>圣盾</b>。你的所有龙均可永久保留战斗阶段获得的<b><b>额外关键词</b></b>和属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_314_G",
+      "goldenDbfId": 127442,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_314.jpg",
+      "plainText": "Divine Shield All your Dragons keep Bonus Keywords and stats gained in combat.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_022",
+      "dbfId": 126565,
+      "name": "Timewarped Prismscale",
+      "zhName": "时空扭曲彩鳞龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 12,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "AVENGE"
+      ],
+      "text": "<b>Avenge (2):</b> Get an Azerite Empowerment.",
+      "zhText": "<b>复仇（2）：</b>获取一张艾泽里特强化。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_022_G",
+      "goldenDbfId": 127368,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_022.jpg",
+      "plainText": "Avenge (2): Get an Azerite Empowerment.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "avenge"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_088",
+      "dbfId": 127133,
+      "name": "Timewarped Promo-Drake",
+      "zhName": "时空扭曲增强幼龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "END_OF_TURN"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Give\nyour minions +{3}/+{3}.\nAt the end of your turn,\nimprove this.",
+      "zhText": "<b>战斗开始时：</b>使你的随从获得+{3}/+{3}。在你的回合结束时，提升此效果。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_088_G",
+      "goldenDbfId": 127369,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_088.jpg",
+      "plainText": "Start of Combat: Give your minions +{3}/+{3}. At the end of your turn, improve this.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat",
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_330",
+      "dbfId": 127447,
+      "name": "Timewarped Radio Star",
+      "zhName": "时空扭曲电台明星",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Get a copy of\nthe enemy minion that killed\nthis with full Health\nand enchantments.",
+      "zhText": "<b>亡语：</b>获取击杀本随从的敌方随从的一张复制。复制具有所有生命值和附加效果。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_330_G",
+      "goldenDbfId": 127448,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_330.jpg",
+      "plainText": "Deathrattle: Get a copy of the enemy minion that killed this with full Health and enchantments.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "copy"
+        ],
+        "implementationNotes": [
+          "需要生成新 InstanceId，避免复用源实例。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_065",
+      "dbfId": 126578,
+      "name": "Timewarped Raider",
+      "zhName": "时空扭曲劫掠者",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 14,
+      "health": 6,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play a card from Tier 4 or above, give your Pirates +3/+2.",
+      "zhText": "在你使用一张等级4或以上的牌后，使你的海盗获得+3/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_065_G",
+      "goldenDbfId": 127421,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_065.jpg",
+      "plainText": "After you play a card from Tier 4 or above, give your Pirates +3/+2.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_325",
+      "dbfId": 127875,
+      "name": "Timewarped Riplash",
+      "zhName": "时空扭曲裂鞭纳迦",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 13,
+      "health": 5,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "<b>Deathrattle:</b> Get a copy of the last Tavern spell you cast.",
+      "zhText": "<b>亡语：</b>获取你施放的上一个酒馆法术的一张复制。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_325_G",
+      "goldenDbfId": 127876,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_325.jpg",
+      "plainText": "Deathrattle: Get a copy of the last Tavern spell you cast.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "copy"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要生成新 InstanceId，避免复用源实例。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_333",
+      "dbfId": 127510,
+      "name": "Timewarped Scout",
+      "zhName": "时空扭曲侦查员",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 7,
+      "tribes": [],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]When you sell this, get 1\nrandom minions from\nTier 7. <i>(Improves\neach turn!)</i>",
+      "zhText": "当你出售本随从时，随机获取1张等级7的随从牌。<i>（每回合都会提升！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_333_G",
+      "goldenDbfId": 127512,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_333.jpg",
+      "plainText": "When you sell this, get 1 random minions from Tier 7. (Improves each turn!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn",
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_110",
+      "dbfId": 127167,
+      "name": "Timewarped Sea Glass",
+      "zhName": "时空扭曲海玻璃",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 10,
+      "health": 8,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "BACON_RALLY",
+        "DIVINE_SHIELD"
+      ],
+      "text": "[x]<b>Divine Shield</b>\n<b>Rally:</b> Double this minion's\nstats. <i>(2 times per combat.)</i>",
+      "zhText": "<b>圣盾</b>。<b>进击：</b>本随从的属性值翻倍。<i>（每场战斗限2次。）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_110_G",
+      "goldenDbfId": 127337,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_110.jpg",
+      "plainText": "Divine Shield Rally: Double this minion's stats. (2 times per combat.)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "rally"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_323",
+      "dbfId": 127807,
+      "name": "Timewarped Secretary",
+      "zhName": "时空扭曲秘书",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 11,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "[x]After you cast 2 <b>Spellcraft</b>\nspells, get a random\nTavern spell. <i>(2 left!)</i>",
+      "zhText": "在你施放2个<b>塑造法术</b>的法术后，随机获取一张酒馆法术牌。<i>（还剩2个！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_323_G",
+      "goldenDbfId": 127808,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_323.jpg",
+      "plainText": "After you cast 2 Spellcraft spells, get a random Tavern spell. (2 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive",
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy",
+          "spellcraft"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_311",
+      "dbfId": 127567,
+      "name": "Timewarped Shivarra",
+      "zhName": "时空扭曲破坏魔",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 4,
+      "health": 2,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever a minion is\nconsumed, this gains\nits stats.",
+      "zhText": "每当一个随从被吞食，本随从获得其属性值。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_311_G",
+      "goldenDbfId": 127577,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_311.jpg",
+      "plainText": "Whenever a minion is consumed, this gains its stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_058",
+      "dbfId": 126577,
+      "name": "Timewarped Siren",
+      "zhName": "时空扭曲深渊女妖",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 14,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you play a Naga, give\nall your Naga +6/+10.",
+      "zhText": "在你使用一张纳迦牌后，使你的所有纳迦获得+6/+10。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_058_G",
+      "goldenDbfId": 127385,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_058.jpg",
+      "plainText": "After you play a Naga, give all your Naga +6/+10.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_049",
+      "dbfId": 126574,
+      "name": "Timewarped Squallfin",
+      "zhName": "时空扭曲惊涛鱼人",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 14,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you play a Murloc,\ngive minions in your hand\nand board +2/+2.",
+      "zhText": "在你使用一张鱼人牌后，使你手牌中和场上的随从获得+2/+2。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_049_G",
+      "goldenDbfId": 127383,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_049.jpg",
+      "plainText": "After you play a Murloc, give minions in your hand and board +2/+2.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive",
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_675",
+      "dbfId": 129098,
+      "name": "Timewarped Stone Drake",
+      "zhName": "时空扭曲岩石幼龙",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "DRAGON",
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Gain the\nstats of all the minions\nyou sold this turn.\n<i>(0/0)</i>",
+      "zhText": "<b>战斗开始时：</b>获得你在本回合中出售的所有随从的属性值。<i>（0/0）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_675_G",
+      "goldenDbfId": 129099,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_675.jpg",
+      "plainText": "Start of Combat: Gain the stats of all the minions you sold this turn. (0/0)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_031",
+      "dbfId": 126568,
+      "name": "Timewarped Stormcloud",
+      "zhName": "时空扭曲雷云元素",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 11,
+      "health": 9,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "AVENGE",
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle and Avenge (3):</b>\nGet a Tavern Tempest.",
+      "zhText": "<b>亡语，复仇（3）：</b>获取一张酒馆旋风。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_031_G",
+      "goldenDbfId": 127373,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_031.jpg",
+      "plainText": "Deathrattle and Avenge (3): Get a Tavern Tempest.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle",
+          "avenge"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_032",
+      "dbfId": 127647,
+      "name": "Timewarped Substrate",
+      "zhName": "时空扭曲基材元素",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]<b>Divine Shield</b>\nAt the end of your turn,\nget a Temperature Shift.",
+      "zhText": "<b>圣盾</b>。在你的回合结束时，获取一张寒热骤变。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_PreMadeChamp_032_G",
+      "goldenDbfId": 127712,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_032.jpg",
+      "plainText": "Divine Shield At the end of your turn, get a Temperature Shift.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_324",
+      "dbfId": 127830,
+      "name": "Timewarped Summoner",
+      "zhName": "时空扭曲召唤师",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 6,
+      "health": 9,
+      "tribes": [
+        "NAGA",
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "BACON_SPELLCRAFT_ID",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "<b>Spellcraft:</b> Choose a minion. Transform all minions in the Tavern into ones of its type, keeping Tiers.",
+      "zhText": "<b>塑造法术：</b>选择一个随从，将酒馆中的所有随从变形成为原有等级的所选类型的随从。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_324_G",
+      "goldenDbfId": 127872,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_324.jpg",
+      "plainText": "Spellcraft: Choose a minion. Transform all minions in the Tavern into ones of its type, keeping Tiers.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "spellcraft"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "spellcraft",
+          "transform"
+        ],
+        "implementationNotes": [
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要生成新 InstanceId，避免复用源实例。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_686",
+      "dbfId": 129105,
+      "name": "Timewarped Swirler",
+      "zhName": "时空扭曲旋流",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 9,
+      "health": 9,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "AURA"
+      ],
+      "text": "Your Elementals give an extra +3/+3 this game.",
+      "zhText": "在本局对战中，你的元素使随从额外获得+3/+3。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_686_G",
+      "goldenDbfId": 129107,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_686.jpg",
+      "plainText": "Your Elementals give an extra +3/+3 this game.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_595",
+      "dbfId": 127769,
+      "name": "Timewarped Tamuzo",
+      "zhName": "时空扭曲塔穆佐",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you summon a\nminion in combat,\ndouble its stats.",
+      "zhText": "在战斗中，在你召唤一个随从后，使其属性值翻倍。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_595_G",
+      "goldenDbfId": 127770,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_595.jpg",
+      "plainText": "After you summon a minion in combat, double its stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "summon"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_328",
+      "dbfId": 127568,
+      "name": "Timewarped Tide Razor",
+      "zhName": "时空扭曲海浪剃刀号",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 12,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "<b>Deathrattle:</b> Summon and get 4 random Pirates.",
+      "zhText": "<b>亡语：</b>召唤并获取4个随机海盗。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_328_G",
+      "goldenDbfId": 127569,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_328.jpg",
+      "plainText": "Deathrattle: Summon and get 4 random Pirates.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "summon",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_676",
+      "dbfId": 129101,
+      "name": "Timewarped Trumpeter",
+      "zhName": "时空扭曲小号手",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 8,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you sell 5\nElementals, get a random\nElemental. <i>(5 left!)</i>",
+      "zhText": "在你出售5个元素后，随机获取一张元素牌。<i>（还剩5个！）</i>",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_676_G",
+      "goldenDbfId": 129102,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_676.jpg",
+      "plainText": "After you sell 5 Elementals, get a random Elemental. (5 left!)",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_677",
+      "dbfId": 129109,
+      "name": "Timewarped Wargear",
+      "zhName": "时空扭曲战争机兵",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "MODULAR"
+      ],
+      "text": "<b>Magnetic</b>\nAfter you <b>Magnetize</b> this, double the target's stats.",
+      "zhText": "<b>磁力</b>。在你<b>磁力吸附</b>本随从后，目标的属性值翻倍。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_677_G",
+      "goldenDbfId": 129110,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_677.jpg",
+      "plainText": "Magnetic After you Magnetize this, double the target's stats.",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "按牌面文本实现，无额外跨系统依赖。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_331",
+      "dbfId": 127443,
+      "name": "Timewarped Warghoul",
+      "zhName": "时空扭曲战争食尸鬼",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 9,
+      "health": 3,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "TAUNT"
+      ],
+      "text": "[x]<b>Taunt.</b> <b>Deathrattle:</b> Trigger\nan adjacent minion's\n<b>Deathrattle</b> <i>(except\n Timewarped Warghoul)</i>.",
+      "zhText": "<b>嘲讽</b>。<b>亡语：</b>触发一个相邻随从的<b>亡语</b><i>（时空扭曲战争食尸鬼除外）</i>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_331_G",
+      "goldenDbfId": 127445,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_331.jpg",
+      "plainText": "Taunt. Deathrattle: Trigger an adjacent minion's Deathrattle (except Timewarped Warghoul).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_599",
+      "dbfId": 127778,
+      "name": "Timewarped Whirl-O-Tron",
+      "zhName": "时空扭曲飓风机甲",
+      "tavernTier": 5,
+      "timewarpKind": "major",
+      "attack": 7,
+      "health": 5,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Copy your\ntwo left-most <b>Deathrattles</b>\n<i>(except other\nWhirl-O-Trons)</i>.",
+      "zhText": "<b>战斗开始时：</b>复制你最左边的两个<b>亡语</b><i>（其他飓风机甲的除外）</i>。",
+      "inCurrentFirestonePool": true,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_599_G",
+      "goldenDbfId": 127779,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_599.jpg",
+      "plainText": "Start of Combat: Copy your two left-most Deathrattles (except other Whirl-O-Trons).",
+      "mechanism": {
+        "poolStatus": "current",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_336",
+      "dbfId": 127884,
+      "name": "Timewarped Amalgam",
+      "zhName": "时空扭曲融合怪",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 7,
+      "health": 9,
+      "tribes": [
+        "ALL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play a minion,\ngive minions of its type in\nthe Tavern +4/+4 this game.",
+      "zhText": "在你使用一张随从牌后，在本局对战中使酒馆中该类型的随从获得+4/+4。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_336_G",
+      "goldenDbfId": 127945,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_336.jpg",
+      "plainText": "After you play a minion, give minions of its type in the Tavern +4/+4 this game.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_027",
+      "dbfId": 126494,
+      "name": "Timewarped Arm",
+      "zhName": "时空扭曲帝国之手",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]Whenever a friendly\nminion is attacked, give it\n+8 Attack permanently.",
+      "zhText": "每当一个友方随从受到攻击时，使其永久获得+8攻击力。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_027_G",
+      "goldenDbfId": 127397,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_027.jpg",
+      "plainText": "Whenever a friendly minion is attacked, give it +8 Attack permanently.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_104",
+      "dbfId": 127166,
+      "name": "Timewarped Bristler",
+      "zhName": "时空扭曲棘刺野猪人",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Give this\nminion's <b>Blood Gems</b> to\n2 different friendly\nQuilboar.",
+      "zhText": "<b>亡语：</b>使2个不同的友方野猪人获得本随从的<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_104_G",
+      "goldenDbfId": 127391,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_104.jpg",
+      "plainText": "Deathrattle: Give this minion's Blood Gems to 2 different friendly Quilboar.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "blood_gem",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_376",
+      "dbfId": 128213,
+      "name": "Timewarped Deios",
+      "zhName": "时空扭曲戴欧斯",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 6,
+      "health": 10,
+      "tribes": [],
+      "keywords": [
+        "AURA"
+      ],
+      "text": "Your <b>Battlecries</b>, <b>Deathrattles</b>, and <b>Rallies</b> trigger twice.",
+      "zhText": "你的<b>战吼</b>，<b>亡语</b>和<b>进击</b>会触发两次。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_376_G",
+      "goldenDbfId": 128214,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_376.jpg",
+      "plainText": "Your Battlecries, Deathrattles, and Rallies trigger twice.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "special"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_610",
+      "dbfId": 128049,
+      "name": "Timewarped Electron",
+      "zhName": "时空扭曲电荷金刚",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 9,
+      "health": 9,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you cast 2 Tavern\nspells, <b>Magnetize</b> a {2}/{3}\nSatellite to all your Mechs.\n<i>(2 left!)</i>",
+      "zhText": "在你施放2个酒馆法术后，为你的所有机械<b>磁力吸附</b>一个{2}/{3}的卫星。<i>（还剩2个！）</i>",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_610_G",
+      "goldenDbfId": 128050,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_610.jpg",
+      "plainText": "After you cast 2 Tavern spells, Magnetize a {2}/{3} Satellite to all your Mechs. (2 left!)",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_310",
+      "dbfId": 127560,
+      "name": "Timewarped Elegist",
+      "zhName": "时空扭曲哀歌者",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn,\ngive minions in your hand\nand board +2/+1.",
+      "zhText": "在你的回合结束时，使你手牌中和场上的随从获得+2/+1。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_310_G",
+      "goldenDbfId": 127561,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_310.jpg",
+      "plainText": "At the end of your turn, give minions in your hand and board +2/+1.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn",
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_317",
+      "dbfId": 127798,
+      "name": "Timewarped Expeditioner",
+      "zhName": "时空扭曲远行者",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 6,
+      "health": 12,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TAUNT",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Taunt</b>, <b>Divine Shield</b>.\nAfter this gains stats, also give\nthe stats to the two left-most\nminions in your hand.",
+      "zhText": "<b>嘲讽</b>。<b>圣盾</b>。在本随从获得属性值后，还会使你手牌中最左边的两张随从牌获得属性值。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_317_G",
+      "goldenDbfId": 127802,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_317.jpg",
+      "plainText": "Taunt, Divine Shield. After this gains stats, also give the stats to the two left-most minions in your hand.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "hand_state"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_362",
+      "dbfId": 128111,
+      "name": "Timewarped Goldrinn",
+      "zhName": "时空扭曲戈德林",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Your Beasts\nhave +4/+4 this game\n<i>(wherever they are)</i>.",
+      "zhText": "<b>亡语：</b>在本局对战中，你的野兽拥有+4/+4<i>（无论它们在哪）</i>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_362_G",
+      "goldenDbfId": 128113,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_362.jpg",
+      "plainText": "Deathrattle: Your Beasts have +4/+4 this game (wherever they are).",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_656",
+      "dbfId": 128172,
+      "name": "Timewarped Grease Bot",
+      "zhName": "时空扭曲滑油机器人",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 6,
+      "health": 12,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "DIVINE_SHIELD",
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Divine Shield</b>. After a friendly\nminion loses <b>Divine Shield</b>,\ngive your minions +3/+3\npermanently.",
+      "zhText": "<b>圣盾</b>。在一个友方随从失去<b>圣盾</b>后，使你的随从永久获得+3/+3。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_656_G",
+      "goldenDbfId": 128173,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_656.jpg",
+      "plainText": "Divine Shield. After a friendly minion loses Divine Shield, give your minions +3/+3 permanently.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_068",
+      "dbfId": 127127,
+      "name": "Timewarped Guard",
+      "zhName": "时空扭曲齿械保镖",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "BACON_RALLY",
+        "DIVINE_SHIELD",
+        "GIVES_DIVINE_SHIELD"
+      ],
+      "text": "[x]<b>Divine Shield</b>\n<b>Rally:</b> Give a different\nfriendly minion <b>Divine\nShield</b> permanently.",
+      "zhText": "<b>圣盾</b>。<b>进击：</b>使一个不同的友方随从永久获得<b>圣盾</b>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_068_G",
+      "goldenDbfId": 127339,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_068.jpg",
+      "plainText": "Divine Shield Rally: Give a different friendly minion Divine Shield permanently.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "rally"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_588",
+      "dbfId": 127731,
+      "name": "Timewarped Hunter",
+      "zhName": "时空扭曲猎人",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 5,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "BATTLECRY",
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Battlecry and Deathrattle:</b>\nGet a Pointy Arrow.",
+      "zhText": "<b>战吼，亡语：</b>获取一张尖利箭矢。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_588_G",
+      "goldenDbfId": 127732,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_588.jpg",
+      "plainText": "Battlecry and Deathrattle: Get a Pointy Arrow.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "battlecry",
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_024",
+      "dbfId": 126491,
+      "name": "Timewarped Jelly Belly",
+      "zhName": "时空扭曲黏冻大肚怪",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "UNDEAD"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After a friendly minion is\n<b>Reborn</b>, give your minions\n+2/+2 permanently.",
+      "zhText": "在一个友方随从<b>复生</b>后，使你的随从永久获得+2/+2。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_024_G",
+      "goldenDbfId": 127356,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_024.jpg",
+      "plainText": "After a friendly minion is Reborn, give your minions +2/+2 permanently.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "damage_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_056",
+      "dbfId": 126575,
+      "name": "Timewarped Karathress",
+      "zhName": "时空扭曲卡拉瑟雷斯",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 14,
+      "health": 6,
+      "tribes": [
+        "NAGA"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you summon a minion in combat, get a copy of Deep Blues.",
+      "zhText": "在战斗中，在你召唤一个随从后，获取深沉蓝调的一张复制。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_056_G",
+      "goldenDbfId": 127384,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_056.jpg",
+      "plainText": "After you summon a minion in combat, get a copy of Deep Blues.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "summon",
+          "card_generation",
+          "copy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要生成新 InstanceId，避免复用源实例。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_002",
+      "dbfId": 126542,
+      "name": "Timewarped Lab Rat",
+      "zhName": "时空扭曲实验室老鼠",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 12,
+      "health": 8,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you cast a spell, give your Beasts +2/+2.",
+      "zhText": "在你施放一个法术后，使你的野兽获得+2/+2。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_002_G",
+      "goldenDbfId": 127361,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_002.jpg",
+      "plainText": "After you cast a spell, give your Beasts +2/+2.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats",
+          "card_generation",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_065",
+      "dbfId": 126755,
+      "name": "Timewarped Low-Flier",
+      "zhName": "时空扭曲低保真飞龙",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 10,
+      "health": 10,
+      "tribes": [
+        "DRAGON"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn, give\n+2 Attack to your minions\nwith less Attack than this.\nRepeat with Health.",
+      "zhText": "在你的回合结束时，使你攻击力低于本随从的随从获得+2攻击力。然后依此法检定并获得生命值。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_065_G",
+      "goldenDbfId": 127333,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_065.jpg",
+      "plainText": "At the end of your turn, give +2 Attack to your minions with less Attack than this. Repeat with Health.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_619",
+      "dbfId": 128343,
+      "name": "Timewarped Magnanimoose",
+      "zhName": "时空扭曲驼鹿",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 2,
+      "tribes": [
+        "BEAST"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Summon and\nget a minion from a random\nopponent's warband.",
+      "zhText": "<b>亡语：</b>召唤并获取来自一个随机对手的战队的一个随从。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_619_G",
+      "goldenDbfId": 128344,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_619.jpg",
+      "plainText": "Deathrattle: Summon and get a minion from a random opponent's warband.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "summon",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_047",
+      "dbfId": 126572,
+      "name": "Timewarped Paleofin",
+      "zhName": "时空扭曲古鳍鱼人",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 2,
+      "health": 18,
+      "tribes": [
+        "MURLOC"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn,\nget a Cloning Conch.",
+      "zhText": "在你的回合结束时，获取一张克隆螺号。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_047_G",
+      "goldenDbfId": 127382,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_047.jpg",
+      "plainText": "At the end of your turn, get a Cloning Conch.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_121",
+      "dbfId": 129085,
+      "name": "Timewarped Probius",
+      "zhName": "时空扭曲普罗比斯",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 12,
+      "health": 7,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "MODULAR"
+      ],
+      "text": "[x]<b>Magnetic</b>\nAfter you <b>Magnetize</b> this to\n a Mech, make it Golden.",
+      "zhText": "<b>磁力</b>。在你将本随从<b>磁力吸附</b>到机械上后，将目标机械变为\n金色。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_121_G",
+      "goldenDbfId": 129086,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_121.jpg",
+      "plainText": "Magnetic After you Magnetize this to a Mech, make it Golden.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "economy",
+          "keyword_grant_or_keyword_body",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_002",
+      "dbfId": 126238,
+      "name": "Timewarped Relaxer",
+      "zhName": "时空扭曲晾膘游客",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After you sell a Quilboar,\nthis plays 4 <b>Blood Gems</b> on\na random friendly minion.",
+      "zhText": "在你出售一个野猪人后，本随从随机对一个友方随从使用4张<b>鲜血宝石</b>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_002_G",
+      "goldenDbfId": 127351,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_002.jpg",
+      "plainText": "After you sell a Quilboar, this plays 4 Blood Gems on a random friendly minion.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "blood_gem",
+          "tribe_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_008",
+      "dbfId": 126286,
+      "name": "Timewarped Seer",
+      "zhName": "时空扭曲先知",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "DEMON",
+        "NAGA"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "Two Tavern spells each turn cost (2) less. <i>(2 left!)</i>",
+      "zhText": "每回合中，有两张酒馆法术的消耗减少（2）。<i>（还剩2张！）</i>",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_008_G",
+      "goldenDbfId": 127330,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_008.jpg",
+      "plainText": "Two Tavern spells each turn cost (2) less. (2 left!)",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "card_generation",
+          "tavern_spell_synergy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_681",
+      "dbfId": 129116,
+      "name": "Timewarped Shadequill",
+      "zhName": "时空扭曲箭猪",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 7,
+      "health": 11,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn,\ngain the stats of the 3\nhighest-Health minions\nin the Tavern.",
+      "zhText": "在你的回合结束时，获取酒馆中生命值最高的3个随从的属性值。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_681_G",
+      "goldenDbfId": 129117,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_681.jpg",
+      "plainText": "At the end of your turn, gain the stats of the 3 highest-Health minions in the Tavern.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_592",
+      "dbfId": 127763,
+      "name": "Timewarped Spirit of Air",
+      "zhName": "时空扭曲空气之灵",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "GIVES_DIVINE_SHIELD"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Give a random\nfriendly minion <b>Windfury</b>,\n <b>Divine Shield</b>, and <b>Taunt</b>.",
+      "zhText": "<b>亡语：</b>随机使一个友方随从获得<b>风怒</b>，<b>圣盾</b>和<b>嘲讽</b>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_592_G",
+      "goldenDbfId": 127764,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_592.jpg",
+      "plainText": "Deathrattle: Give a random friendly minion Windfury, Divine Shield, and Taunt.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_PreMadeChamp_038",
+      "dbfId": 126569,
+      "name": "Timewarped Steamer",
+      "zhName": "时空扭曲蒸汽机",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 13,
+      "health": 7,
+      "tribes": [
+        "MECH"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "At the end of your turn, get one of each <b>Magnetic</b> Volumizer.",
+      "zhText": "在你的回合结束时，获取每种<b>磁力</b>扩音机各一张。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_PreMadeChamp_038_G",
+      "goldenDbfId": 127379,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_PreMadeChamp_038.jpg",
+      "plainText": "At the end of your turn, get one of each Magnetic Volumizer.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "keyword_grant_or_keyword_body",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_601",
+      "dbfId": 127788,
+      "name": "Timewarped Stoneshell",
+      "zhName": "时空扭曲石壳守卫",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 4,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]<b>Start of Combat:</b> Copy all\nfriendly <b>Rallies</b> <i>(except\nother Stoneshells)</i>.",
+      "zhText": "<b>战斗开始时：</b>复制所有友方<b>进击</b>效果<i>（其他石壳守卫的除外）</i>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_601_G",
+      "goldenDbfId": 127789,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_601.jpg",
+      "plainText": "Start of Combat: Copy all friendly Rallies (except other Stoneshells).",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_021",
+      "dbfId": 126488,
+      "name": "Timewarped Sylvar",
+      "zhName": "时空扭曲希尔梵",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 7,
+      "health": 10,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN"
+      ],
+      "text": "[x]At the end of your turn, give\nadjacent minions +8/+8.\nRepeat for each friendly\nGolden minion.",
+      "zhText": "在你的回合结束时，使相邻的随从获得+8/+8。每有一个友方金色随从，重复一次。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_021_G",
+      "goldenDbfId": 127387,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_021.jpg",
+      "plainText": "At the end of your turn, give adjacent minions +8/+8. Repeat for each friendly Golden minion.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "economy",
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_603",
+      "dbfId": 127792,
+      "name": "Timewarped Tender",
+      "zhName": "时空扭曲护灯人",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 7,
+      "health": 5,
+      "tribes": [],
+      "keywords": [
+        "END_OF_TURN_TRIGGER",
+        "END_OF_TURN",
+        "BACON_BUFFS_TAVERN_SPELL",
+        "GENERATES_SPELL",
+        "GENERATES_TAVERN_SPELL"
+      ],
+      "text": "[x]At the end of your turn,\nget 2 random Tavern\nspells that give stats.",
+      "zhText": "在你的回合结束时，\n随机获取2张能使随从获得属性值的酒馆法术牌。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_603_G",
+      "goldenDbfId": 127793,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_603.jpg",
+      "plainText": "At the end of your turn, get 2 random Tavern spells that give stats.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "end_of_turn"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats",
+          "card_generation"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_335",
+      "dbfId": 127501,
+      "name": "Timewarped Theotar",
+      "zhName": "时空扭曲西塔尔",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "ALL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "BACON_TARGET_NO_TRIBE_MINION"
+      ],
+      "text": "[x]After you play a minion with\nno type, give a friendly\nminion of each type\n+6/+6.",
+      "zhText": "在你使用没有类型的随从牌后，使每个类型的各一个友方随从获得+6/+6。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_335_G",
+      "goldenDbfId": 127502,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_335.jpg",
+      "plainText": "After you play a minion with no type, give a friendly minion of each type +6/+6.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_326",
+      "dbfId": 127497,
+      "name": "Timewarped Tony",
+      "zhName": "时空扭曲托尼",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 12,
+      "health": 6,
+      "tribes": [
+        "PIRATE"
+      ],
+      "keywords": [
+        "DEATHRATTLE"
+      ],
+      "text": "<b>Deathrattle:</b> Get a copy of Eyes of the Earth Mother.",
+      "zhText": "<b>亡语：</b>获取大地母亲之眼的一张复制。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_326_G",
+      "goldenDbfId": 127499,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_326.jpg",
+      "plainText": "Deathrattle: Get a copy of Eyes of the Earth Mother.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "card_generation",
+          "copy"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要生成新 InstanceId，避免复用源实例。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_010",
+      "dbfId": 126344,
+      "name": "Timewarped Trickster",
+      "zhName": "时空扭曲欺诈者",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "DEMON"
+      ],
+      "keywords": [
+        "DEATHRATTLE",
+        "IMP"
+      ],
+      "text": "[x]<b>Deathrattle:</b> Give this\nminion's maximum stats to\nanother friendly minion.",
+      "zhText": "<b>亡语：</b>使另一个友方随从获得本随从的最大属性值。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_010_G",
+      "goldenDbfId": 127366,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_010.jpg",
+      "plainText": "Deathrattle: Give this minion's maximum stats to another friendly minion.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "deathrattle"
+        ],
+        "effectFamilies": [
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_105",
+      "dbfId": 128114,
+      "name": "Timewarped Twirler",
+      "zhName": "时空扭曲套索牛仔",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 7,
+      "health": 5,
+      "tribes": [
+        "QUILBOAR"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "After you play a <b>Blood Gem</b> on this, cast Blood Gem Barrage.",
+      "zhText": "在你对本随从使用一张<b>鲜血宝石</b>后，施放鲜血宝石弹幕。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 2,
+      "goldenCardId": "BG34_Giant_105_G",
+      "goldenDbfId": 128115,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_105.jpg",
+      "plainText": "After you play a Blood Gem on this, cast Blood Gem Barrage.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "blood_gem"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要复用现有鲜血宝石、酒馆法术或塑造法术管线。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Treasure_994",
+      "dbfId": 127138,
+      "name": "Timewarped Ultralisk",
+      "zhName": "时空扭曲雷兽",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "TRIGGER_VISUAL",
+        "ZERG"
+      ],
+      "text": "[x]Also damages adjacent\nminions. <b>Start of Combat:</b>\nDouble this minion's\nstats.",
+      "zhText": "同时对其攻击目标相邻的随从造成伤害。<b>战斗开始时：</b>本随从的属性值翻倍。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Treasure_994_G",
+      "goldenDbfId": 127786,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Treasure_994.jpg",
+      "plainText": "Also damages adjacent minions. Start of Combat: Double this minion's stats.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "start_of_combat"
+        ],
+        "effectFamilies": [
+          "stats",
+          "damage"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "可接入现有关键字触发分发。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Giant_361",
+      "dbfId": 128006,
+      "name": "Timewarped Upstart",
+      "zhName": "时空扭曲新秀",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 4,
+      "health": 7,
+      "tribes": [
+        "ELEMENTAL"
+      ],
+      "keywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "text": "[x]After the Tavern is\n<b>Refreshed</b>, double the\nHealth of its right-most\nminion.",
+      "zhText": "在酒馆<b>刷新</b>后，使酒馆中最右边的随从生命值翻倍。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Giant_361_G",
+      "goldenDbfId": 128009,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Giant_361.jpg",
+      "plainText": "After the Tavern is Refreshed, double the Health of its right-most minion.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "recruit_phase_reactive"
+        ],
+        "effectFamilies": [
+          "shop_or_refresh",
+          "stats"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。",
+          "需要挂到特殊酒馆或普通刷新事件，注意不要误触发普通酒馆效果。"
+        ]
+      }
+    },
+    {
+      "cardId": "BG34_Treasure_990",
+      "dbfId": 127134,
+      "name": "Timewarped Viper",
+      "zhName": "时空扭曲飞蛇",
+      "tavernTier": 0,
+      "timewarpKind": "unknown",
+      "attack": 8,
+      "health": 8,
+      "tribes": [],
+      "keywords": [
+        "VENOMOUS",
+        "ZERG"
+      ],
+      "text": "<b>Venomous\nImmune</b> while attacking.",
+      "zhText": "<b>烈毒</b>。攻击时<b>免疫</b>。",
+      "inCurrentFirestonePool": false,
+      "costInTimewarpedTavern": 1,
+      "goldenCardId": "BG34_Treasure_990_G",
+      "goldenDbfId": 127785,
+      "imageUrl": "https://static.zerotoheroes.com/hearthstone/cardart/256x/BG34_Treasure_990.jpg",
+      "plainText": "Venomous Immune while attacking.",
+      "mechanism": {
+        "poolStatus": "historical_extra",
+        "triggerTimings": [
+          "static_or_aura"
+        ],
+        "effectFamilies": [
+          "stats",
+          "keyword_grant_or_keyword_body"
+        ],
+        "implementationNotes": [
+          "非当前池条目，先作为历史/上线版本候选，不默认进入当前 Timewarped Tavern。"
+        ]
+      }
+    }
+  ]
+}

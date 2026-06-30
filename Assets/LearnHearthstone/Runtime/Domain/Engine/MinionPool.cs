@@ -10,12 +10,14 @@ namespace LearnHearthstone.Domain.Engine
         private readonly IReadOnlyDictionary<string, MinionDefinition> definitionsById;
         private readonly List<MinionDefinition> definitions;
         private readonly Dictionary<string, int> counts = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> capacities = new Dictionary<string, int>();
 
         public MinionPool(
             IEnumerable<MinionDefinition> definitions,
             IDictionary<string, int> initial = null,
             IReadOnlyCollection<Tribe> activeTribes = null,
-            Func<MinionDefinition, bool> availability = null)
+            Func<MinionDefinition, bool> availability = null,
+            IDictionary<string, int> capacityOverrides = null)
         {
             this.definitions = definitions
                 .Where(definition =>
@@ -31,9 +33,13 @@ namespace LearnHearthstone.Domain.Engine
                     continue;
                 }
 
-                var initialCount = initial != null && initial.TryGetValue(definition.Id, out var count)
-                    ? Math.Min(definition.PoolCount, Math.Max(0, count))
+                var capacity = capacityOverrides != null && capacityOverrides.TryGetValue(definition.Id, out var overrideCapacity)
+                    ? Math.Max(0, overrideCapacity)
                     : definition.PoolCount;
+                capacities[definition.Id] = capacity;
+                var initialCount = initial != null && initial.TryGetValue(definition.Id, out var count)
+                    ? Math.Min(capacity, Math.Max(0, count))
+                    : capacity;
                 counts[definition.Id] = initialCount;
             }
         }
@@ -61,7 +67,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            counts[definitionId] = Math.Min(definition.PoolCount, Remaining(definitionId) + copies);
+            var capacity = capacities.TryGetValue(definitionId, out var overrideCapacity)
+                ? overrideCapacity
+                : definition.PoolCount;
+            counts[definitionId] = Math.Min(capacity, Remaining(definitionId) + copies);
         }
 
         public List<MinionDefinition> DrawShop(int tier, int size, SeededRng rng, int minimumTier = TavernRules.MinTavernTier)

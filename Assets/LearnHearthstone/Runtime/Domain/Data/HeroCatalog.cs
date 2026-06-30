@@ -9,6 +9,7 @@ namespace LearnHearthstone.Domain.Data
     {
         private readonly Dictionary<string, HeroDefinition> heroesByCardId;
         private readonly Dictionary<string, HeroPowerDefinition> heroPowersByCardId;
+        private readonly Dictionary<string, HeroDefinition> heroesByHeroPowerCardId;
         private readonly Dictionary<string, HeroBuddyDefinition> buddiesByCardId;
 
         public HeroCatalog(IEnumerable<HeroDefinition> heroes)
@@ -26,6 +27,10 @@ namespace LearnHearthstone.Domain.Data
                 .Select(group => group.First())
                 .ToList();
             heroPowersByCardId = AllHeroPowers.ToDictionary(power => power.CardId, power => power, StringComparer.OrdinalIgnoreCase);
+            heroesByHeroPowerCardId = AllHeroes
+                .Where(hero => hero.HeroPower != null && !string.IsNullOrEmpty(hero.HeroPower.CardId))
+                .GroupBy(hero => hero.HeroPower.CardId, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
             AllBuddies = AllHeroes
                 .Select(hero => hero.Buddy)
@@ -60,6 +65,11 @@ namespace LearnHearthstone.Domain.Data
             }
 
             return heroPower;
+        }
+
+        public bool TryGetHeroByHeroPowerCardId(string heroPowerCardId, out HeroDefinition hero)
+        {
+            return heroesByHeroPowerCardId.TryGetValue(heroPowerCardId ?? string.Empty, out hero);
         }
 
         public HeroBuddyDefinition GetBuddyByCardId(string buddyCardId)

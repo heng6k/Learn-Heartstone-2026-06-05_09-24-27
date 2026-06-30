@@ -103,6 +103,36 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void QuestModeOpening_DisabledQuestsDoesNotOfferChoice()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Quests,
+                    EnableQuests = false
+                });
+
+            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+        }
+
+        [Test]
+        public void QuestModeOpening_DisabledQuestRewardsDoesNotOfferChoice()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Quests,
+                    EnableQuestRewards = false
+                });
+
+            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+        }
+
+        [Test]
         public void FirstBatch_AnimaBribeSellingMinionBuffsTavernMinion()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -905,6 +935,41 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, even.MaxHealth);
             Assert.AreEqual(8, odd.Attack);
             Assert.AreEqual(8, odd.MaxHealth);
+        }
+
+        [Test]
+        public void DebugCompleteQuest_CompletesActiveQuestThroughRewardFlow()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_313", "BG24_Reward_306");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
+            Assert.IsFalse(active.Completed);
+
+            service.Apply(new GameCommand(GameCommandType.DebugCompleteQuest));
+
+            Assert.IsTrue(active.Completed);
+            Assert.IsTrue(active.RewardActive);
+            Assert.AreEqual(active.RequiredAmount, active.Progress);
+            CollectionAssert.Contains(service.State.Player.Tavern.AdvancedMechanics.Quests.Completed, active);
+        }
+
+        [Test]
+        public void DebugReplaceQuestReward_UpdatesUncompletedQuestBinding()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_313", "BG24_Reward_306");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceQuestReward, "BG24_Reward_305", CardKind.QuestReward));
+
+            var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
+            Assert.IsFalse(active.Completed);
+            Assert.AreEqual("BG24_Reward_305", active.RewardId);
+            Assert.AreEqual("Anima Bribe", active.RewardName);
+            Assert.AreEqual(QuestRewardPowerLevel.Medium, active.RewardPowerLevel);
+            Assert.Greater(active.RequiredAmount, 0);
         }
 
         [Test]

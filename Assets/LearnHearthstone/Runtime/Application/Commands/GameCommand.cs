@@ -6,6 +6,8 @@ namespace LearnHearthstone.Application.Commands
     public enum GameCommandType
     {
         BuyMinion,
+        BuyTimewarpedTavernCard,
+        ExitTimewarpedTavern,
         SellMinion,
         RerollShop,
         FreezeShop,
@@ -23,6 +25,9 @@ namespace LearnHearthstone.Application.Commands
         DebugOfferLesserTrinkets,
         DebugOfferGreaterTrinkets,
         DebugOfferQuests,
+        DebugCompleteQuest,
+        DebugReplaceQuestReward,
+        DebugReplaceTrinket,
         SimulateCombat,
         AddCardToHand,
         DebugCastCard,
@@ -71,7 +76,8 @@ namespace LearnHearthstone.Application.Commands
             TargetZone secondaryTargetZone,
             string targetInstanceId = null,
             string secondaryTargetInstanceId = null,
-            string choiceId = null)
+            string choiceId = null,
+            string heroPowerCardId = null)
         {
             Type = type;
             Index = index;
@@ -82,6 +88,7 @@ namespace LearnHearthstone.Application.Commands
             TargetInstanceId = targetInstanceId;
             SecondaryTargetInstanceId = secondaryTargetInstanceId;
             ChoiceId = choiceId;
+            HeroPowerCardId = heroPowerCardId;
         }
 
         public GameCommand(
@@ -92,7 +99,8 @@ namespace LearnHearthstone.Application.Commands
             TargetZone secondaryTargetZone = TargetZone.Unspecified,
             string targetInstanceId = null,
             string secondaryTargetInstanceId = null,
-            string choiceId = null)
+            string choiceId = null,
+            string heroPowerCardId = null)
         {
             Type = type;
             TargetIndex = targetIndex;
@@ -102,6 +110,7 @@ namespace LearnHearthstone.Application.Commands
             TargetInstanceId = targetInstanceId;
             SecondaryTargetInstanceId = secondaryTargetInstanceId;
             ChoiceId = choiceId;
+            HeroPowerCardId = heroPowerCardId;
         }
 
         public GameCommand(GameCommandType type, string instanceId)
@@ -146,6 +155,23 @@ namespace LearnHearthstone.Application.Commands
             TargetIndex = targetIndex;
         }
 
+        public GameCommand(GameCommandType type, string cardId, CardKind cardKind, bool flag)
+        {
+            Type = type;
+            CardId = cardId;
+            CardKind = cardKind;
+            Flag = flag;
+        }
+
+        public GameCommand(GameCommandType type, string cardId, CardKind cardKind, bool flag, int index)
+        {
+            Type = type;
+            CardId = cardId;
+            CardKind = cardKind;
+            Flag = flag;
+            Index = index;
+        }
+
         public GameCommand(GameCommandType type, string scenarioName, CombatTestOptions combatTestOptions)
         {
             Type = type;
@@ -179,6 +205,7 @@ namespace LearnHearthstone.Application.Commands
         public string TargetInstanceId { get; }
         public string SecondaryTargetInstanceId { get; }
         public string ChoiceId { get; }
+        public string HeroPowerCardId { get; }
         public string InstanceId { get; }
         public string CardId { get; }
         public CardKind CardKind { get; }

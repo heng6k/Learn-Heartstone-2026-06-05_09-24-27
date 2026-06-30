@@ -66,6 +66,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             OpponentBoard
         }
 
+        private enum AdvancedCardLibrarySelectionKind
+        {
+            QuestReward,
+            LesserTrinket,
+            GreaterTrinket
+        }
+
+        private sealed class AdvancedCardLibraryItem
+        {
+            public CardKind CardKind;
+            public string CardId;
+            public string DisplayName;
+            public string Text;
+            public string ImagePath;
+            public string Meta;
+            public string Notes;
+            public int TargetIndex;
+        }
+
         private MatchService service;
         private IAdvisorService advisor;
         private Action backToHub;
@@ -96,6 +115,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool toolsShowAllCards;
         private HeroPowerCategory? toolsHeroPowerCategoryFilter;
         private HeroPowerReplacementEligibility? toolsHeroPowerEligibilityFilter;
+        private bool advancedCardLibraryOpen;
+        private AdvancedCardLibrarySelectionKind advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.QuestReward;
+        private int advancedCardLibraryQuestIndex;
 
         public void Initialize(MatchService matchService, IAdvisorService advisorService, Action backAction, Action legacyAction)
         {
@@ -119,6 +141,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildTopBar();
             BuildPlaySurface();
             BuildQuestTrackerOverlay();
+            BuildTrinketTrackerOverlay();
+            BuildAdvancedChoiceStatusPanel();
             BuildQuickActionBar();
             BuildRightPanelDrawerToggle();
 
@@ -145,6 +169,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (cardLibraryOpen)
             {
                 BuildCardLibraryOverlay();
+            }
+
+            if (advancedCardLibraryOpen)
+            {
+                BuildAdvancedCardLibraryOverlay();
             }
 
             if (heroSelectionOpen)
@@ -402,6 +431,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildShop(Transform parent, UnityTavernLayoutContext layout)
         {
+            var timewarp = service.State.Player.Tavern.Timewarp;
+            if (timewarp?.VisitOpen == true)
+            {
+                var timewarpedZone = Zone("UnityTimewarpedTavernZone", parent, layout, UnityTavernZoneKind.Shop, UnityTavernCardMode.Shop);
+                timewarpedZone.Build(
+                    TimewarpedTavernTitle(timewarp.PendingKind),
+                    "Chronum " + timewarp.Chronum,
+                    service.GetTimewarpedOfferCards(),
+                    0,
+                    UnityTavernCardMode.Shop,
+                    TimewarpedOfferActionLabel,
+                    SelectCard,
+                    BuyTimewarpedOffer,
+                    layoutContext: layout);
+                ActionButton(
+                    "UnityTimewarpedTavernExitButton",
+                    timewarpedZone.transform,
+                    "退出时空酒馆",
+                    () => Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern)),
+                    role: UnityTavernActionButtonRole.Utility);
+                return;
+            }
+
             var zone = Zone("UnityShopZone", parent, layout, UnityTavernZoneKind.Shop, UnityTavernCardMode.Shop);
             zone.Build(
                 "鲍勃的酒馆",
@@ -415,6 +467,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 configureCard: (cardObject, card, index) => ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.Shop, index),
                 layoutContext: layout);
             BuildShopSellDropZone(zone.transform);
+        }
+
+        private static string TimewarpedTavernTitle(TimewarpKind kind)
+        {
+            return kind == TimewarpKind.Major ? "Major Timewarped Tavern" : "Minor Timewarped Tavern";
+        }
+
+        private static string TimewarpedOfferActionLabel(MinionInstance card)
+        {
+            if (card == null)
+            {
+                return null;
+            }
+
+            if (TimewarpedCardBehavior.IsExitCardInstance(card))
+            {
+                return "Exit";
+            }
+
+            return "购买 " + card.Cost;
         }
 
         private void BuildPlayerBoard(Transform parent, UnityTavernLayoutContext layout)
@@ -570,18 +642,27 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var flexibleWidth = quickBar;
             var minWidth = quickBar ? (layout.IsCompact ? 84f : 108f) : 0f;
 
-            var heroPower = CurrentHeroPower();
-            var heroPowerButton = ActionButton(
-                namePrefix + "HeroPowerButton",
-                parent,
-                HeroPowerActionLabel(heroPower),
-                BeginHeroPowerTargeting,
-                minWidth,
-                height,
-                flexibleWidth,
-                UnityTavernActionButtonRole.Primary,
-                heroPower != null);
-            AddHeroPowerDrag(heroPowerButton.gameObject, heroPower);
+            var heroPowers = CurrentHeroPowers();
+            for (var heroPowerIndex = 0; heroPowerIndex < heroPowers.Count; heroPowerIndex += 1)
+            {
+                var heroPower = heroPowers[heroPowerIndex];
+                var capturedHeroPower = heroPower;
+                var unlocked = IsHeroPowerUnlocked(heroPower);
+                var heroPowerButton = ActionButton(
+                    heroPowerIndex == 0 ? namePrefix + "HeroPowerButton" : namePrefix + "HeroPowerButton" + heroPowerIndex,
+                    parent,
+                    HeroPowerActionLabel(heroPower),
+                    () => BeginHeroPowerTargeting(capturedHeroPower),
+                    minWidth,
+                    height,
+                    flexibleWidth,
+                    UnityTavernActionButtonRole.Primary,
+                    heroPower != null && unlocked);
+                if (unlocked)
+                {
+                    AddHeroPowerDrag(heroPowerButton.gameObject, heroPower);
+                }
+            }
             ActionButton(namePrefix + "RefreshButton", parent, RefreshActionLabel(), () => Apply(new GameCommand(GameCommandType.RerollShop)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanRefreshShop());
             ActionButton(namePrefix + "FreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy);
             ActionButton(namePrefix + "UpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
@@ -1889,6 +1970,286 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind));
         }
 
+        private void OpenQuestRewardLibrary(int questIndex)
+        {
+            advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.QuestReward;
+            advancedCardLibraryQuestIndex = questIndex;
+            advancedCardLibraryOpen = true;
+            cardLibraryOpen = false;
+            toolsOpen = false;
+            Rebuild();
+        }
+
+        private void OpenTrinketLibrary(TrinketSlotKind slotKind)
+        {
+            advancedCardLibraryKind = slotKind == TrinketSlotKind.Greater
+                ? AdvancedCardLibrarySelectionKind.GreaterTrinket
+                : AdvancedCardLibrarySelectionKind.LesserTrinket;
+            advancedCardLibraryQuestIndex = 0;
+            advancedCardLibraryOpen = true;
+            cardLibraryOpen = false;
+            toolsOpen = false;
+            Rebuild();
+        }
+
+        private void DismissAdvancedCardLibrary()
+        {
+            advancedCardLibraryOpen = false;
+            Rebuild();
+        }
+
+        private void BuildAdvancedCardLibraryOverlay()
+        {
+            var choices = AdvancedCardLibraryChoices().ToList();
+            var overlay = Panel("UnityAdvancedCardLibraryOverlay", transform, new Color(0f, 0f, 0f, 0.62f));
+            overlay.transform.SetAsLastSibling();
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
+
+            var panel = Panel("UnityAdvancedCardLibraryPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            ConfigureToolsSurface(panel, AdvancedCardLibraryAccent(), 0.30f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.08f, 0.08f);
+            rect.anchorMax = new Vector2(0.92f, 0.92f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(14, 14, 12, 14);
+            layout.spacing = 10;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            BuildAdvancedCardLibraryHeader(panel.transform, choices.Count);
+
+            var content = UiFactory.ScrollView("UnityAdvancedCardLibraryScroll", panel.transform, UnityTavernUiStyle.PanelQuiet, out _);
+            UnityTavernUiStyle.SetFlexible(content.gameObject, 1f, 1f);
+
+            if (choices.Count == 0)
+            {
+                var empty = UiFactory.Label("UnityAdvancedCardLibraryEmpty", content, "No eligible cards under the current setup.", 14, FontStyle.Bold);
+                empty.alignment = TextAnchor.MiddleCenter;
+                empty.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.SetPreferredHeight(empty.gameObject, 90f);
+                return;
+            }
+
+            var gridLayout = content.gameObject.AddComponent<GridLayoutGroup>();
+            gridLayout.padding = new RectOffset(12, 12, 12, 18);
+            gridLayout.spacing = new Vector2(14f, 16f);
+            gridLayout.cellSize = new Vector2(188f, 308f);
+            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            gridLayout.constraintCount = 4;
+
+            for (var index = 0; index < choices.Count; index += 1)
+            {
+                BuildAdvancedCardLibraryCard(content, choices[index], index);
+            }
+        }
+
+        private void BuildAdvancedCardLibraryHeader(Transform parent, int visibleCount)
+        {
+            var header = Panel("UnityAdvancedCardLibraryHeader", parent, UnityTavernUiStyle.Panel);
+            ConfigureToolsSurface(header, AdvancedCardLibraryAccent(), 0.22f);
+            UnityTavernUiStyle.SetPreferredHeight(header, 58f);
+            var layout = header.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 8, 8);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityAdvancedCardLibraryTitle", header.transform, AdvancedCardLibraryTitle(), 18, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleLeft;
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            var summary = UiFactory.Label("UnityAdvancedCardLibraryCountText", header.transform, visibleCount + " selectable", 12, FontStyle.Bold);
+            summary.alignment = TextAnchor.MiddleRight;
+            summary.color = UnityTavernUiStyle.MutedText;
+            UnityTavernUiStyle.SetFixedSize(summary.gameObject, 160f, 32f);
+
+            if (advancedCardLibraryKind == AdvancedCardLibrarySelectionKind.LesserTrinket ||
+                advancedCardLibraryKind == AdvancedCardLibrarySelectionKind.GreaterTrinket)
+            {
+                var lesser = ToolButton("UnityAdvancedCardLibraryLesserTab", header.transform, "Lesser", true, () =>
+                {
+                    advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.LesserTrinket;
+                    Rebuild();
+                });
+                UnityTavernUiStyle.SetFixedSize(lesser.gameObject, 76f, 32f);
+                var greater = ToolButton("UnityAdvancedCardLibraryGreaterTab", header.transform, "Greater", true, () =>
+                {
+                    advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.GreaterTrinket;
+                    Rebuild();
+                });
+                UnityTavernUiStyle.SetFixedSize(greater.gameObject, 82f, 32f);
+            }
+
+            var close = ToolButton("UnityAdvancedCardLibraryCloseButton", header.transform, "Close", true, DismissAdvancedCardLibrary);
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 68f, 32f);
+        }
+
+        private void BuildAdvancedCardLibraryCard(Transform parent, AdvancedCardLibraryItem item, int index)
+        {
+            var card = Panel("UnityAdvancedCardLibraryCard-" + index + "-" + SafeObjectName(item.CardId), parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(card, AdvancedCardLibraryAccent(), 0.18f);
+            var layout = card.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 10, 10);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            BuildMechanicChoiceImage(card.transform, item.ImagePath, item.CardId, item.CardKind, 92f, 126f);
+
+            var name = UiFactory.Label("UnityAdvancedCardLibraryCardName", card.transform, item.DisplayName, 13, FontStyle.Bold);
+            name.alignment = TextAnchor.MiddleCenter;
+            name.color = UnityTavernUiStyle.Text;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 34f);
+
+            var meta = UiFactory.Label("UnityAdvancedCardLibraryCardMeta", card.transform, item.Meta, 10, FontStyle.Bold);
+            meta.alignment = TextAnchor.MiddleCenter;
+            meta.color = UnityTavernUiStyle.Gold;
+            meta.horizontalOverflow = HorizontalWrapMode.Wrap;
+            meta.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(meta.gameObject, 30f);
+
+            var text = UiFactory.Label("UnityAdvancedCardLibraryCardText", card.transform, CleanCardText(item.Text), 10, FontStyle.Normal);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.UpperCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 44f);
+
+            var notes = UiFactory.Label("UnityAdvancedCardLibraryCardNotes", card.transform, item.Notes, 9, FontStyle.Normal);
+            notes.color = UnityTavernUiStyle.MutedText;
+            notes.alignment = TextAnchor.UpperCenter;
+            notes.horizontalOverflow = HorizontalWrapMode.Wrap;
+            notes.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(notes.gameObject, 28f);
+
+            var buttonName = index == 0 ? "UnityAdvancedCardLibrarySelectButton" : "UnityAdvancedCardLibrarySelectButton-" + SafeObjectName(item.CardId);
+            var select = ActionButton(
+                buttonName,
+                card.transform,
+                "Select",
+                () => ApplyAdvancedCardLibraryChoice(item),
+                0f,
+                32f,
+                true,
+                UnityTavernActionButtonRole.Primary);
+            UnityTavernUiStyle.SetPreferredHeight(select.gameObject, 32f);
+        }
+
+        private IEnumerable<AdvancedCardLibraryItem> AdvancedCardLibraryChoices()
+        {
+            switch (advancedCardLibraryKind)
+            {
+                case AdvancedCardLibrarySelectionKind.QuestReward:
+                    return service.GetDebugSelectableQuestRewards()
+                        .Select(ToAdvancedCardLibraryItem)
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+                case AdvancedCardLibrarySelectionKind.GreaterTrinket:
+                    return service.GetDebugSelectableTrinkets(TrinketSlotKind.Greater)
+                        .Select(definition => ToAdvancedCardLibraryItem(definition, 1))
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+                default:
+                    return service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser)
+                        .Select(definition => ToAdvancedCardLibraryItem(definition, 0))
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+            }
+        }
+
+        private static AdvancedCardLibraryItem ToAdvancedCardLibraryItem(QuestRewardDefinition reward)
+        {
+            return new AdvancedCardLibraryItem
+            {
+                CardKind = CardKind.QuestReward,
+                CardId = reward.CardId,
+                DisplayName = reward.Name,
+                Text = reward.Text,
+                ImagePath = reward.ImagePath,
+                Meta = reward.PowerLevel + " / " + reward.Trigger + " / " + reward.OfferPoolStatus,
+                Notes = reward.EffectKind + (string.IsNullOrWhiteSpace(reward.Notes) ? string.Empty : " / " + reward.Notes),
+                TargetIndex = -1
+            };
+        }
+
+        private static AdvancedCardLibraryItem ToAdvancedCardLibraryItem(TrinketDefinition trinket, int targetIndex)
+        {
+            var races = trinket.AssociatedRaces == null || trinket.AssociatedRaces.Count == 0
+                ? "neutral"
+                : string.Join("/", trinket.AssociatedRaces.Take(3).ToArray());
+            var requires = trinket.Requires == null || trinket.Requires.Count == 0
+                ? string.Empty
+                : " / req " + string.Join("/", trinket.Requires.Take(2).ToArray());
+            return new AdvancedCardLibraryItem
+            {
+                CardKind = CardKind.Trinket,
+                CardId = trinket.CardId,
+                DisplayName = trinket.Name,
+                Text = trinket.Text,
+                ImagePath = trinket.ImagePath,
+                Meta = trinket.SlotKind + " / " + trinket.Cost + "g / " + trinket.OfferPoolStatus,
+                Notes = trinket.ProxyLevel + " / " + trinket.EffectFamily + " / " + races + requires,
+                TargetIndex = targetIndex
+            };
+        }
+
+        private void ApplyAdvancedCardLibraryChoice(AdvancedCardLibraryItem item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            advancedCardLibraryOpen = false;
+            if (item.CardKind == CardKind.QuestReward)
+            {
+                var quest = ActiveQuestByIndex(advancedCardLibraryQuestIndex);
+                Apply(new GameCommand(GameCommandType.DebugReplaceQuestReward, item.CardId, CardKind.QuestReward, quest != null && quest.Completed, advancedCardLibraryQuestIndex));
+                return;
+            }
+
+            Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, item.CardId, CardKind.Trinket, item.TargetIndex));
+        }
+
+        private Color AdvancedCardLibraryAccent()
+        {
+            return advancedCardLibraryKind == AdvancedCardLibrarySelectionKind.QuestReward
+                ? UnityTavernUiStyle.Blue
+                : UnityTavernUiStyle.Gold;
+        }
+
+        private string AdvancedCardLibraryTitle()
+        {
+            switch (advancedCardLibraryKind)
+            {
+                case AdvancedCardLibrarySelectionKind.QuestReward:
+                    return "Replace Quest Reward";
+                case AdvancedCardLibrarySelectionKind.GreaterTrinket:
+                    return "Replace Greater Trinket";
+                default:
+                    return "Replace Lesser Trinket";
+            }
+        }
+
         private void BuildToolsCardLibrarySection(Transform parent)
         {
             var choices = FilteredToolsAcquisitionChoices().ToList();
@@ -2425,6 +2786,61 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             return service.HeroCatalog.AllHeroPowers.FirstOrDefault(item =>
                 string.Equals(item.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private List<HeroPowerDefinition> CurrentHeroPowers()
+        {
+            var powers = new List<HeroPowerDefinition>();
+            AddCurrentHeroPower(powers, service?.State?.Player?.HeroPowerCardId);
+            var extras = service?.State?.Player?.ExtraHeroPowerCardIds;
+            if (extras != null)
+            {
+                foreach (var cardId in extras)
+                {
+                    AddCurrentHeroPower(powers, cardId);
+                }
+            }
+
+            if (powers.Count == 0)
+            {
+                powers.Add(null);
+            }
+
+            return powers;
+        }
+
+        private void AddCurrentHeroPower(List<HeroPowerDefinition> powers, string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId) || service?.HeroCatalog == null ||
+                powers.Any(power => power != null && string.Equals(power.CardId, cardId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            var powerDefinition = service.HeroCatalog.AllHeroPowers.FirstOrDefault(item =>
+                string.Equals(item.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+            if (powerDefinition != null)
+            {
+                powers.Add(powerDefinition);
+            }
+        }
+
+        private bool IsHeroPowerUnlocked(HeroPowerDefinition heroPower)
+        {
+            if (heroPower == null || service?.State?.Player == null)
+            {
+                return false;
+            }
+
+            if (string.Equals(service.State.Player.HeroPowerCardId, heroPower.CardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var unlocks = service.State.Player.ExtraHeroPowerUnlockRounds;
+            return unlocks == null ||
+                !unlocks.TryGetValue(heroPower.CardId, out var unlockRound) ||
+                service.State.Round >= Math.Max(1, unlockRound);
         }
 
         private string CurrentHeroName()
@@ -3208,10 +3624,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildQuestTrackerOverlay()
         {
             var questState = service.State.Player.Tavern.AdvancedMechanics?.Quests;
-            var active = new[] { questState?.MainQuest, questState?.BonusQuest }
-                .Where(quest => quest != null)
-                .ToList();
-            if (active.Count == 0)
+            var activeCount = 0;
+            if (questState?.MainQuest != null)
+            {
+                activeCount += 1;
+            }
+
+            if (questState?.BonusQuest != null)
+            {
+                activeCount += 1;
+            }
+
+            if (activeCount == 0)
             {
                 return;
             }
@@ -3223,7 +3647,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0f, 1f);
             rect.anchoredPosition = new Vector2(18f, -86f);
-            rect.sizeDelta = new Vector2(330f, 46f + active.Count * 58f);
+            rect.sizeDelta = new Vector2(360f, QuestTrackerHeight(activeCount));
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 9, 10);
@@ -3238,17 +3662,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
 
-            for (var index = 0; index < active.Count; index += 1)
+            if (questState?.MainQuest != null)
             {
-                BuildQuestTrackerRow(panel.transform, active[index], index == 0 ? "Main" : "Bonus");
+                BuildQuestTrackerRow(panel.transform, questState.MainQuest, "Main", 0);
+            }
+
+            if (questState?.BonusQuest != null)
+            {
+                BuildQuestTrackerRow(panel.transform, questState.BonusQuest, "Bonus", 1);
             }
         }
 
-        private static void BuildQuestTrackerRow(Transform parent, ActiveQuestState quest, string slot)
+        private void BuildQuestTrackerRow(Transform parent, ActiveQuestState quest, string slot, int questIndex)
         {
             var row = Panel("UnityQuestTrackerRow-" + slot, parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureInspectorSurface(row, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold, 0.18f);
-            UnityTavernUiStyle.SetPreferredHeight(row, 52f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 76f);
             var layout = row.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 5, 6);
             layout.spacing = 4;
@@ -3267,14 +3696,255 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             reward.verticalOverflow = VerticalWrapMode.Truncate;
             UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, 15f);
 
-            var barBack = Panel("UnityQuestProgressBack", row.transform, new Color(0f, 0f, 0f, 0.28f));
-            UnityTavernUiStyle.SetPreferredHeight(barBack, 5f);
+            var actions = Panel("UnityQuestTrackerActions-" + slot, row.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(actions, 28f);
+            var actionLayout = actions.AddComponent<HorizontalLayoutGroup>();
+            actionLayout.spacing = 6;
+            actionLayout.childAlignment = TextAnchor.MiddleCenter;
+            actionLayout.childControlWidth = true;
+            actionLayout.childControlHeight = true;
+            actionLayout.childForceExpandWidth = false;
+            actionLayout.childForceExpandHeight = true;
+
+            var barBack = Panel("UnityQuestProgressBack", actions.transform, new Color(0f, 0f, 0f, 0.28f));
+            UnityTavernUiStyle.SetFlexible(barBack, 1f, 0f);
             var fill = Panel("UnityQuestProgressFill", barBack.transform, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold);
             var fillRect = fill.GetComponent<RectTransform>();
             fillRect.anchorMin = Vector2.zero;
             fillRect.anchorMax = new Vector2(Mathf.Clamp01(quest.RequiredAmount <= 0 ? 1f : (float)quest.Progress / quest.RequiredAmount), 1f);
             fillRect.offsetMin = Vector2.zero;
             fillRect.offsetMax = Vector2.zero;
+
+            ActionButton(
+                "UnityQuestCompleteButton-" + slot,
+                actions.transform,
+                "Complete",
+                () => Apply(new GameCommand(GameCommandType.DebugCompleteQuest, questIndex)),
+                76f,
+                26f,
+                false,
+                UnityTavernActionButtonRole.Primary,
+                !quest.Completed);
+            ActionButton(
+                "UnityQuestReplaceRewardButton-" + slot,
+                actions.transform,
+                "Reward",
+                () => OpenQuestRewardLibrary(questIndex),
+                72f,
+                26f,
+                false,
+                UnityTavernActionButtonRole.Utility);
+        }
+
+        private void BuildTrinketTrackerOverlay()
+        {
+            var state = service.State.Player.Tavern.AdvancedMechanics?.Trinkets;
+            var lesser = ResolveTrinketDefinition(state?.LesserTrinketId);
+            var greater = ResolveTrinketDefinition(state?.GreaterTrinketId);
+            var hasCandidates = service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser).Count > 0 ||
+                service.GetDebugSelectableTrinkets(TrinketSlotKind.Greater).Count > 0;
+            if (lesser == null && greater == null && !hasCandidates)
+            {
+                return;
+            }
+
+            var questCount = ActiveQuestCount();
+            var panel = Panel("UnityTrinketTrackerPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            ConfigureInspectorSurface(panel, UnityTavernUiStyle.Gold, 0.24f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(18f, -86f - (questCount > 0 ? QuestTrackerHeight(questCount) + 8f : 0f));
+            rect.sizeDelta = new Vector2(360f, 132f);
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 9, 10);
+            layout.spacing = 7;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityTrinketTrackerTitle", panel.transform, "Trinkets", 14, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+
+            BuildTrinketTrackerRow(panel.transform, "Lesser", TrinketSlotKind.Lesser, lesser);
+            BuildTrinketTrackerRow(panel.transform, "Greater", TrinketSlotKind.Greater, greater);
+        }
+
+        private void BuildTrinketTrackerRow(Transform parent, string slotName, TrinketSlotKind slotKind, TrinketDefinition definition)
+        {
+            var row = Panel("UnityTrinketTrackerRow-" + slotName, parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, slotKind == TrinketSlotKind.Greater ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue, 0.16f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 42f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 5, 5);
+            layout.spacing = 7;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var slot = UiFactory.Label("UnityTrinketSlotLabel-" + slotName, row.transform, slotName, 11, FontStyle.Bold);
+            slot.color = UnityTavernUiStyle.Gold;
+            slot.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetFixedSize(slot.gameObject, 54f, 30f);
+
+            var name = UiFactory.Label("UnityTrinketName-" + slotName, row.transform, definition == null ? "None equipped" : definition.Name, 11, FontStyle.Bold);
+            name.color = UnityTavernUiStyle.Text;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFlexible(name.gameObject, 1f, 0f);
+
+            var meta = UiFactory.Label("UnityTrinketMeta-" + slotName, row.transform, definition == null ? string.Empty : definition.Cost + "g / " + definition.OfferPoolStatus, 10, FontStyle.Normal);
+            meta.color = UnityTavernUiStyle.MutedText;
+            meta.alignment = TextAnchor.MiddleRight;
+            meta.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFixedSize(meta.gameObject, 86f, 30f);
+
+            ActionButton(
+                "UnityTrinketReplaceButton-" + slotName,
+                row.transform,
+                "Replace",
+                () => OpenTrinketLibrary(slotKind),
+                70f,
+                30f,
+                false,
+                UnityTavernActionButtonRole.Utility);
+        }
+
+        private int ActiveQuestCount()
+        {
+            var quests = service.State.Player.Tavern.AdvancedMechanics?.Quests;
+            var count = 0;
+            if (quests?.MainQuest != null)
+            {
+                count += 1;
+            }
+
+            if (quests?.BonusQuest != null)
+            {
+                count += 1;
+            }
+
+            return count;
+        }
+
+        private static float QuestTrackerHeight(int activeCount)
+        {
+            return 46f + activeCount * 82f;
+        }
+
+        private ActiveQuestState ActiveQuestByIndex(int questIndex)
+        {
+            var quests = service.State.Player.Tavern.AdvancedMechanics?.Quests;
+            return questIndex == 1 ? quests?.BonusQuest : quests?.MainQuest;
+        }
+
+        private TrinketDefinition ResolveTrinketDefinition(string idOrCardId)
+        {
+            if (string.IsNullOrWhiteSpace(idOrCardId) || service.TrinketCatalog == null)
+            {
+                return null;
+            }
+
+            if (service.TrinketCatalog.TryGetByCardId(idOrCardId, out var byCardId))
+            {
+                return byCardId;
+            }
+
+            return service.TrinketCatalog.TryGetById(idOrCardId, out var byId) ? byId : null;
+        }
+
+        private void BuildAdvancedChoiceStatusPanel()
+        {
+            var statuses = service.GetAdvancedChoiceStatuses().ToList();
+            if (statuses.Count == 0)
+            {
+                return;
+            }
+
+            var visible = statuses
+                .OrderByDescending(status => status.IsCurrent)
+                .ThenBy(status => status.DueRound <= 0 ? int.MaxValue : status.DueRound)
+                .Take(4)
+                .ToList();
+
+            var panel = Panel("UnityAdvancedChoiceStatusPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            ConfigureInspectorSurface(panel, UnityTavernUiStyle.Green, 0.22f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(0f, -86f);
+            rect.sizeDelta = new Vector2(430f, 42f + visible.Count * 42f);
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 9, 10);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityAdvancedChoiceStatusTitle", panel.transform, "Advanced choices", 14, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+
+            foreach (var status in visible)
+            {
+                BuildAdvancedChoiceStatusRow(panel.transform, status);
+            }
+        }
+
+        private void BuildAdvancedChoiceStatusRow(Transform parent, AdvancedChoiceStatus status)
+        {
+            var safeId = SafeObjectName(status.Id);
+            var row = Panel("UnityAdvancedChoiceStatusRow-" + safeId, parent, status.IsCurrent ? UnityTavernUiStyle.PanelRaised : UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, status.IsCurrent ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Green, 0.16f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 36f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 4, 4);
+            layout.spacing = 7;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var markerText = status.IsCurrent ? "Now" : "R" + status.DueRound;
+            var marker = UiFactory.Label("UnityAdvancedChoiceStatusMarker-" + safeId, row.transform, markerText, 11, FontStyle.Bold);
+            marker.color = status.IsCurrent ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Green;
+            marker.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(marker.gameObject, 38f, 28f);
+
+            var title = UiFactory.Label("UnityAdvancedChoiceStatusName-" + safeId, row.transform, status.Title, 11, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            title.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFixedSize(title.gameObject, 130f, 28f);
+
+            var detail = UiFactory.Label("UnityAdvancedChoiceStatusDetail-" + safeId, row.transform, status.Detail, 10, FontStyle.Normal);
+            detail.color = status.IsBlocking ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
+            detail.alignment = TextAnchor.MiddleLeft;
+            detail.verticalOverflow = VerticalWrapMode.Truncate;
+            detail.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(detail.gameObject, 1f, 0f);
+
+            if (status.IsCurrent)
+            {
+                ActionButton(
+                    "UnityAdvancedChoiceStatusOpenButton-" + safeId,
+                    row.transform,
+                    "Open",
+                    Rebuild,
+                    58f,
+                    28f,
+                    false,
+                    UnityTavernActionButtonRole.Primary);
+            }
         }
 
         private void BuildAdvancedMechanicChoiceModal()
@@ -3478,7 +4148,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BeginHeroPowerTargeting()
         {
-            var card = CurrentHeroPowerDragCard();
+            BeginHeroPowerTargeting(null);
+        }
+
+        private void BeginHeroPowerTargeting(HeroPowerDefinition heroPower)
+        {
+            var card = CurrentHeroPowerDragCard(heroPower);
             if (card == null)
             {
                 return;
@@ -3697,6 +4372,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private void BuyTimewarpedOffer(MinionInstance card)
+        {
+            if (card == null)
+            {
+                return;
+            }
+
+            var offers = service.State.Player.Tavern.Timewarp?.Offers;
+            if (offers == null)
+            {
+                return;
+            }
+
+            var index = offers.FindIndex(offer => offer != null && !offer.Purchased && offer.CardId == card.CardId);
+            if (index >= 0)
+            {
+                Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, index));
+            }
+        }
+
         private void PlayCard(MinionInstance card)
         {
             var index = service.State.Player.Tavern.Hand.FindIndex(item => item.InstanceId == card.InstanceId);
@@ -3791,6 +4486,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 case GameCommandType.BuyMinion:
                     return "已购买一张牌";
+                case GameCommandType.BuyTimewarpedTavernCard:
+                    return "已购买时空酒馆卡牌";
+                case GameCommandType.ExitTimewarpedTavern:
+                    return "已退出时空酒馆";
                 case GameCommandType.SellMinion:
                     return "已出售随从";
                 case GameCommandType.RerollShop:
@@ -3814,6 +4513,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "已选择发现奖励";
                 case GameCommandType.ChooseMechanicOption:
                     return "Advanced mechanic selected";
+                case GameCommandType.DebugCompleteQuest:
+                    return "Quest completed";
+                case GameCommandType.DebugReplaceQuestReward:
+                    return "Quest reward replaced";
+                case GameCommandType.DebugReplaceTrinket:
+                    return "Trinket replaced";
                 case GameCommandType.NextTurn:
                     return "进入下一回合";
                 case GameCommandType.DebugAddGold:
@@ -3856,6 +4561,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private IEnumerable<MinionInstance> AllCards()
         {
+            if (service.State.Player.Tavern.Timewarp?.VisitOpen == true)
+            {
+                foreach (var card in service.GetTimewarpedOfferCards())
+                {
+                    if (card != null)
+                    {
+                        yield return card;
+                    }
+                }
+            }
+
             foreach (var card in service.State.Player.Tavern.Shop)
             {
                 if (card != null)
@@ -3933,7 +4649,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return new MinionInstance
             {
                 CardKind = CardKind.HeroPower,
-                InstanceId = HeroPowerDragInstanceId,
+                InstanceId = HeroPowerDragInstanceId + "-" + power.CardId,
                 DefinitionId = power.CardId,
                 CardId = power.CardId,
                 Name = power.Name,

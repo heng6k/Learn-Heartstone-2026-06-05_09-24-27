@@ -57,7 +57,9 @@ namespace LearnHearthstone.Domain.Engine
             golden.Health = StatMath.SaturatingMultiply(baseItem.Health, 2, int.MinValue, StatMath.MaxStat);
             golden.MaxHealth = StatMath.SaturatingMultiply(baseItem.MaxHealth, 2, 1, StatMath.MaxStat);
             StatMath.ClampCurrentHealthToMax(golden);
-            golden.PoolSource = poolCopiesHeld > 0 ? PoolSource.Pool : PoolSource.Copy;
+            golden.PoolSource = materials.Any(item => item.PoolSource == PoolSource.Buddy) && poolCopiesHeld > 0
+                ? PoolSource.Buddy
+                : poolCopiesHeld > 0 ? PoolSource.Pool : PoolSource.Copy;
             golden.PoolCopiesHeld = poolCopiesHeld;
 
             return new TripleResult { Remaining = remaining, Golden = golden };

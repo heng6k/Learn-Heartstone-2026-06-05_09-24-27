@@ -3,10 +3,10 @@
   "mainBundleSource": "https://www.firestoneapp.com/main.d11d28f54fb2e2d6.js",
   "cardsSource": "https://static.zerotoheroes.com/data/cards/cards_enUS.gz.json",
   "generatedAt": "2026-06-15T07:08:23.053Z",
-  "count": 114,
-  "heroPowerCount": 69,
+  "count": 117,
+  "heroPowerCount": 72,
   "buddyCount": 108,
-  "missingBuddyCount": 6,
+  "missingBuddyCount": 9,
   "missingHeroPowerCount": 45,
   "heroes": [
     {
@@ -5153,6 +5153,102 @@
         "averagePosition": 4.14
       },
       "missingBuddyMapping": false,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "",
+      "heroDbfId": 131646,
+      "name": "Greater Crystal Ball",
+      "health": 0,
+      "armor": 0,
+      "imagePath": "HeroBuddyImages/heroes/BG35_Anomaly_008t_PROXY",
+      "heroPower": {
+        "cardId": "BG35_Anomaly_008t",
+        "dbfId": 131647,
+        "name": "Greater Crystal Ball",
+        "cost": 0,
+        "text": "[x]When you buy a Greater\n<b>Trinket</b>, this transforms\ninto a copy of it.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG35_Anomaly_008t",
+        "primaryCategory": "Trinket",
+        "tags": [
+          "trinket",
+          "passive",
+          "anomaly"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 0,
+        "totalPicked": 0,
+        "totalOffered": 0,
+        "averagePosition": 0
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "",
+      "heroDbfId": 132432,
+      "name": "Mystery Cube",
+      "health": 0,
+      "armor": 0,
+      "imagePath": "HeroBuddyImages/heroes/BG35_Anomaly_002t_PROXY",
+      "heroPower": {
+        "cardId": "BG35_Anomaly_002t",
+        "dbfId": 132432,
+        "name": "Mystery Cube",
+        "cost": 0,
+        "text": "Each turn, choose from 2 new Lesser <b><b>Trinket</b>s</b> to replace this for free. <i>(Unlocks on Turn 5.)</i>",
+        "imagePath": "HeroBuddyImages/heroPowers/BG35_Anomaly_002t",
+        "primaryCategory": "Trinket",
+        "tags": [
+          "trinket",
+          "passive",
+          "anomaly"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 0,
+        "totalPicked": 0,
+        "totalOffered": 0,
+        "averagePosition": 0
+      },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "",
+      "heroDbfId": 131644,
+      "name": "Lesser Crystal Ball",
+      "health": 0,
+      "armor": 0,
+      "imagePath": "HeroBuddyImages/heroes/BG35_Anomaly_007t_PROXY",
+      "heroPower": {
+        "cardId": "BG35_Anomaly_007t",
+        "dbfId": 131645,
+        "name": "Lesser Crystal Ball",
+        "cost": 0,
+        "text": "[x]When you buy a Lesser\n<b>Trinket</b>, this transforms\ninto a copy of it.",
+        "imagePath": "HeroBuddyImages/heroPowers/BG35_Anomaly_007t",
+        "primaryCategory": "Trinket",
+        "tags": [
+          "trinket",
+          "passive",
+          "anomaly"
+        ],
+        "replacementEligibility": "Disabled"
+      },
+      "buddy": null,
+      "stats": {
+        "dataPoints": 0,
+        "totalPicked": 0,
+        "totalOffered": 0,
+        "averagePosition": 0
+      },
+      "missingBuddyMapping": true,
       "missingHeroPowerMapping": false
     }
   ]

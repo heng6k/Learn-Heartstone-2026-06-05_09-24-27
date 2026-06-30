@@ -2,11 +2,19 @@
 
 ## 使用方式
 
-这个索引用来快速判断“现在该看哪篇文档”。项目文档已经分成几类：发行上线、英雄和宝宝实现、缺陷追踪、UI 改造、数据/API、Unity 架构和项目历史。
+这个索引用来快速判断“现在该看哪篇文档”。项目文档已经分成几类：Skill/工作流、发行上线、英雄和宝宝实现、缺陷追踪、UI 改造、数据/API、Unity 架构和项目历史。
 
 新接手时建议先按路线读，不要直接从最长的缺陷文档开始读。
 
 ## 推荐阅读路线
+
+### 准备修改项目或向代理提问
+
+每次要修改项目、修 bug、做实现方案或提出项目相关问题时，先看这些文档来选择合适的 skill 和工作方式：
+
+1. [../AGENTS.md](../AGENTS.md)
+2. [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md)
+3. [PonytailSkillRouting.md](PonytailSkillRouting.md)
 
 ### 想了解当前产品怎么上线
 
@@ -18,20 +26,19 @@
 ### 想继续补英雄、宝宝和英雄技能
 
 1. [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)
-2. [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md)
-3. [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md)
-4. [HeroPowerBuddyEffectsImplementationPlan.md](HeroPowerBuddyEffectsImplementationPlan.md)
+2. [HeroEffectRemainingCompletionOrder.md](HeroEffectRemainingCompletionOrder.md)
+3. [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md)
+4. [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md)
+5. [HeroPowerBuddyEffectsImplementationPlan.md](HeroPowerBuddyEffectsImplementationPlan.md)
 
 ### 想开始做饰品、任务、畸变和扭曲时空
 
 1. [SharedAdvancedMechanicsFoundationImplementationPlan.md](SharedAdvancedMechanicsFoundationImplementationPlan.md)
-2. [TrinketSystemImplementationPlan.md](TrinketSystemImplementationPlan.md)
-3. [TrinketImplementationWorkflow.md](TrinketImplementationWorkflow.md)
-4. [TrinketEffectFullImplementationPlan.md](TrinketEffectFullImplementationPlan.md)
-5. [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md)
-6. [QuestRewardFullImplementationPlan.md](QuestRewardFullImplementationPlan.md)
-7. [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md)
-8. [TimewarpSystemImplementationPlan.md](TimewarpSystemImplementationPlan.md)
+2. [IncompleteAndAmbiguousAdvancedMechanics.md](IncompleteAndAmbiguousAdvancedMechanics.md)
+3. [TrinketSystemImplementationPlan.md](TrinketSystemImplementationPlan.md)
+4. [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md)
+5. [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md)
+6. [TimewarpSystemImplementationPlan.md](TimewarpSystemImplementationPlan.md)
 
 ### 想改 UI 或做更好用的编辑器
 
@@ -53,20 +60,22 @@
 | 分类 | 文档 | 主要用途 | 当前定位 |
 | --- | --- | --- | --- |
 | 索引 | [DocumentationIndex.md](DocumentationIndex.md) | 当前文档导航 | 入口文档 |
+| Skill/工作流 | [../AGENTS.md](../AGENTS.md) | 项目级代理路由规则，说明不同任务应该先用哪些 skill | 每次项目修改和提问前的入口规则 |
+| Skill/工作流 | [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md) | 本机 57 个本地 skills 的分类、适用场景和冲突处理 | 全量 skill 路由索引 |
+| Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |
 | 发行上线 | [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md) | Alpha 到 1.0 的版本节奏、渠道、发包检查和运营动作 | 当前上线主路线 |
 | 发行上线 | [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md) | 官网、服务器、API、分享码、微信小程序和后端路线 | 线上架构主路线 |
 | 英雄/宝宝 | [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md) | 当前英雄、宝宝、公共系统缺陷和解决方向 | 最重要的缺陷追踪表 |
+| 英雄/宝宝 | [HeroEffectRemainingCompletionOrder.md](HeroEffectRemainingCompletionOrder.md) | 当前剩余英雄、宝宝和公共机制的补齐顺序 | 当前剩余补齐路线 |
 | 英雄/宝宝 | [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md) | 将英雄和宝宝信息实现进项目的具体流程 | 开发流程说明 |
-| 英雄/宝宝 | [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md) | 英雄技能和宝宝实现顺序、分批计划、阶段状态 | 继续补功能时先看 |
+| 英雄/宝宝 | [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md) | 英雄技能和宝宝实现顺序、分批计划、阶段状态 | 历史批次和阶段参考 |
 | 英雄/宝宝 | [HeroPowerBuddyEffectsImplementationPlan.md](HeroPowerBuddyEffectsImplementationPlan.md) | 英雄技能/宝宝效果架构、派发点、测试策略 | 架构设计 |
 | 英雄/宝宝 | [HeroBuddyHeroPowerDevelopmentPlan.md](HeroBuddyHeroPowerDevelopmentPlan.md) | 英雄、宝宝、英雄技能接入的早期开发文档 | 历史设计与数据目标 |
 | 英雄/宝宝 | [HeroPowerNonReplaceableList.md](HeroPowerNonReplaceableList.md) | 当前不可替换、禁用或开局限定的英雄技能清单 | 机制边界参考 |
 | 后续机制 | [SharedAdvancedMechanicsFoundationImplementationPlan.md](SharedAdvancedMechanicsFoundationImplementationPlan.md) | 饰品、任务、畸变和扭曲时空共用的选择、奖励、状态、注册和测试底座 | 下一批机制前置文档 |
+| 后续机制 | [IncompleteAndAmbiguousAdvancedMechanics.md](IncompleteAndAmbiguousAdvancedMechanics.md) | 饰品、任务、任务奖励的不完整清单、补齐方案、原因可视化和所需决策 | 当前缺陷与补齐主文档 |
 | 后续机制 | [TrinketSystemImplementationPlan.md](TrinketSystemImplementationPlan.md) | 小饰品/大饰品槽位、候选、购买、效果触发和 Marin/Buttons 接入 | 饰品系统实现方案 |
-| 后续机制 | [TrinketImplementationWorkflow.md](TrinketImplementationWorkflow.md) | 单个饰品从资料核对、运行时实现、JSON 状态、专项测试到 Unity MCP 验证的完整操作步骤 | 添加新饰品时的执行清单 |
-| 后续机制 | [TrinketEffectFullImplementationPlan.md](TrinketEffectFullImplementationPlan.md) | 330 个小饰品/大饰品的全量效果状态、选择池策略、效果家族、实现批次和验收标准 | 饰品效果全量实现文档 |
 | 后续机制 | [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md) | Quest/Reward 数据、任务进度、奖励激活和 Denathrius/Shady Aristocrat 接入 | 任务系统实现方案 |
-| 后续机制 | [QuestRewardFullImplementationPlan.md](QuestRewardFullImplementationPlan.md) | 21 个任务要求、71 个主任务奖励、当前实现状态、剩余奖励实现顺序和资料待确认点 | 任务奖励全量核对表 |
 | 后续机制 | [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md) | 单局畸变选择、全局规则修正、UI 展示和低风险 MVP 畸变池 | 畸变系统实现方案 |
 | 后续机制 | [TimewarpSystemImplementationPlan.md](TimewarpSystemImplementationPlan.md) | 回合级历史快照、时空奖励、Morchie/Murozond 接入和安全边界 | 扭曲时空实现方案 |
 | 数据/API | [OFFICIAL_APIS.md](OFFICIAL_APIS.md) | 暴雪官方 API、认证、Metadata、Cards 查询说明 | 数据接入参考 |
@@ -91,6 +100,7 @@
 ### 中高优先级
 
 - [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)：当前 UI 不方便，后续重做需要靠它定方向。
+- [HeroEffectRemainingCompletionOrder.md](HeroEffectRemainingCompletionOrder.md)：从当前剩余 Planned/FrameworkFirst/Deferred 项继续补齐时先看。
 - [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md)：继续按批次补英雄和宝宝时使用。
 - [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md)：避免新增英雄/宝宝时漏掉数据、注册、运行时和测试步骤。
 - [SharedAdvancedMechanicsFoundationImplementationPlan.md](SharedAdvancedMechanicsFoundationImplementationPlan.md)：开始饰品、任务、畸变和扭曲时空前必须先看。

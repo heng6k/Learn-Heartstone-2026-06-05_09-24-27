@@ -113,6 +113,26 @@ namespace LearnHearthstone.Domain.Engine
             return tribes.Count == 0 || tribes.Any(tribe => IsTribeActive(activeTribes, tribe));
         }
 
+        public static bool IsTrinketAvailable(TrinketDefinition trinket, IReadOnlyCollection<Tribe> activeTribes)
+        {
+            if (trinket == null)
+            {
+                return false;
+            }
+
+            if (trinket.AssociatedRaces == null || trinket.AssociatedRaces.Count == 0)
+            {
+                return true;
+            }
+
+            var tribes = trinket.AssociatedRaces
+                .Select(MapFaction)
+                .Where(tribe => tribe.HasValue)
+                .Select(tribe => tribe.Value)
+                .ToList();
+            return tribes.Count == 0 || tribes.Any(tribe => IsTribeActive(activeTribes, tribe));
+        }
+
         public static IReadOnlyList<Tribe> SpellTribes(TavernSpellDefinition spell)
         {
             if (spell == null)

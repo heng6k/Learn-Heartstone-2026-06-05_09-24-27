@@ -36,6 +36,44 @@ namespace LearnHearthstone.Domain.Models
         Premium = 4
     }
 
+    public enum TrinketTriggerTemplate
+    {
+        Auto,
+        Unknown,
+        OnEquip,
+        Passive,
+        TurnStart,
+        TurnEnd,
+        ShopRefresh,
+        CardBought,
+        CardSold,
+        MinionPlayed,
+        SpellCast,
+        SpellcraftCast,
+        StartOfCombat,
+        Avenge,
+        Combat
+    }
+
+    public enum TrinketEffectTemplate
+    {
+        Auto,
+        Unknown,
+        Economy,
+        BuffStats,
+        GrantKeyword,
+        GenerateCard,
+        Discover,
+        Summon,
+        ShopModifier,
+        CombatModifier,
+        Deathrattle,
+        TribeSynergy,
+        SpellSynergy,
+        PoolModifier,
+        Utility
+    }
+
     public sealed class TrinketDefinition
     {
         public string Id;
@@ -57,6 +95,8 @@ namespace LearnHearthstone.Domain.Models
         public TrinketOfferPoolStatus OfferPoolStatus = TrinketOfferPoolStatus.DebugOnly;
         public TrinketPowerLevel PowerLevel = TrinketPowerLevel.Pending;
         public string EffectFamily;
+        public TrinketTriggerTemplate TriggerTemplate = TrinketTriggerTemplate.Auto;
+        public TrinketEffectTemplate EffectTemplate = TrinketEffectTemplate.Auto;
         public List<string> Requires = new List<string>();
         public string ProxyLevel;
         public string Notes;
@@ -78,6 +118,9 @@ namespace LearnHearthstone.Domain.Models
     {
         public string LesserTrinketId;
         public string GreaterTrinketId;
+        public string LesserCrystalBallCopiedTrinketId;
+        public string GreaterCrystalBallCopiedTrinketId;
+        public string MysteryCubeHeroPowerTrinketId;
         public List<EquippedTrinketState> Equipped = new List<EquippedTrinketState>();
         public int ExtraMaxGold;
         public int DalaranCheeseWheelRefreshes;

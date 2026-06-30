@@ -42,7 +42,7 @@ namespace LearnHearthstone.Adapters.Data
         {
             var implementationStatus = ParseEnum(raw.implementationStatus, TrinketImplementationStatus.FrameworkFirst);
             var offerPoolStatus = ParseOfferPoolStatus(raw.offerPoolStatus, implementationStatus);
-            return new TrinketDefinition
+            var definition = new TrinketDefinition
             {
                 Id = raw.id,
                 CardId = string.IsNullOrEmpty(raw.cardId) ? raw.id : raw.cardId,
@@ -63,10 +63,16 @@ namespace LearnHearthstone.Adapters.Data
                 OfferPoolStatus = offerPoolStatus,
                 PowerLevel = ParsePowerLevel(raw.powerLevel, offerPoolStatus, implementationStatus),
                 EffectFamily = string.IsNullOrWhiteSpace(raw.effectFamily) ? "pending" : raw.effectFamily,
+                TriggerTemplate = ParseEnum(raw.triggerTemplate, TrinketTriggerTemplate.Auto),
+                EffectTemplate = ParseEnum(raw.effectTemplate, TrinketEffectTemplate.Auto),
                 Requires = raw.requires ?? new List<string>(),
                 ProxyLevel = string.IsNullOrWhiteSpace(raw.proxyLevel) ? "Blocked" : raw.proxyLevel,
                 Notes = raw.notes
             };
+
+            definition.TriggerTemplate = TrinketBehaviorTemplate.ResolveTriggerTemplate(definition);
+            definition.EffectTemplate = TrinketBehaviorTemplate.ResolveEffectTemplate(definition);
+            return definition;
         }
 
         private static TEnum ParseEnum<TEnum>(string value, TEnum fallback) where TEnum : struct
@@ -138,6 +144,8 @@ namespace LearnHearthstone.Adapters.Data
             public string offerPoolStatus;
             public string powerLevel;
             public string effectFamily;
+            public string triggerTemplate;
+            public string effectTemplate;
             public List<string> requires;
             public string proxyLevel;
             public string notes;

@@ -159,7 +159,7 @@
 | 6.8 | Snake Eyes | Box Cars | Planned | 掷骰、回合奖励和选择 |
 | 6.9 | Galewing | Flight Trainer | Planned | 飞行路径选择和延迟奖励 |
 | 6.10 | Cariel Roame | Captain Fairmount | Planned | 多阶段技能升级选择 |
-| 6.11 | Infinite Toki | Clockwork Assistant | Planned | 更高等级随从发现/刷新 |
+| 6.11 | Infinite Toki | Clockwork Assistant | Implemented | Temporal Tavern 通过当前随从池刷新并包含两个高一等级随从；Clockwork Assistant 战吼发现高一等级随从，受当前最高酒馆等级截断 |
 | 6.12 | Mr. Bigglesworth | Lil' K.T. | Framework First | 已淘汰玩家战队快照发现和 Lil' K.T. 单人最低血量代理已实现；真实大厅淘汰/血量排序待补 |
 | 6.13 | Ambassador Faelin | Submersible Chef | Planned | 开局发现并按等级延迟获得 |
 | 6.14 | Guff Runetotem | Baby Kodo | Planned | 按等级发现/给随从 |

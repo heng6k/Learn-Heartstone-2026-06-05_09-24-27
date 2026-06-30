@@ -32,9 +32,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly MinionCatalog minionCatalog;
         private readonly SpellCatalog spellCatalog;
         private readonly HeroCatalog heroCatalog;
+        private readonly AnomalyCatalog anomalyCatalog;
         private readonly HashSet<Tribe> selected = new HashSet<Tribe>();
         private readonly HashSet<string> enabledMinionCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> enabledTavernSpellCardNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private Transform cardPoolListContent;
         private CardPoolVersionStore store;
         private string selectedVersionId;
         private CardPoolTab activeTab = CardPoolTab.Minions;
@@ -45,10 +47,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool keepVersionListAtBottom;
         private bool versionModalOpen;
         private bool heroSelectionOpen;
+        private bool anomalySelectionOpen;
         private bool hasUnsavedCardPoolChanges;
         private bool versionSwitchConfirmOpen;
         private string pendingVersionSwitchId;
         private string selectedHeroCardId;
+        private bool enableQuests = true;
+        private bool enableTrinkets = true;
+        private bool enableQuestRewards = true;
+        private bool enableAnomalies;
+        private bool randomizeAnomaly = true;
+        private string selectedAnomalyCardId;
+        private bool showProxySafe = true;
+        private bool showDebugOnly;
+        private bool showHiddenEffectOnly;
+        private bool showDisabled;
         private GameObject shell;
 
         public UnityTavernTribeSelectionView(
@@ -76,7 +89,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ICardPoolVersionRepository repository = null,
             MinionCatalog minionCatalog = null,
             SpellCatalog spellCatalog = null,
-            HeroCatalog heroCatalog = null)
+            HeroCatalog heroCatalog = null,
+            AnomalyCatalog anomalyCatalog = null)
         {
             this.root = root;
             this.start = start;
@@ -86,6 +100,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             this.minionCatalog = minionCatalog ?? MinionCatalogLoader.LoadFromResources();
             this.spellCatalog = spellCatalog ?? SpellCatalogLoader.LoadFromResources();
             this.heroCatalog = heroCatalog ?? HeroCatalogLoader.LoadFromResources();
+            this.anomalyCatalog = anomalyCatalog ?? AnomalyCatalogLoader.LoadFromResources();
             selectedHeroCardId = ResolveDefaultHero()?.HeroCardId;
             store = CardPoolVersionFactory.NormalizeStore(this.repository.Load());
             SelectVersion(store.SelectedVersionId, false);
@@ -133,6 +148,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildHeroSummaryStrip(left.transform);
             BuildTribeGrid(left.transform);
             BuildVersionSummaryStrip(left.transform);
+            BuildAdvancedMechanicsStrip(left.transform);
             BuildQuickActions(left.transform);
             if (heroSelectionOpen)
             {
@@ -142,6 +158,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (versionModalOpen)
             {
                 BuildVersionEditorOverlay();
+            }
+
+            if (anomalySelectionOpen)
+            {
+                BuildAnomalySelectionOverlay();
             }
         }
 
@@ -237,6 +258,165 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             });
             ActionButton("UnityTribeSelectionAllButton", row.transform, "全部10个种族", true, () => StartTrainer(TribeAvailabilityRules.AllPlayableTribes()));
             ActionButton("UnityTribeSelectionEnterButton", row.transform, "进入酒馆", selected.Count == 5, () => StartTrainer(TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList()));
+        }
+
+        private void BuildAdvancedMechanicsStrip(Transform parent)
+        {
+            var strip = UiFactory.Panel("UnityAdvancedMechanicsSetupPanel", parent, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 170f : 118f);
+            UnityTavernUiStyle.ConfigureOutline(strip, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.28f), new Vector2(1f, -1f));
+            var stripLayout = strip.AddComponent<HorizontalLayoutGroup>();
+            stripLayout.padding = new RectOffset(10, 10, 8, 8);
+            stripLayout.spacing = 10;
+            stripLayout.childControlWidth = true;
+            stripLayout.childControlHeight = true;
+            stripLayout.childForceExpandWidth = false;
+            stripLayout.childForceExpandHeight = true;
+
+            var titleBlock = UiFactory.Panel("UnityAdvancedMechanicsSetupTitleBlock", strip.transform, Color.clear);
+            UnityTavernUiStyle.SetFixedSize(titleBlock, layout.IsCompact ? 96f : 130f, layout.IsCompact ? 148f : 96f);
+            var titleLayout = titleBlock.AddComponent<VerticalLayoutGroup>();
+            titleLayout.spacing = 2;
+            titleLayout.childControlWidth = true;
+            titleLayout.childControlHeight = true;
+            titleLayout.childForceExpandWidth = true;
+            titleLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityAdvancedMechanicsSetupTitle", titleBlock.transform, "高级机制", layout.IsCompact ? 15 : 17, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Gold;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 24f : 28f);
+
+            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupSummary", titleBlock.transform, AdvancedMechanicsSummaryText(), layout.IsCompact ? 10 : 11, FontStyle.Bold);
+            summary.color = UnityTavernUiStyle.MutedText;
+            summary.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(summary.gameObject, 1f, 0f);
+
+            var gridObject = UiFactory.Panel("UnityAdvancedMechanicsSetupGrid", strip.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(gridObject, 1f, 0f);
+            var grid = gridObject.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(0, 0, 0, 0);
+            grid.spacing = layout.IsCompact ? new Vector2(7f, 7f) : new Vector2(8f, 8f);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = layout.IsCompact ? 2 : 4;
+            grid.cellSize = layout.IsCompact ? new Vector2(150f, 28f) : new Vector2(138f, 30f);
+
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-EnableQuests", "任务", enableQuests, true, value =>
+            {
+                enableQuests = value;
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-EnableTrinkets", "饰品", enableTrinkets, true, value =>
+            {
+                enableTrinkets = value;
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-EnableQuestRewards", "任务奖励", enableQuestRewards, true, value =>
+            {
+                enableQuestRewards = value;
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-EnableAnomalies", "畸变", enableAnomalies, true, value =>
+            {
+                enableAnomalies = value;
+                if (enableAnomalies && string.IsNullOrEmpty(selectedAnomalyCardId))
+                {
+                    randomizeAnomaly = true;
+                }
+
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-ShowProxySafe", "代理实现", showProxySafe, true, value =>
+            {
+                showProxySafe = value;
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-ShowDebugOnly", "调试池", showDebugOnly, true, value =>
+            {
+                showDebugOnly = value;
+                if (!showDebugOnly)
+                {
+                    showDisabled = false;
+                }
+
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-ShowHiddenEffectOnly", "隐藏效果池", showHiddenEffectOnly, true, value =>
+            {
+                showHiddenEffectOnly = value;
+                Build();
+            });
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-ShowDisabled", "禁用池", showDisabled, showDebugOnly, value =>
+            {
+                showDisabled = showDebugOnly && value;
+                Build();
+            });
+
+            BuildAnomalySetupControls(strip.transform);
+        }
+
+        private void BuildAnomalySetupControls(Transform parent)
+        {
+            var panel = UiFactory.Panel("UnityAnomalySetupPanel", parent, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.SetFixedSize(panel, layout.IsCompact ? 180f : 226f, layout.IsCompact ? 148f : 96f);
+            UnityTavernUiStyle.ConfigureOutline(
+                panel,
+                enableAnomalies ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.42f) : new Color(0f, 0f, 0f, 0.18f),
+                new Vector2(1f, -1f));
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(7, 7, 6, 7);
+            panelLayout.spacing = 6;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var label = UiFactory.Label("UnityAnomalySetupChoiceLabel", panel.transform, AnomalyChoiceSummaryText(), layout.IsCompact ? 10 : 11, FontStyle.Bold);
+            label.alignment = TextAnchor.MiddleLeft;
+            label.color = enableAnomalies ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(label.gameObject, layout.IsCompact ? 44f : 24f);
+
+            var row = UiFactory.Panel("UnityAnomalySetupButtons", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 76f : 38f);
+            if (layout.IsCompact)
+            {
+                var vertical = row.AddComponent<VerticalLayoutGroup>();
+                vertical.spacing = 5;
+                vertical.childControlWidth = true;
+                vertical.childControlHeight = true;
+                vertical.childForceExpandWidth = true;
+                vertical.childForceExpandHeight = true;
+            }
+            else
+            {
+                ConfigureButtonRow(row, 0, 6);
+            }
+
+            var randomButton = ActionButton("UnityAnomalyRandomButton", row.transform, "随机", true, () =>
+            {
+                enableAnomalies = true;
+                randomizeAnomaly = true;
+                selectedAnomalyCardId = null;
+                Build();
+            });
+            if (enableAnomalies && randomizeAnomaly)
+            {
+                UnityTavernUiStyle.EnsureComponent<Image>(randomButton.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.28f);
+            }
+
+            var selectButton = ActionButton("UnityAnomalySelectButton", row.transform, "选择", true, () =>
+            {
+                enableAnomalies = true;
+                heroSelectionOpen = false;
+                versionModalOpen = false;
+                anomalySelectionOpen = true;
+                Build();
+            });
+            if (enableAnomalies && !randomizeAnomaly && !string.IsNullOrEmpty(selectedAnomalyCardId))
+            {
+                UnityTavernUiStyle.EnsureComponent<Image>(selectButton.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.28f);
+            }
         }
 
         private void BuildVersionSummaryStrip(Transform parent)
@@ -347,6 +527,149 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     Build();
                 },
                 "选择英雄");
+        }
+
+        private void BuildAnomalySelectionOverlay()
+        {
+            var overlay = UiFactory.Panel("UnityAnomalySelectionOverlay", shell.transform, new Color(0f, 0f, 0f, 0.62f));
+            overlay.transform.SetAsLastSibling();
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
+
+            var panel = UiFactory.Panel("UnityAnomalySelectionPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.50f), new Vector2(2f, -2f));
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = layout.IsCompact ? new Vector2(0.06f, 0.06f) : new Vector2(0.16f, 0.10f);
+            rect.anchorMax = layout.IsCompact ? new Vector2(0.94f, 0.94f) : new Vector2(0.84f, 0.90f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(14, 14, 12, 14);
+            panelLayout.spacing = 10;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var anomalies = SelectableAnomalies().ToList();
+            var header = UiFactory.Panel("UnityAnomalySelectionHeader", panel.transform, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 58f : 64f);
+            var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
+            headerLayout.padding = new RectOffset(10, 10, 8, 8);
+            headerLayout.spacing = 8;
+            headerLayout.childControlWidth = true;
+            headerLayout.childControlHeight = true;
+            headerLayout.childForceExpandWidth = false;
+            headerLayout.childForceExpandHeight = true;
+
+            var title = UiFactory.Label("UnityAnomalySelectionTitle", header.transform, "选择畸变", layout.IsCompact ? 18 : 22, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleLeft;
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            var count = UiFactory.Label("UnityAnomalySelectionCount", header.transform, anomalies.Count + " 个可用", 12, FontStyle.Bold);
+            count.alignment = TextAnchor.MiddleRight;
+            count.color = UnityTavernUiStyle.MutedText;
+            UnityTavernUiStyle.SetFixedSize(count.gameObject, layout.IsCompact ? 86f : 112f, 32f);
+
+            var close = ActionButton("UnityAnomalySelectionCloseButton", header.transform, "关闭", true, () =>
+            {
+                anomalySelectionOpen = false;
+                Build();
+            });
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, 36f);
+
+            var content = UiFactory.ScrollView("UnityAnomalySelectionScroll", panel.transform, UnityTavernUiStyle.PanelQuiet, out _);
+            var listLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            listLayout.padding = new RectOffset(8, 12, 8, 8);
+            listLayout.spacing = 6;
+            listLayout.childControlWidth = true;
+            listLayout.childControlHeight = true;
+            listLayout.childForceExpandWidth = true;
+            listLayout.childForceExpandHeight = false;
+
+            BuildAnomalyOptionButton(
+                content,
+                "UnityAnomalySelectionRandomButton",
+                "随机畸变",
+                "从当前默认可用畸变池中随机选择。",
+                enableAnomalies && randomizeAnomaly,
+                () =>
+                {
+                    enableAnomalies = true;
+                    randomizeAnomaly = true;
+                    selectedAnomalyCardId = null;
+                    anomalySelectionOpen = false;
+                    Build();
+                });
+
+            foreach (var anomaly in anomalies)
+            {
+                var captured = anomaly;
+                BuildAnomalyOptionButton(
+                    content,
+                    "UnityAnomalySelectionButton-" + anomaly.CardId,
+                    string.IsNullOrEmpty(anomaly.Name) ? anomaly.CardId : anomaly.Name,
+                    AnomalyDetailText(anomaly),
+                    enableAnomalies &&
+                        !randomizeAnomaly &&
+                        string.Equals(selectedAnomalyCardId, anomaly.CardId, StringComparison.OrdinalIgnoreCase),
+                    () =>
+                    {
+                        enableAnomalies = true;
+                        randomizeAnomaly = false;
+                        selectedAnomalyCardId = captured.CardId;
+                        anomalySelectionOpen = false;
+                        Build();
+                    });
+            }
+
+            if (anomalies.Count == 0)
+            {
+                var empty = UiFactory.Label("UnityAnomalySelectionEmpty", content, "当前没有可用畸变", 14, FontStyle.Bold);
+                empty.alignment = TextAnchor.MiddleCenter;
+                empty.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.SetPreferredHeight(empty.gameObject, 46f);
+            }
+        }
+
+        private void BuildAnomalyOptionButton(Transform parent, string name, string titleText, string detailText, bool selectedOption, Action onClick)
+        {
+            var row = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            row.transform.SetParent(parent, false);
+            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 74f : 82f);
+            var image = row.GetComponent<Image>();
+            image.color = selectedOption
+                ? Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.26f)
+                : UnityTavernUiStyle.Panel;
+            UnityTavernUiStyle.ConfigureOutline(
+                row,
+                selectedOption ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.58f) : new Color(0f, 0f, 0f, 0.16f),
+                new Vector2(1f, -1f));
+
+            var button = row.GetComponent<Button>();
+            button.onClick.AddListener(() => onClick?.Invoke());
+            UnityTavernUiStyle.TintSelectable(button, image.color, Color.Lerp(image.color, UnityTavernUiStyle.Gold, 0.18f), Color.Lerp(image.color, Color.black, 0.16f));
+
+            var rowLayout = row.AddComponent<VerticalLayoutGroup>();
+            rowLayout.padding = new RectOffset(10, 10, 7, 7);
+            rowLayout.spacing = 3;
+            rowLayout.childControlWidth = true;
+            rowLayout.childControlHeight = true;
+            rowLayout.childForceExpandWidth = true;
+            rowLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label(name + "Title", row.transform, titleText, layout.IsCompact ? 13 : 15, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleLeft;
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 24f : 28f);
+
+            var detail = UiFactory.Label(name + "Detail", row.transform, detailText, layout.IsCompact ? 10 : 11, FontStyle.Normal);
+            detail.alignment = TextAnchor.MiddleLeft;
+            detail.color = UnityTavernUiStyle.MutedText;
+            detail.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(detail.gameObject, 1f, 0f);
         }
 
         private void BuildVersionEditorOverlay()
@@ -822,6 +1145,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildCardList(Transform parent, CardPoolVersionSelection selection)
         {
             var content = UiFactory.ScrollView("UnityCardPoolVersionScroll", parent, UnityTavernUiStyle.PanelQuiet, out var scrollRect);
+            cardPoolListContent = content;
             var listLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
             listLayout.padding = new RectOffset(6, 10, 6, 6);
             listLayout.spacing = 5;
@@ -904,7 +1228,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             keepVersionListAtBottom = false;
             if (anchorAtBottom)
             {
-                Canvas.ForceUpdateCanvases();
                 scrollRect.verticalNormalizedPosition = 0f;
             }
 
@@ -919,14 +1242,84 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void LoadMoreVisibleCardPoolItems(int totalCount)
         {
-            if (visibleCardPoolItemCount >= totalCount)
+            if (visibleCardPoolItemCount >= totalCount || cardPoolListContent == null)
             {
                 return;
             }
 
+            var previousVisibleCount = visibleCardPoolItemCount;
             visibleCardPoolItemCount = Math.Min(visibleCardPoolItemCount + CardPoolLoadStep, totalCount);
-            keepVersionListAtBottom = true;
-            Build();
+            AppendVisibleCardPoolRows(cardPoolListContent, CurrentSelection(), previousVisibleCount, visibleCardPoolItemCount);
+
+            var loadState = FindDirectChild(cardPoolListContent, "UnityCardPoolVersionLoadState");
+            if (loadState != null)
+            {
+                loadState.SetAsLastSibling();
+            }
+        }
+
+        private void AppendVisibleCardPoolRows(Transform content, CardPoolVersionSelection selection, int startIndex, int endIndex)
+        {
+            if (activeTab == CardPoolTab.Minions)
+            {
+                var minions = FilteredMinions().ToList();
+                foreach (var minion in minions.Skip(startIndex).Take(Math.Max(0, Math.Min(endIndex, minions.Count) - startIndex)))
+                {
+                    BuildPoolToggleRow(
+                        content,
+                        "UnityCardPoolMinionToggle-" + minion.CardId,
+                        CardImageProvider.LoadSprite(minion),
+                        "T" + minion.TavernTier + "  " + minion.Name,
+                        TribeListText(minion.Tribes) + "  " + minion.CardId,
+                        enabledMinionCardIds.Contains(minion.CardId),
+                        !selection.IsDefault,
+                        value =>
+                        {
+                            if (SetEnabled(enabledMinionCardIds, minion.CardId, value))
+                            {
+                                MarkCardPoolDirty();
+                                Build();
+                            }
+                        });
+                }
+
+                return;
+            }
+
+            var spells = FilteredSpells().ToList();
+            foreach (var spell in spells.Skip(startIndex).Take(Math.Max(0, Math.Min(endIndex, spells.Count) - startIndex)))
+            {
+                BuildPoolToggleRow(
+                    content,
+                    "UnityCardPoolSpellToggle-" + spell.CardNumber,
+                    CardImageProvider.LoadSprite(spell.ImagePath, spell.CardNumber, CardKind.TavernSpell),
+                    "T" + spell.TavernTier + "  " + spell.Name,
+                    SpellTribesText(spell) + "  " + spell.CardNumber,
+                    enabledTavernSpellCardNumbers.Contains(spell.CardNumber),
+                    !selection.IsDefault,
+                    value =>
+                    {
+                        if (SetEnabled(enabledTavernSpellCardNumbers, spell.CardNumber, value))
+                        {
+                            MarkCardPoolDirty();
+                            Build();
+                        }
+                    });
+            }
+        }
+
+        private static Transform FindDirectChild(Transform parent, string name)
+        {
+            for (var index = 0; index < parent.childCount; index += 1)
+            {
+                var child = parent.GetChild(index);
+                if (string.Equals(child.name, name, StringComparison.Ordinal))
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         private IEnumerable<MinionDefinition> FilteredMinions()
@@ -1008,7 +1401,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var toggle = toggleObject.GetComponent<Toggle>();
             toggle.targetGraphic = background;
             toggle.graphic = check.GetComponent<Image>();
-            toggle.isOn = isOn;
+            toggle.SetIsOnWithoutNotify(isOn);
             toggle.interactable = interactable;
             toggle.onValueChanged.AddListener(value => changed?.Invoke(value));
 
@@ -1033,6 +1426,54 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             detail.alignment = TextAnchor.MiddleLeft;
             detail.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, 22f);
+        }
+
+        private void BuildSetupToggle(Transform parent, string name, string text, bool isOn, bool interactable, Action<bool> changed)
+        {
+            var toggleObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Toggle));
+            toggleObject.transform.SetParent(parent, false);
+            var surface = toggleObject.GetComponent<Image>();
+            surface.color = isOn
+                ? Color.Lerp(UnityTavernUiStyle.Panel, UnityTavernUiStyle.Blue, 0.28f)
+                : UnityTavernUiStyle.PanelQuiet;
+
+            var rowLayout = toggleObject.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.padding = new RectOffset(7, 7, 5, 5);
+            rowLayout.spacing = 6;
+            rowLayout.childControlWidth = true;
+            rowLayout.childControlHeight = true;
+            rowLayout.childForceExpandWidth = false;
+            rowLayout.childForceExpandHeight = false;
+
+            var check = new GameObject(name + "Checkmark", typeof(RectTransform), typeof(Image));
+            check.transform.SetParent(toggleObject.transform, false);
+            UnityTavernUiStyle.SetFixedSize(check, 16f, 16f);
+            check.GetComponent<Image>().color = interactable ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
+
+            var label = UiFactory.Label(name + "Label", toggleObject.transform, text, layout.IsCompact ? 10 : 11, FontStyle.Bold);
+            label.alignment = TextAnchor.MiddleLeft;
+            label.color = interactable ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(label.gameObject, 1f, 0f);
+
+            var toggle = toggleObject.GetComponent<Toggle>();
+            toggle.targetGraphic = surface;
+            toggle.graphic = check.GetComponent<Image>();
+            toggle.SetIsOnWithoutNotify(isOn);
+            toggle.interactable = interactable;
+            toggle.onValueChanged.AddListener(value => changed?.Invoke(value));
+            var colors = toggle.colors;
+            colors.normalColor = surface.color;
+            colors.highlightedColor = Color.Lerp(surface.color, UnityTavernUiStyle.Gold, 0.18f);
+            colors.pressedColor = Color.Lerp(surface.color, Color.black, 0.18f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(surface.color.r, surface.color.g, surface.color.b, 0.42f);
+            colors.fadeDuration = 0.08f;
+            toggle.colors = colors;
+            UnityTavernUiStyle.ConfigureOutline(
+                toggleObject,
+                isOn ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.52f) : new Color(0f, 0f, 0f, 0.16f),
+                new Vector2(1f, -1f));
         }
 
         private void BuildCardThumbnail(Transform parent, string name, Sprite sprite)
@@ -1262,6 +1703,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SaveCurrentVersion();
             }
 
+            var resolvedSelectedAnomalyCardId = enableAnomalies && !randomizeAnomaly
+                ? selectedAnomalyCardId
+                : null;
+            var shouldRandomizeAnomaly = enableAnomalies && (randomizeAnomaly || string.IsNullOrEmpty(resolvedSelectedAnomalyCardId));
+
             start?.Invoke(new MatchSetupOptions
             {
                 ActiveTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList(),
@@ -1269,6 +1715,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 CardPoolVersionId = selection.VersionId,
                 CardPoolVersionName = selection.VersionName,
                 IsDefaultCardPoolVersion = selection.IsDefault,
+                EnableQuests = enableQuests,
+                EnableTrinkets = enableTrinkets,
+                EnableQuestRewards = enableQuestRewards,
+                EnableAnomalies = enableAnomalies,
+                RandomizeAnomaly = shouldRandomizeAnomaly,
+                SelectedAnomalyCardId = resolvedSelectedAnomalyCardId,
+                AnomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay,
+                ShowProxySafe = showProxySafe,
+                ShowDebugOnly = showDebugOnly,
+                ShowHiddenEffectOnly = showHiddenEffectOnly,
+                ShowDisabled = showDebugOnly && showDisabled,
                 EnabledMinionCardIds = enabledMinionCardIds.Where(value => !IsDuoCardId(value)).ToList(),
                 EnabledTavernSpellCardNumbers = enabledTavernSpellCardNumbers.ToList()
             });
@@ -1282,6 +1739,71 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return heroCatalog.AllHeroes.FirstOrDefault(hero => string.Equals(hero.HeroCardId, selectedHeroCardId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private AnomalyDefinition CurrentAnomaly()
+        {
+            if (anomalyCatalog == null || string.IsNullOrEmpty(selectedAnomalyCardId))
+            {
+                return null;
+            }
+
+            return anomalyCatalog.TryGetByCardId(selectedAnomalyCardId, out var anomaly)
+                ? anomaly
+                : null;
+        }
+
+        private IEnumerable<AnomalyDefinition> SelectableAnomalies()
+        {
+            if (anomalyCatalog == null)
+            {
+                return Enumerable.Empty<AnomalyDefinition>();
+            }
+
+            return anomalyCatalog
+                .GetByPool(AnomalyPoolVersion.CurrentHsReplay)
+                .Where(IsAnomalySelectable)
+                .OrderBy(anomaly => anomaly.Name)
+                .ThenBy(anomaly => anomaly.CardId);
+        }
+
+        private bool IsAnomalySelectable(AnomalyDefinition definition)
+        {
+            if (definition == null ||
+                string.IsNullOrEmpty(definition.CardId) ||
+                definition.SourcePools == null ||
+                !definition.SourcePools.Contains(AnomalyPoolVersion.CurrentHsReplay))
+            {
+                return false;
+            }
+
+            if (definition.ImplementationStatus != AnomalyImplementationStatus.Implemented &&
+                definition.ImplementationStatus != AnomalyImplementationStatus.OfferableWithExactProxy)
+            {
+                return false;
+            }
+
+            return definition.AvailabilityReasons == null ||
+                definition.AvailabilityReasons.All(IsAnomalyAvailabilitySatisfied);
+        }
+
+        private bool IsAnomalyAvailabilitySatisfied(AnomalyAvailabilityReason reason)
+        {
+            switch (reason)
+            {
+                case AnomalyAvailabilityReason.None:
+                case AnomalyAvailabilityReason.RequiresTimewarpPool:
+                case AnomalyAvailabilityReason.RequiresDarkmoonPrizeBackend:
+                    return true;
+                case AnomalyAvailabilityReason.RequiresBuddyMode:
+                    return heroCatalog != null &&
+                        heroCatalog.AllHeroes.Any(hero => hero.Buddy != null && !hero.Buddy.ExcludedFromBuddyDiscover);
+                case AnomalyAvailabilityReason.RequiresTier7Pool:
+                    return minionCatalog != null &&
+                        minionCatalog.All.Any(minion => minion.InPool && minion.TavernTier == 7);
+                default:
+                    return false;
+            }
         }
 
         private HeroDefinition ResolveDefaultHero()
@@ -1516,6 +2038,61 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var profile = store.Versions.FirstOrDefault(version => string.Equals(version.Id, versionId, StringComparison.OrdinalIgnoreCase));
             return string.IsNullOrEmpty(profile?.Name) ? "自定义版本" : profile.Name;
+        }
+
+        private string AnomalyChoiceSummaryText()
+        {
+            if (!enableAnomalies)
+            {
+                return "畸变：关闭";
+            }
+
+            if (randomizeAnomaly || string.IsNullOrEmpty(selectedAnomalyCardId))
+            {
+                return "畸变：随机";
+            }
+
+            var anomaly = CurrentAnomaly();
+            return "畸变：" + ShortLabel(string.IsNullOrEmpty(anomaly?.Name) ? selectedAnomalyCardId : anomaly.Name);
+        }
+
+        private static string AnomalyDetailText(AnomalyDefinition anomaly)
+        {
+            if (anomaly == null)
+            {
+                return string.Empty;
+            }
+
+            var text = string.IsNullOrEmpty(anomaly.Text) ? anomaly.CardId : anomaly.Text;
+            return text + "  " + anomaly.CardId;
+        }
+
+        private string AdvancedMechanicsSummaryText()
+        {
+            var enabled = new List<string>();
+            if (enableQuests)
+            {
+                enabled.Add("任务");
+            }
+
+            if (enableTrinkets)
+            {
+                enabled.Add("饰品");
+            }
+
+            if (enableQuestRewards)
+            {
+                enabled.Add("奖励");
+            }
+
+            if (enableAnomalies)
+            {
+                enabled.Add(randomizeAnomaly || string.IsNullOrEmpty(selectedAnomalyCardId)
+                    ? "畸变:随机"
+                    : "畸变:" + ShortLabel(CurrentAnomaly()?.Name ?? selectedAnomalyCardId));
+            }
+
+            return enabled.Count == 0 ? "本局关闭" : string.Join(" / ", enabled.ToArray());
         }
 
         private static void ClearChildren(Transform parent)

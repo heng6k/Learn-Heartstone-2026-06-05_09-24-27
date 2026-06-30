@@ -3078,9 +3078,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var hero = context.Heroes.AllHeroes.FirstOrDefault(candidate =>
-                candidate.HeroPower != null &&
-                string.Equals(candidate.HeroPower.CardId, context.State.Player.HeroPowerCardId, StringComparison.OrdinalIgnoreCase));
+            context.Heroes.TryGetHeroByHeroPowerCardId(context.State.Player.HeroPowerCardId, out var hero);
             if (hero?.Buddy == null)
             {
                 result.Messages.Add("Maxwell, Mighty Steed: current Hero Power has no Buddy mapping.");

@@ -45,6 +45,33 @@ namespace LearnHearthstone.Domain.Engine
             return Build(board).Count;
         }
 
+        public static bool HasTribe(MinionInstance minion, Tribe tribe)
+        {
+            if (tribe == Tribe.All)
+            {
+                return minion != null && minion.CardKind == CardKind.Minion;
+            }
+
+            return tribe != Tribe.None && GetCountedTribes(minion).Contains(tribe);
+        }
+
+        public static List<MinionInstance> SelectByTribe(IEnumerable<MinionInstance> minions, Tribe tribe)
+        {
+            if (minions == null)
+            {
+                return new List<MinionInstance>();
+            }
+
+            return minions
+                .Where(minion => minion != null && minion.CardKind == CardKind.Minion && HasTribe(minion, tribe))
+                .ToList();
+        }
+
+        public static int CountTribe(IEnumerable<MinionInstance> minions, Tribe tribe)
+        {
+            return SelectByTribe(minions, tribe).Count;
+        }
+
         public static void Refresh(LocalPlayerState player)
         {
             if (player == null)
@@ -73,17 +100,22 @@ namespace LearnHearthstone.Domain.Engine
 
         public static List<MinionInstance> SelectOneOfEachTribe(IEnumerable<MinionInstance> board)
         {
+            return SelectOneOfEachTribe(board, null, int.MaxValue);
+        }
+
+        public static List<MinionInstance> SelectOneOfEachTribe(IEnumerable<MinionInstance> board, MinionInstance excluded, int maxCount)
+        {
             var selected = new List<MinionInstance>();
             var seen = new HashSet<Tribe>();
             var usedInstances = new HashSet<MinionInstance>();
-            if (board == null)
+            if (board == null || maxCount <= 0)
             {
                 return selected;
             }
 
             foreach (var minion in board.Where(minion => minion != null && minion.CardKind == CardKind.Minion))
             {
-                if (usedInstances.Contains(minion))
+                if (usedInstances.Contains(minion) || ReferenceEquals(minion, excluded) || minion.InstanceId == excluded?.InstanceId)
                 {
                     continue;
                 }
@@ -100,9 +132,26 @@ namespace LearnHearthstone.Domain.Engine
                 seen.Add(tribe);
                 usedInstances.Add(minion);
                 selected.Add(minion);
+                if (selected.Count >= maxCount)
+                {
+                    break;
+                }
             }
 
             return selected;
+        }
+
+        public static (int Attack, int Health) SumStatsFromDifferentTribes(IEnumerable<MinionInstance> minions, MinionInstance excluded, int maxCount)
+        {
+            var attack = 0;
+            var health = 0;
+            foreach (var minion in SelectOneOfEachTribe(minions, excluded, maxCount))
+            {
+                attack += System.Math.Max(0, minion.Attack);
+                health += System.Math.Max(0, minion.MaxHealth);
+            }
+
+            return (attack, health);
         }
 
         public static List<Tribe> GetCountedTribes(MinionInstance minion)

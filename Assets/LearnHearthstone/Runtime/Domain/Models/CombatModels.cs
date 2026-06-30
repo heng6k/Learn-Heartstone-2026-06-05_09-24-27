@@ -157,6 +157,8 @@ namespace LearnHearthstone.Domain.Models
         EternalKnightDied,
         FriendlyMinionDied,
         FriendlyDeathrattleTriggered,
+        FriendlyAvengeTriggered,
+        FriendlyRallyTriggered,
         FriendlyMinionKilledEnemy,
         FriendlyMinionSummoned,
         BuffHandMinion,
@@ -187,6 +189,16 @@ namespace LearnHearthstone.Domain.Models
         TriggerFriendlyBattlecry,
         GainNextTurnGold,
         ImproveBloodGemsUntilNextCombat,
-        AddRandomSpellcraftSpellToHand
+        AddRandomSpellcraftSpellToHand,
+        ImproveBloodGemStats,
+        ImproveTavernSpellStats,
+        ImproveBeetleStats,
+        BuffFriendlyTribe,
+        BuffOneOfEachFriendlyType,
+        BuffFriendlyBoard,
+        BuffTargetHandMinion,
+        AddTripleRewardToHand,
+        AddCopyOfKillerToHand,
+        AddPlainCopyOfKilledEnemyToHand
     }
 }

@@ -1,6 +1,6 @@
 # 饰品、任务、任务奖励的不完整与模糊实现说明
 
-更新日期：2026-06-26
+更新日期：2026-06-27
 
 本文用于回答一个容易混淆的问题：当前饰品、任务、任务奖励是否已经完成。
 
@@ -242,6 +242,220 @@
 7. Tier 7 与特殊卡池仍依赖本地可用卡池兜底，无法保证官方池完全一致。
 8. 任务难度公式仍是本地配置，不是官方动态公式。
 9. HiddenEffectOnly 奖励需要进一步确认是否应该进入普通奖励池，以及以什么权重进入。
+
+## 任务奖励不足补齐方案
+
+这里的“补齐”不是简单把更多奖励放进普通池，而是把已有数据和已有入口从 MVP、代理或调试状态提升到可解释、可测试、可在 UI 闭环里使用的状态。普通任务奖励池仍必须只展示已确认可用的奖励。
+
+### 执行原则
+
+1. 先把 26 个未显式填写 `offerPoolStatus`、但运行时按 `Offerable` 解析的奖励显式化。每个奖励都要写明为什么可普通出现，或者降级到 `HiddenEffectOnly` / `DebugOnly` / `Disabled`。
+2. 每个奖励补齐时同时修改三处：JSON 数据、`MatchService` 里的触发逻辑、EditMode 测试。只补数据不补测试不算完成。
+3. 任何会发起 `Discover`、任务奖励替换、饰品选择或延迟选择的奖励，都必须复用统一 `PendingChoice` 流程；已有 `PendingChoice` 时只能排队、延迟或写日志，不能覆盖。
+4. `DebugOnly` 可以通过统一卡牌库和命令入口指定挂载，但不能自然出现在任务三选一。
+5. `Disabled` 在信息未确认前保持不可挂载；如果只想用训练器代理，必须先由用户确认“接受代理行为”。
+
+### 第一批：购买、出售、费用和手牌获得
+
+目标是先补不依赖新弹窗、但会被高频点击测试覆盖的奖励。
+
+| 奖励 | 当前关注点 | 补齐内容 |
+| --- | --- | --- |
+| `BG24_Reward_305` Anima Bribe | 出售事件 | 出售前记录被卖随从属性、类型和实例；出售成功后再把属性给随机酒馆随从；空酒馆 no-op 并写日志。 |
+| `BG27_Reward_503` Invigorating Conch | 购买随从事件 | 购买成功、扣费、进手后触发；把买入随从当前属性给随机友方随从；无友方 no-op。 |
+| `BG28_Reward_506` Double-Headed Reward | 每回合首次购买 | 随从和酒馆法术都算购买；复制卡生成新 `InstanceId`；手牌满时跳过并记录。 |
+| `BG27_Reward_811` Bloodsoaked Tome | 酒馆随从费用 | UI 显示费用和购买校验共用同一个 cost helper，避免显示 2 金但购买扣 3 金。 |
+| `BG28_Reward_500` Beyond the Mirage | 酒馆法术费用 | 酒馆法术费用最低为 0；折扣后费用必须同时影响 UI、购买和任务花费统计。 |
+| `BG28_Reward_502` Splitting Scroll | 购买法术后复制 | 先按当前实际购买费用判断 `>=3`；如果后续确认官方按原始费用，再改配置和测试。 |
+| `BG33_Reward_020` Perpetual Incantation | 法术强化增长 | 给 TavernSpell stat buff 统一 hook，记录提升次数；随机/自动施法也要走同入口。 |
+
+完成标准：这些奖励都有直接测试，覆盖金币不足、手牌满、无合法目标、回合重置、UI 费用一致性。
+
+### 第二批：Discover 和即时选择
+
+目标是把会触发选择弹窗的奖励接入统一 UI 闭环。
+
+| 奖励 | 当前关注点 | 补齐内容 |
+| --- | --- | --- |
+| `BG24_Reward_129` Secret Sinstone | Discover 后复制 | 在 `ChooseDiscover` 后记录最终选中项，再给复制；已有 pending choice 时不抢占。 |
+| `BG24_Reward_311` Another Hidden Body | 完成时 Discover | 明确第一版只在完成时触发一次；后续若要“可重复获得”再加独立触发条件。 |
+| `BG27_Reward_806` Doppelganger's Locket | 战斗后 Discover | 依赖上个对手战队快照；无快照时不弹窗，只写状态原因。 |
+| `BG24_Reward_363` Ethereal Evidence | 每回合选新奖励 | 需要先决定是替换主奖励、叠加 bonus reward，还是本回合临时选择；实现时使用 `PendingChoice` 源标记区分。 |
+| `BG28_Reward_513` Open Auditions | 伙伴 Discover | Buddy 池和英雄限制未完整前保持 `DebugOnly`；UI 必须显示依赖原因。 |
+| `BG33_Reward_017` Cosmic Reward | 第二英雄技能 Discover | 需要多英雄技能槽位和使用 UI；未完成前只做调试入口。 |
+| `BG33_Reward_011` Magicfin Relic | Discover 酒馆法术并施放 | 先实现法术目标选择/自动施放规则，再允许从调试进入。 |
+
+完成标准：每个选择类奖励都有 `PendingChoice` 不覆盖测试、选择完成后的状态写回测试、取消/无候选测试。
+
+### 第三批：延迟选择和未来回合触发
+
+目标是把“下一回合/若干回合后给选择”的奖励做成可观察状态，而不是突然弹窗。
+
+| 奖励 | 当前关注点 | 补齐内容 |
+| --- | --- | --- |
+| `BG33_Reward_014` Quaint Boutique | 下一回合小饰品选择 | 使用 Lesser 饰品选择请求；状态面板显示到期回合、来源和是否被 pending choice 阻塞。 |
+| `BG33_Reward_015` Jumbo Warehouse | 下一回合大饰品选择 | 使用 Greater 饰品选择请求；奖励给的 4 金币和选择请求分开记录。 |
+| `BG33_Reward_010` Norgannon's Reward | 下回合升级 / Tier 7 | 先补 TavernRules 对 Tier 7、升级费用和 shop size 的统一配置；未补前保持 `DebugOnly`。 |
+| `BG24_Reward_362` Essence of Zerus | 每回合变形 | 需要手牌卡牌状态保存“持续变形”来源，不能每回合直接替换成普通随机随从。 |
+| `BG27_Reward_504` Timeline Acceleration | 生成变形法术 | 需要目标法术 UI 或稳定自动目标选择；当前代理要在 UI 中标记。 |
+
+完成标准：状态面板能看到延迟来源；到期时如果已有选择弹窗，不丢失请求；跨回合保存和日志可追踪。
+
+### 第四批：回合开始、刷新和自动施放
+
+目标是补齐会在玩家操作前自动触发的奖励，避免高强度点击测试时状态跳变不可解释。
+
+| 奖励 | 当前关注点 | 补齐内容 |
+| --- | --- | --- |
+| `BG24_Reward_135` Yogg-tastic Tasties | 回合开始转盘 | 先确认代理结果表；每个结果独立可测；普通池是否开放需用户确认。 |
+| `BG24_Reward_313` Wondrous Wisdomball | 帮助性刷新 | 先用可测代理池，显示“非官方完整 Wisdomball”；不要默认声明 Exact。 |
+| `BG28_Reward_514` Untamed Sorcery | 随机施放 5 个酒馆法术 | 随机法术池、合法目标选择和防递归触发必须先补齐。 |
+| `BG28_Reward_515` Stash of the Scribe | 回合开始给法术 | 从当前版本和种族可用酒馆法术池抽；手牌满停止。 |
+| `BG33_Reward_013` Golden Forge | 回合开始金化酒馆随从 | 只作用酒馆，不触发玩家三连；平手规则先用最左，待官方确认。 |
+
+完成标准：回合开始顺序固定；自动生成、自动施放和刷新奖励都有日志；随机选择使用固定 seed 可测。
+
+### 第五批：战斗和复杂官方占位
+
+这些奖励依赖 CombatEngine、官方子卡、`placeholder-92`、Rally、Secret、Buddy 或 Hero Power。它们可以继续提供调试入口，但不应急着进普通池。
+
+| 类型 | 奖励 | 处理策略 |
+| --- | --- | --- |
+| 官方 `'0'` 子卡 | `BG24_Reward_130`、`BG27_Reward_802`、`BG27_Reward_803`、`BG28_Reward_510`、`BG33_Reward_021` | 先查 HearthstoneJSON 关联子卡；查不到时只保留代理和原因显示。 |
+| `placeholder-92` | `BG24_Reward_134`、`BG27_Reward_812` | 用户未确认代理池前保持 `Disabled`。 |
+| Rally / Secret / Buddy / Hero Power | `Rallying Cry`、`Open Auditions`、`Partner in Crime`、`Cosmic Reward` | 先补基础系统和 UI，再评估是否从 `DebugOnly` 升级。 |
+| 战斗深度事件 | `Victim's Specter`、`Ritual Dagger`、`Stable Amalgamation`、`Cycle of Energy` | 需要 CombatEngine 回传死亡顺序、召唤、Avenge 和战斗后进手。 |
+
+## 饰品不足补齐方案
+
+当前饰品不是从 0 开始补。多数 `ProxySafe` 已能运行，但 UI 闭环和官方一致性仍不完整。本轮优先补会影响选择闭环、未来回合、种族过滤和装备副作用的饰品，纯数值被动最后处理。
+
+### 第一批：替换选择和延迟到未来回合
+
+这些饰品直接影响 `PendingChoice`，优先级最高。
+
+| 饰品 | 当前关注点 | 补齐内容 |
+| --- | --- | --- |
+| `BG30_MagicItem_703` Mystery Cube | 装备和回合开始提供 Lesser 替换选择 | 使用 `OfferReplacementTrinketChoice`；已有选择时延迟并在状态面板显示；替换时必须走 `ClearEquippedTrinketSlot(...)` + `EquipTrinket(...)`。 |
+| `BG35_MagicItem_816` Orb of the Unknown | 随机 Lesser 替换 | 明确是否允许替换成当前已装备同名饰品；随机池受 `ShowProxySafe`、种族和槽位过滤。 |
+| `BG35_MagicItem_816t` Orb of the Unknown | 随机 Greater 替换并给金币 | 金币和替换分别测试；替换失败时金币是否仍给需要用户确认。 |
+| `BG30_MagicItem_888` Souvenir Stand | Greater 装备后 Lesser 槽位复制 | 复制槽位状态时不能绕过装备副作用；要避免重复触发递归。 |
+| `BG30_MagicItem_891` Trip Vouchers | 两回合后 Greater 替换 | 状态面板显示到期回合；到期时被其他选择阻塞要保留请求。 |
+
+完成标准：统一卡牌库指定替换、自然触发替换、延迟触发替换都通过测试；不会直接改 `LesserTrinketId` / `GreaterTrinketId` 绕过装备流程。
+
+### 第二批：On-equip 有副作用和当前 Blocked 项
+
+这些条目会在装备瞬间改资源、给牌、改英雄技能或发起选择。必须先补装备入口的一致性。
+
+| 饰品 | 当前问题 | 补齐策略 |
+| --- | --- | --- |
+| `BG30_MagicItem_804` Ancient Wishbone | Hero Power double-trigger framework 缺失 | 先补英雄技能触发次数模型；未完成前保持 `DebugOnly + Blocked`。 |
+| `BG35_MagicItem_803` / `BG35_MagicItem_803t` Maxwell Sticker | Buddy of Hero Power / Golden Buddy | 先补 hero -> buddy 映射和金色伙伴生成；缺映射时 UI 显示原因。 |
+| `BG35_MagicItem_801` Sous Chef Sticker | 额外英雄技能使用和经济奖励 | 先定义英雄技能使用次数、费用和回合重置规则。 |
+| `BG32_MagicItem_906` Artanis Sticker | child-card `'0'` 复制/生成未确认 | 查官方子卡；代理实现只能调试可见。 |
+| `BG35_MagicItem_812` Corrupted Tome | Discover / Prize 替换系统未确认 | 先补 Discover 池和 Prize 映射，再进入普通池评估。 |
+| `BG35_MagicItem_702` Stegodon Portrait | `relatedDbfId=0` | 查官方 Stomping Stegodon 子卡 ID；未确认前维持 HiddenEffectOnly。 |
+
+完成标准：装备、替换装备、调试指定装备都走同一副作用路径；装备失败时不留下半写入状态。
+
+### 第三批：依赖种族和卡池版本的饰品
+
+这些饰品是否可出现，取决于开局种族、卡池版本和 `ShowProxySafe`。
+
+| 类型 | 示例 | 补齐内容 |
+| --- | --- | --- |
+| `placeholder-92` 代理池 | `Colorful Compass`、`Gold-plated Compass`、`Minion Bait` | 明确 `92` 的真实含义；代理池要显示“placeholder-92 proxy”，并受当前种族池限制。 |
+| 指定种族肖像 | `Bassgill Portrait`、`Goose Portrait`、`Impulsive Portrait`、`Magicfin Sticker` | `TribeAvailabilityRules` 过滤普通池；统一卡牌库显示“当前种族池外”。 |
+| 特殊池 | `Timeworn Candelabra`、`Burgling Claw`、`Safety Patch` | Timewarp、上个对手快照、Secret 代理都要有原因标签。 |
+
+完成标准：普通池过滤和 UI 原因一致；同一张卡在种族池外时不被抽到，但能在调试库里看到为什么不可普通出现。
+
+### 第四批：回合开始、未来回合和自动奖励
+
+这些饰品容易在高强度点击测试里造成“回合切换后状态突然变了”。补齐时要优先补状态展示。
+
+| 饰品 | 当前问题 | 补齐策略 |
+| --- | --- | --- |
+| `BG32_MagicItem_300` Putricide Sticker | 回合开始效果未实现 | 明确 Custom Undead crafting 代理或官方子系统；未确认前不进普通池。 |
+| `BG30_MagicItem_707` Tickatus Sticker | Darkmoon Prize 系统缺失 | 先定义 Prize 池和选择规则；否则只保留 DebugOnly。 |
+| `BG30_MagicItem_994` Yogg-Tastic Pastry | Yogg 转盘代理 | 结果表每项独立测试；UI 标明代理。 |
+| `BG35_MagicItem_823` / `BG35_MagicItem_823t` Timeworn Candelabra | Minor/Major Timewarp 池代理 | 用户确认 Timewarp 代理池后再考虑普通可见。 |
+
+完成标准：回合开始触发顺序固定；所有自动奖励写入日志和状态面板；没有合法目标时 no-op。
+
+### 第五批：纯数值被动和官方一致性微调
+
+纯数值被动、已经 `Exact` 的常规饰品、只差权重或平衡校验的条目放在最后。处理方式是批量跑回归、补备注、改权重，不优先消耗 UI 闭环开发时间。
+
+## 不完整原因可视化方案
+
+统一卡牌库现在能选，但下一步需要显示“为什么某项不在普通池”或“为什么它虽然能选但不是 Exact”。这部分只做解释和调试，不改变普通池过滤规则。
+
+### 服务侧原因模型
+
+新增一个轻量原因模型，供统一卡牌库、状态面板和测试共用。建议结构如下：
+
+```csharp
+public sealed class AdvancedCardAvailability
+{
+    public bool Selectable;
+    public List<AdvancedCardAvailabilityReason> Reasons;
+    public string Detail;
+}
+
+public enum AdvancedCardAvailabilityReason
+{
+    Offerable,
+    StatusExcluded,
+    ImplementationIncomplete,
+    HiddenEffectOnlyHidden,
+    DebugOnlyHidden,
+    Disabled,
+    ProxySafeHidden,
+    TribePoolExcluded,
+    CardPoolVersionExcluded,
+    SlotMismatch,
+    AlreadyEquipped,
+    MissingOfficialChildCard,
+    PendingChoiceBlocked
+}
+```
+
+第一版不需要一次把所有原因做到最细，但至少要覆盖：种族池外、卡池版本外、`DebugOnly`、`HiddenEffectOnly`、`Disabled`、`ProxySafe` 被关闭、`FrameworkFirst/Blocked`、已装备同槽位冲突。
+
+### UI 展示
+
+统一卡牌库卡片建议新增三层信息：
+
+1. 主徽标：`普通池`、`隐藏效果`、`调试`、`禁用`、`代理`、`阻塞`。
+2. 原因短句：例如“当前种族池外”“代理实现已关闭”“缺官方子卡”“已有同槽饰品”。
+3. 筛选按钮：`可选择`、`普通池外`、`代理`、`阻塞/禁用`。
+
+普通选择池仍由 `MatchService` 过滤。UI 可以展示不可普通出现的项目和原因，但不能因为展示了原因就绕过服务侧规则。
+
+### 测试要求
+
+- `ShowProxySafe=false` 时，`ProxySafe` 饰品不进普通池，统一库显示 `ProxySafeHidden`。
+- 当前种族不支持时，依赖种族饰品不进普通池，统一库显示 `TribePoolExcluded`。
+- `DebugOnly` / `HiddenEffectOnly` / `Disabled` 在普通池不可见，但在调试库中能显示状态原因。
+- `FrameworkFirst + Blocked` 条目不可选或只能调试选，原因必须包含 `ImplementationIncomplete`。
+- 已装备同槽饰品时，替换入口和普通装备入口显示不同原因：普通装备是槽位冲突，替换入口允许继续。
+
+## 需要用户提供的信息和决策
+
+以下信息会直接决定哪些条目能从 `HiddenEffectOnly` / `DebugOnly` / `Disabled` 升级到普通池。
+
+1. 目标官方版本：按哪个酒馆战棋补丁、卡池版本和文本版本作为最终对齐目标。
+2. 代理接受度：是否允许 `ProxySafe` 默认进入普通池；如果允许，是否需要在战斗内一直显示“代理实现”。
+3. 任务奖励池策略：20 个 `HiddenEffectOnly` 是否保持隐藏，还是允许部分弱奖励进入普通三选一。
+4. 26 个默认 `Offerable` 奖励是否全部显式保留为 `Offerable`，还是逐个复审后再开放。
+5. `Disabled` 的处理：`BG24_Reward_134` 和 `BG27_Reward_812` 在 `placeholder-92` 未确认前，是保持禁用，还是接受训练器代理池。
+6. 官方占位资料：`placeholder-92`、`'0'` child card、`relatedDbfId=0`、Timewarp 池、Yogg 轮盘、Wisdomball、Darkmoon Prize、Ice Block/Secret、Rally 的官方定义或你认可的代理定义。
+7. Buddy / Hero Power 范围：是否现在补完整伙伴和第二英雄技能 UI，还是这些奖励继续 `DebugOnly`。
+8. 替换饰品规则：随机替换是否排除已装备同名饰品；免费替换失败时是否仍发金币；替换选择是否允许 `ProxySafe`。
+9. 优先级清单：你最想先玩到或最需要测试的 10 个任务奖励、10 个饰品。
+10. 取舍标准：每个模糊条目是追求“官方一致”，还是优先“训练器可玩、可测、清楚标代理”。
 
 ## 后续建议
 

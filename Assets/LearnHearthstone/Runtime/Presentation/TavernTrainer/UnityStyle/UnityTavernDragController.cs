@@ -76,7 +76,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return false;
                 }
 
-                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.FriendlyBoard);
+                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.FriendlyBoard, heroPowerCardId: drag.Card.CardId);
                 return true;
             }
 
@@ -87,7 +87,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return false;
                 }
 
-                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.OpponentBoard);
+                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.OpponentBoard, heroPowerCardId: drag.Card.CardId);
                 return true;
             }
 

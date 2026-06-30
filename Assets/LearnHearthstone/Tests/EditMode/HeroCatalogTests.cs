@@ -13,11 +13,17 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var catalog = HeroCatalogLoader.LoadFromResources();
 
-            Assert.AreEqual(114, catalog.AllHeroes.Count);
-            Assert.AreEqual(114, catalog.AllHeroPowers.Count);
+            Assert.AreEqual(117, catalog.AllHeroes.Count);
+            Assert.AreEqual(117, catalog.AllHeroPowers.Count);
             Assert.AreEqual(108, catalog.AllBuddies.Count);
             Assert.IsTrue(catalog.AllHeroPowers.All(power => !string.IsNullOrEmpty(power.CardId)));
             Assert.IsTrue(catalog.AllBuddies.All(buddy => !string.IsNullOrEmpty(buddy.CardId)));
+            Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_002t").ReplacementEligibility);
+            Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_007t").ReplacementEligibility);
+            Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_008t").ReplacementEligibility);
+            Assert.IsFalse(catalog.GetInitialSelectableHeroes().Any(hero => hero.HeroCardId == "BG35_Anomaly_002t_PROXY"));
+            Assert.IsFalse(catalog.GetInitialSelectableHeroes().Any(hero => hero.HeroCardId == "BG35_Anomaly_007t_PROXY"));
+            Assert.IsFalse(catalog.GetInitialSelectableHeroes().Any(hero => hero.HeroCardId == "BG35_Anomaly_008t_PROXY"));
         }
 
         [Test]
@@ -53,9 +59,12 @@ namespace LearnHearthstone.Tests.EditMode
                 {
                     "Farseer Nobundo",
                     "Genn, Worgen King",
+                    "Greater Crystal Ball",
+                    "Lesser Crystal Ball",
                     "Mister Clocksworth",
                     "Morchie",
                     "Murozond, Unbounded",
+                    "Mystery Cube",
                     "Time Twister Chromie"
                 },
                 missingBuddyHeroes);

@@ -254,6 +254,152 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TribeSelectionView_AdvancedMechanicSwitchesPassSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-advanced-mechanics-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedMechanicsSetupPanel"));
+
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-EnableQuests").GetComponent<Toggle>().isOn = false;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-EnableTrinkets").GetComponent<Toggle>().isOn = false;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-EnableQuestRewards").GetComponent<Toggle>().isOn = false;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-ShowProxySafe").GetComponent<Toggle>().isOn = false;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-ShowHiddenEffectOnly").GetComponent<Toggle>().isOn = true;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-ShowDebugOnly").GetComponent<Toggle>().isOn = true;
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-ShowDisabled").GetComponent<Toggle>().isOn = true;
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(startedWith);
+                Assert.IsFalse(startedWith.EnableQuests);
+                Assert.IsFalse(startedWith.EnableTrinkets);
+                Assert.IsFalse(startedWith.EnableQuestRewards);
+                Assert.IsFalse(startedWith.ShowProxySafe);
+                Assert.IsTrue(startedWith.ShowDebugOnly);
+                Assert.IsTrue(startedWith.ShowHiddenEffectOnly);
+                Assert.IsTrue(startedWith.ShowDisabled);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_AnomalyRandomButtonPassesSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-anomaly-random-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedMechanicsToggle-EnableAnomalies"));
+                FindChild(rootObject.transform, "UnityAnomalyRandomButton").GetComponent<Button>().onClick.Invoke();
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(startedWith);
+                Assert.IsTrue(startedWith.EnableAnomalies);
+                Assert.IsTrue(startedWith.RandomizeAnomaly);
+                Assert.IsNull(startedWith.SelectedAnomalyCardId);
+                Assert.AreEqual(AnomalyPoolVersion.CurrentHsReplay, startedWith.AnomalyPoolVersion);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_AnomalyPickerPassesSelectedSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-anomaly-picker-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                FindChild(rootObject.transform, "UnityAnomalySelectButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAnomalySelectionOverlay"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAnomalySelectionRandomButton"));
+
+                FindChild(rootObject.transform, "UnityAnomalySelectionButton-BG31_Anomaly_123")
+                    .GetComponent<Button>()
+                    .onClick
+                    .Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityAnomalySelectionOverlay"));
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(startedWith);
+                Assert.IsTrue(startedWith.EnableAnomalies);
+                Assert.IsFalse(startedWith.RandomizeAnomaly);
+                Assert.AreEqual("BG31_Anomaly_123", startedWith.SelectedAnomalyCardId);
+                Assert.AreEqual(AnomalyPoolVersion.CurrentHsReplay, startedWith.AnomalyPoolVersion);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
         public void TribeSelectionView_HeroStripSelectsHeroAndPassesSetup()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -1026,6 +1172,67 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(4, service.State.Player.Tavern.Gold);
                 Assert.IsTrue(target.Keywords.Contains(Keyword.DivineShield));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityFeedbackToast"));
+                Assert.IsNull(FindChild(rootObject.transform, "UnityErrorToast"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void CosmicDualitySecondHeroPowerUi_ShowsUnlockedButtonAndDragUsesSelectedPower()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(
+                    12345,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions
+                    {
+                        EnableAnomalies = true,
+                        RandomizeAnomaly = false,
+                        SelectedAnomalyCardId = "BG31_Anomaly_123",
+                        AnomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay
+                    });
+                var discover = service.State.Player.Tavern.Discover;
+                Assert.IsNotNull(discover);
+                Assert.AreEqual("anomaly-cosmic-duality", discover.Source);
+                var pickedCardId = discover.Options[0].CardId;
+
+                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                CollectionAssert.Contains(service.State.Player.ExtraHeroPowerCardIds, pickedCardId);
+                Assert.AreEqual(1, service.State.Player.ExtraHeroPowerUnlockRounds[pickedCardId]);
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuickHeroPowerButton"));
+                var extraHeroPowerObject = FindChild(rootObject.transform, "UnityQuickHeroPowerButton1");
+                Assert.IsNotNull(extraHeroPowerObject);
+                var extraHeroPowerButton = extraHeroPowerObject.GetComponent<Button>();
+                Assert.IsTrue(extraHeroPowerButton.interactable);
+
+                var drag = extraHeroPowerObject.GetComponent<UnityTavernCardDragBehaviour>();
+                Assert.IsNotNull(drag);
+                var cardField = typeof(UnityTavernCardDragBehaviour).GetField(
+                    "card",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                Assert.IsNotNull(cardField);
+                var dragCard = (MinionInstance)cardField.GetValue(drag);
+                Assert.IsNotNull(dragCard);
+                Assert.AreEqual(CardKind.HeroPower, dragCard.CardKind);
+                Assert.AreEqual(pickedCardId, dragCard.CardId);
+
+                Assert.IsTrue(UnityTavernDragController.TryBuildDropCommand(
+                    new UnityTavernDragContext(dragCard, UnityTavernDragSource.HeroPower, 1),
+                    UnityTavernDropTarget.PlayerBoard,
+                    0,
+                    out var command));
+                Assert.AreEqual(GameCommandType.UseHeroPower, command.Type);
+                Assert.AreEqual(pickedCardId, command.HeroPowerCardId);
+
+                extraHeroPowerButton.onClick.Invoke();
                 Assert.IsNull(FindChild(rootObject.transform, "UnityErrorToast"));
             }
             finally
@@ -3051,6 +3258,152 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(handBeforeSpell, service.State.Player.Tavern.Hand.Count);
                 Assert.AreEqual(spellsBefore + 1, service.State.Player.Tavern.TavernSpellsCastThisTurn);
                 Assert.AreEqual(attackBefore + 4, service.State.Player.Board.Sum(card => card.Attack));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void AdvancedMechanicLibrary_QuestButtonsCompleteAndReplaceReward()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+                service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+                var rewards = service.GetDebugSelectableQuestRewards()
+                    .OrderBy(reward => reward.PowerLevel + " / " + reward.Trigger + " / " + reward.OfferPoolStatus)
+                    .ThenBy(reward => reward.Name)
+                    .ToList();
+                Assert.Greater(rewards.Count, 1);
+                var oldReward = rewards.Last();
+                service.Apply(new GameCommand(GameCommandType.DebugReplaceQuestReward, oldReward.CardId, CardKind.QuestReward, false, 0));
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuestCompleteButton-Main"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuestReplaceRewardButton-Main"));
+
+                Assert.AreEqual(oldReward.CardId, service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.RewardCardId);
+
+                FindChild(rootObject.transform, "UnityQuestReplaceRewardButton-Main").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+                FindChild(rootObject.transform, "UnityAdvancedCardLibrarySelectButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(rewards.First().CardId, service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.RewardCardId);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+
+                FindChild(rootObject.transform, "UnityQuestCompleteButton-Main").GetComponent<Button>().onClick.Invoke();
+                Assert.IsTrue(service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.Completed);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void AdvancedMechanicLibrary_TrinketReplaceButtonUsesDebugCommand()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                var trinkets = service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser)
+                    .OrderBy(trinket => trinket.SlotKind + " / " + trinket.Cost + "g / " + trinket.OfferPoolStatus)
+                    .ThenBy(trinket => trinket.Name)
+                    .ToList();
+                Assert.Greater(trinkets.Count, 1);
+                service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, trinkets.Last().CardId, CardKind.Trinket, 0));
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTrinketTrackerPanel"));
+                FindChild(rootObject.transform, "UnityTrinketReplaceButton-Lesser").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryLesserTab"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryGreaterTab"));
+
+                FindChild(rootObject.transform, "UnityAdvancedCardLibrarySelectButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(trinkets.First().CardId, service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void AdvancedChoiceStatusPanel_ShowsScheduledPendingAndDiscoverChoices()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusRow-trinket-lesser-round-6"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusRow-trinket-greater-round-9"));
+
+                service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
+                ClearChildren(rootObject.transform);
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusRow-advanced-current"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusOpenButton-advanced-current"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedMechanicChoiceOverlay"));
+
+                service.State.Player.Tavern.AdvancedMechanics.PendingChoice = null;
+                service.State.Player.Tavern.Discover = new DiscoverState
+                {
+                    Source = "ui-test-discover",
+                    RemainingPicks = 1,
+                    Options = service.State.Player.Tavern.Shop.Where(card => card != null).Take(2).Select(card => card.Clone()).ToList()
+                };
+                ClearChildren(rootObject.transform);
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusRow-discover-current"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedChoiceStatusOpenButton-discover-current"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityDiscoverOverlay"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void AdvancedMechanicLibrary_RepeatedOpenCloseClicksStayStable()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                for (var index = 0; index < 25; index += 1)
+                {
+                    FindChild(rootObject.transform, "UnityTrinketReplaceButton-Lesser").GetComponent<Button>().onClick.Invoke();
+                    Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+                    FindChild(rootObject.transform, "UnityAdvancedCardLibraryCloseButton").GetComponent<Button>().onClick.Invoke();
+                    Assert.IsNull(FindChild(rootObject.transform, "UnityAdvancedCardLibraryOverlay"));
+                }
+
+                service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+                ClearChildren(rootObject.transform);
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                for (var index = 0; index < 10; index += 1)
+                {
+                    FindChild(rootObject.transform, "UnityAdvancedChoiceStatusOpenButton-advanced-current").GetComponent<Button>().onClick.Invoke();
+                    Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedMechanicChoiceOverlay"));
+                }
             }
             finally
             {

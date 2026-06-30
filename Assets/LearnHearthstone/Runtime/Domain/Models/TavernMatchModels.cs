@@ -12,6 +12,19 @@ namespace LearnHearthstone.Domain.Models
         public string CardPoolVersionName;
         public bool IsDefaultCardPoolVersion = true;
         public AdvancedMechanicMode AdvancedMechanicMode = AdvancedMechanicMode.None;
+        public bool EnableQuests = true;
+        public bool EnableTrinkets = true;
+        public bool EnableQuestRewards = true;
+        public bool ShowProxySafe = true;
+        public bool ShowDebugOnly = false;
+        public bool ShowHiddenEffectOnly = false;
+        public bool ShowDisabled = false;
+        public bool UseHistoricalTimewarpedPool = false;
+        public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
+        public bool EnableAnomalies = false;
+        public bool RandomizeAnomaly = false;
+        public string SelectedAnomalyCardId;
+        public AnomalyPoolVersion AnomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay;
         public List<string> EnabledMinionCardIds = new List<string>();
         public List<string> EnabledTavernSpellCardNumbers = new List<string>();
     }
@@ -66,6 +79,436 @@ namespace LearnHearthstone.Domain.Models
         public string SlotId;
         public bool Frozen;
         public string CardInstanceId;
+    }
+
+    public enum TimewarpKind
+    {
+        None,
+        Minor,
+        Major,
+        Historical
+    }
+
+    public enum TimewarpedPoolVersion
+    {
+        Current,
+        FirestoneAll,
+        Launch
+    }
+
+    public enum TimewarpTavernPhase
+    {
+        Idle,
+        DueThisTurn,
+        BlockedByTrinketChoice,
+        Open,
+        Closed
+    }
+
+    public enum TimewarpedPurchaseBehavior
+    {
+        Auto,
+        Unsupported,
+        EntersHand,
+        CastsWhenBought,
+        Exit
+    }
+
+    public enum TimewarpedMechanicTemplate
+    {
+        Auto,
+        Unknown,
+        Vanilla,
+        Battlecry,
+        Deathrattle,
+        Avenge,
+        StartOfCombat,
+        EndOfTurn,
+        Spellcraft,
+        Rally,
+        Aura,
+        Magnetic,
+        DivineShield,
+        Cleave,
+        Economy,
+        GenerateCard,
+        Discover,
+        ShopInteraction,
+        TokenSummon,
+        Scaling,
+        Copy,
+        Transform,
+        Spell,
+        HeroPower,
+        Exit
+    }
+
+    public static class TimewarpedCardBehavior
+    {
+        public const string ExitCardId = "BG34_BlackMarket_Skip";
+        public const string ExitTag = "timewarp:exit";
+        public const string CastsWhenBoughtTag = "casts_when_bought";
+        public const string BlockedNonMinionSupportTag = "blocked_by_non_minion_support";
+
+        public static TimewarpedPurchaseBehavior ResolvePurchaseBehavior(TimewarpedTavernCardDefinition definition)
+        {
+            if (definition == null)
+            {
+                return TimewarpedPurchaseBehavior.Unsupported;
+            }
+
+            if (definition.PurchaseBehavior != TimewarpedPurchaseBehavior.Auto)
+            {
+                return definition.PurchaseBehavior;
+            }
+
+            if (HasExitMarker(definition))
+            {
+                return TimewarpedPurchaseBehavior.Exit;
+            }
+
+            if (HasTag(definition, CastsWhenBoughtTag))
+            {
+                return TimewarpedPurchaseBehavior.CastsWhenBought;
+            }
+
+            if (IsHandCardKind(definition.CardKind))
+            {
+                return TimewarpedPurchaseBehavior.EntersHand;
+            }
+
+            return TimewarpedPurchaseBehavior.Unsupported;
+        }
+
+        public static bool EntersHand(TimewarpedTavernCardDefinition definition)
+        {
+            return ResolvePurchaseBehavior(definition) == TimewarpedPurchaseBehavior.EntersHand;
+        }
+
+        public static bool IsCastsWhenBought(TimewarpedTavernCardDefinition definition)
+        {
+            return ResolvePurchaseBehavior(definition) == TimewarpedPurchaseBehavior.CastsWhenBought;
+        }
+
+        public static bool IsExit(TimewarpedTavernCardDefinition definition)
+        {
+            return ResolvePurchaseBehavior(definition) == TimewarpedPurchaseBehavior.Exit;
+        }
+
+        public static bool IsExitCardInstance(MinionInstance card)
+        {
+            return card != null && HasExitMarker(card.CardId, card.Tags);
+        }
+
+        public static bool IsBlockedNonMinionSupport(TimewarpedTavernCardDefinition definition)
+        {
+            return definition != null &&
+                definition.CardKind != CardKind.Minion &&
+                HasTag(definition, BlockedNonMinionSupportTag);
+        }
+
+        public static bool IsOfferableNonExit(TimewarpedTavernCardDefinition definition)
+        {
+            var behavior = ResolvePurchaseBehavior(definition);
+            return definition != null &&
+                !IsBlockedNonMinionSupport(definition) &&
+                behavior != TimewarpedPurchaseBehavior.Unsupported &&
+                behavior != TimewarpedPurchaseBehavior.Exit;
+        }
+
+        public static List<TimewarpedMechanicTemplate> ResolveMechanicTemplates(TimewarpedTavernCardDefinition definition)
+        {
+            var templates = new List<TimewarpedMechanicTemplate>();
+            if (definition == null)
+            {
+                templates.Add(TimewarpedMechanicTemplate.Unknown);
+                return templates;
+            }
+
+            if (definition.MechanicTemplates != null)
+            {
+                foreach (var template in definition.MechanicTemplates)
+                {
+                    AddTemplate(templates, template);
+                }
+            }
+
+            AddTemplate(templates, definition.PrimaryMechanicTemplate);
+            if (templates.Count > 0)
+            {
+                return templates;
+            }
+
+            if (IsExit(definition))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Exit);
+            }
+
+            if (definition.CardKind == CardKind.TavernSpell || definition.CardKind == CardKind.Spell)
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Spell);
+            }
+
+            foreach (var keyword in definition.Keywords ?? new List<Keyword>())
+            {
+                switch (keyword)
+                {
+                    case Keyword.Battlecry:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Battlecry);
+                        break;
+                    case Keyword.Deathrattle:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Deathrattle);
+                        break;
+                    case Keyword.Avenge:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Avenge);
+                        break;
+                    case Keyword.StartOfCombat:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.StartOfCombat);
+                        break;
+                    case Keyword.EndOfTurn:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.EndOfTurn);
+                        break;
+                    case Keyword.Spellcraft:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Spellcraft);
+                        break;
+                    case Keyword.Rally:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Rally);
+                        break;
+                    case Keyword.Aura:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Aura);
+                        break;
+                    case Keyword.Magnetic:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Magnetic);
+                        break;
+                    case Keyword.DivineShield:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.DivineShield);
+                        break;
+                    case Keyword.Cleave:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Cleave);
+                        break;
+                    case Keyword.Discover:
+                        AddTemplate(templates, TimewarpedMechanicTemplate.Discover);
+                        break;
+                }
+            }
+
+            if (HasToken(definition.EffectIds, "gold") || HasToken(definition.Tags, "economy"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Economy);
+            }
+
+            if (HasToken(definition.EffectIds, "discover") || HasToken(definition.Tags, "discover"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Discover);
+            }
+
+            if (HasToken(definition.EffectIds, "generate") ||
+                HasToken(definition.EffectIds, "random_minion") ||
+                HasToken(definition.Tags, "generator"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.GenerateCard);
+            }
+
+            if (HasToken(definition.EffectIds, "shop") || HasToken(definition.Tags, "shop"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.ShopInteraction);
+            }
+
+            if (HasToken(definition.EffectIds, "summon") || HasToken(definition.Tags, "summon"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.TokenSummon);
+            }
+
+            if (HasToken(definition.EffectIds, "scaling") ||
+                HasToken(definition.EffectIds, "buff") ||
+                HasToken(definition.Tags, "scaling"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Scaling);
+            }
+
+            if (HasToken(definition.EffectIds, "copy") ||
+                HasToken(definition.EffectIds, "clone") ||
+                HasToken(definition.EffectIds, "cloning"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Copy);
+            }
+
+            if (HasToken(definition.EffectIds, "transform") ||
+                HasToken(definition.EffectIds, "evolution") ||
+                HasToken(definition.EffectIds, "goldenizer"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.Transform);
+            }
+
+            if (HasToken(definition.EffectIds, "hero_power"))
+            {
+                AddTemplate(templates, TimewarpedMechanicTemplate.HeroPower);
+            }
+
+            if (templates.Count == 0)
+            {
+                AddTemplate(
+                    templates,
+                    definition.CardKind == CardKind.Minion
+                        ? TimewarpedMechanicTemplate.Vanilla
+                        : TimewarpedMechanicTemplate.Unknown);
+            }
+
+            return templates;
+        }
+
+        public static TimewarpedMechanicTemplate ResolvePrimaryMechanicTemplate(TimewarpedTavernCardDefinition definition)
+        {
+            var templates = ResolveMechanicTemplates(definition);
+            return templates.Count == 0 ? TimewarpedMechanicTemplate.Unknown : templates[0];
+        }
+
+        public static bool HasTag(TimewarpedTavernCardDefinition definition, string tag)
+        {
+            if (definition?.Tags == null || string.IsNullOrEmpty(tag))
+            {
+                return false;
+            }
+
+            foreach (var value in definition.Tags)
+            {
+                if (string.Equals(value, tag, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasToken(List<string> values, string token)
+        {
+            if (values == null || string.IsNullOrEmpty(token))
+            {
+                return false;
+            }
+
+            foreach (var value in values)
+            {
+                if (!string.IsNullOrEmpty(value) &&
+                    value.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddTemplate(List<TimewarpedMechanicTemplate> templates, TimewarpedMechanicTemplate template)
+        {
+            if (template == TimewarpedMechanicTemplate.Auto || templates.Contains(template))
+            {
+                return;
+            }
+
+            templates.Add(template);
+        }
+
+        private static bool HasExitMarker(TimewarpedTavernCardDefinition definition)
+        {
+            return definition != null && HasExitMarker(definition.CardId, definition.Tags);
+        }
+
+        private static bool HasExitMarker(string cardId, List<string> tags)
+        {
+            if (string.Equals(cardId, ExitCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (tags == null)
+            {
+                return false;
+            }
+
+            foreach (var tag in tags)
+            {
+                if (string.Equals(tag, ExitTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsHandCardKind(CardKind cardKind)
+        {
+            return cardKind == CardKind.Minion ||
+                cardKind == CardKind.TavernSpell ||
+                cardKind == CardKind.Spell ||
+                cardKind == CardKind.HeroBuddy;
+        }
+    }
+
+    [Serializable]
+    public sealed class TimewarpedTavernCardDefinition
+    {
+        public string CardId;
+        public int DbfId;
+        public string Name;
+        public string ZhName;
+        public CardKind CardKind;
+        public TimewarpKind TimewarpKind;
+        public int Cost;
+        public int TechLevel;
+        public int Attack;
+        public int Health;
+        public List<Tribe> Tribes = new List<Tribe>();
+        public List<Keyword> Keywords = new List<Keyword>();
+        public string Text;
+        public string ZhText;
+        public string ImagePath;
+        public List<string> EffectIds = new List<string>();
+        public List<string> Tags = new List<string>();
+        public string PoolStatus;
+        public TimewarpedPurchaseBehavior PurchaseBehavior = TimewarpedPurchaseBehavior.Auto;
+        public TimewarpedMechanicTemplate PrimaryMechanicTemplate = TimewarpedMechanicTemplate.Auto;
+        public List<TimewarpedMechanicTemplate> MechanicTemplates = new List<TimewarpedMechanicTemplate>();
+        public string GoldenCardId;
+        public int GoldenDbfId;
+    }
+
+    [Serializable]
+    public sealed class TimewarpedOfferSlot
+    {
+        public string SlotId;
+        public string CardId;
+        public CardKind CardKind;
+        public int Cost;
+        public bool Purchased;
+        public string Source;
+    }
+
+    [Serializable]
+    public sealed class PlayerTimewarpTavernState
+    {
+        public int Chronum;
+        public int NextTimewarpBonusChronum;
+        public int LastVisitRound;
+        public TimewarpKind PendingKind = TimewarpKind.None;
+        public TimewarpTavernPhase Phase = TimewarpTavernPhase.Idle;
+        public bool VisitOpen;
+        public string PendingSource;
+        public List<TimewarpedOfferSlot> Offers = new List<TimewarpedOfferSlot>();
+    }
+
+    [Serializable]
+    public sealed class TimewarpTavernRules
+    {
+        public int MinorVisitRound = 6;
+        public int MajorVisitRound = 9;
+        public int MinorInitialChronum = 3;
+        public int MajorChronumGrant = 3;
+        public int OfferCount = 4;
+        public bool IncludeExitCard = false;
+        public bool RespectActiveTribes = true;
     }
 
     public static class TavernShopSlots
@@ -449,6 +892,8 @@ namespace LearnHearthstone.Domain.Models
         public int FutureBallerAttackBonus;
         public int FutureBallerHealthBonus;
         public int UndeadAttackBonus;
+        public int SoldThisTurnAttack;
+        public int SoldThisTurnHealth;
         public int EternalKnightDeaths;
         public int AncestralAutomatonSummons;
         public int FriendlyMinionDeathsThisGame;
@@ -459,9 +904,13 @@ namespace LearnHearthstone.Domain.Models
         public List<TavernShopSlotState> ShopSlots = new List<TavernShopSlotState>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();
+        public Dictionary<string, int> PoolCapacities = new Dictionary<string, int>();
+        public Dictionary<string, int> BuddyPool = new Dictionary<string, int>();
+        public Dictionary<string, int> BuddyPoolCapacities = new Dictionary<string, int>();
         public Dictionary<string, int> HeroEffectCounters = new Dictionary<string, int>();
         public DiscoverState Discover;
         public AdvancedMechanicState AdvancedMechanics = new AdvancedMechanicState();
+        public PlayerTimewarpTavernState Timewarp = new PlayerTimewarpTavernState();
         public SearchPlanState SearchPlan = new SearchPlanState();
         public TavernGrowthState Growth = new TavernGrowthState();
         public List<RecruitLogEntry> RecruitLog = new List<RecruitLogEntry>();
@@ -481,6 +930,7 @@ namespace LearnHearthstone.Domain.Models
         public string HeroId;
         public string HeroPowerCardId;
         public List<string> ExtraHeroPowerCardIds = new List<string>();
+        public Dictionary<string, int> ExtraHeroPowerUnlockRounds = new Dictionary<string, int>();
         public int Health;
         public int MaxHealth;
         public int Armor;
@@ -518,6 +968,8 @@ namespace LearnHearthstone.Domain.Models
         public int LastOpponentRound;
         public int LastOpponentTavernTier;
         public List<MinionInstance> LastOpponentWarband = new List<MinionInstance>();
+        public int LastPlayerWarbandRound;
+        public List<MinionInstance> LastPlayerWarband = new List<MinionInstance>();
         public List<MinionInstance> RecentCombatDeaths = new List<MinionInstance>();
         public List<OpponentWarbandSnapshot> EliminatedPlayerWarbands = new List<OpponentWarbandSnapshot>();
     }
@@ -533,6 +985,8 @@ namespace LearnHearthstone.Domain.Models
         public string CardPoolVersionId;
         public string CardPoolVersionName;
         public bool IsDefaultCardPoolVersion = true;
+        public bool UseHistoricalTimewarpedPool = false;
+        public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
         public List<string> EnabledMinionCardIds = new List<string>();
         public List<string> EnabledTavernSpellCardNumbers = new List<string>();
         public LocalPlayerState Player = new LocalPlayerState();

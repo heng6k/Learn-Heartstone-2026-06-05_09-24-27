@@ -40,7 +40,7 @@ namespace LearnHearthstone.Adapters.Data
 
         private static TavernSpellDefinition ToDefinition(RawSpell raw)
         {
-            return new TavernSpellDefinition
+            var definition = new TavernSpellDefinition
             {
                 Id = raw.id,
                 SourceId = raw.sourceId,
@@ -62,9 +62,27 @@ namespace LearnHearthstone.Adapters.Data
                 ImagePath = raw.imagePath,
                 EffectIds = raw.effectIds ?? new List<string>(),
                 Tags = raw.tags == null || raw.tags.Count == 0 ? InferTags(raw) : raw.tags,
+                CardTemplate = ParseEnum(raw.cardTemplate, SpellCardTemplate.Auto),
+                TargetTemplate = ParseEnum(raw.targetTemplate, SpellTargetTemplate.Auto),
+                EffectTemplate = ParseEnum(raw.effectTemplate, SpellEffectTemplate.Auto),
                 ImplementationStatus = raw.implementationStatus,
                 Notes = raw.notes
             };
+
+            definition.CardTemplate = SpellBehaviorTemplate.ResolveCardTemplate(definition);
+            definition.TargetTemplate = SpellBehaviorTemplate.ResolveTargetTemplate(definition);
+            definition.EffectTemplate = SpellBehaviorTemplate.ResolveEffectTemplate(definition);
+            return definition;
+        }
+
+        private static TEnum ParseEnum<TEnum>(string value, TEnum fallback) where TEnum : struct
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return fallback;
+            }
+
+            return Enum.TryParse(value, true, out TEnum parsed) ? parsed : fallback;
         }
 
         private static List<string> InferTags(RawSpell raw)
@@ -215,6 +233,9 @@ namespace LearnHearthstone.Adapters.Data
             public string imagePath;
             public List<string> effectIds;
             public List<string> tags;
+            public string cardTemplate;
+            public string targetTemplate;
+            public string effectTemplate;
             public string implementationStatus;
             public string notes;
         }

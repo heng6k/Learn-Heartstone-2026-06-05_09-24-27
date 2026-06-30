@@ -149,7 +149,8 @@ namespace LearnHearthstone.Adapters.Images
 
         private static bool ShouldLoadFullTexture(CardKind cardKind)
         {
-            return cardKind == CardKind.TavernSpell
+            return cardKind == CardKind.Minion
+                || cardKind == CardKind.TavernSpell
                 || cardKind == CardKind.Hero
                 || cardKind == CardKind.HeroPower
                 || cardKind == CardKind.HeroBuddy

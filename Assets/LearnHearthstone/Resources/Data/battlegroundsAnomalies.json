@@ -1,0 +1,307 @@
+{
+  "snapshotDate": "2026-06-28",
+  "sourceUrl": "https://hsreplay.net/battlegrounds/anomalies/",
+  "count": 28,
+  "anomalies": [
+    {
+      "id": "BG31_Anomaly_123",
+      "cardId": "BG31_Anomaly_123",
+      "name": "Cosmic Duality",
+      "text": "At the start of the game, Discover a second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG27_Anomaly_504",
+      "cardId": "BG27_Anomaly_504",
+      "name": "Secrets of Norgannon",
+      "text": "Tavern Tier 7 exists. Start with 10 extra Armor.",
+      "sourcePools": ["CurrentHsReplay", "Season5Launch", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "MinionPool",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": ["RequiresTier7Pool"],
+      "tags": ["current", "tier7"]
+    },
+    {
+      "id": "BG35_Anomaly_005",
+      "cardId": "BG35_Anomaly_005",
+      "name": "Anomalous Timeline",
+      "text": "Alternate Timeline is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG32_Anomaly_001",
+      "cardId": "BG32_Anomaly_001",
+      "name": "Greater Pouches",
+      "text": "Growing Collection is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG35_Anomaly_007",
+      "cardId": "BG35_Anomaly_007",
+      "name": "Lesser Fortune",
+      "text": "Lesser Crystal Ball is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG34_Anomaly_805",
+      "cardId": "BG34_Anomaly_805",
+      "name": "Oathstone's Summoning",
+      "text": "On turn 7, Minor Timewarped minions are added to the Tavern. On turn 10, Major Timewarped minions are added.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": ["RequiresTimewarpPool"],
+      "tags": ["current", "timewarp", "pool_modifier"]
+    },
+    {
+      "id": "BG32_Anomaly_002",
+      "cardId": "BG32_Anomaly_002",
+      "name": "Lesser Pouches",
+      "text": "Fantastic Treasure is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG35_Anomaly_004",
+      "cardId": "BG35_Anomaly_004",
+      "name": "Anomalous Conflux",
+      "text": "Warped Conflux is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG31_Anomaly_106",
+      "cardId": "BG31_Anomaly_106",
+      "name": "Marin's Treasure Box",
+      "text": "All heroes are Marin. Growing Collection is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "HeroReplacement",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "hero_replacement", "second_hero_power"]
+    },
+    {
+      "id": "BG35_Anomaly_002",
+      "cardId": "BG35_Anomaly_002",
+      "name": "Anomalous Cube",
+      "text": "Mystery Cube is your second Hero Power. It unlocks on turn 5.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG27_Anomaly_711",
+      "cardId": "BG27_Anomaly_711",
+      "name": "Double Header",
+      "text": "The first time you buy a card each turn, get an extra exact copy.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "Economy",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "buy_trigger", "non_pool_copy"]
+    },
+    {
+      "id": "BG35_Anomaly_001",
+      "cardId": "BG35_Anomaly_001",
+      "name": "Fly the Flag",
+      "text": "Every 3 turns, get a spell that adds 12 copies of a target minion to the Tavern pool.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "GeneratedSpell",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "generated_spell", "pool_modifier", "adds_12_copies"]
+    },
+    {
+      "id": "BG35_Anomaly_008",
+      "cardId": "BG35_Anomaly_008",
+      "name": "Greater Fortune",
+      "text": "Greater Crystal Ball is your second Hero Power.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "SecondHeroPower",
+      "implementationStatus": "Implemented",
+      "tags": ["current", "second_hero_power"]
+    },
+    {
+      "id": "BG27_Anomaly_Prizes2",
+      "cardId": "BG27_Anomaly_Prizes2",
+      "name": "Darkmoon Faire Prizes",
+      "text": "Every 4 turns, Discover a Darkmoon Prize.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "DarkmoonPrize",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "darkmoon_prize"]
+    },
+    {
+      "id": "BG27_Anomaly_303",
+      "cardId": "BG27_Anomaly_303",
+      "name": "Grapnel of the Titans",
+      "text": "The first minion you buy each turn is free.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "Economy",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "buy_cost"]
+    },
+    {
+      "id": "BG27_Anomaly_580",
+      "cardId": "BG27_Anomaly_580",
+      "name": "Audience's Choice",
+      "text": "At the start of your turn, choose 1 of 2 cards. At end of turn, get it.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "SinglePlayerChoice",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "single_player_choice", "start_turn_choice", "end_turn_reward"]
+    },
+    {
+      "id": "BG27_Anomaly_751",
+      "cardId": "BG27_Anomaly_751",
+      "name": "Perfected Alchemy",
+      "text": "Start with a Goldenizer.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "GeneratedSpell",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "generated_spell"]
+    },
+    {
+      "id": "BG35_Anomaly_006",
+      "cardId": "BG35_Anomaly_006",
+      "name": "Anomalous Expedition",
+      "text": "At the start of the game, Discover Tier 6, 4, and 2 minions to get at those tiers.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "DelayedReward",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "delayed_reward"]
+    },
+    {
+      "id": "BG31_Anomaly_124",
+      "cardId": "BG31_Anomaly_124",
+      "name": "Golden Arrow",
+      "text": "Every 3 turns, get a Golden Arrow.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "GeneratedSpell",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "generated_spell"]
+    },
+    {
+      "id": "BG27_Anomaly_301",
+      "cardId": "BG27_Anomaly_301",
+      "name": "False Idols",
+      "text": "Triples require 2 copies and grant a Tavern Coin instead of a reward.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "TripleRule",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "triple_rule"]
+    },
+    {
+      "id": "BG27_Anomaly_716",
+      "cardId": "BG27_Anomaly_716",
+      "name": "Up-Prizing",
+      "text": "After you upgrade the Tavern, Discover a Darkmoon Prize. Prizes improve over time.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "DarkmoonPrize",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "darkmoon_prize"]
+    },
+    {
+      "id": "BG27_Anomaly_810",
+      "cardId": "BG27_Anomaly_810",
+      "name": "Bring in the Buddies",
+      "text": "Discoverable Buddies appear in the Tavern, 6 copies each, using BuddyPool.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "Buddy",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "buddy", "buddy_pool", "six_copies"]
+    },
+    {
+      "id": "BG27_Anomaly_900",
+      "cardId": "BG27_Anomaly_900",
+      "name": "Golganneth's Tempest",
+      "text": "Minions cost 2 Gold. You cannot refresh manually. Buying a card refreshes the Tavern.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "TavernRefresh",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "refresh_rule", "buy_cost"]
+    },
+    {
+      "id": "BG31_Anomaly_120",
+      "cardId": "BG31_Anomaly_120",
+      "name": "Scout's Honor",
+      "text": "Start with a Golden Patient Scout.",
+      "sourcePools": ["CurrentHsReplay", "AllKnown"],
+      "effectFamily": "GeneratedMinion",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "generated_minion"]
+    },
+    {
+      "id": "BG27_Anomaly_503",
+      "cardId": "BG27_Anomaly_503",
+      "name": "The Yogg-iseum",
+      "text": "At the start of your turn, choose 1 of 2 Yogg rewards. At end of turn, get it.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "SinglePlayerChoice",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "single_player_choice", "start_turn_choice", "end_turn_reward", "yogg"]
+    },
+    {
+      "id": "BG27_Anomaly_572",
+      "cardId": "BG27_Anomaly_572",
+      "name": "Treasure Hoard",
+      "text": "On turn 5, Discover a Golden Tier 3 minion.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "DelayedReward",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "delayed_discover"]
+    },
+    {
+      "id": "BG27_Anomaly_570",
+      "cardId": "BG27_Anomaly_570",
+      "name": "Treasure Hoard",
+      "text": "On turn 7, Discover a Golden Tier 5 minion.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "DelayedReward",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "delayed_discover"]
+    },
+    {
+      "id": "BG27_Anomaly_571",
+      "cardId": "BG27_Anomaly_571",
+      "name": "Treasure Hoard",
+      "text": "On turn 8, Discover a Golden Tier 6 minion.",
+      "sourcePools": ["CurrentHsReplay", "Season5AllBg27", "AllKnown"],
+      "effectFamily": "DelayedReward",
+      "implementationStatus": "Implemented",
+      "availabilityReasons": [],
+      "tags": ["current", "delayed_discover"]
+    }
+  ]
+}

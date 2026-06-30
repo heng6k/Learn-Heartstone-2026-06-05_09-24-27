@@ -70,6 +70,39 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void InfiniteToki_HeroPowerRefreshesWithTwoHigherTierMinions()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.Tier = 3;
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var shopMinions = service.State.Player.Tavern.Shop
+                .Where(card => card != null && (card.CardKind == CardKind.Minion || card.CardKind == CardKind.HeroBuddy))
+                .ToList();
+            Assert.AreEqual(9, service.State.Player.Tavern.Gold);
+            Assert.GreaterOrEqual(shopMinions.Count(card => card.TavernTier == 4), 2);
+            Assert.IsTrue(shopMinions.All(card => card.TavernTier <= 4));
+        }
+
+        [Test]
+        public void ClockworkAssistant_BattlecryDiscoversOneTierHigherAndClampsAtMaxTier()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            service.State.Player.Tavern.Tier = 6;
+
+            PlayBuddy(service, "TB_BaconShop_HERO_28_Buddy");
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("clockwork-assistant", discover.Source);
+            Assert.AreEqual(6, discover.RewardTier);
+            Assert.Greater(discover.Options.Count, 0);
+            Assert.IsTrue(discover.Options.All(card => card.TavernTier == 6));
+        }
+
+        [Test]
         public void Othaar_StartOfTurnDiscountAndCelestialArchiveCopiesZeroCostSpell()
         {
             var service = CreateHeroService("BG31_HERO_006");

@@ -293,7 +293,7 @@ namespace LearnHearthstone.Domain.Models
             };
         }
 
-        public static MinionInstance Create(HeroBuddyDefinition definition, BoardSide owner, string suffix, PoolSource source = PoolSource.Debug)
+        public static MinionInstance Create(HeroBuddyDefinition definition, BoardSide owner, string suffix, PoolSource source = PoolSource.Debug, int poolCopiesHeld = 0)
         {
             var keywords = new List<Keyword>(definition.Keywords);
             if (!string.IsNullOrWhiteSpace(definition.Text) &&
@@ -328,9 +328,9 @@ namespace LearnHearthstone.Domain.Models
                 CanAttack = true,
                 AttacksThisCombat = 0,
                 OriginPoolSource = source,
-                CanReturnToPoolAfterAttach = false,
+                CanReturnToPoolAfterAttach = (source == PoolSource.Pool || source == PoolSource.Buddy) && poolCopiesHeld > 0,
                 PoolSource = source,
-                PoolCopiesHeld = 0,
+                PoolCopiesHeld = poolCopiesHeld,
                 ImagePath = definition.ImagePath,
                 EffectIds = new List<string>(),
                 Tags = new List<string> { "hero_buddy" }

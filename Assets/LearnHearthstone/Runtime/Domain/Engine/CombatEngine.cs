@@ -44,8 +44,10 @@ namespace LearnHearthstone.Domain.Engine
         private const string ExpertAviatorCardId = "BG34_140";
         private const string EternalKnightCardId = "BG25_008";
         private const string VeryHungryWinterfinnerCardId = "BG29_300";
+        private const string BloodGemCardId = "BLOOD_GEM";
         private const string BristlebackBloodGemCardId = "BRISTLEBACK_BLOOD_GEM";
         private const string PointyArrowCardId = "100596";
+        private const string BloodGemBarrageCardNumber = "126676";
         private const string PersistentPoetCardId = "BG29_813";
         private const string PersistentPoetSourceId = "Persistent Poet";
         private const string PrizedPromoDrakeCardId = "BG21_014";
@@ -132,6 +134,51 @@ namespace LearnHearthstone.Domain.Engine
         private const string LastOfItsKindCardId = "BG34_320";
         private const string TenaciousKodoCardId = "BG34_322";
         private const string GoldrinnCardId = "BGS_018";
+        private const string TimewarpedAlleycatCardId = "BG34_Giant_009";
+        private const string TimewarpedBuskerCardId = "BG34_Giant_001";
+        private const string TimewarpedScourfinCardId = "BG34_Giant_017";
+        private const string TimewarpedFestergutCardId = "BG34_Giant_590";
+        private const string TimewarpedNelliesShipCardId = "BG34_Giant_074t";
+        private const string TimewarpedLeapfroggerCardId = "BG34_Giant_031";
+        private const string TimewarpedGeistCardId = "BG34_Giant_034";
+        private const string TimewarpedGreenskeeperCardId = "BG34_Giant_041";
+        private const string TimewarpedChameleonCardId = "BG34_Giant_042";
+        private const string TimewarpedDeiosCardId = "BG34_Giant_376";
+        private const string TimewarpedHawkstriderCardId = "BG34_Giant_370";
+        private const string TimewarpedPiperCardId = "BG34_Giant_069";
+        private const string TimewarpedLilQuilboarCardId = "BG34_Giant_608";
+        private const string TimewarpedBassgillCardId = "BG34_Giant_071";
+        private const string TimewarpedDeathswarmerCardId = "BG34_Giant_081";
+        private const string TimewarpedRedWhelpCardId = "BG34_Giant_091";
+        private const string TimewarpedSeaGlassCardId = "BG34_Giant_110";
+        private const string TimewarpedSauroliskCardId = "BG34_Giant_202";
+        private const string TimewarpedMurculesCardId = "BG34_Giant_207";
+        private const string TimewarpedPagleCardId = "BG34_Giant_208";
+        private const string TimewarpedJazzerCardId = "BG34_Giant_306";
+        private const string TimewarpedWarghoulCardId = "BG34_Giant_331";
+        private const string TimewarpedRadioStarCardId = "BG34_Giant_330";
+        private const string TimewarpedHyenaCardId = "BG34_Giant_581";
+        private const string TimewarpedRagnarosCardId = "BG34_Giant_580";
+        private const string TimewarpedHenchmanCardId = "BG34_Giant_593";
+        private const string TimewarpedCaretakerCardId = "BG34_Giant_618";
+        private const string TimewarpedGemsplitterCardId = "BG34_Giant_644";
+        private const string TimewarpedIckyImpCardId = "BG34_Giant_674";
+        private const string TimewarpedChimeraCardId = "BG34_Giant_679";
+        private const string TimewarpedCollectorCardId = "BG34_Giant_680";
+        private const string TimewarpedNestSwarmerCardId = "BG34_Giant_687";
+        private const string TimewarpedTideRazorCardId = "BG34_Giant_328";
+        private const string TimewarpedPashmarCardId = "BG34_Giant_211";
+        private const string TimewarpedCopterCardId = "BG34_Giant_302";
+        private const string TimewarpedCalligrapherCardId = "BG34_PreMadeChamp_091";
+        private const string TimewarpedDuskmawCardId = "BG34_PreMadeChamp_020";
+        private const string TimewarpedGeomancerCardId = "BG34_Giant_305";
+        private const string TimewarpedGhoulAcabraCardId = "BG34_Giant_609";
+        private const string TimewarpedHunterCardId = "BG34_Giant_588";
+        private const string TimewarpedPrismscaleCardId = "BG34_PreMadeChamp_022";
+        private const string TimewarpedRecyclerCardId = "BG34_Giant_082";
+        private const string TimewarpedStormcloudCardId = "BG34_PreMadeChamp_031";
+        private const string TimewarpedThorncallerCardId = "BG34_Giant_078";
+        private const string TimewarpedTravelerCardId = "BG34_Giant_605";
         private const string DisturbedGraveCardNumber = "126957";
         private const string ButcheringCardNumber = "110412";
         private const string MenagerieTablewareCardNumber = "105271";
@@ -294,6 +341,11 @@ namespace LearnHearthstone.Domain.Engine
                 ApplyDelayedTavernSpellCombatAuras(context, side);
             }
 
+            ResolveTimewarpedChameleonStartOfCombat(context, side);
+            ResolveTimewarpedRagnarosStartOfCombat(context, side);
+            ResolveTimewarpedRedWhelpStartOfCombat(context, side);
+            ResolveTimewarpedHawkstriderStartOfCombat(context, side);
+
             foreach (var mrrrglr in side.Board.Where(minion => IsAlive(minion) && minion.CardId == ChoralMrrrglrCardId).ToList())
             {
                 var multiplier = mrrrglr.Golden ? 2 : 1;
@@ -359,9 +411,154 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            foreach (var beast in side.Board.Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Beast)))
+            foreach (var beast in side.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast)))
             {
                 BuffMinion(beast, side.BeastAttackAura, 0, "Humming Bird");
+            }
+        }
+
+        private static void ResolveTimewarpedChameleonStartOfCombat(CombatContext context, CombatSideState side)
+        {
+            for (var index = 1; index < side.Board.Count; index += 1)
+            {
+                var source = side.Board[index];
+                if (!IsAlive(source) || source.CardId != TimewarpedChameleonCardId)
+                {
+                    continue;
+                }
+
+                var left = side.Board[index - 1];
+                if (left == null || !IsAlive(left))
+                {
+                    continue;
+                }
+
+                var copy = left.Clone();
+                copy.InstanceId = source.InstanceId;
+                copy.Owner = side.Side;
+                copy.PoolSource = PoolSource.Summon;
+                copy.PoolCopiesHeld = 0;
+                copy.CanAttack = true;
+                side.Board[index] = copy;
+                AddLog(context.Log, "StartOfCombat", source.InstanceId + " transformed into a copy of " + left.InstanceId, source.InstanceId, left.InstanceId, LogSeverity.Good);
+                RecordFrame(
+                    context,
+                    CombatEventType.TrinketTriggered,
+                    source.InstanceId + " copied left minion " + left.InstanceId,
+                    side.Side,
+                    source.InstanceId,
+                    side.Side,
+                    left.InstanceId,
+                    new[] { source.InstanceId, left.InstanceId },
+                    null,
+                    null,
+                    null,
+                    new[] { source.InstanceId });
+            }
+        }
+
+        private static void ResolveTimewarpedHawkstriderStartOfCombat(CombatContext context, CombatSideState side)
+        {
+            foreach (var hawkstrider in side.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedHawkstriderCardId).ToList())
+            {
+                var multiplier = hawkstrider.Golden ? 2 : 1;
+                var targetIds = side.Board
+                    .Where(minion => IsAlive(minion) && minion.Keywords.Contains(Keyword.Deathrattle))
+                    .Select(minion => minion.InstanceId)
+                    .ToList();
+                for (var repeat = 0; repeat < multiplier; repeat += 1)
+                {
+                    foreach (var targetId in targetIds)
+                    {
+                        TriggerStartOfCombatDeathrattle(context, side, targetId, hawkstrider.InstanceId);
+                    }
+                }
+            }
+        }
+
+        private static void ResolveTimewarpedRagnarosStartOfCombat(CombatContext context, CombatSideState side)
+        {
+            var opponent = context.Get(side.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+            foreach (var source in side.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedRagnarosCardId).ToList())
+            {
+                var target = opponent.Board
+                    .Where(IsAlive)
+                    .OrderByDescending(minion => minion.Health)
+                    .ThenByDescending(minion => minion.MaxHealth)
+                    .ThenBy(minion => minion.InstanceId)
+                    .FirstOrDefault();
+                if (target == null)
+                {
+                    continue;
+                }
+
+                var result = DealDamage(target, Math.Max(0, source.Attack), false);
+                ReplaceByInstanceId(opponent.Board, result.Minion);
+                ResolveDamageTriggers(
+                    context,
+                    side,
+                    source.InstanceId,
+                    false,
+                    false,
+                    opponent,
+                    target.InstanceId,
+                    result.CombatDamageDealt,
+                    result.DivineShieldBroken);
+                AddLog(context.Log, "StartOfCombat", source.InstanceId + " dealt " + source.Attack + " to " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
+                ResolveDeaths(context, opponent.Side);
+            }
+        }
+
+        private static void ResolveTimewarpedRedWhelpStartOfCombat(CombatContext context, CombatSideState side)
+        {
+            var opponent = context.Get(side.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+            foreach (var source in side.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedRedWhelpCardId).ToList())
+            {
+                var candidates = opponent.Board.Where(IsAlive).ToList();
+                var targets = new List<MinionInstance>();
+                var rng = new SeededRng(context.Seed + context.AttackSequence * 101 + context.Log.Count + source.InstanceId.Sum(ch => ch));
+                while (targets.Count < 2 && candidates.Count > 0)
+                {
+                    var index = rng.NextInt(candidates.Count);
+                    targets.Add(candidates[index]);
+                    candidates.RemoveAt(index);
+                }
+
+                if (targets.Count == 0)
+                {
+                    continue;
+                }
+
+                source.Counters.TryGetValue("timewarped_red_whelp_bonus", out var bonus);
+                var amount = StatMath.SaturatingMultiply(3 + Math.Max(0, bonus), source.Golden ? 2 : 1, 0, StatMath.MaxStat);
+                var damagedIds = new List<string>();
+                foreach (var target in targets)
+                {
+                    var result = DealDamage(target, amount, false);
+                    ReplaceByInstanceId(opponent.Board, result.Minion);
+                    if (result.CombatDamageDealt || result.DivineShieldBroken)
+                    {
+                        damagedIds.Add(target.InstanceId);
+                    }
+
+                    ResolveDamageTriggers(
+                        context,
+                        side,
+                        source.InstanceId,
+                        false,
+                        false,
+                        opponent,
+                        target.InstanceId,
+                        result.CombatDamageDealt,
+                        result.DivineShieldBroken);
+                }
+
+                if (damagedIds.Count > 0)
+                {
+                    AddLog(context.Log, "StartOfCombat", source.InstanceId + " dealt " + amount + " to " + string.Join(",", damagedIds.ToArray()), source.InstanceId, null, LogSeverity.Good);
+                }
+
+                ResolveDeaths(context, opponent.Side);
             }
         }
 
@@ -470,7 +667,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            if (side.BeastAttackAura > 0 && minion.Tribes.Contains(Tribe.Beast))
+            if (side.BeastAttackAura > 0 && HasCountedTribe(minion, Tribe.Beast))
             {
                 BuffMinion(minion, side.BeastAttackAura, 0, "Humming Bird");
             }
@@ -797,6 +994,7 @@ namespace LearnHearthstone.Domain.Engine
                 var inserted = 0;
                 var newEntityCountBeforeDeathEffects = newEntityIds.Count;
                 AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
+                ResolveTimewarpedFriendlyDeathTriggers(context, owner, minion);
                 ResolveEyeOfDalaranDeath(context, owner, minion);
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
                 {
@@ -990,6 +1188,21 @@ namespace LearnHearthstone.Domain.Engine
                     SkyGolemPortraitCardId,
                     "Sky Golem Portrait",
                     tavern.TrinketSkyGolemDeathrattleTriggers);
+            }
+        }
+
+        private static void ResolveTimewarpedFriendlyDeathTriggers(CombatContext context, CombatSideState owner, MinionInstance deadMinion)
+        {
+            if (deadMinion == null || !HasCountedTribe(deadMinion, Tribe.Beast))
+            {
+                return;
+            }
+
+            foreach (var hyena in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedHyenaCardId).ToList())
+            {
+                var multiplier = hyena.Golden ? 2 : 1;
+                BuffMinion(hyena, 2 * multiplier, 2 * multiplier, "Timewarped Hyena");
+                AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, hyena.CardId, hyena.InstanceId, 1, 2 * multiplier, 2 * multiplier, deadMinion.InstanceId);
             }
         }
 
@@ -1251,7 +1464,37 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             ResolveTrinketDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
+            ResolveTimewarpedDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
             return inserted;
+        }
+
+        private static void ResolveTimewarpedDeathrattleTriggered(CombatContext context, CombatSideState owner, MinionInstance source, int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            foreach (var saurolisk in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedSauroliskCardId).ToList())
+            {
+                var multiplier = saurolisk.Golden ? 2 : 1;
+                var attack = 3 * amount * multiplier;
+                var health = 2 * amount * multiplier;
+                BuffMinion(saurolisk, attack, health, "Timewarped Saurolisk");
+                AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, saurolisk.CardId, saurolisk.InstanceId, 1, attack, health, source?.InstanceId);
+            }
+
+            foreach (var ghoul in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedGhoulAcabraCardId).ToList())
+            {
+                var multiplier = ghoul.Golden ? 2 : 1;
+                var attack = 3 * amount * multiplier;
+                var health = 2 * amount * multiplier;
+                foreach (var target in owner.Board.Where(IsAlive).ToList())
+                {
+                    BuffMinion(target, attack, health, "Timewarped Ghoul-acabra");
+                    AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, ghoul.CardId, target.InstanceId, 1, attack, health, source?.InstanceId);
+                }
+            }
         }
 
         private static void ResolveTrinketDeathrattleTriggered(CombatContext context, CombatSideState owner, MinionInstance source, int amount)
@@ -1647,6 +1890,88 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case BassgillCardId:
                     inserted += SummonHighestHealthMurlocsFromHand(context, owner, minion, insertIndex + inserted, newEntityIds, minion.Golden ? 2 : 1);
+                    break;
+                case TimewarpedBassgillCardId:
+                    inserted += SummonHighestHealthMinionsFromHand(context, owner, minion, insertIndex + inserted, newEntityIds, minion.Golden ? 2 : 1, true);
+                    break;
+                case TimewarpedScourfinCardId:
+                    inserted += ResolveTimewarpedScourfinDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    break;
+                case TimewarpedFestergutCardId:
+                    inserted += ResolveTimewarpedSummonAndGetTribe(
+                        context,
+                        owner,
+                        minion,
+                        insertIndex + inserted,
+                        newEntityIds,
+                        Tribe.Undead,
+                        minion.Golden ? 2 : 1,
+                        "undead-creation",
+                        "Undead Creation",
+                        3,
+                        3);
+                    break;
+                case TimewarpedNelliesShipCardId:
+                    inserted += ResolveTimewarpedSummonAndGetTribe(
+                        context,
+                        owner,
+                        minion,
+                        insertIndex + inserted,
+                        newEntityIds,
+                        Tribe.Pirate,
+                        minion.Golden ? 2 : 1,
+                        "nellie-pirate",
+                        "Nellie's Pirate",
+                        3,
+                        3);
+                    break;
+                case TimewarpedJazzerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemHealth, minion.CardId, null, minion.Golden ? 2 : 1);
+                    break;
+                case TimewarpedLilQuilboarCardId:
+                    PlayBloodGemsOnFriendlyQuilboar(owner, minion.Golden ? 6 : 3);
+                    break;
+                case TimewarpedGeistCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellStats, minion.CardId, null, minion.Golden ? 2 : 1, 2, 2);
+                    break;
+                case TimewarpedCaretakerCardId:
+                    inserted += ResolveTimewarpedCaretakerDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    break;
+                case TimewarpedIckyImpCardId:
+                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "timewarped-imp", "Imp", Math.Max(0, minion.Attack), Math.Max(1, minion.MaxHealth), Tribe.Demon);
+                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "timewarped-imp", "Imp", Math.Max(0, minion.Attack), Math.Max(1, minion.MaxHealth), Tribe.Demon);
+                    if (minion.Golden)
+                    {
+                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "timewarped-imp", "Imp", Math.Max(0, minion.Attack), Math.Max(1, minion.MaxHealth), Tribe.Demon);
+                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "timewarped-imp", "Imp", Math.Max(0, minion.Attack), Math.Max(1, minion.MaxHealth), Tribe.Demon);
+                    }
+
+                    break;
+                case TimewarpedNestSwarmerCardId:
+                    inserted += ResolveTimewarpedNestSwarmer(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    break;
+                case TimewarpedTideRazorCardId:
+                    inserted += ResolveTimewarpedSummonAndGetTribe(
+                        context,
+                        owner,
+                        minion,
+                        insertIndex + inserted,
+                        newEntityIds,
+                        Tribe.Pirate,
+                        4 * (minion.Golden ? 2 : 1),
+                        "tide-razor-pirate",
+                        "Tide Razor Pirate",
+                        3,
+                        3);
+                    break;
+                case TimewarpedWarghoulCardId:
+                    inserted += TriggerAdjacentDeathrattleExceptWarghoul(context, owner, minion, insertIndex + inserted, newEntityIds, sourceRemoved);
+                    break;
+                case TimewarpedLeapfroggerCardId:
+                    ResolveTimewarpedLeapfroggerDeathrattle(context, owner, minion);
+                    break;
+                case TimewarpedRadioStarCardId:
+                    QueueTimewarpedRadioStarReward(context, owner, minion);
                     break;
                 case QueenGuardCardId:
                     BuffAll(owner.Board, minion.Golden ? 4 : 2, minion.Golden ? 4 : 2, "Queen's Command");
@@ -2241,6 +2566,40 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
+        private static void ResolveTimewarpedGreenskeeperRally(CombatContext context, CombatSideState owner, MinionInstance source)
+        {
+            var multiplier = source.Golden ? 2 : 1;
+            for (var repeat = 0; repeat < multiplier; repeat += 1)
+            {
+                var battlecryTarget = owner.Board
+                    .LastOrDefault(minion => minion.InstanceId != source.InstanceId && IsAlive(minion) && minion.Keywords.Contains(Keyword.Battlecry));
+                if (battlecryTarget != null)
+                {
+                    TriggerBattlecryResource(context, owner, source, battlecryTarget);
+                    AddLog(context.Log, "RallyResolved", source.InstanceId + " triggered " + battlecryTarget.InstanceId + " battlecry", source.InstanceId, battlecryTarget.InstanceId, LogSeverity.Good);
+                }
+
+                var deathrattleTarget = owner.Board
+                    .LastOrDefault(minion => minion.InstanceId != source.InstanceId && IsAlive(minion) && minion.Keywords.Contains(Keyword.Deathrattle));
+                if (deathrattleTarget == null)
+                {
+                    continue;
+                }
+
+                var targetIndex = owner.Board.FindIndex(minion => minion.InstanceId == deathrattleTarget.InstanceId);
+                if (targetIndex < 0)
+                {
+                    continue;
+                }
+
+                var newEntityIds = new List<string>();
+                ResolveDeathrattleEffect(context, owner, deathrattleTarget, Math.Min(targetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId);
+                ResolveDeaths(context, owner.Side);
+                ResolveDeaths(context, owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                AddLog(context.Log, "RallyResolved", source.InstanceId + " triggered " + deathrattleTarget.InstanceId + " deathrattle", source.InstanceId, deathrattleTarget.InstanceId, LogSeverity.Good);
+            }
+        }
+
         private static void TriggerBattlecryResource(CombatContext context, CombatSideState owner, MinionInstance source, MinionInstance target)
         {
             var multiplier = target.Golden ? 2 : 1;
@@ -2290,7 +2649,84 @@ namespace LearnHearthstone.Domain.Engine
                     }
 
                     break;
+                case TimewarpedBuskerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.GainNextTurnGold, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case TimewarpedNestSwarmerCardId:
+                    ResolveTimewarpedNestSwarmer(context, owner, target, owner.Board.Count, new List<string>());
+                    break;
+                case TimewarpedCalligrapherCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomTavernSpellToHand, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case TimewarpedHunterCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, target.CardId, PointyArrowCardId, multiplier, target.InstanceId);
+                    break;
+                case TimewarpedThorncallerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, BloodGemBarrageCardNumber, multiplier, target.InstanceId);
+                    break;
             }
+        }
+
+        private static int TriggerAdjacentDeathrattleExceptWarghoul(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            int sourceIndex,
+            List<string> newEntityIds,
+            bool sourceRemoved)
+        {
+            var candidates = new List<MinionInstance>();
+            if (sourceRemoved)
+            {
+                var leftIndex = sourceIndex - 1;
+                if (leftIndex >= 0 && leftIndex < owner.Board.Count)
+                {
+                    candidates.Add(owner.Board[leftIndex]);
+                }
+
+                if (sourceIndex >= 0 && sourceIndex < owner.Board.Count)
+                {
+                    candidates.Add(owner.Board[sourceIndex]);
+                }
+            }
+            else
+            {
+                var currentIndex = owner.Board.FindIndex(minion => minion.InstanceId == source.InstanceId);
+                if (currentIndex >= 0)
+                {
+                    var leftIndex = currentIndex - 1;
+                    var rightIndex = currentIndex + 1;
+                    if (leftIndex >= 0 && leftIndex < owner.Board.Count)
+                    {
+                        candidates.Add(owner.Board[leftIndex]);
+                    }
+
+                    if (rightIndex >= 0 && rightIndex < owner.Board.Count)
+                    {
+                        candidates.Add(owner.Board[rightIndex]);
+                    }
+                }
+            }
+
+            var targets = candidates
+                .Where(minion => IsAlive(minion) && minion.CardId != TimewarpedWarghoulCardId && minion.Keywords.Contains(Keyword.Deathrattle))
+                .ToList();
+            if (targets.Count == 0)
+            {
+                return 0;
+            }
+
+            var target = targets.Count == 1
+                ? targets[0]
+                : new SeededRng(context.Seed + context.AttackSequence + sourceIndex + context.Log.Count).Pick(targets);
+            var targetIndex = owner.Board.FindIndex(minion => minion.InstanceId == target.InstanceId);
+            if (targetIndex < 0)
+            {
+                return 0;
+            }
+
+            AddLog(context.Log, "DeathrattleResolved", source.InstanceId + " triggered adjacent " + target.InstanceId + " deathrattle", source.InstanceId, target.InstanceId, LogSeverity.Good);
+            return ResolveDeathrattleEffect(context, owner, target, Math.Min(targetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId);
         }
 
         private static void MagnetizeRandomMechOntoFriendlyMech(CombatContext context, CombatSideState owner, MinionInstance source, int count)
@@ -2366,45 +2802,107 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var attacker = owner.Board[attackerIndex];
-            if (attacker.CardId == DustboneDestroyerCardId)
+            var hasRally = attacker.Keywords.Contains(Keyword.Rally);
+            var repeats = hasRally ? GetRallyRepeats(owner) : 1;
+            if (hasRally)
             {
-                ResolveDustboneDestroyerRally(context, owner, attacker, triggeredAttack);
+                AddReward(context.Log, owner, CombatRewardType.FriendlyRallyTriggered, attacker.CardId, null, repeats, attacker.InstanceId);
             }
 
-            ResolveHighTierRally(context, owner, attacker, attackerIndex);
-
-            if (attacker.CardId != SleepySupporterCardId || attackerIndex + 1 >= owner.Board.Count)
+            for (var repeat = 0; repeat < repeats; repeat += 1)
             {
+                if (attacker.CardId == DustboneDestroyerCardId)
+                {
+                    ResolveDustboneDestroyerRally(context, owner, attacker, triggeredAttack);
+                }
+
+                if (attacker.CardId == TimewarpedSeaGlassCardId)
+                {
+                    ResolveTimewarpedSeaGlassRally(context, owner, attacker, triggeredAttack);
+                }
+
+                if (attacker.CardId == TimewarpedNestSwarmerCardId)
+                {
+                    ResolveTimewarpedNestSwarmer(context, owner, attacker, attackerIndex + 1, new List<string>());
+                }
+
+                if (attacker.CardId == TimewarpedCollectorCardId)
+                {
+                    ResolveTimewarpedCollectorRally(context, owner, attacker, triggeredAttack);
+                }
+
+                if (attacker.CardId == TimewarpedGreenskeeperCardId)
+                {
+                    ResolveTimewarpedGreenskeeperRally(context, owner, attacker);
+                }
+
+                ResolveHighTierRally(context, owner, attacker, attackerIndex);
+
                 if (attacker.CardId == ExpertAviatorCardId)
                 {
                     ResolveExpertAviatorRally(context, owner, attacker, attackerIndex);
                 }
 
-                return;
-            }
+                if (attacker.CardId != SleepySupporterCardId || attackerIndex + 1 >= owner.Board.Count)
+                {
+                    continue;
+                }
 
-            if (attacker.CardId != SleepySupporterCardId)
+                var target = owner.Board[attackerIndex + 1];
+                var amount = attacker.Golden ? 4 : 2;
+                BuffMinion(target, amount, amount, "Sleepy Supporter");
+                AddLog(context.Log, "RallyResolved", attacker.InstanceId + " rallied " + target.InstanceId, attacker.InstanceId, target.InstanceId, LogSeverity.Good);
+                RecordFrame(
+                    context,
+                    CombatEventType.RallyResolved,
+                    attacker.InstanceId + " rallied " + target.InstanceId,
+                    owner.Side,
+                    attacker.InstanceId,
+                    owner.Side,
+                    target.InstanceId,
+                    new[] { attacker.InstanceId, target.InstanceId },
+                    new[] { target.InstanceId },
+                    null,
+                    null,
+                    new[] { attacker.InstanceId });
+            }
+        }
+
+        private static int GetRallyRepeats(CombatSideState owner)
+        {
+            return 1 + GetTimewarpedDeiosExtraTriggers(owner);
+        }
+
+        private static void ResolveTimewarpedCollectorRally(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)
+        {
+            if (owner.Board.Count(minion => IsAlive(minion) && minion.Golden) < 4)
             {
                 return;
             }
 
-            var target = owner.Board[attackerIndex + 1];
-            var amount = attacker.Golden ? 4 : 2;
-            BuffMinion(target, amount, amount, "Sleepy Supporter");
-            AddLog(context.Log, "RallyResolved", attacker.InstanceId + " rallied " + target.InstanceId, attacker.InstanceId, target.InstanceId, LogSeverity.Good);
+            AddKeyword(attacker, Keyword.DivineShield);
+            AddLog(context.Log, "RallyResolved", attacker.InstanceId + " gained Divine Shield", attacker.InstanceId, attacker.InstanceId, LogSeverity.Good);
             RecordFrame(
                 context,
                 CombatEventType.RallyResolved,
-                attacker.InstanceId + " rallied " + target.InstanceId,
+                attacker.InstanceId + " gained Divine Shield",
                 owner.Side,
                 attacker.InstanceId,
                 owner.Side,
-                target.InstanceId,
-                new[] { attacker.InstanceId, target.InstanceId },
-                new[] { target.InstanceId },
+                attacker.InstanceId,
+                new[] { attacker.InstanceId },
+                new[] { attacker.InstanceId },
                 null,
                 null,
-                new[] { attacker.InstanceId });
+                new[] { attacker.InstanceId },
+                null,
+                BoardSide.Player,
+                -1,
+                0,
+                0,
+                0,
+                0,
+                triggeredAttack);
         }
 
         private static void ResolveExpertAviatorRally(CombatContext context, CombatSideState owner, MinionInstance attacker, int attackerIndex)
@@ -2489,6 +2987,42 @@ namespace LearnHearthstone.Domain.Engine
                 0,
                 0,
                 triggeredAttack);
+        }
+
+        private static void ResolveTimewarpedSeaGlassRally(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)
+        {
+            attacker.Counters.TryGetValue("timewarped_sea_glass_rallies", out var rallies);
+            if (rallies >= 2)
+            {
+                return;
+            }
+
+            attacker.Counters["timewarped_sea_glass_rallies"] = rallies + 1;
+            BuffMinion(attacker, Math.Max(0, attacker.Attack), Math.Max(0, attacker.MaxHealth), "Timewarped Sea Glass");
+            AddLog(context.Log, "RallyResolved", attacker.InstanceId + " doubled stats", attacker.InstanceId, attacker.InstanceId, LogSeverity.Good);
+            RecordFrame(
+                context,
+                CombatEventType.RallyResolved,
+                attacker.InstanceId + " doubled stats",
+                owner.Side,
+                attacker.InstanceId,
+                owner.Side,
+                attacker.InstanceId,
+                new[] { attacker.InstanceId },
+                null,
+                null,
+                null,
+                new[] { attacker.InstanceId },
+                null,
+                BoardSide.Player,
+                -1,
+                0,
+                0,
+                0,
+                0,
+                triggeredAttack,
+                rallies + 1,
+                2);
         }
 
         private static void ResolveTrinketAttackDeclarationTriggers(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)
@@ -2786,6 +3320,48 @@ namespace LearnHearthstone.Domain.Engine
             ResolveWyvernDamageRefreshTrigger(context, defenderOwner, defenderId, defenderTookDamage);
             ResolveSilkyShimmermothDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveSilkyShimmermothDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
+            ResolveTimewarpedDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveTimewarpedDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
+        }
+
+        private static void ResolveTimewarpedDamageTrigger(CombatContext context, CombatSideState owner, string damagedId, bool tookDamage)
+        {
+            if (!tookDamage || string.IsNullOrEmpty(damagedId))
+            {
+                return;
+            }
+
+            var source = owner.Board.FirstOrDefault(minion => minion.InstanceId == damagedId && IsAlive(minion));
+            if (source == null)
+            {
+                return;
+            }
+
+            if (source.CardId == TimewarpedDeathswarmerCardId)
+            {
+                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, source.Golden ? 2 : 1, source.InstanceId);
+            }
+            else if (source.CardId == TimewarpedPiperCardId)
+            {
+                source.Counters.TryGetValue("timewarped_piper_triggers", out var triggers);
+                if (triggers >= (source.Golden ? 4 : 2))
+                {
+                    return;
+                }
+
+                source.Counters["timewarped_piper_triggers"] = triggers + 1;
+                AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemAttack, source.CardId, null, source.Golden ? 2 : 1, source.InstanceId);
+            }
+            else if (source.CardId == TimewarpedChimeraCardId)
+            {
+                var multiplier = source.Golden ? 2 : 1;
+                var targets = SelectOneOfEachFriendlyCombatType(owner);
+                foreach (var target in targets)
+                {
+                    BuffMinion(target, 2 * multiplier, 1 * multiplier, "Timewarped Chimera");
+                    AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, source.CardId, target.InstanceId, 1, 2 * multiplier, 1 * multiplier, source.InstanceId);
+                }
+            }
         }
 
         private static void ResolveTigerCarvingDamageTrigger(CombatContext context, CombatSideState owner, string damagedId, bool tookDamage)
@@ -2871,7 +3447,12 @@ namespace LearnHearthstone.Domain.Engine
                     1,
                     false,
                     4 - tavern.TrinketDivineSignetUses,
-                    4);
+                        4);
+            }
+
+            foreach (var gemsplitter in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == TimewarpedGemsplitterCardId).ToList())
+            {
+                AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemAttack, gemsplitter.CardId, null, gemsplitter.Golden ? 2 : 1, minionId);
             }
 
             if (target == null ||
@@ -3059,7 +3640,23 @@ namespace LearnHearthstone.Domain.Engine
                     damagedIds.Add(target.InstanceId);
                 }
 
-                ResolveWyvernDamageRefreshTrigger(context, defenderOwner, target.InstanceId, result.CombatDamageDealt);
+                if (attacker.CardId == TimewarpedCollectorCardId)
+                {
+                    ResolveDamageTriggers(
+                        context,
+                        attackerOwner,
+                        attacker.InstanceId,
+                        false,
+                        false,
+                        defenderOwner,
+                        target.InstanceId,
+                        result.CombatDamageDealt,
+                        result.DivineShieldBroken);
+                }
+                else
+                {
+                    ResolveWyvernDamageRefreshTrigger(context, defenderOwner, target.InstanceId, result.CombatDamageDealt);
+                }
             }
 
             if (damagedIds.Count == 0)
@@ -3091,7 +3688,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveCleaveDamage(CombatContext context, CombatSideState attackerOwner, MinionInstance attacker, CombatSideState defenderOwner, int defenderIndex)
         {
-            if (attacker.CardId != BladeCollectorCardId || attacker.Attack <= 0)
+            if ((attacker.CardId != BladeCollectorCardId && attacker.CardId != TimewarpedCollectorCardId) || attacker.Attack <= 0)
             {
                 return;
             }
@@ -3375,7 +3972,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var damaged = owner.Board.FirstOrDefault(minion => minion.InstanceId == damagedId && minion.Tribes.Contains(Tribe.Beast));
+            var damaged = owner.Board.FirstOrDefault(minion => minion.InstanceId == damagedId && HasCountedTribe(minion, Tribe.Beast));
             if (damaged == null)
             {
                 return;
@@ -3395,7 +3992,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var damaged = owner.Board.FirstOrDefault(minion => minion.InstanceId == damagedId && minion.Tribes.Contains(Tribe.Beast));
+            var damaged = owner.Board.FirstOrDefault(minion => minion.InstanceId == damagedId && HasCountedTribe(minion, Tribe.Beast));
             if (damaged == null)
             {
                 return;
@@ -3403,7 +4000,7 @@ namespace LearnHearthstone.Domain.Engine
 
             foreach (var skyfin in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == SkyfinRaptorCardId))
             {
-                var target = owner.Board.FirstOrDefault(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Beast) && minion.InstanceId != damagedId);
+                var target = owner.Board.FirstOrDefault(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast) && minion.InstanceId != damagedId);
                 if (target == null)
                 {
                     continue;
@@ -3421,7 +4018,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var source = owner.Board.FirstOrDefault(minion => minion.InstanceId == sourceId && minion.Tribes.Contains(Tribe.Demon));
+            var source = owner.Board.FirstOrDefault(minion => minion.InstanceId == sourceId && HasCountedTribe(minion, Tribe.Demon));
             if (source == null)
             {
                 return;
@@ -3441,7 +4038,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var source = owner.Board.FirstOrDefault(minion => minion.InstanceId == sourceId && minion.Tribes.Contains(Tribe.Demon));
+            var source = owner.Board.FirstOrDefault(minion => minion.InstanceId == sourceId && HasCountedTribe(minion, Tribe.Demon));
             if (source == null)
             {
                 return;
@@ -3488,6 +4085,7 @@ namespace LearnHearthstone.Domain.Engine
                 if (triggered)
                 {
                     source.Counters["avenge_count"] = 0;
+                    AddReward(context.Log, owner, CombatRewardType.FriendlyAvengeTriggered, source.CardId, null, 1, source.InstanceId);
                     if (source.CardId == HatchingResearcherCardId)
                     {
                         AddReward(context.Log, owner, CombatRewardType.AddRandomChromawhelpToHand, source.CardId, null, source.Golden ? 2 : 1);
@@ -3533,6 +4131,25 @@ namespace LearnHearthstone.Domain.Engine
                         source.Counters.TryGetValue("banshee_bonus", out var bonus);
                         bonus += source.Golden ? 2 : 1;
                         source.Counters["banshee_bonus"] = bonus;
+                    }
+                    else if (source.CardId == TimewarpedGeomancerCardId)
+                    {
+                        var multiplier = source.Golden ? 2 : 1;
+                        AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, source.CardId, BloodGemCardId, multiplier);
+                        AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemStats, source.CardId, null, multiplier, 1, 1);
+                    }
+                    else if (source.CardId == TimewarpedDuskmawCardId)
+                    {
+                        var multiplier = source.Golden ? 2 : 1;
+                        foreach (var dragon in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Dragon)).ToList())
+                        {
+                            BuffMinion(dragon, 6 * multiplier, 2 * multiplier, "Timewarped Duskmaw");
+                            AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, source.CardId, dragon.InstanceId, 1, 6 * multiplier, 2 * multiplier, source.InstanceId);
+                        }
+                    }
+                    else if (source.CardId == TimewarpedNestSwarmerCardId)
+                    {
+                        ResolveTimewarpedNestSwarmer(context, owner, source, owner.Board.Count, new List<string>());
                     }
                     else
                     {
@@ -3983,6 +4600,38 @@ namespace LearnHearthstone.Domain.Engine
                 return 4;
             }
 
+            if (source.CardId == TimewarpedGeomancerCardId)
+            {
+                return 5;
+            }
+
+            if (source.CardId == TimewarpedPashmarCardId)
+            {
+                return 3;
+            }
+
+            if (source.CardId == TimewarpedCopterCardId ||
+                source.CardId == TimewarpedStormcloudCardId)
+            {
+                return 3;
+            }
+
+            if (source.CardId == TimewarpedRecyclerCardId ||
+                source.CardId == TimewarpedTravelerCardId)
+            {
+                return 4;
+            }
+
+            if (source.CardId == TimewarpedPrismscaleCardId)
+            {
+                return 2;
+            }
+
+            if (source.CardId == TimewarpedDuskmawCardId || source.CardId == TimewarpedNestSwarmerCardId)
+            {
+                return 1;
+            }
+
             return 2;
         }
 
@@ -3991,6 +4640,7 @@ namespace LearnHearthstone.Domain.Engine
             var extra = owner.Board
                 .Where(minion => IsAlive(minion) && minion.CardId == TitusRivendareCardId)
                 .Sum(minion => minion.Golden ? 2 : 1);
+            extra += GetTimewarpedDeiosExtraTriggers(owner);
             extra += Math.Max(0, owner.Tavern?.QuestDeathrattleExtraTriggers ?? 0);
             if ((owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0) > 0)
             {
@@ -3999,6 +4649,13 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return 1 + extra;
+        }
+
+        private static int GetTimewarpedDeiosExtraTriggers(CombatSideState owner)
+        {
+            return owner.Board
+                .Where(minion => IsAlive(minion) && minion.CardId == TimewarpedDeiosCardId)
+                .Sum(minion => minion.Golden ? 2 : 1);
         }
 
         private static void AddReward(List<CombatLogEntry> log, CombatSideState owner, CombatRewardType type, string sourceCardId, string cardId, int amount, string sourceInstanceId = null)
@@ -4050,20 +4707,40 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void QueueDamagedMinionRewards(List<CombatLogEntry> log, CombatSideState owner, MinionInstance damaged, bool tookDamage)
         {
-            if (!tookDamage || damaged.CardId != VeryHungryWinterfinnerCardId)
+            if (!tookDamage || damaged == null)
             {
                 return;
             }
 
-            AddReward(
-                log,
-                owner,
-                CombatRewardType.BuffHandMinion,
-                damaged.CardId,
-                null,
-                1,
-                damaged.Golden ? 4 : 2,
-                damaged.Golden ? 2 : 1);
+            if (damaged.CardId == VeryHungryWinterfinnerCardId)
+            {
+                AddReward(
+                    log,
+                    owner,
+                    CombatRewardType.BuffHandMinion,
+                    damaged.CardId,
+                    null,
+                    1,
+                    damaged.Golden ? 4 : 2,
+                    damaged.Golden ? 2 : 1);
+            }
+
+        }
+
+        private static void PlayBloodGemsOnFriendlyQuilboar(CombatSideState owner, int count)
+        {
+            if (owner == null || count <= 0)
+            {
+                return;
+            }
+
+            foreach (var target in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Quilboar)).ToList())
+            {
+                for (var gem = 0; gem < count; gem += 1)
+                {
+                    ApplyBloodGem(target, owner.Tavern);
+                }
+            }
         }
 
         private static MinionInstance AddImmediateAttackHatchling(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds = null)
@@ -4230,7 +4907,12 @@ namespace LearnHearthstone.Domain.Engine
 
         private static bool HasCountedTribe(MinionInstance minion, Tribe tribe)
         {
-            return tribe != Tribe.None && BoardTribeAnalyzer.GetCountedTribes(minion).Contains(tribe);
+            return BoardTribeAnalyzer.HasTribe(minion, tribe);
+        }
+
+        private static List<MinionInstance> SelectOneOfEachFriendlyCombatType(CombatSideState owner)
+        {
+            return BoardTribeAnalyzer.SelectOneOfEachTribe(owner?.Board?.Where(IsAlive));
         }
 
         private static (int Attack, int Health) GetBloodGemStats(MinionInstance minion)
@@ -4404,6 +5086,36 @@ namespace LearnHearthstone.Domain.Engine
                 Health = defeated.BaseHealth > 0 ? defeated.BaseHealth : Math.Max(1, defeated.MaxHealth)
             });
             AddLog(context.Log, "CombatRewardQueued", "FriendlyMinionKilledEnemy from " + killerCardId + " killed " + defeated.CardId, killerId, defeated.InstanceId, LogSeverity.Good);
+            QueueTimewarpedHenchmanReward(context, rewardOwner, killer, defeated);
+        }
+
+        private static void QueueTimewarpedHenchmanReward(CombatContext context, CombatSideState rewardOwner, MinionInstance killer, MinionInstance defeated)
+        {
+            if (killer == null || defeated == null || killer.CardId != TimewarpedHenchmanCardId)
+            {
+                return;
+            }
+
+            var key = string.IsNullOrEmpty(killer.InstanceId) ? killer.CardId : killer.InstanceId;
+            rewardOwner.FriendlyKillCounters.TryGetValue(key, out var kills);
+            kills += 1;
+            rewardOwner.FriendlyKillCounters[key] = kills;
+            if (kills != 2)
+            {
+                return;
+            }
+
+            AddReward(
+                context.Log,
+                rewardOwner,
+                CombatRewardType.AddPlainCopyOfKilledEnemyToHand,
+                killer.CardId,
+                defeated.CardId,
+                killer.Golden ? 2 : 1,
+                defeated.BaseAttack > 0 ? defeated.BaseAttack : Math.Max(0, defeated.Attack),
+                defeated.BaseHealth > 0 ? defeated.BaseHealth : Math.Max(1, defeated.MaxHealth),
+                killer.InstanceId);
+            AddLog(context.Log, "CombatRewardQueued", "Timewarped Henchman copied second kill " + defeated.CardId, killer.InstanceId, defeated.InstanceId, LogSeverity.Good);
         }
 
         private static MinionInstance FindMinionByInstanceId(CombatContext context, string instanceId)
@@ -4578,6 +5290,196 @@ namespace LearnHearthstone.Domain.Engine
             return inserted;
         }
 
+        private static int SummonHighestHealthMinionsFromHand(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds, int count, bool divineShield)
+        {
+            var inserted = 0;
+            var candidates = owner.Hand
+                .Where(card => card.CardKind == CardKind.Minion)
+                .OrderByDescending(card => card.MaxHealth)
+                .ThenBy(card => card.InstanceId)
+                .Take(Math.Max(0, count))
+                .ToList();
+            foreach (var candidate in candidates)
+            {
+                if (owner.Board.Count >= BoardLimit)
+                {
+                    break;
+                }
+
+                var copy = candidate.Clone();
+                copy.InstanceId = "combat-timewarped-hand-" + source.InstanceId + "-" + candidate.InstanceId;
+                copy.Owner = owner.Side;
+                copy.PoolSource = PoolSource.Summon;
+                copy.PoolCopiesHeld = 0;
+                copy.CanAttack = true;
+                if (divineShield)
+                {
+                    AddKeyword(copy, Keyword.DivineShield);
+                }
+
+                ApplySummonAuras(owner, copy);
+                owner.Board.Insert(Math.Min(insertIndex + inserted, owner.Board.Count), copy);
+                newEntityIds.Add(copy.InstanceId);
+                ResolveFriendlySummonTriggers(context, owner, copy, source);
+                inserted += 1;
+                AddLog(context.Log, "MinionSummoned", source.InstanceId + " summoned hand minion " + copy.InstanceId, source.InstanceId, copy.InstanceId, LogSeverity.Good);
+            }
+
+            return inserted;
+        }
+
+        private static int ResolveTimewarpedScourfinDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
+        {
+            var candidates = owner.Hand.Where(card => card.CardKind == CardKind.Minion).ToList();
+            if (candidates.Count == 0)
+            {
+                return 0;
+            }
+
+            var target = new SeededRng(context.Seed + context.AttackSequence * 719 + candidates.Count).Pick(candidates);
+            var multiplier = source.Golden ? 2 : 1;
+            var attack = 7 * multiplier;
+            var health = 7 * multiplier;
+            AddTargetedReward(context.Log, owner, CombatRewardType.BuffTargetHandMinion, source.CardId, target.InstanceId, 1, attack, health, source.InstanceId);
+            if (owner.Board.Count >= BoardLimit)
+            {
+                return 0;
+            }
+
+            var copy = target.Clone();
+            copy.InstanceId = "combat-scourfin-" + source.InstanceId + "-" + target.InstanceId;
+            copy.Owner = owner.Side;
+            copy.PoolSource = PoolSource.Summon;
+            copy.PoolCopiesHeld = 0;
+            copy.CanAttack = true;
+            BuffMinion(copy, attack, health, "Timewarped Scourfin");
+            ApplySummonAuras(owner, copy);
+            owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
+            newEntityIds.Add(copy.InstanceId);
+            ResolveFriendlySummonTriggers(context, owner, copy, source);
+            return 1;
+        }
+
+        private static int ResolveTimewarpedCaretakerDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
+        {
+            var skeletons = 5 * (source.Golden ? 2 : 1);
+            var inserted = 0;
+            var overflowed = 0;
+            for (var index = 0; index < skeletons; index += 1)
+            {
+                if (owner.Board.Count >= BoardLimit)
+                {
+                    overflowed += 1;
+                    RecordSummonOverflow(context, owner, source, "skeleton", "Skeleton");
+                    continue;
+                }
+
+                inserted += AddTokenAndTrack(context, owner, source, insertIndex + inserted, newEntityIds, "skeleton", "Skeleton", 1, 1, Tribe.Undead);
+            }
+
+            if (overflowed > 0)
+            {
+                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, overflowed);
+            }
+
+            return inserted;
+        }
+
+        private static int ResolveTimewarpedNestSwarmer(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
+        {
+            var multiplier = source.Golden ? 2 : 1;
+            AddReward(context.Log, owner, CombatRewardType.ImproveBeetleStats, source.CardId, null, multiplier, 2, 3, source.InstanceId);
+            if (owner.Tavern != null)
+            {
+                owner.Tavern.BeetleAttackBonus += 2 * multiplier;
+                owner.Tavern.BeetleHealthBonus += 3 * multiplier;
+            }
+
+            return AddTokenAndTrack(
+                context,
+                owner,
+                source,
+                insertIndex,
+                newEntityIds,
+                "beetle",
+                "Beetle",
+                2 + (owner.Tavern?.BeetleAttackBonus ?? 0),
+                2 + (owner.Tavern?.BeetleHealthBonus ?? 0),
+                Tribe.Beast);
+        }
+
+        private static int ResolveTimewarpedSummonAndGetTribe(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            int insertIndex,
+            List<string> newEntityIds,
+            Tribe tribe,
+            int count,
+            string tokenId,
+            string tokenName,
+            int attack,
+            int health)
+        {
+            var amount = Math.Max(0, count);
+            var inserted = 0;
+            for (var index = 0; index < amount; index += 1)
+            {
+                inserted += AddTokenAndTrack(
+                    context,
+                    owner,
+                    source,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    tokenId,
+                    tokenName,
+                    attack,
+                    health,
+                    tribe);
+            }
+
+            if (amount > 0)
+            {
+                AddReward(context.Log, owner, CombatRewardType.AddRandomSameTribeMinionToHand, source.CardId, tribe.ToString(), amount, source.InstanceId);
+            }
+
+            return inserted;
+        }
+
+        private static void ResolveTimewarpedLeapfroggerDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source)
+        {
+            var candidates = owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast)).ToList();
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var target = new SeededRng(context.Seed + context.AttackSequence * 811 + candidates.Count).Pick(candidates);
+            var multiplier = source.Golden ? 2 : 1;
+            BuffMinion(target, multiplier, multiplier, "Timewarped Leapfrogger");
+            AddKeyword(target, Keyword.Deathrattle);
+            AddKeyword(target, Keyword.Taunt);
+            AddKeyword(target, Keyword.Reborn);
+        }
+
+        private static void QueueTimewarpedRadioStarReward(CombatContext context, CombatSideState owner, MinionInstance source)
+        {
+            var killerId = GetKillerId(source);
+            var killerSide = GetKillerSide(source);
+            if (!killerSide.HasValue || string.IsNullOrEmpty(killerId))
+            {
+                return;
+            }
+
+            var killer = FindMinionByInstanceId(context, killerSide.Value, killerId);
+            if (killer == null)
+            {
+                return;
+            }
+
+            AddReward(context.Log, owner, CombatRewardType.AddCopyOfKillerToHand, source.CardId, killer.CardId, 1, Math.Max(0, killer.Attack), Math.Max(1, killer.MaxHealth), source.InstanceId);
+        }
+
         private static int SummonLeftmostHandMinionForCombat(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
         {
             if (owner.Board.Count >= BoardLimit)
@@ -4730,7 +5632,7 @@ namespace LearnHearthstone.Domain.Engine
             ApplyHeroCombatSummonModifiers(owner, summoned);
             ApplyTrinketCombatSummonModifiers(context, owner, summoned, source);
 
-            if (summoned.Tribes.Contains(Tribe.Beast))
+            if (HasCountedTribe(summoned, Tribe.Beast))
             {
                 foreach (var slamma in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == BananaSlammaCardId))
                 {
@@ -4746,7 +5648,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (summoned.Tribes.Contains(Tribe.Mech))
+            if (HasCountedTribe(summoned, Tribe.Mech))
             {
                 foreach (var deflecto in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == DeflectOBotCardId))
                 {
@@ -4783,18 +5685,18 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            if (summoned.Tribes.Contains(Tribe.Beast) &&
+            if (HasCountedTribe(summoned, Tribe.Beast) &&
                 (tavern.TrinketCombatBeastSummonBonusAttack != 0 || tavern.TrinketCombatBeastSummonBonusHealth != 0))
             {
                 BuffMinion(summoned, tavern.TrinketCombatBeastSummonBonusAttack, tavern.TrinketCombatBeastSummonBonusHealth, "Mama Bear Sticker");
             }
 
-            if (summoned.Tribes.Contains(Tribe.Beast) && tavern.TrinketSlammaStickerActive)
+            if (HasCountedTribe(summoned, Tribe.Beast) && tavern.TrinketSlammaStickerActive)
             {
                 BuffMinion(summoned, summoned.Attack, 0, "Slamma Sticker");
             }
 
-            if (summoned.Tribes.Contains(Tribe.Murloc) && tavern.TrinketBassgillPortraitActive)
+            if (HasCountedTribe(summoned, Tribe.Murloc) && tavern.TrinketBassgillPortraitActive)
             {
                 AddKeyword(summoned, Keyword.DivineShield);
             }
@@ -5358,6 +6260,7 @@ namespace LearnHearthstone.Domain.Engine
             public int TemporaryAvengeBeastRewards { get; set; }
             public bool TwinSkyLanternTriggered { get; set; }
             public Dictionary<string, int> AvengeCounters { get; } = new Dictionary<string, int>();
+            public Dictionary<string, int> FriendlyKillCounters { get; } = new Dictionary<string, int>();
             public List<MinionInstance> DeadMechPlainCopies { get; } = new List<MinionInstance>();
             public Dictionary<string, MinionInstance> StitchedCopies { get; } = new Dictionary<string, MinionInstance>();
             public Dictionary<string, int> SummonAuraUses { get; } = new Dictionary<string, int>();

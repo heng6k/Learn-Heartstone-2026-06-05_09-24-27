@@ -68,7 +68,9 @@ namespace LearnHearthstone.Domain.Models
         Copy,
         Discover,
         Summon,
-        Debug
+        Debug,
+        Timewarped,
+        Buddy
     }
 
     public enum CardKind

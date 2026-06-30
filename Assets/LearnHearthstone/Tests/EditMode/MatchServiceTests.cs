@@ -11,6 +11,12 @@ namespace LearnHearthstone.Tests.EditMode
 {
     public sealed class MatchServiceTests
     {
+        private const string KraggHeroPowerId = "TB_BaconShop_HP_076";
+        private const string PatchesHeroPowerId = "TB_BaconShop_HP_054";
+        private const string GeorgeHeroPowerId = "TB_BaconShop_HP_010";
+        private const string BlackthornHeroPowerId = "BG20_HERO_103p";
+        private const string BloodGemCardId = "BLOOD_GEM";
+
         [Test]
         public void CreateNewMatch_StartsWithTierOneShopAndThreeGold()
         {
@@ -31,6 +37,2637 @@ namespace LearnHearthstone.Tests.EditMode
             var service = MatchService.CreateWithDefaultCatalog(12345);
 
             CollectionAssert.AreEqual(TribeAvailabilityRules.PlayableTribes, service.State.ActiveTribes);
+        }
+
+        [Test]
+        public void TimewarpedTavernCatalog_LoadsExpectedCurrentAndHistoricalPools()
+        {
+            var catalog = TimewarpedTavernCatalogLoader.LoadFromResources();
+
+            Assert.Greater(catalog.All.Count, 0);
+            Assert.Greater(catalog.Current.Count, 0);
+            Assert.Greater(catalog.Minor.Count, 0);
+            Assert.Greater(catalog.Major.Count, 0);
+            Assert.Greater(catalog.HistoricalExtra.Count, 0);
+            Assert.Greater(catalog.NonMinions.Count, 0);
+            Assert.AreEqual(0, catalog.BlockedNonMinions.Count);
+            Assert.IsTrue(catalog.Current.All(card => !string.IsNullOrWhiteSpace(card.ImagePath)));
+
+            var exit = catalog.GetByCardId("BG34_BlackMarket_Skip");
+            Assert.AreEqual(CardKind.Spell, exit.CardKind);
+            Assert.AreEqual(TimewarpedPurchaseBehavior.Exit, TimewarpedCardBehavior.ResolvePurchaseBehavior(exit));
+
+            var nonMinion = catalog.GetByCardId("BG34_Treasure_934");
+            Assert.AreEqual(CardKind.TavernSpell, nonMinion.CardKind);
+            CollectionAssert.Contains(nonMinion.Tags, "timewarp:implemented");
+            Assert.AreEqual(TimewarpedPurchaseBehavior.CastsWhenBought, TimewarpedCardBehavior.ResolvePurchaseBehavior(nonMinion));
+            Assert.IsFalse(nonMinion.Tags.Contains(TimewarpedCardBehavior.BlockedNonMinionSupportTag));
+
+            var discoverSpell = catalog.GetByCardId("BG34_Treasure_903");
+            Assert.AreEqual(CardKind.TavernSpell, discoverSpell.CardKind);
+            CollectionAssert.Contains(discoverSpell.Tags, "timewarp:implemented");
+            Assert.AreEqual(TimewarpedPurchaseBehavior.EntersHand, TimewarpedCardBehavior.ResolvePurchaseBehavior(discoverSpell));
+            Assert.IsFalse(discoverSpell.Tags.Contains(TimewarpedCardBehavior.BlockedNonMinionSupportTag));
+
+            var repeatSpell = catalog.GetByCardId("BG34_Treasure_608");
+            Assert.AreEqual(CardKind.TavernSpell, repeatSpell.CardKind);
+            CollectionAssert.Contains(repeatSpell.Tags, "timewarp:implemented");
+            Assert.AreEqual(TimewarpedPurchaseBehavior.EntersHand, TimewarpedCardBehavior.ResolvePurchaseBehavior(repeatSpell));
+            Assert.IsFalse(repeatSpell.Tags.Contains(TimewarpedCardBehavior.BlockedNonMinionSupportTag));
+        }
+
+        [Test]
+        public void TimewarpedTavern_DefaultCandidatesIncludeImplementedNonMinionsAndExcludeHistorical()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+
+            var minor = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor).ToList();
+            var major = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Major).ToList();
+
+            Assert.AreEqual(TimewarpedPoolVersion.Current, service.State.TimewarpedPoolVersion);
+            Assert.IsFalse(service.State.UseHistoricalTimewarpedPool);
+            Assert.Greater(minor.Count, 0);
+            Assert.Greater(major.Count, 0);
+            Assert.IsTrue(minor.Any(card => card.CardKind == CardKind.Minion));
+            Assert.IsTrue(major.Any(card => card.CardKind == CardKind.Minion));
+            Assert.IsTrue(minor.Any(card => card.PoolStatus == "implemented_non_minion"));
+            Assert.IsTrue(major.Any(card => card.PoolStatus == "implemented_non_minion"));
+            Assert.IsFalse(minor.Concat(major).Any(card => card.PoolStatus == "historical_extra"));
+            Assert.IsFalse(minor.Concat(major).Any(card => card.TimewarpKind == TimewarpKind.None));
+            Assert.IsTrue(minor.Concat(major).All(TimewarpedCardBehavior.IsOfferableNonExit));
+        }
+
+        [Test]
+        public void TimewarpedTavernCatalog_PurchaseBehaviorFieldOverridesDefaultInference()
+        {
+            var catalog = TimewarpedTavernCatalogLoader.LoadFromJson(
+                "{\"count\":1,\"cards\":[{\"cardId\":\"TEST_TIMEWARPED_TEMPLATE\",\"name\":\"Template Spell\",\"cardKind\":\"TavernSpell\",\"timewarpKind\":\"Minor\",\"cost\":1,\"techLevel\":3,\"attack\":0,\"health\":0,\"poolStatus\":\"current\",\"purchaseBehavior\":\"CastsWhenBought\"}]}");
+
+            var card = catalog.GetByCardId("TEST_TIMEWARPED_TEMPLATE");
+
+            Assert.AreEqual(TimewarpedPurchaseBehavior.CastsWhenBought, card.PurchaseBehavior);
+            Assert.AreEqual(TimewarpedPurchaseBehavior.CastsWhenBought, TimewarpedCardBehavior.ResolvePurchaseBehavior(card));
+            Assert.IsFalse(TimewarpedCardBehavior.EntersHand(card));
+        }
+
+        [Test]
+        public void TimewarpedTavern_HistoricalSwitchAddsHistoricalExtraCandidates()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTrinkets = false,
+                    UseHistoricalTimewarpedPool = true
+                });
+
+            var minor = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor).ToList();
+            var major = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Major).ToList();
+            var current = CreateTimewarpOnlyService(12345);
+            var currentMinor = current.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor).Count;
+            var currentMajor = current.GetTimewarpedCandidateDefinitions(TimewarpKind.Major).Count;
+
+            Assert.AreEqual(TimewarpedPoolVersion.FirestoneAll, service.State.TimewarpedPoolVersion);
+            Assert.IsTrue(service.State.UseHistoricalTimewarpedPool);
+            Assert.Greater(minor.Count, currentMinor);
+            Assert.Greater(major.Count, currentMajor);
+            Assert.IsTrue(minor.Any(card => card.PoolStatus == "historical_extra"));
+            Assert.IsTrue(major.Any(card => card.PoolStatus == "historical_extra"));
+            Assert.IsTrue(minor.Any(card => card.PoolStatus == "implemented_non_minion"));
+            Assert.IsTrue(major.Any(card => card.PoolStatus == "implemented_non_minion"));
+            Assert.IsTrue(minor.Concat(major).All(TimewarpedCardBehavior.IsOfferableNonExit));
+        }
+
+        [Test]
+        public void TimewarpedTavern_ExitOfferClosesVisitWithoutAddingHandCard()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            timewarp.Chronum = 3;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot { SlotId = "fixed-exit", CardId = "BG34_BlackMarket_Skip", CardKind = CardKind.Spell, Cost = 1, Source = "test" }
+            };
+            var handBefore = tavern.Hand.Count;
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+
+            Assert.AreEqual(2, timewarp.Chronum);
+            Assert.IsTrue(timewarp.Offers[0].Purchased);
+            Assert.IsFalse(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Closed, timewarp.Phase);
+            Assert.AreEqual(handBefore, tavern.Hand.Count);
+        }
+
+        [Test]
+        public void TimewarpedTavern_NonMinionsHaveNoBlockedSupportStubs()
+        {
+            var catalog = TimewarpedTavernCatalogLoader.LoadFromResources();
+
+            Assert.AreEqual(0, catalog.BlockedNonMinions.Count);
+            Assert.IsFalse(catalog.NonMinions.Any(TimewarpedCardBehavior.IsBlockedNonMinionSupport));
+        }
+
+        [Test]
+        public void TimewarpedCastsWhenBought_ArmorStashGainsArmorWithoutAddingHandCard()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            service.State.Player.Armor = 4;
+            var handBefore = tavern.Hand.Count;
+            var castsBefore = tavern.TavernSpellsCastThisTurn;
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_934", CardKind.TavernSpell, 1, 3);
+
+            Assert.AreEqual(14, service.State.Player.Armor);
+            Assert.AreEqual(2, timewarp.Chronum);
+            Assert.IsTrue(timewarp.Offers[0].Purchased);
+            Assert.AreEqual(handBefore, tavern.Hand.Count);
+            Assert.AreEqual(castsBefore + 1, tavern.TavernSpellsCastThisTurn);
+        }
+
+        [Test]
+        public void TimewarpedCastsWhenBought_InvestmentAddsAndConsumesNextTimewarpBonusChronum()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_300", CardKind.TavernSpell, 1, 3);
+
+            Assert.AreEqual(2, timewarp.Chronum);
+            Assert.AreEqual(1, timewarp.NextTimewarpBonusChronum);
+            Assert.IsTrue(timewarp.Offers[0].Purchased);
+
+            timewarp.VisitOpen = false;
+            timewarp.Phase = TimewarpTavernPhase.Closed;
+            timewarp.PendingKind = TimewarpKind.None;
+            timewarp.PendingSource = null;
+            timewarp.LastVisitRound = 0;
+
+            AdvanceToRound(service, 6);
+
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            Assert.AreEqual(6, timewarp.Chronum);
+            Assert.AreEqual(0, timewarp.NextTimewarpBonusChronum);
+        }
+
+        [Test]
+        public void TimewarpedCastsWhenBought_HeroPowerSpellAddsSecondHeroPower()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var handBefore = tavern.Hand.Count;
+            service.State.Player.HeroPowerCardId = "TB_BaconShop_HP_054";
+            service.State.Player.ExtraHeroPowerCardIds.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_HeroPowerSpell_006", CardKind.TavernSpell, 2, 3);
+
+            Assert.AreEqual(1, timewarp.Chronum);
+            Assert.IsTrue(timewarp.Offers[0].Purchased);
+            Assert.AreEqual(handBefore, tavern.Hand.Count);
+            Assert.AreEqual("TB_BaconShop_HP_054", service.State.Player.HeroPowerCardId);
+            CollectionAssert.Contains(service.State.Player.ExtraHeroPowerCardIds, "TB_BaconShop_HP_010");
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_OnTheHouseDiscoversThreeCurrentTierMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            tavern.Tier = 4;
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_903", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual("timewarped-on-the-house", tavern.Discover.Source);
+            Assert.AreEqual(3, tavern.Discover.RemainingPicks);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.TavernTier == 4));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(2, tavern.Discover.RemainingPicks);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(2, tavern.Hand.Count);
+            Assert.AreEqual(1, tavern.Discover.RemainingPicks);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(3, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card => card.CardKind == CardKind.Minion && card.TavernTier == 4));
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_CorpseDiscoversDeathrattleWithReborn()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_937", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual("timewarped-corpse", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.Count > 0);
+            Assert.IsTrue(tavern.Discover.Options.All(card =>
+                card.CardKind == CardKind.Minion &&
+                card.TavernTier >= 5 &&
+                card.Keywords.Contains(Keyword.Deathrattle) &&
+                card.Keywords.Contains(Keyword.Reborn)));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.Contains(Keyword.Reborn, tavern.Hand[0].Keywords);
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_ChefsChoiceAddsSameTypeTierFourFiveSixMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("chef-target", "Chef Target", "CHEF_TARGET", 2, 2, Tribe.Beast, 3));
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_940", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(3, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card =>
+                card.CardKind == CardKind.Minion &&
+                card.TavernTier >= 4 &&
+                card.TavernTier <= 6 &&
+                (card.Tribes.Contains(Tribe.Beast) || card.Tribes.Contains(Tribe.All))));
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_RevelationDiscoversCostOneAndTwoMinorTimewarpedMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_953", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual("timewarped-revelation:1", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.Cost == 1 && card.Tags.Contains("timewarped")));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(1, tavern.Hand[0].Cost);
+            Assert.AreEqual("timewarped-revelation:2", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.Cost == 2 && card.Tags.Contains("timewarped")));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(2, tavern.Hand.Count);
+            Assert.AreEqual(2, tavern.Hand[1].Cost);
+            Assert.IsTrue(tavern.Hand.All(card => card.Tags.Contains("timewarped")));
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_RitualDiscoversTwoTierSevenMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_919", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual("timewarped-ritual", tavern.Discover.Source);
+            Assert.AreEqual(2, tavern.Discover.RemainingPicks);
+            var rewardTier = tavern.Discover.RewardTier;
+            Assert.GreaterOrEqual(rewardTier, 6);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.TavernTier == rewardTier));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(1, tavern.Discover.RemainingPicks);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(2, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card => card.CardKind == CardKind.Minion && card.TavernTier == rewardTier));
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_EvolutionTransformsTargetIntoThirtyThirtyTierSix()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("evolution-target", "Evolution Target", "EVOLUTION_TARGET", 2, 3, Tribe.Beast, 2));
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_933", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            StringAssert.StartsWith("timewarped-evolution:", tavern.Discover.Source);
+            Assert.AreEqual("evolution-target", tavern.Discover.TargetInstanceId);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.TavernTier == 6));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, service.State.Player.Board.Count);
+            var transformed = service.State.Player.Board[0];
+            Assert.AreEqual("evolution-target", transformed.InstanceId);
+            Assert.AreNotEqual("EVOLUTION_TARGET", transformed.CardId);
+            Assert.AreEqual(6, transformed.TavernTier);
+            Assert.AreEqual(30, transformed.Attack);
+            Assert.AreEqual(30, transformed.Health);
+            Assert.AreEqual(30, transformed.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_BeanstalkDiscoversMajorCostOneAndLocksItInHand()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_301", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-beanstalk", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.Cost == 1 && card.Tags.Contains("timewarped")));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(1, tavern.Hand[0].Cost);
+            Assert.IsTrue(tavern.Hand[0].Tags.Contains("locked_in_hand"));
+            Assert.AreEqual(1, tavern.Hand[0].Counters["locked-turns"]);
+        }
+
+        [Test]
+        public void TimewarpedChooseDiscover_SecrecyDiscoversGoldenTierSevenMinion()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_625", CardKind.TavernSpell, 3, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-secrecy", tavern.Discover.Source);
+            var rewardTier = tavern.Discover.RewardTier;
+            Assert.GreaterOrEqual(rewardTier, 6);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.CardKind == CardKind.Minion && card.TavernTier == rewardTier && card.Golden));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(rewardTier, tavern.Hand[0].TavernTier);
+            Assert.IsTrue(tavern.Hand[0].Golden);
+        }
+
+        [Test]
+        public void TimewarpedStateBackedDiscover_BigWinnerDiscoversTierThreeDarkmoonPrizeAndRepeatsEveryThreeTurns()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_606", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-big-winner", tavern.Discover.Source);
+            Assert.AreEqual(3, tavern.Discover.RewardTier);
+            var tierThreePrizeIds = new HashSet<string>(service.DarkmoonPrizeCatalog.GetByTier(3).Select(prize => prize.CardId));
+            Assert.AreEqual(8, tierThreePrizeIds.Count);
+            Assert.IsTrue(tavern.Discover.Options.All(card =>
+                card.CardKind == CardKind.Spell &&
+                card.TavernTier == 3 &&
+                tierThreePrizeIds.Contains(card.CardId) &&
+                card.Tags.Contains("darkmoon_prize") &&
+                card.Tags.Contains("darkmoon_prize_tier_3") &&
+                !card.Tags.Contains("bounty") &&
+                !card.Tags.Contains("darkmoon_prize_proxy")));
+            Assert.AreEqual(4, tavern.AdvancedMechanics.Counters["timewarped_big_winner_due_round"]);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand[0].Tags.Contains("darkmoon_prize"));
+            Assert.IsFalse(tavern.Hand[0].Tags.Contains("darkmoon_prize_proxy"));
+            Assert.IsFalse(tavern.Hand[0].Tags.Contains("bounty"));
+            tavern.Hand.Clear();
+
+            AdvanceToRound(service, 3);
+            Assert.IsNull(tavern.Discover);
+
+            AdvanceToRound(service, 4);
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-big-winner", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.All(card =>
+                card.Tags.Contains("darkmoon_prize") &&
+                card.Tags.Contains("darkmoon_prize_tier_3") &&
+                !card.Tags.Contains("darkmoon_prize_proxy")));
+            Assert.AreEqual(7, tavern.AdvancedMechanics.Counters["timewarped_big_winner_due_round"]);
+        }
+
+        [Test]
+        public void DarkmoonPrize_BuyTheHolyLightIsPlayableSpellWithoutTavernSpellCounters()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var target = TestBoardMinion("holy-light-target", "Holy Light Target", "HOLY_LIGHT_TARGET", 3, 4, Tribe.Beast, 2);
+            service.State.Player.Board.Add(target);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_Treasures_015", CardKind.Spell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(13, target.Attack);
+            Assert.IsTrue(target.Keywords.Contains(Keyword.DivineShield));
+            Assert.AreEqual(0, tavern.TavernSpellsCastThisGame);
+        }
+
+        [Test]
+        public void DarkmoonPrize_BananasFillHandWithTavernDishBananas()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_Treasures_019", CardKind.Spell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(10, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card =>
+                card.CardId == "MUKLA_BANANA" &&
+                card.CardKind == CardKind.TavernSpell &&
+                card.Tags.Contains("tavern_dish_banana")));
+        }
+
+        [Test]
+        public void DarkmoonPrize_ReservePricesDiscountsTavernSpellsWithoutCountingAsTavernSpell()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BGS_Treasures_104", CardKind.Spell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(1, tavern.NextTavernSpellCostReduction);
+            Assert.AreEqual(0, tavern.TavernSpellsCastThisGame);
+        }
+
+        [Test]
+        public void TimewarpedStateBackedDiscover_MasterThiefKeepsPreviousWarbandStatsAndKeywords()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            var previous = TestBoardMinion("previous-master", "Previous Master", "PREVIOUS_MASTER", 17, 19, Tribe.Dragon, 5);
+            previous.Keywords.Add(Keyword.DivineShield);
+            service.State.OpponentHistory.LastPlayerWarband = new List<MinionInstance> { previous };
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_902", CardKind.TavernSpell, 3, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-master-thief", tavern.Discover.Source);
+            Assert.AreEqual(1, tavern.Discover.Options.Count);
+            Assert.AreEqual("PREVIOUS_MASTER", tavern.Discover.Options[0].CardId);
+            Assert.AreEqual(17, tavern.Discover.Options[0].Attack);
+            Assert.AreEqual(19, tavern.Discover.Options[0].MaxHealth);
+            Assert.IsTrue(tavern.Discover.Options[0].Keywords.Contains(Keyword.DivineShield));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(17, tavern.Hand[0].Attack);
+            Assert.AreEqual(19, tavern.Hand[0].MaxHealth);
+            Assert.IsTrue(tavern.Hand[0].Keywords.Contains(Keyword.DivineShield));
+        }
+
+        [Test]
+        public void TimewarpedStateBackedDiscover_ThiefSetsPreviousWarbandChoiceToTwentyTwenty()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            var previous = TestBoardMinion("previous-thief", "Previous Thief", "PREVIOUS_THIEF", 7, 9, Tribe.Pirate, 4);
+            previous.Keywords.Add(Keyword.Taunt);
+            service.State.OpponentHistory.LastPlayerWarband = new List<MinionInstance> { previous };
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_966", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("timewarped-thief", tavern.Discover.Source);
+            Assert.AreEqual(1, tavern.Discover.Options.Count);
+            Assert.AreEqual("PREVIOUS_THIEF", tavern.Discover.Options[0].CardId);
+            Assert.AreEqual(20, tavern.Discover.Options[0].Attack);
+            Assert.AreEqual(20, tavern.Discover.Options[0].Health);
+            Assert.AreEqual(20, tavern.Discover.Options[0].MaxHealth);
+            Assert.IsTrue(tavern.Discover.Options[0].Keywords.Contains(Keyword.Taunt));
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.AreEqual(20, tavern.Hand[0].Attack);
+            Assert.AreEqual(20, tavern.Hand[0].MaxHealth);
+            Assert.IsTrue(tavern.Hand[0].Keywords.Contains(Keyword.Taunt));
+        }
+
+        [Test]
+        public void TimewarpedDirectNonMinion_TraineeAddsOneMinionFromTiersOneTwoThree()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_607", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(3, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card => card.CardKind == CardKind.Minion));
+            CollectionAssert.AreEquivalent(new[] { 1, 2, 3 }, tavern.Hand.Select(card => card.TavernTier).ToArray());
+        }
+
+        [Test]
+        public void TimewarpedDirectNonMinion_StrikeOilIncreasesMaxGoldAndGainsFourGold()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            tavern.Gold = 2;
+            tavern.MaxGold = 6;
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_932", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(6, tavern.Gold);
+            Assert.AreEqual(10, tavern.MaxGold);
+
+            AdvanceToRound(service, 2);
+
+            Assert.AreEqual(TavernRules.GetMaxGoldForRound(2) + 4, tavern.MaxGold);
+            Assert.AreEqual(TavernRules.GetMaxGoldForRound(2) + 4, tavern.Gold);
+        }
+
+        [Test]
+        public void TimewarpedDirectNonMinion_RatInACageBuffsThenDoublesFriendlyTarget()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("rat-target", "Rat Target", "RAT_TARGET", 3, 4, Tribe.Beast, 2));
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_905", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            var target = service.State.Player.Board[0];
+            Assert.AreEqual(10, target.Attack);
+            Assert.AreEqual(12, target.Health);
+            Assert.AreEqual(12, target.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedDirectNonMinion_GoldenizerMakesFriendlyTargetGolden()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("goldenizer-target", "Goldenizer Target", "GOLDENIZER_TARGET", 4, 5, Tribe.Mech, 3));
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_955", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            var target = service.State.Player.Board[0];
+            Assert.IsTrue(target.Golden);
+            Assert.AreEqual(8, target.Attack);
+            Assert.AreEqual(10, target.Health);
+            Assert.AreEqual(10, target.MaxHealth);
+            Assert.AreEqual(1, target.Counters["triple-reward-granted"]);
+        }
+
+        [Test]
+        public void TimewarpedFinalNonMinion_BananasFillHandAndImproveTavernSpellBuffs()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            var target = TestBoardMinion("banana-target", "Banana Target", "BANANA_TARGET", 2, 2, Tribe.Beast, 1);
+            service.State.Player.Board.Add(target);
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_912", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(10, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card =>
+                card.CardId == "MUKLA_BANANA" &&
+                card.CardKind == CardKind.TavernSpell &&
+                card.Tags.Contains("tavern_dish_banana")));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(6, target.Attack);
+            Assert.AreEqual(6, target.Health);
+            Assert.AreEqual(6, target.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedFinalNonMinion_NewRecruitBuffsCurrentAndFutureSevenCardTaverns()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            tavern.Gold = 10;
+            tavern.MaxGold = 10;
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("new-recruit-shop-1", "Shop One", "SHOP_ONE", 2, 3, Tribe.Beast, 1),
+                TestBoardMinion("new-recruit-shop-2", "Shop Two", "SHOP_TWO", 3, 4, Tribe.Murloc, 1)
+            });
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_917", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            var currentShopMinions = tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
+            Assert.GreaterOrEqual(tavern.Shop.Count(card => card != null), 7);
+            Assert.IsTrue(currentShopMinions.All(card => card.Attack >= card.BaseAttack + 2));
+            Assert.IsTrue(currentShopMinions.All(card => card.MaxHealth >= card.BaseHealth + 2));
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var refreshedShopMinions = tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
+            Assert.GreaterOrEqual(tavern.Shop.Count(card => card != null), 7);
+            Assert.IsTrue(refreshedShopMinions.All(card => card.Attack >= card.BaseAttack + 2));
+            Assert.IsTrue(refreshedShopMinions.All(card => card.MaxHealth >= card.BaseHealth + 2));
+        }
+
+        [Test]
+        public void TimewarpedFinalNonMinion_CloningDeviceSummonsExactFriendlyCopy()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            var target = TestBoardMinion("clone-target", "Clone Target", "CLONE_TARGET", 3, 4, Tribe.Dragon, 2);
+            target.Attack = 7;
+            target.Health = 8;
+            target.MaxHealth = 9;
+            target.Golden = true;
+            target.Keywords.Add(Keyword.DivineShield);
+            target.Counters["exact-copy-counter"] = 2;
+            target.Tags.Add("exact-copy-tag");
+            target.Enchantments.Add(new Enchantment { Id = "test-enchant", SourceId = "test", AttackBonus = 4, HealthBonus = 5 });
+            service.State.Player.Board.Add(target);
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_302", CardKind.TavernSpell, 2, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count);
+            var copy = service.State.Player.Board[1];
+            Assert.AreNotEqual(target.InstanceId, copy.InstanceId);
+            Assert.AreEqual(target.CardId, copy.CardId);
+            Assert.AreEqual(7, copy.Attack);
+            Assert.AreEqual(8, copy.Health);
+            Assert.AreEqual(9, copy.MaxHealth);
+            Assert.IsTrue(copy.Golden);
+            Assert.Contains(Keyword.DivineShield, copy.Keywords);
+            Assert.AreEqual(2, copy.Counters["exact-copy-counter"]);
+            Assert.Contains("exact-copy-tag", copy.Tags);
+            Assert.AreEqual("test", copy.Enchantments[0].SourceId);
+            Assert.AreEqual(PoolSource.Summon, copy.PoolSource);
+        }
+
+        [Test]
+        public void TimewarpedFinalNonMinion_SpecialFillsHandWithTemporarySpellcraft()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_950", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(10, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card => card.CardKind == CardKind.Spell));
+            Assert.IsTrue(tavern.Hand.All(card => card.Keywords.Contains(Keyword.Spellcraft)));
+            Assert.IsTrue(tavern.Hand.All(card => card.Tags.Contains("temporary_spellcraft_card")));
+        }
+
+        [Test]
+        public void TimewarpedFinalNonMinion_ConchCopiesFriendlyAllTribeAsMurloc()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            var target = TestBoardMinion("conch-target", "Conch Target", "CONCH_TARGET", 5, 6, Tribe.All, 3);
+            target.Attack = 11;
+            target.MaxHealth = 12;
+            target.Health = 10;
+            service.State.Player.Board.Add(target);
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_951", CardKind.TavernSpell, 1, 5);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count);
+            var copy = service.State.Player.Board[1];
+            Assert.AreNotEqual(target.InstanceId, copy.InstanceId);
+            Assert.AreEqual(target.CardId, copy.CardId);
+            Assert.AreEqual(11, copy.Attack);
+            Assert.AreEqual(10, copy.Health);
+            Assert.AreEqual(12, copy.MaxHealth);
+            Assert.AreEqual(PoolSource.Summon, copy.PoolSource);
+        }
+
+        [Test]
+        public void TimewarpedRepeatNonMinion_EvolvingTavernAddsProxyAndRepeatsAtTurnStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_900", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "TIMEWARPED_EVOLVING_TAVERN_SPELL"));
+
+            AdvanceToRound(service, 2);
+
+            Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "TIMEWARPED_EVOLVING_TAVERN_SPELL"));
+
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("evolving-shop", "Evolving Shop", "EVOLVING_SHOP", 1, 1, Tribe.Beast, 1)
+            });
+            var proxyIndex = tavern.Hand.FindIndex(card => card.CardId == "TIMEWARPED_EVOLVING_TAVERN_SPELL");
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, proxyIndex));
+
+            Assert.AreEqual(1, tavern.Shop.Count);
+            Assert.AreEqual(2, tavern.Shop[0].TavernTier);
+            Assert.AreNotEqual("EVOLVING_SHOP", tavern.Shop[0].CardId);
+        }
+
+        [Test]
+        public void TimewarpedRepeatNonMinion_RingAddsShinyRingAndRepeatsAtTurnStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_608", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "109230"));
+
+            AdvanceToRound(service, 2);
+
+            Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "109230"));
+        }
+
+        [Test]
+        public void TimewarpedRepeatNonMinion_LassoAddsEnchantedLassoAndCanStealShopMinion()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_609", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "104502"));
+
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("lasso-shop", "Lasso Shop", "LASSO_SHOP", 3, 4, Tribe.Murloc, 1)
+            });
+            var lassoIndex = tavern.Hand.FindIndex(card => card.CardId == "104502");
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, lassoIndex));
+
+            Assert.IsNull(tavern.Shop[0]);
+            Assert.IsTrue(tavern.Hand.Any(card => card.InstanceId == "lasso-shop"));
+
+            AdvanceToRound(service, 2);
+
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "104502"));
+        }
+
+        [Test]
+        public void TimewarpedRefreshNonMinion_ApplesCastsThemApplesAfterManualRefresh()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            tavern.Gold = 10;
+            tavern.MaxGold = 10;
+
+            BuyFixedTimewarpedOffer(service, "BG34_Treasure_620", CardKind.TavernSpell, 1, 3);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var castsBefore = tavern.TavernSpellsCastThisTurn;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var shopMinions = tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
+            Assert.IsTrue(shopMinions.Count > 0);
+            Assert.IsTrue(shopMinions.All(card => card.Attack >= card.BaseAttack + 1));
+            Assert.IsTrue(shopMinions.All(card => card.MaxHealth >= card.BaseHealth + 2));
+            Assert.AreEqual(castsBefore + 1, tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual("105903", tavern.LastTavernSpellCardId);
+        }
+
+        [Test]
+        public void TimewarpedTavern_RoundSixOpensMinorAndPurchasesWithChronum()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTrinkets = false
+                });
+
+            for (var turn = 2; turn <= 6; turn += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var shopSnapshot = tavern.Shop.Select(card => card?.InstanceId).ToList();
+            var goldBefore = tavern.Gold;
+            var handBefore = tavern.Hand.Count;
+            var chronumBefore = timewarp.Chronum;
+            var definitionsById = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .ToDictionary(card => card.CardId);
+            var offerIndex = Enumerable.Range(0, timewarp.Offers.Count)
+                .First(index =>
+                {
+                    var candidate = timewarp.Offers[index];
+                    return candidate != null &&
+                        definitionsById.TryGetValue(candidate.CardId, out var definition) &&
+                        TimewarpedCardBehavior.EntersHand(definition);
+                });
+            var offer = timewarp.Offers[offerIndex];
+
+            Assert.AreEqual(6, service.State.Round);
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Minor, timewarp.PendingKind);
+            Assert.AreEqual(4, timewarp.Offers.Count);
+            Assert.GreaterOrEqual(timewarp.Chronum, offer.Cost);
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, offerIndex));
+
+            Assert.AreEqual(goldBefore, tavern.Gold);
+            CollectionAssert.AreEqual(shopSnapshot, tavern.Shop.Select(card => card?.InstanceId).ToList());
+            Assert.AreEqual(handBefore + 1, tavern.Hand.Count);
+            Assert.AreEqual(chronumBefore - offer.Cost, timewarp.Chronum);
+            Assert.IsTrue(timewarp.Offers[offerIndex].Purchased);
+            Assert.AreEqual(PoolSource.Timewarped, tavern.Hand.Last().PoolSource);
+
+            service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
+
+            Assert.IsFalse(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Closed, timewarp.Phase);
+            Assert.AreEqual(chronumBefore - offer.Cost, timewarp.Chronum);
+        }
+
+        [Test]
+        public void TimewarpedTavern_RoundNineOpensMajorAndCarriesChronum()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var timewarp = service.State.Player.Tavern.Timewarp;
+            var minorChronum = timewarp.Chronum;
+            service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
+
+            AdvanceToRound(service, 9);
+
+            Assert.AreEqual(9, service.State.Round);
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
+            Assert.AreEqual(minorChronum + 3, timewarp.Chronum);
+            Assert.AreEqual(4, timewarp.Offers.Count);
+            var majorCandidateIds = new HashSet<string>(service.GetTimewarpedCandidateDefinitions(TimewarpKind.Major).Select(card => card.CardId));
+            Assert.IsTrue(timewarp.Offers.All(offer => majorCandidateIds.Contains(offer.CardId)));
+        }
+
+        [Test]
+        public void TimewarpedTavern_MorchieOpensMinorOnTurnFiveWithoutTimewarpMode()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    SelectedHeroCardId = "BG34_HERO_004",
+                    EnableTrinkets = false
+                });
+
+            AdvanceToRound(service, 4);
+
+            var timewarp = service.State.Player.Tavern.Timewarp;
+            Assert.IsFalse(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Idle, timewarp.Phase);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(5, service.State.Round);
+            Assert.AreEqual("BG34_HERO_004p", service.State.Player.HeroPowerCardId);
+            Assert.IsTrue(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Minor, timewarp.PendingKind);
+            Assert.AreEqual("morchie-minor-timewarp", timewarp.PendingSource);
+            Assert.AreEqual(4, timewarp.Offers.Count);
+            var minorCandidateIds = new HashSet<string>(service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor).Select(card => card.CardId));
+            Assert.IsTrue(timewarp.Offers.All(offer => minorCandidateIds.Contains(offer.CardId)));
+        }
+
+        [Test]
+        public void TimewarpedTavern_MurozondOpensMajorOnTurnEightWithoutTimewarpMode()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    SelectedHeroCardId = "BG34_HERO_000",
+                    EnableTrinkets = false
+                });
+
+            AdvanceToRound(service, 7);
+
+            var timewarp = service.State.Player.Tavern.Timewarp;
+            Assert.IsFalse(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Idle, timewarp.Phase);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(8, service.State.Round);
+            Assert.AreEqual("BG34_HERO_000p", service.State.Player.HeroPowerCardId);
+            Assert.IsTrue(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
+            Assert.AreEqual("murozond-major-timewarp", timewarp.PendingSource);
+            Assert.AreEqual(3, timewarp.Chronum);
+            Assert.AreEqual(4, timewarp.Offers.Count);
+            var majorCandidateIds = new HashSet<string>(service.GetTimewarpedCandidateDefinitions(TimewarpKind.Major).Select(card => card.CardId));
+            Assert.IsTrue(timewarp.Offers.All(offer => majorCandidateIds.Contains(offer.CardId)));
+        }
+
+        [Test]
+        public void TimewarpedTavern_HandFullPurchaseDoesNotSpendChronumOrMarkOffer()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            while (tavern.Hand.Count < 10)
+            {
+                service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+            }
+
+            var chronumBefore = timewarp.Chronum;
+            var fixedMinion = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardKind == CardKind.Minion);
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot
+                {
+                    SlotId = "fixed-hand-full-minion",
+                    CardId = fixedMinion.CardId,
+                    CardKind = CardKind.Minion,
+                    Cost = 1,
+                    Source = "test"
+                }
+            };
+            var offer = timewarp.Offers[0];
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0)));
+
+            Assert.AreEqual(chronumBefore, timewarp.Chronum);
+            Assert.IsFalse(offer.Purchased);
+            Assert.AreEqual(10, tavern.Hand.Count);
+        }
+
+        [Test]
+        public void TimewarpedTavern_OffersAreDeterministicForSameSeed()
+        {
+            var first = CreateTimewarpOnlyService(24680);
+            var second = CreateTimewarpOnlyService(24680);
+
+            AdvanceToRound(first, 6);
+            AdvanceToRound(second, 6);
+
+            CollectionAssert.AreEqual(
+                first.State.Player.Tavern.Timewarp.Offers.Select(offer => offer.CardId).ToList(),
+                second.State.Player.Tavern.Timewarp.Offers.Select(offer => offer.CardId).ToList());
+        }
+
+        [Test]
+        public void TimewarpedTavern_WaitsForTrinketChoiceThenOpens()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                13579,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Mixed,
+                    EnableQuests = false,
+                    EnableQuestRewards = false,
+                    EnableTrinkets = true
+                });
+
+            AdvanceToRound(service, 6);
+
+            var tavern = service.State.Player.Tavern;
+            Assert.IsNotNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.AreEqual(AdvancedMechanicKind.Trinket, tavern.AdvancedMechanics.PendingChoice.Kind);
+            Assert.AreEqual(TimewarpTavernPhase.BlockedByTrinketChoice, tavern.Timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Minor, tavern.Timewarp.PendingKind);
+
+            tavern.Gold = 100;
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsTrue(tavern.Timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Open, tavern.Timewarp.Phase);
+            Assert.AreEqual(TimewarpKind.Minor, tavern.Timewarp.PendingKind);
+        }
+
+        [Test]
+        public void TimewarpedTavern_ThreeCopiesCanTriple()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var cardId = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardKind == CardKind.Minion)
+                .CardId;
+            timewarp.Chronum = 10;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot { SlotId = "fixed-0", CardId = cardId, CardKind = CardKind.Minion, Cost = 1, Source = "test" },
+                new TimewarpedOfferSlot { SlotId = "fixed-1", CardId = cardId, CardKind = CardKind.Minion, Cost = 1, Source = "test" },
+                new TimewarpedOfferSlot { SlotId = "fixed-2", CardId = cardId, CardKind = CardKind.Minion, Cost = 1, Source = "test" }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 1));
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 2));
+
+            var definitionId = "timewarped-" + cardId;
+            Assert.AreEqual(7, timewarp.Chronum);
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.DefinitionId == definitionId));
+            Assert.IsTrue(tavern.Hand.Any(card => card.DefinitionId == definitionId && card.Golden));
+        }
+
+        [Test]
+        public void TimewarpedKeywordGroup_MapsStaticKeywordBodies()
+        {
+            var catalog = TimewarpedTavernCatalogLoader.LoadFromResources();
+            var expected = new Dictionary<string, Keyword[]>
+            {
+                { "BG34_Giant_007", new[] { Keyword.Taunt, Keyword.DivineShield, Keyword.Reborn } },
+                { "BG34_Giant_302", new[] { Keyword.DivineShield, Keyword.Avenge } },
+                { "BG34_Giant_012", new[] { Keyword.DivineShield, Keyword.Windfury, Keyword.Reborn } },
+                { "BG34_Giant_332", new[] { Keyword.Trigger } },
+                { "BG34_Giant_584", new[] { Keyword.Taunt, Keyword.Deathrattle } },
+                { "BG34_Giant_031", new[] { Keyword.Taunt, Keyword.Reborn, Keyword.Deathrattle } },
+                { "BG34_Giant_207", new[] { Keyword.DivineShield, Keyword.Trigger } },
+                { "BG34_Giant_204", new[] { Keyword.Taunt, Keyword.Reborn, Keyword.Deathrattle } },
+                { "BG34_Giant_589", new[] { Keyword.DivineShield, Keyword.Trigger } },
+                { "BG34_Giant_304", new[] { Keyword.Taunt, Keyword.Deathrattle } },
+                { "BG34_Giant_017", new[] { Keyword.Taunt, Keyword.Deathrattle } },
+                { "BG34_Giant_360", new[] { Keyword.Taunt, Keyword.EndOfTurn } },
+                { "BG34_Giant_582", new[] { Keyword.Taunt, Keyword.Deathrattle } },
+                { "BG34_Giant_039", new[] { Keyword.Stealth, Keyword.Trigger } },
+                { "BG34_Giant_777", new[] { Keyword.Taunt, Keyword.Trigger } },
+                { "BG34_Giant_102", new[] { Keyword.Windfury, Keyword.Rally } },
+                { "BG34_Giant_680", new[] { Keyword.Rally, Keyword.Cleave } },
+                { "BG34_Giant_644", new[] { Keyword.DivineShield, Keyword.Trigger } },
+                { "BG34_Giant_035", new[] { Keyword.Taunt, Keyword.Spellcraft, Keyword.Trigger } },
+                { "BG34_Giant_342", new[] { Keyword.Trigger } },
+                { "BG34_Giant_040", new[] { Keyword.DivineShield, Keyword.Trigger } },
+                { "BG34_PreMadeChamp_004", new[] { Keyword.Stealth, Keyword.Trigger } },
+                { "BG34_Giant_608", new[] { Keyword.Reborn, Keyword.Deathrattle } },
+                { "BG34_Giant_314", new[] { Keyword.DivineShield, Keyword.Trigger } },
+                { "BG34_Giant_110", new[] { Keyword.DivineShield, Keyword.Rally } },
+                { "BG34_PreMadeChamp_032", new[] { Keyword.DivineShield, Keyword.EndOfTurn } },
+                { "BG34_Giant_677", new[] { Keyword.Magnetic } },
+                { "BG34_Giant_331", new[] { Keyword.Taunt, Keyword.Deathrattle } }
+            };
+
+            Assert.AreEqual(28, expected.Count);
+            foreach (var pair in expected)
+            {
+                Assert.IsTrue(catalog.TryGetByCardId(pair.Key, out var card), pair.Key);
+                foreach (var keyword in pair.Value)
+                {
+                    Assert.Contains(keyword, card.Keywords, pair.Key);
+                }
+            }
+
+            Assert.IsFalse(catalog.All.First(card => card.CardId == "BG34_Giant_031").Keywords.Contains(Keyword.Trigger));
+        }
+
+        [Test]
+        public void TimewarpedKeywordGrantBodies_ApplyToPlayedMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_040");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_332");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_009");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var played = service.State.Player.Board.Last(card => card.CardId == "BG34_Giant_009");
+            Assert.Contains(Keyword.DivineShield, played.Keywords);
+            Assert.Contains(Keyword.Reborn, played.Keywords);
+        }
+
+        [Test]
+        public void TimewarpedStats_BuyingElementalBuffsBehemoth()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_777");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var behemoth = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_777");
+            var attackBefore = behemoth.Attack;
+            var healthBefore = behemoth.MaxHealth;
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_012");
+
+            Assert.AreEqual(attackBefore + 6, behemoth.Attack);
+            Assert.AreEqual(healthBefore + 1, behemoth.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedStats_CardAddedAndTurnEndedBuffsResolve()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_327");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var pirate = TestBoardMinion("tw-pirate", "Pirate", "TEST_PIRATE", 2, 2, Tribe.Pirate, 1);
+            service.State.Player.Board.Add(pirate);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+
+            Assert.AreEqual(3, pirate.Attack);
+            Assert.AreEqual(3, pirate.MaxHealth);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_209");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var mech = TestBoardMinion("tw-mech", "Mech", "TEST_MECH", 1, 1, Tribe.Mech, 1);
+            service.State.Player.Board.Add(mech);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(4, mech.Attack);
+            Assert.AreEqual(4, mech.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedStats_CombatStartBuffsUseExistingCombatPath()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Tavern.Tier = 3;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_029");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Board.Insert(0, TestBoardMinion("tw-left", "Left", "TEST_LEFT", 1, 10, Tribe.Mech, 1));
+            service.State.Player.Board.Add(TestBoardMinion("tw-right", "Right", "TEST_RIGHT", 1, 10, Tribe.Pirate, 1));
+            service.Apply(new GameCommand(GameCommandType.AddOpponentMinion, "BG20_100"));
+            service.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, service.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 0, Health = 20, MaxHealth = 20 }));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 7, SafetyLimit = 1 }));
+
+            Assert.AreEqual(4, service.State.LastResult.FinalPlayerBoard.First(card => card.CardId == "TEST_LEFT").Attack);
+            Assert.AreEqual(6, service.State.LastResult.FinalPlayerBoard.First(card => card.CardId == "BG34_Giant_029").Attack);
+            Assert.AreEqual(4, service.State.LastResult.FinalPlayerBoard.First(card => card.CardId == "TEST_RIGHT").Attack);
+        }
+
+        [Test]
+        public void TimewarpedStats_DeathrattleRewardsPersist()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_306");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var jazzer = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_306");
+            jazzer.Attack = 0;
+            jazzer.Health = 1;
+            jazzer.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-a", "Enemy A", "TEST_ENEMY_A", 5, 5, Tribe.None, 1));
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-b", "Enemy B", "TEST_ENEMY_B", 1, 5, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 3, SafetyLimit = 1 }));
+
+            Assert.AreEqual(1, service.State.Player.Tavern.BloodGemBonusHealth);
+        }
+
+        [Test]
+        public void TimewarpedStats_KillRewardBuffsHand()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_207");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_207").Attack = 5;
+            var target = TestBoardMinion("hand-target", "Hand Target", "HAND_TARGET", 2, 2, Tribe.None, 1);
+            service.State.Player.Tavern.Hand.Add(target);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy", "Enemy", "TEST_ENEMY", 1, 1, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 4, SafetyLimit = 1 }));
+
+            Assert.AreEqual(6, target.Attack);
+            Assert.AreEqual(6, target.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedStats_SpellcraftAndRecruitTriggersResolve()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_212");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var target = TestBoardMinion("spell-target", "Spell Target", "SPELL_TARGET", 2, 2, Tribe.None, 1);
+            service.State.Player.Board.Add(target);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            var spellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "BG34_Giant_212t");
+            Assert.GreaterOrEqual(spellIndex, 0);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, 1));
+
+            Assert.AreEqual(14, target.Attack);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_320");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Board.Add(TestBoardMinion("murloc-a", "Murloc A", "MURLOC_A", 1, 1, Tribe.Murloc, 1));
+            service.State.Player.Board.Add(TestBoardMinion("murloc-b", "Murloc B", "MURLOC_B", 1, 1, Tribe.Murloc, 1));
+            service.State.Player.Board.Add(TestBoardMinion("murloc-c", "Murloc C", "MURLOC_C", 1, 1, Tribe.Murloc, 1));
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, "murloc-a"));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, "murloc-b"));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, "murloc-c"));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.TavernSpellBonusAttack);
+            Assert.AreEqual(3, service.State.Player.Tavern.TavernSpellBonusHealth);
+        }
+
+        [Test]
+        public void TimewarpedStats_StoneDrakeUsesSoldStats()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_675");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var stoneDrake = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_675");
+            var beforeAttack = stoneDrake.Attack;
+            var beforeHealth = stoneDrake.MaxHealth;
+            var sold = TestBoardMinion("sold-minion", "Sold Minion", "SOLD_MINION", 3, 5, Tribe.None, 1);
+            service.State.Player.Board.Add(sold);
+            service.Apply(new GameCommand(GameCommandType.SellMinion, sold.InstanceId));
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy", "Enemy", "TEST_ENEMY", 0, 20, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 5, SafetyLimit = 1 }));
+
+            var finalStoneDrake = service.State.LastResult.FinalPlayerBoard.First(card => card.CardId == "BG34_Giant_675");
+            Assert.AreEqual(beforeAttack + 3, finalStoneDrake.Attack);
+            Assert.AreEqual(beforeHealth + 5, finalStoneDrake.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedTriggers_BattlecryAndDeathrattleUseCommonEntrypoint()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_001");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.AreEqual(1, service.State.Player.Tavern.NextTurnBonusGold);
+
+            var busker = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_001");
+            busker.Attack = 0;
+            busker.Health = 1;
+            busker.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-busker", "Enemy", "TEST_ENEMY", 1, 20, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 11, SafetyLimit = 1 }));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.NextTurnBonusGold);
+        }
+
+        [Test]
+        public void TimewarpedTriggers_DeathrattleAddsTavernCoin()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_204");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var pillager = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_204");
+            pillager.Attack = 0;
+            pillager.Health = 1;
+            pillager.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-pillager", "Enemy", "TEST_ENEMY", 1, 20, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 12, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_AvengeAddsSpellcraftAndTavernSpell()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_211");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var pashmar = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_211");
+            pashmar.Health = 50;
+            pashmar.MaxHealth = 50;
+            service.State.Player.Board.Insert(0, TestBoardMinion("avenge-a", "Avenge A", "AVENGE_A", 0, 1, Tribe.None, 1));
+            service.State.Player.Board.Insert(1, TestBoardMinion("avenge-b", "Avenge B", "AVENGE_B", 0, 1, Tribe.None, 1));
+            service.State.Player.Board.Insert(2, TestBoardMinion("avenge-c", "Avenge C", "AVENGE_C", 0, 1, Tribe.None, 1));
+            service.State.Player.Board[0].Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board[1].Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board[2].Keywords.Add(Keyword.Taunt);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-avenge", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 13, SafetyLimit = 8 }));
+
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell), 2);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.Tags.Any(tag => tag.ToLowerInvariant().Contains("spellcraft"))));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_RallyAddsDragon()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_585");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-rally", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 14, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Minion && BoardTribeAnalyzer.HasTribe(card, Tribe.Dragon)));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_TurnStartAndEndUseGeneratedCardEntrypoints()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_076");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_594");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.Tags.Contains("timewarped_blood_gem_tavern_spell")));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Minion && card.TavernTier == service.State.Player.Tavern.Tier));
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_GeomancerAvengeAddsPlainBloodGemAndImprovesStats()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_305");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var geomancer = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_305");
+            geomancer.Health = 50;
+            geomancer.MaxHealth = 50;
+            for (var index = 0; index < 5; index += 1)
+            {
+                var fodder = TestBoardMinion("geomancer-fodder-" + index, "Fodder", "GEOMANCER_FODDER", 0, 1, Tribe.None, 1);
+                fodder.Keywords.Add(Keyword.Taunt);
+                service.State.Player.Board.Insert(index, fodder);
+            }
+
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-geomancer", "Enemy", "TEST_ENEMY", 1, 120, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 21, SafetyLimit = 16 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BLOOD_GEM"));
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BRISTLEBACK_BLOOD_GEM"));
+            Assert.AreEqual(1, service.State.Player.Tavern.BloodGemBonusAttack);
+            Assert.AreEqual(1, service.State.Player.Tavern.BloodGemBonusHealth);
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_BanditDiscardsSpellAndPlaysBloodGemsOnBoard()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_078");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var target = TestBoardMinion("bandit-target", "Bandit Target", "BANDIT_TARGET", 2, 3, Tribe.Beast, 1);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BLOOD_GEM"));
+            Assert.AreEqual(6, target.Attack);
+            Assert.AreEqual(7, target.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_BonkerRallyPlaysBloodGemsOnOtherMinions()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_102");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var bonker = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_102");
+            bonker.Attack = 1;
+            bonker.Health = 20;
+            bonker.MaxHealth = 20;
+            var other = TestBoardMinion("bonker-other", "Other", "BONKER_OTHER", 2, 2, Tribe.Beast, 1);
+            service.State.Player.Board.Add(other);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-bonker", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 22, SafetyLimit = 1 }));
+
+            Assert.AreEqual(4, other.Attack);
+            Assert.AreEqual(4, other.MaxHealth);
+            Assert.AreEqual(1, service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_102").Attack);
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_LilQuilboarDeathrattlePlaysBloodGemsOnQuilboarTypes()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_608");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var lil = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_608");
+            lil.Attack = 0;
+            lil.Health = 1;
+            lil.MaxHealth = 1;
+            lil.Keywords.Add(Keyword.Taunt);
+            var quilboar = TestBoardMinion("lil-quilboar-target", "Quilboar Target", "LIL_QUILBOAR_TARGET", 2, 4, Tribe.Quilboar, 1);
+            var allType = TestBoardMinion("lil-all-target", "All Target", "LIL_ALL_TARGET", 3, 5, Tribe.All, 1);
+            var beast = TestBoardMinion("lil-beast-target", "Beast Target", "LIL_BEAST_TARGET", 4, 6, Tribe.Beast, 1);
+            service.State.Player.Board.Add(quilboar);
+            service.State.Player.Board.Add(allType);
+            service.State.Player.Board.Add(beast);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-lil-quilboar", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 23, SafetyLimit = 1 }));
+
+            var finalQuilboar = service.State.LastResult.FinalPlayerBoard.First(card => card.InstanceId == "lil-quilboar-target");
+            var finalAll = service.State.LastResult.FinalPlayerBoard.First(card => card.InstanceId == "lil-all-target");
+            var finalBeast = service.State.LastResult.FinalPlayerBoard.First(card => card.InstanceId == "lil-beast-target");
+            Assert.AreEqual(5, finalQuilboar.Attack);
+            Assert.AreEqual(7, finalQuilboar.MaxHealth);
+            Assert.AreEqual(6, finalAll.Attack);
+            Assert.AreEqual(8, finalAll.MaxHealth);
+            Assert.AreEqual(4, finalBeast.Attack);
+            Assert.AreEqual(6, finalBeast.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_PiperDamageImprovesBloodGemAttackUpToCombatLimit()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_069");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var piper = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_069");
+            piper.Attack = 0;
+            piper.Health = 10;
+            piper.MaxHealth = 10;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-piper", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 24, SafetyLimit = 8 }));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.BloodGemBonusAttack);
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_ThorncallerBattlecryAndDeathrattleAddBloodGemBarrage()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_078");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "126676"));
+
+            service.State.Player.Tavern.Hand.Clear();
+            var thorncaller = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_078");
+            thorncaller.Attack = 0;
+            thorncaller.Health = 1;
+            thorncaller.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-thorncaller", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 25, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "126676"));
+        }
+
+        [Test]
+        public void TimewarpedBloodGems_GemsplitterImprovesAttackWhenFriendlyDivineShieldBreaks()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_644");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var shielded = TestBoardMinion("gemsplitter-shielded", "Shielded", "GEMSPLITTER_SHIELDED", 0, 10, Tribe.Mech, 1);
+            shielded.Keywords.Add(Keyword.DivineShield);
+            shielded.Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board.Insert(0, shielded);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-gemsplitter", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 26, SafetyLimit = 1 }));
+
+            Assert.AreEqual(1, service.State.Player.Tavern.BloodGemBonusAttack);
+        }
+
+        [Test]
+        public void TimewarpedSummons_BassgillSummonsHighestHealthHandMinionWithCombatOnlyDivineShield()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_071");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var bassgill = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_071");
+            bassgill.Attack = 0;
+            bassgill.Health = 1;
+            bassgill.MaxHealth = 1;
+            var lowHealth = TestBoardMinion("bassgill-low", "Low", "BASSGILL_LOW", 3, 3, Tribe.Beast, 1);
+            var highHealth = TestBoardMinion("bassgill-high", "High", "BASSGILL_HIGH", 4, 9, Tribe.Dragon, 1);
+            service.State.Player.Tavern.Hand.Add(lowHealth);
+            service.State.Player.Tavern.Hand.Add(highHealth);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-bassgill", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 27, SafetyLimit = 1 }));
+
+            var summoned = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId.Contains("bassgill-high"));
+            Assert.IsTrue(summoned.Keywords.Contains(Keyword.DivineShield));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == "bassgill-high"));
+            Assert.IsFalse(highHealth.Keywords.Contains(Keyword.DivineShield));
+        }
+
+        [Test]
+        public void TimewarpedSummons_ScourfinBuffsHandMinionAndSummonsCombatOnlyCopy()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_017");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var scourfin = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_017");
+            scourfin.Attack = 0;
+            scourfin.Health = 1;
+            scourfin.MaxHealth = 1;
+            var handTarget = TestBoardMinion("scourfin-hand", "Hand Target", "SCOURFIN_HAND", 2, 2, Tribe.Murloc, 1);
+            service.State.Player.Tavern.Hand.Add(handTarget);
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-scourfin", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 28, SafetyLimit = 1 }));
+
+            var summoned = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId.Contains("scourfin-hand"));
+            Assert.AreEqual(9, summoned.Attack);
+            Assert.AreEqual(9, summoned.MaxHealth);
+            Assert.AreEqual(9, handTarget.Attack);
+            Assert.AreEqual(9, handTarget.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedSummons_FestergutSummonsAndGetsUndeadCreation()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_590");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var festergut = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_590");
+            festergut.Attack = 0;
+            festergut.Health = 1;
+            festergut.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-festergut", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 29, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Undead)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Undead)));
+        }
+
+        [Test]
+        public void TimewarpedSummons_NelliesShipSummonsAndGetsPirate()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_074t");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var ship = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_074t");
+            ship.Attack = 0;
+            ship.Health = 1;
+            ship.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-nellie", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 30, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Pirate)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Pirate)));
+        }
+
+        [Test]
+        public void TimewarpedSummons_TideRazorSummonsAndGetsFourPirates()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_328");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var tideRazor = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_328");
+            tideRazor.Attack = 0;
+            tideRazor.Health = 1;
+            tideRazor.MaxHealth = 1;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-tide-razor", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 31, SafetyLimit = 1 }));
+
+            Assert.GreaterOrEqual(service.State.LastResult.FinalPlayerBoard.Count(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Pirate)), 4);
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Hand.Count(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Pirate)), 4);
+        }
+
+        [Test]
+        public void TimewarpedDamage_RagnarosHitsHighestCurrentHealthEnemy()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_580");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var ragnaros = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_580");
+            ragnaros.Attack = 4;
+            ragnaros.CanAttack = false;
+            var highMaxLowCurrent = TestBoardMinion("rag-low-current", "Low Current", "RAG_LOW_CURRENT", 0, 1, Tribe.None, 1);
+            highMaxLowCurrent.MaxHealth = 20;
+            highMaxLowCurrent.CanAttack = false;
+            var highCurrent = TestBoardMinion("rag-high-current", "High Current", "RAG_HIGH_CURRENT", 0, 10, Tribe.None, 1);
+            highCurrent.CanAttack = false;
+            service.State.Opponent.Board.Add(highMaxLowCurrent);
+            service.State.Opponent.Board.Add(highCurrent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 32, SafetyLimit = 1 }));
+
+            var finalLowCurrent = service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "rag-low-current");
+            var finalHighCurrent = service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "rag-high-current");
+            Assert.AreEqual(1, finalLowCurrent.Health);
+            Assert.AreEqual(6, finalHighCurrent.Health);
+        }
+
+        [Test]
+        public void TimewarpedDamage_RedWhelpDamagesTwoEnemiesAndImprovesAfterDragon()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_091");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var whelp = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_091");
+            whelp.Attack = 0;
+            whelp.CanAttack = false;
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_029");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var dragon = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_029");
+            dragon.CanAttack = false;
+
+            Assert.AreEqual(1, whelp.Counters["timewarped_red_whelp_bonus"]);
+            var enemyA = TestBoardMinion("red-whelp-a", "Enemy A", "RED_WHELP_A", 0, 20, Tribe.None, 1);
+            var enemyB = TestBoardMinion("red-whelp-b", "Enemy B", "RED_WHELP_B", 0, 20, Tribe.None, 1);
+            enemyA.CanAttack = false;
+            enemyB.CanAttack = false;
+            service.State.Opponent.Board.Add(enemyA);
+            service.State.Opponent.Board.Add(enemyB);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 33, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.FinalOpponentBoard.All(card => card.Health == 16));
+        }
+
+        [Test]
+        public void TimewarpedDamage_ClefthoofBuffsAndDamagesBeastsAtTurnEnd()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_090");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var beast = TestBoardMinion("clefthoof-beast", "Beast", "CLEFTHOOF_BEAST", 2, 10, Tribe.Beast, 1);
+            service.State.Player.Board.Add(beast);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(8, beast.Attack);
+            Assert.AreEqual(16, beast.MaxHealth);
+            Assert.AreEqual(13, beast.Health);
+        }
+
+        [Test]
+        public void TimewarpedDamage_RewinderRewindsHeroDamageAndBuffsDemons()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_300");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var rewinder = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_300");
+            rewinder.Health = 4;
+            rewinder.MaxHealth = 4;
+            var otherDemon = TestBoardMinion("rewinder-demon", "Other Demon", "REWINDER_DEMON", 2, 5, Tribe.Demon, 1);
+            service.State.Player.Board.Add(otherDemon);
+            service.State.Player.Health = 30;
+            service.State.Player.Armor = 0;
+            service.State.Player.Tavern.FreeRefreshes = 0;
+            service.State.Player.Tavern.HealthCostRefreshes = 1;
+            service.State.Player.Tavern.Gold = 0;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.AreEqual(30, service.State.Player.Health);
+            Assert.AreEqual(6, rewinder.MaxHealth);
+            Assert.AreEqual(6, rewinder.Health);
+            Assert.AreEqual(7, otherDemon.MaxHealth);
+            Assert.AreEqual(7, otherDemon.Health);
+        }
+
+        [Test]
+        public void TimewarpedDamage_ArchimondeRewindsHeroDamageAndDiscountsNextTavernSpell()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_596");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Health = 30;
+            service.State.Player.Armor = 0;
+            tavern.FreeRefreshes = 0;
+            tavern.HealthCostRefreshes = 1;
+            tavern.Gold = 0;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.AreEqual(30, service.State.Player.Health);
+            Assert.AreEqual(1, tavern.NextTavernSpellCostReduction);
+
+            var spell = TestTavernSpell("archimonde-discount-spell");
+            spell.Counters["base_buy_cost"] = 1;
+            tavern.Shop.Clear();
+            tavern.Shop.Add(spell);
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+
+            Assert.AreEqual(0, tavern.Gold);
+            Assert.AreEqual(0, tavern.NextTavernSpellCostReduction);
+            Assert.IsTrue(tavern.Hand.Any(card => card.InstanceId == "archimonde-discount-spell"));
+        }
+
+        [Test]
+        public void TimewarpedDamage_CollectorDamagesAdjacentEnemiesAndRalliesDivineShield()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_680");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var collector = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_680");
+            collector.Attack = 5;
+            collector.Health = 30;
+            collector.MaxHealth = 30;
+            for (var index = 0; index < 4; index += 1)
+            {
+                var golden = TestBoardMinion("collector-golden-" + index, "Golden " + index, "COLLECTOR_GOLDEN", 1, 1, Tribe.None, 1);
+                golden.Golden = true;
+                service.State.Player.Board.Add(golden);
+            }
+
+            var left = TestBoardMinion("collector-left", "Left", "COLLECTOR_LEFT", 0, 20, Tribe.None, 1);
+            var middle = TestBoardMinion("collector-middle", "Middle", "COLLECTOR_MIDDLE", 0, 20, Tribe.None, 1);
+            var right = TestBoardMinion("collector-right", "Right", "COLLECTOR_RIGHT", 0, 20, Tribe.None, 1);
+            middle.Keywords.Add(Keyword.Taunt);
+            service.State.Opponent.Board.Add(left);
+            service.State.Opponent.Board.Add(middle);
+            service.State.Opponent.Board.Add(right);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 34, SafetyLimit = 1 }));
+
+            Assert.AreEqual(15, service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "collector-left").Health);
+            Assert.AreEqual(15, service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "collector-middle").Health);
+            Assert.AreEqual(15, service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "collector-right").Health);
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == collector.InstanceId).Keywords.Contains(Keyword.DivineShield));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_CalligrapherUsesBattlecryDeathrattleAndRally()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_091");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var afterBattlecry = service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell);
+            Assert.GreaterOrEqual(afterBattlecry, 1);
+
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-calligrapher-rally", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 15, SafetyLimit = 1 }));
+            Assert.Greater(service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell), afterBattlecry);
+
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_091");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var calligrapher = service.State.Player.Board.Single(card => card.CardId == "BG34_PreMadeChamp_091");
+            calligrapher.Attack = 0;
+            calligrapher.Health = 1;
+            calligrapher.MaxHealth = 1;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-calligrapher-deathrattle", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 16, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_AvengeCommonEntrypointHandlesOtherRewards()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_082");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var recycler = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_082");
+            recycler.Health = 50;
+            recycler.MaxHealth = 50;
+            service.State.Player.Board.Insert(0, TestBoardMinion("recycler-avenge-a", "A", "A", 0, 1, Tribe.None, 1));
+            service.State.Player.Board.Insert(1, TestBoardMinion("recycler-avenge-b", "B", "B", 0, 1, Tribe.None, 1));
+            service.State.Player.Board.Insert(2, TestBoardMinion("recycler-avenge-c", "C", "C", 0, 1, Tribe.None, 1));
+            service.State.Player.Board.Insert(3, TestBoardMinion("recycler-avenge-d", "D", "D", 0, 1, Tribe.None, 1));
+            service.State.Player.Board[0].Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board[1].Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board[2].Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board[3].Keywords.Add(Keyword.Taunt);
+            var beforeMaxGold = service.State.Player.Tavern.MaxGold;
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-recycler", "Enemy", "TEST_ENEMY", 1, 120, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 17, SafetyLimit = 12 }));
+
+            Assert.Greater(service.State.Player.Tavern.MaxGold, beforeMaxGold);
+        }
+
+        [Test]
+        public void TimewarpedTriggers_MurkEyeTriggersFriendlyBattlecriesAtEndOfTurn()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_318");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_001");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.NextTurnBonusGold = 0;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(service.State.Player.Tavern.MaxGold + 1, service.State.Player.Tavern.Gold);
+        }
+
+        [Test]
+        public void TimewarpedTriggers_HawkstriderTriggersFriendlyDeathrattlesAtCombatStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_370");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_204");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-hawkstrider", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 18, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_WarghoulTriggersAdjacentDeathrattle()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_204");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_331");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-warghoul-a", "Enemy A", "TEST_ENEMY_A", 10, 10, Tribe.None, 1));
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-warghoul-b", "Enemy B", "TEST_ENEMY_B", 0, 10, Tribe.None, 1));
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-warghoul-c", "Enemy C", "TEST_ENEMY_C", 0, 10, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 19, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+        }
+
+        [Test]
+        public void TimewarpedTriggers_GreenskeeperTriggersRightMostBattlecryAndDeathrattleOnRally()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_041");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var battlecryTarget = TestBoardMinion("greenskeeper-battlecry", "Refreshing Anomaly", "BGS_116", 0, 20, Tribe.Elemental, 1);
+            battlecryTarget.Keywords.Add(Keyword.Battlecry);
+            service.State.Player.Board.Add(battlecryTarget);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_204");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-greenskeeper", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 20, SafetyLimit = 1 }));
+
+            Assert.GreaterOrEqual(service.State.Player.Tavern.FreeRefreshes, 2);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+        }
+
+        [Test]
+        public void TimewarpedSpecial_DeiosDoublesBattlecryTriggers()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.NextTurnBonusGold = 0;
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_376");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_001");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.NextTurnBonusGold);
+        }
+
+        [Test]
+        public void TimewarpedSpecial_DeiosDoublesDeathrattleTriggers()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_204");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_376");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            var pillager = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_204");
+            pillager.Attack = 0;
+            pillager.Health = 1;
+            pillager.MaxHealth = 1;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-deios-deathrattle", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 21, SafetyLimit = 1 }));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+        }
+
+        [Test]
+        public void TimewarpedSpecial_DeiosDoublesRallyTriggers()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_091");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_376");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Add(TestBoardMinion("enemy-deios-rally", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 22, SafetyLimit = 1 }));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell));
+        }
+
+        [Test]
+        public void TimewarpedRefreshOffers_LubberAddsExtraTavernSpellSlot()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_066");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Shop.Count(card => card?.CardKind == CardKind.TavernSpell), 2);
+        }
+
+        [Test]
+        public void TimewarpedRefreshOffers_RaiderAddsExtraPirate()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_589");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var tavern = service.State.Player.Tavern;
+            Assert.GreaterOrEqual(tavern.Shop.Count, TavernRules.GetShopSize(tavern.Tier) + 2);
+            Assert.IsTrue(tavern.Shop.Any(card => card?.CardKind == CardKind.Minion && card.Tribes.Contains(Tribe.Pirate)));
+        }
+
+        [Test]
+        public void TimewarpedRefreshOffers_RaiderPreservesFrozenSlotAndAddsExtraOffer()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_589");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var tavern = service.State.Player.Tavern;
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("refresh-frozen", "Frozen Shop Minion", "TEST_REFRESH_FROZEN", 1, 1, Tribe.Murloc, 1),
+                TestBoardMinion("refresh-open", "Open Shop Minion", "TEST_REFRESH_OPEN", 1, 1, Tribe.Beast, 1)
+            });
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            tavern.Gold = 10;
+            tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.AreEqual("refresh-frozen", tavern.Shop[0].InstanceId);
+            Assert.IsTrue(TavernShopSlots.IsSlotFrozen(tavern, 0));
+            Assert.IsTrue(tavern.Shop.Any(card => card != null && card.InstanceId.StartsWith("timewarped-raider-", System.StringComparison.Ordinal)));
+        }
+
+        [Test]
+        public void TimewarpedRefreshOffers_SnowElementalAddsFrozenElemental()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_586");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var frozenCards = TavernShopSlots.FrozenCards(service.State.Player.Tavern);
+            Assert.IsTrue(frozenCards.Any(card => card.CardKind == CardKind.Minion && card.Tribes.Contains(Tribe.Elemental)));
+        }
+
+        [Test]
+        public void TimewarpedRefreshOffers_KiljaedenPreservesFrozenSlotAndAddsExtraDemons()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_313");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var tavern = service.State.Player.Tavern;
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("kiljaeden-frozen", "Frozen Shop Minion", "TEST_KILJAEDEN_FROZEN", 1, 1, Tribe.Pirate, 1),
+                TestBoardMinion("kiljaeden-open", "Open Shop Minion", "TEST_KILJAEDEN_OPEN", 1, 1, Tribe.Beast, 1)
+            });
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            tavern.Gold = 10;
+            tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var extraDemons = tavern.Shop
+                .Where(card => card != null && card.InstanceId.StartsWith("timewarped-kiljaeden-", System.StringComparison.Ordinal))
+                .ToList();
+            Assert.AreEqual("kiljaeden-frozen", tavern.Shop[0].InstanceId);
+            Assert.IsTrue(TavernShopSlots.IsSlotFrozen(tavern, 0));
+            Assert.AreEqual(2, extraDemons.Count);
+            Assert.IsTrue(extraDemons.All(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Demon)));
+            Assert.IsTrue(extraDemons.All(card => card.Attack >= card.BaseAttack + 7));
+        }
+
+        [Test]
+        public void TimewarpedRefreshSlots_UpstartDoublesRightmostShopMinion()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_361");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var rightmost = service.State.Player.Tavern.Shop.Last(card => card != null && card.CardKind == CardKind.Minion);
+            Assert.GreaterOrEqual(rightmost.MaxHealth, rightmost.BaseHealth * 2);
+        }
+
+        [Test]
+        public void TimewarpedRefreshSlots_UpstartTargetsFrozenExtraOfferAfterInjection()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_361");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            BuyFixedTimewarpedCard(service, "BG34_Giant_586");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var rightmost = service.State.Player.Tavern.Shop.Last(card => card != null && card.CardKind == CardKind.Minion);
+            Assert.IsTrue(rightmost.InstanceId.StartsWith("timewarped-snow-elemental-", System.StringComparison.Ordinal));
+            Assert.IsTrue(rightmost.Tags.Contains("frozen"));
+            Assert.GreaterOrEqual(rightmost.MaxHealth, rightmost.BaseHealth * 2);
+        }
+
+        [Test]
+        public void TimewarpedRefreshRewards_EliseMakesHighestTierShopMinionGoldenAfterFiveRefreshes()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_038");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            for (var index = 0; index < 5; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+            }
+
+            Assert.IsTrue(service.State.Player.Tavern.Shop.Any(card => card?.CardKind == CardKind.Minion && card.Golden));
+        }
+
+        [Test]
+        public void TimewarpedRefreshRewards_EliseCanGoldenPreservedFrozenHighestTierSlot()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_038");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var tavern = service.State.Player.Tavern;
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("elise-frozen-high", "Frozen High Tier", "TEST_ELISE_FROZEN_HIGH", 5, 5, Tribe.Dragon, 6),
+                TestBoardMinion("elise-open-low", "Open Low Tier", "TEST_ELISE_OPEN_LOW", 1, 1, Tribe.Beast, 1)
+            });
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            tavern.Gold = 10;
+            tavern.MaxGold = 10;
+
+            for (var index = 0; index < 5; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+                tavern.Gold = 10;
+            }
+
+            Assert.AreEqual("elise-frozen-high", tavern.Shop[0].InstanceId);
+            Assert.IsTrue(tavern.Shop[0].Golden);
+            Assert.IsTrue(TavernShopSlots.IsSlotFrozen(tavern, 0));
+        }
+
+        [Test]
+        public void TimewarpedRefreshRewards_ThreeRefreshesGrantSpellcraftSpell()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_322");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            for (var index = 0; index < 3; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+            }
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card =>
+                card.Keywords.Contains(Keyword.Spellcraft) ||
+                card.Tags.Any(tag => tag.IndexOf("spellcraft", System.StringComparison.OrdinalIgnoreCase) >= 0)));
+        }
+
+        [Test]
+        public void TimewarpedSelectors_NalaaCountsAllAsATypeCandidate()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_205");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var allType = TestBoardMinion("nalaa-all", "All Type", "TEST_ALL_TYPE", 2, 2, Tribe.All, 1);
+            var spellTarget = TestBoardMinion("nalaa-target", "Spell Target", "TEST_SPELL_TARGET", 2, 2, Tribe.Beast, 1);
+            service.State.Player.Board.Add(allType);
+            service.State.Player.Board.Add(spellTarget);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
+            var targetIndex = service.State.Player.Board.FindIndex(card => card.InstanceId == spellTarget.InstanceId);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, targetIndex));
+
+            Assert.AreEqual(6, allType.Attack);
+            Assert.AreEqual(5, allType.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedSelectors_CommanderCountsAllAsFriendlyNaga()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_210");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var allType = TestBoardMinion("commander-all", "All Type", "TEST_ALL_TYPE", 2, 2, Tribe.All, 1);
+            var target = TestBoardMinion("commander-target", "Commander Target", "TEST_COMMANDER_TARGET", 1, 1, Tribe.Beast, 1);
+            service.State.Player.Board.Add(allType);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            var expectedNagaCount = BoardTribeAnalyzer.CountTribe(service.State.Player.Board, Tribe.Naga);
+            var spellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "BG34_Giant_210t");
+            var targetIndex = service.State.Player.Board.FindIndex(card => card.InstanceId == target.InstanceId);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+
+            Assert.AreEqual(1 + expectedNagaCount * 2, target.Attack);
+            Assert.AreEqual(1 + expectedNagaCount * 2, target.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedShopReplace_SummonerTransformsShopMinionsAndPreservesFrozenSlot()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var targetIndex = PrepareTimewarpedSummonerSpell(service);
+            var tavern = service.State.Player.Tavern;
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("summoner-frozen", "Frozen Target", "TEST_FROZEN", 1, 1, Tribe.Pirate, 1),
+                TestBoardMinion("summoner-open", "Open Target", "TEST_OPEN", 1, 1, Tribe.Murloc, 1)
+            });
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "TIMEWARPED_SUMMONER_SPELL");
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+
+            Assert.IsTrue(tavern.Shop.Where(card => card.CardKind == CardKind.Minion).All(card => BoardTribeAnalyzer.HasTribe(card, Tribe.Beast)));
+            Assert.IsTrue(TavernShopSlots.IsSlotFrozen(tavern, 0));
+            Assert.AreNotEqual("summoner-frozen", tavern.Shop[0].InstanceId);
+        }
+
+        [Test]
+        public void TimewarpedShopReplace_SummonerLeavesTavernSpellSlotsUnchanged()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var targetIndex = PrepareTimewarpedSummonerSpell(service);
+            var tavern = service.State.Player.Tavern;
+            var spellSlot = TestTavernSpell("summoner-spell-slot");
+            TavernShopSlots.ReplaceShop(tavern, new List<MinionInstance>
+            {
+                TestBoardMinion("summoner-minion", "Shop Minion", "TEST_SHOP_MINION", 1, 1, Tribe.Pirate, 1),
+                spellSlot
+            });
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "TIMEWARPED_SUMMONER_SPELL");
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(tavern.Shop[0], Tribe.Beast));
+            Assert.AreEqual("summoner-spell-slot", tavern.Shop[1].InstanceId);
+            Assert.AreEqual(CardKind.TavernSpell, tavern.Shop[1].CardKind);
+        }
+
+        [Test]
+        public void TimewarpedShopReplace_SummonerTransformsExtraRefreshOffers()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var targetIndex = PrepareTimewarpedSummonerSpell(service);
+            BuyFixedTimewarpedCard(service, "BG34_Giant_589");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var tavern = service.State.Player.Tavern;
+            var extraOfferIndex = tavern.Shop.FindIndex(card => card != null && card.InstanceId.StartsWith("timewarped-raider-", System.StringComparison.Ordinal));
+            Assert.GreaterOrEqual(extraOfferIndex, 0);
+            var extraOfferTier = tavern.Shop[extraOfferIndex].TavernTier;
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "TIMEWARPED_SUMMONER_SPELL");
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+
+            Assert.AreEqual(extraOfferTier, tavern.Shop[extraOfferIndex].TavernTier);
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(tavern.Shop[extraOfferIndex], Tribe.Beast));
+            Assert.IsFalse(tavern.Shop[extraOfferIndex].InstanceId.StartsWith("timewarped-raider-", System.StringComparison.Ordinal));
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_CenturionCopiesTavernSpellOnlyThreeTimesPerTurn()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_PreMadeChamp_200");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "110412", CardKind.TavernSpell));
+
+            for (var cast = 0; cast < 4; cast += 1)
+            {
+                var target = TestBoardMinion("centurion-target-" + cast, "Centurion Target", "CENTURION_TARGET_" + cast, 1, 1, Tribe.Undead, 1);
+                service.State.Player.Board.Add(target);
+                var spellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "110412");
+                var targetIndex = service.State.Player.Board.FindIndex(card => card.InstanceId == target.InstanceId);
+
+                service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+            }
+
+            Assert.AreEqual(0, service.State.Player.Tavern.Hand.Count(card => card.CardId == "110412"));
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_ZerusDiscoversMinorTransformAndKeepsStats()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_671");
+            var zerus = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG34_Giant_671");
+            zerus.Attack = 9;
+            zerus.MaxHealth = 11;
+            zerus.Health = 11;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            StringAssert.StartsWith("timewarped-zerus:", service.State.Player.Tavern.Discover.Source);
+            Assert.AreEqual(2, service.State.Player.Tavern.Discover.Options.Count);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            var transformed = service.State.Player.Tavern.Hand.Single();
+            Assert.AreNotEqual("BG34_Giant_671", transformed.CardId);
+            Assert.AreEqual(9, transformed.Attack);
+            Assert.AreEqual(11, transformed.MaxHealth);
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_LuckyEggHatchesIntoGoldenTierSevenChoice()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_683");
+            var egg = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG34_Giant_683");
+
+            Assert.IsTrue(egg.Tags.Contains("locked_in_hand"));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.IsNull(service.State.Player.Tavern.Discover);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            StringAssert.StartsWith("timewarped-lucky-egg:", service.State.Player.Tavern.Discover.Source);
+            Assert.AreEqual(3, service.State.Player.Tavern.Discover.Options.Count);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            var transformed = service.State.Player.Tavern.Hand.Single();
+            Assert.AreNotEqual("BG34_Giant_683", transformed.CardId);
+            Assert.IsTrue(transformed.Golden);
+            Assert.GreaterOrEqual(transformed.TavernTier, 6);
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_ChameleonCopiesLeftMinionAtCombatStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_042");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var left = TestBoardMinion("chameleon-left", "Left Target", "CHAMELEON_LEFT", 0, 20, Tribe.Mech, 3);
+            left.Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board.Insert(0, left);
+            var chameleonId = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_042").InstanceId;
+            service.State.Opponent.Board.Add(TestBoardMinion("chameleon-enemy", "Enemy", "CHAMELEON_ENEMY", 0, 80, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 40, SafetyLimit = 1 }));
+
+            var transformed = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == chameleonId);
+            Assert.AreEqual("CHAMELEON_LEFT", transformed.CardId);
+            Assert.AreEqual(20, transformed.MaxHealth);
+            Assert.IsTrue(transformed.Keywords.Contains(Keyword.Taunt));
+            Assert.IsTrue(BoardTribeAnalyzer.HasTribe(transformed, Tribe.Mech));
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_HenchmanCopiesSecondKilledEnemyAfterCombat()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_593");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var henchman = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_593");
+            henchman.Attack = 20;
+            henchman.Health = 20;
+            henchman.MaxHealth = 20;
+            henchman.Keywords.Add(Keyword.Windfury);
+            var enemyA = TestBoardMinion("henchman-enemy-a", "Enemy A", "BG26_135", 0, 1, Tribe.Beast, 1);
+            var enemyB = TestBoardMinion("henchman-enemy-b", "Enemy B", "BG26_135", 0, 1, Tribe.Beast, 1);
+            service.State.Opponent.Board.Add(enemyA);
+            service.State.Opponent.Board.Add(enemyB);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 41, SafetyLimit = 4 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BG26_135"));
+        }
+
+        [Test]
+        public void TimewarpedCopyTransform_RiplashCopiesLastTavernSpellDeathrattle()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            BuyFixedTimewarpedCard(service, "BG34_Giant_325");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var riplash = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_325");
+            riplash.Attack = 0;
+            riplash.Health = 1;
+            riplash.MaxHealth = 1;
+            var target = TestBoardMinion("riplash-spell-target", "Spell Target", "RIPLASH_TARGET", 1, 1, Tribe.Undead, 1);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "110412", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
+            service.State.Opponent.Board.Add(TestBoardMinion("riplash-enemy", "Enemy", "RIPLASH_ENEMY", 1, 20, Tribe.None, 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 42, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "110412"));
+        }
+
+        [Test]
+        public void TimewarpedSpecial_AcolyteSpinsYoggWheelAtTurnStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_591");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var logBefore = service.State.Player.Tavern.RecruitLog.Count;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog
+                .Skip(logBefore)
+                .Any(entry => entry.Message.Contains("Wheel of Yogg-Saron")));
+        }
+
+        [Test]
+        public void TimewarpedSpecial_LeiGetsBuddyOfCurrentHeroPowerAtTurnStart()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            var expectedBuddyId = service.HeroCatalog.AllHeroes
+                .First(hero => hero.HeroPower != null && hero.Buddy != null && hero.HeroPower.CardId == service.State.Player.HeroPowerCardId)
+                .Buddy
+                .CardId;
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_602");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.State.Player.Tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var buddy = service.State.Player.Tavern.Hand.FirstOrDefault(card => card.CardId == expectedBuddyId);
+            Assert.IsNotNull(buddy);
+            Assert.AreEqual(CardKind.HeroBuddy, buddy.CardKind);
+            Assert.AreEqual(PoolSource.Copy, buddy.PoolSource);
+            Assert.IsTrue(buddy.Tags.Contains("generated_copy"));
         }
 
         [Test]
@@ -217,6 +2854,34 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(0, service.State.Player.Tavern.Gold);
             Assert.AreEqual(0, service.State.Player.Tavern.NextTavernSpellCostReduction);
+        }
+
+        [Test]
+        public void Apply_GeneratedCardEntrypointsAddExpectedCards()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG23_002", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
+
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BLOOD_GEM"));
+
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG22_202", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board.Single(card => card.CardId == "BG22_202").InstanceId));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.Minion && BoardTribeAnalyzer.HasTribe(card, Tribe.Murloc)));
+
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG33_894", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
         }
 
         [Test]
@@ -606,7 +3271,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Apply_PlayingGoldenMinionGrantsRewardCardThatDiscoversNextTier()
+        public void Apply_PlayingGoldenMinionGrantsRewardCardThatDiscoversNextAvailableTier()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             service.State.Player.Tavern.Tier = 6;
@@ -637,12 +3302,13 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(boardCountBeforeReward, service.State.Player.Board.Count, "Reward card should resolve as a spell-like card, not a board minion.");
             Assert.IsNotNull(service.State.Player.Tavern.Discover);
-            Assert.AreEqual(7, service.State.Player.Tavern.Discover.RewardTier);
+            Assert.AreEqual(6, service.State.Player.Tavern.Discover.RewardTier);
             Assert.AreEqual(3, service.State.Player.Tavern.Discover.Options.Count);
+            Assert.IsFalse(service.State.Player.Tavern.Discover.Options.Any(card => card.TavernTier == 7));
         }
 
         [Test]
-        public void Apply_TripleRewardDiscoverCapsAtTierSeven()
+        public void Apply_TripleRewardDiscoverCapsAtCurrentMaxTier()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             service.State.Player.Tavern.Tier = 7;
@@ -665,7 +3331,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
 
             Assert.IsNotNull(service.State.Player.Tavern.Discover);
-            Assert.AreEqual(7, service.State.Player.Tavern.Discover.RewardTier);
+            Assert.AreEqual(6, service.State.Player.Tavern.Discover.RewardTier);
         }
 
         [Test]
@@ -815,6 +3481,76 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(minion => minion.DefinitionId == "triple-reward"));
         }
 
+        private static MatchService CreateTimewarpOnlyService(int seed)
+        {
+            return MatchService.CreateWithDefaultCatalog(
+                seed,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTrinkets = false
+                });
+        }
+
+        private static MinionInstance BuyFixedTimewarpedCard(MatchService service, string cardId)
+        {
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            timewarp.VisitOpen = true;
+            timewarp.Phase = TimewarpTavernPhase.Open;
+            timewarp.PendingKind = TimewarpKind.Minor;
+            timewarp.Chronum = 10;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot { SlotId = "fixed-" + cardId, CardId = cardId, CardKind = CardKind.Minion, Cost = 0, Source = "test" }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+            return tavern.Hand.Last(card => card.CardId == cardId);
+        }
+
+        private static void BuyFixedTimewarpedOffer(MatchService service, string cardId, CardKind cardKind, int cost, int chronum)
+        {
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            timewarp.VisitOpen = true;
+            timewarp.Phase = TimewarpTavernPhase.Open;
+            timewarp.PendingKind = TimewarpKind.Minor;
+            timewarp.Chronum = chronum;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot { SlotId = "fixed-" + cardId, CardId = cardId, CardKind = cardKind, Cost = cost, Source = "test" }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+        }
+
+        private static int PrepareTimewarpedSummonerSpell(MatchService service)
+        {
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_324");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var target = TestBoardMinion("summoner-beast-target", "Beast Target", "TEST_BEAST_TARGET", 1, 1, Tribe.Beast, 1);
+            service.State.Player.Board.Add(target);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "TIMEWARPED_SUMMONER_SPELL"));
+            return service.State.Player.Board.FindIndex(card => card.InstanceId == target.InstanceId);
+        }
+
+        private static void AdvanceToRound(MatchService service, int round)
+        {
+            while (service.State.Round < round)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+        }
+
         private static void AssertShopMatchesActiveTribes(MatchService service)
         {
             foreach (var card in service.State.Player.Tavern.Shop.Where(card => card != null))
@@ -886,6 +3622,77 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 31, SafetyLimit = 1 }));
         }
 
+        [Test]
+        public void GrantSecondHeroPower_StoresUnlockRoundWithoutReplacingPrimary()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.HeroPowerCardId = PatchesHeroPowerId;
+            service.State.Player.ExtraHeroPowerCardIds.Clear();
+            service.State.Player.ExtraHeroPowerUnlockRounds.Clear();
+
+            service.GrantSecondHeroPower(GeorgeHeroPowerId, "test", 5);
+
+            Assert.AreEqual(PatchesHeroPowerId, service.State.Player.HeroPowerCardId);
+            CollectionAssert.Contains(service.State.Player.ExtraHeroPowerCardIds, GeorgeHeroPowerId);
+            Assert.AreEqual(5, service.State.Player.ExtraHeroPowerUnlockRounds[GeorgeHeroPowerId]);
+        }
+
+        [Test]
+        public void Apply_UseHeroPowerTargetsExplicitSecondHeroPower()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.HeroPowerCardId = KraggHeroPowerId;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 10;
+            service.GrantSecondHeroPower(BlackthornHeroPowerId, "test");
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId));
+
+            Assert.AreEqual(KraggHeroPowerId, service.State.Player.HeroPowerCardId);
+            Assert.AreEqual(9, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == BloodGemCardId));
+        }
+
+        [Test]
+        public void Apply_SecondHeroPowerCountersAreScopedPerHeroPower()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.HeroPowerCardId = KraggHeroPowerId;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 10;
+            service.GrantSecondHeroPower(BlackthornHeroPowerId, "test");
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId));
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId));
+
+            var counters = service.State.Player.Tavern.HeroEffectCounters;
+            Assert.IsFalse(counters.ContainsKey("hero:blackthorn:round"));
+            Assert.IsFalse(counters.ContainsKey("hero:blackthorn:uses"));
+            Assert.AreEqual(service.State.Round, counters["hero-power:" + BlackthornHeroPowerId + ":hero:blackthorn:round"]);
+            Assert.AreEqual(2, counters["hero-power:" + BlackthornHeroPowerId + ":hero:blackthorn:uses"]);
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId)));
+        }
+
+        [Test]
+        public void Apply_SecondHeroPowerUnlockRoundBlocksUseUntilUnlocked()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.HeroPowerCardId = KraggHeroPowerId;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 10;
+            service.GrantSecondHeroPower(BlackthornHeroPowerId, "test", 5);
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId)));
+
+            AdvanceToRound(service, 5);
+            service.State.Player.Tavern.Gold = 10;
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, -1, TargetZone.Unspecified, heroPowerCardId: BlackthornHeroPowerId));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == BloodGemCardId));
+        }
+
         private static MinionInstance CloneForHand(MinionInstance source, string suffix)
         {
             var clone = source.Clone();
@@ -925,6 +3732,33 @@ namespace LearnHearthstone.Tests.EditMode
                 Tags = new List<string>(),
                 Owner = BoardSide.Player,
                 CanAttack = true
+            };
+        }
+
+        private static MinionInstance TestTavernSpell(string id)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.TavernSpell,
+                InstanceId = id,
+                DefinitionId = id,
+                CardId = "104436",
+                Name = "Test Tavern Spell",
+                Cost = 0,
+                Attack = 0,
+                BaseAttack = 0,
+                Health = 0,
+                MaxHealth = 0,
+                BaseHealth = 0,
+                TavernTier = 1,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.TavernSpell },
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                Tags = new List<string> { "tavern_spell" },
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0
             };
         }
     }

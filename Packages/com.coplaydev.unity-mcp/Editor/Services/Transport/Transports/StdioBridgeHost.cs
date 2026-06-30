@@ -628,9 +628,16 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                         catch (Exception ex)
                         {
                             string msg = ex.Message ?? string.Empty;
+                            var disposed = ex as ObjectDisposedException;
+                            var disposedObjectName = disposed?.ObjectName ?? string.Empty;
+                            bool isDisposedNetworkStream =
+                                disposed != null &&
+                                (disposedObjectName.IndexOf("NetworkStream", StringComparison.OrdinalIgnoreCase) >= 0
+                                 || msg.IndexOf("NetworkStream", StringComparison.OrdinalIgnoreCase) >= 0);
                             bool isBenign =
                                 msg.IndexOf("Connection closed before reading expected bytes", StringComparison.OrdinalIgnoreCase) >= 0
                                 || msg.IndexOf("Read timed out", StringComparison.OrdinalIgnoreCase) >= 0
+                                || isDisposedNetworkStream
                                 || ex is IOException;
                             if (isBenign)
                             {

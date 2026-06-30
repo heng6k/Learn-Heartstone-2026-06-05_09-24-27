@@ -87,7 +87,9 @@ namespace LearnHearthstone.Domain.Models
         public MechanicChoiceRequest PendingChoice;
         public List<EquippedAdvancedMechanic> Equipped = new List<EquippedAdvancedMechanic>();
         public Dictionary<string, int> Counters = new Dictionary<string, int>();
+        public Dictionary<string, string> Selections = new Dictionary<string, string>();
         public PlayerTrinketState Trinkets = new PlayerTrinketState();
         public PlayerQuestState Quests = new PlayerQuestState();
+        public AnomalyState Anomalies = new AnomalyState();
     }
 }
