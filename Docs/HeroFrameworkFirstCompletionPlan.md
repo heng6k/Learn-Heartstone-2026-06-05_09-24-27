@@ -1,21 +1,24 @@
-# FrameworkFirst 英雄收口四类计划
+# FrameworkFirst 英雄收口五类计划
 
 更新日期：2026-07-04
 
 ## 目标
 
-这份文档只处理 `HeroEffectImplementationRegistry` 中当前仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合，把它们一次性归入四个互斥收口类别：
+这份文档只处理 `HeroEffectImplementationRegistry` 中当前仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合，把它们一次性归入四个技术收口类别，并额外维护一个横切的决策队列：
 
 1. 可直接转正/补测试
 2. 需要战斗事件底座
 3. 需要真大厅代理
 4. 需要独立大机制
+5. 需要你决策的
+
+前四类是互斥技术归属；第 5 类是横切阻塞项，可能引用前四类里的英雄或机制，用来标记没有你拍板就不该继续推进的地方。
 
 `Planned` 和 `Deferred` 不在本文件范围内。它们分别继续走各自的 P3/P4/P6 计划，例如 Rat King、Vashj、Azshara、Barov、Holmes、Loh、Dinotamer Brann、Mister Clocksworth、Genn。
 
 ## Confidence Check
 
-针对“完成四类收口计划并给出执行路线”：置信度 0.95。
+针对“完成四个技术收口类和一个决策队列，并给出执行路线”：置信度 0.95。
 
 - 未发现第二套英雄状态登记源；`HeroEffectImplementationRegistry.cs` 仍是收口真源。
 - 现有计划文档已覆盖 P3 候选策略、P4 对手历史、P5 战斗事件、P6 独立大机制。
@@ -32,6 +35,7 @@
 | 需要战斗事件底座 | 17 | 先补 CombatEngine 事件源、payload、死亡/召唤/攻击/伤害记录，再逐批收口。 |
 | 需要真大厅代理 | 4 | 单人训练器可继续用快照代理，但 official-complete 要等大厅对手/历史/淘汰状态。 |
 | 需要独立大机制 | 7 | Secret、Trinket、Undead Creation、StarCraft 子系统先落地，再迁移英雄代理。 |
+| 需要你决策的 | 5 | 横切决策队列；不改变前四类归属，但决定是否可转 `Implemented`、继续代理或进入下一批实现。 |
 
 ## 1. 可直接转正/补测试
 
@@ -126,6 +130,25 @@
 4. D4：StarCraft Protoss。Artanis 依赖 Magnetize 事件和延迟奖励，放在 Terran/Zerg 之后。
 5. D5：Secret 和 Custom Undead。二者都需要战斗中 payload/触发框架，建议等 B4 战斗 Deathrattle payload 完成后再做。
 
+## 5. 需要你决策的
+
+这一组不是第五种实现底座，而是执行前必须由你拍板的横切队列。没有结论时，相关英雄继续保持 `FrameworkFirst` 或过滤状态，不强行转正。
+
+| 决策项 | 影响范围 | 默认保守处理 | 你需要拍板的内容 |
+| --- | --- | --- | --- |
+| A1 转正标准 | Tavish、Tamsin、Onyxia、Bru'kan | 继续 `FrameworkFirst`，即使 runtime 已接通。 | 是否允许在 UI polish/通用框架还能后续加强的情况下转 `Implemented`。 |
+| Bigglesworth 本体代理 | Mr. Bigglesworth / Lil' K.T. | 候选池已过滤；本体保留 `FrameworkFirst` 单人代理。 | 是继续保留本体代理，还是彻底禁用到真实大厅淘汰系统完成。 |
+| StarCraft 子系统优先级 | Jim Raynor、Kerrigan、Artanis | 采用 `Jim Raynor -> Kerrigan -> Artanis`。 | 是否接受这个顺序，或改为先做 Kerrigan/Zerg。 |
+| Galewing 航线奖励标准 | Galewing / Flight Trainer | 当前 proxy 奖励不转 `Implemented`。 | 是否接受当前明确 proxy 航线奖励为项目内完成标准。 |
+| Yogg Wheel 完成标准 | Yogg-Saron / Acolyte | 当前共享 Yogg reward set 不转 `Implemented`。 | 是否必须补完整官方 Wheel 表，还是允许项目内结果集作为完成标准。 |
+
+### 决策后动作
+
+1. 如果 A1 允许转正，下一批直接补 UI smoke/缺口测试并更新 registry。
+2. 如果 Bigglesworth 本体禁用，移除/隐藏单人代理入口并保持候选过滤。
+3. 如果 StarCraft 顺序确认，先写对应子系统实现文档，再开始第一个 runtime 批次。
+4. 如果 Galewing/Yogg 接受项目内标准，补测试和文档后转正；否则继续等待官方数据表。
+
 ## 推荐总执行顺序
 
 1. A1 直接转正批次：Tavish、Tamsin、Onyxia、Bru'kan。
@@ -140,9 +163,4 @@
 
 ## 当前需要用户确认的点
 
-1. A1 中 Tavish/Tamsin/Onyxia/Bru'kan 是否允许在“UI polish/通用框架仍可后续加强”的情况下转 `Implemented`，还是必须等完整通用框架。
-2. Bigglesworth 本体是否继续保留单人代理，还是像候选池一样彻底过滤/禁用到真实大厅淘汰系统完成。
-3. StarCraft 子系统优先级是否采用 `Jim Raynor -> Kerrigan -> Artanis`。
-4. Galewing 是否接受当前明确 proxy 航线奖励，还是必须查到官方三航线奖励文本后才允许转正。
-5. Yogg 是否必须补完整 Wheel 官方结果表，还是允许把现有共享 Yogg reward set 作为项目内完成标准。
-
+见第 5 节“需要你决策的”。这些是下一批开始前的显式决策队列。
