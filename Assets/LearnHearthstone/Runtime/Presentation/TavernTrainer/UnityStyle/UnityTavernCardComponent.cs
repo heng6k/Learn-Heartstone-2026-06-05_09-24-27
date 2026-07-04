@@ -268,7 +268,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             var isSpell = IsSpellLike(card);
-            ConfigureKeywordLabel(subtitleText, string.Empty, mode, false);
+            ConfigureTextDescription(subtitleText, DescriptionText(card, usesFullCardArt), mode, isSpell && !usesFullCardArt);
             SetBadge(tierBadge, tierText, !isSpell || !usesFullCardArt, HeaderBadgeText(card));
             ConfigurePrefabBadge(
                 tierBadge,
@@ -435,39 +435,35 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.Stretch(label.rectTransform);
         }
 
-        private static void ConfigureKeywordLabel(Text label, string value, UnityTavernCardMode mode, bool overlayStyle)
+        private static void ConfigureTextDescription(Text label, string value, UnityTavernCardMode mode, bool visible)
         {
             if (label == null)
             {
                 return;
             }
 
-            var visible = !string.IsNullOrWhiteSpace(value);
-            label.text = visible ? value : string.Empty;
-            label.gameObject.SetActive(visible);
-            if (!visible)
+            label.text = visible ? value ?? string.Empty : string.Empty;
+            label.gameObject.SetActive(visible && !string.IsNullOrWhiteSpace(value));
+            if (!label.gameObject.activeSelf)
             {
                 return;
             }
 
-            label.fontSize = mode == UnityTavernCardMode.Board ? 8 : 9;
-            label.fontStyle = FontStyle.Bold;
-            label.alignment = TextAnchor.MiddleCenter;
-            label.color = overlayStyle ? Color.white : UnityTavernUiStyle.Gold;
+            label.fontSize = mode == UnityTavernCardMode.Detail ? 11 : 9;
+            label.fontStyle = FontStyle.Normal;
+            label.alignment = TextAnchor.UpperCenter;
+            label.color = UnityTavernUiStyle.Gold;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
 
             var rect = label.rectTransform;
-            rect.anchorMin = new Vector2(0.18f, 0f);
-            rect.anchorMax = new Vector2(0.82f, 0f);
-            rect.offsetMin = new Vector2(0f, overlayStyle ? 34f : 24f);
-            rect.offsetMax = new Vector2(0f, overlayStyle ? 54f : 42f);
+            rect.anchorMin = new Vector2(0.10f, 0f);
+            rect.anchorMax = new Vector2(0.90f, 0f);
+            rect.offsetMin = new Vector2(0f, 34f);
+            rect.offsetMax = new Vector2(0f, 80f);
 
             var outline = UnityTavernUiStyle.EnsureComponent<Outline>(label.gameObject);
-            outline.enabled = overlayStyle;
-            outline.effectColor = new Color(0f, 0f, 0f, 0.88f);
-            outline.effectDistance = new Vector2(1f, -1f);
-            outline.useGraphicAlpha = false;
+            outline.enabled = false;
         }
 
         private static void SetText(Text label, string value)
@@ -932,6 +928,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 UnityEngine.Object.DestroyImmediate(existing.gameObject);
             }
+        }
+
+        private static string DescriptionText(MinionInstance minion, bool usesFullCardArt)
+        {
+            if (minion == null || usesFullCardArt)
+            {
+                return string.Empty;
+            }
+
+            return string.IsNullOrWhiteSpace(minion.Text)
+                ? string.Empty
+                : minion.Text.Replace("[x]", string.Empty).Replace("\r", string.Empty).Trim();
         }
 
         private static string ArtFallbackText(MinionInstance minion)

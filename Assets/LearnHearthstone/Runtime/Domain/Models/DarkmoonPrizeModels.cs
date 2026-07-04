@@ -17,6 +17,8 @@ namespace LearnHearthstone.Domain.Models
         public string Name;
         public string Text;
         public int Tier;
+        public string ImagePath;
+        public string ImageUrl;
         public DarkmoonPrizeImplementationStatus ImplementationStatus;
         public List<Keyword> Keywords = new List<Keyword>();
         public List<string> EffectIds = new List<string>();

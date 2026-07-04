@@ -12062,17 +12062,20 @@
                                       "discover"
                                   ],
                          "effectIds":  [
-
+                                           "tickatus_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented through the shared Darkmoon Prize catalog: discovers a Tier 3 Darkmoon Prize on equip and repeats every three turns.",
                          "imagePath":  "CardImages/BG30_MagicItem_707",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_707.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  "discover",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "discover",
+                                          "turn_start"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG35_MagicItem_922",

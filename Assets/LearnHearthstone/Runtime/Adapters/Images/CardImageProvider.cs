@@ -154,6 +154,7 @@ namespace LearnHearthstone.Adapters.Images
                 || cardKind == CardKind.Hero
                 || cardKind == CardKind.HeroPower
                 || cardKind == CardKind.HeroBuddy
+                || cardKind == CardKind.Spell
                 || cardKind == CardKind.Trinket
                 || cardKind == CardKind.Quest
                 || cardKind == CardKind.QuestReward;

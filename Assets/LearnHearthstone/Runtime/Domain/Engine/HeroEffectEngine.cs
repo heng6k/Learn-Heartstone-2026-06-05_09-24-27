@@ -70,6 +70,7 @@ namespace LearnHearthstone.Domain.Engine
         public SeededRng Rng;
         public List<MinionInstance> PlayerBoard;
         public List<MinionInstance> OpponentBoard;
+        public List<string> ActiveHeroPowerCardIds;
     }
 
     public sealed class HeroEffectResult
@@ -122,6 +123,11 @@ namespace LearnHearthstone.Domain.Engine
         private const string FarseerNobundoPowerId = "BG31_HERO_003p";
         private const string DoctorHollidaePowerId = "BG28_HERO_801p";
         private const string NineFrogsCardId = "BG28_HERO_801_Buddy";
+        private const string SnakeEyesPowerId = "BG28_HERO_400p";
+        private const string BoxCarsCardId = "BG28_HERO_400_Buddy";
+        private const string SnakeEyesLastRollCounter = "hero:snake_eyes:last_roll";
+        private const string SnakeEyesReadyRoundCounter = "hero:snake_eyes:ready_round";
+        private const string BoxCarsLastRollCounter = "hero:snake_eyes:box_cars_last_roll";
         private const string BlackthornPowerId = "BG20_HERO_103p";
         private const string DeathsHeadSageCardId = "BG20_HERO_103_Buddy";
         private const string LichBazHialPowerId = "TB_BaconShop_HP_049";
@@ -187,6 +193,12 @@ namespace LearnHearthstone.Domain.Engine
         private const string ThawedChampionCardId = "TB_BaconShop_HERO_27_Buddy";
         private const string AlAkirPowerId = "TB_BaconShop_HP_086";
         private const string SpiritOfAirCardId = "TB_BaconShop_HERO_76_Buddy";
+        private const string TavishPowerId = "BG22_HERO_000p";
+        private const string TamsinPowerId = "BG20_HERO_282p";
+        private const string OnyxiaPowerId = "BG22_HERO_305p";
+        private const string BrukanPowerId = "BG22_HERO_001p";
+        private const string TamsinPhylacteryTag = "hero_tamsin_phylactery";
+        private const string OnyxiaWhelpStatsCounter = "hero:onyxia:whelp_stats";
         private const string YshaarjPowerId = "TB_BaconShop_HP_103";
         private const string BabyYshaarjCardId = "TB_BaconShop_HERO_92_Buddy";
         private const string DeathwingPowerId = "TB_BaconShop_HP_061";
@@ -349,9 +361,15 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             EnsureCounters(context.State.Player.Tavern);
-            var powerId = context.State.Player.HeroPowerCardId;
-            ConfigureCombatSummonModifiers(context, powerId);
-            if (IsPower(powerId, AlAkirPowerId))
+            var activePowerIds = GetActiveCombatHeroPowerCardIds(context);
+            ConfigureCombatSummonModifiers(context, activePowerIds);
+            context.State.Player.Tavern.HeroTavishDeadeyeActive = HasCombatHeroPower(activePowerIds, TavishPowerId);
+            context.State.Player.Tavern.HeroOnyxiaBroodmotherActive = HasCombatHeroPower(activePowerIds, OnyxiaPowerId);
+            context.State.Player.Tavern.HeroBrukanElementActive =
+                HasCombatHeroPower(activePowerIds, BrukanPowerId) &&
+                !string.IsNullOrEmpty(context.State.Player.Tavern.HeroBrukanElement);
+
+            if (HasCombatHeroPower(activePowerIds, AlAkirPowerId))
             {
                 var target = context.PlayerBoard.FirstOrDefault();
                 AddBonusKeywordSet(target, "Swatting Insects");
@@ -361,12 +379,17 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (IsPower(powerId, DeathwingPowerId))
+            if (HasCombatHeroPower(activePowerIds, DeathwingPowerId))
             {
                 ApplyDeathwingCombatBuff(context, result);
             }
 
-            if (IsPower(powerId, IllidanPowerId))
+            if (HasCombatHeroPower(activePowerIds, TamsinPowerId))
+            {
+                ApplyTamsinPhylactery(context, result);
+            }
+
+            if (HasCombatHeroPower(activePowerIds, IllidanPowerId))
             {
                 ApplyIllidanEdgeBuffs(context.PlayerBoard, result);
             }
@@ -376,34 +399,45 @@ namespace LearnHearthstone.Domain.Engine
                 ApplyEclipsionFirstAttackImmune(context, result);
             }
 
-            if (IsPower(powerId, QueenWagtogglePowerId))
+            if (HasCombatHeroPower(activePowerIds, QueenWagtogglePowerId))
             {
                 ApplyWagtoggleCombatBuffs(context, result);
             }
 
-            if (IsPower(powerId, YshaarjPowerId))
+            if (HasCombatHeroPower(activePowerIds, YshaarjPowerId))
             {
                 SummonRandomTierMinionForCombat(context, Math.Max(1, context.State.Player.Tavern.Tier), "Y'Shaarj", true, result);
             }
 
-            if (IsPower(powerId, VanndarPowerId) && context.State.Round >= 7)
+            if (HasCombatHeroPower(activePowerIds, VanndarPowerId) && context.State.Round >= 7)
             {
                 SummonCombatCopy(context, context.PlayerBoard.OrderByDescending(minion => minion.MaxHealth).ThenBy(minion => minion.InstanceId).FirstOrDefault(), "Vanndar", result);
             }
 
-            if (IsPower(powerId, DrektharPowerId) && context.State.Round >= 7)
+            if (HasCombatHeroPower(activePowerIds, DrektharPowerId) && context.State.Round >= 7)
             {
                 SummonCombatCopy(context, context.PlayerBoard.OrderByDescending(minion => minion.Attack).ThenBy(minion => minion.InstanceId).FirstOrDefault(), "Drek'Thar", result);
             }
 
-            if (IsPower(powerId, TeronPowerId))
+            if (HasCombatHeroPower(activePowerIds, TeronPowerId))
             {
                 ResolveTeronCombatStart(context, result);
             }
 
-            if (IsPower(powerId, OzumatPowerId))
+            if (HasCombatHeroPower(activePowerIds, OzumatPowerId))
             {
                 SummonOzumatTentacle(context, result);
+            }
+
+            if (context.State.Player.Tavern.HeroOnyxiaBroodmotherActive &&
+                GetCounterOrDefault(context.State.Player.Tavern, OnyxiaWhelpStatsCounter, 0) <= 0)
+            {
+                context.State.Player.Tavern.HeroEffectCounters[OnyxiaWhelpStatsCounter] = 3;
+            }
+
+            if (context.State.Player.Tavern.HeroBrukanElementActive)
+            {
+                result.Messages.Add("Embrace the Elements: " + context.State.Player.Tavern.HeroBrukanElement + " will be called at combat start.");
             }
 
             return result;
@@ -836,6 +870,23 @@ namespace LearnHearthstone.Domain.Engine
                 {
                     result.Messages.Add("Blessing of the Nine Frogs: gained a random Tavern spell.");
                 }
+            }
+
+            if (IsPower(powerId, SnakeEyesPowerId))
+            {
+                var tavern = context.State.Player.Tavern;
+                var readyRound = GetCounterOrDefault(tavern, SnakeEyesReadyRoundCounter, 0);
+                if (context.State.Round < readyRound)
+                {
+                    throw new InvalidOperationException("Lucky Roll is cooling down until turn " + readyRound + ".");
+                }
+
+                SpendGold(tavern, 1);
+                var roll = RollSixSidedDie(context);
+                tavern.Gold += roll;
+                tavern.HeroEffectCounters[SnakeEyesLastRollCounter] = roll;
+                tavern.HeroEffectCounters[SnakeEyesReadyRoundCounter] = context.State.Round + roll;
+                result.Messages.Add("Lucky Roll: rolled " + roll + " and gained " + roll + " Gold.");
             }
 
             if (IsPower(powerId, BlackthornPowerId))
@@ -1963,6 +2014,20 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
+            foreach (var boxCars in MatchingBoardBuddies(context.State, BoxCarsCardId))
+            {
+                var roll = RollSixSidedDie(context);
+                context.State.Player.Tavern.HeroEffectCounters[BoxCarsLastRollCounter] = roll;
+                if (StartBoxCarsTavernSpellDiscover(context, roll, boxCars.InstanceId))
+                {
+                    result.Messages.Add("Box Cars: rolled " + roll + " and started a Tier " + roll + " Tavern spell Discover.");
+                }
+                else
+                {
+                    result.Messages.Add("Box Cars: rolled " + roll + " but no Tier " + roll + " Tavern spell Discover started.");
+                }
+            }
+
             foreach (var hunter in MatchingBoardBuddies(context.State, HunterOfOldCardId))
             {
                 if (AddOpponentBuddyToHand(context, GetLastOpponentHeroId(context.State), "hunter-of-old-" + hunter.InstanceId, "last_opponent_buddy_proxy"))
@@ -2975,11 +3040,11 @@ namespace LearnHearthstone.Domain.Engine
                     .ToList();
             }
 
-            StartMinionDiscover(context, candidates, tier, source);
-            if (context.State.Player.Tavern.Discover != null)
+            var discover = StartMinionDiscover(context, candidates, tier, source);
+            if (discover != null)
             {
-                context.State.Player.Tavern.Discover.TargetInstanceId = target.InstanceId;
-                context.State.Player.Tavern.Discover.RemainingPicks = shopIndex;
+                discover.TargetInstanceId = target.InstanceId;
+                discover.RemainingPicks = shopIndex;
             }
         }
 
@@ -3002,12 +3067,12 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, source + "-" + options.Count, PoolSource.Discover));
             }
 
-            context.State.Player.Tavern.Discover = new DiscoverState
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = 0,
                 Options = options
-            };
+            });
         }
 
         private static void StartHeroPowerDiscover(HeroEffectContext context, string source)
@@ -3017,22 +3082,22 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var candidates = context.Heroes.GetDiscoverableHeroPowers(context.State.Player.HeroPowerCardId);
+            var candidates = context.Heroes.GetOfferableDiscoverableHeroPowers(context.State.Player.HeroPowerCardId);
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
             {
                 var index = context.Rng.NextInt(candidates.Count);
                 var definition = candidates[index];
                 candidates.RemoveAt(index);
-                options.Add(MinionFactory.Create(definition, BoardSide.Player, source + "-" + options.Count));
+                options.Add(context.Heroes.CreateDiscoverableHeroPowerOption(definition, BoardSide.Player, source + "-" + options.Count));
             }
 
-            context.State.Player.Tavern.Discover = new DiscoverState
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = 0,
                 Options = options
-            };
+            });
         }
 
         private static void ReplaceShopCardsOneTierHigher(HeroEffectContext context, HeroEffectResult result)
@@ -3246,12 +3311,12 @@ namespace LearnHearthstone.Domain.Engine
                 CreateZergProxy("Hydralisk", "hydralisk", context.State.Round),
                 CreateZergProxy("Ultralisk", "ultralisk", context.State.Round)
             };
-            context.State.Player.Tavern.Discover = new DiscoverState
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "buddy:broken-horn",
                 RewardTier = 0,
                 Options = options
-            };
+            });
             result.Messages.Add("Broken Horn: started a Zerg minion proxy Discover set to 6/6.");
         }
 
@@ -3372,12 +3437,12 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            context.State.Player.Tavern.Discover = new DiscoverState
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "buddy:phyresz",
                 RewardTier = Math.Max(1, context.State.Player.Tavern.Tier),
                 Options = options
-            };
+            });
             result.Messages.Add("Phyresz: started a plain-copy Discover.");
         }
 
@@ -3576,7 +3641,7 @@ namespace LearnHearthstone.Domain.Engine
         private static void StartBigglesworthEliminatedWarbandDiscover(HeroEffectContext context, HeroEffectResult result)
         {
             var history = context.State.OpponentHistory;
-            if (history?.EliminatedPlayerWarbands == null || context.State.Player.Tavern.Discover != null)
+            if (history?.EliminatedPlayerWarbands == null)
             {
                 return;
             }
@@ -3641,12 +3706,12 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(copy);
             }
 
-            context.State.Player.Tavern.Discover = new DiscoverState
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = options.Max(card => Math.Max(1, card.TavernTier)),
                 Options = options
-            };
+            });
             return true;
         }
 
@@ -3876,7 +3941,7 @@ namespace LearnHearthstone.Domain.Engine
             StartMinionDiscover(context, candidates, tier, source);
         }
 
-        private static void StartMinionDiscover(HeroEffectContext context, List<MinionDefinition> candidates, int rewardTier, string source)
+        private static DiscoverState StartMinionDiscover(HeroEffectContext context, List<MinionDefinition> candidates, int rewardTier, string source)
         {
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
@@ -3887,12 +3952,14 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "hero-discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            context.State.Player.Tavern.Discover = new DiscoverState
+            var discover = new DiscoverState
             {
                 Source = source,
                 RewardTier = rewardTier,
                 Options = options
             };
+            context.State.Player.Tavern.QueueDiscover(discover);
+            return discover;
         }
 
         private static bool DamageRandomEnemyMinion(HeroEffectContext context, int damage)
@@ -3993,6 +4060,60 @@ namespace LearnHearthstone.Domain.Engine
                 Tags = new List<string> { "generated_spell", "lantern_light", "targeted_spell", "buff_spell" }
             });
             return true;
+        }
+
+        private static bool StartBoxCarsTavernSpellDiscover(HeroEffectContext context, int tier, string instanceId)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (context.Spells == null)
+            {
+                return false;
+            }
+
+            var candidates = AvailableTavernSpells(context)
+                .Where(spell => spell.TavernTier == tier)
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return false;
+            }
+
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = context.Rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "box-cars-" + instanceId + "-" + options.Count));
+            }
+
+            tavern.QueueDiscover(new DiscoverState
+            {
+                Source = "buddy:box-cars",
+                RewardTier = tier,
+                RemainingPicks = 1,
+                Options = options
+            });
+            return true;
+        }
+
+        private static List<TavernSpellDefinition> AvailableTavernSpells(HeroEffectContext context)
+        {
+            return context.Spells.All
+                .Where(spell =>
+                    spell != null &&
+                    spell.InPool &&
+                    spell.Category == "TavernSpell" &&
+                    (context.State.IsDefaultCardPoolVersion ||
+                        (context.State.EnabledTavernSpellCardNumbers != null &&
+                            context.State.EnabledTavernSpellCardNumbers.Contains(spell.CardNumber, StringComparer.OrdinalIgnoreCase))) &&
+                    TribeAvailabilityRules.IsTavernSpellAvailable(spell, context.State.ActiveTribes))
+                .ToList();
+        }
+
+        private static int RollSixSidedDie(HeroEffectContext context)
+        {
+            return context.Rng.NextInt(6) + 1;
         }
 
         private static bool AddRandomStatTavernSpellToHand(HeroEffectContext context, string source)
@@ -4283,6 +4404,23 @@ namespace LearnHearthstone.Domain.Engine
                 : "ALL Will Burn!: all combat minions gained +2 Attack and friendly minions kept it permanently.");
         }
 
+        private static void ApplyTamsinPhylactery(HeroCombatEffectContext context, HeroEffectResult result)
+        {
+            var target = context.PlayerBoard
+                .Where(card => card != null && card.CardKind == CardKind.Minion)
+                .OrderBy(card => card.Attack)
+                .ThenBy(card => card.InstanceId)
+                .FirstOrDefault();
+            if (target == null)
+            {
+                return;
+            }
+
+            AddKeyword(target, Keyword.Deathrattle, "Fragrant Phylactery");
+            AddTag(target, TamsinPhylacteryTag);
+            result.Messages.Add("Fragrant Phylactery: lowest-Attack minion gained the stat-sharing Deathrattle for combat.");
+        }
+
         private static void ApplyIllidanEdgeBuffs(List<MinionInstance> board, HeroEffectResult result)
         {
             var targets = board
@@ -4499,7 +4637,26 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void ConfigureCombatSummonModifiers(HeroCombatEffectContext context, string powerId)
+        private static List<string> GetActiveCombatHeroPowerCardIds(HeroCombatEffectContext context)
+        {
+            var powerIds = context.ActiveHeroPowerCardIds != null
+                ? context.ActiveHeroPowerCardIds.Where(powerId => !string.IsNullOrEmpty(powerId)).ToList()
+                : new List<string>();
+            if (powerIds.Count == 0 && !string.IsNullOrEmpty(context.State.Player.HeroPowerCardId))
+            {
+                powerIds.Add(context.State.Player.HeroPowerCardId);
+            }
+
+            return powerIds;
+        }
+
+        private static bool HasCombatHeroPower(IEnumerable<string> activePowerIds, string cardId)
+        {
+            return activePowerIds != null &&
+                   activePowerIds.Any(powerId => string.Equals(powerId, cardId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void ConfigureCombatSummonModifiers(HeroCombatEffectContext context, IEnumerable<string> activePowerIds)
         {
             var tavern = context.State.Player.Tavern;
             tavern.CombatSummonBonusAttack = 0;
@@ -4510,7 +4667,7 @@ namespace LearnHearthstone.Domain.Engine
             tavern.CombatSameTierSummonBuffAttack = 0;
             tavern.CombatSameTierSummonBuffHealth = 0;
 
-            if (IsPower(powerId, GreyboughPowerId))
+            if (HasCombatHeroPower(activePowerIds, GreyboughPowerId))
             {
                 tavern.CombatSummonBonusAttack = 1;
                 tavern.CombatSummonBonusHealth = 2;

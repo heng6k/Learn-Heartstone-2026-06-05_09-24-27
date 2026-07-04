@@ -798,6 +798,12 @@ namespace LearnHearthstone.Domain.Models
         public int CombatSameTierSummonBuffTier;
         public int CombatSameTierSummonBuffAttack;
         public int CombatSameTierSummonBuffHealth;
+        public string HeroTavishTargetInstanceId;
+        public int HeroTavishTargetIndex = -1;
+        public bool HeroTavishDeadeyeActive;
+        public bool HeroOnyxiaBroodmotherActive;
+        public string HeroBrukanElement;
+        public bool HeroBrukanElementActive;
         public int QuestFriendlyAttackAura;
         public bool QuestVolatileVenomActive;
         public bool QuestBoomSquadActive;
@@ -909,11 +915,62 @@ namespace LearnHearthstone.Domain.Models
         public Dictionary<string, int> BuddyPoolCapacities = new Dictionary<string, int>();
         public Dictionary<string, int> HeroEffectCounters = new Dictionary<string, int>();
         public DiscoverState Discover;
+        public List<DiscoverState> DiscoverQueue = new List<DiscoverState>();
         public AdvancedMechanicState AdvancedMechanics = new AdvancedMechanicState();
         public PlayerTimewarpTavernState Timewarp = new PlayerTimewarpTavernState();
         public SearchPlanState SearchPlan = new SearchPlanState();
         public TavernGrowthState Growth = new TavernGrowthState();
         public List<RecruitLogEntry> RecruitLog = new List<RecruitLogEntry>();
+
+        public void QueueDiscover(DiscoverState discover)
+        {
+            if (discover == null)
+            {
+                return;
+            }
+
+            if (Discover == null)
+            {
+                Discover = discover;
+                return;
+            }
+
+            EnsureDiscoverQueue().Add(discover);
+        }
+
+        public void ClearCurrentDiscover()
+        {
+            Discover = null;
+        }
+
+        public bool PromoteQueuedDiscover()
+        {
+            var queue = EnsureDiscoverQueue();
+            if (Discover != null || queue.Count == 0)
+            {
+                return false;
+            }
+
+            Discover = queue[0];
+            queue.RemoveAt(0);
+            return true;
+        }
+
+        public void CompleteDiscover()
+        {
+            ClearCurrentDiscover();
+            PromoteQueuedDiscover();
+        }
+
+        private List<DiscoverState> EnsureDiscoverQueue()
+        {
+            if (DiscoverQueue == null)
+            {
+                DiscoverQueue = new List<DiscoverState>();
+            }
+
+            return DiscoverQueue;
+        }
     }
 
     [Serializable]

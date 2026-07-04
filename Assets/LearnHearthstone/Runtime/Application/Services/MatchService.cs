@@ -33,11 +33,60 @@ namespace LearnHearthstone.Application.Services
         private const string PatchwerkHeroCardId = "TB_BaconShop_HERO_34";
         private const string InfiniteTokiHeroPowerCardId = "TB_BaconShop_HP_028";
         private const string ClockworkAssistantCardId = "TB_BaconShop_HERO_28_Buddy";
+        private const string AlexstraszaHeroPowerCardId = "TB_BaconShop_HP_064";
+        private const string VaelastraszCardId = "TB_BaconShop_HERO_56_Buddy";
+        private const string AfKayHeroPowerCardId = "TB_BaconShop_HP_044";
+        private const string AfKayRewardedCounter = "hero:a-f-kay:rewarded";
+        private const string SnackVendorCardId = "TB_BaconShop_HERO_16_Buddy";
+        private const string GuffHeroPowerCardId = "BG20_HERO_242p";
+        private const string GuffTierTotalCounter = "hero:guff:tavern_tier_total";
+        private const int GuffTierThreshold = 20;
+        private const string BabyKodoCardId = "BG20_HERO_242_Buddy";
+        private const string FaelinHeroPowerCardId = "BG22_HERO_201p";
+        private const string SubmersibleChefCardId = "BG22_HERO_201_Buddy";
+        private const string FaelinDiscoverSourcePrefix = "hero:faelin:tier:";
+        private const string FaelinChoiceSelectionPrefix = "hero:faelin:selected_tier_";
+        private const string FaelinGrantedCounterPrefix = "hero:faelin:granted_tier_";
+        private const string ThorimHeroPowerCardId = "BG27_HERO_801p2";
+        private const string VeranusCardId = "BG27_HERO_801_Buddy";
+        private const string ThorimDiscoverSource = "hero:thorim:tier-7";
+        private const string ThorimSelectionKey = "hero:thorim:tier_7_card_id";
+        private const string ThorimGoldSpentCounter = "hero:thorim:gold_spent";
+        private const string ThorimGrantedCounter = "hero:thorim:granted";
+        private const int ThorimGoldSpendThreshold = 60;
+        private const string GalewingHeroPowerCardId = "BG20_HERO_283p";
+        private const string FlightTrainerCardId = "BG20_HERO_283_Buddy";
+        private const string GalewingChoiceSource = "hero:galewing";
+        private const string GalewingRouteSelectionKey = "hero:galewing:route";
+        private const string GalewingLastRouteKey = "hero:galewing:last_route";
+        private const string GalewingDueRoundCounter = "hero:galewing:due_round";
+        private const string GalewingRouteWestfall = "westfall";
+        private const string GalewingRouteIronforge = "ironforge";
+        private const string GalewingRoutePlaguelands = "plaguelands";
+        private const string CarielHeroPowerCardId = "BG21_HERO_000p";
+        private const string CaptainFairmountCardId = "BG21_HERO_000_Buddy";
+        private const string CarielChoiceSource = "hero:cariel";
+        private const string CarielTargetsCounter = "hero:cariel:targets";
+        private const string CarielAttackCounter = "hero:cariel:attack";
+        private const string CarielHealthCounter = "hero:cariel:health";
+        private const string CarielImproveTargets = "targets";
+        private const string CarielImproveAttack = "attack";
+        private const string CarielImproveHealth = "health";
         private const string SireDenathriusHeroCardId = "BG24_HERO_100";
         private const string ShadyAristocratCardId = "BG24_HERO_100_Buddy";
         private const string GoldenShadyAristocratCardId = "BG24_HERO_100_Buddy_G";
         private const string ShadyCoinPouchRewardId = "LH_Reward_CoinPouch8";
         private const string GoldenShadyCoinPouchRewardId = "LH_Reward_CoinPouch16";
+        private const string YoggSaronHeroPowerCardId = "TB_BaconShop_HP_039t";
+        private const string AcolyteOfYoggSaronCardId = "TB_BaconShop_HERO_35_Buddy";
+        private const string GoldenAcolyteOfYoggSaronCardId = "TB_BaconShop_HERO_35_Buddy_G";
+        private const string AcolyteYoggWheelLastRewardKey = "hero_acolyte_yogg_wheel_last_reward";
+        private const string AcolyteYoggWheelSpinCounter = "hero:acolyte_yogg_wheel_spins";
+        private const string TickatusHeroPowerCardId = "TB_BaconShop_HP_106";
+        private const string TicketCollectorCardId = "TB_BaconShop_HERO_94_Buddy";
+        private const string TickatusPrizeWallSource = "tickatus-prize-wall";
+        private const string TicketCollectorSource = "tickatus-ticket-collector";
+        private const string TickatusPrizeWallTriggeredRoundCounter = "hero:tickatus:prize_wall_triggered_round";
         private const string AnimaBribeRewardId = "BG24_Reward_305";
         private const string InvigoratingConchRewardId = "BG27_Reward_503";
         private const string DoubleHeadedRewardId = "BG28_Reward_506";
@@ -218,14 +267,6 @@ namespace LearnHearthstone.Application.Services
         private const string TimewarpedBeanstalkCardId = "BG34_Treasure_301";
         private const string TimewarpedSecrecyCardId = "BG34_Treasure_625";
         private const string TimewarpedBigWinnerCardId = "BG34_Treasure_606";
-        private const string DarkmoonPrizeTrainingSessionCardId = "BGS_Treasures_011";
-        private const string DarkmoonPrizeBuyTheHolyLightCardId = "BGS_Treasures_015";
-        private const string DarkmoonPrizeBananasCardId = "BGS_Treasures_019";
-        private const string DarkmoonPrizeTopShelfCardId = "BGS_Treasures_020";
-        private const string DarkmoonPrizeRepeatCustomerCardId = "BGS_Treasures_034";
-        private const string DarkmoonPrizeAllThatGlittersCardId = "BGS_Treasures_037";
-        private const string DarkmoonPrizeMindflayerGogglesCardId = "BGS_Treasures_039";
-        private const string DarkmoonPrizeReservePricesCardId = "BGS_Treasures_104";
         private const string TimewarpedTraineeCardId = "BG34_Treasure_607";
         private const string TimewarpedEvolvingTavernCardId = "BG34_Treasure_900";
         private const string TimewarpedRingCardId = "BG34_Treasure_608";
@@ -251,9 +292,11 @@ namespace LearnHearthstone.Application.Services
         private const string TimewarpedBigWinnerSource = "timewarped-big-winner";
         private const string DarkmoonFairePrizesSource = "anomaly-darkmoon-faire-prizes";
         private const string UpPrizingSource = "anomaly-up-prizing";
+        private const string TickatusStickerSource = "tickatus-sticker";
         private const string TimewarpedMasterThiefSource = "timewarped-master-thief";
         private const string TimewarpedThiefSource = "timewarped-thief";
         private const string TimewarpedBigWinnerDueRoundCounter = "timewarped_big_winner_due_round";
+        private const string TickatusStickerDueRoundCounter = "trinket_tickatus_sticker_due_round";
         private const string DarkmoonFairePrizesTriggeredRoundCounter = "anomaly_darkmoon_prizes_triggered_round";
         private const string TimewarpedEvolvingTavernRepeatsCounter = "timewarped_evolving_tavern_repeats";
         private const string TimewarpedRingRepeatsCounter = "timewarped_ring_repeats";
@@ -262,6 +305,14 @@ namespace LearnHearthstone.Application.Services
         private const string TimewarpedBananasTavernSpellBonusAttackCounter = "timewarped_bananas_tavern_spell_bonus_attack";
         private const string TimewarpedBananasTavernSpellBonusHealthCounter = "timewarped_bananas_tavern_spell_bonus_health";
         private const string TimewarpedNewRecruitMinShopCardsCounter = "timewarped_new_recruit_min_shop_cards";
+        private const string DarkmoonPrizeRockingRefreshCounter = "darkmoon:rocking_and_rolling:free_refreshes_each_turn";
+        private const string DarkmoonPrizeOpenBarRefreshCounter = "darkmoon:open_bar:free_refreshes_each_turn";
+        private const string DarkmoonPrizeNewRecruitMinShopCardsCounter = "darkmoon:new_recruit:min_shop_cards";
+        private const string DarkmoonPrizeUnlimitedCoinReturnCounter = "darkmoon:unlimited_coin:return_count";
+        private const string DarkmoonPrizeUnlimitedCoinCardId = "BGS_Treasures_014";
+        private const string DarkmoonPrizeGruulRulesCounter = "darkmoon_gruul_rules";
+        private const string DarkmoonPrizeBigBrannExtraBattlecryCounter = "darkmoon:big_brann_play:extra_battlecries_this_turn";
+        private const string DarkmoonPrizeFriendsFamilyDiscountCounter = "darkmoon:friends_family_discount:minion_cost_2";
         private const string DoubleHeaderAnomalyCardId = "BG27_Anomaly_711";
         private const string DoubleHeaderUsedRoundCounter = "double_header_used_round";
         private const string GrapnelOfTheTitansAnomalyCardId = "BG27_Anomaly_303";
@@ -275,6 +326,13 @@ namespace LearnHearthstone.Application.Services
         private const string FalseIdolsAnomalyCardId = "BG27_Anomaly_301";
         private const string CosmicDualityAnomalyCardId = "BG31_Anomaly_123";
         private const string CosmicDualityDiscoverSource = "anomaly-cosmic-duality";
+        private const string MasterNguyenHeroPowerCardId = "BG20_HERO_202p";
+        private const string LeiFlamepawCardId = "BG20_HERO_202_Buddy";
+        private const string MasterNguyenDiscoverSource = "hero-power:master-nguyen";
+        private const string MasterNguyenOriginalHeroPowerKey = "hero:master_nguyen:original_power";
+        private const string MasterNguyenSelectedHeroPowerKey = "hero:master_nguyen:selected_power";
+        private const string MasterNguyenLeiPendingCountCounter = "hero:master_nguyen:lei_pending_count";
+        private const string MasterNguyenLeiPendingRoundCounter = "hero:master_nguyen:lei_pending_round";
         private const string AnomalousTimelineAnomalyCardId = "BG35_Anomaly_005";
         private const string GreaterPouchesAnomalyCardId = "BG32_Anomaly_001";
         private const string LesserFortuneAnomalyCardId = "BG35_Anomaly_007";
@@ -573,6 +631,7 @@ namespace LearnHearthstone.Application.Services
         private const string MysteryCubeEffectId = "mystery_cube";
         private const string OrbOfTheUnknownEffectId = "orb_of_the_unknown";
         private const string YoggTasticPastryEffectId = "yogg_tastic_pastry";
+        private const string TickatusStickerEffectId = "tickatus_sticker";
         private const string ColorfulCompassEffectId = "colorful_compass";
         private const string GoldPlatedCompassEffectId = "gold_plated_compass";
         private const string MinionBaitEffectId = "minion_bait";
@@ -759,6 +818,13 @@ namespace LearnHearthstone.Application.Services
                 { "BG34_HeroPowerSpell_022", "TB_BaconShop_HP_085" }
             };
         private const string FishOfNzothCardId = "TB_BaconShop_HP_105t";
+        private const string TavishHeroPowerCardId = "BG22_HERO_000p";
+        private const string BrukanHeroPowerCardId = "BG22_HERO_001p";
+        private const string BrukanChoiceSource = "hero:brukan";
+        private const string BrukanElementFire = "fire";
+        private const string BrukanElementEarth = "earth";
+        private const string BrukanElementWater = "water";
+        private const string BrukanElementLightning = "lightning";
         private const string MoonRiderCardId = "BG35_602";
         private const string ThreeLilQuilboarCardId = "BG26_867";
         private const string DarkgazeElderCardId = "BG23_018";
@@ -1197,6 +1263,8 @@ namespace LearnHearthstone.Application.Services
 
         public MatchState Apply(GameCommand command)
         {
+            AssertAfKayActionAllowed(command.Type);
+            AssertFaelinActionAllowed(command.Type);
             switch (command.Type)
             {
                 case GameCommandType.BuyMinion:
@@ -1333,6 +1401,54 @@ namespace LearnHearthstone.Application.Services
             return State;
         }
 
+        private void AssertAfKayActionAllowed(GameCommandType commandType)
+        {
+            if (State?.Player?.Tavern == null ||
+                State.Round > 2 ||
+                !HasActiveHeroPower(AfKayHeroPowerCardId) ||
+                !IsSkippedTurnLockedAction(commandType))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException("A. F. Kay skips the first two turns.");
+        }
+
+        private void AssertFaelinActionAllowed(GameCommandType commandType)
+        {
+            if (State?.Player?.Tavern == null ||
+                State.Round > 1 ||
+                !HasActiveHeroPower(FaelinHeroPowerCardId) ||
+                !IsSkippedTurnLockedAction(commandType))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException("Ambassador Faelin skips the first turn.");
+        }
+
+        private static bool IsSkippedTurnLockedAction(GameCommandType commandType)
+        {
+            switch (commandType)
+            {
+                case GameCommandType.BuyMinion:
+                case GameCommandType.BuyTimewarpedTavernCard:
+                case GameCommandType.ExitTimewarpedTavern:
+                case GameCommandType.SellMinion:
+                case GameCommandType.RerollShop:
+                case GameCommandType.FreezeShop:
+                case GameCommandType.UpgradeTavern:
+                case GameCommandType.PlayMinion:
+                case GameCommandType.DiscardCardFromHand:
+                case GameCommandType.UseHeroPower:
+                case GameCommandType.SimulateCombat:
+                case GameCommandType.RunCombatTest:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private MatchState CreateMatch(int seed)
         {
             var initialHero = ResolveInitialHero();
@@ -1414,6 +1530,7 @@ namespace LearnHearthstone.Application.Services
                 AddRecruitLog(state, RecruitLogType.Play, message, state.Player.Tavern.Gold, state.Player.Tavern.Gold);
             }
 
+            StartOpeningHeroDiscovers();
             LogHeroEffectImplementationStatus(state);
             MaybeOfferOpeningQuestMode(state);
             MaybeOfferStartingQuest(state);
@@ -2116,10 +2233,9 @@ namespace LearnHearthstone.Application.Services
             ApplyYoggIseumReward(rewardId);
         }
 
-        private void ApplyYoggIseumReward(string rewardId)
+        private void ApplyYoggIseumReward(string rewardId, string source = "The Yogg-iseum")
         {
             var tavern = State.Player.Tavern;
-            const string source = "The Yogg-iseum";
             switch (rewardId)
             {
                 case YoggRewardNextTurnGold:
@@ -2201,7 +2317,7 @@ namespace LearnHearthstone.Application.Services
             var tier = DarkmoonPrizeEngine.PrizeTierForDarkmoonFaireRound(State.Round);
             if (!StartDarkmoonPrizeDiscover(tier, DarkmoonFairePrizesSource, 3071))
             {
-                AddRecruitLog(RecruitLogType.Discover, "Darkmoon Faire Prizes: another Discover is already pending.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, "Darkmoon Faire Prizes: no eligible Darkmoon Prizes are available.", tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -2220,7 +2336,7 @@ namespace LearnHearthstone.Application.Services
             var tier = DarkmoonPrizeEngine.PrizeTierForUpPrizingRound(State.Round);
             if (!StartDarkmoonPrizeDiscover(tier, UpPrizingSource, 3079))
             {
-                AddRecruitLog(RecruitLogType.Discover, "Up-Prizing: another Discover is already pending.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, "Up-Prizing: no eligible Darkmoon Prizes are available.", tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -2239,12 +2355,6 @@ namespace LearnHearthstone.Application.Services
             anomalies.Counters.TryGetValue(TreasureHoardTriggeredRoundCounter, out var triggeredRound);
             if (triggeredRound == State.Round)
             {
-                return;
-            }
-
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, "Treasure Hoard: another Discover is already pending.", tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -2416,12 +2526,6 @@ namespace LearnHearthstone.Application.Services
             }
 
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, "Anomalous Expedition: another Discover is already pending.", tavern.Gold, tavern.Gold);
-                return false;
-            }
-
             var source = AnomalousExpeditionDiscoverSourcePrefix + tier;
             if (!StartTierDiscover(tier, source))
             {
@@ -2452,16 +2556,18 @@ namespace LearnHearthstone.Application.Services
             var anomalies = EnsureAnomalyState(State.Player.Tavern);
             anomalies.Flags[AnomalousExpeditionChoiceFlag(tier)] = picked.CardId;
             AddRecruitLog(RecruitLogType.Discover, "Anomalous Expedition: saved " + picked.Name + " for Tavern Tier " + tier + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-            State.Player.Tavern.Discover = null;
+            State.Player.Tavern.ClearCurrentDiscover();
 
             var nextTier = tier == 6 ? 4 : tier == 4 ? 2 : 0;
             if (nextTier > 0)
             {
                 StartAnomalousExpeditionDiscover(nextTier);
+                State.Player.Tavern.PromoteQueuedDiscover();
                 return true;
             }
 
             TryGrantAnomalousExpeditionRewardsUpToTier();
+            State.Player.Tavern.PromoteQueuedDiscover();
             return true;
         }
 
@@ -2549,6 +2655,374 @@ namespace LearnHearthstone.Application.Services
             return AnomalousExpeditionGrantedCounterPrefix + tier;
         }
 
+        private void StartOpeningHeroDiscovers()
+        {
+            if (State?.Player?.Tavern == null)
+            {
+                return;
+            }
+
+            if (HasActiveHeroPower(FaelinHeroPowerCardId))
+            {
+                StartNextFaelinDiscoverAfter(0);
+            }
+
+            if (HasActiveHeroPower(ThorimHeroPowerCardId))
+            {
+                StartThorimDiscover();
+            }
+        }
+
+        private void StartNextFaelinDiscoverAfter(int tier)
+        {
+            var nextTier = NextFaelinDiscoverTier(tier);
+            while (nextTier > 0)
+            {
+                if (StartFaelinDiscover(nextTier))
+                {
+                    return;
+                }
+
+                nextTier = NextFaelinDiscoverTier(nextTier);
+            }
+
+            TryGrantFaelinRewardsUpToTier();
+        }
+
+        private static int NextFaelinDiscoverTier(int tier)
+        {
+            switch (tier)
+            {
+                case 0:
+                    return 6;
+                case 6:
+                    return 4;
+                case 4:
+                    return 2;
+                default:
+                    return 0;
+            }
+        }
+
+        private bool StartFaelinDiscover(int tier)
+        {
+            if (!HasActiveHeroPower(FaelinHeroPowerCardId))
+            {
+                return false;
+            }
+
+            var source = FaelinDiscoverSourcePrefix + tier;
+            if (!StartTierDiscover(tier, source, fromCurrentPool: true))
+            {
+                return false;
+            }
+
+            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: Discover a Tier " + tier + " minion for later.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            return true;
+        }
+
+        private bool TryResolveFaelinDiscover(DiscoverState discover, MinionInstance picked)
+        {
+            if (discover == null ||
+                picked == null ||
+                string.IsNullOrEmpty(discover.Source) ||
+                !discover.Source.StartsWith(FaelinDiscoverSourcePrefix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var tierText = discover.Source.Substring(FaelinDiscoverSourcePrefix.Length);
+            if (!int.TryParse(tierText, out var tier))
+            {
+                return false;
+            }
+
+            DispatchDiscoverChosenEffect(discover, picked);
+            var advanced = EnsureAdvancedMechanicState(State.Player.Tavern);
+            advanced.Selections[FaelinChoiceKey(tier)] = EncodeDelayedDiscoverSelection(picked);
+            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: saved " + picked.Name + " for Tavern Tier " + tier + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            State.Player.Tavern.ClearCurrentDiscover();
+            StartNextFaelinDiscoverAfter(tier);
+            State.Player.Tavern.PromoteQueuedDiscover();
+            return true;
+        }
+
+        private void TryGrantFaelinRewardsUpToTier()
+        {
+            if (!HasActiveHeroPower(FaelinHeroPowerCardId) ||
+                State?.Player?.Tavern == null)
+            {
+                return;
+            }
+
+            var tier = State.Player.Tavern.Tier;
+            if (tier >= 2)
+            {
+                TryGrantFaelinReward(2);
+            }
+
+            if (tier >= 4)
+            {
+                TryGrantFaelinReward(4);
+            }
+
+            if (tier >= 6)
+            {
+                TryGrantFaelinReward(6);
+            }
+        }
+
+        private void TryGrantFaelinReward(int tier)
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var grantedKey = FaelinGrantedCounter(tier);
+            advanced.Counters.TryGetValue(grantedKey, out var granted);
+            if (granted > 0)
+            {
+                return;
+            }
+
+            if (!advanced.Selections.TryGetValue(FaelinChoiceKey(tier), out var stored) ||
+                string.IsNullOrEmpty(stored))
+            {
+                return;
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: hand is full, Tier " + tier + " reward is still pending.", tavern.Gold, tavern.Gold);
+                return;
+            }
+
+            var reward = CreateDelayedSelectedMinion(stored, "faelin-" + tier + "-" + State.Round + "-" + tavern.Hand.Count);
+            if (reward == null)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: saved Tier " + tier + " minion is unavailable.", tavern.Gold, tavern.Gold);
+                advanced.Counters[grantedKey] = 1;
+                return;
+            }
+
+            EnsureTags(reward).Add("hero_faelin_reward");
+            tavern.Hand.Add(reward);
+            advanced.Counters[grantedKey] = 1;
+            HandleCardsAddedToHand(1, "Expedition Plans");
+            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: gained " + reward.Name + " for Tavern Tier " + tier + ".", tavern.Gold, tavern.Gold);
+        }
+
+        private bool StartThorimDiscover()
+        {
+            if (!HasActiveHeroPower(ThorimHeroPowerCardId))
+            {
+                return false;
+            }
+
+            var candidates = LegalTierSevenMinionDefinitions()
+                .GroupBy(definition => definition.CardId, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: no legal Tier 7 minions are available.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                return false;
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 2711 + State.Player.Tavern.RecruitLog.Count);
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + ThorimDiscoverSource + "-" + options.Count, false, PoolSource.Discover, 0));
+            }
+
+            State.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = ThorimDiscoverSource,
+                RewardTier = TavernRules.MaxTavernTier,
+                Options = options
+            });
+            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: Discover a Tier 7 minion for later.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            return true;
+        }
+
+        private bool TryResolveThorimDiscover(DiscoverState discover, MinionInstance picked)
+        {
+            if (discover == null ||
+                picked == null ||
+                !string.Equals(discover.Source, ThorimDiscoverSource, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            DispatchDiscoverChosenEffect(discover, picked);
+            var advanced = EnsureAdvancedMechanicState(State.Player.Tavern);
+            advanced.Selections[ThorimSelectionKey] = EncodeDelayedDiscoverSelection(picked);
+            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: saved " + picked.Name + " until 60 Gold is spent.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            State.Player.Tavern.CompleteDiscover();
+            TryGrantThorimRewardIfReady();
+            return true;
+        }
+
+        private void HandleGoldSpentForThorim(int amount)
+        {
+            if (amount <= 0 ||
+                !HasActiveHeroPower(ThorimHeroPowerCardId))
+            {
+                return;
+            }
+
+            var advanced = EnsureAdvancedMechanicState(State.Player.Tavern);
+            advanced.Counters.TryGetValue(ThorimGrantedCounter, out var granted);
+            if (granted > 0)
+            {
+                return;
+            }
+
+            advanced.Counters.TryGetValue(ThorimGoldSpentCounter, out var spent);
+            advanced.Counters[ThorimGoldSpentCounter] = Math.Min(ThorimGoldSpendThreshold, spent + amount);
+            TryGrantThorimRewardIfReady();
+        }
+
+        private void TryGrantThorimRewardIfReady()
+        {
+            if (!HasActiveHeroPower(ThorimHeroPowerCardId) ||
+                State?.Player?.Tavern == null)
+            {
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            advanced.Counters.TryGetValue(ThorimGrantedCounter, out var granted);
+            if (granted > 0)
+            {
+                return;
+            }
+
+            advanced.Counters.TryGetValue(ThorimGoldSpentCounter, out var spent);
+            if (spent < ThorimGoldSpendThreshold ||
+                !advanced.Selections.TryGetValue(ThorimSelectionKey, out var stored) ||
+                string.IsNullOrEmpty(stored))
+            {
+                return;
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: hand is full, Tier 7 reward is still pending.", tavern.Gold, tavern.Gold);
+                return;
+            }
+
+            var cardId = DelayedRewardCardId(stored);
+            var definition = LegalTierSevenMinionDefinitions()
+                .FirstOrDefault(minion => string.Equals(minion.CardId, cardId, StringComparison.OrdinalIgnoreCase))
+                ?? catalog.All.FirstOrDefault(minion =>
+                    minion.TavernTier == TavernRules.MaxTavernTier &&
+                    string.Equals(minion.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+            if (definition == null)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: saved Tier 7 minion is unavailable.", tavern.Gold, tavern.Gold);
+                advanced.Counters[ThorimGrantedCounter] = 1;
+                return;
+            }
+
+            var reward = MinionFactory.Create(
+                definition,
+                BoardSide.Player,
+                "thorim-" + State.Round + "-" + tavern.Hand.Count,
+                false,
+                PoolSource.Copy,
+                0);
+            EnsureTags(reward).Add("hero_thorim_reward");
+            tavern.Hand.Add(reward);
+            advanced.Counters[ThorimGrantedCounter] = 1;
+            HandleCardsAddedToHand(1, "Choose Your Champion");
+            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: gained " + reward.Name + ".", tavern.Gold, tavern.Gold);
+        }
+
+        private MinionInstance CreateDelayedSelectedMinion(string stored, string instanceId)
+        {
+            var cardId = DelayedRewardCardId(stored);
+            if (string.IsNullOrEmpty(cardId))
+            {
+                return null;
+            }
+
+            if (DelayedRewardCardKind(stored) == CardKind.HeroBuddy &&
+                heroCatalog?.AllBuddies != null)
+            {
+                var buddy = heroCatalog.AllBuddies.FirstOrDefault(definition =>
+                    string.Equals(definition.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+                if (buddy != null)
+                {
+                    return MinionFactory.Create(buddy, BoardSide.Player, instanceId, PoolSource.Copy, 0);
+                }
+            }
+
+            var minionDefinition = CurrentPoolMinionDefinitions()
+                .FirstOrDefault(definition => string.Equals(definition.CardId, cardId, StringComparison.OrdinalIgnoreCase))
+                ?? catalog.All.FirstOrDefault(definition => string.Equals(definition.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+            return minionDefinition == null
+                ? null
+                : MinionFactory.Create(minionDefinition, BoardSide.Player, instanceId, false, PoolSource.Copy, 0);
+        }
+
+        private static string EncodeDelayedDiscoverSelection(MinionInstance picked)
+        {
+            return picked == null ? string.Empty : picked.CardKind + "|" + picked.CardId;
+        }
+
+        private static string DelayedRewardCardId(string stored)
+        {
+            if (string.IsNullOrEmpty(stored))
+            {
+                return null;
+            }
+
+            var separator = stored.IndexOf('|');
+            return separator >= 0 ? stored.Substring(separator + 1) : stored;
+        }
+
+        private static CardKind DelayedRewardCardKind(string stored)
+        {
+            if (string.IsNullOrEmpty(stored))
+            {
+                return CardKind.Minion;
+            }
+
+            var separator = stored.IndexOf('|');
+            if (separator <= 0)
+            {
+                return CardKind.Minion;
+            }
+
+            return Enum.TryParse(stored.Substring(0, separator), out CardKind kind)
+                ? kind
+                : CardKind.Minion;
+        }
+
+        private static string FaelinChoiceKey(int tier)
+        {
+            return FaelinChoiceSelectionPrefix + tier + "_card_id";
+        }
+
+        private static string FaelinGrantedCounter(int tier)
+        {
+            return FaelinGrantedCounterPrefix + tier;
+        }
+
+        private static List<string> EnsureTags(MinionInstance minion)
+        {
+            if (minion.Tags == null)
+            {
+                minion.Tags = new List<string>();
+            }
+
+            return minion.Tags;
+        }
+
         private void RefreshPlayerBoardTribeDistribution()
         {
             BoardTribeAnalyzer.Refresh(State.Player);
@@ -2634,9 +3108,8 @@ namespace LearnHearthstone.Application.Services
         private IEnumerable<MinionDefinition> AvailableMinions()
         {
             var active = CurrentActiveTribes();
-            return catalog.All.Where(minion =>
-                cardPoolAvailability.AllowsMinion(minion) &&
-                AllowsCurrentMaxTavernTier(minion) &&
+            return CurrentPoolMinionDefinitions().Where(minion =>
+                AllowsCurrentPoolMinion(minion) &&
                 TribeAvailabilityRules.IsMinionAvailable(minion, active));
         }
 
@@ -2747,6 +3220,21 @@ namespace LearnHearthstone.Application.Services
             if (request.Kind == AdvancedMechanicKind.Anomaly)
             {
                 return "Anomaly choice pending";
+            }
+
+            if (request.Kind == AdvancedMechanicKind.Distortion)
+            {
+                if (string.Equals(request.Source, GalewingChoiceSource, StringComparison.OrdinalIgnoreCase))
+                {
+                    return "Flightpath pending";
+                }
+
+                if (string.Equals(request.Source, CarielChoiceSource, StringComparison.OrdinalIgnoreCase))
+                {
+                    return "Conviction improvement pending";
+                }
+
+                return "Hero choice pending";
             }
 
             return string.Equals(request.Slot, "Greater", StringComparison.OrdinalIgnoreCase)
@@ -3011,6 +3499,10 @@ namespace LearnHearthstone.Application.Services
             else if (request.Kind == AdvancedMechanicKind.Anomaly)
             {
                 ChooseAnomalyMechanicOption(request, option);
+            }
+            else if (request.Kind == AdvancedMechanicKind.Distortion)
+            {
+                ChooseHeroMechanicOption(request, option);
             }
             else
             {
@@ -4934,12 +5426,6 @@ namespace LearnHearthstone.Application.Services
         private void StartDoppelgangersLocketDiscover(QuestRewardDefinition reward)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover is already pending.", tavern.Gold, tavern.Gold);
-                return;
-            }
-
             var candidates = EnsureOpponentHistory().LastOpponentWarband
                 .Where(minion => minion != null && minion.CardKind == CardKind.Minion && !minion.Golden)
                 .ToList();
@@ -4964,25 +5450,20 @@ namespace LearnHearthstone.Application.Services
                 options.Add(copy);
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "quest:" + reward.Id,
                 RewardTier = State.Player.Tavern.Tier,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover an opponent warband minion.", tavern.Gold, tavern.Gold);
         }
 
         private void StartBuddyDiscover(QuestRewardDefinition reward)
         {
             var tavern = State.Player.Tavern;
-            if (heroCatalog == null || tavern.Discover != null)
+            if (heroCatalog == null)
             {
-                if (tavern.Discover != null)
-                {
-                    AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover is already pending.", tavern.Gold, tavern.Gold);
-                }
-
                 return;
             }
 
@@ -5008,12 +5489,12 @@ namespace LearnHearthstone.Application.Services
                     PoolSource.Discover));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "quest-buddy:" + reward.Id,
                 RewardTier = 0,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover a Buddy.", tavern.Gold, tavern.Gold);
         }
 
@@ -5040,16 +5521,100 @@ namespace LearnHearthstone.Application.Services
                 "Discover a second Hero Power.");
         }
 
+        private void TryStartMasterNguyenHeroPowerChoiceAndResolveLei()
+        {
+            var leiTriggers = CountLeiFlamepawTriggers();
+            if (!HasActiveHeroPower(MasterNguyenHeroPowerCardId))
+            {
+                if (leiTriggers > 0)
+                {
+                    AddBuddyOfCurrentHeroPowerToHand(leiTriggers, "Lei Flamepaw");
+                }
+
+                return;
+            }
+
+            if (StartMasterNguyenHeroPowerDiscover(leiTriggers))
+            {
+                return;
+            }
+
+            if (leiTriggers > 0)
+            {
+                AddBuddyOfCurrentHeroPowerToHand(leiTriggers, "Lei Flamepaw");
+            }
+        }
+
+        private bool StartMasterNguyenHeroPowerDiscover(int pendingLeiTriggers)
+        {
+            var tavern = State.Player.Tavern;
+            if (heroCatalog == null)
+            {
+                return false;
+            }
+
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var originalHeroPower = State.Player.HeroPowerCardId;
+            if (string.IsNullOrEmpty(originalHeroPower))
+            {
+                return false;
+            }
+
+            if (State.Player.ExtraHeroPowerCardIds == null)
+            {
+                State.Player.ExtraHeroPowerCardIds = new List<string>();
+            }
+
+            var owned = new HashSet<string>(State.Player.ExtraHeroPowerCardIds, StringComparer.OrdinalIgnoreCase);
+            owned.Add(originalHeroPower);
+            owned.Add(MasterNguyenHeroPowerCardId);
+            var candidates = heroCatalog.GetOfferableDiscoverableHeroPowers(MasterNguyenHeroPowerCardId)
+                .Where(power => power != null && !owned.Contains(power.CardId))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                advanced.Counters[MasterNguyenLeiPendingCountCounter] = 0;
+                advanced.Counters[MasterNguyenLeiPendingRoundCounter] = 0;
+                return false;
+            }
+
+            advanced.Selections[MasterNguyenOriginalHeroPowerKey] = originalHeroPower;
+            advanced.Selections.Remove(MasterNguyenSelectedHeroPowerKey);
+            advanced.Counters[MasterNguyenLeiPendingCountCounter] = Math.Max(0, pendingLeiTriggers);
+            advanced.Counters[MasterNguyenLeiPendingRoundCounter] = State.Round;
+
+            var rng = new SeededRng(State.Seed + State.Round * 3691 + tavern.RecruitLog.Count);
+            var options = new List<MinionInstance>();
+            while (options.Count < 2 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var power = candidates[index];
+                candidates.RemoveAt(index);
+                var option = heroCatalog.CreateDiscoverableHeroPowerOption(power, BoardSide.Player, "master-nguyen-" + State.Round + "-" + options.Count);
+                if (!option.Tags.Contains("temporary_hero_power"))
+                {
+                    option.Tags.Add("temporary_hero_power");
+                }
+
+                options.Add(option);
+            }
+
+            tavern.QueueDiscover(new DiscoverState
+            {
+                Source = MasterNguyenDiscoverSource,
+                RewardTier = 0,
+                RemainingPicks = 1,
+                Options = options
+            });
+            AddRecruitLog(RecruitLogType.Discover, "Power of the Storm: choose a temporary Hero Power.", tavern.Gold, tavern.Gold);
+            return true;
+        }
+
         private void StartSecondHeroPowerDiscover(string sourceName, string source, string optionPrefix, string detail)
         {
             var tavern = State.Player.Tavern;
-            if (heroCatalog == null || tavern.Discover != null)
+            if (heroCatalog == null)
             {
-                if (tavern.Discover != null)
-                {
-                    AddRecruitLog(RecruitLogType.Discover, sourceName + ": Discover is already pending.", tavern.Gold, tavern.Gold);
-                }
-
                 return;
             }
 
@@ -5060,7 +5625,7 @@ namespace LearnHearthstone.Application.Services
 
             var owned = new HashSet<string>(State.Player.ExtraHeroPowerCardIds, StringComparer.OrdinalIgnoreCase);
             owned.Add(State.Player.HeroPowerCardId ?? string.Empty);
-            var candidates = heroCatalog.GetDiscoverableHeroPowers(State.Player.HeroPowerCardId)
+            var candidates = heroCatalog.GetOfferableDiscoverableHeroPowers(State.Player.HeroPowerCardId)
                 .Where(power => power != null && !owned.Contains(power.CardId))
                 .ToList();
             if (candidates.Count == 0)
@@ -5075,16 +5640,16 @@ namespace LearnHearthstone.Application.Services
                 var index = rng.NextInt(candidates.Count);
                 var power = candidates[index];
                 candidates.RemoveAt(index);
-                options.Add(MinionFactory.Create(power, BoardSide.Player, optionPrefix + "-" + State.Round + "-" + options.Count));
+                options.Add(heroCatalog.CreateDiscoverableHeroPowerOption(power, BoardSide.Player, optionPrefix + "-" + State.Round + "-" + options.Count));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = 0,
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, sourceName + ": " + detail, tavern.Gold, tavern.Gold);
         }
 
@@ -5113,6 +5678,7 @@ namespace LearnHearthstone.Application.Services
         private void ApplyGhastlyMask(QuestRewardDefinition reward)
         {
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
             HandleTurnEndedForTierFiveMinions();
@@ -5172,13 +5738,18 @@ namespace LearnHearthstone.Application.Services
 
         private void AddBuddyOfCurrentHeroPowerToHand(int count, string source)
         {
+            AddBuddyOfHeroPowerToHand(State.Player.HeroPowerCardId, count, source, "hero-power-buddy");
+        }
+
+        private void AddBuddyOfHeroPowerToHand(string heroPowerCardId, int count, string source, string instancePrefix)
+        {
             var tavern = State.Player.Tavern;
             if (heroCatalog == null || count <= 0 || tavern.Hand.Count >= HandLimit)
             {
                 return;
             }
 
-            heroCatalog.TryGetHeroByHeroPowerCardId(State.Player.HeroPowerCardId, out var hero);
+            heroCatalog.TryGetHeroByHeroPowerCardId(heroPowerCardId, out var hero);
             if (hero?.Buddy == null || string.IsNullOrEmpty(hero.Buddy.CardId))
             {
                 AddRecruitLog(RecruitLogType.Play, source + ": current Hero Power has no Buddy mapping.", tavern.Gold, tavern.Gold);
@@ -5191,7 +5762,7 @@ namespace LearnHearthstone.Application.Services
                 var buddy = MinionFactory.Create(
                     hero.Buddy,
                     BoardSide.Player,
-                    "timewarped-lei-" + State.Round + "-" + tavern.Hand.Count,
+                    instancePrefix + "-" + State.Round + "-" + tavern.Hand.Count,
                     PoolSource.Copy);
                 if (!buddy.Tags.Contains("generated_copy"))
                 {
@@ -5207,6 +5778,74 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(RecruitLogType.Play, source + ": gained the Buddy of your Hero Power.", tavern.Gold, tavern.Gold);
             }
+        }
+
+        private int CountLeiFlamepawTriggers()
+        {
+            return State.Player.Board
+                .Where(card => card != null && string.Equals(card.CardId, LeiFlamepawCardId, StringComparison.OrdinalIgnoreCase))
+                .Sum(card => card.Golden ? 2 : 1);
+        }
+
+        private void ResolveMasterNguyenDiscover(MinionInstance picked)
+        {
+            if (picked == null || picked.CardKind != CardKind.HeroPower)
+            {
+                State.Player.Tavern.CompleteDiscover();
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (!advanced.Selections.ContainsKey(MasterNguyenOriginalHeroPowerKey))
+            {
+                advanced.Selections[MasterNguyenOriginalHeroPowerKey] = MasterNguyenHeroPowerCardId;
+            }
+
+            State.Player.HeroPowerCardId = picked.CardId;
+            advanced.Selections[MasterNguyenSelectedHeroPowerKey] = picked.CardId;
+            AddRecruitLog(RecruitLogType.Discover, "Power of the Storm: temporary Hero Power changed to " + picked.Name + ".", tavern.Gold, tavern.Gold);
+            State.Player.Tavern.CompleteDiscover();
+            ResolvePendingLeiFlamepawBuddy(picked.CardId);
+        }
+
+        private void ResolvePendingLeiFlamepawBuddy(string selectedHeroPowerCardId)
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            advanced.Counters.TryGetValue(MasterNguyenLeiPendingCountCounter, out var pendingCount);
+            advanced.Counters.TryGetValue(MasterNguyenLeiPendingRoundCounter, out var pendingRound);
+            advanced.Counters[MasterNguyenLeiPendingCountCounter] = 0;
+            advanced.Counters[MasterNguyenLeiPendingRoundCounter] = 0;
+            if (pendingCount <= 0 || pendingRound != State.Round)
+            {
+                return;
+            }
+
+            AddBuddyOfHeroPowerToHand(selectedHeroPowerCardId, pendingCount, "Lei Flamepaw", "lei-flamepaw");
+        }
+
+        private void RestoreMasterNguyenTemporaryHeroPower()
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (!advanced.Selections.TryGetValue(MasterNguyenOriginalHeroPowerKey, out var originalHeroPower) ||
+                string.IsNullOrEmpty(originalHeroPower))
+            {
+                return;
+            }
+
+            if (advanced.Selections.TryGetValue(MasterNguyenSelectedHeroPowerKey, out var selectedHeroPower) &&
+                string.Equals(State.Player.HeroPowerCardId, selectedHeroPower, StringComparison.OrdinalIgnoreCase))
+            {
+                State.Player.HeroPowerCardId = originalHeroPower;
+                AddRecruitLog(RecruitLogType.Play, "Power of the Storm: restored Master Nguyen's Hero Power.", tavern.Gold, tavern.Gold);
+            }
+
+            advanced.Selections.Remove(MasterNguyenOriginalHeroPowerKey);
+            advanced.Selections.Remove(MasterNguyenSelectedHeroPowerKey);
+            advanced.Counters[MasterNguyenLeiPendingCountCounter] = 0;
+            advanced.Counters[MasterNguyenLeiPendingRoundCounter] = 0;
         }
 
         private void ApplyWondrousWisdomball(List<MinionInstance> shop, QuestRewardDefinition reward)
@@ -5490,12 +6129,12 @@ namespace LearnHearthstone.Application.Services
             {
                 if (!TryCastTimewarpedNonMinionSpell(spell, resolvedTargetIndex, out spellResult))
                 {
-                    spellResult = TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(rngSeed), resolvedTargetIndex, heroCatalog);
+                    spellResult = TavernSpellEngine.Cast(spell, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(rngSeed), resolvedTargetIndex, heroCatalog, darkmoonPrizeCatalog);
                     var extraCasts = GetTavernSpellExtraCasts(spell);
                     spellcraftCastCount += extraCasts;
                     for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
                     {
-                        spellResult += " + " + TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(rngSeed + extraCast + 1), resolvedTargetIndex, heroCatalog);
+                        spellResult += " + " + TavernSpellEngine.Cast(spell, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(rngSeed + extraCast + 1), resolvedTargetIndex, heroCatalog, darkmoonPrizeCatalog);
                     }
                 }
             }
@@ -5600,7 +6239,7 @@ namespace LearnHearthstone.Application.Services
         private void StartMagicfinRelicDiscover(MinionInstance token, QuestRewardDefinition reward)
         {
             var tavern = State.Player.Tavern;
-            if (token == null || tavern.Discover != null)
+            if (token == null)
             {
                 return;
             }
@@ -5623,13 +6262,13 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "magicfin-" + State.Round + "-" + options.Count));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "quest-magicfin:" + token.InstanceId,
                 TargetInstanceId = token.InstanceId,
                 RewardTier = tavern.Tier,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover a Tavern spell for " + token.Name + ".", tavern.Gold, tavern.Gold);
         }
 
@@ -5646,7 +6285,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var result = TavernSpellEngine.Cast(picked, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 3319 + State.Player.Tavern.RecruitLog.Count), targetIndex, heroCatalog);
+            var result = TavernSpellEngine.Cast(picked, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 3319 + State.Player.Tavern.RecruitLog.Count), targetIndex, heroCatalog, darkmoonPrizeCatalog);
             AddRecruitLog(RecruitLogType.Discover, "Magicfin Relic taught " + picked.Name + ": " + result, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
@@ -5813,7 +6452,9 @@ namespace LearnHearthstone.Application.Services
 
         private void EnsureTimewarpedNewRecruitShopMinimumCards()
         {
-            var desiredCards = GetAdvancedMechanicCounter(TimewarpedNewRecruitMinShopCardsCounter);
+            var desiredCards = Math.Max(
+                GetAdvancedMechanicCounter(TimewarpedNewRecruitMinShopCardsCounter),
+                GetAdvancedMechanicCounter(DarkmoonPrizeNewRecruitMinShopCardsCounter));
             if (desiredCards <= 0)
             {
                 return;
@@ -6002,7 +6643,7 @@ namespace LearnHearthstone.Application.Services
             string targetInstanceId = null)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null || candidates == null || candidates.Count == 0)
+            if (candidates == null || candidates.Count == 0)
             {
                 return false;
             }
@@ -6024,14 +6665,14 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, rewardTier),
                 TargetInstanceId = targetInstanceId,
                 RemainingPicks = Math.Max(1, remainingPicks),
                 Options = options
-            };
+            });
             return true;
         }
 
@@ -6089,14 +6730,80 @@ namespace LearnHearthstone.Application.Services
             return StartDarkmoonPrizeDiscover(3, TimewarpedBigWinnerSource, 2061);
         }
 
+        private void TryStartTickatusPrizeWallDiscover()
+        {
+            if (!HasActiveHeroPower(TickatusHeroPowerCardId) ||
+                State.Round < 4 ||
+                State.Round % 4 != 0 ||
+                GetAdvancedMechanicCounter(TickatusPrizeWallTriggeredRoundCounter) == State.Round)
+            {
+                return;
+            }
+
+            var tier = DarkmoonPrizeEngine.PrizeTierForDarkmoonFaireRound(State.Round);
+            if (!StartDarkmoonPrizeDiscover(tier, TickatusPrizeWallSource, 2071))
+            {
+                return;
+            }
+
+            SetAdvancedMechanicCounter(TickatusPrizeWallTriggeredRoundCounter, State.Round);
+            AddRecruitLog(RecruitLogType.Discover, "Tickatus offered Tier " + tier + " Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void TryStartTicketCollectorPrizeDiscover(MinionInstance sold)
+        {
+            if (sold == null ||
+                !string.Equals(sold.CardId, TicketCollectorCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var tier = Math.Min(4, DarkmoonPrizeEngine.PrizeTierForDarkmoonFaireRound(State.Round) + 1);
+            if (StartDarkmoonPrizeDiscover(tier, TicketCollectorSource, 2077))
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Ticket Collector offered Tier " + tier + " Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            }
+        }
+
+        private void ApplyTickatusSticker(TrinketDefinition definition)
+        {
+            ScheduleTickatusStickerDiscover();
+            if (StartTickatusStickerDiscover())
+            {
+                AddRecruitLog(RecruitLogType.Discover, definition.Name + " offered Tier 3 Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            }
+        }
+
+        private void ScheduleTickatusStickerDiscover()
+        {
+            SetAdvancedMechanicCounter(TickatusStickerDueRoundCounter, State.Round + 3);
+        }
+
+        private void TryStartScheduledTickatusStickerDiscover(TrinketDefinition definition)
+        {
+            var dueRound = GetAdvancedMechanicCounter(TickatusStickerDueRoundCounter);
+            if (dueRound <= 0 || dueRound > State.Round)
+            {
+                return;
+            }
+
+            if (!StartTickatusStickerDiscover())
+            {
+                return;
+            }
+
+            ScheduleTickatusStickerDiscover();
+            AddRecruitLog(RecruitLogType.Discover, definition.Name + " repeated Tier 3 Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private bool StartTickatusStickerDiscover()
+        {
+            return StartDarkmoonPrizeDiscover(3, TickatusStickerSource, 2081);
+        }
+
         private bool StartDarkmoonPrizeDiscover(int tier, string source, int seedSalt)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                return false;
-            }
-
             var candidates = DarkmoonPrizeEngine.SelectOfferableDefinitions(darkmoonPrizeCatalog, tier).ToList();
             var rng = new SeededRng(State.Seed + State.Round * seedSalt + tavern.RecruitLog.Count);
             var options = new List<MinionInstance>();
@@ -6117,13 +6824,13 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = tier,
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             return true;
         }
 
@@ -6185,11 +6892,6 @@ namespace LearnHearthstone.Application.Services
         private bool StartTimewarpedPreviousWarbandDiscover(string source, Action<MinionInstance> configureOption)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                return false;
-            }
-
             var candidates = EnsureOpponentHistory().LastPlayerWarband
                 .Where(card => card != null && card.CardKind == CardKind.Minion)
                 .ToList();
@@ -6220,13 +6922,13 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = options.Max(card => Math.Max(1, card.TavernTier)),
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             return true;
         }
 
@@ -6247,7 +6949,7 @@ namespace LearnHearthstone.Application.Services
             int seedSalt)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null || candidates == null || candidates.Count == 0)
+            if (candidates == null || candidates.Count == 0)
             {
                 return false;
             }
@@ -6271,13 +6973,13 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, rewardTier),
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             return true;
         }
 
@@ -7676,6 +8378,9 @@ namespace LearnHearthstone.Application.Services
                     case YoggTasticPastryEffectId:
                         ApplyYoggTasticPastry(definition);
                         break;
+                    case TickatusStickerEffectId:
+                        ApplyTickatusSticker(definition);
+                        break;
                     case ColorfulCompassEffectId:
                         ApplyColorfulCompass(definition);
                         break;
@@ -8019,18 +8724,18 @@ namespace LearnHearthstone.Application.Services
                 }
             }
 
-            if (options.Count == 0 || State.Player.Tavern.Discover != null)
+            if (options.Count == 0)
             {
                 return;
             }
 
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "trinket:timeworn_candelabra:" + definition.CardId,
                 RewardTier = 2,
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Timewarp proxy minion.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
@@ -8130,12 +8835,6 @@ namespace LearnHearthstone.Application.Services
         private bool StartTavernSpellDiscover(int pickCount, string source, string sourceName)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, sourceName + ": Tavern spell Discover delayed because another Discover is pending.", tavern.Gold, tavern.Gold);
-                return false;
-            }
-
             var candidates = AvailableTavernSpells()
                 .Where(spell => spell.TavernTier <= Math.Max(1, tavern.Tier))
                 .ToList();
@@ -8155,13 +8854,13 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, source + "-" + options.Count));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, tavern.Tier),
                 RemainingPicks = Math.Max(1, pickCount),
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, sourceName + ": Discover a Tavern spell.", tavern.Gold, tavern.Gold);
             return true;
         }
@@ -8249,12 +8948,6 @@ namespace LearnHearthstone.Application.Services
             IEnumerable<MinionDefinition> candidates)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover delayed because another Discover is pending.", tavern.Gold, tavern.Gold);
-                return false;
-            }
-
             var remaining = (candidates ?? Enumerable.Empty<MinionDefinition>())
                 .Where(minion => minion != null && minion.InPool)
                 .ToList();
@@ -8274,13 +8967,13 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(picked, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = rewardTier,
                 RemainingPicks = Math.Max(1, pickCount),
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a minion.", tavern.Gold, tavern.Gold);
             return true;
         }
@@ -8309,7 +9002,7 @@ namespace LearnHearthstone.Application.Services
             DispatchDiscoverChosenEffect(discover, card);
 
             var remaining = Math.Max(0, discover.RemainingPicks - 1);
-            State.Player.Tavern.Discover = null;
+            State.Player.Tavern.ClearCurrentDiscover();
             if (State.Player.Tavern.Hand.Count < HandLimit)
             {
                 State.Player.Tavern.Hand.Add(card);
@@ -8328,6 +9021,7 @@ namespace LearnHearthstone.Application.Services
                 RestartBatch4Discover(discover.Source, definition, remaining);
             }
 
+            State.Player.Tavern.PromoteQueuedDiscover();
             return true;
         }
 
@@ -8426,12 +9120,6 @@ namespace LearnHearthstone.Application.Services
         private bool StartDeathrattleMinionDiscover(TrinketDefinition definition)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Deathrattle Discover delayed because another Discover is pending.", tavern.Gold, tavern.Gold);
-                return false;
-            }
-
             var candidates = SelectSupplyMinionDefinitions(predicate: minion => minion.Keywords.Contains(Keyword.Deathrattle));
             if (candidates.Count == 0)
             {
@@ -8449,13 +9137,13 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(minion, BoardSide.Player, "discover:deathly_phylactery:" + definition.CardId + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "trinket:deathly_phylactery:" + definition.CardId,
                 RewardTier = Math.Max(1, tavern.Tier),
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Deathrattle minion.", tavern.Gold, tavern.Gold);
             return true;
         }
@@ -8463,12 +9151,6 @@ namespace LearnHearthstone.Application.Services
         private bool StartBattlecryMinionDiscover(TrinketDefinition definition)
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Battlecry Discover delayed because another Discover is pending.", tavern.Gold, tavern.Gold);
-                return false;
-            }
-
             var candidates = SelectSupplyMinionDefinitions(predicate: minion => minion.Keywords.Contains(Keyword.Battlecry));
             if (candidates.Count == 0)
             {
@@ -8486,13 +9168,13 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(minion, BoardSide.Player, "discover:battle_horn:" + definition.CardId + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "trinket:battle_horn:" + definition.CardId,
                 RewardTier = Math.Max(1, tavern.Tier),
                 RemainingPicks = 1,
                 Options = options
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Battlecry minion.", tavern.Gold, tavern.Gold);
             return true;
         }
@@ -9323,6 +10005,7 @@ namespace LearnHearthstone.Application.Services
         private void ApplyGhastlySticker(TrinketDefinition definition)
         {
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
             HandleTurnEndedForTierFiveMinions();
@@ -10458,6 +11141,11 @@ namespace LearnHearthstone.Application.Services
                 if (definition.EffectIds.Contains(YoggTasticPastryEffectId))
                 {
                     ApplyYoggTasticPastry(definition);
+                }
+
+                if (definition.EffectIds.Contains(TickatusStickerEffectId))
+                {
+                    TryStartScheduledTickatusStickerDiscover(definition);
                 }
 
                 if (definition.EffectIds.Contains(ColorfulCompassEffectId))
@@ -13092,6 +13780,11 @@ namespace LearnHearthstone.Application.Services
                 cost = 2;
             }
 
+            if (target.CardKind == CardKind.Minion && GetAdvancedMechanicCounter(DarkmoonPrizeFriendsFamilyDiscountCounter) > 0)
+            {
+                cost = 2;
+            }
+
             if (target.Tags != null && target.Tags.Contains("chillmere_mosaic_cost_1"))
             {
                 cost = 1;
@@ -13334,6 +14027,7 @@ namespace LearnHearthstone.Application.Services
 
             DispatchBoardEvent(MechanicEventType.CardBought);
             DispatchHeroEffect(HeroEffectEventType.CardBought, target, evaluation.CostsHealth ? 0 : cost);
+            HandleGuffCardBought(target);
             DispatchTrinketCardBought(target);
             DispatchQuestRewardCardBought(target);
             HandleCardBoughtForTierOneMinions();
@@ -13341,6 +14035,31 @@ namespace LearnHearthstone.Application.Services
             HandleTimewarpedCardBought(target);
             HandleAnomalyCardBought(target);
             ResolvePlayerTriples();
+        }
+
+        private void HandleGuffCardBought(MinionInstance target)
+        {
+            if (target == null || !HasActiveHeroPower(GuffHeroPowerCardId))
+            {
+                return;
+            }
+
+            var tier = Math.Max(0, target.TavernTier);
+            if (tier <= 0)
+            {
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            tavern.HeroEffectCounters.TryGetValue(GuffTierTotalCounter, out var total);
+            total += tier;
+            while (total >= GuffTierThreshold)
+            {
+                total -= GuffTierThreshold;
+                GrantTripleRewardCard();
+            }
+
+            tavern.HeroEffectCounters[GuffTierTotalCounter] = total;
         }
 
         private void HandleAnomalyCardBought(MinionInstance target)
@@ -13453,7 +14172,7 @@ namespace LearnHearthstone.Application.Services
             if (IsTripleRewardCard(target))
             {
                 tavern.Hand.RemoveAt(handIndex);
-                State.Player.Tavern.Discover = CreateTripleDiscover();
+                State.Player.Tavern.QueueDiscover(CreateTripleDiscover());
                 AddRecruitLog(RecruitLogType.Discover, "Triple reward discover", tavern.Gold, tavern.Gold);
                 return;
             }
@@ -13494,12 +14213,12 @@ namespace LearnHearthstone.Application.Services
                 {
                     if (!TryCastTimewarpedNonMinionSpell(target, targetIndex, out spellResult))
                     {
-                        spellResult = TavernSpellEngine.Cast(target, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count), targetIndex, heroCatalog);
+                        spellResult = TavernSpellEngine.Cast(target, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count), targetIndex, heroCatalog, darkmoonPrizeCatalog);
                         var extraCasts = GetTavernSpellExtraCasts(target);
                         spellcraftCastCount += extraCasts;
                         for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
                         {
-                            spellResult += " + " + TavernSpellEngine.Cast(target, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1), targetIndex, heroCatalog);
+                            spellResult += " + " + TavernSpellEngine.Cast(target, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1), targetIndex, heroCatalog, darkmoonPrizeCatalog);
                         }
                     }
                 }
@@ -13639,6 +14358,30 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            if (string.Equals(selectedHeroPowerCardId, GalewingHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                UseGalewingHeroPower();
+                return;
+            }
+
+            if (string.Equals(selectedHeroPowerCardId, CarielHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                UseCarielHeroPower();
+                return;
+            }
+
+            if (string.Equals(selectedHeroPowerCardId, TavishHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                UseTavishHeroPower(targetIndex, targetZone, targetInstanceId);
+                return;
+            }
+
+            if (string.Equals(selectedHeroPowerCardId, BrukanHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                UseBrukanHeroPower();
+                return;
+            }
+
             DispatchHeroEffect(
                 HeroEffectEventType.HeroPowerUsed,
                 targetIndex: targetIndex,
@@ -13649,6 +14392,476 @@ namespace LearnHearthstone.Application.Services
                 secondaryTargetInstanceId: secondaryTargetInstanceId,
                 choiceId: choiceId,
                 heroPowerCardId: selectedHeroPowerCardId);
+        }
+
+        private void UseGalewingHeroPower()
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (advanced.PendingChoice != null)
+            {
+                throw new InvalidOperationException("Another advanced choice is already pending.");
+            }
+
+            if (advanced.Selections.TryGetValue(GalewingRouteSelectionKey, out var activeRoute) &&
+                advanced.Counters.TryGetValue(GalewingDueRoundCounter, out var dueRound) &&
+                dueRound > State.Round)
+            {
+                throw new InvalidOperationException("Dungar's Gryphon is already flying " + GalewingRouteName(activeRoute) + " until turn " + dueRound + ".");
+            }
+
+            advanced.Selections.Remove(GalewingRouteSelectionKey);
+            advanced.Counters.Remove(GalewingDueRoundCounter);
+
+            advanced.Selections.TryGetValue(GalewingLastRouteKey, out var lastRoute);
+            var routes = GalewingRouteIds()
+                .Where(route => !string.Equals(route, lastRoute, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (routes.Count == 0)
+            {
+                routes = GalewingRouteIds().ToList();
+            }
+
+            advanced.PendingChoice = new MechanicChoiceRequest
+            {
+                RequestId = GalewingChoiceSource + ":" + State.Round,
+                Kind = AdvancedMechanicKind.Distortion,
+                Source = GalewingChoiceSource,
+                Slot = "Flightpath",
+                Round = State.Round,
+                RemainingPicks = 1,
+                Options = routes.Select(CreateGalewingFlightpathOption).ToList()
+            };
+            AddRecruitLog(RecruitLogType.Discover, "Dungar's Gryphon: choose a flightpath.", tavern.Gold, tavern.Gold);
+        }
+
+        private void UseCarielHeroPower()
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.Gold < 1)
+            {
+                throw new InvalidOperationException("Not enough Gold to use Conviction.");
+            }
+
+            var candidates = State.Player.Board
+                .Where(minion => minion != null && minion.CardKind == CardKind.Minion)
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                throw new InvalidOperationException("Conviction needs a friendly minion.");
+            }
+
+            var before = tavern.Gold;
+            SpendGold(1);
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var targetCount = Math.Min(candidates.Count, GetAdvancedCounter(advanced, CarielTargetsCounter, 2));
+            var attack = GetAdvancedCounter(advanced, CarielAttackCounter, 1);
+            var health = GetAdvancedCounter(advanced, CarielHealthCounter, 1);
+            var rng = new SeededRng(State.Seed + State.Round * 3571 + tavern.RecruitLog.Count);
+            var buffed = 0;
+            while (buffed < targetCount && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var target = candidates[index];
+                candidates.RemoveAt(index);
+                BuffMinion(target, attack, health, "Conviction");
+                buffed += 1;
+            }
+
+            AddRecruitLog(RecruitLogType.Play, "Conviction: gave " + buffed + " random friendly minion(s) +" + attack + "/+" + health + ".", before, tavern.Gold);
+        }
+
+        private void ChooseHeroMechanicOption(MechanicChoiceRequest request, MechanicChoiceOption option)
+        {
+            if (string.Equals(request.Source, GalewingChoiceSource, StringComparison.OrdinalIgnoreCase))
+            {
+                ChooseGalewingFlightpath(option);
+                return;
+            }
+
+            if (string.Equals(request.Source, CarielChoiceSource, StringComparison.OrdinalIgnoreCase))
+            {
+                ImproveCarielConviction(option.RewardId, "Conviction");
+                return;
+            }
+
+            if (string.Equals(request.Source, BrukanChoiceSource, StringComparison.OrdinalIgnoreCase))
+            {
+                ChooseBrukanElement(option);
+                return;
+            }
+
+            throw new InvalidOperationException("Unsupported hero choice source: " + request.Source);
+        }
+
+        private void UseTavishHeroPower(int targetIndex, TargetZone targetZone, string targetInstanceId)
+        {
+            var target = ResolveOpponentBoardTarget(targetIndex, targetZone, targetInstanceId);
+            if (target == null)
+            {
+                throw new InvalidOperationException("Deadeye needs an opponent minion target.");
+            }
+
+            var tavern = State.Player.Tavern;
+            tavern.HeroTavishTargetInstanceId = target.InstanceId;
+            tavern.HeroTavishTargetIndex = State.Opponent.Board.FindIndex(minion => string.Equals(minion.InstanceId, target.InstanceId, StringComparison.OrdinalIgnoreCase));
+            AddRecruitLog(RecruitLogType.Play, "Deadeye: aimed at " + target.Name + " for the next combat start.", tavern.Gold, tavern.Gold);
+        }
+
+        private MinionInstance ResolveOpponentBoardTarget(int targetIndex, TargetZone targetZone, string targetInstanceId)
+        {
+            if (targetZone != TargetZone.Unspecified && targetZone != TargetZone.OpponentBoard)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(targetInstanceId))
+            {
+                return State.Opponent.Board.FirstOrDefault(minion =>
+                    string.Equals(minion.InstanceId, targetInstanceId, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (targetIndex >= 0 && targetIndex < State.Opponent.Board.Count)
+            {
+                return State.Opponent.Board[targetIndex];
+            }
+
+            return null;
+        }
+
+        private void UseBrukanHeroPower()
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (advanced.PendingChoice != null)
+            {
+                throw new InvalidOperationException("Another advanced choice is already pending.");
+            }
+
+            advanced.PendingChoice = new MechanicChoiceRequest
+            {
+                RequestId = BrukanChoiceSource + ":" + State.Round,
+                Kind = AdvancedMechanicKind.Distortion,
+                Source = BrukanChoiceSource,
+                Slot = "Element",
+                Round = State.Round,
+                RemainingPicks = 1,
+                Options = new System.Collections.Generic.List<MechanicChoiceOption>
+                {
+                    CreateBrukanElementOption(BrukanElementFire, "Fire", "Double your left-most minion's Attack."),
+                    CreateBrukanElementOption(BrukanElementEarth, "Earth", "Give minions Deathrattle: summon a 1/1 Elemental."),
+                    CreateBrukanElementOption(BrukanElementWater, "Water", "Give your right-most minion Health and Taunt."),
+                    CreateBrukanElementOption(BrukanElementLightning, "Lightning", "Deal damage to random enemy minions.")
+                }
+            };
+            AddRecruitLog(RecruitLogType.Discover, "Embrace the Elements: choose an Element.", tavern.Gold, tavern.Gold);
+        }
+
+        private static MechanicChoiceOption CreateBrukanElementOption(string element, string name, string text)
+        {
+            return new MechanicChoiceOption
+            {
+                OptionId = BrukanChoiceSource + ":" + element,
+                Kind = AdvancedMechanicKind.Distortion,
+                SourceId = BrukanChoiceSource,
+                DisplayName = name,
+                Text = text,
+                RewardId = element,
+                RewardName = name,
+                ImplementationStatus = "Implemented",
+                Tags = new System.Collections.Generic.List<string> { "hero_power", "brukan_element", element }
+            };
+        }
+
+        private void ChooseBrukanElement(MechanicChoiceOption option)
+        {
+            var element = option?.RewardId;
+            if (!IsBrukanElement(element))
+            {
+                throw new InvalidOperationException("Unknown Bru'kan Element.");
+            }
+
+            var tavern = State.Player.Tavern;
+            tavern.HeroBrukanElement = element;
+            AddRecruitLog(RecruitLogType.Discover, "Embrace the Elements: selected " + option.RewardName + ".", tavern.Gold, tavern.Gold);
+        }
+
+        private static bool IsBrukanElement(string element)
+        {
+            return string.Equals(element, BrukanElementFire, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(element, BrukanElementEarth, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(element, BrukanElementWater, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(element, BrukanElementLightning, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ChooseGalewingFlightpath(MechanicChoiceOption option)
+        {
+            var route = option?.RewardId;
+            if (!IsGalewingRoute(route))
+            {
+                throw new InvalidOperationException("Unknown Galewing flightpath.");
+            }
+
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var dueRound = State.Round + GalewingRouteDelay(route);
+            advanced.Selections[GalewingRouteSelectionKey] = route;
+            advanced.Selections[GalewingLastRouteKey] = route;
+            advanced.Counters[GalewingDueRoundCounter] = dueRound;
+            AddRecruitLog(RecruitLogType.Discover, "Dungar's Gryphon: " + GalewingRouteName(route) + " completes on turn " + dueRound + ".", tavern.Gold, tavern.Gold);
+        }
+
+        private void TryResolveGalewingFlightpath()
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (!advanced.Selections.TryGetValue(GalewingRouteSelectionKey, out var route) ||
+                !advanced.Counters.TryGetValue(GalewingDueRoundCounter, out var dueRound) ||
+                State.Round < dueRound)
+            {
+                return;
+            }
+
+            var triggers = HasFriendlyBoardCard(FlightTrainerCardId) ? 2 : 1;
+            var resolved = 0;
+            for (var repeat = 0; repeat < triggers; repeat += 1)
+            {
+                if (ApplyGalewingRouteReward(route, repeat))
+                {
+                    resolved += 1;
+                }
+            }
+
+            advanced.Selections.Remove(GalewingRouteSelectionKey);
+            advanced.Counters.Remove(GalewingDueRoundCounter);
+            AddRecruitLog(RecruitLogType.Play, "Dungar's Gryphon: " + GalewingRouteName(route) + " triggered " + resolved + "/" + triggers + " proxy reward(s).", tavern.Gold, tavern.Gold);
+        }
+
+        private bool ApplyGalewingRouteReward(string route, int repeat)
+        {
+            var source = GalewingChoiceSource + ":" + route + ":" + repeat;
+            switch (route)
+            {
+                case GalewingRouteWestfall:
+                    return AddTavernCoinsToHand(1, source) > 0;
+                case GalewingRouteIronforge:
+                    return AddRandomTierMinionsToHand(Math.Max(1, State.Player.Tavern.Tier), 1, source) > 0;
+                case GalewingRoutePlaguelands:
+                    return StartTierDiscover(Math.Max(1, State.Player.Tavern.Tier), source, fromCurrentPool: true);
+                default:
+                    return false;
+            }
+        }
+
+        private void TryOfferCarielImprovementChoice()
+        {
+            if (!HasActiveHeroPower(CarielHeroPowerCardId))
+            {
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            if (advanced.PendingChoice != null)
+            {
+                return;
+            }
+
+            advanced.PendingChoice = new MechanicChoiceRequest
+            {
+                RequestId = CarielChoiceSource + ":" + State.Round,
+                Kind = AdvancedMechanicKind.Distortion,
+                Source = CarielChoiceSource,
+                Slot = "Conviction",
+                Round = State.Round,
+                RemainingPicks = 1,
+                Options = CarielImprovementIds().Select(CreateCarielImprovementOption).ToList()
+            };
+            AddRecruitLog(RecruitLogType.Discover, "Conviction: choose an improvement.", tavern.Gold, tavern.Gold);
+        }
+
+        private void TryImproveCarielFromCaptainFairmount()
+        {
+            if (!HasActiveHeroPower(CarielHeroPowerCardId) || !HasFriendlyBoardCard(CaptainFairmountCardId))
+            {
+                return;
+            }
+
+            var improvements = CarielImprovementIds().ToList();
+            var rng = new SeededRng(State.Seed + State.Round * 3671 + State.Player.Tavern.RecruitLog.Count);
+            ImproveCarielConviction(improvements[rng.NextInt(improvements.Count)], "Captain Fairmount");
+        }
+
+        private void ImproveCarielConviction(string improvementId, string source)
+        {
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            string message;
+            switch (improvementId)
+            {
+                case CarielImproveTargets:
+                    var targets = GetAdvancedCounter(advanced, CarielTargetsCounter, 2) + 1;
+                    advanced.Counters[CarielTargetsCounter] = targets;
+                    message = source + ": Conviction now targets " + targets + " minion(s).";
+                    break;
+                case CarielImproveAttack:
+                    var attack = GetAdvancedCounter(advanced, CarielAttackCounter, 1) + 1;
+                    advanced.Counters[CarielAttackCounter] = attack;
+                    message = source + ": Conviction now gives +" + attack + " Attack.";
+                    break;
+                case CarielImproveHealth:
+                    var health = GetAdvancedCounter(advanced, CarielHealthCounter, 1) + 1;
+                    advanced.Counters[CarielHealthCounter] = health;
+                    message = source + ": Conviction now gives +" + health + " Health.";
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown Conviction improvement.");
+            }
+
+            AddRecruitLog(RecruitLogType.Play, message, tavern.Gold, tavern.Gold);
+        }
+
+        private static MechanicChoiceOption CreateGalewingFlightpathOption(string route)
+        {
+            return new MechanicChoiceOption
+            {
+                OptionId = GalewingChoiceSource + ":" + route,
+                Kind = AdvancedMechanicKind.Distortion,
+                SourceId = GalewingChoiceSource,
+                DisplayName = GalewingRouteName(route),
+                Text = GalewingRouteText(route),
+                RewardId = route,
+                RewardName = GalewingRouteName(route),
+                RewardText = GalewingRouteText(route),
+                RequiredAmount = GalewingRouteDelay(route),
+                Slot = "Flightpath",
+                ImplementationStatus = "FrameworkFirst",
+                Tags = new List<string> { "hero_choice", "galewing", "proxy_reward" }
+            };
+        }
+
+        private static MechanicChoiceOption CreateCarielImprovementOption(string improvementId)
+        {
+            return new MechanicChoiceOption
+            {
+                OptionId = CarielChoiceSource + ":" + improvementId,
+                Kind = AdvancedMechanicKind.Distortion,
+                SourceId = CarielChoiceSource,
+                DisplayName = CarielImprovementName(improvementId),
+                Text = CarielImprovementText(improvementId),
+                RewardId = improvementId,
+                RewardName = CarielImprovementName(improvementId),
+                RewardText = CarielImprovementText(improvementId),
+                Slot = "Conviction",
+                ImplementationStatus = "Implemented",
+                Tags = new List<string> { "hero_choice", "cariel", "conviction" }
+            };
+        }
+
+        private static IEnumerable<string> GalewingRouteIds()
+        {
+            yield return GalewingRouteWestfall;
+            yield return GalewingRouteIronforge;
+            yield return GalewingRoutePlaguelands;
+        }
+
+        private static IEnumerable<string> CarielImprovementIds()
+        {
+            yield return CarielImproveTargets;
+            yield return CarielImproveAttack;
+            yield return CarielImproveHealth;
+        }
+
+        private static bool IsGalewingRoute(string route)
+        {
+            return GalewingRouteIds().Any(id => string.Equals(id, route, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static int GalewingRouteDelay(string route)
+        {
+            switch (route)
+            {
+                case GalewingRouteWestfall:
+                    return 1;
+                case GalewingRouteIronforge:
+                    return 3;
+                case GalewingRoutePlaguelands:
+                    return 5;
+                default:
+                    return 1;
+            }
+        }
+
+        private static string GalewingRouteName(string route)
+        {
+            switch (route)
+            {
+                case GalewingRouteWestfall:
+                    return "Westfall";
+                case GalewingRouteIronforge:
+                    return "Ironforge";
+                case GalewingRoutePlaguelands:
+                    return "Plaguelands";
+                default:
+                    return "Flightpath";
+            }
+        }
+
+        private static string GalewingRouteText(string route)
+        {
+            switch (route)
+            {
+                case GalewingRouteWestfall:
+                    return "Complete in 1 turn to get a Tavern Coin. Proxy reward until local route text is available.";
+                case GalewingRouteIronforge:
+                    return "Complete in 3 turns to get a random minion from your Tavern Tier. Proxy reward until local route text is available.";
+                case GalewingRoutePlaguelands:
+                    return "Complete in 5 turns to Discover a minion from your Tavern Tier. Proxy reward until local route text is available.";
+                default:
+                    return "Complete this flightpath to get a proxy reward.";
+            }
+        }
+
+        private static string CarielImprovementName(string improvementId)
+        {
+            switch (improvementId)
+            {
+                case CarielImproveTargets:
+                    return "More Targets";
+                case CarielImproveAttack:
+                    return "More Attack";
+                case CarielImproveHealth:
+                    return "More Health";
+                default:
+                    return "Improve Conviction";
+            }
+        }
+
+        private static string CarielImprovementText(string improvementId)
+        {
+            switch (improvementId)
+            {
+                case CarielImproveTargets:
+                    return "Conviction affects one more friendly minion.";
+                case CarielImproveAttack:
+                    return "Conviction gives +1 more Attack.";
+                case CarielImproveHealth:
+                    return "Conviction gives +1 more Health.";
+                default:
+                    return "Improve Conviction.";
+            }
+        }
+
+        private static int GetAdvancedCounter(AdvancedMechanicState advanced, string key, int fallback)
+        {
+            return advanced != null && advanced.Counters != null && advanced.Counters.TryGetValue(key, out var value)
+                ? value
+                : fallback;
+        }
+
+        private bool HasFriendlyBoardCard(string cardId)
+        {
+            return State.Player.Board.Any(card => card != null && string.Equals(card.CardId, cardId, StringComparison.OrdinalIgnoreCase));
         }
 
         private void UseInfiniteTokiHeroPower(string heroPowerCardId)
@@ -13971,12 +15184,12 @@ namespace LearnHearthstone.Application.Services
             {
                 if (!TryCastTimewarpedNonMinionSpell(spell, resolvedTargetIndex, out spellResult))
                 {
-                    spellResult = TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count), resolvedTargetIndex, heroCatalog);
+                    spellResult = TavernSpellEngine.Cast(spell, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count), resolvedTargetIndex, heroCatalog, darkmoonPrizeCatalog);
                     var extraCasts = GetTavernSpellExtraCasts(spell);
                     spellcraftCastCount += extraCasts;
                     for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
                     {
-                        spellResult += " + " + TavernSpellEngine.Cast(spell, State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1), resolvedTargetIndex, heroCatalog);
+                        spellResult += " + " + TavernSpellEngine.Cast(spell, State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1), resolvedTargetIndex, heroCatalog, darkmoonPrizeCatalog);
                     }
                 }
             }
@@ -14353,6 +15566,11 @@ namespace LearnHearthstone.Application.Services
             return powerIds;
         }
 
+        private bool HasActiveHeroPower(string cardId)
+        {
+            return GetActiveHeroPowerCardIds().Any(powerId => string.Equals(powerId, cardId, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static void AddUniqueHeroPowerCardId(List<string> powerIds, string cardId)
         {
             if (string.IsNullOrEmpty(cardId) || powerIds.Any(existing => string.Equals(existing, cardId, StringComparison.OrdinalIgnoreCase)))
@@ -14700,6 +15918,7 @@ namespace LearnHearthstone.Application.Services
             ResolveTierFourSellEffect(target);
             ResolveTierSixSevenSellEffect(target);
             DispatchHeroEffect(HeroEffectEventType.MinionSold, target);
+            TryStartTicketCollectorPrizeDiscover(target);
             DispatchQuestRewardMinionSold(target);
             DispatchTrinketMinionSold(target);
             HandleTimewarpedMinionSold(target);
@@ -15086,7 +16305,29 @@ namespace LearnHearthstone.Application.Services
                 return true;
             }
 
-            var targetSlotCount = Math.Max(tavern.Shop.Count, shopSize);
+            var frozenMinions = 0;
+            var frozenTavernSpells = 0;
+            for (var index = 0; index < tavern.Shop.Count; index += 1)
+            {
+                if (!TavernShopSlots.IsSlotFrozen(tavern, index))
+                {
+                    continue;
+                }
+
+                var frozenCard = tavern.Shop[index];
+                if (IsShopMinionCard(frozenCard))
+                {
+                    frozenMinions += 1;
+                }
+                else if (frozenCard.CardKind == CardKind.TavernSpell)
+                {
+                    frozenTavernSpells += 1;
+                }
+            }
+
+            var minionsNeeded = Math.Max(0, shopSize - frozenMinions);
+            var tavernSpellsNeeded = frozenTavernSpells > 0 ? 0 : 1;
+            var targetSlotCount = Math.Max(tavern.Shop.Count, frozenMinions + frozenTavernSpells + minionsNeeded + tavernSpellsNeeded);
             while (tavern.Shop.Count < targetSlotCount)
             {
                 tavern.Shop.Add(null);
@@ -15111,13 +16352,13 @@ namespace LearnHearthstone.Application.Services
             var drawnReplacements = CreateShopFromPool(
                 released,
                 tavern.Tier,
-                replacementsNeeded,
+                minionsNeeded,
                 seed,
                 suffix,
-                includeTavernSpell: false,
+                includeTavernSpell: tavernSpellsNeeded > 0,
                 minimumTier: minimumTier,
                 priorityTier: priorityTier,
-                priorityMinionCount: Math.Min(priorityMinionCount, replacementsNeeded));
+                priorityMinionCount: Math.Min(priorityMinionCount, minionsNeeded));
             tavern.BuddyPool = drawnReplacements.BuddyPool;
             var replacementIndex = 0;
             for (var index = 0; index < tavern.Shop.Count; index += 1)
@@ -15136,6 +16377,11 @@ namespace LearnHearthstone.Application.Services
             tavern.Pool = drawnReplacements.Pool;
             TavernShopSlots.Ensure(tavern);
             return true;
+        }
+
+        private static bool IsShopMinionCard(MinionInstance card)
+        {
+            return card != null && (card.CardKind == CardKind.Minion || card.CardKind == CardKind.HeroBuddy);
         }
 
         private bool RefreshShopWithBattlecryMinionsForOneCost(string source)
@@ -15262,23 +16508,124 @@ namespace LearnHearthstone.Application.Services
                 AddRecruitLog(RecruitLogType.Play, "Forest Warden Omu: refunded " + refund + " Gold.", before, tavern.Gold);
             }
             AddRecruitLog(RecruitLogType.LevelUp, "升级到 " + tavern.Tier + " 本", before, tavern.Gold);
+            TryStartAlexstraszaDragonDiscover();
             DispatchTrinketTavernTierReached();
             TryGrantAnomalousExpeditionRewardsUpToTier();
+            TryGrantFaelinRewardsUpToTier();
             TryStartUpPrizingDiscover();
+        }
+
+        private void TryStartAlexstraszaDragonDiscover()
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.Tier != 4 || !HasActiveHeroPower(AlexstraszaHeroPowerCardId))
+            {
+                return;
+            }
+
+            if (StartCurrentPoolDiscover(
+                tavern.Tier,
+                "hero:alexstrasza",
+                minion => minion.TavernTier <= tavern.Tier && MatchesTribe(minion, Tribe.Dragon),
+                buddy => buddy.TavernTier <= tavern.Tier && MatchesTribe(buddy, Tribe.Dragon)))
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Queen of Dragons: Discover a Dragon.", tavern.Gold, tavern.Gold);
+            }
+        }
+
+        private void TryStartAfKayDiscovers()
+        {
+            var tavern = State.Player.Tavern;
+            tavern.HeroEffectCounters.TryGetValue(AfKayRewardedCounter, out var rewarded);
+            if (State.Round != 3 ||
+                !HasActiveHeroPower(AfKayHeroPowerCardId) ||
+                rewarded > 0)
+            {
+                return;
+            }
+
+            tavern.HeroEffectCounters[AfKayRewardedCounter] = 1;
+            var startedTier3 = StartTierDiscover(3, "hero:a-f-kay-tier-3", fromCurrentPool: true);
+            var startedTier4 = StartTierDiscover(4, "hero:a-f-kay-tier-4", fromCurrentPool: true);
+            if (startedTier3 || startedTier4)
+            {
+                AddRecruitLog(RecruitLogType.Discover, "Procrastinate: queued Tier 3 and Tier 4 minion Discovers.", tavern.Gold, tavern.Gold);
+            }
+        }
+
+        private void TryCastYoggSaronStartOfTurnSpell()
+        {
+            if (State.Round < 3 || !HasActiveHeroPower(YoggSaronHeroPowerCardId))
+            {
+                return;
+            }
+
+            var cast = CastRandomTavernSpells(1, State.Player.Tavern.Tier, "Puzzle Box", "yogg-saron");
+            if (cast <= 0)
+            {
+                AddRecruitLog(RecruitLogType.Play, "Puzzle Box: no legal Tavern spell was available.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            }
+        }
+
+        private void TrySpinAcolyteOfYoggSaronWheel()
+        {
+            var tavern = State.Player.Tavern;
+            var acolytes = State.Player.Board
+                .Where(card =>
+                    card != null &&
+                    (card.CardKind == CardKind.HeroBuddy || card.CardKind == CardKind.Minion) &&
+                    (string.Equals(card.CardId, AcolyteOfYoggSaronCardId, StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(card.CardId, GoldenAcolyteOfYoggSaronCardId, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            if (acolytes.Count == 0)
+            {
+                return;
+            }
+
+            var rewards = YoggIseumRewardOptions().ToList();
+            if (rewards.Count == 0)
+            {
+                AddRecruitLog(RecruitLogType.Play, "Acolyte of Yogg-Saron: Wheel proxy has no available rewards.", tavern.Gold, tavern.Gold);
+                return;
+            }
+
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var rng = new SeededRng(State.Seed + State.Round * 7109 + tavern.RecruitLog.Count);
+            foreach (var acolyte in acolytes)
+            {
+                var spins = acolyte.Golden || string.Equals(acolyte.CardId, GoldenAcolyteOfYoggSaronCardId, StringComparison.OrdinalIgnoreCase) ? 2 : 1;
+                for (var spin = 0; spin < spins; spin += 1)
+                {
+                    var reward = rng.Pick(rewards);
+                    advanced.Selections[AcolyteYoggWheelLastRewardKey] = reward.RewardId;
+                    tavern.HeroEffectCounters[AcolyteYoggWheelSpinCounter] =
+                        StatMath.SaturatingAdd(
+                            tavern.HeroEffectCounters.TryGetValue(AcolyteYoggWheelSpinCounter, out var current) ? current : 0,
+                            1,
+                            0,
+                            StatMath.MaxStat);
+                    ApplyYoggIseumReward(reward.RewardId, "Acolyte of Yogg-Saron");
+                }
+            }
         }
 
         private void NextTurn()
         {
             DispatchBoardEvent(MechanicEventType.TurnEnded);
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
             HandleTurnEndedForTierFiveMinions();
             HandleTurnEndedForTierSixSevenMinions();
             HandleTurnEndedForTimewarpedMinions();
             DispatchHeroEffect(HeroEffectEventType.TurnEnded);
+            RestoreMasterNguyenTemporaryHeroPower();
+            TryImproveCarielFromCaptainFairmount();
             DispatchTrinketTurnEnded();
+            HandleDarkmoonPrizeTurnEnded();
             SetAdvancedMechanicCounter(CliffdiverBattlecryThisTurnCounter, 0);
+            SetAdvancedMechanicCounter(DarkmoonPrizeBigBrannExtraBattlecryCounter, 0);
             SetAdvancedMechanicCounter(WindfallSoldThisTurnCounter, 0);
             DispatchQuestRewardTurnEnded();
             HandleAnomalyTurnEnded();
@@ -15325,18 +16672,84 @@ namespace LearnHearthstone.Application.Services
             State.LastResult = null;
             State.LastReplay = null;
             AddRecruitLog(RecruitLogType.TurnStart, "第 " + nextRound + " 回合开始", 0, tavern.Gold);
+            HandleDarkmoonPrizeTurnStarted();
             DispatchTrinketTurnStarted();
             MaybeOfferScheduledTrinketChoice();
             MaybeScheduleTimewarpVisit();
             AddSpellcraftFromBoard();
+            TryStartMasterNguyenHeroPowerChoiceAndResolveLei();
             DispatchBoardEvent(MechanicEventType.TurnStarted);
             DispatchHeroEffect(HeroEffectEventType.TurnStarted);
+            TryStartTickatusPrizeWallDiscover();
+            TryCastYoggSaronStartOfTurnSpell();
+            TrySpinAcolyteOfYoggSaronWheel();
+            TryResolveGalewingFlightpath();
+            TryStartAfKayDiscovers();
+            TryGrantFaelinRewardsUpToTier();
+            TryGrantThorimRewardIfReady();
             DispatchQuestRewardTurnStarted();
             TryStartScheduledTimewarpedBigWinnerDiscover();
             AddStartOfTurnTimewarpedRepeatSpells();
             HandleTurnStartedForTierThreeMinions();
             HandleTurnStartedForTimewarpedMinions();
             HandleAnomalyTurnStarted();
+        }
+
+        private void HandleDarkmoonPrizeTurnEnded()
+        {
+            var tavern = State.Player.Tavern;
+            foreach (var minion in State.Player.Board.ToList())
+            {
+                if (minion?.Counters == null ||
+                    !minion.Counters.TryGetValue(DarkmoonPrizeGruulRulesCounter, out var gruulRules) ||
+                    gruulRules <= 0)
+                {
+                    continue;
+                }
+
+                BuffMinion(
+                    minion,
+                    StatMath.SaturatingMultiply(4, gruulRules, 0, StatMath.MaxStat),
+                    StatMath.SaturatingMultiply(4, gruulRules, 0, StatMath.MaxStat),
+                    "Gruul Rules");
+            }
+
+            var returns = GetAdvancedMechanicCounter(DarkmoonPrizeUnlimitedCoinReturnCounter);
+            if (returns <= 0)
+            {
+                return;
+            }
+
+            SetAdvancedMechanicCounter(DarkmoonPrizeUnlimitedCoinReturnCounter, 0);
+            var before = tavern.Hand.Count;
+            for (var index = 0; index < returns && tavern.Hand.Count < HandLimit; index += 1)
+            {
+                tavern.Hand.Add(CreateGeneratedSpellCard(
+                    DarkmoonPrizeUnlimitedCoinCardId,
+                    "darkmoon-unlimited-coin-" + State.Round + "-" + index));
+            }
+
+            var added = tavern.Hand.Count - before;
+            HandleCardsAddedToHand(added, "The Unlimited Coin");
+            if (added > 0)
+            {
+                AddRecruitLog(RecruitLogType.Play, "The Unlimited Coin: returned " + added + " card(s) to hand.", tavern.Gold, tavern.Gold);
+            }
+        }
+
+        private void HandleDarkmoonPrizeTurnStarted()
+        {
+            var refreshes =
+                GetAdvancedMechanicCounter(DarkmoonPrizeRockingRefreshCounter) +
+                GetAdvancedMechanicCounter(DarkmoonPrizeOpenBarRefreshCounter);
+            if (refreshes <= 0)
+            {
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            tavern.FreeRefreshes = StatMath.SaturatingAdd(tavern.FreeRefreshes, refreshes, 0, StatMath.MaxStat);
+            AddRecruitLog(RecruitLogType.Play, "Darkmoon Prizes: gained " + refreshes + " free Refresh(es).", tavern.Gold, tavern.Gold);
         }
 
         private void ClearTemporarySpellcraftEffects()
@@ -15580,20 +16993,26 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            if (discover.Source == MasterNguyenDiscoverSource)
+            {
+                ResolveMasterNguyenDiscover(picked);
+                return;
+            }
+
             if ((discover.Source == "quest-second-hero-power" || discover.Source == CosmicDualityDiscoverSource) &&
                 picked.CardKind == CardKind.HeroPower)
             {
                 AddSecondHeroPower(
                     picked,
                     discover.Source == CosmicDualityDiscoverSource ? "Cosmic Duality" : "Second Hero Power");
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
             if (!string.IsNullOrEmpty(discover.Source) && discover.Source.StartsWith("quest-magicfin:", StringComparison.Ordinal))
             {
                 ResolveMagicfinRelicDiscover(discover, picked);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15601,7 +17020,7 @@ namespace LearnHearthstone.Application.Services
             {
                 State.Player.HeroPowerCardId = picked.CardId;
                 AddRecruitLog(RecruitLogType.Discover, "Hero Power changed: " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15609,7 +17028,7 @@ namespace LearnHearthstone.Application.Services
             {
                 ResolveSprightlyScarabChoice(discover, picked);
                 AddRecruitLog(RecruitLogType.Discover, "Sprightly Scarab choice " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15617,7 +17036,7 @@ namespace LearnHearthstone.Application.Services
             {
                 ResolveFearlessFoodieChoice(picked);
                 AddRecruitLog(RecruitLogType.Discover, "Fearless Foodie choice " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15625,7 +17044,7 @@ namespace LearnHearthstone.Application.Services
             {
                 HatchDoomsdayDragonEgg(discover.Source.Substring("doomsday-dragon-egg:".Length), picked);
                 AddRecruitLog(RecruitLogType.Discover, "Doomsday Dragon Egg hatched into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15633,7 +17052,7 @@ namespace LearnHearthstone.Application.Services
             {
                 TransformTimewarpedLuckyEgg(discover.Source.Substring("timewarped-lucky-egg:".Length), picked);
                 AddRecruitLog(RecruitLogType.Discover, "Timewarped Lucky Egg transformed into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15641,7 +17060,7 @@ namespace LearnHearthstone.Application.Services
             {
                 TransformTimewarpedZerus(discover.Source.Substring("timewarped-zerus:".Length), picked);
                 AddRecruitLog(RecruitLogType.Discover, "Timewarped Zerus transformed into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15649,11 +17068,21 @@ namespace LearnHearthstone.Application.Services
             {
                 TransformTimewarpedEvolution(discover.TargetInstanceId ?? discover.Source.Substring(TimewarpedEvolutionSourcePrefix.Length), picked);
                 AddRecruitLog(RecruitLogType.Discover, "Timewarped Evolution transformed a minion into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
             if (TryResolveAnomalousExpeditionDiscover(discover, picked))
+            {
+                return;
+            }
+
+            if (TryResolveFaelinDiscover(discover, picked))
+            {
+                return;
+            }
+
+            if (TryResolveThorimDiscover(discover, picked))
             {
                 return;
             }
@@ -15665,7 +17094,7 @@ namespace LearnHearthstone.Application.Services
                 LockCardInHand(picked, 1);
                 HandleCardsAddedToHand(1, "Timewarped Beanstalk");
                 AddRecruitLog(RecruitLogType.Discover, "Timewarped Beanstalk discovered and locked " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15675,12 +17104,13 @@ namespace LearnHearthstone.Application.Services
                 var remaining = Math.Max(0, discover.RemainingPicks - 1);
                 var targetInstanceId = discover.TargetInstanceId;
                 AddRecruitLog(RecruitLogType.Discover, "Scrapper magnetized " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.ClearCurrentDiscover();
                 if (remaining > 0)
                 {
                     StartScrapperMagneticDiscover(null, targetInstanceId, remaining);
                 }
 
+                State.Player.Tavern.PromoteQueuedDiscover();
                 return;
             }
 
@@ -15689,7 +17119,7 @@ namespace LearnHearthstone.Application.Services
                 ResolveGalakrondChoice(discover, picked);
                 DispatchDiscoverChosenEffect(discover, picked);
                 AddRecruitLog(RecruitLogType.Discover, "Galakrond replacement " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-                State.Player.Tavern.Discover = null;
+                State.Player.Tavern.CompleteDiscover();
                 return;
             }
 
@@ -15708,14 +17138,16 @@ namespace LearnHearthstone.Application.Services
             }
 
             AddRecruitLog(RecruitLogType.Discover, "发现 " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
-            State.Player.Tavern.Discover = null;
-            if (TryContinuePatientScoutDiscover(discover))
+            State.Player.Tavern.ClearCurrentDiscover();
+            if (TryContinueTierDiscover(discover))
             {
+                State.Player.Tavern.PromoteQueuedDiscover();
                 return;
             }
 
             if (TryContinueTimewarpedDiscover(discover))
             {
+                State.Player.Tavern.PromoteQueuedDiscover();
                 return;
             }
 
@@ -15723,18 +17155,34 @@ namespace LearnHearthstone.Application.Services
             {
                 StartTavernSpellDiscover(remainingBookPicks, discover.Source, "Book of Medivh");
             }
+
+            State.Player.Tavern.PromoteQueuedDiscover();
         }
 
-        private bool TryContinuePatientScoutDiscover(DiscoverState discover)
+        private bool TryContinueTierDiscover(DiscoverState discover)
         {
-            if (discover == null ||
-                !string.Equals(discover.Source, PatientScoutDiscoverSource, StringComparison.OrdinalIgnoreCase))
+            if (discover == null)
             {
                 return false;
             }
 
             var remaining = Math.Max(0, discover.RemainingPicks - 1);
-            return remaining > 0 && StartTierDiscover(discover.RewardTier, PatientScoutDiscoverSource, remaining);
+            if (remaining <= 0)
+            {
+                return false;
+            }
+
+            if (string.Equals(discover.Source, PatientScoutDiscoverSource, StringComparison.OrdinalIgnoreCase))
+            {
+                return StartTierDiscover(discover.RewardTier, PatientScoutDiscoverSource, remaining);
+            }
+
+            if (string.Equals(discover.Source, "clockwork-assistant", StringComparison.OrdinalIgnoreCase))
+            {
+                return StartTierDiscover(discover.RewardTier, discover.Source, remaining, fromCurrentPool: true);
+            }
+
+            return false;
         }
 
         private void DispatchDiscoverChosenEffect(DiscoverState discover, MinionInstance picked)
@@ -15927,7 +17375,8 @@ namespace LearnHearthstone.Application.Services
                 Minions = catalog,
                 Rng = new SeededRng(State.Seed + State.Round * 3037 + State.Player.Tavern.RecruitLog.Count),
                 PlayerBoard = playerCombatBoard,
-                OpponentBoard = opponentCombatBoard
+                OpponentBoard = opponentCombatBoard,
+                ActiveHeroPowerCardIds = GetActiveHeroPowerCardIds()
             });
             foreach (var message in heroCombatResult.Messages)
             {
@@ -15961,6 +17410,7 @@ namespace LearnHearthstone.Application.Services
             CaptureRecentCombatDeaths(result);
             DispatchQuestRewardAfterCombat(LastDeadFriendlyMinion());
             State.Player.Tavern.LostLastCombat = result.Winner == CombatWinner.Opponent;
+            TryOfferCarielImprovementChoice();
             State.Player.Tavern.TemporaryAvengeBeastRewards = 0;
             State.Player.Tavern.NextCombatBoardAttack = 0;
             State.Player.Tavern.NextCombatBoardHealth = 0;
@@ -15976,6 +17426,9 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.CombatSameTierSummonBuffTier = 0;
             State.Player.Tavern.CombatSameTierSummonBuffAttack = 0;
             State.Player.Tavern.CombatSameTierSummonBuffHealth = 0;
+            State.Player.Tavern.HeroTavishDeadeyeActive = false;
+            State.Player.Tavern.HeroOnyxiaBroodmotherActive = false;
+            State.Player.Tavern.HeroBrukanElementActive = false;
             ResetTrinketCombatState();
             ResetQuestCombatState();
         }
@@ -16377,6 +17830,7 @@ namespace LearnHearthstone.Application.Services
                         DispatchTimewarpedCombatRewardTrigger(TimewarpedTriggerKind.Avenge, reward);
                         break;
                     case CombatRewardType.FriendlyRallyTriggered:
+                        HandleVaelastraszRally(reward);
                         DispatchTimewarpedCombatRewardTrigger(TimewarpedTriggerKind.Rally, reward);
                         break;
                     case CombatRewardType.FriendlyMinionKilledEnemy:
@@ -16505,6 +17959,28 @@ namespace LearnHearthstone.Application.Services
                         AddRandomTierMinionsToHand(6, reward.Amount, "combat-" + reward.SourceCardId);
                         break;
                 }
+            }
+        }
+
+        private void HandleVaelastraszRally(CombatReward reward)
+        {
+            if (reward == null ||
+                !string.Equals(reward.SourceCardId, VaelastraszCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var source = State.Player.Board.FirstOrDefault(minion =>
+                !string.IsNullOrEmpty(reward.SourceInstanceId) &&
+                string.Equals(minion.InstanceId, reward.SourceInstanceId, StringComparison.OrdinalIgnoreCase));
+            var multiplier = source?.Golden == true ? 2 : 1;
+            var count = Math.Max(1, reward.Amount) * multiplier;
+            var before = State.Player.Tavern.Hand.Count;
+            AddRandomTribeMinionToHand(Tribe.Dragon, count, "vaelastrasz");
+            var added = State.Player.Tavern.Hand.Count - before;
+            if (added > 0)
+            {
+                AddRecruitLog(RecruitLogType.Play, "Vaelastrasz: gained " + added + " random Dragon(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -16971,7 +18447,7 @@ namespace LearnHearthstone.Application.Services
         private void StartFearlessFoodieChoice(MinionInstance source)
         {
             var multiplier = source?.Golden == true ? 2 : 1;
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "fearless-foodie",
                 RewardTier = 0,
@@ -16980,7 +18456,7 @@ namespace LearnHearthstone.Application.Services
                     CreateFearlessFoodieChoice(FearlessFoodieGrowthOptionCardId, "Improve Blood Gems", "Your Blood Gems give extra stats this game.", multiplier),
                     CreateFearlessFoodieChoice(FearlessFoodieGemsOptionCardId, "Get Blood Gems", "Get Blood Gems.", 4 * multiplier)
                 }
-            };
+            });
         }
 
         private void ResolveFearlessFoodieChoice(MinionInstance picked)
@@ -17013,7 +18489,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var beastTarget = ResolveSprightlyScarabBeastTarget(source, battlecryTargetId);
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "sprightly-scarab:" + source.InstanceId,
                 TargetInstanceId = beastTarget?.InstanceId,
@@ -17023,7 +18499,7 @@ namespace LearnHearthstone.Application.Services
                     CreateSprightlyScarabChoice(SprightlyScarabRebornOptionCardId, "Beast Reborn", "Give the chosen Beast stats and Reborn.", multiplier),
                     CreateSprightlyScarabChoice(SprightlyScarabWindfuryOptionCardId, "Windfury", "This gains Attack and Windfury.", multiplier)
                 }
-            };
+            });
         }
 
         private void ResolveSprightlyScarabChoice(DiscoverState discover, MinionInstance picked)
@@ -17123,11 +18599,6 @@ namespace LearnHearthstone.Application.Services
 
         private void StartReadyDoomsdayDragonEggDiscover()
         {
-            if (State.Player.Tavern.Discover != null)
-            {
-                return;
-            }
-
             var egg = State.Player.Tavern.Hand.FirstOrDefault(card => card.CardId == DoomsdayDragonEggCardId && card.Tags.Contains("doomsday_hatch_ready"));
             if (egg == null)
             {
@@ -17146,21 +18617,16 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "doomsday-dragon-" + egg.InstanceId + "-" + options.Count, egg.Golden, PoolSource.Discover, 0));
             }
 
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "doomsday-dragon-egg:" + egg.InstanceId,
                 RewardTier = 6,
                 Options = options
-            };
+            });
         }
 
         private void StartReadyTimewarpedLuckyEggDiscover()
         {
-            if (State.Player.Tavern.Discover != null)
-            {
-                return;
-            }
-
             var egg = State.Player.Tavern.Hand.FirstOrDefault(card => card.CardId == TimewarpedLuckyEggCardId && card.Tags.Contains(TimewarpedLuckyEggReadyTag));
             if (egg == null)
             {
@@ -17191,12 +18657,12 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "timewarped-lucky-egg:" + egg.InstanceId,
                 RewardTier = rewardTier,
                 Options = options
-            };
+            });
         }
 
         private void HatchDoomsdayDragonEgg(string eggInstanceId, MinionInstance picked)
@@ -17237,11 +18703,6 @@ namespace LearnHearthstone.Application.Services
         private void StartTimewarpedZerusDiscover()
         {
             var tavern = State.Player.Tavern;
-            if (tavern.Discover != null)
-            {
-                return;
-            }
-
             var zerus = tavern.Hand.FirstOrDefault(card =>
                 card.CardId == TimewarpedZerusCardId &&
                 GetCounter(card, "timewarped_zerus_offer_round") != State.Round);
@@ -17279,12 +18740,12 @@ namespace LearnHearthstone.Application.Services
             }
 
             EnsureCounters(zerus)["timewarped_zerus_offer_round"] = State.Round;
-            tavern.Discover = new DiscoverState
+            tavern.QueueDiscover(new DiscoverState
             {
                 Source = "timewarped-zerus:" + zerus.InstanceId,
                 Options = options,
                 RemainingPicks = 1
-            };
+            });
             AddRecruitLog(RecruitLogType.Discover, "Timewarped Zerus offered " + options.Count + " transform option(s).", tavern.Gold, tavern.Gold);
         }
 
@@ -17405,6 +18866,8 @@ namespace LearnHearthstone.Application.Services
             ResolveTierFiveBattlecry(target);
             ResolveTierSixSevenBattlecry(target);
             ResolveClockworkAssistantBattlecry(target);
+            ResolveBabyKodoBattlecry(target);
+            ResolveSubmersibleChefBattlecry(target);
             ResolveKalecgosBattlecryTrigger(target);
             ResolveTimewarpedBattlecry(target);
         }
@@ -17417,7 +18880,99 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            StartTierDiscover(State.Player.Tavern.Tier + 1, "clockwork-assistant");
+            StartTierDiscover(
+                State.Player.Tavern.Tier + 1,
+                "clockwork-assistant",
+                target.Golden ? 2 : 1,
+                fromCurrentPool: true);
+        }
+
+        private void ResolveBabyKodoBattlecry(MinionInstance target)
+        {
+            if (target == null ||
+                !string.Equals(target.CardId, BabyKodoCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (RefreshShopWithOneMinionOfEachTier("baby-kodo"))
+            {
+                AddRecruitLog(RecruitLogType.Reroll, "Baby Kodo: refreshed the Tavern with one minion of each Tier.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            }
+        }
+
+        private void ResolveSubmersibleChefBattlecry(MinionInstance target)
+        {
+            if (target == null ||
+                !string.Equals(target.CardId, SubmersibleChefCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var added = 0;
+            added += AddRandomTierMinionsToHand(1, 1, "submersible-chef");
+            added += AddRandomTierMinionsToHand(3, 1, "submersible-chef");
+            added += AddRandomTierMinionsToHand(5, 1, "submersible-chef");
+            if (added > 0)
+            {
+                AddRecruitLog(RecruitLogType.Play, "Submersible Chef: added random Tier 1, 3, and 5 minions.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            }
+        }
+
+        private bool RefreshShopWithOneMinionOfEachTier(string source)
+        {
+            var tavern = State.Player.Tavern;
+            TavernShopSlots.Ensure(tavern);
+            var pool = new MinionPool(CurrentPoolMinionDefinitions(), ReleaseShopToPool(), CurrentActiveTribes(), AllowsCurrentPoolMinion, CurrentPoolCapacities());
+            var buddyPool = CurrentBuddyPoolSnapshot();
+            var rng = new SeededRng(State.Seed + State.Round * 6151 + tavern.RecruitLog.Count);
+            var shop = new List<MinionInstance>();
+            var activeTribes = CurrentActiveTribes();
+            for (var tier = TavernRules.MinTavernTier; tier <= CurrentMaxTavernTier(); tier += 1)
+            {
+                var normalCandidates = CurrentPoolMinionDefinitions()
+                    .Where(definition =>
+                        definition.InPool &&
+                        definition.TavernTier == tier &&
+                        pool.Remaining(definition.Id) > 0)
+                    .ToList();
+                var buddyCandidates = DiscoverableBuddyDefinitions()
+                    .Where(buddy =>
+                        buddy.TavernTier == tier &&
+                        buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
+                        remaining > 0 &&
+                        AreCardTribesAvailable(buddy.Tribes, activeTribes))
+                    .ToList();
+                var candidateCount = normalCandidates.Count + buddyCandidates.Count;
+                if (candidateCount == 0)
+                {
+                    continue;
+                }
+
+                var pickedIndex = rng.NextInt(candidateCount);
+                if (pickedIndex < normalCandidates.Count)
+                {
+                    var definition = normalCandidates[pickedIndex];
+                    pool.Occupy(definition.Id);
+                    shop.Add(MinionFactory.Create(definition, BoardSide.Player, source + "-" + tier, false, PoolSource.Pool, 1));
+                    continue;
+                }
+
+                var buddy = buddyCandidates[pickedIndex - normalCandidates.Count];
+                buddyPool[buddy.CardId] = Math.Max(0, buddyPool[buddy.CardId] - 1);
+                shop.Add(CreateBuddyPoolCard(buddy, source + "-" + tier));
+            }
+
+            if (shop.Count == 0)
+            {
+                return false;
+            }
+
+            TavernShopSlots.ReplaceShop(tavern, shop);
+            tavern.Pool = pool.Snapshot();
+            tavern.BuddyPool = buddyPool;
+            ApplyPostShopRefreshEffects(tavern.Shop, ShopRefreshContext.BuyTriggered);
+            return true;
         }
 
         private void ResolveTimewarpedBattlecry(MinionInstance target)
@@ -17521,6 +19076,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             repeats += GetTimewarpedDeiosExtraTriggers(target);
+            repeats += GetAdvancedMechanicCounter(DarkmoonPrizeBigBrannExtraBattlecryCounter);
             return repeats;
         }
 
@@ -18078,6 +19634,54 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private void HandleTurnEndedForHeroBuddies()
+        {
+            foreach (var minion in State.Player.Board.ToList())
+            {
+                if (string.Equals(minion.CardId, VeranusCardId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ResolveVeranusEndOfTurn(minion);
+                }
+            }
+        }
+
+        private void ResolveVeranusEndOfTurn(MinionInstance source)
+        {
+            var sourceIndex = State.Player.Board.IndexOf(source);
+            if (sourceIndex <= 0)
+            {
+                return;
+            }
+
+            var targetIndex = sourceIndex - 1;
+            var target = State.Player.Board[targetIndex];
+            if (target == null)
+            {
+                return;
+            }
+
+            var targetTier = Math.Min(TavernRules.MaxTavernTier, Math.Max(TavernRules.MinTavernTier, target.TavernTier) + 1);
+            var candidates = targetTier == TavernRules.MaxTavernTier
+                ? LegalTierSevenMinionDefinitions().ToList()
+                : SelectSupplyMinionDefinitions(exactTier: targetTier, excludeDuos: true);
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 2713 + State.Player.Tavern.RecruitLog.Count + targetIndex);
+            var transformed = MinionFactory.Create(
+                rng.Pick(candidates),
+                BoardSide.Player,
+                "veranus-" + State.Round + "-" + targetIndex,
+                target.Golden,
+                PoolSource.Copy,
+                0);
+            State.Player.Board[targetIndex] = transformed;
+            AddRecruitLog(RecruitLogType.Play, "Veranus: transformed " + target.Name + " into " + transformed.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            ResolvePlayerTriples();
+        }
+
         private void HandleTurnStartedForTierThreeMinions()
         {
             var extraGold = 0;
@@ -18111,8 +19715,30 @@ namespace LearnHearthstone.Application.Services
                     case LostCityLooterCardId:
                         AddBountiesToHand(minion.Golden ? 2 : 1, "lost-city-looter");
                         break;
+                    case SnackVendorCardId:
+                        ResolveSnackVendorEndOfTurn(minion);
+                        break;
                 }
             }
+        }
+
+        private void ResolveSnackVendorEndOfTurn(MinionInstance source)
+        {
+            var candidates = State.Player.Board
+                .Where(minion =>
+                    minion != null &&
+                    minion.InstanceId != source.InstanceId &&
+                    minion.TavernTier == 3 &&
+                    IsShopMinionCard(minion))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var picked = new SeededRng(State.Seed + State.Round * 2467 + State.Player.Tavern.RecruitLog.Count).Pick(candidates);
+            BuffMinion(picked, Math.Max(0, source.Attack), Math.Max(0, source.MaxHealth), "Snack Vendor");
+            AddRecruitLog(RecruitLogType.Play, "Snack Vendor: gave its stats to " + picked.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void HandleTurnEndedForTierFourMinions()
@@ -19407,7 +21033,7 @@ namespace LearnHearthstone.Application.Services
                 while (spent >= 7)
                 {
                     spent -= 7;
-                    TavernSpellEngine.Cast(MinionFactory.Create(spellCatalog.All.First(spell => spell.CardNumber == BorrowingEastWindCardNumber), BoardSide.Player, "windfall-tornado"), State, catalog, spellCatalog, new SeededRng(State.Seed + State.Round * 619 + spent));
+                    TavernSpellEngine.Cast(MinionFactory.Create(spellCatalog.All.First(spell => spell.CardNumber == BorrowingEastWindCardNumber), BoardSide.Player, "windfall-tornado"), State, CurrentMinionCatalog(), spellCatalog, new SeededRng(State.Seed + State.Round * 619 + spent));
                 }
 
                 tornado.Counters["gold_spent"] = spent;
@@ -19704,6 +21330,7 @@ namespace LearnHearthstone.Application.Services
             HandleGoldSpentForTierFiveMinions(amount);
             HandleGoldSpentForTierSixSevenMinions(amount);
             HandleGoldSpentForTimewarpedMinions(amount);
+            HandleGoldSpentForThorim(amount);
 
             foreach (var courier in State.Player.Board.Where(minion => minion.CardId == GunpowderCourierCardId))
             {
@@ -20899,8 +22526,13 @@ namespace LearnHearthstone.Application.Services
                 "targeted_spell");
         }
 
-        private static MinionInstance CreateGeneratedSpellCard(string cardId, string suffix)
+        private MinionInstance CreateGeneratedSpellCard(string cardId, string suffix)
         {
+            if (darkmoonPrizeCatalog != null && darkmoonPrizeCatalog.TryGetByCardId(cardId, out var darkmoonPrize))
+            {
+                return CreateGeneratedDarkmoonPrizeCard(darkmoonPrize, suffix);
+            }
+
             switch (cardId)
             {
                 case BloodGemCardId:
@@ -20975,15 +22607,6 @@ namespace LearnHearthstone.Application.Services
                     return CreateQuestUtilitySpellCard(cardId, "Kidnap Sack", "Move a non-Golden Tavern card to your hand.", suffix, false);
                 case GoldenHammerSpellCardId:
                     return CreateQuestUtilitySpellCard(cardId, "The Golden Hammer", "Make a friendly minion Golden until next turn.", suffix, true);
-                case DarkmoonPrizeTrainingSessionCardId:
-                case DarkmoonPrizeBuyTheHolyLightCardId:
-                case DarkmoonPrizeBananasCardId:
-                case DarkmoonPrizeTopShelfCardId:
-                case DarkmoonPrizeRepeatCustomerCardId:
-                case DarkmoonPrizeAllThatGlittersCardId:
-                case DarkmoonPrizeMindflayerGogglesCardId:
-                case DarkmoonPrizeReservePricesCardId:
-                    return CreateDarkmoonPrizeCard(cardId, suffix);
                 case HealthyBountyCardId:
                 case HostileBountyCardId:
                 case SelfishBountyCardId:
@@ -22069,7 +23692,7 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count));
             }
 
-            State.Player.Tavern.Discover = new DiscoverState { Source = source, RewardTier = State.Player.Tavern.Tier, Options = options };
+            State.Player.Tavern.QueueDiscover(new DiscoverState { Source = source, RewardTier = State.Player.Tavern.Tier, Options = options });
         }
 
         private void AddRandomTribeMinionToHand(Tribe tribe, int count, string source)
@@ -22316,11 +23939,62 @@ namespace LearnHearthstone.Application.Services
             int tier,
             string source,
             int remainingPicks = 1,
-            Action<MinionInstance> configureOption = null)
+            Action<MinionInstance> configureOption = null,
+            Func<MinionDefinition, bool> predicate = null,
+            bool fromCurrentPool = false)
         {
             var rng = new SeededRng(State.Seed + State.Round * 467 + State.Player.Tavern.RecruitLog.Count);
             var rewardTier = Math.Min(CurrentMaxTavernTier(), Math.Max(1, tier));
-            var candidates = SelectSupplyMinionDefinitions(exactTier: rewardTier);
+            var options = fromCurrentPool
+                ? CreateCurrentPoolTierDiscoverOptions(rewardTier, source, rng, configureOption, predicate)
+                : CreateSupplyTierDiscoverOptions(rewardTier, source, rng, configureOption, predicate);
+            if (options.Count <= 0)
+            {
+                return false;
+            }
+
+            State.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = source,
+                RewardTier = rewardTier,
+                RemainingPicks = Math.Max(1, remainingPicks),
+                Options = options
+            });
+            return options.Count > 0;
+        }
+
+        private bool StartCurrentPoolDiscover(
+            int rewardTier,
+            string source,
+            Func<MinionDefinition, bool> normalPredicate,
+            Func<HeroBuddyDefinition, bool> buddyPredicate,
+            int remainingPicks = 1)
+        {
+            var rng = new SeededRng(State.Seed + State.Round * 467 + State.Player.Tavern.RecruitLog.Count);
+            var options = CreateCurrentPoolDiscoverOptions(source, rng, normalPredicate, buddyPredicate);
+            if (options.Count <= 0)
+            {
+                return false;
+            }
+
+            State.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = source,
+                RewardTier = Math.Min(CurrentMaxTavernTier(), Math.Max(1, rewardTier)),
+                RemainingPicks = Math.Max(1, remainingPicks),
+                Options = options
+            });
+            return true;
+        }
+
+        private List<MinionInstance> CreateSupplyTierDiscoverOptions(
+            int rewardTier,
+            string source,
+            SeededRng rng,
+            Action<MinionInstance> configureOption,
+            Func<MinionDefinition, bool> predicate)
+        {
+            var candidates = SelectSupplyMinionDefinitions(exactTier: rewardTier, predicate: predicate);
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
             {
@@ -22332,14 +24006,116 @@ namespace LearnHearthstone.Application.Services
                 options.Add(option);
             }
 
-            State.Player.Tavern.Discover = new DiscoverState
+            return options;
+        }
+
+        private List<MinionInstance> CreateCurrentPoolDiscoverOptions(
+            string source,
+            SeededRng rng,
+            Func<MinionDefinition, bool> normalPredicate,
+            Func<HeroBuddyDefinition, bool> buddyPredicate)
+        {
+            var pool = new MinionPool(CurrentPoolMinionDefinitions(), State.Player.Tavern.Pool, CurrentActiveTribes(), AllowsCurrentPoolMinion, CurrentPoolCapacities());
+            var normalCandidates = CurrentPoolMinionDefinitions()
+                .Where(definition =>
+                    definition.InPool &&
+                    pool.Remaining(definition.Id) > 0 &&
+                    (normalPredicate == null || normalPredicate(definition)))
+                .ToList();
+            var activeTribes = CurrentActiveTribes();
+            var buddyPool = CurrentBuddyPoolSnapshot();
+            var buddyCandidates = DiscoverableBuddyDefinitions()
+                .Where(buddy =>
+                    buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
+                    remaining > 0 &&
+                    AreCardTribesAvailable(buddy.Tribes, activeTribes) &&
+                    (buddyPredicate == null || buddyPredicate(buddy)))
+                .ToList();
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && normalCandidates.Count + buddyCandidates.Count > 0)
             {
-                Source = source,
-                RewardTier = rewardTier,
-                RemainingPicks = Math.Max(1, remainingPicks),
-                Options = options
-            };
-            return options.Count > 0;
+                var pickedIndex = rng.NextInt(normalCandidates.Count + buddyCandidates.Count);
+                if (pickedIndex < normalCandidates.Count)
+                {
+                    var definition = normalCandidates[pickedIndex];
+                    normalCandidates.RemoveAt(pickedIndex);
+                    options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Copy, 0));
+                    continue;
+                }
+
+                var buddyIndex = pickedIndex - normalCandidates.Count;
+                var buddy = buddyCandidates[buddyIndex];
+                buddyCandidates.RemoveAt(buddyIndex);
+                options.Add(MinionFactory.Create(buddy, BoardSide.Player, "discover-" + source + "-" + options.Count, PoolSource.Copy, 0));
+            }
+
+            return options;
+        }
+
+        private List<MinionInstance> CreateCurrentPoolTierDiscoverOptions(
+            int rewardTier,
+            string source,
+            SeededRng rng,
+            Action<MinionInstance> configureOption,
+            Func<MinionDefinition, bool> predicate)
+        {
+            var pool = new MinionPool(CurrentPoolMinionDefinitions(), State.Player.Tavern.Pool, CurrentActiveTribes(), AllowsCurrentPoolMinion, CurrentPoolCapacities());
+            var normalCandidates = CurrentPoolMinionDefinitions()
+                .Where(definition =>
+                    definition.InPool &&
+                    definition.TavernTier == rewardTier &&
+                    pool.Remaining(definition.Id) > 0 &&
+                    (predicate == null || predicate(definition)))
+                .ToList();
+            var activeTribes = CurrentActiveTribes();
+            var buddyPool = CurrentBuddyPoolSnapshot();
+            var buddyCandidates = DiscoverableBuddyDefinitions()
+                .Where(buddy =>
+                    buddy.TavernTier == rewardTier &&
+                    buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
+                    remaining > 0 &&
+                    AreCardTribesAvailable(buddy.Tribes, activeTribes))
+                .ToList();
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && normalCandidates.Count + buddyCandidates.Count > 0)
+            {
+                var pickedIndex = rng.NextInt(normalCandidates.Count + buddyCandidates.Count);
+                MinionInstance option;
+                if (pickedIndex < normalCandidates.Count)
+                {
+                    var definition = normalCandidates[pickedIndex];
+                    normalCandidates.RemoveAt(pickedIndex);
+                    option = MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Copy, 0);
+                }
+                else
+                {
+                    var buddyIndex = pickedIndex - normalCandidates.Count;
+                    var buddy = buddyCandidates[buddyIndex];
+                    buddyCandidates.RemoveAt(buddyIndex);
+                    option = MinionFactory.Create(buddy, BoardSide.Player, "discover-" + source + "-" + options.Count, PoolSource.Copy, 0);
+                }
+
+                configureOption?.Invoke(option);
+                options.Add(option);
+            }
+
+            return options;
+        }
+
+        private static bool AreCardTribesAvailable(IReadOnlyCollection<Tribe> tribes, IReadOnlyCollection<Tribe> activeTribes)
+        {
+            if (tribes == null || tribes.Count == 0 || tribes.All(tribe => tribe == Tribe.None))
+            {
+                return true;
+            }
+
+            if (tribes.Contains(Tribe.All))
+            {
+                return true;
+            }
+
+            var active = TribeAvailabilityRules.Normalize(activeTribes);
+            return tribes.Any(active.Contains);
         }
 
         private void StartTribeDiscover(Tribe tribe, string source)
@@ -22355,7 +24131,7 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            State.Player.Tavern.Discover = new DiscoverState { Source = source, RewardTier = State.Player.Tavern.Tier, Options = options };
+            State.Player.Tavern.QueueDiscover(new DiscoverState { Source = source, RewardTier = State.Player.Tavern.Tier, Options = options });
         }
 
         private void StartScrapperMagneticDiscover(MinionInstance source, string targetInstanceId, int picks)
@@ -22387,14 +24163,14 @@ namespace LearnHearthstone.Application.Services
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "scrapper-magnetic-" + State.Round + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            State.Player.Tavern.Discover = new DiscoverState
+            State.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "scrapper-magnetic",
                 RewardTier = 0,
                 TargetInstanceId = target.InstanceId,
                 RemainingPicks = Math.Max(1, picks),
                 Options = options
-            };
+            });
         }
 
         private void ResolveScrapperMagneticChoice(DiscoverState discover, MinionInstance picked)
@@ -23051,23 +24827,6 @@ namespace LearnHearthstone.Application.Services
             };
         }
 
-        private static readonly string[] DarkmoonPrizeTier3CardIds =
-        {
-            DarkmoonPrizeTrainingSessionCardId,
-            DarkmoonPrizeBuyTheHolyLightCardId,
-            DarkmoonPrizeBananasCardId,
-            DarkmoonPrizeTopShelfCardId,
-            DarkmoonPrizeRepeatCustomerCardId,
-            DarkmoonPrizeAllThatGlittersCardId,
-            DarkmoonPrizeMindflayerGogglesCardId,
-            DarkmoonPrizeReservePricesCardId
-        };
-
-        private static IEnumerable<string> SelectDarkmoonPrizeCardIds(int tier)
-        {
-            return tier == 3 ? DarkmoonPrizeTier3CardIds : Array.Empty<string>();
-        }
-
         private static readonly string[] BountyCardIds =
         {
             OfficialHealthyBountyCardId,
@@ -23089,89 +24848,6 @@ namespace LearnHearthstone.Application.Services
         private static bool IsBountyCardId(string cardId)
         {
             return BountyCardIds.Contains(cardId) || LegacyBountyCardIds.Contains(cardId);
-        }
-
-        private static MinionInstance CreateDarkmoonPrizeCard(string cardId, string suffix)
-        {
-            var name = "Darkmoon Prize";
-            var text = "Tier 3 Darkmoon Prize.";
-            var keywords = new List<Keyword>();
-            var tags = new List<string>
-            {
-                "generated_spell",
-                "darkmoon_prize",
-                "darkmoon_prize_tier_3",
-                "implemented_darkmoon_prize"
-            };
-
-            switch (cardId)
-            {
-                case DarkmoonPrizeTrainingSessionCardId:
-                    name = "Training Session";
-                    text = "Discover a new Hero Power.";
-                    keywords.Add(Keyword.Discover);
-                    tags.Add("hero_power_discover");
-                    break;
-                case DarkmoonPrizeBuyTheHolyLightCardId:
-                    name = "Buy the Holy Light";
-                    text = "Give a friendly minion +10 Attack and Divine Shield.";
-                    tags.Add("targeted_spell");
-                    tags.Add("buff_spell");
-                    tags.Add("divine_shield_grant");
-                    break;
-                case DarkmoonPrizeBananasCardId:
-                    name = "B.A.N.A.N.A.S.";
-                    text = "Fill your hand with Tavern Dish Bananas.";
-                    tags.Add("banana_generator");
-                    break;
-                case DarkmoonPrizeTopShelfCardId:
-                    name = "Top Shelf";
-                    text = "Discover a minion from a Tier higher (up to Tier 7).";
-                    keywords.Add(Keyword.Discover);
-                    tags.Add("minion_discover");
-                    break;
-                case DarkmoonPrizeRepeatCustomerCardId:
-                    name = "Repeat Customer";
-                    text = "Return a friendly non-Golden minion to your hand. Give it +6/+6.";
-                    tags.Add("targeted_spell");
-                    tags.Add("return_to_hand");
-                    tags.Add("buff_spell");
-                    break;
-                case DarkmoonPrizeAllThatGlittersCardId:
-                    name = "All That Glitters";
-                    text = "Make a random minion in the Tavern Golden.";
-                    tags.Add("shop_golden");
-                    break;
-                case DarkmoonPrizeMindflayerGogglesCardId:
-                    name = "Mindflayer Goggles";
-                    text = "Steal all cards from the Tavern, then Refresh it.";
-                    tags.Add("shop_steal");
-                    tags.Add("shop_refresh_spell");
-                    break;
-                case DarkmoonPrizeReservePricesCardId:
-                    name = "Reserve Prices";
-                    text = "Tavern spells cost (1) less this turn.";
-                    tags.Add("tavern_spell_discount");
-                    break;
-            }
-
-            return new MinionInstance
-            {
-                CardKind = CardKind.Spell,
-                InstanceId = "player-darkmoon-prize-" + cardId.ToLowerInvariant() + "-" + suffix,
-                DefinitionId = "darkmoon-prize-" + cardId.ToLowerInvariant(),
-                CardId = cardId,
-                Name = name,
-                Cost = 0,
-                TavernTier = 3,
-                Tribes = new List<Tribe> { Tribe.None },
-                Keywords = keywords,
-                Text = text,
-                Owner = BoardSide.Player,
-                PoolSource = PoolSource.Copy,
-                PoolCopiesHeld = 0,
-                Tags = tags
-            };
         }
 
         private static MinionInstance CreateBountyCard(string cardId, string suffix)
@@ -23787,7 +25463,7 @@ namespace LearnHearthstone.Application.Services
             var priorityRemaining = Math.Max(0, priorityMinionCount);
             while (index < size)
             {
-                var usePriority = priorityRemaining > 0 && priorityTier > 0;
+                var usePriority = priorityRemaining > 0 && priorityTier > 0 && size - index <= priorityRemaining;
                 var candidateMinTier = usePriority ? exactPriorityTier : minTier;
                 var candidateMaxTier = usePriority ? exactPriorityTier : drawTier;
                 var normalCandidates = CurrentPoolMinionDefinitions()
@@ -23797,19 +25473,28 @@ namespace LearnHearthstone.Application.Services
                         definition.TavernTier <= candidateMaxTier &&
                         pool.Remaining(definition.Id) > 0)
                     .ToList();
-                var buddyCandidates = DiscoverableBuddyDefinitions()
-                    .Where(buddy =>
-                        buddy.TavernTier >= candidateMinTier &&
-                        buddy.TavernTier <= candidateMaxTier &&
-                        buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
-                        remaining > 0)
-                    .ToList();
+                var buddyCandidates = usePriority
+                    ? new List<HeroBuddyDefinition>()
+                    : DiscoverableBuddyDefinitions()
+                        .Where(buddy =>
+                            buddy.TavernTier >= candidateMinTier &&
+                            buddy.TavernTier <= candidateMaxTier &&
+                            buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
+                            remaining > 0)
+                        .ToList();
                 var candidateCount = normalCandidates.Count + buddyCandidates.Count;
                 if (candidateCount == 0)
                 {
                     if (usePriority)
                     {
                         priorityRemaining = 0;
+                        continue;
+                    }
+
+                    if (priorityRemaining > 0 && priorityTier > 0)
+                    {
+                        shop.Add(null);
+                        index += 1;
                         continue;
                     }
 
@@ -23934,6 +25619,18 @@ namespace LearnHearthstone.Application.Services
             return tribe == Tribe.All ||
                 minion.Tribes.Contains(tribe) ||
                 minion.Tribes.Contains(Tribe.All);
+        }
+
+        private static bool MatchesTribe(HeroBuddyDefinition buddy, Tribe tribe)
+        {
+            if (buddy == null || tribe == Tribe.None || buddy.Tribes == null)
+            {
+                return false;
+            }
+
+            return tribe == Tribe.All ||
+                buddy.Tribes.Contains(tribe) ||
+                buddy.Tribes.Contains(Tribe.All);
         }
 
         private Dictionary<string, int> ReleaseShopToPool(bool releaseFrozenSlots = true)
@@ -24070,6 +25767,11 @@ namespace LearnHearthstone.Application.Services
                     yield return CreateOathstoneMinionDefinition(definition);
                 }
             }
+        }
+
+        private MinionCatalog CurrentMinionCatalog()
+        {
+            return new MinionCatalog(CurrentPoolMinionDefinitions());
         }
 
         private bool AllowsCurrentPoolMinion(MinionDefinition definition)

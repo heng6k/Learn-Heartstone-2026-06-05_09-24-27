@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
 
@@ -82,6 +83,43 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(options.Any(power => power.CardId == current.CardId));
             Assert.IsTrue(options.All(power =>
                 power.ReplacementEligibility == HeroPowerReplacementEligibility.DiscoverableAfterStart));
+        }
+
+        [Test]
+        public void OfferableDiscoverableHeroPowers_FilterUnsafeCandidatesAndTagFrameworkFirstOptions()
+        {
+            var catalog = HeroCatalogLoader.LoadFromResources();
+
+            var options = catalog.GetOfferableDiscoverableHeroPowers("TB_BaconShop_HP_035");
+            var ids = options.Select(power => power.CardId).ToList();
+
+            CollectionAssert.DoesNotContain(ids, "BG34_HERO_002p");
+            CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_080");
+            CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_081");
+            CollectionAssert.DoesNotContain(ids, "BG23_HERO_303p2");
+            CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_041");
+            CollectionAssert.DoesNotContain(ids, "BG23_HERO_304p");
+            CollectionAssert.DoesNotContain(ids, "BG22_HERO_007p");
+            CollectionAssert.Contains(ids, "TB_BaconShop_HP_086");
+            CollectionAssert.Contains(ids, "TB_BaconShop_HP_053");
+            CollectionAssert.Contains(ids, "BG21_HERO_010p");
+            CollectionAssert.Contains(ids, "TB_BaconShop_HP_077");
+
+            var proxyOption = catalog.CreateDiscoverableHeroPowerOption(
+                catalog.GetHeroPowerByCardId("TB_BaconShop_HP_086"),
+                BoardSide.Player,
+                "proxy-test");
+            CollectionAssert.Contains(proxyOption.Tags, "implementation_status:FrameworkFirst");
+            CollectionAssert.Contains(proxyOption.Tags, "hero_power_proxy");
+            CollectionAssert.Contains(proxyOption.Tags, "framework_first");
+            CollectionAssert.Contains(proxyOption.Tags, "incomplete_hero_power");
+
+            var implementedOption = catalog.CreateDiscoverableHeroPowerOption(
+                catalog.GetHeroPowerByCardId("TB_BaconShop_HP_010"),
+                BoardSide.Player,
+                "implemented-test");
+            CollectionAssert.Contains(implementedOption.Tags, "implementation_status:Implemented");
+            CollectionAssert.DoesNotContain(implementedOption.Tags, "hero_power_proxy");
         }
 
         [Test]

@@ -47,14 +47,45 @@ namespace LearnHearthstone.Domain.Engine
         private const string OfficialWealthyBountyCardId = "122186";
         private const string TavernCoinCardId = "104436";
         private const string DarkmoonPrizePocketChangeCardId = "BGS_Treasures_001";
+        private const string DarkmoonPrizeGachaGiftCardId = "BGS_Treasures_004";
+        private const string DarkmoonPrizeEvolvingTavernCardId = "BGS_Treasures_006";
+        private const string DarkmoonPrizeMightOfStormwindCardId = "BGS_Treasures_007";
+        private const string DarkmoonPrizeGruulRulesCardId = "BGS_Treasures_009";
+        private const string DarkmoonPrizeTimeThiefCardId = "BGS_Treasures_010";
         private const string DarkmoonPrizeTrainingSessionCardId = "BGS_Treasures_011";
+        private const string DarkmoonPrizeOnTheHouseCardId = "BGS_Treasures_012";
+        private const string DarkmoonPrizeGoodStuffCardId = "BGS_Treasures_013";
+        private const string DarkmoonPrizeUnlimitedCoinCardId = "BGS_Treasures_014";
         private const string DarkmoonPrizeBuyTheHolyLightCardId = "BGS_Treasures_015";
+        private const string DarkmoonPrizeRaiseTheStakesCardId = "BGS_Treasures_016";
+        private const string DarkmoonPrizeRatInACageCardId = "BGS_Treasures_018";
         private const string DarkmoonPrizeBananasCardId = "BGS_Treasures_019";
         private const string DarkmoonPrizeTopShelfCardId = "BGS_Treasures_020";
+        private const string DarkmoonPrizeFriendsFamilyDiscountCardId = "BGS_Treasures_022";
+        private const string DarkmoonPrizeOpenBarCardId = "BGS_Treasures_023";
+        private const string DarkmoonPrizeFreshTabCardId = "BGS_Treasures_025";
+        private const string DarkmoonPrizeBouncerCardId = "BGS_Treasures_026";
+        private const string DarkmoonPrizeGiveDogBoneCardId = "BGS_Treasures_028";
+        private const string DarkmoonPrizeRockingRollingCardId = "BGS_Treasures_029";
+        private const string DarkmoonPrizeBigBrannPlayCardId = "BGS_Treasures_030";
+        private const string DarkmoonPrizeBigWinnerCardId = "BGS_Treasures_032";
+        private const string DarkmoonPrizeNewRecruitCardId = "BGS_Treasures_033";
         private const string DarkmoonPrizeRepeatCustomerCardId = "BGS_Treasures_034";
         private const string DarkmoonPrizeAllThatGlittersCardId = "BGS_Treasures_037";
         private const string DarkmoonPrizeMindflayerGogglesCardId = "BGS_Treasures_039";
+        private const string DarkmoonPrizeBananaBunchCardId = "BGS_Treasures_040";
+        private const string DarkmoonPrizeUnfurledCodexCardId = "BGS_Treasures_100";
+        private const string DarkmoonPrizeMageroyalBlossomCardId = "BGS_Treasures_101";
         private const string DarkmoonPrizeReservePricesCardId = "BGS_Treasures_104";
+        private const string DarkmoonPrizeGorgeousGobletCardId = "BGS_Treasures_106";
+        private const string DarkmoonPrizeCrystallizationCardId = "BGS_Treasures_110";
+        private const string DarkmoonPrizeRockingRefreshCounter = "darkmoon:rocking_and_rolling:free_refreshes_each_turn";
+        private const string DarkmoonPrizeOpenBarRefreshCounter = "darkmoon:open_bar:free_refreshes_each_turn";
+        private const string DarkmoonPrizeNewRecruitMinShopCardsCounter = "darkmoon:new_recruit:min_shop_cards";
+        private const string DarkmoonPrizeUnlimitedCoinReturnCounter = "darkmoon:unlimited_coin:return_count";
+        private const string DarkmoonPrizeGruulRulesCounter = "darkmoon_gruul_rules";
+        private const string DarkmoonPrizeBigBrannExtraBattlecryCounter = "darkmoon:big_brann_play:extra_battlecries_this_turn";
+        private const string DarkmoonPrizeFriendsFamilyDiscountCounter = "darkmoon:friends_family_discount:minion_cost_2";
         private const string LanternLightCardId = "RAKANISHU_LANTERN_LIGHT";
         private const string MuklaBananaCardId = "MUKLA_BANANA";
         private const string BattlecruiserUpgradeCardId = "BATTLECRUISER_UPGRADE";
@@ -78,7 +109,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string LockedTurnsCounter = "locked-turns";
         [ThreadStatic] private static MinionInstance explicitTarget;
 
-        public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1, HeroCatalog heroes = null)
+        public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1, HeroCatalog heroes = null, DarkmoonPrizeCatalog darkmoonPrizes = null)
         {
             if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
@@ -89,7 +120,7 @@ namespace LearnHearthstone.Domain.Engine
             explicitTarget = ResolveExplicitTarget(state, targetIndex);
             try
             {
-                return CastInternal(spell, state, minions, spells, rng, heroes);
+                return CastInternal(spell, state, minions, spells, rng, heroes, darkmoonPrizes);
             }
             finally
             {
@@ -97,7 +128,7 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes)
+        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes, DarkmoonPrizeCatalog darkmoonPrizes)
         {
             var cardNumber = spell.CardId;
             var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
@@ -277,7 +308,7 @@ namespace LearnHearthstone.Domain.Engine
                     return "Selfish Bounty: friendly minion gains +6/+6";
                 case FriendlyBountyCardId:
                 case OfficialFriendlyBountyCardId:
-                    AddRandomMostCommonTribeMinionToHand(state, minions, rng, "Friendly Bounty");
+                    AddRandomMostCommonTribeMinionToHand(state, minions, heroes, rng, "Friendly Bounty");
                     return "Friendly Bounty: add a minion of your most common type";
                 case WealthyBountyCardId:
                 case OfficialWealthyBountyCardId:
@@ -286,18 +317,80 @@ namespace LearnHearthstone.Domain.Engine
                 case DarkmoonPrizePocketChangeCardId:
                     var pocketChangeCoins = AddTavernSpellCardsToHand(state, spells, TavernCoinCardId, 2, "Pocket Change");
                     return "Pocket Change: get " + pocketChangeCoins + " Tavern Coin(s)";
+                case DarkmoonPrizeGachaGiftCardId:
+                    StartDiscover(state, minions, rng, 1, "darkmoon-gacha-gift");
+                    return "Gacha Gift: discover a Tier 1 minion";
+                case DarkmoonPrizeEvolvingTavernCardId:
+                    var evolvedDarkmoon = RefreshShopWithHigherTierMinions(state, minions, rng);
+                    return "Evolving Tavern: evolved " + evolvedDarkmoon + " Tavern minion(s)";
+                case DarkmoonPrizeMightOfStormwindCardId:
+                    BuffAll(state, state.Player.Board, Math.Max(1, state.Player.Tavern.Tier), 0, "Might of Stormwind", false);
+                    return "Might of Stormwind: friendly minions gain Attack equal to your Tier";
+                case DarkmoonPrizeGruulRulesCardId:
+                    ApplyGruulRules(state);
+                    return "Gruul Rules: target gains end-of-turn +4/+4";
+                case DarkmoonPrizeTimeThiefCardId:
+                    StartPreviousOpponentWarbandDiscover(state, "darkmoon-time-thief");
+                    return "Time Thief: discover from last opponent warband";
                 case DarkmoonPrizeTrainingSessionCardId:
                     StartHeroPowerDiscover(state, heroes, rng);
                     return "Training Session: discover a new Hero Power";
+                case DarkmoonPrizeOnTheHouseCardId:
+                    StartDiscover(state, minions, rng, Math.Max(1, state.Player.Tavern.Tier), "darkmoon-on-the-house");
+                    return "On the House: discover a minion of your Tier";
+                case DarkmoonPrizeGoodStuffCardId:
+                    AddShopGrowth(state, Tribe.All, 1, 1, "The Good Stuff");
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 1, 1, "The Good Stuff", false);
+                    return "The Good Stuff: Tavern minions gain +1/+1 this game";
+                case DarkmoonPrizeUnlimitedCoinCardId:
+                    GainGold(state.Player.Tavern, 1);
+                    IncrementAdvancedCounter(state, DarkmoonPrizeUnlimitedCoinReturnCounter, 1);
+                    return "The Unlimited Coin: gain 1 Gold and return at end of turn";
                 case DarkmoonPrizeBuyTheHolyLightCardId:
                     ResolveBuyTheHolyLight(state);
                     return "Buy the Holy Light: friendly minion gains +10 Attack and Divine Shield";
+                case DarkmoonPrizeRaiseTheStakesCardId:
+                    ReturnGoldenFriendlyMinionToHand(state);
+                    return "Raise the Stakes: make a friendly minion Golden and return it";
+                case DarkmoonPrizeRatInACageCardId:
+                    DoubleAttackAfterBuff(state, FirstAnyMinion(state), 2, "I'm Still Just a Rat in a Cage");
+                    return "I'm Still Just a Rat in a Cage: target gains +2 Attack then doubles Attack";
                 case DarkmoonPrizeBananasCardId:
                     AddDarkmoonBananasToHand(state);
                     return "B.A.N.A.N.A.S.: fill hand with Tavern Dish Bananas";
                 case DarkmoonPrizeTopShelfCardId:
                     StartHigherTierDiscover(state, minions, rng, "darkmoon-top-shelf");
                     return "Top Shelf: discover a higher-Tier minion";
+                case DarkmoonPrizeFriendsFamilyDiscountCardId:
+                    SetAdvancedCounterAtLeast(state, DarkmoonPrizeFriendsFamilyDiscountCounter, 1);
+                    return "Friends and Family Discount: Tavern minions cost 2 this game";
+                case DarkmoonPrizeOpenBarCardId:
+                    state.Player.Tavern.FreeRefreshes = StatMath.SaturatingAdd(state.Player.Tavern.FreeRefreshes, 5, 0, StatMath.MaxStat);
+                    IncrementAdvancedCounter(state, DarkmoonPrizeOpenBarRefreshCounter, 5);
+                    return "Open Bar: gain 5 free Refreshes each turn";
+                case DarkmoonPrizeFreshTabCardId:
+                    GainGold(state.Player.Tavern, 12);
+                    return "Fresh Tab: gain 12 Gold";
+                case DarkmoonPrizeBouncerCardId:
+                    DoubleHealthAfterTaunt(state, FirstFriendlyBoard(state), "The Bouncer");
+                    return "The Bouncer: friendly minion gains Taunt then doubles Health";
+                case DarkmoonPrizeGiveDogBoneCardId:
+                    ResolveGiveDogBone(state);
+                    return "Give a Dog a Bone: friendly minion gains Divine Shield, Windfury, and +15/+15";
+                case DarkmoonPrizeRockingRollingCardId:
+                    IncrementAdvancedCounter(state, DarkmoonPrizeRockingRefreshCounter, 1);
+                    return "Rocking and Rolling: gain 1 free Refresh at the start of each turn";
+                case DarkmoonPrizeBigBrannPlayCardId:
+                    IncrementAdvancedCounter(state, DarkmoonPrizeBigBrannExtraBattlecryCounter, 1);
+                    return "Big Brann Play: Battlecries trigger an extra time this turn";
+                case DarkmoonPrizeBigWinnerCardId:
+                    StartBigWinnerDarkmoonDiscovers(state, darkmoonPrizes, rng);
+                    return "Big Winner!: discover Darkmoon Prizes from Tiers 1, 2, and 3";
+                case DarkmoonPrizeNewRecruitCardId:
+                    SetAdvancedCounterAtLeast(state, DarkmoonPrizeNewRecruitMinShopCardsCounter, 7);
+                    AddShopGrowth(state, Tribe.All, 2, 2, "New Recruit");
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "New Recruit", false);
+                    return "New Recruit: Tavern offers an extra minion with +2/+2 this game";
                 case DarkmoonPrizeRepeatCustomerCardId:
                     ReturnFriendlyNonGoldenMinionToHand(state);
                     return "Repeat Customer: return a friendly non-Golden minion with +6/+6";
@@ -307,6 +400,15 @@ namespace LearnHearthstone.Domain.Engine
                 case DarkmoonPrizeMindflayerGogglesCardId:
                     StealShopAndRefresh(state, minions, rng);
                     return "Mindflayer Goggles: steal the Tavern and refresh it";
+                case DarkmoonPrizeBananaBunchCardId:
+                    AddDarkmoonBananasToHand(state, 2);
+                    return "Banana Bunch: get 2 Tavern Dish Bananas";
+                case DarkmoonPrizeUnfurledCodexCardId:
+                    AddRandomTavernSpellToHand(state, spells, rng, spellDefinition => spellDefinition.Cost >= 2, "Unfurled Codex");
+                    return "Unfurled Codex: get a random Tavern spell that costs 2 or more";
+                case DarkmoonPrizeMageroyalBlossomCardId:
+                    StartTavernSpellDiscover(state, spells, rng, Math.Max(1, state.Player.Tavern.Tier), "darkmoon-mageroyal-blossom");
+                    return "Mageroyal Blossom: discover a Tavern spell of your Tier";
                 case DarkmoonPrizeReservePricesCardId:
                     state.Player.Tavern.NextTavernSpellCostReduction = StatMath.SaturatingAdd(
                         state.Player.Tavern.NextTavernSpellCostReduction,
@@ -314,6 +416,13 @@ namespace LearnHearthstone.Domain.Engine
                         0,
                         StatMath.MaxStat);
                     return "Reserve Prices: Tavern spells cost (1) less this turn";
+                case DarkmoonPrizeGorgeousGobletCardId:
+                    AddRandomTavernSpellsToFillHand(state, spells, rng, "Gorgeous Goblet");
+                    return "Gorgeous Goblet: fill your hand with random Tavern spells";
+                case DarkmoonPrizeCrystallizationCardId:
+                    state.Player.Tavern.TavernSpellBonusAttack = StatMath.SaturatingAdd(state.Player.Tavern.TavernSpellBonusAttack, 1, 0, StatMath.MaxStat);
+                    state.Player.Tavern.TavernSpellBonusHealth = StatMath.SaturatingAdd(state.Player.Tavern.TavernSpellBonusHealth, 1, 0, StatMath.MaxStat);
+                    return "Crystallization: Tavern spells give an extra +1/+1 this game";
                 case LanternLightCardId:
                     var lanternAmount = spell.Counters != null && spell.Counters.TryGetValue("lantern_amount", out var storedLanternAmount)
                         ? Math.Max(1, storedLanternAmount)
@@ -455,7 +564,7 @@ namespace LearnHearthstone.Domain.Engine
                     StartDiscover(state, minions, rng, 7, "降圣仪式");
                     return "降圣仪式：发现等级7随从";
                 case "105669":
-                    StartMajorityTribeDiscover(state, minions, rng, "Planar Telescope");
+                    StartMajorityTribeDiscover(state, minions, heroes, rng, "Planar Telescope");
                     return "Planar Telescope: discover majority tribe minion";
                 case "109230":
                     BuffAll(state, state.Player.Board, 1, 1, "闪亮的戒指", applyTavernSpellBonus);
@@ -786,6 +895,28 @@ namespace LearnHearthstone.Domain.Engine
             tavern.Gold += amount;
         }
 
+        private static void IncrementAdvancedCounter(MatchState state, string key, int amount)
+        {
+            if (state?.Player?.Tavern?.AdvancedMechanics?.Counters == null)
+            {
+                return;
+            }
+
+            state.Player.Tavern.AdvancedMechanics.Counters.TryGetValue(key, out var current);
+            state.Player.Tavern.AdvancedMechanics.Counters[key] = StatMath.SaturatingAdd(current, amount, 0, StatMath.MaxStat);
+        }
+
+        private static void SetAdvancedCounterAtLeast(MatchState state, string key, int value)
+        {
+            if (state?.Player?.Tavern?.AdvancedMechanics?.Counters == null)
+            {
+                return;
+            }
+
+            state.Player.Tavern.AdvancedMechanics.Counters.TryGetValue(key, out var current);
+            state.Player.Tavern.AdvancedMechanics.Counters[key] = Math.Max(current, value);
+        }
+
         private static int AddTavernSpellCardsToHand(MatchState state, SpellCatalog spells, string cardNumber, int count, string source)
         {
             if (state == null || spells == null || count <= 0)
@@ -810,6 +941,40 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return added;
+        }
+
+        private static int AddRandomTavernSpellToHand(MatchState state, SpellCatalog spells, SeededRng rng, Func<TavernSpellDefinition, bool> predicate, string source)
+        {
+            if (state == null || spells == null || state.Player.Tavern.Hand.Count >= HandLimit)
+            {
+                return 0;
+            }
+
+            var candidates = spells.All
+                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && (predicate == null || predicate(spell)))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return 0;
+            }
+
+            var picked = rng.Pick(candidates);
+            state.Player.Tavern.Hand.Add(MinionFactory.Create(
+                picked,
+                BoardSide.Player,
+                "spell-" + source + "-" + state.Round + "-" + state.Player.Tavern.Hand.Count));
+            return 1;
+        }
+
+        private static void AddRandomTavernSpellsToFillHand(MatchState state, SpellCatalog spells, SeededRng rng, string source)
+        {
+            while (state.Player.Tavern.Hand.Count < HandLimit)
+            {
+                if (AddRandomTavernSpellToHand(state, spells, rng, null, source) == 0)
+                {
+                    return;
+                }
+            }
         }
 
         private static void AddShopGrowth(MatchState state, Tribe tribe, int attack, int health, string sourceId)
@@ -884,7 +1049,7 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void AddRandomMostCommonTribeMinionToHand(MatchState state, MinionCatalog catalog, SeededRng rng, string source)
+        private static void AddRandomMostCommonTribeMinionToHand(MatchState state, MinionCatalog catalog, HeroCatalog heroes, SeededRng rng, string source)
         {
             if (state.Player.Tavern.Hand.Count >= HandLimit)
             {
@@ -897,15 +1062,21 @@ namespace LearnHearthstone.Domain.Engine
                 tribe = Tribe.All;
             }
 
+            var maxTier = Math.Max(1, state.Player.Tavern.Tier);
             var candidates = catalog.All
-                .Where(minion => minion.InPool && minion.TavernTier <= Math.Max(1, state.Player.Tavern.Tier) && MatchesTribe(minion, tribe))
+                .Where(minion => IsStateMinionAvailable(state, minion) && minion.TavernTier <= maxTier && MatchesTribe(minion, tribe))
                 .ToList();
-            if (candidates.Count == 0)
+            var buddyCandidates = BuddyPoolCandidates(state, heroes, maxTier, tribe);
+            var candidateCount = candidates.Count + buddyCandidates.Count;
+            if (candidateCount == 0)
             {
                 return;
             }
 
-            state.Player.Tavern.Hand.Add(MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spell-" + source + "-" + state.Round, false, PoolSource.Copy, 0));
+            var pickedIndex = rng.NextInt(candidateCount);
+            state.Player.Tavern.Hand.Add(pickedIndex < candidates.Count
+                ? MinionFactory.Create(candidates[pickedIndex], BoardSide.Player, "spell-" + source + "-" + state.Round, false, PoolSource.Copy, 0)
+                : MinionFactory.Create(buddyCandidates[pickedIndex - candidates.Count], BoardSide.Player, "spell-" + source + "-" + state.Round, PoolSource.Copy, 0));
         }
 
         private static void StartDiscover(MatchState state, MinionCatalog catalog, SeededRng rng, int exactTier, string source)
@@ -920,12 +1091,39 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Copy, 0));
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = exactTier,
                 Options = options
-            };
+            });
+        }
+
+        private static void StartTavernSpellDiscover(MatchState state, SpellCatalog catalog, SeededRng rng, int exactTier, string source)
+        {
+            if (catalog == null)
+            {
+                return;
+            }
+
+            var candidates = catalog.All
+                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier == exactTier)
+                .ToList();
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count));
+            }
+
+            state.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = source,
+                RewardTier = exactTier,
+                Options = options
+            });
         }
 
         private static void StartHigherTierDiscover(MatchState state, MinionCatalog catalog, SeededRng rng, string source)
@@ -949,6 +1147,14 @@ namespace LearnHearthstone.Domain.Engine
         private static void AddDarkmoonBananasToHand(MatchState state)
         {
             while (state.Player.Tavern.Hand.Count < HandLimit)
+            {
+                state.Player.Tavern.Hand.Add(CreateDarkmoonBananaCard(state));
+            }
+        }
+
+        private static void AddDarkmoonBananasToHand(MatchState state, int count)
+        {
+            for (var index = 0; index < count && state.Player.Tavern.Hand.Count < HandLimit; index += 1)
             {
                 state.Player.Tavern.Hand.Add(CreateDarkmoonBananaCard(state));
             }
@@ -1002,6 +1208,157 @@ namespace LearnHearthstone.Domain.Engine
             state.Player.Tavern.Hand.Add(target);
         }
 
+        private static void ReturnGoldenFriendlyMinionToHand(MatchState state)
+        {
+            if (state.Player.Tavern.Hand.Count >= HandLimit)
+            {
+                return;
+            }
+
+            var target = ExplicitFriendlyBoardTarget(state) ?? FirstFriendlyBoard(state);
+            if (target == null)
+            {
+                return;
+            }
+
+            MakeGolden(target);
+            state.Player.Board.Remove(target);
+            target.Owner = BoardSide.Player;
+            target.PoolSource = PoolSource.Copy;
+            target.PoolCopiesHeld = 0;
+            state.Player.Tavern.Hand.Add(target);
+        }
+
+        private static void DoubleAttackAfterBuff(MatchState state, MinionInstance target, int attack, string source)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            Buff(state, target, attack, 0, source, false);
+            var doubled = target.Attack;
+            StatMath.ApplyStatDelta(target, doubled, 0);
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = source + " Double Attack",
+                SourceId = source,
+                AttackBonus = doubled,
+                HealthBonus = 0
+            });
+            RefreshScarletSurvivor(target);
+        }
+
+        private static void DoubleHealthAfterTaunt(MatchState state, MinionInstance target, string source)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            AddKeyword(target, Keyword.Taunt);
+            var doubled = Math.Max(0, target.MaxHealth);
+            Buff(state, target, 0, doubled, source, false);
+            target.Health = target.MaxHealth;
+        }
+
+        private static void ResolveGiveDogBone(MatchState state)
+        {
+            var target = FirstFriendlyBoard(state);
+            if (target == null)
+            {
+                return;
+            }
+
+            Buff(state, target, 15, 15, "Give a Dog a Bone", false);
+            AddKeyword(target, Keyword.DivineShield);
+            AddKeyword(target, Keyword.Windfury);
+        }
+
+        private static void ApplyGruulRules(MatchState state)
+        {
+            var target = FirstFriendlyBoard(state);
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Counters.TryGetValue(DarkmoonPrizeGruulRulesCounter, out var current);
+            target.Counters[DarkmoonPrizeGruulRulesCounter] = StatMath.SaturatingAdd(current, 1, 0, StatMath.MaxStat);
+        }
+
+        private static void StartPreviousOpponentWarbandDiscover(MatchState state, string source)
+        {
+            var previous = state?.OpponentHistory?.LastOpponentWarband ?? new List<MinionInstance>();
+            var options = previous
+                .Where(card => card != null)
+                .Take(3)
+                .Select((card, index) =>
+                {
+                    var copy = card.Clone();
+                    copy.InstanceId = "discover-" + source + "-" + index;
+                    copy.Owner = BoardSide.Player;
+                    copy.PoolSource = PoolSource.Discover;
+                    copy.PoolCopiesHeld = 0;
+                    copy.CanReturnToPoolAfterAttach = false;
+                    return copy;
+                })
+                .ToList();
+            if (options.Count == 0)
+            {
+                return;
+            }
+
+            state.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = source,
+                RewardTier = Math.Max(1, state.Player.Tavern.Tier),
+                Options = options
+            });
+        }
+
+        private static void StartBigWinnerDarkmoonDiscovers(MatchState state, DarkmoonPrizeCatalog catalog, SeededRng rng)
+        {
+            if (catalog == null)
+            {
+                return;
+            }
+
+            for (var tier = 1; tier <= 3; tier += 1)
+            {
+                QueueDarkmoonPrizeDiscover(state, catalog, rng, tier, "darkmoon-big-winner-tier-" + tier);
+            }
+        }
+
+        private static void QueueDarkmoonPrizeDiscover(MatchState state, DarkmoonPrizeCatalog catalog, SeededRng rng, int tier, string source)
+        {
+            var candidates = DarkmoonPrizeEngine.SelectOfferableDefinitions(catalog, tier).ToList();
+            var options = new List<MinionInstance>();
+            while (options.Count < 3 && candidates.Count > 0)
+            {
+                var index = rng.NextInt(candidates.Count);
+                var definition = candidates[index];
+                candidates.RemoveAt(index);
+                var option = DarkmoonPrizeEngine.CreatePrizeCard(definition, source + "-" + options.Count);
+                option.PoolSource = PoolSource.Discover;
+                option.OriginPoolSource = PoolSource.Discover;
+                option.PoolCopiesHeld = 0;
+                options.Add(option);
+            }
+
+            if (options.Count == 0)
+            {
+                return;
+            }
+
+            state.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = source,
+                RewardTier = tier,
+                Options = options
+            });
+        }
+
         private static void StealShopAndRefresh(MatchState state, MinionCatalog catalog, SeededRng rng)
         {
             var tavern = state.Player.Tavern;
@@ -1041,25 +1398,25 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var candidates = catalog.GetDiscoverableHeroPowers(state.Player.HeroPowerCardId);
+            var candidates = catalog.GetOfferableDiscoverableHeroPowers(state.Player.HeroPowerCardId);
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
             {
                 var index = rng.NextInt(candidates.Count);
                 var definition = candidates[index];
                 candidates.RemoveAt(index);
-                options.Add(MinionFactory.Create(definition, BoardSide.Player, "unmasked-identity-" + options.Count));
+                options.Add(catalog.CreateDiscoverableHeroPowerOption(definition, BoardSide.Player, "unmasked-identity-" + options.Count));
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = "hero-power:unmasked-identity",
                 RewardTier = 0,
                 Options = options
-            };
+            });
         }
 
-        private static void StartMajorityTribeDiscover(MatchState state, MinionCatalog catalog, SeededRng rng, string source)
+        private static void StartMajorityTribeDiscover(MatchState state, MinionCatalog catalog, HeroCatalog heroes, SeededRng rng, string source)
         {
             var tribe = BoardTribeAnalyzer.GetMostCommonTribe(state.Player);
             if (tribe == Tribe.None)
@@ -1067,24 +1424,85 @@ namespace LearnHearthstone.Domain.Engine
                 tribe = Tribe.All;
             }
 
+            var maxTier = Math.Max(1, state.Player.Tavern.Tier);
             var candidates = catalog.All
-                .Where(minion => minion.InPool && minion.TavernTier <= Math.Max(1, state.Player.Tavern.Tier) && MatchesTribe(minion, tribe))
+                .Where(minion => IsStateMinionAvailable(state, minion) && minion.TavernTier <= maxTier && MatchesTribe(minion, tribe))
                 .ToList();
+            var buddyCandidates = BuddyPoolCandidates(state, heroes, maxTier, tribe);
             var options = new List<MinionInstance>();
-            while (options.Count < 3 && candidates.Count > 0)
+            while (options.Count < 3 && candidates.Count + buddyCandidates.Count > 0)
             {
-                var index = rng.NextInt(candidates.Count);
-                var definition = candidates[index];
-                candidates.RemoveAt(index);
-                options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
+                var index = rng.NextInt(candidates.Count + buddyCandidates.Count);
+                if (index < candidates.Count)
+                {
+                    var definition = candidates[index];
+                    candidates.RemoveAt(index);
+                    options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
+                    continue;
+                }
+
+                var buddyIndex = index - candidates.Count;
+                var buddy = buddyCandidates[buddyIndex];
+                buddyCandidates.RemoveAt(buddyIndex);
+                options.Add(MinionFactory.Create(buddy, BoardSide.Player, "discover-" + source + "-" + options.Count, PoolSource.Discover, 0));
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, state.Player.Tavern.Tier),
                 Options = options
-            };
+            });
+        }
+
+        private static bool IsStateMinionAvailable(MatchState state, MinionDefinition minion)
+        {
+            if (minion == null || !minion.InPool || !TribeAvailabilityRules.IsMinionAvailable(minion, state?.ActiveTribes))
+            {
+                return false;
+            }
+
+            return state == null ||
+                state.IsDefaultCardPoolVersion ||
+                (minion.Tags != null && minion.Tags.Contains("oathstone_summoning")) ||
+                (state.EnabledMinionCardIds != null && state.EnabledMinionCardIds.Contains(minion.CardId, StringComparer.OrdinalIgnoreCase));
+        }
+
+        private static List<HeroBuddyDefinition> BuddyPoolCandidates(MatchState state, HeroCatalog heroes, int maxTier, Tribe tribe)
+        {
+            var buddyPool = state?.Player?.Tavern?.BuddyPool;
+            if (heroes?.AllBuddies == null || buddyPool == null)
+            {
+                return new List<HeroBuddyDefinition>();
+            }
+
+            return heroes.AllBuddies
+                .Where(buddy =>
+                    buddy != null &&
+                    !string.IsNullOrEmpty(buddy.CardId) &&
+                    !buddy.ExcludedFromBuddyDiscover &&
+                    buddy.TavernTier <= maxTier &&
+                    buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
+                    remaining > 0 &&
+                    IsBuddyTribeAvailable(state, buddy) &&
+                    MatchesTribe(buddy, tribe))
+                .ToList();
+        }
+
+        private static bool IsBuddyTribeAvailable(MatchState state, HeroBuddyDefinition buddy)
+        {
+            if (buddy.Tribes == null || buddy.Tribes.Count == 0 || buddy.Tribes.All(tribe => tribe == Tribe.None))
+            {
+                return true;
+            }
+
+            if (buddy.Tribes.Contains(Tribe.All))
+            {
+                return true;
+            }
+
+            var active = TribeAvailabilityRules.Normalize(state?.ActiveTribes);
+            return buddy.Tribes.Any(active.Contains);
         }
 
         private static void StartTribeDiscoverWithTag(MatchState state, MinionCatalog catalog, SeededRng rng, Tribe tribe, string source, string tag)
@@ -1104,12 +1522,12 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(option);
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, state.Player.Tavern.Tier),
                 Options = options
-            };
+            });
         }
 
         private static void TransformFirstMinionOneTierHigher(MatchState state, MinionCatalog catalog, SeededRng rng)
@@ -1374,12 +1792,12 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(MinionFactory.Create(definition, BoardSide.Player, "discover-" + source + "-" + options.Count, false, PoolSource.Discover, 0));
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = Math.Max(1, state.Player.Tavern.Tier),
                 Options = options
-            };
+            });
         }
 
         private static bool HasBattlecry(MinionDefinition minion)
@@ -1540,12 +1958,12 @@ namespace LearnHearthstone.Domain.Engine
                 options.Add(option);
             }
 
-            state.Player.Tavern.Discover = new DiscoverState
+            state.Player.Tavern.QueueDiscover(new DiscoverState
             {
                 Source = source,
                 RewardTier = exactTier,
                 Options = options
-            };
+            });
         }
 
         private static void AddSameTribeMinionToHand(MatchState state, MinionCatalog catalog, SeededRng rng, MinionInstance target, string source)
@@ -1652,6 +2070,12 @@ namespace LearnHearthstone.Domain.Engine
         private static bool MatchesTribe(MinionDefinition minion, Tribe tribe)
         {
             return tribe == Tribe.All || minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All);
+        }
+
+        private static bool MatchesTribe(HeroBuddyDefinition buddy, Tribe tribe)
+        {
+            var tribes = buddy.Tribes ?? new List<Tribe>();
+            return tribe == Tribe.All || tribes.Contains(tribe) || tribes.Contains(Tribe.All);
         }
 
         private static bool MatchesTribe(MinionInstance minion, Tribe tribe)

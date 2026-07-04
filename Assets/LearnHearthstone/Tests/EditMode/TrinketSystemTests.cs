@@ -77,9 +77,9 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(330, catalog.All.Count);
             Assert.AreEqual(157, catalog.Lesser.Count);
             Assert.AreEqual(173, catalog.Greater.Count);
-            Assert.AreEqual(322, catalog.Implemented.Count);
-            Assert.AreEqual(321, catalog.Offerable.Count);
-            Assert.AreEqual(151, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
+            Assert.AreEqual(323, catalog.Implemented.Count);
+            Assert.AreEqual(322, catalog.Offerable.Count);
+            Assert.AreEqual(152, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
             Assert.AreEqual(170, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
             Assert.IsTrue(catalog.All.All(trinket => !string.IsNullOrWhiteSpace(trinket.ImagePath)));
             Assert.IsTrue(catalog.All.All(trinket => Resources.Load<Texture2D>(trinket.ImagePath) != null));
@@ -1301,6 +1301,7 @@ namespace LearnHearthstone.Tests.EditMode
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_816"), "orb_of_the_unknown", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "trinket_choice", "ProxySafe", "trinket_choice");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_816t"), "orb_of_the_unknown", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "economy", "ProxySafe", "trinket_choice", "gold");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_994"), "yogg_tastic_pastry", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "yogg_proxy");
+            AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_707"), "tickatus_sticker", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "discover", "turn_start");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426"), "colorful_compass", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426t"), "colorful_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_901"), "gold_plated_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "shop_refresh", "ProxySafe", "official_placeholder_92", "golden_triple", "shop_refresh");
@@ -1343,6 +1344,20 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TickatusSticker_IsExactAndVisibleWhenProxySafeChoicesAreHidden()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions { ShowProxySafe = false });
+
+            var tickatusSticker = service.TrinketCatalog.GetByCardId("BG30_MagicItem_707");
+            Assert.AreEqual("Exact", tickatusSticker.ProxyLevel);
+            Assert.IsTrue(service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser)
+                .Any(trinket => trinket.CardId == "BG30_MagicItem_707"));
+        }
+
+        [Test]
         public void DebugReplaceTrinket_ReplacesSlotThroughEquipFlow()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -1360,6 +1375,31 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Tavern.AdvancedMechanics.Equipped.Count(equipped =>
                 equipped.Kind == AdvancedMechanicKind.Trinket &&
                 equipped.Slot == TrinketSlotKind.Lesser.ToString()));
+        }
+
+        [Test]
+        public void TickatusSticker_DiscoversTierThreeDarkmoonPrizeOnEquipAndRepeatsEveryThreeTurns()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            tavern.Gold = 20;
+
+            EquipTrinket(service, "BG30_MagicItem_707");
+
+            AssertDarkmoonPrizeDiscover(service, "tickatus-sticker", 3);
+            Assert.AreEqual(4, tavern.AdvancedMechanics.Counters["trinket_tickatus_sticker_due_round"]);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.IsNull(tavern.Discover);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            AssertDarkmoonPrizeDiscover(service, "tickatus-sticker", 3);
+            Assert.AreEqual(7, tavern.AdvancedMechanics.Counters["trinket_tickatus_sticker_due_round"]);
         }
 
         [Test]
@@ -7248,6 +7288,22 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(service.State.Player.Tavern.Hand.All(card => card.TavernTier == expectedTier));
             Assert.IsTrue(service.State.Player.Tavern.Hand.All(card => card.PoolSource == PoolSource.Copy));
             Assert.IsTrue(service.State.Player.Tavern.Hand.All(card => card.PoolCopiesHeld == 0));
+        }
+
+        private static void AssertDarkmoonPrizeDiscover(MatchService service, string source, int tier)
+        {
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual(source, discover.Source);
+            Assert.AreEqual(tier, discover.RewardTier);
+            var prizeIds = service.DarkmoonPrizeCatalog.GetByTier(tier).Select(prize => prize.CardId).ToList();
+            Assert.IsNotEmpty(prizeIds);
+            Assert.IsTrue(discover.Options.All(card =>
+                card.CardKind == CardKind.Spell &&
+                card.TavernTier == tier &&
+                prizeIds.Contains(card.CardId) &&
+                card.Tags.Contains("darkmoon_prize") &&
+                card.Tags.Contains("darkmoon_prize_tier_" + tier)));
         }
 
         private static void AssertSingleEquipAdds(string trinketCardId, int expectedCount, System.Func<MinionInstance, bool> predicate)

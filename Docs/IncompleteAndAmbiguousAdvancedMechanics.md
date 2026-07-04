@@ -76,7 +76,6 @@
 | `BG35_MagicItem_801` | Sous Chef Sticker | Lesser | economy | 精确经济效果未实现，仍保留在调试池。 |
 | `BG32_MagicItem_906` | Artanis Sticker | Greater | copy_generate | 复制/生成逻辑未确认，仍保留在调试池。 |
 | `BG32_MagicItem_300` | Putricide Sticker | Lesser | turn_start | 回合开始效果未实现，仍保留在调试池。 |
-| `BG30_MagicItem_707` | Tickatus Sticker | Lesser | turn_start | 回合开始效果未实现，仍保留在调试池。 |
 | `BG35_MagicItem_812` | Corrupted Tome | Greater | discover | Discover 目标和官方行为未确认，仍保留在调试池。 |
 
 另有 1 个饰品已经实现主体效果，但因为官方子卡缺失，暂不进普通池：
@@ -378,7 +377,7 @@
 | 饰品 | 当前问题 | 补齐策略 |
 | --- | --- | --- |
 | `BG32_MagicItem_300` Putricide Sticker | 回合开始效果未实现 | 明确 Custom Undead crafting 代理或官方子系统；未确认前不进普通池。 |
-| `BG30_MagicItem_707` Tickatus Sticker | Darkmoon Prize 系统缺失 | 先定义 Prize 池和选择规则；否则只保留 DebugOnly。 |
+| `BG30_MagicItem_707` Tickatus Sticker | 已接入共享 Darkmoon Prize 目录；暗月奖品效果已补齐 | 不再保留 `darkmoon_prize_proxy` 标记；后续只复核图片来源和官方当前池边界。 |
 | `BG30_MagicItem_994` Yogg-Tastic Pastry | Yogg 转盘代理 | 结果表每项独立测试；UI 标明代理。 |
 | `BG35_MagicItem_823` / `BG35_MagicItem_823t` Timeworn Candelabra | Minor/Major Timewarp 池代理 | 用户确认 Timewarp 代理池后再考虑普通可见。 |
 

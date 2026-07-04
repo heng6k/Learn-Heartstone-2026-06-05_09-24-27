@@ -47,6 +47,8 @@ namespace LearnHearthstone.Adapters.Data
                 Name = raw.name,
                 Text = raw.text,
                 Tier = raw.tier,
+                ImagePath = raw.imagePath,
+                ImageUrl = raw.imageUrl,
                 ImplementationStatus = MapImplementationStatus(raw.implementationStatus),
                 Keywords = MapKeywords(raw.keywords),
                 EffectIds = raw.effectIds == null ? new List<string>() : new List<string>(raw.effectIds),
@@ -126,6 +128,8 @@ namespace LearnHearthstone.Adapters.Data
             public string name;
             public string text;
             public int tier;
+            public string imagePath;
+            public string imageUrl;
             public string implementationStatus;
             public List<string> keywords;
             public List<string> effectIds;

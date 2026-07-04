@@ -303,6 +303,13 @@ namespace LearnHearthstone.Domain.Models
                 keywords.Add(Keyword.Magnetic);
             }
 
+            if (!string.IsNullOrWhiteSpace(definition.Text) &&
+                definition.Text.IndexOf("Rally", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                !keywords.Contains(Keyword.Rally))
+            {
+                keywords.Add(Keyword.Rally);
+            }
+
             return new MinionInstance
             {
                 CardKind = CardKind.HeroBuddy,

@@ -219,6 +219,24 @@ namespace LearnHearthstone.Domain.Engine
         private const string BloodGolemTokenId = "blood-golem";
         private const string BloodGemSourceId = "Blood Gem";
         private const string FishOfNzothCardId = "FISH_OF_NZOTH";
+        private const string TavishPowerId = "BG22_HERO_000p";
+        private const string CrabbyCardId = "BG22_HERO_000_Buddy";
+        private const string TamsinPhylacteryTag = "hero_tamsin_phylactery";
+        private const string MonstrosityCardId = "BG20_HERO_282_Buddy";
+        private const string OnyxiaPowerId = "BG22_HERO_305p";
+        private const string OnyxiaWhelpTokenId = "BG22_HERO_305t";
+        private const string OnyxiaWhelpStatsCounter = "hero:onyxia:whelp_stats";
+        private const string OnyxiaAvengeCounter = "hero:onyxia:avenge";
+        private const string ManyWhelpsCardId = "BG22_HERO_305_Buddy";
+        private const string BrukanPowerId = "BG22_HERO_001p";
+        private const string SpiritRaptorCardId = "BG22_HERO_001_Buddy";
+        private const string BrukanElementFire = "fire";
+        private const string BrukanElementEarth = "earth";
+        private const string BrukanElementWater = "water";
+        private const string BrukanElementLightning = "lightning";
+        private const string BrukanEarthDeathrattleTag = "hero_brukan_earth_deathrattle";
+        private const string BrukanSpiritElementTagPrefix = "hero_brukan_spirit:";
+        private const string BrukanElementalTokenId = "BG22_HERO_001t";
         private const string FishyStickerFishTag = "trinket_fishy_sticker_fish";
         private const string WingmenImmediateAttackPendingTag = "wingmen_immediate_attack_pending";
         private const string EclipsionFirstAttackImmunePendingTag = "eclipsion_first_attack_immune_pending";
@@ -255,6 +273,7 @@ namespace LearnHearthstone.Domain.Engine
             AddLog(context.Log, "CombatStarted", "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count, null, null, LogSeverity.Normal);
             RecordFrame(context, CombatEventType.CombatStarted, "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count);
 
+            ResolveHeroStartOfCombatEffects(context, ref steps, safetyLimit);
             var preCombatImmediateSide = QueueTaggedImmediateAttacks(context);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
             ResolveTrinketStartOfCombatEffects(context, context.Player);
@@ -309,6 +328,125 @@ namespace LearnHearthstone.Domain.Engine
                 Steps = steps,
                 SafetyStopped = steps >= safetyLimit
             };
+        }
+
+        private static void ResolveHeroStartOfCombatEffects(CombatContext context, ref int steps, int safetyLimit)
+        {
+            ResolveTavishDeadeye(context);
+            ResolveBrukanElement(context, context.Player, context.Player.Tavern?.HeroBrukanElement);
+            ResolveDeaths(context, BoardSide.Opponent);
+            ResolveDeaths(context, BoardSide.Player);
+            ResolveImmediateAttacks(context, ref steps, safetyLimit);
+        }
+
+        private static void ResolveTavishDeadeye(CombatContext context)
+        {
+            var tavern = context.Player.Tavern;
+            if (tavern == null || !tavern.HeroTavishDeadeyeActive)
+            {
+                return;
+            }
+
+            var opponent = context.Opponent;
+            var target = !string.IsNullOrEmpty(tavern.HeroTavishTargetInstanceId)
+                ? opponent.Board.FirstOrDefault(minion => minion.InstanceId == tavern.HeroTavishTargetInstanceId && IsAlive(minion))
+                : null;
+            if (target == null && tavern.HeroTavishTargetIndex >= 0 && tavern.HeroTavishTargetIndex < opponent.Board.Count)
+            {
+                target = opponent.Board[tavern.HeroTavishTargetIndex];
+            }
+
+            target = target ?? opponent.Board.FirstOrDefault(IsAlive);
+            if (target == null)
+            {
+                return;
+            }
+
+            var result = DealDamage(target, 1, false);
+            if (result.Minion.Health <= 0)
+            {
+                MarkKilledBy(result.Minion, TavishPowerId, BoardSide.Player, TavishPowerId);
+            }
+
+            ReplaceByInstanceId(opponent.Board, result.Minion);
+            AddLog(context.Log, "HeroStartOfCombat", "Deadeye dealt 1 damage to " + target.InstanceId, TavishPowerId, target.InstanceId, LogSeverity.Good);
+        }
+
+        private static void ResolveBrukanElement(CombatContext context, CombatSideState owner, string element)
+        {
+            var tavern = owner?.Tavern;
+            if (context == null || owner == null || tavern == null || !tavern.HeroBrukanElementActive || string.IsNullOrEmpty(element))
+            {
+                return;
+            }
+
+            CallBrukanElement(context, owner, element, BrukanPowerId, true);
+        }
+
+        private static void CallBrukanElement(CombatContext context, CombatSideState owner, string element, string sourceId, bool remember)
+        {
+            if (string.Equals(element, BrukanElementFire, StringComparison.OrdinalIgnoreCase))
+            {
+                var target = owner.Board.FirstOrDefault(IsAlive);
+                if (target != null)
+                {
+                    BuffMinion(target, target.Attack, 0, "Fire Invocation");
+                }
+            }
+            else if (string.Equals(element, BrukanElementEarth, StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var target in owner.Board.Where(IsAlive).Take(4).ToList())
+                {
+                    AddKeyword(target, Keyword.Deathrattle);
+                    AddTag(target, BrukanEarthDeathrattleTag);
+                }
+            }
+            else if (string.Equals(element, BrukanElementWater, StringComparison.OrdinalIgnoreCase))
+            {
+                var target = owner.Board.LastOrDefault(IsAlive);
+                if (target != null)
+                {
+                    BuffMinion(target, 0, 3, "Water Invocation");
+                    AddKeyword(target, Keyword.Taunt);
+                }
+            }
+            else if (string.Equals(element, BrukanElementLightning, StringComparison.OrdinalIgnoreCase))
+            {
+                var enemy = context.Get(owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                for (var index = 0; index < 5; index += 1)
+                {
+                    var targets = enemy.Board.Where(IsAlive).ToList();
+                    if (targets.Count == 0)
+                    {
+                        break;
+                    }
+
+                    var target = new SeededRng(context.Seed + context.AttackSequence * 607 + index * 31 + targets.Count).Pick(targets);
+                    var result = DealDamage(target, 1, false);
+                    if (result.Minion.Health <= 0)
+                    {
+                        MarkKilledBy(result.Minion, sourceId, owner.Side, BrukanPowerId);
+                    }
+
+                    ReplaceByInstanceId(enemy.Board, result.Minion);
+                }
+            }
+
+            if (remember)
+            {
+                RememberBrukanElement(owner, element);
+            }
+
+            AddLog(context.Log, "HeroStartOfCombat", "Embrace the Elements called " + element, sourceId, null, LogSeverity.Good);
+        }
+
+        private static void RememberBrukanElement(CombatSideState owner, string element)
+        {
+            var tag = BrukanSpiritElementTagPrefix + element;
+            foreach (var raptor in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == SpiritRaptorCardId))
+            {
+                AddTag(raptor, tag);
+            }
         }
 
         private static void ApplyStartOfCombatAuras(CombatContext context, CombatSideState side)
@@ -994,6 +1132,8 @@ namespace LearnHearthstone.Domain.Engine
                 var inserted = 0;
                 var newEntityCountBeforeDeathEffects = newEntityIds.Count;
                 AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
+                ResolveTavishCrabbyReward(context, owner, minion);
+                ResolveTamsinMonstrosityDeath(context, owner, minion);
                 ResolveTimewarpedFriendlyDeathTriggers(context, owner, minion);
                 ResolveEyeOfDalaranDeath(context, owner, minion);
                 if (minion.Keywords.Contains(Keyword.Deathrattle))
@@ -1116,6 +1256,39 @@ namespace LearnHearthstone.Domain.Engine
                 false,
                 usedThisCombat,
                 DeathtouchAppleUsesPerCombat);
+        }
+
+        private static void ResolveTavishCrabbyReward(CombatContext context, CombatSideState defeatedOwner, MinionInstance defeated)
+        {
+            if (defeatedOwner?.Side != BoardSide.Opponent ||
+                defeated == null ||
+                !string.Equals(GetKillerCardId(defeated), TavishPowerId, StringComparison.OrdinalIgnoreCase) ||
+                !context.Player.Board.Any(minion => IsAlive(minion) && minion.CardId == CrabbyCardId))
+            {
+                return;
+            }
+
+            AddReward(context.Log, context.Player, CombatRewardType.AddPlainCopyOfKilledEnemyToHand, CrabbyCardId, defeated.CardId, 1, defeated.InstanceId);
+        }
+
+        private static void ResolveTamsinMonstrosityDeath(CombatContext context, CombatSideState owner, MinionInstance deadMinion)
+        {
+            if (owner == null || deadMinion == null)
+            {
+                return;
+            }
+
+            var attack = Math.Max(0, deadMinion.Attack);
+            if (attack <= 0)
+            {
+                return;
+            }
+
+            foreach (var monstrosity in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == MonstrosityCardId).ToList())
+            {
+                BuffMinion(monstrosity, attack, 0, "Monstrosity");
+                AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, MonstrosityCardId, monstrosity.InstanceId, 1, attack, 0, deadMinion.InstanceId);
+            }
         }
 
         private static void ResolveTrinketStartOfCombatEffects(CombatContext context, CombatSideState owner)
@@ -1461,11 +1634,66 @@ namespace LearnHearthstone.Domain.Engine
             for (var repeat = 0; repeat < deathrattleRepeats; repeat += 1)
             {
                 inserted += ResolveDeathrattleSummons(context, owner, minion, insertIndex + inserted, newEntityIds, sourceRemoved);
+                ResolveTamsinPhylacteryDeathrattle(context, owner, minion);
+                inserted += ResolveBrukanEarthDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                ResolveSpiritRaptorDeathrattle(context, owner, minion);
             }
 
             ResolveTrinketDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
             ResolveTimewarpedDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
             return inserted;
+        }
+
+        private static void ResolveTamsinPhylacteryDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source)
+        {
+            if (source?.Tags == null || !source.Tags.Contains(TamsinPhylacteryTag))
+            {
+                return;
+            }
+
+            var attack = Math.Max(0, source.Attack);
+            var health = Math.Max(0, source.MaxHealth);
+            foreach (var target in owner.Board.Where(minion => IsAlive(minion) && minion.InstanceId != source.InstanceId).ToList())
+            {
+                BuffMinion(target, attack, health, "Fragrant Phylactery");
+            }
+
+            AddLog(context.Log, "DeathrattleResolved", "Fragrant Phylactery shared " + attack + "/" + health + " stats", source.InstanceId, null, LogSeverity.Good);
+        }
+
+        private static int ResolveBrukanEarthDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
+        {
+            if (source?.Tags == null || !source.Tags.Contains(BrukanEarthDeathrattleTag))
+            {
+                return 0;
+            }
+
+            var token = AddToken(context, owner, source, insertIndex, BrukanElementalTokenId, "Elemental", 1, 1, Tribe.Elemental);
+            if (token == null)
+            {
+                return 0;
+            }
+
+            newEntityIds?.Add(token.InstanceId);
+            return 1;
+        }
+
+        private static void ResolveSpiritRaptorDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source)
+        {
+            if (source?.CardId != SpiritRaptorCardId || source.Tags == null)
+            {
+                return;
+            }
+
+            var elements = source.Tags
+                .Where(tag => tag.StartsWith(BrukanSpiritElementTagPrefix, StringComparison.Ordinal))
+                .Select(tag => tag.Substring(BrukanSpiritElementTagPrefix.Length))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            foreach (var element in elements)
+            {
+                CallBrukanElement(context, owner, element, SpiritRaptorCardId, false);
+            }
         }
 
         private static void ResolveTimewarpedDeathrattleTriggered(CombatContext context, CombatSideState owner, MinionInstance source, int amount)
@@ -4074,6 +4302,8 @@ namespace LearnHearthstone.Domain.Engine
                 owner.AvengeCounters["temporary-beast-revenge"] = temporaryCount;
             }
 
+            ResolveOnyxiaAvenge(context, owner, deadId);
+
             var sources = owner.Board
                 .Where(minion => IsAlive(minion) && (minion.Keywords.Contains(Keyword.Avenge) || minion.EffectIds.Contains("avenge_2_buff_self_2_2")))
                 .ToList();
@@ -4185,6 +4415,47 @@ namespace LearnHearthstone.Domain.Engine
                     false,
                     count,
                     threshold);
+            }
+        }
+
+        private static void ResolveOnyxiaAvenge(CombatContext context, CombatSideState owner, string deadId)
+        {
+            var tavern = owner?.Tavern;
+            if (tavern == null || !tavern.HeroOnyxiaBroodmotherActive)
+            {
+                return;
+            }
+
+            owner.AvengeCounters.TryGetValue(OnyxiaAvengeCounter, out var count);
+            count += 1;
+            if (count < 4)
+            {
+                owner.AvengeCounters[OnyxiaAvengeCounter] = count;
+                return;
+            }
+
+            owner.AvengeCounters[OnyxiaAvengeCounter] = 0;
+            if (owner.Board.Count >= BoardLimit)
+            {
+                return;
+            }
+
+            tavern.HeroEffectCounters.TryGetValue(OnyxiaWhelpStatsCounter, out var stats);
+            stats = Math.Max(1, stats);
+            var token = AddToken(context, owner, null, owner.Board.Count, OnyxiaWhelpTokenId, "Whelp", stats, stats, Tribe.Dragon);
+            tavern.HeroEffectCounters[OnyxiaWhelpStatsCounter] = StatMath.SaturatingAdd(stats, 1, 1, StatMath.MaxStat);
+            if (token == null)
+            {
+                return;
+            }
+
+            context.ImmediateAttacks.Enqueue(new ImmediateAttackRequest(owner.Side, token.InstanceId));
+            AddLog(context.Log, "ImmediateAttackQueued", token.InstanceId + " queued by Broodmother after " + deadId, OnyxiaPowerId, token.InstanceId, LogSeverity.Good);
+
+            foreach (var buddy in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == ManyWhelpsCardId).ToList())
+            {
+                BuffMinion(buddy, 2, 2, "Many Whelps");
+                AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, ManyWhelpsCardId, buddy.InstanceId, 1, 2, 2, token.InstanceId);
             }
         }
 
@@ -5943,6 +6214,24 @@ namespace LearnHearthstone.Domain.Engine
             if (!target.Keywords.Contains(keyword))
             {
                 target.Keywords.Add(keyword);
+            }
+        }
+
+        private static void AddTag(MinionInstance target, string tag)
+        {
+            if (target == null || string.IsNullOrEmpty(tag))
+            {
+                return;
+            }
+
+            if (target.Tags == null)
+            {
+                target.Tags = new List<string>();
+            }
+
+            if (!target.Tags.Contains(tag))
+            {
+                target.Tags.Add(tag);
             }
         }
 

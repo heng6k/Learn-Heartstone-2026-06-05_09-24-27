@@ -7,6 +7,15 @@ namespace LearnHearthstone.Domain.Data
 {
     public sealed class HeroCatalog
     {
+        private static readonly HashSet<string> AlwaysFilteredDiscoverHeroPowerIds =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "BG34_HERO_002p",
+                "TB_BaconShop_HP_080",
+                "TB_BaconShop_HP_081",
+                "BG23_HERO_303p2"
+            };
+
         private readonly Dictionary<string, HeroDefinition> heroesByCardId;
         private readonly Dictionary<string, HeroPowerDefinition> heroPowersByCardId;
         private readonly Dictionary<string, HeroDefinition> heroesByHeroPowerCardId;
@@ -88,6 +97,64 @@ namespace LearnHearthstone.Domain.Data
                 .Where(power => power.ReplacementEligibility == HeroPowerReplacementEligibility.DiscoverableAfterStart)
                 .Where(power => !string.Equals(power.CardId, currentHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
                 .ToList();
+        }
+
+        public List<HeroPowerDefinition> GetOfferableDiscoverableHeroPowers(string currentHeroPowerCardId)
+        {
+            return GetDiscoverableHeroPowers(currentHeroPowerCardId)
+                .Where(IsOfferableDiscoverHeroPower)
+                .ToList();
+        }
+
+        public MinionInstance CreateDiscoverableHeroPowerOption(HeroPowerDefinition definition, BoardSide owner, string suffix)
+        {
+            var option = MinionFactory.Create(definition, owner, suffix);
+            AddHeroPowerImplementationTags(option, definition?.CardId);
+            return option;
+        }
+
+        public static bool IsOfferableDiscoverHeroPower(HeroPowerDefinition power)
+        {
+            if (power == null || string.IsNullOrEmpty(power.CardId))
+            {
+                return false;
+            }
+
+            if (AlwaysFilteredDiscoverHeroPowerIds.Contains(power.CardId))
+            {
+                return false;
+            }
+
+            var status = HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId);
+            return status == HeroEffectImplementationStatus.Implemented ||
+                   status == HeroEffectImplementationStatus.FrameworkFirst;
+        }
+
+        public static void AddHeroPowerImplementationTags(MinionInstance option, string heroPowerCardId)
+        {
+            if (option == null)
+            {
+                return;
+            }
+
+            var status = HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(heroPowerCardId ?? option.CardId);
+            AddTag(option.Tags, "implementation_status:" + status);
+            if (status == HeroEffectImplementationStatus.FrameworkFirst)
+            {
+                AddTag(option.Tags, "hero_power_proxy");
+                AddTag(option.Tags, "framework_first");
+                AddTag(option.Tags, "incomplete_hero_power");
+            }
+        }
+
+        private static void AddTag(List<string> tags, string tag)
+        {
+            if (tags == null || string.IsNullOrEmpty(tag) || tags.Contains(tag))
+            {
+                return;
+            }
+
+            tags.Add(tag);
         }
 
         public List<HeroDefinition> GetInitialSelectableHeroes()

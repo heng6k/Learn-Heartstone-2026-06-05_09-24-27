@@ -62,27 +62,33 @@ Date: 2026-06-29
 
 ### Infinite Toki
 
-状态：已完成（2026-06-30）。`Temporal Tavern` 复用当前酒馆刷新池并优先抽取两个高一等级随从；`Clockwork Assistant` 战吼复用高一等级发现，标准单人局 6 本时截断到 6 本。
+状态：已完成（2026-07-01）。`Temporal Tavern` 刷新时在可替换的普通随从槽中优先把最右侧两个位置填为当前酒馆等级 +1 的普通随从，候选来自当前剩余 `MinionPool` 并受卡池、种族和本局最高酒馆等级限制；冻结槽中的任意牌都保留，刷新后缺随从补随从、缺酒馆法术补酒馆法术。动态注入当前池的 Timewarped/Oathstone 随从已进入通用随从候选，能按等级/种族被普通随从发现看到。`Clockwork Assistant` 战吼从当前剩余普通随从池（含动态注入的 Timewarped/Oathstone 随从）和 `BuddyPool` 发现当前酒馆等级 +1 的随从，标准局 6 本封顶，解锁 7 本时可发现 7 本，候选不足 3 个时少显示。
 
 需要实现：
 
-- 英雄技能刷新酒馆时，生成两个比当前酒馆等级高 1 级的随从。
-- 不能越过当前可用随从池和禁用种族过滤。
-- Clockwork Assistant 的战吼发现也应从高 1 级随从池取牌。
+- 英雄技能刷新酒馆时，在可替换普通随从槽的最右侧优先生成两个比当前酒馆等级高 1 级的普通随从。
+- 不能越过当前剩余池、自定义卡池、禁用种族和本局最高酒馆等级过滤。
+- 冻结刷新保留所有被冻结的酒馆牌，并按缺失类型补普通随从/酒馆法术。
+- 动态注入当前池的 Timewarped/Oathstone 随从应进入普通随从候选，能按等级/种族被对应发现看到。
+- Clockwork Assistant 的战吼发现也应从当前剩余高 1 级随从池取牌，包括动态注入当前池的 Timewarped/Oathstone 随从和已进入 `BuddyPool` 的宝宝。
 
 为什么放第一批：主要依赖刷新和发现池，风险集中在候选池过滤，不需要真实战斗事件。
 
 ### Snake Eyes
 
+状态：已完成（2026-07-01）。`Lucky Roll` 花费 1 金币，掷 1-6 点，获得等量金币，并把英雄技能冷却到当前回合 + 骰点；冷却期间再次使用会被拒绝。`Box Cars` 在回合开始独立掷 1-6 点，并从当前可用酒馆法术池中发现该精确等级的酒馆法术，候选受自定义卡池和禁用种族过滤，候选不足 3 个时少显示。
+
 需要实现：
 
 - 投骰获得金币。
 - 英雄技能冷却按骰子点数变化。
-- Box Cars 在回合开始发现与上次骰子点数或记录等级相关的酒馆法术。
+- Box Cars 在回合开始掷骰，发现该精确等级的酒馆法术。
 
 为什么放第一批：核心是随机数、金币、冷却、回合开始触发，都是已有系统容易承接的点。
 
 ### Alexstrasza
+
+状态：已完成（2026-07-02）。升到 4 级酒馆时会触发 `hero:alexstrasza` 龙随从发现，候选来自当前可用池并限制为合法 Dragon/All 随从；`Vaelastrasz` 通过 Rally 战斗事件获得随机龙奖励。
 
 需要实现：
 
@@ -94,6 +100,8 @@ Date: 2026-06-29
 
 ### A. F. Kay
 
+状态：已完成（2026-07-02）。前两回合会阻止主要酒馆操作；进入第 3 回合后通过发现队列发放 3 级和 4 级当前池随从发现；`Snack Vendor` 回合结束把自身属性转移给一个 3 级随从。
+
 需要实现：
 
 - 前两回合跳过或限制可执行操作。
@@ -103,6 +111,8 @@ Date: 2026-06-29
 为什么放第一批：需要回合限制和延迟奖励，但不依赖复杂战斗解析。
 
 ### Guff Runetotem
+
+状态：已完成（2026-07-02）。购买卡牌时累计其酒馆等级，总和每达到 20 点发放一个三连奖励并保留溢出计数；`Baby Kodo` 战吼刷新酒馆，按当前可用池尽量放入每个可用等级的随从。
 
 需要实现：
 
@@ -114,6 +124,8 @@ Date: 2026-06-29
 
 ### Galewing
 
+状态：框架优先完成（2026-07-02）。`Dungar's Gryphon` 已通过 pending choice 提供三条航线选择，保存当前航线和完成回合；完成后清理航线状态，下次选择会过滤刚完成的航线。`Flight Trainer` 在场时完成航线会触发两次。由于本地 `battlegroundsHeroes.json` 只包含总文本，缺少三条航线的完整奖励文本，当前奖励为明确 proxy：Westfall 给 Tavern Coin、Ironforge 给当前酒馆等级随机随从、Plaguelands 发起当前酒馆等级随从发现。拿到可验证路线文本后需要替换 proxy 才能标完整实现。
+
 需要实现：
 
 - 航线选择状态。
@@ -124,6 +136,8 @@ Date: 2026-06-29
 为什么放第一批：依赖选择 UI 和延迟奖励，但不需要战斗内部事件。
 
 ### Cariel Roame
+
+状态：已完成（2026-07-02）。`Conviction` 花费 1 金币，按当前成长状态给随机友方随从属性；基础为 2 个目标、+1/+1。每场战斗后通过 pending choice 三选一改进目标数量、攻击或生命；`Captain Fairmount` 回合结束随机改进一次 `Conviction`。
 
 需要实现：
 
@@ -153,6 +167,8 @@ Date: 2026-06-29
 
 ### Ambassador Faelin
 
+状态：已完成（2026-07-02）。`Expedition Plans` 开局依次排队 Tier 6、Tier 4、Tier 2 当前池随从 Discover，选择结果写入可序列化 `AdvancedMechanicState`，达到对应酒馆等级时发放；第 1 回合限制主要酒馆操作但允许 Discover/NextTurn；`Submersible Chef` 战吼给 Tier 1、3、5 随机随从各一张。
+
 需要实现：
 
 - 开局发现 6 级、4 级、2 级随从。
@@ -163,6 +179,8 @@ Date: 2026-06-29
 注意：延迟奖励必须落到可序列化状态里，避免重进局或刷新 UI 后丢失。
 
 ### Thorim, Stormlord
+
+状态：已完成（2026-07-02）。`Choose Your Champion` 开局从 Thorim 专属合法 Tier 7 池 Discover，记录选择并累计花费金币，达到 60 金币后发放所选 Tier 7 随从；该实现不会全局解锁普通酒馆 Tier 7 刷新。`Veranus` 回合结束把左侧相邻随从变形成高一等级随从，最高 Tier 7。
 
 需要实现：
 
@@ -175,34 +193,25 @@ Date: 2026-06-29
 
 ### Sire Denathrius
 
-需要实现：
-
-- 任务和任务奖励数据接入。
-- 开局任务选择。
-- 任务进度与奖励激活。
-- Shady Aristocrat 出售发现任务，并在完成后发放 8 金币 Coin Pouch。
-
-注意：应复用任务系统底座，不要给 Denathrius 单独写一套任务状态。
+状态：已完成（2026-07-03）。已复用通用 Quest/Reward 底座，开局提供 2 个 Quest 选项；Quest 进度与奖励激活走共享任务状态；Shady Aristocrat 出售后提供 Bonus Quest，完成后发放 8 金币 Coin Pouch。
 
 ### Tickatus
 
-需要实现：
+状态：框架优先（2026-07-03）。`Prize Wall` 现在每 4 回合按当前暗月奖品等级启动共享 Darkmoon Prize Discover；`Ticket Collector` 出售时发现下一等级暗月奖品。发现选项统一来自 `DarkmoonPrizeCatalog/Engine`，不会维护英雄专用奖品池。
+
+已实现：
 
 - 每 4 回合暗月奖品调度。
 - 按回合或等级选择正确奖品池。
 - Ticket Collector 出售时发现下一级暗月奖品。
 
-前置要求：暗月奖品 1/2/4 级目前仍有大量 proxy。可以先实现调度，但要在 UI 或日志里保留 `darkmoon_prize_proxy` 标记；若要把 Tickatus 视为完全实现，应先补齐暗月奖品低级和高级卡牌效果。
+剩余边界：暗月奖品 33 张本地定义已补齐可打出效果，生成奖品不再保留 `darkmoon_prize_proxy` 标记；Tickatus / Ticket Collector 已可视为 `Implemented`。后续只保留图片来源和官方当前池复核边界。
 
 ### Yogg-Saron, Hope's End
 
-需要实现：
+状态：框架优先（2026-07-03）。`Puzzle Box` 从第 3 回合起在回合开始通过统一自动 Tavern spell 执行入口施放合法随机酒馆法术；`Acolyte of Yogg-Saron` 回合开始使用可见 Wheel proxy，并把结果写入状态/日志。
 
-- 第 3 回合或指定时点解锁。
-- 回合开始随机施放酒馆法术。
-- Acolyte of Yogg-Saron 的 Wheel of Yogg-Saron 结果。
-
-注意：随机施放要走统一法术执行入口，不能绕过目标、费用、候选过滤规则。
+注意：Wheel of Yogg-Saron 的完整官方结果表本地不足；当前不能标为完全 `Implemented`，需要补齐结果表和精确效果后再升级状态。
 
 第二批完成标准：
 
@@ -515,12 +524,14 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ## 下一步建议
 
-最稳的下一步是从第一批开始，优先做 Infinite Toki 或 Snake Eyes。
+最稳的下一步是确认 Galewing 三条航线的官方奖励文本，替换当前 proxy；如果暂时不补文本，则进入 P2 的 Sire Denathrius / Tickatus / Yogg-Saron 相关公共机制。
 
 建议执行顺序：
 
 1. 先为 Cosmic Duality 和 BuddyPool 生成一次候选状态报告，确认第二英雄技能和伙伴发现池不会把完全不可执行项静默放给玩家。
-2. 实现 Infinite Toki，验证刷新、发现池和高 1 级候选过滤。
-3. 实现 Snake Eyes，验证金币、冷却、骰子状态和 Box Cars 回合开始奖励。
-4. 在 Tickatus 前补暗月奖品 1/2/4 级 proxy，或者明确把 Tickatus 标为“调度完成、奖品效果未全精确”。
-5. 在 Genn 前补多英雄技能替换时机，避免和 Cosmic Duality、Finley、Master Nguyen 互相覆盖。
+2. Infinite Toki 已完成；后续只在回归测试中覆盖刷新、发现池和高 1 级候选过滤。
+3. Snake Eyes 已完成；后续只在回归测试中覆盖金币、冷却、骰子状态和 Box Cars 回合开始奖励。
+4. Alexstrasza、A. F. Kay、Guff Runetotem 已完成；后续只在回归测试中覆盖升级触发、早期回合限制、购买等级计数和对应宝宝效果。
+5. Ambassador Faelin、Thorim 已完成；后续只在回归测试中覆盖开局 Discover、延迟发放、金币统计和 Veranus 邻位变形。
+6. Tickatus / Ticket Collector 已完成；后续只在回归测试中覆盖暗月奖品调度、宝宝出售发现和 P0/P1/P2 奖品效果。
+7. 在 Genn 前补多英雄技能替换时机，避免和 Cosmic Duality、Finley、Master Nguyen 互相覆盖。

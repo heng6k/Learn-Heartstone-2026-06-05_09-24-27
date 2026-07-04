@@ -8,6 +8,8 @@ namespace LearnHearthstone.Domain.Engine
 {
     public static class DarkmoonPrizeEngine
     {
+        public const string DefaultImagePath = "CardImages/DarkmoonPrizeFallback";
+
         public static int PrizeTierForDarkmoonFaireRound(int round)
         {
             return ClampPrizeTier(Math.Max(1, round) / 4);
@@ -71,6 +73,8 @@ namespace LearnHearthstone.Domain.Engine
                 Owner = BoardSide.Player,
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
+                ImagePath = string.IsNullOrWhiteSpace(definition.ImagePath) ? DefaultImagePath : definition.ImagePath,
+                EffectIds = definition.EffectIds == null ? new List<string>() : new List<string>(definition.EffectIds),
                 Tags = tags
             };
         }

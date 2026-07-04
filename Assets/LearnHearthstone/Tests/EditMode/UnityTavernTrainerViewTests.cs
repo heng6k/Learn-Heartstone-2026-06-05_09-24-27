@@ -1704,7 +1704,8 @@ namespace LearnHearthstone.Tests.EditMode
                         Health = 1,
                         TavernTier = 1,
                         Tribes = new List<Tribe> { Tribe.Quilboar },
-                        OfficialKeywords = new List<Keyword> { Keyword.Taunt, Keyword.DivineShield }
+                        OfficialKeywords = new List<Keyword> { Keyword.Taunt, Keyword.DivineShield },
+                        Text = "Full art cards keep the art-only presentation."
                     },
                     UnityTavernCardMode.Shop,
                     "Buy",
@@ -1739,7 +1740,8 @@ namespace LearnHearthstone.Tests.EditMode
                         Attack = 1,
                         Health = 1,
                         TavernTier = 1,
-                        Tribes = new List<Tribe> { Tribe.Murloc }
+                        Tribes = new List<Tribe> { Tribe.Murloc },
+                        Text = "Fill your hand with Tavern Dish Bananas."
                     },
                     UnityTavernCardMode.Shop,
                     "Buy",
@@ -1751,6 +1753,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNull(missingArt.sprite);
                 Assert.AreEqual("MURLOC", fallback.text);
                 Assert.IsNotNull(FindChild(missingArtObject.transform, "UnityCardName"));
+                Assert.AreEqual("Fill your hand with Tavern Dish Bananas.", FindChild(missingArtObject.transform, "UnityCardSubtitle").GetComponent<Text>().text);
                 Assert.IsNotNull(FindChild(missingArtObject.transform, "UnityAttackBadge"));
                 var missingActionRect = FindChild(missingArtObject.transform, "UnityCardAction-missing-art-card").GetComponent<RectTransform>();
                 Assert.AreEqual(new Vector2(0.14f, 0f), missingActionRect.anchorMin);
@@ -2087,7 +2090,8 @@ namespace LearnHearthstone.Tests.EditMode
                     Cost = 3,
                     TavernTier = 2,
                     Tribes = new List<Tribe> { Tribe.Mech },
-                    OfficialKeywords = new List<Keyword> { Keyword.Taunt }
+                    OfficialKeywords = new List<Keyword> { Keyword.Taunt },
+                    Text = "A plain minion should not show spell description text."
                 };
                 var childCount = cardObject.transform.childCount;
 
@@ -2119,6 +2123,80 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
+        [Test]
+        public void CardComponent_PrefabReferencesShowSpellDescriptionWhenArtMissing()
+        {
+            var cardObject = new GameObject("CardPrefabSpellNoArt", typeof(RectTransform), typeof(Image), typeof(Button), typeof(UnityTavernCardComponent));
+            try
+            {
+                var art = ImageChild(cardObject.transform, "PrefabArt");
+                var name = TextChild(cardObject.transform, "PrefabName");
+                var subtitle = TextChild(cardObject.transform, "PrefabSubtitle");
+                var kind = TextChild(cardObject.transform, "PrefabKind");
+                var tierBadge = new GameObject("PrefabTierBadge", typeof(RectTransform));
+                tierBadge.transform.SetParent(cardObject.transform, false);
+                var tier = TextChild(tierBadge.transform, "PrefabTierText");
+                var attackBadge = new GameObject("PrefabAttackBadge", typeof(RectTransform));
+                attackBadge.transform.SetParent(cardObject.transform, false);
+                var attack = TextChild(attackBadge.transform, "PrefabAttackText");
+                var healthBadge = new GameObject("PrefabHealthBadge", typeof(RectTransform));
+                healthBadge.transform.SetParent(cardObject.transform, false);
+                var health = TextChild(healthBadge.transform, "PrefabHealthText");
+                var costBadge = new GameObject("PrefabCostBadge", typeof(RectTransform));
+                costBadge.transform.SetParent(cardObject.transform, false);
+                var cost = TextChild(costBadge.transform, "PrefabCostText");
+                var action = ButtonChild(cardObject.transform, "PrefabPrimaryAction");
+                var actionText = TextChild(action.transform, "PrefabPrimaryActionText");
+
+                cardObject.GetComponent<UnityTavernCardComponent>().ConfigureReferences(
+                    frame: cardObject.GetComponent<Image>(),
+                    art: art,
+                    name: name,
+                    subtitle: subtitle,
+                    kind: kind,
+                    tier: tier,
+                    attack: attack,
+                    health: health,
+                    cost: cost,
+                    rootButton: cardObject.GetComponent<Button>(),
+                    primaryButton: action.GetComponent<Button>(),
+                    primaryText: actionText,
+                    tierBadgeObject: tierBadge,
+                    attackBadgeObject: attackBadge,
+                    healthBadgeObject: healthBadge,
+                    costBadgeObject: costBadge);
+
+                cardObject.GetComponent<UnityTavernCardComponent>().Bind(
+                    new MinionInstance
+                    {
+                        CardKind = CardKind.Spell,
+                        InstanceId = "prefab-spell-no-art",
+                        CardId = "MISSING_DARKMOON_PRIZE",
+                        ImagePath = "CardImages/does-not-exist",
+                        Name = "No Art Prize",
+                        Cost = 0,
+                        TavernTier = 3,
+                        Tribes = new List<Tribe> { Tribe.None },
+                        Text = "Fill your hand with Tavern Dish Bananas."
+                    },
+                    UnityTavernCardMode.Shop,
+                    "Play",
+                    null,
+                    null);
+
+                Assert.IsTrue(subtitle.gameObject.activeSelf);
+                Assert.AreEqual("Fill your hand with Tavern Dish Bananas.", subtitle.text);
+                Assert.AreEqual("法术", kind.text);
+                Assert.AreEqual("0", cost.text);
+                Assert.IsTrue(costBadge.activeSelf);
+                Assert.IsFalse(attackBadge.activeSelf);
+                Assert.IsFalse(healthBadge.activeSelf);
+            }
+            finally
+            {
+                Object.DestroyImmediate(cardObject);
+            }
+        }
         [Test]
         public void CardComponent_PrefabReferencesShowCombatHudWhenFullArtExists()
         {
@@ -2174,7 +2252,8 @@ namespace LearnHearthstone.Tests.EditMode
                         Cost = 3,
                         TavernTier = 1,
                         Tribes = new List<Tribe> { Tribe.Quilboar },
-                        OfficialKeywords = new List<Keyword> { Keyword.Taunt, Keyword.DivineShield }
+                        OfficialKeywords = new List<Keyword> { Keyword.Taunt, Keyword.DivineShield },
+                        Text = "Full art cards keep the art-only presentation."
                     },
                     UnityTavernCardMode.Shop,
                     "Buy",

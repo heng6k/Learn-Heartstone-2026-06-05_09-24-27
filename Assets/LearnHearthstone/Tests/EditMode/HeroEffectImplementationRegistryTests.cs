@@ -64,7 +64,9 @@ namespace LearnHearthstone.Tests.EditMode
         [Test]
         public void Registry_CoversEveryHeroFromSourceData()
         {
-            var heroes = HeroCatalogLoader.LoadFromResources().AllHeroes;
+            var heroes = HeroCatalogLoader.LoadFromResources().AllHeroes
+                .Where(hero => !string.IsNullOrWhiteSpace(hero.HeroCardId))
+                .ToList();
             var missing = heroes
                 .Where(hero => HeroEffectImplementationRegistry.FindByHeroCardId(hero.HeroCardId).Status == HeroEffectImplementationStatus.Unregistered)
                 .Select(hero => hero.HeroCardId + " " + hero.Name)

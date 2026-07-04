@@ -1,6 +1,8 @@
 using System.Linq;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
 
@@ -73,17 +75,624 @@ namespace LearnHearthstone.Tests.EditMode
         public void InfiniteToki_HeroPowerRefreshesWithTwoHigherTierMinions()
         {
             var service = CreateHeroService("TB_BaconShop_HERO_28");
-            service.State.Player.Tavern.Gold = 10;
-            service.State.Player.Tavern.Tier = 3;
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.Tier = 2;
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
-            var shopMinions = service.State.Player.Tavern.Shop
-                .Where(card => card != null && (card.CardKind == CardKind.Minion || card.CardKind == CardKind.HeroBuddy))
+            var minionSlotCount = TavernRules.GetShopSize(2);
+            var minionSlots = tavern.Shop.Take(minionSlotCount).ToList();
+            Assert.AreEqual(9, tavern.Gold);
+            Assert.AreEqual(minionSlotCount + 1, tavern.Shop.Count);
+            Assert.AreEqual(CardKind.TavernSpell, tavern.Shop.Last().CardKind);
+            Assert.IsTrue(minionSlots.All(card => card != null && card.CardKind == CardKind.Minion));
+            Assert.IsTrue(minionSlots.Take(minionSlotCount - 2).All(card => card.TavernTier <= 2));
+            Assert.IsTrue(minionSlots.Skip(minionSlotCount - 2).All(card => card.TavernTier == 3));
+        }
+
+        [Test]
+        public void InfiniteToki_HeroPowerRespectsActiveTribesAndCustomCardPool()
+        {
+            var activeTribes = new System.Collections.Generic.List<Tribe> { Tribe.Beast };
+            var active = TribeAvailabilityRules.Normalize(activeTribes);
+            var candidates = MinionCatalogLoader.LoadFromResources().All
+                .Where(definition => definition.InPool && definition.TavernTier <= 3)
                 .ToList();
-            Assert.AreEqual(9, service.State.Player.Tavern.Gold);
-            Assert.GreaterOrEqual(shopMinions.Count(card => card.TavernTier == 4), 2);
-            Assert.IsTrue(shopMinions.All(card => card.TavernTier <= 4));
+            var disabledByTribe = candidates.First(definition =>
+                definition.TavernTier == 3 &&
+                !TribeAvailabilityRules.IsMinionAvailable(definition, active));
+            var disabledByCardPool = candidates.First(definition =>
+                definition.TavernTier == 3 &&
+                !string.Equals(definition.CardId, disabledByTribe.CardId, System.StringComparison.OrdinalIgnoreCase) &&
+                TribeAvailabilityRules.IsMinionAvailable(definition, active));
+            var enabledMinionCardIds = candidates
+                .Where(definition =>
+                    TribeAvailabilityRules.IsMinionAvailable(definition, active) ||
+                    string.Equals(definition.CardId, disabledByTribe.CardId, System.StringComparison.OrdinalIgnoreCase))
+                .Select(definition => definition.CardId)
+                .Where(cardId => !string.Equals(cardId, disabledByCardPool.CardId, System.StringComparison.OrdinalIgnoreCase))
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_28",
+                new MatchSetupOptions
+                {
+                    ActiveTribes = activeTribes,
+                    IsDefaultCardPoolVersion = false,
+                    EnabledMinionCardIds = enabledMinionCardIds
+                });
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.Tier = 2;
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var shopMinionCardIds = service.State.Player.Tavern.Shop
+                .Where(card => card != null && card.CardKind == CardKind.Minion)
+                .Select(card => card.CardId)
+                .ToList();
+            Assert.Greater(shopMinionCardIds.Count, 0);
+            CollectionAssert.DoesNotContain(shopMinionCardIds, disabledByTribe.CardId);
+            CollectionAssert.DoesNotContain(shopMinionCardIds, disabledByCardPool.CardId);
+            Assert.IsTrue(shopMinionCardIds.All(cardId => enabledMinionCardIds.Contains(cardId, System.StringComparer.OrdinalIgnoreCase)));
+        }
+
+        [Test]
+        public void InfiniteToki_HeroPowerUsesOnlyRightmostReplaceableSlotsWhenFrozen()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.Tier = 2;
+            var frozen0 = TestMinion("frozen-0", "FROZEN_0", 1, 1);
+            var frozen1 = TestMinion("frozen-1", "FROZEN_1", 1, 1);
+            var frozen2 = TestMinion("frozen-2", "FROZEN_2", 1, 1);
+            tavern.Shop = new System.Collections.Generic.List<MinionInstance>
+            {
+                frozen0,
+                frozen1,
+                frozen2,
+                TestMinion("replaceable", "REPLACEABLE", 1, 1)
+            };
+            TavernShopSlots.Ensure(tavern);
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            TavernShopSlots.SetSlotFrozen(tavern, 1, true);
+            TavernShopSlots.SetSlotFrozen(tavern, 2, true);
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(5, tavern.Shop.Count);
+            Assert.AreEqual(frozen0.InstanceId, tavern.Shop[0].InstanceId);
+            Assert.AreEqual(frozen1.InstanceId, tavern.Shop[1].InstanceId);
+            Assert.AreEqual(frozen2.InstanceId, tavern.Shop[2].InstanceId);
+            Assert.AreEqual(CardKind.Minion, tavern.Shop[3].CardKind);
+            Assert.AreEqual(3, tavern.Shop[3].TavernTier);
+            Assert.AreEqual(CardKind.TavernSpell, tavern.Shop[4].CardKind);
+        }
+
+        [Test]
+        public void InfiniteToki_FrozenRefreshPreservesFrozenTavernSpellAndRefillsMissingMinions()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.Tier = 2;
+            var frozenMinion = TestMinion("frozen-minion", "FROZEN_MINION", 1, 1);
+            var frozenSpell = TestTavernSpell("frozen-spell", "FROZEN_SPELL", 1);
+            tavern.Shop = new System.Collections.Generic.List<MinionInstance>
+            {
+                frozenMinion,
+                TestMinion("replaceable-0", "REPLACEABLE_0", 1, 1),
+                TestMinion("replaceable-1", "REPLACEABLE_1", 1, 1),
+                TestMinion("replaceable-2", "REPLACEABLE_2", 1, 1),
+                frozenSpell
+            };
+            TavernShopSlots.Ensure(tavern);
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+            TavernShopSlots.SetSlotFrozen(tavern, 4, true);
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(5, tavern.Shop.Count);
+            Assert.AreEqual(frozenMinion.InstanceId, tavern.Shop[0].InstanceId);
+            Assert.AreEqual(frozenSpell.InstanceId, tavern.Shop[4].InstanceId);
+            Assert.AreEqual(1, tavern.Shop.Count(card => card != null && card.CardKind == CardKind.TavernSpell));
+            Assert.AreEqual(4, tavern.Shop.Count(card => card != null && card.CardKind == CardKind.Minion));
+            Assert.IsTrue(tavern.Shop.Skip(1).Take(3).All(card => card.CardKind == CardKind.Minion));
+        }
+
+        [Test]
+        public void SnakeEyes_LuckyRollGainsRolledGoldAndCooldownsByRoll()
+        {
+            var service = CreateHeroService("BG28_HERO_400");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.MaxGold = 20;
+            var startRound = service.State.Round;
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var roll = tavern.HeroEffectCounters["hero:snake_eyes:last_roll"];
+            Assert.That(roll, Is.InRange(1, 6));
+            Assert.AreEqual(9 + roll, tavern.Gold);
+            Assert.AreEqual(startRound + roll, tavern.HeroEffectCounters["hero:snake_eyes:ready_round"]);
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.UseHeroPower)));
+
+            while (service.State.Round < startRound + roll)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+                if (service.State.Round < startRound + roll)
+                {
+                    Assert.Throws<System.InvalidOperationException>(() =>
+                        service.Apply(new GameCommand(GameCommandType.UseHeroPower)));
+                }
+            }
+
+            tavern.Gold = 10;
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.That(tavern.HeroEffectCounters["hero:snake_eyes:last_roll"], Is.InRange(1, 6));
+        }
+
+        [Test]
+        public void BoxCars_TurnStartDiscoversTavernSpellOfRolledTierFromEnabledPool()
+        {
+            var enabledSpellByTier = SpellCatalogLoader.LoadFromResources().All
+                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier >= 1 && spell.TavernTier <= 6)
+                .GroupBy(spell => spell.TavernTier)
+                .ToDictionary(group => group.Key, group => group.First());
+            Assert.AreEqual(6, enabledSpellByTier.Count);
+            var service = CreateHeroService(
+                "BG28_HERO_400",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = enabledSpellByTier.Values.Select(spell => spell.CardNumber).ToList()
+                });
+            PlayBuddy(service, "BG28_HERO_400_Buddy");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var tavern = service.State.Player.Tavern;
+            var roll = tavern.HeroEffectCounters["hero:snake_eyes:box_cars_last_roll"];
+            var discover = tavern.Discover;
+            Assert.That(roll, Is.InRange(1, 6));
+            Assert.NotNull(discover);
+            Assert.AreEqual("buddy:box-cars", discover.Source);
+            Assert.AreEqual(roll, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(enabledSpellByTier[roll].CardNumber, discover.Options.Single().CardId);
+            Assert.AreEqual(CardKind.TavernSpell, discover.Options.Single().CardKind);
+            Assert.AreEqual(roll, discover.Options.Single().TavernTier);
+        }
+
+        [Test]
+        public void BoxCars_TurnStartQueuesBehindPendingDiscover()
+        {
+            var enabledSpellByTier = SpellCatalogLoader.LoadFromResources().All
+                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier >= 1 && spell.TavernTier <= 6)
+                .GroupBy(spell => spell.TavernTier)
+                .ToDictionary(group => group.Key, group => group.First());
+            var service = CreateHeroService(
+                "BG28_HERO_400",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = enabledSpellByTier.Values.Select(spell => spell.CardNumber).ToList()
+                });
+            PlayBuddy(service, "BG28_HERO_400_Buddy");
+
+            var tavern = service.State.Player.Tavern;
+            var pendingChoice = TestMinion("pending-discover-choice", "PENDING_DISCOVER_CHOICE", 1, 1);
+            tavern.Discover = new DiscoverState
+            {
+                Source = "test-pending",
+                RewardTier = 1,
+                Options = new System.Collections.Generic.List<MinionInstance> { pendingChoice }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var roll = tavern.HeroEffectCounters["hero:snake_eyes:box_cars_last_roll"];
+            Assert.AreEqual("test-pending", tavern.Discover.Source);
+            Assert.AreEqual(1, tavern.DiscoverQueue.Count);
+            Assert.AreEqual("buddy:box-cars", tavern.DiscoverQueue.Single().Source);
+            Assert.AreEqual(roll, tavern.DiscoverQueue.Single().RewardTier);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual("buddy:box-cars", tavern.Discover.Source);
+            Assert.AreEqual(0, tavern.DiscoverQueue.Count);
+            Assert.AreEqual(enabledSpellByTier[roll].CardNumber, tavern.Discover.Options.Single().CardId);
+        }
+
+        [Test]
+        public void BoxCars_TurnStartFiltersDisabledTribeTavernSpells()
+        {
+            var spellCatalog = SpellCatalogLoader.LoadFromResources();
+            var disabledPirateSpell = spellCatalog.All.First(spell => spell.CardNumber == "122185");
+            var fallbackNeutralSpell = spellCatalog.All.First(spell =>
+                spell.InPool &&
+                spell.Category == "TavernSpell" &&
+                spell.TavernTier == disabledPirateSpell.TavernTier &&
+                !string.Equals(spell.CardNumber, disabledPirateSpell.CardNumber, System.StringComparison.OrdinalIgnoreCase) &&
+                TribeAvailabilityRules.SpellTribes(spell).Count == 0);
+            var service = CreateHeroService(
+                "BG28_HERO_400",
+                new MatchSetupOptions
+                {
+                    ActiveTribes = TribeAvailabilityRules.PlayableTribes
+                        .Where(tribe => tribe != Tribe.Pirate)
+                        .ToList(),
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string>
+                    {
+                        disabledPirateSpell.CardNumber,
+                        fallbackNeutralSpell.CardNumber
+                    }
+                });
+            PlayBuddy(service, "BG28_HERO_400_Buddy");
+
+            for (var attempt = 0; attempt < 60; attempt += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+                var tavern = service.State.Player.Tavern;
+                var roll = tavern.HeroEffectCounters["hero:snake_eyes:box_cars_last_roll"];
+                if (roll != disabledPirateSpell.TavernTier)
+                {
+                    tavern.Discover = null;
+                    continue;
+                }
+
+                var discover = tavern.Discover;
+                Assert.NotNull(discover);
+                Assert.AreEqual(1, discover.Options.Count);
+                Assert.AreEqual(fallbackNeutralSpell.CardNumber, discover.Options.Single().CardId);
+                CollectionAssert.DoesNotContain(discover.Options.Select(option => option.CardId).ToList(), disabledPirateSpell.CardNumber);
+                return;
+            }
+
+            Assert.Fail("Box Cars did not roll the test Tavern spell tier.");
+        }
+
+        [Test]
+        public void Tickatus_PrizeWallDiscoversDarkmoonPrizeEveryFourTurns()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_94");
+            var tavern = service.State.Player.Tavern;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.IsNull(tavern.Discover);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            AssertDarkmoonPrizeDiscover(service, "tickatus-prize-wall", 1);
+            Assert.AreEqual(4, service.State.Round);
+            Assert.AreEqual(4, tavern.AdvancedMechanics.Counters["hero:tickatus:prize_wall_triggered_round"]);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            tavern.Hand.Clear();
+            while (service.State.Round < 8)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            AssertDarkmoonPrizeDiscover(service, "tickatus-prize-wall", 2);
+        }
+
+        [Test]
+        public void TicketCollector_SellDiscoversNextTierDarkmoonPrize()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_94");
+            service.State.Round = 8;
+            PlayBuddy(service, "TB_BaconShop_HERO_94_Buddy");
+            var collector = service.State.Player.Board.Single(card => card.CardId == "TB_BaconShop_HERO_94_Buddy");
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, collector.InstanceId));
+
+            AssertDarkmoonPrizeDiscover(service, "tickatus-ticket-collector", 3);
+        }
+
+        [Test]
+        public void YoggSaron_StartTurnCastsRandomTavernSpellOnlyAfterTurnThree()
+        {
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_35",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "104436" }
+                });
+            var tavern = service.State.Player.Tavern;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(2, service.State.Round);
+            Assert.AreEqual(0, tavern.TavernSpellsCastThisGame);
+            Assert.IsTrue(string.IsNullOrEmpty(tavern.LastTavernSpellCardId));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(3, service.State.Round);
+            Assert.AreEqual(1, tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual("104436", tavern.LastTavernSpellCardId);
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Puzzle Box: randomly cast 1 Tavern spell")));
+        }
+
+        [Test]
+        public void AcolyteOfYoggSaron_StartTurnSpinsVisibleWheelProxy()
+        {
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_57",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "104436" }
+                });
+            PlayBuddy(service, "TB_BaconShop_HERO_35_Buddy");
+            service.State.Player.Board.Add(TestMinion("wheel-target", "WHEEL_TARGET", 1, 1));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var tavern = service.State.Player.Tavern;
+            Assert.AreEqual(1, tavern.HeroEffectCounters["hero:acolyte_yogg_wheel_spins"]);
+            Assert.IsTrue(tavern.AdvancedMechanics.Selections.TryGetValue("hero_acolyte_yogg_wheel_last_reward", out var reward));
+            CollectionAssert.Contains(
+                new[]
+                {
+                    "next_turn_gold",
+                    "board_buff",
+                    "tavern_spell",
+                    "free_refreshes",
+                    "current_tier_minion",
+                    "tavern_coins"
+                },
+                reward);
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Acolyte of Yogg-Saron:")));
+        }
+
+        [Test]
+        public void Galewing_ChoosesFlightpathCompletesProxyRewardAndFiltersRepeat()
+        {
+            var service = CreateHeroService("BG20_HERO_283");
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var choice = tavern.AdvancedMechanics.PendingChoice;
+            Assert.NotNull(choice);
+            Assert.AreEqual("hero:galewing", choice.Source);
+            Assert.AreEqual(3, choice.Options.Count);
+            var westfallIndex = choice.Options.FindIndex(option => option.RewardId == "westfall");
+            Assert.GreaterOrEqual(westfallIndex, 0);
+            var expectedDueRound = service.State.Round + 1;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, westfallIndex));
+
+            Assert.AreEqual(expectedDueRound, tavern.AdvancedMechanics.Counters["hero:galewing:due_round"]);
+            while (service.State.Round < expectedDueRound)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "104436"));
+            Assert.IsFalse(tavern.AdvancedMechanics.Selections.ContainsKey("hero:galewing:route"));
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.IsFalse(tavern.AdvancedMechanics.PendingChoice.Options.Any(option => option.RewardId == "westfall"));
+        }
+
+        [Test]
+        public void FlightTrainer_DoublesCompletedFlightpathProxyReward()
+        {
+            var service = CreateHeroService("BG20_HERO_283");
+            var tavern = service.State.Player.Tavern;
+            PlayBuddy(service, "BG20_HERO_283_Buddy");
+            tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+            var westfallIndex = tavern.AdvancedMechanics.PendingChoice.Options.FindIndex(option => option.RewardId == "westfall");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, westfallIndex));
+            var expectedDueRound = tavern.AdvancedMechanics.Counters["hero:galewing:due_round"];
+
+            while (service.State.Round < expectedDueRound)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "104436"));
+        }
+
+        [Test]
+        public void Cariel_ConvictionBuffsRandomFriendlyMinions()
+        {
+            var service = CreateHeroService("BG21_HERO_000");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("cariel-a", "CARIEL_A", 1, 1));
+            service.State.Player.Board.Add(TestMinion("cariel-b", "CARIEL_B", 1, 1));
+            service.State.Player.Board.Add(TestMinion("cariel-c", "CARIEL_C", 1, 1));
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(9, tavern.Gold);
+            Assert.AreEqual(2, service.State.Player.Board.Count(minion => minion.Attack == 2 && minion.MaxHealth == 2));
+            Assert.AreEqual(1, service.State.Player.Board.Count(minion => minion.Attack == 1 && minion.MaxHealth == 1));
+        }
+
+        [Test]
+        public void Cariel_AfterCombatChoiceImprovesSelectedConvictionBranch()
+        {
+            var service = CreateHeroService("BG21_HERO_000");
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("cariel-combat", "CARIEL_COMBAT", 4, 4));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2001, SafetyLimit = 1 }));
+
+            var choice = tavern.AdvancedMechanics.PendingChoice;
+            Assert.NotNull(choice);
+            Assert.AreEqual("hero:cariel", choice.Source);
+            Assert.AreEqual(3, choice.Options.Count);
+            var attackIndex = choice.Options.FindIndex(option => option.RewardId == "attack");
+            Assert.GreaterOrEqual(attackIndex, 0);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, attackIndex));
+
+            Assert.AreEqual(2, tavern.AdvancedMechanics.Counters["hero:cariel:attack"]);
+        }
+
+        [Test]
+        public void CaptainFairmount_EndTurnRandomlyImprovesConviction()
+        {
+            var service = CreateHeroService("BG21_HERO_000");
+            var tavern = service.State.Player.Tavern;
+            PlayBuddy(service, "BG21_HERO_000_Buddy");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var counters = tavern.AdvancedMechanics.Counters;
+            var improved =
+                (counters.TryGetValue("hero:cariel:targets", out var targets) && targets > 2) ||
+                (counters.TryGetValue("hero:cariel:attack", out var attack) && attack > 1) ||
+                (counters.TryGetValue("hero:cariel:health", out var health) && health > 1);
+            Assert.IsTrue(improved);
+        }
+
+        [Test]
+        public void Faelin_StartsTierSixFourTwoDiscoversAndSkipsFirstTurn()
+        {
+            var service = CreateHeroService("BG22_HERO_201");
+            var tavern = service.State.Player.Tavern;
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.RerollShop)));
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("hero:faelin:tier:6", tavern.Discover.Source);
+            Assert.AreEqual(6, tavern.Discover.RewardTier);
+
+            var tierSixCardId = tavern.Discover.Options[0].CardId;
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == tierSixCardId));
+            Assert.AreEqual("hero:faelin:tier:4", tavern.Discover.Source);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual("hero:faelin:tier:2", tavern.Discover.Source);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.IsTrue(tavern.AdvancedMechanics.Selections.ContainsKey("hero:faelin:selected_tier_6_card_id"));
+            Assert.IsTrue(tavern.AdvancedMechanics.Selections.ContainsKey("hero:faelin:selected_tier_4_card_id"));
+            Assert.IsTrue(tavern.AdvancedMechanics.Selections.ContainsKey("hero:faelin:selected_tier_2_card_id"));
+        }
+
+        [Test]
+        public void Faelin_GrantsSavedMinionsWhenMatchingTavernTierIsReached()
+        {
+            var service = CreateHeroService("BG22_HERO_201");
+            var tavern = service.State.Player.Tavern;
+            var selected = new System.Collections.Generic.Dictionary<int, string>();
+            foreach (var tier in new[] { 6, 4, 2 })
+            {
+                Assert.IsNotNull(tavern.Discover);
+                Assert.AreEqual("hero:faelin:tier:" + tier, tavern.Discover.Source);
+                selected[tier] = tavern.Discover.Options[0].CardId;
+                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            }
+
+            Assert.IsFalse(selected.Values.Any(cardId => tavern.Hand.Any(card => card.CardId == cardId)));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            foreach (var tier in new[] { 2, 4, 6 })
+            {
+                while (tavern.Tier < tier)
+                {
+                    tavern.Gold = 100;
+                    tavern.MaxGold = 100;
+                    service.Apply(new GameCommand(GameCommandType.UpgradeTavern));
+                }
+
+                var reward = tavern.Hand.Single(card => card.CardId == selected[tier]);
+                Assert.AreEqual(tier, reward.TavernTier);
+                Assert.IsTrue(reward.Tags.Contains("hero_faelin_reward"));
+            }
+        }
+
+        [Test]
+        public void SubmersibleChef_BattlecryAddsTierOneThreeFiveMinions()
+        {
+            var service = CreateHeroService("BG22_HERO_201");
+            var tavern = service.State.Player.Tavern;
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern.Hand.Clear();
+
+            PlayBuddy(service, "BG22_HERO_201_Buddy");
+
+            Assert.AreEqual(3, tavern.Hand.Count);
+            CollectionAssert.AreEquivalent(new[] { 1, 3, 5 }, tavern.Hand.Select(card => card.TavernTier).OrderBy(tier => tier).ToList());
+        }
+
+        [Test]
+        public void Thorim_StartsTierSevenDiscoverAndGrantsAfterSpendingSixtyGold()
+        {
+            var service = CreateHeroService("BG27_HERO_801");
+            var tavern = service.State.Player.Tavern;
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("hero:thorim:tier-7", tavern.Discover.Source);
+            Assert.AreEqual(7, tavern.Discover.RewardTier);
+            Assert.Greater(tavern.Discover.Options.Count, 0);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.TavernTier == 7));
+            var pickedCardId = tavern.Discover.Options[0].CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == pickedCardId));
+            tavern.Gold = 100;
+            tavern.MaxGold = 100;
+            tavern.UpgradeCost = 60;
+            service.Apply(new GameCommand(GameCommandType.UpgradeTavern));
+
+            Assert.AreEqual(60, tavern.AdvancedMechanics.Counters["hero:thorim:gold_spent"]);
+            var reward = tavern.Hand.Single(card => card.CardId == pickedCardId);
+            Assert.AreEqual(7, reward.TavernTier);
+            Assert.IsTrue(reward.Tags.Contains("hero_thorim_reward"));
+        }
+
+        [Test]
+        public void Veranus_EndTurnTransformsLeftNeighborOneTierHigherUpToTierSeven()
+        {
+            var service = CreateHeroService("BG27_HERO_801");
+            service.State.Player.Board.Clear();
+            var target = TestTierMinion("veranus-target", "VERANUS_TARGET", 1);
+            var veranus = TestTierMinion("veranus", "BG27_HERO_801_Buddy", 2);
+            veranus.CardKind = CardKind.HeroBuddy;
+            veranus.Name = "Veranus";
+            service.State.Player.Board.Add(target);
+            service.State.Player.Board.Add(veranus);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(2, service.State.Player.Board[0].TavernTier);
+            Assert.AreNotEqual("VERANUS_TARGET", service.State.Player.Board[0].CardId);
+
+            var tierSevenService = CreateHeroService("BG27_HERO_801");
+            tierSevenService.State.Player.Board.Clear();
+            var tierSix = TestTierMinion("veranus-tier-six-target", "VERANUS_TIER_SIX_TARGET", 6);
+            var secondVeranus = TestTierMinion("veranus-tier-seven", "BG27_HERO_801_Buddy", 2);
+            secondVeranus.CardKind = CardKind.HeroBuddy;
+            secondVeranus.Name = "Veranus";
+            tierSevenService.State.Player.Board.Add(tierSix);
+            tierSevenService.State.Player.Board.Add(secondVeranus);
+
+            tierSevenService.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(7, tierSevenService.State.Player.Board[0].TavernTier);
         }
 
         [Test]
@@ -100,6 +709,470 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(6, discover.RewardTier);
             Assert.Greater(discover.Options.Count, 0);
             Assert.IsTrue(discover.Options.All(card => card.TavernTier == 6));
+        }
+
+        [TestCase(false, false, 2, 1)]
+        [TestCase(true, false, 3, 1)]
+        [TestCase(false, true, 2, 2)]
+        [TestCase(true, true, 3, 2)]
+        public void ClockworkAssistant_BrannAndGoldenCopiesQueueEveryDiscover(
+            bool goldenBrann,
+            bool goldenAssistant,
+            int expectedDiscoverStates,
+            int expectedPicksPerDiscover)
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = 3;
+            tavern.Hand.Clear();
+            tavern.Discover = null;
+            tavern.DiscoverQueue.Clear();
+            service.State.Player.Board.Clear();
+
+            var brann = TestMinion("brann", "BG_LOE_077", 2, 4);
+            brann.Golden = goldenBrann;
+            service.State.Player.Board.Add(brann);
+
+            var assistant = TestMinion("clockwork-assistant", "TB_BaconShop_HERO_28_Buddy", 3, 3);
+            assistant.CardKind = CardKind.HeroBuddy;
+            assistant.Name = "Clockwork Assistant";
+            assistant.Golden = goldenAssistant;
+            assistant.Keywords.Add(Keyword.Battlecry);
+            tavern.Hand.Add(assistant);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("clockwork-assistant", tavern.Discover.Source);
+            Assert.AreEqual(4, tavern.Discover.RewardTier);
+            Assert.AreEqual(expectedPicksPerDiscover, tavern.Discover.RemainingPicks);
+            Assert.AreEqual(expectedDiscoverStates - 1, tavern.DiscoverQueue.Count);
+            Assert.IsTrue(tavern.DiscoverQueue.All(discover =>
+                discover.Source == "clockwork-assistant" &&
+                discover.RewardTier == 4 &&
+                discover.RemainingPicks == expectedPicksPerDiscover));
+
+            var choicesResolved = 0;
+            while (tavern.Discover != null)
+            {
+                Assert.AreEqual("clockwork-assistant", tavern.Discover.Source);
+                Assert.AreEqual(4, tavern.Discover.RewardTier);
+                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                choicesResolved += 1;
+            }
+
+            Assert.AreEqual(expectedDiscoverStates * expectedPicksPerDiscover, choicesResolved);
+            Assert.AreEqual(0, tavern.DiscoverQueue.Count);
+        }
+
+        [Test]
+        public void ClockworkAssistant_BattlecryUsesOnlyRemainingCurrentPoolCopies()
+        {
+            var tierFour = MinionCatalogLoader.LoadFromResources().All
+                .Where(definition => definition.InPool && definition.TavernTier == 4)
+                .Take(2)
+                .ToList();
+            Assert.AreEqual(2, tierFour.Count);
+            var exhausted = tierFour[0];
+            var available = tierFour[1];
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_28",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledMinionCardIds = tierFour.Select(definition => definition.CardId).ToList()
+                });
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = 3;
+            ForceOnlyPoolCopies(
+                tavern,
+                new System.Collections.Generic.Dictionary<string, int>
+                {
+                    [exhausted.Id] = 0,
+                    [available.Id] = 1
+                });
+
+            PlayBuddy(service, "TB_BaconShop_HERO_28_Buddy");
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("clockwork-assistant", discover.Source);
+            Assert.AreEqual(4, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(available.Id, discover.Options[0].DefinitionId);
+        }
+
+        [Test]
+        public void ClockworkAssistant_BattlecryCanDiscoverTierSevenWhenUnlocked()
+        {
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_28",
+                new MatchSetupOptions
+                {
+                    EnableAnomalies = true,
+                    SelectedAnomalyCardId = "BG27_Anomaly_504"
+                });
+            service.State.Player.Tavern.Tier = 6;
+
+            PlayBuddy(service, "TB_BaconShop_HERO_28_Buddy");
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("clockwork-assistant", discover.Source);
+            Assert.AreEqual(7, discover.RewardTier);
+            Assert.Greater(discover.Options.Count, 0);
+            Assert.IsTrue(discover.Options.All(card => card.TavernTier == 7));
+        }
+
+        [Test]
+        public void ClockworkAssistant_BattlecryCanDiscoverInjectedTimewarpedCurrentPoolMinions()
+        {
+            var target = TimewarpedTavernCatalogLoader.LoadFromResources().All
+                .First(card =>
+                    card.CardKind == CardKind.Minion &&
+                    card.TechLevel > TavernRules.MinTavernTier &&
+                    card.TechLevel <= 6);
+            var targetDefinitionId = "timewarped-" + target.CardId;
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = target.TechLevel - 1;
+            ForceOnlyPoolCopies(
+                tavern,
+                new System.Collections.Generic.Dictionary<string, int>
+                {
+                    [targetDefinitionId] = 1
+                });
+
+            PlayBuddy(service, "TB_BaconShop_HERO_28_Buddy");
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("clockwork-assistant", discover.Source);
+            Assert.AreEqual(target.TechLevel, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(targetDefinitionId, discover.Options[0].DefinitionId);
+            Assert.AreEqual(target.CardId, discover.Options[0].CardId);
+            Assert.IsTrue(discover.Options[0].Tags.Contains("oathstone_summoning"));
+        }
+
+        [Test]
+        public void PatientScoutDiscoverCanSeeInjectedTimewarpedCurrentPoolMinions()
+        {
+            var target = TimewarpedTavernCatalogLoader.LoadFromResources().All
+                .First(card =>
+                    card.CardKind == CardKind.Minion &&
+                    card.TechLevel > TavernRules.MinTavernTier &&
+                    card.TechLevel <= 6);
+            var targetDefinitionId = "timewarped-" + target.CardId;
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_28",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledMinionCardIds = new System.Collections.Generic.List<string>()
+                });
+            var tavern = service.State.Player.Tavern;
+            ForceOnlyPoolCopies(
+                tavern,
+                new System.Collections.Generic.Dictionary<string, int>
+                {
+                    [targetDefinitionId] = 1
+                });
+            var scout = TestMinion("patient-scout-injected", "BG24_715", 1, 1);
+            scout.DefinitionId = "bg24_715";
+            scout.Name = "Patient Scout";
+            scout.Counters["patient-scout-tier"] = target.TechLevel;
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(scout);
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, scout.InstanceId));
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("patient-scout", discover.Source);
+            Assert.AreEqual(target.TechLevel, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(targetDefinitionId, discover.Options[0].DefinitionId);
+            Assert.AreEqual(target.CardId, discover.Options[0].CardId);
+            Assert.IsTrue(discover.Options[0].Tags.Contains("oathstone_summoning"));
+        }
+
+        [Test]
+        public void ClockworkAssistant_BattlecryCanDiscoverBuddyPoolCards()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_28");
+            var buddy = service.HeroCatalog.AllBuddies
+                .First(definition =>
+                    definition != null &&
+                    !definition.ExcludedFromBuddyDiscover &&
+                    definition.TavernTier > TavernRules.MinTavernTier);
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = buddy.TavernTier - 1;
+            ForceOnlyPoolCopies(tavern, new System.Collections.Generic.Dictionary<string, int>());
+            tavern.BuddyPool = new System.Collections.Generic.Dictionary<string, int>
+            {
+                [buddy.CardId] = 1
+            };
+            tavern.BuddyPoolCapacities = new System.Collections.Generic.Dictionary<string, int>
+            {
+                [buddy.CardId] = 1
+            };
+
+            PlayBuddy(service, "TB_BaconShop_HERO_28_Buddy");
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("clockwork-assistant", discover.Source);
+            Assert.AreEqual(buddy.TavernTier, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(CardKind.HeroBuddy, discover.Options[0].CardKind);
+            Assert.AreEqual(buddy.CardId, discover.Options[0].CardId);
+            Assert.AreEqual(PoolSource.Copy, discover.Options[0].PoolSource);
+            Assert.AreEqual(0, discover.Options[0].PoolCopiesHeld);
+        }
+
+        [Test]
+        public void Alexstrasza_UpgradeToTierFourQueuesDragonDiscover()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_56");
+            var tavern = service.State.Player.Tavern;
+
+            while (tavern.Tier < 4)
+            {
+                tavern.Gold = 100;
+                service.Apply(new GameCommand(GameCommandType.UpgradeTavern));
+            }
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("hero:alexstrasza", discover.Source);
+            Assert.AreEqual(4, discover.RewardTier);
+            Assert.Greater(discover.Options.Count, 0);
+            Assert.IsTrue(discover.Options.All(card =>
+                card.TavernTier <= 4 &&
+                (card.Tribes.Contains(Tribe.Dragon) || card.Tribes.Contains(Tribe.All))));
+        }
+
+        [Test]
+        public void Vaelastrasz_RallyAddsRandomDragonToHand()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_56");
+            PlayBuddy(service, "TB_BaconShop_HERO_56_Buddy");
+            var buddy = service.State.Player.Board.Single(card => card.CardId == "TB_BaconShop_HERO_56_Buddy");
+            Assert.IsTrue(buddy.Keywords.Contains(Keyword.Rally));
+
+            service.State.Opponent.Board.Clear();
+            var opponent = TestMinion("vael-target", "VAEL_TARGET", 0, 20);
+            opponent.Owner = BoardSide.Opponent;
+            opponent.CanAttack = true;
+            service.State.Opponent.Board.Add(opponent);
+            var handBefore = service.State.Player.Tavern.Hand.Count;
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1704, SafetyLimit = 1 }));
+
+            var added = service.State.Player.Tavern.Hand.Skip(handBefore).ToList();
+            Assert.GreaterOrEqual(added.Count, 1);
+            Assert.IsTrue(added.All(card => card.Tribes.Contains(Tribe.Dragon) || card.Tribes.Contains(Tribe.All)));
+        }
+
+        [Test]
+        public void AfKay_FirstTwoTurnsBlockActionsThenQueueTierThreeAndFourDiscovers()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_16");
+            var tavern = service.State.Player.Tavern;
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.RerollShop)));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.RerollShop)));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(3, service.State.Round);
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("hero:a-f-kay-tier-3", tavern.Discover.Source);
+            Assert.AreEqual(3, tavern.Discover.RewardTier);
+            Assert.AreEqual(1, tavern.DiscoverQueue.Count);
+            Assert.AreEqual("hero:a-f-kay-tier-4", tavern.DiscoverQueue.Single().Source);
+            Assert.AreEqual(4, tavern.DiscoverQueue.Single().RewardTier);
+        }
+
+        [Test]
+        public void SnackVendor_EndOfTurnGivesStatsToTierThreeMinion()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_16");
+            var vendor = TestMinion("snack-vendor", "TB_BaconShop_HERO_16_Buddy", 8, 9);
+            vendor.CardKind = CardKind.HeroBuddy;
+            vendor.Name = "Snack Vendor";
+            vendor.TavernTier = 6;
+            var target = TestMinion("tier-three-target", "TIER_THREE_TARGET", 2, 3);
+            target.TavernTier = 3;
+            var ignored = TestMinion("tier-four-target", "TIER_FOUR_TARGET", 5, 5);
+            ignored.TavernTier = 4;
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(vendor);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Board.Add(ignored);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(10, target.Attack);
+            Assert.AreEqual(12, target.MaxHealth);
+            Assert.AreEqual(5, ignored.Attack);
+            Assert.AreEqual(5, ignored.MaxHealth);
+        }
+
+        [Test]
+        public void GuffRunetotem_BoughtTierTotalGrantsTripleRewardAndRollsOver()
+        {
+            var service = CreateHeroService("BG20_HERO_242");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 20;
+            tavern.Shop = new System.Collections.Generic.List<MinionInstance>
+            {
+                TestTierMinion("guff-tier-six-a", "GUFF_TIER_SIX_A", 6),
+                TestTierMinion("guff-tier-six-b", "GUFF_TIER_SIX_B", 6),
+                TestTierMinion("guff-tier-six-c", "GUFF_TIER_SIX_C", 6),
+                TestTierMinion("guff-tier-three", "GUFF_TIER_THREE", 3)
+            };
+
+            BuyFirstShopMinion(service);
+            BuyFirstShopMinion(service);
+            BuyFirstShopMinion(service);
+            BuyFirstShopMinion(service);
+
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "TRIPLE_REWARD"));
+            Assert.AreEqual(1, tavern.HeroEffectCounters["hero:guff:tavern_tier_total"]);
+        }
+
+        [Test]
+        public void BabyKodo_BattlecryRefreshesShopWithOneMinionOfEachTier()
+        {
+            var service = CreateHeroService("BG20_HERO_242");
+
+            PlayBuddy(service, "BG20_HERO_242_Buddy");
+
+            var tiers = service.State.Player.Tavern.Shop
+                .Where(card => card != null && (card.CardKind == CardKind.Minion || card.CardKind == CardKind.HeroBuddy))
+                .Select(card => card.TavernTier)
+                .Distinct()
+                .ToList();
+            foreach (var tier in Enumerable.Range(TavernRules.MinTavernTier, 6))
+            {
+                CollectionAssert.Contains(tiers, tier);
+            }
+        }
+
+        [Test]
+        public void PlanarTelescopeDiscoverCanOfferMostCommonTribeBuddyPoolCards()
+        {
+            var service = CreateBuddyPoolSpellService();
+            var buddy = TierThreePirateBuddy(service);
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = 3;
+            tavern.Gold = 10;
+            ForceOnlyPoolCopies(tavern, new System.Collections.Generic.Dictionary<string, int>());
+            ForceOnlyBuddyPoolCopies(tavern, buddy.CardId, 1);
+            SetMajorityPirateBoard(service);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "105669", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("Planar Telescope", discover.Source);
+            Assert.AreEqual(3, discover.RewardTier);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(CardKind.HeroBuddy, discover.Options[0].CardKind);
+            Assert.AreEqual(buddy.CardId, discover.Options[0].CardId);
+            Assert.IsTrue(discover.Options[0].Tribes.Contains(Tribe.Pirate));
+            Assert.AreEqual(PoolSource.Discover, discover.Options[0].PoolSource);
+            Assert.AreEqual(0, discover.Options[0].PoolCopiesHeld);
+            Assert.AreEqual(1, tavern.BuddyPool[buddy.CardId]);
+        }
+
+        [Test]
+        public void FriendlyBountyCanAddMostCommonTribeBuddyPoolCards()
+        {
+            var service = CreateBuddyPoolSpellService();
+            var buddy = TierThreePirateBuddy(service);
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = 3;
+            tavern.Gold = 10;
+            ForceOnlyPoolCopies(tavern, new System.Collections.Generic.Dictionary<string, int>());
+            ForceOnlyBuddyPoolCopies(tavern, buddy.CardId, 1);
+            SetMajorityPirateBoard(service);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "122185", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var added = tavern.Hand.Single(card => card.CardId == buddy.CardId);
+            Assert.AreEqual(CardKind.HeroBuddy, added.CardKind);
+            Assert.IsTrue(added.Tribes.Contains(Tribe.Pirate));
+            Assert.AreEqual(PoolSource.Copy, added.PoolSource);
+            Assert.AreEqual(0, added.PoolCopiesHeld);
+            Assert.AreEqual(1, tavern.BuddyPool[buddy.CardId]);
+        }
+
+        [Test]
+        public void PlanarTelescopeDiscoverCanOfferOtherTypedBuddyPoolCards()
+        {
+            var service = CreateBuddyPoolSpellService();
+            var buddy = NonPirateTypedBuddy(service);
+            var tribe = buddy.Tribes.First(value => value != Tribe.Pirate && value != Tribe.None && value != Tribe.All);
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = System.Math.Max(TavernRules.MinTavernTier, buddy.TavernTier);
+            tavern.Gold = 10;
+            ForceOnlyPoolCopies(tavern, new System.Collections.Generic.Dictionary<string, int>());
+            ForceOnlyBuddyPoolCopies(tavern, buddy.CardId, 1);
+            SetMajorityTribeBoard(service, tribe);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "105669", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(CardKind.HeroBuddy, discover.Options[0].CardKind);
+            Assert.AreEqual(buddy.CardId, discover.Options[0].CardId);
+            Assert.IsTrue(discover.Options[0].Tribes.Contains(tribe) || discover.Options[0].Tribes.Contains(Tribe.All));
+        }
+
+        [Test]
+        public void PlanarTelescopeDiscoverCanOfferInjectedTimewarpedCurrentPoolMinions()
+        {
+            var target = TimewarpedTavernCatalogLoader.LoadFromResources().All
+                .First(card =>
+                    card.CardKind == CardKind.Minion &&
+                    card.TechLevel <= 3 &&
+                    card.Tribes.Any(tribe => tribe != Tribe.None && tribe != Tribe.All));
+            var tribe = target.Tribes.First(value => value != Tribe.None && value != Tribe.All);
+            var targetDefinitionId = "timewarped-" + target.CardId;
+            var service = CreateBuddyPoolSpellService();
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = System.Math.Max(TavernRules.MinTavernTier, target.TechLevel);
+            tavern.Gold = 10;
+            ForceOnlyPoolCopies(
+                tavern,
+                new System.Collections.Generic.Dictionary<string, int>
+                {
+                    [targetDefinitionId] = 1
+                });
+            ForceOnlyBuddyPoolCopies(tavern, "unused-buddy", 0);
+            SetMajorityTribeBoard(service, tribe);
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "105669", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("Planar Telescope", discover.Source);
+            Assert.AreEqual(1, discover.Options.Count);
+            Assert.AreEqual(targetDefinitionId, discover.Options[0].DefinitionId);
+            Assert.AreEqual(target.CardId, discover.Options[0].CardId);
+            Assert.IsTrue(discover.Options[0].Tags.Contains("oathstone_summoning"));
+            Assert.IsTrue(discover.Options[0].Tribes.Contains(tribe) || discover.Options[0].Tribes.Contains(Tribe.All));
         }
 
         [Test]
@@ -1271,6 +2344,22 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void SecondHeroPower_CombatStartEffectsUseUnlockedExtraHeroPower()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_34");
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("extra-alakir-left", "EXTRA_ALAKIR_LEFT", 1, 1));
+            service.GrantSecondHeroPower("TB_BaconShop_HP_086", "test-second-power");
+
+            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+
+            var snapshot = service.State.LastReplay.InitialSnapshot.Player.Minions[0];
+            Assert.IsTrue(snapshot.Keywords.Contains(Keyword.Windfury));
+            Assert.IsTrue(snapshot.Keywords.Contains(Keyword.DivineShield));
+            Assert.IsTrue(snapshot.Keywords.Contains(Keyword.Taunt));
+        }
+
+        [Test]
         public void PhaseFive_CombatCopiesAndEndTurnLieutenantsResolve()
         {
             var vanndar = CreateHeroService("BG22_HERO_003");
@@ -1617,6 +2706,70 @@ namespace LearnHearthstone.Tests.EditMode
             var maxwell = service.State.Player.Board.Single(card => card.CardId == "TB_BaconShop_HERO_40_Buddy");
             service.Apply(new GameCommand(GameCommandType.SellMinion, maxwell.InstanceId));
 
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == expectedBuddyId));
+        }
+
+        [Test]
+        public void MasterNguyen_StartTurnOffersTwoTemporaryHeroPowers()
+        {
+            var service = CreateHeroService("BG20_HERO_202");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("hero-power:master-nguyen", discover.Source);
+            Assert.AreEqual(2, discover.Options.Count);
+            Assert.IsTrue(discover.Options.All(card => card.CardKind == CardKind.HeroPower));
+            Assert.IsFalse(discover.Options.Any(card => card.CardId == "BG20_HERO_202p"));
+            Assert.AreEqual("BG20_HERO_202p", service.State.Player.HeroPowerCardId);
+        }
+
+        [Test]
+        public void MasterNguyen_ChoiceTemporarilyReplacesHeroPowerAndNextTurnRestores()
+        {
+            var service = CreateHeroService("BG20_HERO_202");
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            var selectedPowerId = service.State.Player.Tavern.Discover.Options[0].CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual(selectedPowerId, service.State.Player.HeroPowerCardId);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual("BG20_HERO_202p", service.State.Player.HeroPowerCardId);
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            Assert.AreEqual("hero-power:master-nguyen", service.State.Player.Tavern.Discover.Source);
+        }
+
+        [Test]
+        public void LeiFlamepaw_WaitsForNguyenChoiceAndGetsSelectedPowerBuddy()
+        {
+            var service = CreateHeroService("BG20_HERO_202");
+            PlayBuddy(service, "BG20_HERO_202_Buddy");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("hero-power:master-nguyen", discover.Source);
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.HeroBuddy));
+
+            var optionIndex = discover.Options.FindIndex(option =>
+                service.HeroCatalog.AllHeroes.Any(hero =>
+                    hero.HeroPower != null &&
+                    hero.Buddy != null &&
+                    hero.HeroPower.CardId == option.CardId));
+            Assert.GreaterOrEqual(optionIndex, 0);
+            var selectedPowerId = discover.Options[optionIndex].CardId;
+            var expectedBuddyId = service.HeroCatalog.AllHeroes
+                .First(hero => hero.HeroPower != null && hero.HeroPower.CardId == selectedPowerId)
+                .Buddy.CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, optionIndex));
+
+            Assert.AreEqual(selectedPowerId, service.State.Player.HeroPowerCardId);
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == expectedBuddyId));
         }
 
@@ -1990,12 +3143,189 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(BoardSide.Player, gained.Owner);
         }
 
+        [Test]
+        public void Tavish_DeadeyeDamagesTargetAtCombatStartAndCrabbyGetsPlainCopy()
+        {
+            var service = CreateHeroService("BG22_HERO_000");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            PlayBuddy(service, "BG22_HERO_000_Buddy");
+            var target = TestMinion("tavish-target", "BG35_801", 1, 1);
+            target.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(target);
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, TargetZone.OpponentBoard));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1801, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Detail.Contains("Deadeye dealt 1 damage")));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BG35_801"));
+            Assert.IsFalse(service.State.LastResult.FinalOpponentBoard.Any(card => card.InstanceId == "tavish-target"));
+        }
+
+        [Test]
+        public void Tamsin_PhylacteryLowestAttackDeathrattleBuffsOthersAndMonstrosityGrows()
+        {
+            var service = CreateHeroService("BG20_HERO_282");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var source = TestMinion("tamsin-source", "TAMSIN_SOURCE", 1, 1);
+            source.Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board.Add(source);
+            service.State.Player.Board.Add(TestMinion("tamsin-survivor", "TAMSIN_SURVIVOR", 2, 5));
+            PlayBuddy(service, "BG20_HERO_282_Buddy");
+            var monstrosity = service.State.Player.Board.Single(card => card.CardId == "BG20_HERO_282_Buddy");
+            var initialMonstrosityAttack = monstrosity.Attack;
+            var opponent = TestMinion("tamsin-opponent", "TAMSIN_OPPONENT", 10, 10);
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1802, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Detail.Contains("Fragrant Phylactery shared")));
+            Assert.AreEqual(initialMonstrosityAttack + 1, monstrosity.Attack);
+        }
+
+        [Test]
+        public void Onyxia_AvengeSummonsImmediateWhelpAndManyWhelpsGrows()
+        {
+            var service = CreateHeroService("BG22_HERO_305");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            for (var index = 0; index < 4; index += 1)
+            {
+                var fodder = TestMinion("onyxia-fodder-" + index, "ONYXIA_FODDER_" + index, 1, 1);
+                fodder.Keywords.Add(Keyword.Taunt);
+                service.State.Player.Board.Add(fodder);
+            }
+
+            PlayBuddy(service, "BG22_HERO_305_Buddy");
+            var manyWhelps = service.State.Player.Board.Single(card => card.CardId == "BG22_HERO_305_Buddy");
+            var initialAttack = manyWhelps.Attack;
+            var initialHealth = manyWhelps.MaxHealth;
+            var opponent = TestMinion("onyxia-opponent", "ONYXIA_OPPONENT", 20, 40);
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1803, SafetyLimit = 8 }));
+
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Detail.Contains("queued by Broodmother")));
+            Assert.AreEqual(initialAttack + 2, manyWhelps.Attack);
+            Assert.AreEqual(initialHealth + 2, manyWhelps.MaxHealth);
+            Assert.AreEqual(4, service.State.Player.Tavern.HeroEffectCounters["hero:onyxia:whelp_stats"]);
+        }
+
+        [Test]
+        public void Brukan_ChoiceCallsSelectedElementAndSpiritRaptorReplaysRememberedElement()
+        {
+            var service = CreateHeroService("BG22_HERO_001");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            PlayBuddy(service, "BG22_HERO_001_Buddy");
+            var raptor = service.State.Player.Board.Single(card => card.CardId == "BG22_HERO_001_Buddy");
+            raptor.Keywords.Add(Keyword.Taunt);
+            var opponent = TestMinion("brukan-opponent", "BRUKAN_OPPONENT", 10, 10);
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+            var choice = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            Assert.NotNull(choice);
+            Assert.AreEqual("hero:brukan", choice.Source);
+            Assert.AreEqual(4, choice.Options.Count);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 1));
+            Assert.AreEqual("earth", service.State.Player.Tavern.HeroBrukanElement);
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1804, SafetyLimit = 1 }));
+
+            var earthCalls = service.State.CombatLog.Count(entry => entry.Detail.Contains("Embrace the Elements called earth"));
+            Assert.GreaterOrEqual(earthCalls, 2);
+            Assert.IsTrue(service.State.CombatLog.Any(entry =>
+                entry.Title == "MinionSummoned" &&
+                entry.Detail.Contains("Elemental") &&
+                entry.TargetId.Contains("BG22_HERO_001t")));
+        }
+
         private static MatchService CreateHeroService(string heroCardId)
         {
+            return CreateHeroService(heroCardId, null);
+        }
+
+        private static MatchService CreateHeroService(string heroCardId, MatchSetupOptions setup)
+        {
+            setup = setup ?? new MatchSetupOptions();
+            setup.SelectedHeroCardId = heroCardId;
             return MatchService.CreateWithDefaultCatalog(
                 12345,
                 new InMemoryTestScenarioRepository(),
-                new MatchSetupOptions { SelectedHeroCardId = heroCardId });
+                setup);
+        }
+
+        private static MatchService CreateBuddyPoolSpellService()
+        {
+            return CreateHeroService(
+                "TB_BaconShop_HERO_28",
+                new MatchSetupOptions
+                {
+                    EnableAnomalies = true,
+                    SelectedAnomalyCardId = "BG27_Anomaly_810",
+                    IsDefaultCardPoolVersion = false,
+                    EnabledMinionCardIds = new System.Collections.Generic.List<string>(),
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "105669", "122185" }
+                });
+        }
+
+        private static HeroBuddyDefinition TierThreePirateBuddy(MatchService service)
+        {
+            return service.HeroCatalog.AllBuddies.First(buddy =>
+                buddy != null &&
+                !buddy.ExcludedFromBuddyDiscover &&
+                buddy.TavernTier == 3 &&
+                buddy.Tribes.Contains(Tribe.Pirate));
+        }
+
+        private static HeroBuddyDefinition NonPirateTypedBuddy(MatchService service)
+        {
+            return service.HeroCatalog.AllBuddies.First(buddy =>
+                buddy != null &&
+                !buddy.ExcludedFromBuddyDiscover &&
+                buddy.Tribes.Any(tribe => tribe != Tribe.Pirate && tribe != Tribe.None && tribe != Tribe.All));
+        }
+
+        private static void ForceOnlyPoolCopies(TavernState tavern, System.Collections.Generic.Dictionary<string, int> counts)
+        {
+            var keys = tavern.Pool.Keys.ToList();
+            tavern.Pool = keys.ToDictionary(key => key, key => 0);
+            foreach (var pair in counts)
+            {
+                tavern.Pool[pair.Key] = pair.Value;
+                tavern.PoolCapacities[pair.Key] = System.Math.Max(
+                    pair.Value,
+                    tavern.PoolCapacities.TryGetValue(pair.Key, out var capacity) ? capacity : 0);
+            }
+        }
+
+        private static void ForceOnlyBuddyPoolCopies(TavernState tavern, string cardId, int count)
+        {
+            var keys = tavern.BuddyPool.Keys.ToList();
+            tavern.BuddyPool = keys.ToDictionary(key => key, key => 0);
+            tavern.BuddyPool[cardId] = count;
+            tavern.BuddyPoolCapacities[cardId] = System.Math.Max(
+                count,
+                tavern.BuddyPoolCapacities.TryGetValue(cardId, out var capacity) ? capacity : 0);
+        }
+
+        private static void SetMajorityPirateBoard(MatchService service)
+        {
+            SetMajorityTribeBoard(service, Tribe.Pirate);
+        }
+
+        private static void SetMajorityTribeBoard(MatchService service, Tribe tribe)
+        {
+            var other = tribe == Tribe.Dragon ? Tribe.Beast : Tribe.Dragon;
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("majority-one", "MAJORITY_ONE", 1, 1, new System.Collections.Generic.List<Tribe> { tribe }));
+            service.State.Player.Board.Add(TestMinion("majority-two", "MAJORITY_TWO", 1, 1, new System.Collections.Generic.List<Tribe> { tribe }));
+            service.State.Player.Board.Add(TestMinion("minority-one", "MINORITY_ONE", 1, 1, new System.Collections.Generic.List<Tribe> { other }));
         }
 
         private static void PlayBuddy(MatchService service, string buddyCardId)
@@ -2003,6 +3333,23 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Hand.Clear();
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, buddyCardId, CardKind.HeroBuddy));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+        }
+
+        private static void AssertDarkmoonPrizeDiscover(MatchService service, string source, int tier)
+        {
+            var tavern = service.State.Player.Tavern;
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual(source, discover.Source);
+            Assert.AreEqual(tier, discover.RewardTier);
+            var prizeIds = service.DarkmoonPrizeCatalog.GetByTier(tier).Select(prize => prize.CardId).ToList();
+            Assert.IsNotEmpty(prizeIds);
+            Assert.IsTrue(discover.Options.All(card =>
+                card.CardKind == CardKind.Spell &&
+                card.TavernTier == tier &&
+                prizeIds.Contains(card.CardId) &&
+                card.Tags.Contains("darkmoon_prize") &&
+                card.Tags.Contains("darkmoon_prize_tier_" + tier)));
         }
 
         private static void BuyFirstShopMinion(MatchService service)
@@ -2029,6 +3376,13 @@ namespace LearnHearthstone.Tests.EditMode
                 PoolSource = PoolSource.Debug,
                 PoolCopiesHeld = 0
             };
+        }
+
+        private static MinionInstance TestTierMinion(string instanceId, string cardId, int tavernTier)
+        {
+            var minion = TestMinion(instanceId, cardId, 1, 1);
+            minion.TavernTier = tavernTier;
+            return minion;
         }
 
         private static MinionInstance TestMinion(string instanceId, string cardId, int attack, int health, System.Collections.Generic.List<Tribe> tribes = null)
