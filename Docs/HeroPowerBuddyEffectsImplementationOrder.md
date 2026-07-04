@@ -126,8 +126,8 @@
 | 5.6 | N'Zoth | Baby N'Zoth | Framework First | 开局鱼和 Baby N'Zoth 战吼已实现；鱼收集亡语待亡语转移支持 |
 | 5.7 | Vanndar Stormpike | Stormpike Lieutenant | Implemented | 7 回合后最高生命复制和宝宝右侧 +10 生命已实现 |
 | 5.8 | Drek'Thar | Frostwolf Lieutenant | Implemented | 7 回合后最高攻击复制和宝宝左侧 +10 攻击已实现 |
-| 5.9 | Tavish Stormpike | Crabby | Framework First | 待战斗目标选择、Lock and Load 移除事件 |
-| 5.10 | Tamsin Roame | Monstrosity | Framework First | 待自定义战斗亡语载荷和友方死亡属性监听 |
+| 5.9 | Tavish Stormpike | Crabby | Implemented | Deadeye 目标记录、战斗开始伤害/移除、有空位直接发射/结算和 Crabby 普通复制已实现；UI polish 后续跟进 |
+| 5.10 | Tamsin Roame | Monstrosity | Implemented | Fragrant Phylactery 战斗开始亡语挂载、属性广播和 Monstrosity 友方死亡成长已实现 |
 | 5.11 | Teron Gorefiend | Shadowy Construct | Framework First | 目标标记、战斗开始摧毁/召回代理、Shadowy Construct 收益已实现；死亡时序待战斗死亡钩子 |
 | 5.12 | Arch-Villain Rafaam | Loyal Henchman | Framework First | 待击杀归属与第一/第二击杀复制奖励 |
 | 5.13 | Rokara | Icesnarl the Mighty | Framework First | 待击杀归属事件和永久属性写回 |
@@ -135,12 +135,12 @@
 | 5.15 | Sneed | Piloted Whirl-O-Tron | Framework First | 开局 Shredder 已实现；手牌召唤亡语和亡语复制待支持 |
 | 5.16 | The Jailer | Mawsworn Soulkeeper | Framework First | Runic Empowerment 已实现；宝宝亡语暂用售出代理 |
 | 5.17 | Greybough | Wandering Treant | Framework First | 英雄效果和 CombatEngine 内部战斗召唤会获得 +1/+2 Taunt；Wandering Treant 的 Taunt 被攻击触发待攻击钩子 |
-| 5.18 | Onyxia | Many Whelps | Framework First | 待英雄级 Avenge、Whelp 召唤和立即攻击钩子 |
+| 5.18 | Onyxia | Many Whelps | Implemented | 英雄级 Avenge(4)、Whelp 召唤、立即攻击队列和 Many Whelps 成长已实现 |
 | 5.19 | Ini Stormcoil | Sub Scrubber | Framework First | Sub Scrubber Mech 打出成长已实现；MechGyver 待战斗死亡计数奖励 |
 | 5.20 | Ozumat | Tamuzo | Framework First | 触手召唤、售出/战斗死亡成长和 Tamuzo 对英雄效果及 CombatEngine 内部战斗召唤翻倍已实现 |
 | 5.21 | Aranna Starseeker | Sklibb, Demon Hunter | Framework First | Sklibb 刷新额外高等级随从已实现；Aranna 友方攻击解锁待攻击计数 |
 | 5.22 | Lord Jaraxxus | Kil'rek | Framework First | Kil'rek 亡语售出代理已实现；Bloodfury 待战斗伤害累计和传送门奖励 |
-| 5.23 | Bru'kan | Spirit Raptor | Framework First | 待元素选择、战斗开始元素调用和宝宝记忆亡语 |
+| 5.23 | Bru'kan | Spirit Raptor | Implemented | 四元素选择、战斗开始元素调用和 Spirit Raptor 记忆/亡语重放已实现 |
 
 ## Phase 6: 发现、选择、奖励框架组合
 

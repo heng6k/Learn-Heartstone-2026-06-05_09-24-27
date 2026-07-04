@@ -319,7 +319,7 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 - 从被淘汰玩家战队发现随从。
 - Lil' K.T. 从对手战队代理中获得普通随从。
 
-单人酒馆边界：真实淘汰不存在时，可以保留淘汰快照代理，但不要标为完全官方实现。
+单人酒馆边界：真实淘汰不存在时，可以保留淘汰快照代理，但不要标为完全官方实现。2026-07-04 决策：普通英雄技能候选池直接过滤 Bigglesworth；本体运行时保留 `FrameworkFirst` 单人代理，等真实大厅淘汰/最低血量系统完成后再评估转正。
 
 ### Scabbs Cutterbutter
 
@@ -373,21 +373,19 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 建议优先关闭的英雄：
 
-1. Tavish Stormpike
-2. Tamsin Roame
-3. Teron Gorefiend
-4. N'Zoth
-5. Sneed
-6. The Jailer
-7. Greybough
-8. Onyxia
-9. Illidan Stormrage
-10. Rokara
-11. Sylvanas Windrunner
-12. Lord Jaraxxus
-13. Bru'kan
-14. Loh, the Living Legend
-15. Dinotamer Brann
+1. Teron Gorefiend
+2. N'Zoth
+3. Sneed
+4. The Jailer
+5. Greybough
+6. Illidan Stormrage
+7. Rokara
+8. Sylvanas Windrunner
+9. Lord Jaraxxus
+10. Loh, the Living Legend
+11. Dinotamer Brann
+
+已从本待做列表移出并转 `Implemented`：Tavish Stormpike、Tamsin Roame、Onyxia、Bru'kan。它们仍可作为战斗开始顺序、立即攻击、亡语和元素选择的回归样例。
 
 相关 `FrameworkFirst` 可在同批复查：
 
@@ -489,11 +487,13 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Jim Raynor / Artanis / Kerrigan
 
+2026-07-04 决策顺序：Jim Raynor -> Kerrigan -> Artanis。
+
 需要实现：
 
 - Terran/Battlecruiser 升级链。
-- Protoss 延迟奖励系统。
 - Zerg morphing tiers。
+- Protoss 延迟奖励系统。
 - 对应宝宝从 proxy 迁移到正式系统。
 
 ### Morchie / Murozond
@@ -524,7 +524,7 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ## 下一步建议
 
-最稳的下一步是确认 Galewing 三条航线的官方奖励文本，替换当前 proxy；如果暂时不补文本，则进入 P2 的 Sire Denathrius / Tickatus / Yogg-Saron 相关公共机制。
+当前前置批次已推进到 FrameworkFirst 收口：A1 四个战斗事件英雄已转 `Implemented`，Galewing 当前 proxy 不作为完整标准。下一步优先从 Morchie 小批次或已确认顺序的 StarCraft Terran/Battlecruiser 子系统文档/实现开始。
 
 建议执行顺序：
 
@@ -535,3 +535,4 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 5. Ambassador Faelin、Thorim 已完成；后续只在回归测试中覆盖开局 Discover、延迟发放、金币统计和 Veranus 邻位变形。
 6. Tickatus / Ticket Collector 已完成；后续只在回归测试中覆盖暗月奖品调度、宝宝出售发现和 P0/P1/P2 奖品效果。
 7. 在 Genn 前补多英雄技能替换时机，避免和 Cosmic Duality、Finley、Master Nguyen 互相覆盖。
+8. StarCraft 顺序固定为 Jim Raynor -> Kerrigan -> Artanis。

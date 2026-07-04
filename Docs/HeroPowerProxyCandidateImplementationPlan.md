@@ -43,7 +43,7 @@
 | 延迟触发型 | 时钟先生 | Double Time / 双倍速 | `BG34_HERO_002p` | 官方 API：2 复制成金，金色随从不给三连奖励、改给酒馆币。 | 直接过滤 | 等二复制 TripleEngine 与“金色不发 Triple Reward”规则完成后再开放。 |
 | FrameworkFirst | 奥拉基尔 | Swatting Insects / 随风而行 | `TB_BaconShop_HP_086` | 官方 API：战斗开始最左随从获 Windfury/Divine Shield/Taunt。 | 标注代理占位 | 复查战斗开始关键字已落地；补 Nguyen/Cosmic 候选标签测试。 |
 | FrameworkFirst | 反派大盗拉法姆 | I'll Take That! / 归我了 | `TB_BaconShop_HP_053` | 官方 API：下场战斗获得你消灭的第一个随从原始复制。 | 标注代理占位 | 接入战斗击杀首个敌方随从快照；无真实战斗目标时保持代理标签。 |
-| FrameworkFirst | 布鲁坎 | Embrace the Elements / 拥抱元素 | `BG22_HERO_001p` | 官方 API：选择元素，战斗开始唤起所选元素。 | 标注代理占位 | 先做元素选择状态，再做 4 元素战斗开始效果与 UI 标签。 |
+| Implemented | 布鲁坎 | Embrace the Elements / 拥抱元素 | `BG22_HERO_001p` | 官方 API：选择元素，战斗开始唤起所选元素。 | 开放，无代理标签 | 已完成元素选择、4 元素战斗开始效果、Spirit Raptor 记忆/亡语重放；后续 UI polish 不阻塞候选准入。 |
 | FrameworkFirst | 死亡之翼 | ALL Will Burn! / 万物尽焚 | `TB_BaconShop_HP_061` | 官方 API：战斗开始所有随从永久 +2 攻击。 | 标注代理占位 | 复查双方永久攻击写回；补候选准入测试。 |
 | FrameworkFirst | 风翼 | Dungar's Gryphon / 杜加尔的狮鹫 | `BG20_HERO_283p` | 官方 API：选择航线，完成获得奖励。 | 标注代理占位 | 已有代理航线奖励；保留 `FrameworkFirst`，等真实航线奖励数据补齐。 |
 | FrameworkFirst | 灰枝 | Sprout It Out! / 老树新芽 | `TB_BaconShop_HP_107` | 官方 API：战斗阶段召唤的随从 +1/+2 Taunt。 | 标注代理占位 | 复查战斗召唤修饰器；缺失时接入 combat summon modifier。 |
@@ -51,13 +51,13 @@
 | FrameworkFirst | 伊妮 | MechGyver / 敲打机械 | `BG22_HERO_200p` | 官方 API：9 个友方随从死亡后随机获取机械，循环。 | 标注代理占位 | 用 combat/tavern 友方死亡计数器，奖励当前池机械。 |
 | FrameworkFirst | 加拉克苏斯 | Bloodfury / 血怒 | `TB_BaconShop_HP_036` | 官方 API：友方随从造成 150 伤害后开传送门。 | 标注代理占位 | 需要战斗伤害统计和传送门奖励定义；先不标完整。 |
 | FrameworkFirst | 比格沃斯先生 | Kel'Thuzad's Kitty / 克尔苏加德的猫 | `TB_BaconShop_HP_080` | 官方 API：其他英雄死亡后，从其战队发现随从并保留附加效果。 | 直接过滤 | 用户已判定删除此代理候选；不再用淘汰/低血量快照模拟。等真实大厅死亡/淘汰快照系统完成后再重新评估。 |
-| FrameworkFirst | 奥妮克希亚 | Broodmother / 巢母 | `BG22_HERO_305p` | 官方 API：Avenge(4) 召唤会立即攻击的 Whelp，效果成长。 | 标注代理占位 | 接入 Avenge 计数、Whelp token、立即攻击；UI 标代理直到战斗动作完整。 |
+| Implemented | 奥妮克希亚 | Broodmother / 巢母 | `BG22_HERO_305p` | 官方 API：Avenge(4) 召唤会立即攻击的 Whelp，效果成长。 | 开放，无代理标签 | 已完成 Avenge 计数、Whelp token、立即攻击和 Many Whelps 成长；后续通用战斗动作框架不阻塞候选准入。 |
 | FrameworkFirst | 罗卡拉 | Glory of Combat / 战斗的荣耀 | `BG20_HERO_100p` | 官方 API：友方随从击杀后永久 +1 攻击。 | 标注代理占位 | 复查击杀事件永久写回；补候选标签回归。 |
 | FrameworkFirst | 斯卡布斯 | I Spy / 间谍探查 | `BG21_HERO_010p` | 官方 API：发现下个对手战队随从原始复制。 | 标注代理占位 | 当前可用单人“当前/上次对手”代理；真实排程前不标完整。 |
 | FrameworkFirst | 沙德沃克 | Snicker-snack / 奇诡尖啸 | `TB_BaconShop_HP_022` | 官方 API：触发友方随从 Battlecry，第 3 回合解锁。 | 标注代理占位 | 已有战吼重放框架；补双目标 UI 和已实现战吼边界说明。 |
 | FrameworkFirst | 希尔瓦娜斯 | Reclaimed Souls / 重拾灵魂 | `BG23_HERO_306p` | 官方 API：发现上一场战斗死亡的随从原始复制，第 3 回合解锁。 | 标注代理占位 | 用上一场战斗死亡快照；真实完整附加效果另列。 |
-| FrameworkFirst | 塔姆辛 | Fragrant Phylactery / 香氛护命匣 | `BG20_HERO_282p` | 官方 API：战斗开始给最低攻随从亡语，使其他随从获得其属性。 | 标注代理占位 | 需要战斗开始选择、亡语挂载、属性广播。 |
-| FrameworkFirst | 塔维什 | Deadeye / 精准狙击 | `BG22_HERO_000p` | 官方站点 API 未返回；HearthstoneJSON：瞄准，战斗开始对目标造成 99 伤害。 | 标注代理占位 | 按用户确认的项目语义实现：移除一个目标，之后有空位时直接发射/结算；补目标选择状态、移除记录和空位触发。 |
+| Implemented | 塔姆辛 | Fragrant Phylactery / 香氛护命匣 | `BG20_HERO_282p` | 官方 API：战斗开始给最低攻随从亡语，使其他随从获得其属性。 | 开放，无代理标签 | 已完成战斗开始选择、亡语挂载、属性广播和 Monstrosity 友方死亡成长。 |
+| Implemented | 塔维什 | Deadeye / 精准狙击 | `BG22_HERO_000p` | 官方站点 API 未返回；HearthstoneJSON：瞄准，战斗开始对目标造成 99 伤害。 | 开放，无代理标签 | 已按用户确认语义完成：移除目标，之后有空位时直接发射/结算，并记录 Crabby 普通复制奖励。 |
 | FrameworkFirst | 泰隆 | Rapid Reanimation / 飞速复活 | `BG25_HERO_103p` | 官方 API：选择友方随从，战斗开始消灭，有空位时复活完全复制。 | 标注代理占位 | 需要目标选择、战斗开始死亡、空位复活 exact copy。 |
 | FrameworkFirst | 苔丝 | Bob's Burgles / 鲍勃的豪夺 | `TB_BaconShop_HP_077` | 官方 API：刷新酒馆为上个对手战队原始复制。 | 标注代理占位 | 已有上次对手快照方向；真实对手历史完整前保留代理。 |
 | FrameworkFirst | 阿扎扎拉克 | Prestidigitation / 神奇魔术 | `TB_BaconShop_HP_020` | 官方 API：选择奥秘并置入战场。 | 标注代理占位 | 需要 Secret 系统；短期用 Better Secret proxy。 |
@@ -77,7 +77,7 @@
 2. 可开放的 `FrameworkFirst` 标签：为已能近似运行的技能保留候选，但在 option tags、日志、UI 状态里写入 `proxy_hero_power` / `framework_first`。
 3. 直接过滤组：`Double Time`、`Deferred`、`Planned` 未完成项默认不进候选，除非你逐项允许代理。
 4. 高价值补全组：优先补 `Yogg Puzzle Box` 候选标签清理、`Rokara/Al'Akir/Deathwing` 这类已有战斗入口的 focused 回归，再处理 Rafaam/Scabbs/Tess 这些可面向模拟对手的技能。
-5. 大系统/过滤组：Secret、Spellcraft/Naga、Tavish 移除后发射、Double Time 二复制三连系统单独开批；Bigglesworth、Barov、Holmes 暂时直接过滤。
+5. 大系统/过滤组：Secret、Spellcraft/Naga、Double Time 二复制三连系统单独开批；Bigglesworth、Barov、Holmes 暂时直接过滤。
 
 ## 验收矩阵
 
@@ -98,4 +98,4 @@
 - Implemented Hero Powers receive `implementation_status:Implemented` and no proxy tag.
 - Nguyen, Cosmic/second Hero Power, Training Session, and Unmasked Identity now share the same offerable candidate policy.
 - Start-of-combat Hero Power effects now receive the active Hero Power list, so unlocked second Hero Powers can trigger in the existing HeroEffectEngine phase before Trinket, Quest, and Timewarped combat-start effects.
-- 2026-07-04 follow-up: Tavish, Tamsin, Onyxia, and Bru'kan have now been implemented in the focused combat-event batch with dedicated ordering tests. They remain `FrameworkFirst` for candidate labeling because broader UI polish and full generic combat-event coverage are still product follow-ups, but their runtime hero/buddy effects are connected.
+- 2026-07-04 decision update: Tavish, Tamsin, Onyxia, and Bru'kan are now `Implemented` in the registry. They are eligible as ordinary implemented candidates and no longer receive proxy/incomplete tags; broader UI polish or generic combat-event framework work is tracked as follow-up, not a status blocker.

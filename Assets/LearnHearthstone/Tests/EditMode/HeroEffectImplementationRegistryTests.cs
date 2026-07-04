@@ -34,6 +34,26 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Registry_MarksA1CombatEventHeroPowersImplemented()
+        {
+            var implementedHeroPowers = new[]
+            {
+                "BG22_HERO_000p",
+                "BG20_HERO_282p",
+                "BG22_HERO_305p",
+                "BG22_HERO_001p"
+            };
+
+            foreach (var heroPowerCardId in implementedHeroPowers)
+            {
+                Assert.AreEqual(
+                    HeroEffectImplementationStatus.Implemented,
+                    HeroEffectImplementationRegistry.FindByHeroPowerCardId(heroPowerCardId).Status,
+                    heroPowerCardId);
+            }
+        }
+
+        [Test]
         public void Registry_ReturnsVisibleUnregisteredStatusForUnknownCards()
         {
             var unknown = HeroEffectImplementationRegistry.FindByHeroPowerCardId("UNKNOWN_HERO_POWER");

@@ -9,7 +9,7 @@ Date: 2026-07-02
 | 状态 | 数量 | 处理方式 |
 | --- | ---: | --- |
 | `Planned` | 15 | 目标清楚，按批次继续实现。 |
-| `FrameworkFirst` | 33 | 已有部分代理或框架实现，必须先补共用机制再批量收口。 |
+| `FrameworkFirst` | 31 | 已有部分代理或框架实现，必须先补共用机制再批量收口；Tavish、Tamsin、Onyxia、Bru'kan 已在 2026-07-04 转 `Implemented`。 |
 | `Deferred` | 2 | 等对应底座完成后再开工。 |
 
 你不需要先把每个实际效果逐个详细说明。后续实现应先从以下来源抽取官方文本、已有代理边界和注册表状态：
@@ -137,21 +137,17 @@ Date: 2026-07-02
 | `Deferred` | Mister Clocksworth | Double Time | `BG34_HERO_002p` | 过滤 | 待判定 |
 | `FrameworkFirst` | Al'Akir | Swatting Insects | `TB_BaconShop_HP_086` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Arch-Villain Rafaam | I'll Take That! | `TB_BaconShop_HP_053` | 标注代理 | 待判定 |
-| `FrameworkFirst` | Bru'kan | Embrace the Elements | `BG22_HERO_001p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Deathwing | ALL Will Burn! | `TB_BaconShop_HP_061` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Galewing | Dungar's Gryphon | `BG20_HERO_283p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Greybough | Sprout It Out! | `TB_BaconShop_HP_107` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Illidan Stormrage | Wingmen | `TB_BaconShop_HP_069` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Ini Stormcoil | MechGyver | `BG22_HERO_200p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Lord Jaraxxus | Bloodfury | `TB_BaconShop_HP_036` | 标注代理 | 待判定 |
-| `FrameworkFirst` | Mr. Bigglesworth | Kel'Thuzad's Kitty | `TB_BaconShop_HP_080` | 标注代理 | 待判定 |
-| `FrameworkFirst` | Onyxia | Broodmother | `BG22_HERO_305p` | 标注代理 | 待判定 |
+| `FrameworkFirst` | Mr. Bigglesworth | Kel'Thuzad's Kitty | `TB_BaconShop_HP_080` | 过滤 | 已判定：不进入普通英雄技能候选；本体保留单人代理，等真实大厅淘汰/最低血量系统后再评估 |
 | `FrameworkFirst` | Rokara | Glory of Combat | `BG20_HERO_100p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Scabbs Cutterbutter | I Spy | `BG21_HERO_010p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Shudderwock | Snicker-snack | `TB_BaconShop_HP_022` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Sylvanas Windrunner | Reclaimed Souls | `BG23_HERO_306p` | 标注代理 | 待判定 |
-| `FrameworkFirst` | Tamsin Roame | Fragrant Phylactery | `BG20_HERO_282p` | 标注代理 | 待判定 |
-| `FrameworkFirst` | Tavish Stormpike | Deadeye | `BG22_HERO_000p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Teron Gorefiend | Rapid Reanimation | `BG25_HERO_103p` | 标注代理 | 待判定 |
 | `FrameworkFirst` | Tess Greymane | Bob's Burgles | `TB_BaconShop_HP_077` | 标注代理 | 待判定 |
 | `FrameworkFirst` | The Great Akazamzarak | Prestidigitation | `TB_BaconShop_HP_020` | 标注代理 | 待判定 |
@@ -210,27 +206,27 @@ Date: 2026-07-02
 
 | 能力 | 服务对象 |
 | --- | --- |
-| 友方攻击次数统计、攻击开始/结束事件、立即攻击队列 | Loh、Aranna、Illidan、Onyxia |
-| 击杀归属，含攻击、反击、法术、亡语、召唤物伤害 | Rafaam、Rokara、Tavish |
-| 友方/敌方死亡历史和死亡时属性快照 | Tamsin、Teron、Sylvanas、Jailer、Rafaam |
+| 友方攻击次数统计、攻击开始/结束事件、立即攻击队列 | Loh、Aranna、Illidan；Onyxia 已用 focused 路径完成，保留为回归样例 |
+| 击杀归属，含攻击、反击、法术、亡语、召唤物伤害 | Rafaam、Rokara；Tavish 已用 focused 路径完成，保留为回归样例 |
+| 友方/敌方死亡历史和死亡时属性快照 | Teron、Sylvanas、Jailer、Rafaam；Tamsin 已用 focused 路径完成，保留为回归样例 |
 | 亡语 payload、亡语复制、亡语召唤和死亡位置 | N'Zoth、Sneed、Al'Akir、Brann's Epic Egg |
-| 战斗召唤统一 resolver 和实时棋盘回写 | Greybough、Ozumat、Onyxia、Teron |
-| 受到伤害、造成伤害、嘲讽被攻击监听 | Lord Jaraxxus、Greybough、Tavish |
-| 战斗开始英雄触发排序 | Illidan、Bru'kan、Deathwing、Al'Akir |
+| 战斗召唤统一 resolver 和实时棋盘回写 | Greybough、Ozumat、Teron；Onyxia 已用 focused 路径完成，保留为回归样例 |
+| 受到伤害、造成伤害、嘲讽被攻击监听 | Lord Jaraxxus、Greybough；Tavish 已用 focused 路径完成，保留为回归样例 |
+| 战斗开始英雄触发排序 | Illidan、Deathwing、Al'Akir；Bru'kan 已用 focused 路径完成，保留为回归样例 |
 
 建议实现顺序：
 
 1. 事件模型与测试夹具：先把 CombatEngine 的攻击、击杀、死亡、召唤、伤害事件统一成可断言记录。
-2. 攻击计数和立即攻击：收口 Loh、Aranna、Illidan、Onyxia。
-3. 击杀归属和坟场：收口 Rafaam、Rokara、Sylvanas、Tavish。
-4. 亡语 payload 和召唤位置：收口 N'Zoth、Sneed、Tamsin、Teron、The Jailer、Al'Akir、Dinotamer Brann。
+2. 攻击计数和立即攻击：收口 Loh、Aranna、Illidan；Onyxia 已转 `Implemented`。
+3. 击杀归属和坟场：收口 Rafaam、Rokara、Sylvanas；Tavish 已转 `Implemented`。
+4. 亡语 payload 和召唤位置：收口 N'Zoth、Sneed、Teron、The Jailer、Al'Akir、Dinotamer Brann；Tamsin 已转 `Implemented`。
 5. 伤害和嘲讽被攻击监听：收口 Lord Jaraxxus、Greybough。
-6. 元素选择和战斗开始执行：收口 Bru'kan。
+6. 元素选择和战斗开始执行：Bru'kan 已转 `Implemented`，后续只保留为战斗开始顺序回归。
 
 涉及英雄清单：
 
 - `Planned`：Loh, the Living Legend；Dinotamer Brann。
-- `FrameworkFirst`：Al'Akir、Deathwing、Illidan、N'Zoth、Tavish、Tamsin、Teron、Rafaam、Rokara、Sylvanas、Sneed、The Jailer、Greybough、Onyxia、Ini Stormcoil、Ozumat、Aranna、Lord Jaraxxus、Bru'kan、Vol'jin、Shudderwock。
+- `FrameworkFirst`：Al'Akir、Deathwing、Illidan、N'Zoth、Teron、Rafaam、Rokara、Sylvanas、Sneed、The Jailer、Greybough、Ini Stormcoil、Ozumat、Aranna、Lord Jaraxxus、Vol'jin、Shudderwock。Tavish、Tamsin、Onyxia、Bru'kan 已在 A1 决策后转 `Implemented`。
 
 验收要求：
 

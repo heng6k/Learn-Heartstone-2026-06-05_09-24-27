@@ -4,7 +4,7 @@
 
 ## 目标
 
-这份文档只处理 `HeroEffectImplementationRegistry` 中当前仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合，把它们一次性归入四个技术收口类别，并额外维护一个横切的决策队列：
+这份文档最初处理 `HeroEffectImplementationRegistry` 中仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合。2026-07-04 已完成前 4 个决策项后，Tavish、Tamsin、Onyxia、Bru'kan 转为 `Implemented`，当前剩余 `FrameworkFirst` 为 31 个。文档继续把剩余项归入四个技术收口类别，并维护一个横切的决策队列：
 
 1. 可直接转正/补测试
 2. 需要战斗事件底座
@@ -31,11 +31,11 @@
 
 | 类别 | 数量 | 收口原则 |
 | --- | ---: | --- |
-| 可直接转正/补测试 | 7 | 已有主要 runtime；补官方数据、focused test、UI smoke 或产品确认后转 `Implemented`。 |
+| 可直接转正/补测试 | 3 | A1 四个已转 `Implemented`；剩余 Morchie、Galewing、Yogg 继续按数据/测试边界收口。 |
 | 需要战斗事件底座 | 17 | 先补 CombatEngine 事件源、payload、死亡/召唤/攻击/伤害记录，再逐批收口。 |
 | 需要真大厅代理 | 4 | 单人训练器可继续用快照代理，但 official-complete 要等大厅对手/历史/淘汰状态。 |
 | 需要独立大机制 | 7 | Secret、Trinket、Undead Creation、StarCraft 子系统先落地，再迁移英雄代理。 |
-| 需要你决策的 | 5 | 横切决策队列；不改变前四类归属，但决定是否可转 `Implemented`、继续代理或进入下一批实现。 |
+| 需要你决策的 | 1 | 前 4 个决策项已落地；仅 Yogg Wheel 完成标准仍待后续拍板。 |
 
 ## 1. 可直接转正/补测试
 
@@ -43,17 +43,17 @@
 
 | 英雄 | 当前已完成 | 剩余动作 | 建议优先级 |
 | --- | --- | --- | --- |
-| Tavish Stormpike | Deadeye 目标记录、战斗开始伤害/移除、Crabby 普通复制已接通。 | 补目标 UI smoke；若当前“移除后有空位直接发射/结算”语义被接受，可转 `Implemented`。 | A1 |
-| Tamsin Roame | 战斗开始给最低攻击随从挂属性共享 Deathrattle，Monstrosity 友方死亡成长已接通。 | 补 Deathrattle payload 回归命名和 registry 状态清理；若当前战斗死亡钩子足够，可转 `Implemented`。 | A1 |
-| Onyxia | Avenge(4) 召唤 Whelp、立即攻击、Many Whelps 成长已接通。 | 补更窄的 Avenge/立即攻击顺序测试；若当前顺序被接受，可转 `Implemented`。 | A1 |
-| Bru'kan | 四元素选择、战斗开始调用、Spirit Raptor 记忆/亡语重放已接通。 | 补四元素逐项测试；补 UI 选择 smoke；若本地元素效果表被接受，可转 `Implemented`。 | A1 |
+| Tavish Stormpike | Deadeye 目标记录、战斗开始伤害/移除、有空位直接发射/结算、Crabby 普通复制已接通。 | 已按项目语义转 `Implemented`；目标 UI polish 作为产品跟进，不再阻塞英雄/宝宝完成状态。 | A1 已完成 |
+| Tamsin Roame | 战斗开始给最低攻击随从挂属性共享 Deathrattle，Monstrosity 友方死亡成长已接通。 | 已转 `Implemented`；后续通用 Deathrattle payload 命名/框架增强不阻塞本体状态。 | A1 已完成 |
+| Onyxia | Avenge(4) 召唤 Whelp、立即攻击、Many Whelps 成长已接通。 | 已转 `Implemented`；后续通用 Avenge/立即攻击框架增强不阻塞本体状态。 | A1 已完成 |
+| Bru'kan | 四元素选择、战斗开始调用、Spirit Raptor 记忆/亡语重放已接通。 | 已转 `Implemented`；本地四元素 baseline 被接受为当前完成标准。 | A1 已完成 |
 | Morchie | Turn 5 打开 Minor Timewarped Tavern 已接通。 | 补独立 focused test 和 UI 可见性 smoke；无宝宝映射，完成后可转 `Implemented`。 | A2 |
 | Galewing | 航线选择、延迟完成、不连续重复、Flight Trainer 双触发已接通。 | 需要官方三条航线奖励文本；若继续采用当前明确 proxy 奖励，则保持 `FrameworkFirst`。 | A3 |
 | Yogg-Saron | Puzzle Box Turn 3 起自动施放合法随机 Tavern spell；Acolyte 可见 Wheel proxy 已接通。 | 需要完整 Wheel of Yogg 官方结果表和逐结果效果测试；补齐后转 `Implemented`。 | A3 |
 
 ### 直接收口执行线
 
-1. A1 批次：Tavish、Tamsin、Onyxia、Bru'kan。它们已有最近 focused validation，先做状态清理、缺口测试和 UI smoke。
+1. A1 批次：Tavish、Tamsin、Onyxia、Bru'kan 已完成状态清理并转 `Implemented`，保留 focused validation 作为回归。
 2. A2 批次：Morchie。检查 Timewarped Tavern 打开/退出/购买已有测试后单独转正。
 3. A3 批次：Galewing、Yogg。先补官方数据表；数据不足时不强转。
 
@@ -136,22 +136,22 @@
 
 | 决策项 | 影响范围 | 默认保守处理 | 你需要拍板的内容 |
 | --- | --- | --- | --- |
-| A1 转正标准 | Tavish、Tamsin、Onyxia、Bru'kan | 继续 `FrameworkFirst`，即使 runtime 已接通。 | 是否允许在 UI polish/通用框架还能后续加强的情况下转 `Implemented`。 |
-| Bigglesworth 本体代理 | Mr. Bigglesworth / Lil' K.T. | 候选池已过滤；本体保留 `FrameworkFirst` 单人代理。 | 是继续保留本体代理，还是彻底禁用到真实大厅淘汰系统完成。 |
-| StarCraft 子系统优先级 | Jim Raynor、Kerrigan、Artanis | 采用 `Jim Raynor -> Kerrigan -> Artanis`。 | 是否接受这个顺序，或改为先做 Kerrigan/Zerg。 |
-| Galewing 航线奖励标准 | Galewing / Flight Trainer | 当前 proxy 奖励不转 `Implemented`。 | 是否接受当前明确 proxy 航线奖励为项目内完成标准。 |
+| A1 转正标准 | Tavish、Tamsin、Onyxia、Bru'kan | 已决策：允许在 UI polish/通用框架后续加强的情况下转 `Implemented`。 | 已执行：四个 registry 状态转 `Implemented`，focused tests 作为回归标准。 |
+| Bigglesworth 本体代理 | Mr. Bigglesworth / Lil' K.T. | 已决策：普通英雄技能候选直接过滤；本体运行时保留 `FrameworkFirst` 单人代理，不开放为 Nguyen/Cosmic/Timewarped 候选。 | 后续只在真实大厅淘汰/最低血量系统完成后重新评估转正。 |
+| StarCraft 子系统优先级 | Jim Raynor、Kerrigan、Artanis | 已决策：采用 `Jim Raynor -> Kerrigan -> Artanis`。 | 下一步先写/执行 Terran/Battlecruiser 子系统实现文档，再做 Zerg，最后 Protoss。 |
+| Galewing 航线奖励标准 | Galewing / Flight Trainer | 已决策：当前 proxy 奖励不作为 `Implemented` 标准。 | 保持 `FrameworkFirst`，等官方三航线奖励文本或等价可验证数据后再转正。 |
 | Yogg Wheel 完成标准 | Yogg-Saron / Acolyte | 当前共享 Yogg reward set 不转 `Implemented`。 | 是否必须补完整官方 Wheel 表，还是允许项目内结果集作为完成标准。 |
 
 ### 决策后动作
 
-1. 如果 A1 允许转正，下一批直接补 UI smoke/缺口测试并更新 registry。
-2. 如果 Bigglesworth 本体禁用，移除/隐藏单人代理入口并保持候选过滤。
-3. 如果 StarCraft 顺序确认，先写对应子系统实现文档，再开始第一个 runtime 批次。
-4. 如果 Galewing/Yogg 接受项目内标准，补测试和文档后转正；否则继续等待官方数据表。
+1. A1 已允许转正并已更新 registry；后续只补 UI smoke/通用框架增强，不回退状态。
+2. Bigglesworth 不禁用本体运行时，但保持候选过滤；真实大厅系统完成前不转正。
+3. StarCraft 顺序已确认，先写 Terran/Battlecruiser 子系统实现文档，再开始第一个 runtime 批次。
+4. Galewing 不接受当前项目内 proxy 作为完整标准；继续等待官方航线奖励数据。Yogg Wheel 标准仍待后续决策。
 
 ## 推荐总执行顺序
 
-1. A1 直接转正批次：Tavish、Tamsin、Onyxia、Bru'kan。
+1. A1 直接转正批次已完成：Tavish、Tamsin、Onyxia、Bru'kan。
 2. A2 小批次：Morchie。
 3. B1-B3 战斗事件底座第一段：attack/kill/death 记录，优先收口 Aranna、Rokara、Rafaam、Ini、Sylvanas。
 4. C1-C3 真大厅代理模型：先收口 Scabbs、Tess。
@@ -163,4 +163,4 @@
 
 ## 当前需要用户确认的点
 
-见第 5 节“需要你决策的”。这些是下一批开始前的显式决策队列。
+前 4 个决策项已处理完成；第 5 节中仅 Yogg Wheel 完成标准仍是下一批开始前的显式决策队列。

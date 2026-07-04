@@ -120,6 +120,14 @@ namespace LearnHearthstone.Tests.EditMode
                 "implemented-test");
             CollectionAssert.Contains(implementedOption.Tags, "implementation_status:Implemented");
             CollectionAssert.DoesNotContain(implementedOption.Tags, "hero_power_proxy");
+
+            var a1ImplementedOption = catalog.CreateDiscoverableHeroPowerOption(
+                catalog.GetHeroPowerByCardId("BG22_HERO_000p"),
+                BoardSide.Player,
+                "a1-implemented-test");
+            CollectionAssert.Contains(a1ImplementedOption.Tags, "implementation_status:Implemented");
+            CollectionAssert.DoesNotContain(a1ImplementedOption.Tags, "hero_power_proxy");
+            CollectionAssert.DoesNotContain(a1ImplementedOption.Tags, "framework_first");
         }
 
         [Test]
