@@ -1,4 +1,4 @@
-﻿{
+{
     "sourcePages":  [
                         "https://hsreplay.net/battlegrounds/trinkets/lesser/",
                         "https://hsreplay.net/battlegrounds/trinkets/greater/"
@@ -169,7 +169,7 @@
                          "name":  "Artanis Sticker",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "Get a copy of \u00270\u0027.",
+                         "text":  "Get a copy of Mothership.",
                          "mechanics":  [
 
                                        ],
@@ -185,20 +185,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "artanis_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented: relatedDbfId 119960 resolves to Mothership; equips by adding a copy of Mothership to hand.",
                          "imagePath":  "CardImages/BG32_MagicItem_906",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_906.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "copy_generate",
                          "requires":  [
                                           "child_card",
                                           "tribe_pool"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_989t",
@@ -308,7 +308,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -318,7 +320,7 @@
                          "name":  "Balladist Portrait",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "[x]Get a Lovesick Balladist.\nAt the start of each turn,\nget another. Your Lovesick\n闁煎崬鈧喍杩笲alladists also give Attack.",
+                         "text":  "[x]Get a Lovesick Balladist.\nAt the start of each turn,\nget another. Your Lovesick\n閼卞€熶迹Balladists also give Attack.",
                          "mechanics":  [
                                            "AURA",
                                            "TRIGGER_VISUAL"
@@ -577,7 +579,7 @@
                                            "behemoth_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Arcane Behemoth proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Arcane Behemoth (BG31_360) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG32_MagicItem_998",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_998.png",
                          "offerPoolStatus":  "Offerable",
@@ -933,7 +935,7 @@
                                            "book_of_medivh"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented: starts a queued Tavern spell Discover twice on equip and at turn start; skips safely if another Discover is pending.",
+                         "notes":  "Implemented: starts a queued Tavern spell Discover twice on equip and at turn start; skips safely if another Discover is active.",
                          "imagePath":  "CardImages/BG30_MagicItem_420t",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_420t.png",
                          "offerPoolStatus":  "Offerable",
@@ -1431,7 +1433,7 @@
                          "name":  "Colorful Compass",
                          "slotKind":  "Greater",
                          "cost":  2,
-                         "text":  "[x]Get 2 random 92.\nAt the start of each turn,\nget 2 more.",
+                         "text":  "[x]Get 2 random minions.\nAt the start of each turn,\nget 2 more.",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -1450,14 +1452,13 @@
                                            "colorful_compass"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented in Batch 7 with two current-tier random minions as placeholder-92 proxies on equip and turn start.",
+                         "notes":  "Implemented in Batch 7 with two current-tier random minions on equip and turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_426t",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_426t.png",
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "turn_start",
                          "requires":  [
-                                          "official_placeholder_92",
                                           "tribe_pool"
                                       ],
                          "proxyLevel":  "ProxySafe"
@@ -1640,20 +1641,20 @@
                                       "greater_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "corrupted_tome"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented: grants a Triple Prize on equip and replaces Triple Reward cards with Triple Prize, which discovers a Tier 3 Darkmoon Prize.",
                          "imagePath":  "CardImages/BG35_MagicItem_812",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_812.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "discover",
                          "requires":  [
                                           "discover",
                                           "golden_triple"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG32_MagicItem_807",
@@ -1769,7 +1770,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "shop_aura",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -2124,7 +2127,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "spellcraft",
-                         "requires":  "spellcraft",
+                         "requires":  [
+                                          "spellcraft"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -2270,7 +2275,7 @@
                                            "egg_of_the_endtimes_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants a Golden Egg of the Endtimes and schedules it to hatch next turn.",
                          "imagePath":  "CardImages/BG35_MagicItem_848t",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_848t.png",
                          "offerPoolStatus":  "Offerable",
@@ -2550,7 +2555,7 @@
                                            "essence_of_dreams"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: at end of turn, grants one random minion for each different friendly minion type controlled.",
                          "imagePath":  "CardImages/BG30_MagicItem_916",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_916.png",
                          "offerPoolStatus":  "Offerable",
@@ -2590,7 +2595,7 @@
                                            "exquisite_dishware"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants two random Magnetic Mecha-Demons on equip and at each turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_419",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_419.png",
                          "offerPoolStatus":  "Offerable",
@@ -3244,7 +3249,7 @@
                          "name":  "Gold-plated Compass",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "[x]Make the next 92\nyou buy Golden.\nGain 5 free \u003cb\u003eRefreshes\u003c/b\u003e.",
+                         "text":  "[x]Make the next minion\nyou buy Golden.\nGain 5 free \u003cb\u003eRefreshes\u003c/b\u003e.",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -3265,14 +3270,13 @@
                                            "gold_plated_compass"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented in Batch 7 as 5 free Refreshes plus a one-shot Golden-next-bought-minion placeholder-92 proxy.",
+                         "notes":  "Implemented in Batch 7 as 5 free Refreshes plus a one-shot Golden-next-bought-minion effect.",
                          "imagePath":  "CardImages/BG32_MagicItem_901",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_901.png",
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "shop_refresh",
                          "requires":  [
-                                          "official_placeholder_92",
                                           "golden_triple",
                                           "shop_refresh"
                                       ],
@@ -3349,7 +3353,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "tribe_specific",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -3417,7 +3423,7 @@
                                            "hackerfin_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: end of turn buffs the two left-most friendly minions, improved by Battlecries triggered this game.",
                          "imagePath":  "CardImages/BG32_MagicItem_925",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_925.png",
                          "offerPoolStatus":  "Offerable",
@@ -3719,7 +3725,7 @@
                          "name":  "Jar o\u0027 Gems",
                          "slotKind":  "Greater",
                          "cost":  0,
-                         "text":  "[x]After 2 friendly minions\nattack each combat, this\nplays a \u003cb\u003eBlood Gem\u003c/b\u003e on all\n闁煎崬鈧喍杩归柤鍗炩偓鐔惰抗your Quilboar. \u003ci\u003e(2 left!)\u003c/i\u003e",
+                         "text":  "[x]After 2 friendly minions\nattack each combat, this\nplays a \u003cb\u003eBlood Gem\u003c/b\u003e on all\n閼卞€熶迹閼卞€熶迹your Quilboar. \u003ci\u003e(2 left!)\u003c/i\u003e",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -3868,7 +3874,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "combat_start",
-                         "requires":  "combat_event",
+                         "requires":  [
+                                          "combat_event"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -3942,7 +3950,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "buy_trigger",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -4128,7 +4138,7 @@
                                            "manipulator_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Faceless Manipulator proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Faceless Manipulator (BG_EX1_564) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG30_MagicItem_876",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_876.png",
                          "offerPoolStatus":  "Offerable",
@@ -4173,7 +4183,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "tavern_spell",
-                         "requires":  "tavern_spell",
+                         "requires":  [
+                                          "tavern_spell"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -4239,21 +4251,21 @@
                                       "economy"
                                   ],
                          "effectIds":  [
-
+                                           "maxwell_sticker_greater"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented: equips by adding the Golden Buddy mapped to the current Hero Power.",
                          "imagePath":  "CardImages/BG35_MagicItem_803t",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_803t.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Strong",
                          "effectFamily":  "golden_triple",
                          "requires":  [
                                           "golden_triple",
                                           "buddy",
                                           "hero_power"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_942",
@@ -4283,7 +4295,7 @@
                                            "mecha_jaraxxus_sticker"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Proud Privateer plus Bounties on equip and repeats the Bounty grant each turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_942",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_942.png",
                          "offerPoolStatus":  "Offerable",
@@ -4475,7 +4487,7 @@
                                            "murky_sticker"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: end of turn grants Windfall Tornado and buffs it based on minions sold this turn.",
                          "imagePath":  "CardImages/BG35_MagicItem_753",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_753.png",
                          "offerPoolStatus":  "Offerable",
@@ -4571,7 +4583,7 @@
                          "name":  "Nether Pendant",
                          "slotKind":  "Greater",
                          "cost":  5,
-                         "text":  "[x]Minions in the Tavern have\n+2/+2. Improves every 3\ntimes your hero takes damage\n闁煎崬鈧喍杩筼utside combat. \u003ci\u003e(3 left!)\u003c/i\u003e",
+                         "text":  "[x]Minions in the Tavern have\n+2/+2. Improves every 3\ntimes your hero takes damage\n閼卞€熶迹outside combat. \u003ci\u003e(3 left!)\u003c/i\u003e",
                          "mechanics":  [
                                            "AURA",
                                            "TRIGGER_VISUAL"
@@ -4755,7 +4767,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "tavern_spell",
-                         "requires":  "tavern_spell",
+                         "requires":  [
+                                          "tavern_spell"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -4790,7 +4804,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "turn_start",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -4819,7 +4835,7 @@
                                            "poet_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Timewarped Poet proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Timewarped Poet (BG34_Giant_314) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG32_MagicItem_364",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_364.png",
                          "offerPoolStatus":  "Offerable",
@@ -5018,7 +5034,7 @@
                                            "privateer_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Natural Blessing on equip and turn start; Natural Blessing also affects minions in hand.",
                          "imagePath":  "CardImages/BG35_MagicItem_712",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_712.png",
                          "offerPoolStatus":  "Offerable",
@@ -5180,7 +5196,7 @@
                                            "radio_star_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip, then grants the generated Timewarped Radio Star Reborn.",
+                         "notes":  "Implemented: grants Timewarped Radio Star (BG34_Giant_330) on equip and gives it Reborn.",
                          "imagePath":  "CardImages/BG35_MagicItem_310",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_310.png",
                          "offerPoolStatus":  "Offerable",
@@ -5333,7 +5349,7 @@
                                            "rivendare_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented: equips Titus Rivendare, using a local proxy if the minion catalog lacks the card, and doubles Titus Health on the combat clone.",
+                         "notes":  "Implemented: grants Titus Rivendare on equip and doubles Titus Health on the combat clone at combat start.",
                          "imagePath":  "CardImages/BG30_MagicItem_310",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_310.png",
                          "offerPoolStatus":  "Offerable",
@@ -5531,7 +5547,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "discover",
-                         "requires":  "discover",
+                         "requires":  [
+                                          "discover"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -6659,7 +6677,7 @@
                                            "windfall_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants a random Chromadrake on equip and repeats at turn start.",
                          "imagePath":  "CardImages/BG32_MagicItem_832t",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_832t.png",
                          "offerPoolStatus":  "Offerable",
@@ -6743,7 +6761,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "tavern_spell",
-                         "requires":  "tavern_spell",
+                         "requires":  [
+                                          "tavern_spell"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -6846,17 +6866,19 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "ancient_wishbone"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented as a safe proxy: after a Hero Power is used, attempts to repeat the trigger once and refunds the repeated trigger's base Hero Power cost.",
                          "imagePath":  "CardImages/BG30_MagicItem_804",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG30_MagicItem_804.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "pending",
-                         "requires":  "hero_power",
-                         "proxyLevel":  "Blocked"
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "hero_power",
+                         "requires":  [
+                                          "hero_power"
+                                      ],
+                         "proxyLevel":  "ProxySafe"
                      },
                      {
                          "id":  "BG32_MagicItem_930",
@@ -7042,7 +7064,7 @@
                                            "azeroth_model_globe"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: end of turn buffs the left-most friendly minion, improved by Battlecries triggered this turn.",
                          "imagePath":  "CardImages/BG30_MagicItem_425",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_425.png",
                          "offerPoolStatus":  "Offerable",
@@ -7431,7 +7453,7 @@
                                            "blessing_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Cloning Conch on equip and repeats every two turns.",
                          "imagePath":  "CardImages/BG32_MagicItem_894",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_894.png",
                          "offerPoolStatus":  "Offerable",
@@ -7630,7 +7652,7 @@
                                            "book_of_medivh"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented: starts a Tavern spell Discover on equip and at turn start; skips safely if another Discover is pending.",
+                         "notes":  "Implemented: starts a Tavern spell Discover on equip and at turn start; skips safely if another Discover is active.",
                          "imagePath":  "CardImages/BG30_MagicItem_420",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_420.png",
                          "offerPoolStatus":  "Offerable",
@@ -7862,7 +7884,7 @@
                                            "chromatic_tear_lesser"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Egg of the Endtimes on equip and repeats every two turns.",
                          "imagePath":  "CardImages/BG35_MagicItem_840",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_840.png",
                          "offerPoolStatus":  "Offerable",
@@ -7902,7 +7924,7 @@
                                            "cliffdiver_sticker"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Mama Mrrglton or Papa Mrrglton on equip and repeats at turn start.",
                          "imagePath":  "CardImages/BG32_MagicItem_890",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_890.png",
                          "offerPoolStatus":  "Offerable",
@@ -7922,7 +7944,7 @@
                          "name":  "Colorful Compass",
                          "slotKind":  "Lesser",
                          "cost":  2,
-                         "text":  "[x]Get a random 92.\nAt the start of each turn,\nget another.",
+                         "text":  "[x]Get a random minion.\nAt the start of each turn,\nget another.",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -7941,14 +7963,13 @@
                                            "colorful_compass"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented in Batch 7 with current-tier random minions as placeholder-92 proxies on equip and turn start.",
+                         "notes":  "Implemented in Batch 7 with current-tier random minions on equip and turn start.",
                          "imagePath":  "CardImages/BG30_MagicItem_426",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_426.png",
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
                          "requires":  [
-                                          "official_placeholder_92",
                                           "tribe_pool"
                                       ],
                          "proxyLevel":  "ProxySafe"
@@ -8018,7 +8039,7 @@
                                            "conch_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: makes a random friendly minion from Tier 4 or below Golden on equip and at turn start.",
                          "imagePath":  "CardImages/BG35_MagicItem_305",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_305.png",
                          "offerPoolStatus":  "Offerable",
@@ -8219,7 +8240,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "shop_aura",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -8461,7 +8484,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "combat_start",
-                         "requires":  "combat_event",
+                         "requires":  [
+                                          "combat_event"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -8490,7 +8515,7 @@
                                            "egg_of_the_endtimes_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: after playing the tracked minion count, grants a Tavern spell and improves the next tier.",
                          "imagePath":  "CardImages/BG35_MagicItem_842",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_842.png",
                          "offerPoolStatus":  "Offerable",
@@ -8609,7 +8634,7 @@
                                            "errgl_sticker"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: steals the highest-Tier card from the Tavern on equip and at end of turn.",
                          "imagePath":  "CardImages/BG35_MagicItem_309",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_309.png",
                          "offerPoolStatus":  "Offerable",
@@ -8886,7 +8911,7 @@
                                            "fish_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Fish of N\u0027Zoth proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Fish of N\u0027Zoth (TB_BaconShop_HP_105t) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG30_MagicItem_821",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_821.png",
                          "offerPoolStatus":  "Offerable",
@@ -9159,7 +9184,7 @@
                                            "gold_pendant"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Bounties on equip and repeats the Bounty grant at turn start.",
                          "imagePath":  "CardImages/BG32_MagicItem_951",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_951.png",
                          "offerPoolStatus":  "Offerable",
@@ -9199,7 +9224,7 @@
                                            "goldenizer_supply"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: end of turn grants Windfall Tornado and buffs it based on minions sold this turn.",
                          "imagePath":  "CardImages/BG30_MagicItem_435",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_435.png",
                          "offerPoolStatus":  "Offerable",
@@ -9391,7 +9416,7 @@
                                            "gritty_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "ProxySafe: grants Gritty Headhunter and repeats on turn start through the shared specified-card path.",
                          "imagePath":  "CardImages/BG32_MagicItem_950",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_950.png",
                          "offerPoolStatus":  "Offerable",
@@ -9439,7 +9464,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "tavern_spell",
-                         "requires":  "tavern_spell",
+                         "requires":  [
+                                          "tavern_spell"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -9793,7 +9820,7 @@
                                            "jewelry_box"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "ProxySafe: grants the Blood Gem choice package on equip and turn start through the shared generated-card path.",
                          "imagePath":  "CardImages/BG35_MagicItem_434",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_434.png",
                          "offerPoolStatus":  "Offerable",
@@ -9918,7 +9945,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "buy_trigger",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -9947,7 +9976,7 @@
                                            "leapfrogger_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Timewarped Leapfrogger proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Timewarped Leapfrogger (BG34_Giant_031) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG35_MagicItem_870",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_870.png",
                          "offerPoolStatus":  "Offerable",
@@ -9984,7 +10013,7 @@
                                            "lens_case"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "ProxySafe: grants Duplicating Lens on equip and repeats every two turns through the shared generated-card path.",
                          "imagePath":  "CardImages/BG35_MagicItem_817",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_817.png",
                          "offerPoolStatus":  "Offerable",
@@ -10106,7 +10135,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "tavern_spell",
-                         "requires":  "tavern_spell",
+                         "requires":  [
+                                          "tavern_spell"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -10288,7 +10319,7 @@
                                            "marine_signet"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: after playing the tracked minion count, grants a Tavern spell and improves the next tier.",
                          "imagePath":  "CardImages/BG30_MagicItem_711",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG30_MagicItem_711.png",
                          "offerPoolStatus":  "Offerable",
@@ -10324,20 +10355,20 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "maxwell_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented: equips by adding the Buddy mapped to the current Hero Power.",
                          "imagePath":  "CardImages/BG35_MagicItem_803",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_803.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
-                         "effectFamily":  "pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
+                         "effectFamily":  "buddy",
                          "requires":  [
                                           "buddy",
                                           "hero_power"
                                       ],
-                         "proxyLevel":  "Blocked"
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_973",
@@ -10346,7 +10377,7 @@
                          "name":  "Minion Bait",
                          "slotKind":  "Lesser",
                          "cost":  2,
-                         "text":  "The Tavern offers 2 extra 92 whenever it is \u003cb\u003eRefreshed\u003c/b\u003e.",
+                         "text":  "The Tavern offers 2 extra minions whenever it is \u003cb\u003eRefreshed\u003c/b\u003e.",
                          "mechanics":  [
                                            "TRIGGER_VISUAL"
                                        ],
@@ -10367,14 +10398,13 @@
                                            "minion_bait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented in Batch 7 by adding two current-tier placeholder-92 proxy minions to each refresh.",
+                         "notes":  "Implemented in Batch 7 by adding two current-tier minions to each refresh.",
                          "imagePath":  "CardImages/BG30_MagicItem_973",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG30_MagicItem_973.png",
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "shop_refresh",
                          "requires":  [
-                                          "official_placeholder_92",
                                           "tribe_pool",
                                           "shop_refresh"
                                       ],
@@ -10717,7 +10747,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Strong",
                          "effectFamily":  "turn_start",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -10822,17 +10854,20 @@
                                       "lesser_trinket"
                                   ],
                          "effectIds":  [
-
+                                           "putricide_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented: equips by starting the shared two-component Putricide creation Discover, then repeats every two turns.",
                          "imagePath":  "CardImages/BG32_MagicItem_300",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_300.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  "tribe_pool",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "discover",
+                                          "tribe_pool"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_410",
@@ -10937,7 +10972,7 @@
                                            "rendle_sticker"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: steals the highest-Tier card from the Tavern on equip and at end of turn.",
                          "imagePath":  "CardImages/BG32_MagicItem_817",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_817.png",
                          "offerPoolStatus":  "Offerable",
@@ -11013,7 +11048,7 @@
                                            "reusable_batteries"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented in batch 1: first bought minion each round adds a generated Magnetic Satellite with that minion\u0027s current stats.",
+                         "notes":  "Implemented in batch 1: first bought minion each round adds a Magnetic Satellite with that minion\u0027s current stats.",
                          "imagePath":  "CardImages/BG32_MagicItem_278",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_278.png",
                          "offerPoolStatus":  "Offerable",
@@ -11096,7 +11131,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  "battlecry",
+                         "requires":  [
+                                          "battlecry"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -11372,7 +11409,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "turn_start",
-                         "requires":  "tribe_pool",
+                         "requires":  [
+                                          "tribe_pool"
+                                      ],
                          "proxyLevel":  "Exact"
                      },
                      {
@@ -11559,7 +11598,7 @@
                                            "skipper_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Implemented as a specified minion grant on equip; uses a generated Timewarped Skipper proxy when the related minion is absent from the local pool.",
+                         "notes":  "Implemented: grants Timewarped Skipper (BG34_Giant_072) on equip through the specified-minion grant path.",
                          "imagePath":  "CardImages/BG35_MagicItem_303",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_303.png",
                          "offerPoolStatus":  "Offerable",
@@ -11632,17 +11671,19 @@
                                       "economy"
                                   ],
                          "effectIds":  [
-
+                                           "sous_chef_sticker"
                                        ],
-                         "implementationStatus":  "FrameworkFirst",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "implementationStatus":  "Implemented",
+                         "notes":  "Implemented exactly: each Hero Power has a per-turn use budget, this trinket adds one extra use to that budget, and after any successful Hero Power use it grants 1 Gold.",
                          "imagePath":  "CardImages/BG35_MagicItem_801",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_801.png",
-                         "offerPoolStatus":  "DebugOnly",
-                         "powerLevel":  "Pending",
+                         "offerPoolStatus":  "Offerable",
+                         "powerLevel":  "Medium",
                          "effectFamily":  "economy",
-                         "requires":  "hero_power",
-                         "proxyLevel":  "Blocked"
+                         "requires":  [
+                                          "hero_power"
+                                      ],
+                         "proxyLevel":  "Exact"
                      },
                      {
                          "id":  "BG30_MagicItem_888",
@@ -11946,7 +11987,7 @@
                                            "sunken_anchor"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: grants Bounties on equip and repeats the Bounty grant at turn start.",
                          "imagePath":  "CardImages/BG35_MagicItem_890",
                          "imageUrl":  "https://art.hearthstonejson.com/v1/orig/BG35_MagicItem_890.png",
                          "offerPoolStatus":  "Offerable",
@@ -12226,7 +12267,9 @@
                          "offerPoolStatus":  "Offerable",
                          "powerLevel":  "Medium",
                          "effectFamily":  "spellcraft",
-                         "requires":  "spellcraft",
+                         "requires":  [
+                                          "spellcraft"
+                                      ],
                          "proxyLevel":  "ProxySafe"
                      },
                      {
@@ -12764,7 +12807,7 @@
                                            "windfall_portrait"
                                        ],
                          "implementationStatus":  "Implemented",
-                         "notes":  "Imported and selectable through the shared Trinket foundation; exact effect implementation is pending.",
+                         "notes":  "Implemented: end of turn grants Windfall Tornado and buffs it based on minions sold this turn.",
                          "imagePath":  "CardImages/BG32_MagicItem_832",
                          "imageUrl":  "https://pic.iyingdi.com/battlegrounds-card-import/yingdiimg/base4/BG32_MagicItem_832.png",
                          "offerPoolStatus":  "Offerable",

@@ -22,15 +22,18 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Registry_ExposesImplementedPhaseTwoAndDeferredStatuses()
+        public void Registry_ExposesImplementedPhaseTwoAndTrinketStatuses()
         {
             var omu = HeroEffectImplementationRegistry.FindByHeroCardId("TB_BaconShop_HERO_74");
             var marin = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG30_HERO_304p");
+            var buttons = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG32_HERO_002p");
 
             Assert.AreEqual(HeroEffectImplementationStatus.Implemented, omu.Status);
             Assert.AreEqual("Evergreen Botani", omu.BuddyName);
-            Assert.AreEqual(HeroEffectImplementationStatus.FrameworkFirst, marin.Status);
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, marin.Status);
             Assert.IsTrue(marin.Note.Contains("Trinket"));
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, buttons.Status);
+            Assert.IsTrue(buttons.Note.Contains("Trinket"));
         }
 
         [Test]
@@ -51,6 +54,33 @@ namespace LearnHearthstone.Tests.EditMode
                     HeroEffectImplementationRegistry.FindByHeroPowerCardId(heroPowerCardId).Status,
                     heroPowerCardId);
             }
+        }
+
+        [Test]
+        public void Registry_MarksMorchieAndMurozondImplemented()
+        {
+            var morchie = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG34_HERO_004p");
+            var murozond = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG34_HERO_000p");
+
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, morchie.Status);
+            Assert.That(morchie.Note, Does.Contain("Minor Timewarped Tavern"));
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, murozond.Status);
+            Assert.That(murozond.Note, Does.Contain("Major Timewarped Tavern"));
+            Assert.That(murozond.Note, Does.Contain("Timewarped Tavern data/effect"));
+        }
+
+        [Test]
+        public void Registry_MarksAcceptedSinglePlayerOpponentProxyHeroesImplemented()
+        {
+            var scabbs = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG21_HERO_010p");
+            var tess = HeroEffectImplementationRegistry.FindByHeroPowerCardId("TB_BaconShop_HP_077");
+            var bigglesworth = HeroEffectImplementationRegistry.FindByHeroPowerCardId("TB_BaconShop_HP_080");
+
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, scabbs.Status);
+            Assert.That(scabbs.Note, Does.Contain("single-player opponent proxy"));
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, tess.Status);
+            Assert.That(tess.Note, Does.Contain("single-player opponent proxy"));
+            Assert.AreEqual(HeroEffectImplementationStatus.FrameworkFirst, bigglesworth.Status);
         }
 
         [Test]
@@ -82,6 +112,40 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Registry_CurrentRemainingStatusCountsMatchP0Baseline()
+        {
+            var counts = HeroEffectImplementationRegistry.All
+                .GroupBy(entry => entry.Status)
+                .ToDictionary(group => group.Key, group => group.Count());
+
+            Assert.AreEqual(113, counts[HeroEffectImplementationStatus.Implemented]);
+            Assert.AreEqual(1, counts[HeroEffectImplementationStatus.FrameworkFirst]);
+            Assert.IsFalse(counts.ContainsKey(HeroEffectImplementationStatus.Planned));
+            Assert.IsFalse(counts.ContainsKey(HeroEffectImplementationStatus.Deferred));
+        }
+
+        [Test]
+        public void Registry_MarksLargeSystemsImplementedButLeavesBigglesworthExcluded()
+        {
+            Assert.AreEqual(
+                HeroEffectImplementationStatus.Implemented,
+                HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG31_HERO_801p").Status);
+            Assert.AreEqual(
+                HeroEffectImplementationStatus.Implemented,
+                HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG31_HERO_802p").Status);
+            Assert.AreEqual(
+                HeroEffectImplementationStatus.Implemented,
+                HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG31_HERO_811p").Status);
+
+            var putricide = HeroEffectImplementationRegistry.FindByHeroPowerCardId("BG25_HERO_100p");
+            Assert.AreEqual(HeroEffectImplementationStatus.Implemented, putricide.Status);
+            Assert.That(putricide.Note, Does.Contain("two sequential 3-option component Discovers"));
+
+            var bigglesworth = HeroEffectImplementationRegistry.FindByHeroPowerCardId("TB_BaconShop_HP_080");
+            Assert.AreEqual(HeroEffectImplementationStatus.FrameworkFirst, bigglesworth.Status);
+        }
+
+        [Test]
         public void Registry_CoversEveryHeroFromSourceData()
         {
             var heroes = HeroCatalogLoader.LoadFromResources().AllHeroes
@@ -100,16 +164,17 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void MatchStart_LogsVisibleHeroImplementationStatusForDeferredPairs()
+        public void MatchStart_LogsVisibleHeroImplementationStatusForFrameworkFirstPairs()
         {
-            var service = MatchService.CreateWithDefaultCatalog(9001, setup: new MatchSetupOptions { SelectedHeroCardId = "BG30_HERO_304" });
+            var service = MatchService.CreateWithDefaultCatalog(9001, setup: new MatchSetupOptions { SelectedHeroCardId = "TB_BaconShop_HERO_70" });
 
             var statusLog = service.State.Player.Tavern.RecruitLog.LastOrDefault(entry => entry.Message.StartsWith("英雄效果状态:"));
 
+            statusLog = statusLog ?? service.State.Player.Tavern.RecruitLog.LastOrDefault(entry => entry.Message.StartsWith("Hero effect status:"));
             Assert.IsNotNull(statusLog);
-            Assert.That(statusLog.Message, Does.Contain("Marin the Manager"));
+            Assert.That(statusLog.Message, Does.Contain("Mr. Bigglesworth"));
             Assert.That(statusLog.Message, Does.Contain("FrameworkFirst"));
-            Assert.That(statusLog.Message, Does.Contain("Fantastic Bellhop"));
+            Assert.That(statusLog.Message, Does.Contain("Lil' K.T."));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace LearnHearthstone.Tests.EditMode
                 SpellCatalogLoader.LoadFromResources(),
                 new SeededRng(1));
 
-            Assert.IsTrue(result.Contains("鲜血宝石弹幕"));
+            Assert.IsTrue(result.Contains("Blood Gem Barrage"));
             Assert.AreEqual(1, state.Player.Tavern.Growth.ShopModifiers.Count);
             Assert.AreEqual(BuffScope.ShopGlobal, state.Player.Tavern.Growth.ShopModifiers[0].Scope);
             Assert.AreEqual(1, state.Player.Tavern.Growth.ShopModifiers[0].Attack);

@@ -914,6 +914,7 @@ namespace LearnHearthstone.Domain.Models
         public Dictionary<string, int> BuddyPool = new Dictionary<string, int>();
         public Dictionary<string, int> BuddyPoolCapacities = new Dictionary<string, int>();
         public Dictionary<string, int> HeroEffectCounters = new Dictionary<string, int>();
+        public List<SecretState> Secrets = new List<SecretState>();
         public DiscoverState Discover;
         public List<DiscoverState> DiscoverQueue = new List<DiscoverState>();
         public AdvancedMechanicState AdvancedMechanics = new AdvancedMechanicState();
@@ -971,6 +972,18 @@ namespace LearnHearthstone.Domain.Models
 
             return DiscoverQueue;
         }
+    }
+
+    [Serializable]
+    public sealed class SecretState
+    {
+        public string SecretCardId;
+        public string Name;
+        public string Source;
+        public BoardSide Owner;
+        public bool Better;
+        public int CreatedRound;
+        public bool Triggered;
     }
 
     [Serializable]

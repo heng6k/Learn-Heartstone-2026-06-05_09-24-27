@@ -648,6 +648,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var heroPower = heroPowers[heroPowerIndex];
                 var capturedHeroPower = heroPower;
                 var unlocked = IsHeroPowerUnlocked(heroPower);
+                var canUseHeroPower = heroPower != null && unlocked && service.CanUseHeroPower(heroPower.CardId);
                 var heroPowerButton = ActionButton(
                     heroPowerIndex == 0 ? namePrefix + "HeroPowerButton" : namePrefix + "HeroPowerButton" + heroPowerIndex,
                     parent,
@@ -657,8 +658,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     height,
                     flexibleWidth,
                     UnityTavernActionButtonRole.Primary,
-                    heroPower != null && unlocked);
-                if (unlocked)
+                    canUseHeroPower);
+                if (canUseHeroPower)
                 {
                     AddHeroPowerDrag(heroPowerButton.gameObject, heroPower);
                 }

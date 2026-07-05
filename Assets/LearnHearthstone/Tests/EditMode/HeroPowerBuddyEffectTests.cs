@@ -422,7 +422,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void AcolyteOfYoggSaron_StartTurnSpinsVisibleWheelProxy()
+        public void AcolyteOfYoggSaron_StartTurnSpinsVisibleWheel()
         {
             var service = CreateHeroService(
                 "TB_BaconShop_HERO_57",
@@ -442,21 +442,26 @@ namespace LearnHearthstone.Tests.EditMode
             CollectionAssert.Contains(
                 new[]
                 {
-                    "next_turn_gold",
-                    "board_buff",
-                    "tavern_spell",
-                    "free_refreshes",
-                    "current_tier_minion",
-                    "tavern_coins"
+                    "wheel_shots",
+                    "wheel_darkmoon_prize",
+                    "wheel_tavern_spells",
+                    "wheel_stats_transfer",
+                    "wheel_devour_refresh"
                 },
                 reward);
             Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Acolyte of Yogg-Saron:")));
         }
 
         [Test]
-        public void Galewing_ChoosesFlightpathCompletesProxyRewardAndFiltersRepeat()
+        public void Galewing_ChoosesOfficialFlightpathRewardAndFiltersRepeat()
         {
-            var service = CreateHeroService("BG20_HERO_283");
+            var service = CreateHeroService(
+                "BG20_HERO_283",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "104436" }
+                });
             var tavern = service.State.Player.Tavern;
             tavern.Hand.Clear();
 
@@ -487,9 +492,15 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void FlightTrainer_DoublesCompletedFlightpathProxyReward()
+        public void FlightTrainer_DoublesCompletedFlightpathReward()
         {
-            var service = CreateHeroService("BG20_HERO_283");
+            var service = CreateHeroService(
+                "BG20_HERO_283",
+                new MatchSetupOptions
+                {
+                    IsDefaultCardPoolVersion = false,
+                    EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "104436" }
+                });
             var tavern = service.State.Player.Tavern;
             PlayBuddy(service, "BG20_HERO_283_Buddy");
             tavern.Hand.Clear();
@@ -505,6 +516,50 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "104436"));
+        }
+
+        [Test]
+        public void StoneshellGuardian_FirstTripleRewardPlayedDiscoversGoldenMinions()
+        {
+            var service = CreateHeroService("BG33_HERO_001");
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            PlayBuddy(service, "BG33_HERO_000_Buddy");
+            tavern.Hand.Add(TestTripleReward("stoneshell-triple"));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("hero:stoneshell_guardian", tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.Count > 0);
+            Assert.IsTrue(tavern.Discover.Options.All(option => option.Golden));
+            Assert.AreEqual(service.State.Round, tavern.HeroEffectCounters["hero:stoneshell_guardian:triple_round"]);
+        }
+
+        [Test]
+        public void BrannsEpicEgg_DeathrattleSummonsAndGetsCurrentTierBattlecryMinions()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_43");
+            var tavern = service.State.Player.Tavern;
+            tavern.Tier = 1;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            PlayBuddy(service, "TB_BaconShop_HERO_43_Buddy");
+            var egg = service.State.Player.Board.Single(card => card.CardId == "TB_BaconShop_HERO_43_Buddy");
+            egg.Health = 1;
+            egg.MaxHealth = 1;
+            var opponent = TestMinion("egg-opponent", "EGG_OPPONENT", 10, 10);
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1901, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card =>
+                card.InstanceId.StartsWith("branns-epic-egg-", System.StringComparison.Ordinal)));
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card => card.Keywords.Contains(Keyword.Battlecry)));
+            Assert.IsTrue(tavern.Hand.All(card => card.TavernTier <= 1));
         }
 
         [Test]
@@ -1505,6 +1560,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(12, buddy.Attack);
             Assert.AreEqual(12, buddy.MaxHealth);
 
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
             service.State.Player.Tavern.Gold = 10;
             service.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 1));
 
@@ -1851,11 +1907,17 @@ namespace LearnHearthstone.Tests.EditMode
 
             for (var index = 0; index < 4; index += 1)
             {
+                if (index > 0)
+                {
+                    service.Apply(new GameCommand(GameCommandType.NextTurn));
+                }
+
+                service.State.Player.Tavern.Gold = 10;
                 service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+                Assert.AreEqual(9, service.State.Player.Tavern.Gold);
             }
 
             var goldenReward = service.State.Player.Tavern.Hand.Single(card => card.Golden && card.Tags.Contains("golden_reward"));
-            Assert.AreEqual(6, service.State.Player.Tavern.Gold);
             Assert.IsNotNull(goldenReward);
 
             service.State.Player.Board.Clear();
@@ -1884,12 +1946,16 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(service.State.Player.Tavern.Discover.Options.All(card => card.TavernTier == 3));
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.State.Player.Tavern.Gold = 9;
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
             PlayBuddy(service, "TB_BaconShop_HERO_42_Buddy");
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.State.Player.Tavern.Gold = 7;
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
             Assert.AreEqual(6, service.State.Player.Tavern.Gold);
@@ -2011,6 +2077,9 @@ namespace LearnHearthstone.Tests.EditMode
             PlayBuddy(inge, "BG26_HERO_102_Buddy");
             inge.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
             Assert.AreEqual(8, target.Attack);
+            Assert.Throws<System.InvalidOperationException>(() =>
+                inge.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0)));
+            inge.Apply(new GameCommand(GameCommandType.NextTurn));
             inge.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
             Assert.AreEqual(8, target.MaxHealth);
 
@@ -2489,8 +2558,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             putricide.Apply(new GameCommand(GameCommandType.SimulateCombat));
 
-            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.Tags.Contains("undead_creation") || card.Tags.Contains("putricide_creation_proxy")));
-            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("undead_creation") || card.Tags.Contains("putricide_creation_proxy")));
+            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
+            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
         }
 
         [Test]
@@ -2550,6 +2619,350 @@ namespace LearnHearthstone.Tests.EditMode
             sylvanas.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
             Assert.IsFalse(sylvanas.State.Player.Board.Any(card => card.CardId == "NATH_SOLD"));
             Assert.IsTrue(sylvanas.State.Player.Board.Any(card => card.Enchantments.Any(enchantment => enchantment.SourceId == "Nathanos Blightcaller")));
+        }
+
+        [Test]
+        public void MasterGadrin_BuffsLeftNeighborAtCombatStart()
+        {
+            var service = CreateHeroService("BG20_HERO_201");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var left = TestMinion("gadrin-left", "GADRIN_LEFT", 2, 3);
+            service.State.Player.Board.Add(left);
+            PlayBuddy(service, "BG20_HERO_201_Buddy");
+            service.State.Opponent.Board.Add(TestMinion("gadrin-enemy", "GADRIN_ENEMY", 0, 20));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2101, SafetyLimit = 1 }));
+
+            var combatLeft = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == left.InstanceId);
+            Assert.AreEqual(4, combatLeft.Attack);
+            Assert.AreEqual(5, combatLeft.MaxHealth);
+        }
+
+        [Test]
+        public void Sneed_HeroPowerDeathrattleSummonsFromCombatPool()
+        {
+            var service = CreateHeroService("BG21_HERO_030");
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.Tier = 2;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var target = TestMinion("sneed-target", "SNEED_TARGET", 1, 1);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
+            service.State.Opponent.Board.Add(TestMinion("sneed-enemy", "SNEED_ENEMY", 20, 20));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2102, SafetyLimit = 1 }));
+
+            Assert.IsTrue(target.Keywords.Contains(Keyword.Deathrattle));
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card =>
+                card.InstanceId.Contains("sneed-deathrattle-") &&
+                card.CardKind == CardKind.Minion));
+        }
+
+        [Test]
+        public void Ini_CombatFriendlyDeathsGrantRandomMechReward()
+        {
+            var service = CreateHeroService("BG22_HERO_200");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Tier = 6;
+            for (var index = 0; index < 9; index += 1)
+            {
+                service.State.Player.Board.Add(TestMinion("ini-dead-minion-" + index, "INI_DEAD_MINION_" + index, 1, 1, new System.Collections.Generic.List<Tribe> { Tribe.Beast }));
+            }
+
+            service.State.Opponent.Board.Add(TestMinion("ini-enemy", "INI_ENEMY", 50, 200));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2103, SafetyLimit = 20 }));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card =>
+                card.Tribes.Contains(Tribe.Mech)));
+        }
+
+        [Test]
+        public void Aranna_FriendlyCombatAttacksUnlockFreeFirstMinionBuy()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_59");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var attacker = TestMinion("aranna-attacker", "ARANNA_ATTACKER", 1, 40);
+            attacker.Keywords.Add(Keyword.Windfury);
+            service.State.Player.Board.Add(attacker);
+            service.State.Opponent.Board.Add(TestMinion("aranna-enemy", "ARANNA_ENEMY", 1, 40));
+
+            for (var combat = 0; combat < 4; combat += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2110 + combat, SafetyLimit = 4 }));
+            }
+
+            service.State.Player.Tavern.Gold = 0;
+            service.State.Player.Tavern.Shop = new System.Collections.Generic.List<MinionInstance>
+            {
+                TestMinion("aranna-free-buy", "ARANNA_FREE_BUY", 1, 1)
+            };
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "ARANNA_FREE_BUY"));
+        }
+
+        [Test]
+        public void WanderingTreant_TauntAttackedBuffsFriendlyBoardPermanently()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_95");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var taunt = TestMinion("treant-taunt", "TREANT_TAUNT", 2, 6);
+            taunt.Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board.Add(taunt);
+            PlayBuddy(service, "TB_BaconShop_HERO_95_Buddy");
+            for (var index = 0; index < 3; index += 1)
+            {
+                var enemy = TestMinion("treant-enemy-" + index, "TREANT_ENEMY_" + index, 1, 20);
+                enemy.Owner = BoardSide.Opponent;
+                enemy.CanAttack = true;
+                service.State.Opponent.Board.Add(enemy);
+            }
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2104, SafetyLimit = 1 }));
+
+            Assert.Greater(taunt.Attack, 2);
+            Assert.IsTrue(service.State.Player.Board.Single(card => card.CardId == "TB_BaconShop_HERO_95_Buddy").Attack > 3);
+        }
+
+        [Test]
+        public void Akazamzarak_MountedSecretsTriggerInCombat()
+        {
+            var matrix = CreateHeroService("TB_BaconShop_HERO_21");
+            matrix.State.Player.Board.Clear();
+            matrix.State.Opponent.Board.Clear();
+            matrix.State.Player.Tavern.Secrets.Add(new SecretState
+            {
+                SecretCardId = "TB_Bacon_Secrets_07",
+                Name = "Autodefense Matrix",
+                Owner = BoardSide.Player
+            });
+            var target = TestMinion("matrix-target", "MATRIX_TARGET", 2, 6);
+            matrix.State.Player.Board.Add(target);
+            var matrixEnemy = TestMinion("matrix-enemy", "MATRIX_ENEMY", 1, 20);
+            matrixEnemy.Owner = BoardSide.Opponent;
+            matrixEnemy.CanAttack = true;
+            matrix.State.Opponent.Board.Add(matrixEnemy);
+            var matrixEnemySecond = TestMinion("matrix-enemy-second", "MATRIX_ENEMY_SECOND", 1, 20);
+            matrixEnemySecond.Owner = BoardSide.Opponent;
+            matrixEnemySecond.CanAttack = true;
+            matrix.State.Opponent.Board.Add(matrixEnemySecond);
+
+            matrix.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2105, SafetyLimit = 1 }));
+
+            Assert.IsTrue(matrix.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Autodefense Matrix")));
+            Assert.AreEqual(6, matrix.State.LastResult.FinalPlayerBoard.Single(card => card.CardId == "MATRIX_TARGET").Health);
+            Assert.IsEmpty(matrix.State.Player.Tavern.Secrets);
+
+            var redemption = CreateHeroService("TB_BaconShop_HERO_21");
+            redemption.State.Player.Board.Clear();
+            redemption.State.Opponent.Board.Clear();
+            redemption.State.Player.Tavern.Secrets.Add(new SecretState
+            {
+                SecretCardId = "TB_Bacon_Secrets_10",
+                Name = "Redemption",
+                Owner = BoardSide.Player
+            });
+            redemption.State.Player.Board.Add(TestMinion("redemption-target", "REDEMPTION_TARGET", 1, 1));
+            redemption.State.Opponent.Board.Add(TestMinion("redemption-enemy", "REDEMPTION_ENEMY", 20, 20));
+
+            redemption.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2106, SafetyLimit = 1 }));
+
+            Assert.IsTrue(redemption.State.LastResult.FinalPlayerBoard.Any(card =>
+                card.CardId == "REDEMPTION_TARGET" &&
+                card.Health == 1));
+            Assert.IsEmpty(redemption.State.Player.Tavern.Secrets);
+
+            var iceBlock = CreateHeroService("TB_BaconShop_HERO_21");
+            iceBlock.State.Player.Board.Clear();
+            iceBlock.State.Opponent.Board.Clear();
+            iceBlock.State.Player.Tavern.Secrets.Add(new SecretState
+            {
+                SecretCardId = "TB_Bacon_Secrets_12",
+                Name = "Ice Block",
+                Owner = BoardSide.Player
+            });
+            iceBlock.State.Opponent.Board.Add(TestMinion("ice-block-enemy", "ICE_BLOCK_ENEMY", 20, 20));
+
+            iceBlock.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2107, SafetyLimit = 1 }));
+
+            Assert.AreEqual(CombatWinner.Draw, iceBlock.State.LastResult.Winner);
+            Assert.IsEmpty(iceBlock.State.Player.Tavern.Secrets);
+        }
+
+        [Test]
+        public void Akazamzarak_HeroPowerCostsZeroCapsSecretsAndExcludesActiveSecrets()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_21");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 0;
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(0, tavern.Gold);
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual(4, tavern.Discover.Options.Count);
+            var firstPick = tavern.Discover.Options[0].CardId;
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(1, tavern.Secrets.Count);
+            Assert.AreEqual(firstPick, tavern.Secrets[0].SecretCardId);
+
+            var duplicateFilter = CreateHeroService("TB_BaconShop_HERO_21");
+            AddSecret(duplicateFilter, "TB_Bacon_Secrets_01", "Venomstrike Trap");
+            duplicateFilter.Apply(new GameCommand(GameCommandType.UseHeroPower));
+            Assert.IsFalse(duplicateFilter.State.Player.Tavern.Discover.Options.Any(card => card.CardId == "TB_Bacon_Secrets_01"));
+
+            var capped = CreateHeroService("TB_BaconShop_HERO_21");
+            AddSecret(capped, "TB_Bacon_Secrets_01", "Venomstrike Trap");
+            AddSecret(capped, "TB_Bacon_Secrets_02", "Snake Trap");
+            AddSecret(capped, "TB_Bacon_Secrets_04", "Splitting Image");
+            AddSecret(capped, "TB_Bacon_Secrets_05", "Effigy");
+
+            capped.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.IsNull(capped.State.Player.Tavern.Discover);
+            Assert.AreEqual(4, capped.State.Player.Tavern.Secrets.Count);
+        }
+
+        [Test]
+        public void Akazamzarak_UntriggeredSecretsPersistAndCompetitiveSpiritTriggersNextTurn()
+        {
+            var persistent = CreateHeroService("TB_BaconShop_HERO_21");
+            persistent.State.Player.Board.Clear();
+            persistent.State.Opponent.Board.Clear();
+            AddSecret(persistent, "TB_Bacon_Secrets_12", "Ice Block");
+            persistent.State.Player.Board.Add(TestMinion("ice-block-player", "ICE_BLOCK_PLAYER", 10, 10));
+
+            persistent.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2108, SafetyLimit = 1 }));
+
+            Assert.AreEqual(CombatWinner.Player, persistent.State.LastResult.Winner);
+            Assert.AreEqual(1, persistent.State.Player.Tavern.Secrets.Count);
+            Assert.AreEqual("TB_Bacon_Secrets_12", persistent.State.Player.Tavern.Secrets[0].SecretCardId);
+
+            var competitive = CreateHeroService("TB_BaconShop_HERO_21");
+            competitive.State.Player.Board.Clear();
+            var first = TestMinion("competitive-a", "COMPETITIVE_A", 2, 2);
+            var second = TestMinion("competitive-b", "COMPETITIVE_B", 3, 3);
+            competitive.State.Player.Board.Add(first);
+            competitive.State.Player.Board.Add(second);
+            AddSecret(competitive, "TB_Bacon_Secrets_13", "Competitive Spirit");
+
+            competitive.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(3, first.Attack);
+            Assert.AreEqual(3, first.MaxHealth);
+            Assert.AreEqual(4, second.Attack);
+            Assert.AreEqual(4, second.MaxHealth);
+            Assert.IsEmpty(competitive.State.Player.Tavern.Secrets);
+        }
+
+        [Test]
+        public void Akazamzarak_AttackedSecretsSummonAndCopyMinions()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_21");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            AddSecret(service, "TB_Bacon_Secrets_02", "Snake Trap");
+            AddSecret(service, "TB_Bacon_Secrets_01b", "Better Venomstrike Trap");
+            AddSecret(service, "TB_Bacon_Secrets_15", "Pack Tactics");
+            var defender = TestMinion("secret-defender", "SECRET_DEFENDER", 2, 8);
+            service.State.Player.Board.Add(defender);
+            var enemy = TestMinion("secret-enemy", "SECRET_ENEMY", 1, 20);
+            enemy.Owner = BoardSide.Opponent;
+            enemy.CanAttack = true;
+            service.State.Opponent.Board.Add(enemy);
+            var secondEnemy = TestMinion("secret-enemy-second", "SECRET_ENEMY_SECOND", 1, 20);
+            secondEnemy.Owner = BoardSide.Opponent;
+            secondEnemy.CanAttack = true;
+            service.State.Opponent.Board.Add(secondEnemy);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2109, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Snake Trap")));
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Better Venomstrike Trap")));
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Pack Tactics")));
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Count(card => card.Name == "Snake") >= 3);
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => card.Name == "Cobra" && card.Keywords.Contains(Keyword.Reborn)));
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => card.CardId == "SECRET_DEFENDER" && card.Attack == 3 && card.MaxHealth == 3));
+            Assert.IsEmpty(service.State.Player.Tavern.Secrets);
+        }
+
+        [Test]
+        public void Akazamzarak_DeathSecretsAndReckoningTrigger()
+        {
+            var death = CreateHeroService("TB_BaconShop_HERO_21");
+            death.State.Player.Board.Clear();
+            death.State.Opponent.Board.Clear();
+            AddSecret(death, "TB_Bacon_Secrets_05", "Effigy");
+            AddSecret(death, "TB_Bacon_Secrets_08", "Avenge");
+            var taunt = TestMinion("death-taunt", "DEATH_TAUNT", 1, 1);
+            taunt.Keywords.Add(Keyword.Taunt);
+            var buffTarget = TestMinion("death-buff-target", "DEATH_BUFF_TARGET", 2, 4);
+            death.State.Player.Board.Add(taunt);
+            death.State.Player.Board.Add(buffTarget);
+            var deathEnemy = TestMinion("death-enemy", "DEATH_ENEMY", 20, 20);
+            deathEnemy.Owner = BoardSide.Opponent;
+            deathEnemy.CanAttack = true;
+            death.State.Opponent.Board.Add(deathEnemy);
+
+            death.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2110, SafetyLimit = 1 }));
+
+            Assert.IsTrue(death.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Effigy")));
+            Assert.IsTrue(death.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Avenge")));
+            Assert.IsTrue(death.State.LastResult.FinalPlayerBoard.Any(card =>
+                card.Enchantments.Any(enchantment => enchantment.SourceId == "Avenge Secret")));
+            Assert.IsEmpty(death.State.Player.Tavern.Secrets);
+
+            var reckoning = CreateHeroService("TB_BaconShop_HERO_21");
+            reckoning.State.Player.Board.Clear();
+            reckoning.State.Opponent.Board.Clear();
+            AddSecret(reckoning, "TB_Bacon_Secrets_14", "Reckoning");
+            reckoning.State.Player.Board.Add(TestMinion("reckoning-defender", "RECKONING_DEFENDER", 1, 10));
+            var reckoningEnemy = TestMinion("reckoning-enemy", "RECKONING_ENEMY", 3, 10);
+            reckoningEnemy.Owner = BoardSide.Opponent;
+            reckoningEnemy.CanAttack = true;
+            reckoning.State.Opponent.Board.Add(reckoningEnemy);
+
+            reckoning.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2111, SafetyLimit = 1 }));
+
+            Assert.IsTrue(reckoning.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Reckoning")));
+            Assert.IsFalse(reckoning.State.LastResult.FinalOpponentBoard.Any(card => card.CardId == "RECKONING_ENEMY"));
+            Assert.IsEmpty(reckoning.State.Player.Tavern.Secrets);
+        }
+
+        [Test]
+        public void Akazamzarak_HandOfSalvationTriggersOnSecondFriendlyDeath()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_21");
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            AddSecret(service, "TB_Bacon_Secrets_11", "Hand of Salvation");
+            var first = TestMinion("salvation-first", "SALVATION_FIRST", 0, 1);
+            var second = TestMinion("salvation-second", "SALVATION_SECOND", 0, 1);
+            first.Keywords.Add(Keyword.Taunt);
+            second.Keywords.Add(Keyword.Taunt);
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            for (var index = 0; index < 3; index += 1)
+            {
+                var enemy = TestMinion("salvation-enemy-" + index, "SALVATION_ENEMY_" + index, 10, 10);
+                enemy.Owner = BoardSide.Opponent;
+                enemy.CanAttack = true;
+                service.State.Opponent.Board.Add(enemy);
+            }
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2112, SafetyLimit = 4 }));
+
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("Hand of Salvation")));
+            Assert.IsTrue(service.State.CombatLog.Any(entry => entry.Title == "SecretTriggered" && entry.Detail.Contains("revived")));
+            Assert.IsEmpty(service.State.Player.Tavern.Secrets);
         }
 
         [Test]
@@ -2744,6 +3157,20 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void MasterNguyen_TemporaryHeroPowerHasFreshUseBudget()
+        {
+            var service = CreateHeroService("BG20_HERO_202");
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            var selectedPowerId = service.State.Player.Tavern.Discover.Options[0].CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual(selectedPowerId, service.State.Player.HeroPowerCardId);
+            Assert.IsTrue(service.CanUseHeroPower());
+            Assert.Greater(service.GetHeroPowerUsesRemainingThisTurn(), 0);
+        }
+
+        [Test]
         public void LeiFlamepaw_WaitsForNguyenChoiceAndGetsSelectedPowerBuddy()
         {
             var service = CreateHeroService("BG20_HERO_202");
@@ -2771,6 +3198,139 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(selectedPowerId, service.State.Player.HeroPowerCardId);
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == expectedBuddyId));
+        }
+
+        [Test]
+        public void RatKing_TurnStartRotatesAndHeroPowerDiscoversCurrentType()
+        {
+            var service = CreateHeroService(
+                "TB_BaconShop_HERO_12",
+                new MatchSetupOptions
+                {
+                    ActiveTribes = new System.Collections.Generic.List<Tribe> { Tribe.Beast }
+                });
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.Tier = 2;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var currentTribe = (Tribe)tavern.HeroEffectCounters["hero:rat_king:current_tribe"];
+            Assert.That(currentTribe, Is.Not.EqualTo(Tribe.None));
+
+            var goldBeforeHeroPower = tavern.Gold;
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(goldBeforeHeroPower - 1, tavern.Gold);
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual("hero-power:rat-king:" + currentTribe.ToString().ToLowerInvariant(), tavern.Discover.Source);
+            Assert.IsTrue(tavern.Discover.Options.Count > 0);
+            Assert.IsTrue(tavern.Discover.Options.All(card =>
+                card.CardKind == CardKind.Minion &&
+                card.Tribes.Contains(currentTribe)));
+        }
+
+        [Test]
+        public void PigeonLord_GrantsOneFreeRefreshWhenTavernLacksCurrentRatKingType()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_12");
+            PlayBuddy(service, "TB_BaconShop_HERO_12_Buddy");
+            var tavern = service.State.Player.Tavern;
+            tavern.FreeRefreshes = 0;
+            tavern.HeroEffectCounters["hero:rat_king:current_tribe"] = (int)Tribe.Beast;
+            tavern.Shop = new System.Collections.Generic.List<MinionInstance>
+            {
+                TestMinion("murloc-shop", "MURLOC_SHOP", 1, 1, new System.Collections.Generic.List<Tribe> { Tribe.Murloc })
+            };
+
+            HeroEffectEngine.Dispatch(new HeroEffectContext
+            {
+                EventType = HeroEffectEventType.ShopRefreshed,
+                State = service.State,
+                Heroes = service.HeroCatalog,
+                Minions = MinionCatalogLoader.LoadFromResources(),
+                Rng = new SeededRng(123)
+            });
+
+            Assert.AreEqual(1, tavern.FreeRefreshes);
+
+            HeroEffectEngine.Dispatch(new HeroEffectContext
+            {
+                EventType = HeroEffectEventType.ShopRefreshed,
+                State = service.State,
+                Heroes = service.HeroCatalog,
+                Minions = MinionCatalogLoader.LoadFromResources(),
+                Rng = new SeededRng(456)
+            });
+
+            Assert.AreEqual(1, tavern.FreeRefreshes);
+        }
+
+        [Test]
+        public void LordBarov_WinningPredictionAddsThreeTavernCoinsAfterCombat()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_72");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var friendly = TestMinion("barov-friendly", "BAROV_FRIENDLY", 10, 10);
+            friendly.CanAttack = true;
+            service.State.Player.Board.Add(friendly);
+            var enemy = TestMinion("barov-enemy", "BAROV_ENEMY", 1, 1);
+            enemy.CanAttack = true;
+            service.State.Opponent.Board.Add(enemy);
+
+            service.Apply(new GameCommand(
+                GameCommandType.UseHeroPower,
+                -1,
+                TargetZone.Unspecified,
+                -1,
+                TargetZone.Unspecified,
+                choiceId: "win"));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2001, SafetyLimit = 5 }));
+
+            Assert.AreEqual(CombatWinner.Player, service.State.LastResult.Winner);
+            Assert.AreEqual(3, tavern.Hand.Count(card => card.CardId == "104436" && card.Tags.Contains("tavern_coin")));
+        }
+
+        [Test]
+        public void BarovsApprentice_PlayingTavernCoinGainsExtraGold()
+        {
+            var service = CreateHeroService("TB_BaconShop_HERO_72");
+            PlayBuddy(service, "TB_BaconShop_HERO_72_Buddy");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 0;
+
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "104436", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.Count - 1));
+
+            Assert.AreEqual(2, tavern.Gold);
+        }
+
+        [Test]
+        public void MurlocHolmes_CorrectOpponentSnapshotGuessRewardsCoinAndWatfinCopy()
+        {
+            var service = CreateHeroService("BG23_HERO_303");
+            PlayBuddy(service, "BG23_HERO_303_Buddy");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            service.State.Opponent.Board.Clear();
+            service.State.Opponent.Board.Add(TestMinion("holmes-target", "HOLMES_TARGET", 4, 5, new System.Collections.Generic.List<Tribe> { Tribe.Murloc }));
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var discover = tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual(HeroEffectEngine.HolmesDiscoverSource, discover.Source);
+            var correctIndex = discover.Options.FindIndex(card => card.CardId == "HOLMES_TARGET");
+            Assert.GreaterOrEqual(correctIndex, 0);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, correctIndex));
+
+            Assert.IsNull(tavern.Discover);
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "104436" && card.Tags.Contains("tavern_coin")));
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "HOLMES_TARGET" && card.Tags.Contains("generated_copy")));
         }
 
         [Test]
@@ -2976,26 +3536,68 @@ namespace LearnHearthstone.Tests.EditMode
             akazamzarak.State.Player.Tavern.Hand.Clear();
             PlayBuddy(akazamzarak, "TB_BaconShop_HERO_21_Buddy");
             akazamzarak.Apply(new GameCommand(GameCommandType.UseHeroPower));
-            Assert.IsTrue(akazamzarak.State.Player.Tavern.Hand.Any(card => card.CardId == "BETTER_SECRET_PROXY"));
+            Assert.IsNotNull(akazamzarak.State.Player.Tavern.Discover);
+            Assert.AreEqual(4, akazamzarak.State.Player.Tavern.Discover.Options.Count);
+            Assert.IsTrue(akazamzarak.State.Player.Tavern.Discover.Options.All(card => card.Tags.Contains("better_secret")));
+            akazamzarak.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(1, akazamzarak.State.Player.Tavern.Secrets.Count);
+            Assert.IsTrue(akazamzarak.State.Player.Tavern.Secrets[0].Better);
+            Assert.IsFalse(akazamzarak.State.Player.Tavern.Hand.Any(card => card.CardId == "BETTER_SECRET_PROXY"));
 
             var putricide = CreateHeroService("BG25_HERO_100");
+            putricide.State.Player.Tavern.Hand.Clear();
+            putricide.State.Player.Tavern.Gold = 10;
+            putricide.Apply(new GameCommand(GameCommandType.UseHeroPower));
+            Assert.AreEqual(7, putricide.State.Player.Tavern.Gold);
+            Assert.IsNotNull(putricide.State.Player.Tavern.Discover);
+            Assert.AreEqual(HeroEffectEngine.PutricideFirstDiscoverSource, putricide.State.Player.Tavern.Discover.Source);
+            Assert.AreEqual(3, putricide.State.Player.Tavern.Discover.Options.Count);
+            var firstComponent = putricide.State.Player.Tavern.Discover.Options[0];
+            var firstKeywords = firstComponent.Keywords.ToList();
+            var expectedAttack = firstComponent.Attack;
+            var expectedHealth = firstComponent.MaxHealth;
+            putricide.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.IsNotNull(putricide.State.Player.Tavern.Discover);
+            Assert.AreEqual(HeroEffectEngine.PutricideSecondDiscoverSource, putricide.State.Player.Tavern.Discover.Source);
+            Assert.AreEqual(3, putricide.State.Player.Tavern.Discover.Options.Count);
+            if (firstKeywords.Count > 0)
+            {
+                Assert.IsFalse(putricide.State.Player.Tavern.Discover.Options.Any(option => option.Keywords.Any(firstKeywords.Contains)));
+            }
+
+            var secondComponent = putricide.State.Player.Tavern.Discover.Options[0];
+            expectedAttack += secondComponent.Attack;
+            expectedHealth += secondComponent.MaxHealth;
+            putricide.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            var creation = putricide.State.Player.Tavern.Hand.Single(card => card.CardId == "BG25_HERO_100pt");
+            Assert.AreEqual(expectedAttack, creation.Attack);
+            Assert.AreEqual(expectedHealth, creation.MaxHealth);
+            Assert.IsTrue(creation.Tags.Contains(HeroEffectEngine.PutricideCreationTag));
+            Assert.AreEqual(2, creation.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)));
+            Assert.IsFalse(creation.Tags.Contains("putricide_creation_component_pending"));
             putricide.State.Player.Tavern.Hand.Clear();
             PlayBuddy(putricide, "BG25_HERO_100_Buddy");
             var festergut = putricide.State.Player.Board.Single(card => card.CardId == "BG25_HERO_100_Buddy");
             putricide.Apply(new GameCommand(GameCommandType.SellMinion, festergut.InstanceId));
-            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.Tags.Contains("undead_creation") || card.Tags.Contains("putricide_creation_proxy")));
-            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("undead_creation") || card.Tags.Contains("putricide_creation_proxy")));
+            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
+            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
 
             var raynor = CreateHeroService("BG31_HERO_801");
             raynor.State.Player.Tavern.Hand.Clear();
+            Assert.IsTrue(raynor.State.Player.Board.Any(card => card.CardId == "BG31_HERO_801pt" && card.Attack == 2 && card.MaxHealth == 2));
             PlayBuddy(raynor, "BG31_HERO_801_Buddy");
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-1", "MUKLA_BANANA", 0));
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-2", "MUKLA_BANANA", 0));
             raynor.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
             raynor.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
-            Assert.IsTrue(raynor.State.Player.Tavern.Hand.Any(card => card.CardId == "BATTLECRUISER_UPGRADE"));
+            Assert.IsTrue(raynor.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("battlecruiser_upgrade") && card.CardId.StartsWith("BG31_HERO_801pt")));
 
             var artanis = CreateHeroService("BG31_HERO_802");
+            Assert.AreEqual(HeroEffectEngine.ArtanisProtossDiscoverSource, artanis.State.Player.Tavern.Discover.Source);
+            var selectedProtoss = artanis.State.Player.Tavern.Discover.Options[0].CardId;
+            artanis.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(selectedProtoss, artanis.State.Player.Tavern.AdvancedMechanics.Selections[HeroEffectEngine.ArtanisSelectedRewardKey]);
+            Assert.IsFalse(artanis.State.Player.Tavern.Hand.Any(card => card.CardId == selectedProtoss));
             artanis.State.Player.Board.Clear();
             artanis.State.Player.Tavern.Hand.Clear();
             artanis.State.Player.Board.Add(TestMinion("probius-target", "PROBIUS_TARGET", 2, 2, new System.Collections.Generic.List<Tribe> { Tribe.Mech }));
@@ -3009,7 +3611,7 @@ namespace LearnHearthstone.Tests.EditMode
             var brokenHorn = kerrigan.State.Player.Board.Single(card => card.CardId == "BG31_HERO_811_Buddy");
             kerrigan.Apply(new GameCommand(GameCommandType.SellMinion, brokenHorn.InstanceId));
             Assert.IsNotNull(kerrigan.State.Player.Tavern.Discover);
-            Assert.IsTrue(kerrigan.State.Player.Tavern.Discover.Options.All(card => card.CardId == "ZERG_MINION_PROXY" && card.Attack == 6 && card.MaxHealth == 6));
+            Assert.IsTrue(kerrigan.State.Player.Tavern.Discover.Options.All(card => card.CardId.StartsWith("BG31_HERO_811t") && card.CardId != "ZERG_MINION_PROXY" && card.Attack == 6 && card.MaxHealth == 6 && card.Tags.Contains("does_not_morph")));
 
             var tess = CreateHeroService("TB_BaconShop_HERO_50");
             tess.State.Player.Tavern.Hand.Clear();
@@ -3245,6 +3847,139 @@ namespace LearnHearthstone.Tests.EditMode
                 entry.TargetId.Contains("BG22_HERO_001t")));
         }
 
+        [Test]
+        public void LadyVashj_StartTurnAddsTemporarySpellcraft()
+        {
+            var service = CreateHeroService("BG23_HERO_304");
+            service.State.Player.Tavern.Tier = 2;
+            service.State.Player.Tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card =>
+                card.Tags.Contains("spellcraft") &&
+                card.Tags.Contains("temporary_spellcraft_card")));
+            Assert.IsTrue(service.State.Player.Tavern.Hand
+                .Where(card => card.Tags.Contains("spellcraft"))
+                .All(card => card.CardId == "SURF_N_SURF_SPELL" || card.CardId == "REEF_RIFFER_SPELL"));
+        }
+
+        [Test]
+        public void CoilfangElite_ShopRefreshCopiesSpellcraftMinionSpell()
+        {
+            var deepSeaAngler = MinionCatalogLoader.LoadFromResources().All.Single(definition => definition.CardId == "BG23_004");
+            var service = CreateHeroService(
+                "BG23_HERO_304",
+                new MatchSetupOptions
+                {
+                    ActiveTribes = TribeAvailabilityRules.AllPlayableTribes(),
+                    IsDefaultCardPoolVersion = false,
+                    EnabledMinionCardIds = new System.Collections.Generic.List<string> { deepSeaAngler.CardId }
+                });
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.Tier = 3;
+            PlayBuddy(service, "BG23_HERO_304_Buddy");
+            service.State.Player.Tavern.Hand.Clear();
+            ForceOnlyPoolCopies(service.State.Player.Tavern, new System.Collections.Generic.Dictionary<string, int> { { deepSeaAngler.Id, 7 } });
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.IsTrue(service.State.Player.Tavern.Shop.Any(card => card != null && card.CardId == "BG23_004"));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "DEEP_SEA_ANGLER_SPELL"));
+        }
+
+        [Test]
+        public void QueenAzshara_ThirtyAttackStartsNagaConquestDiscover()
+        {
+            var service = CreateHeroService("BG22_HERO_007");
+            service.State.Player.Tavern.Tier = 6;
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("azshara-attack-a", "AZSHARA_ATTACK_A", 20, 20));
+            service.State.Player.Board.Add(TestMinion("azshara-attack-b", "AZSHARA_ATTACK_B", 10, 10));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("hero-power:naga-conquest", discover.Source);
+            Assert.IsTrue(discover.Options.All(card => card.Tribes.Contains(Tribe.Naga)));
+        }
+
+        [Test]
+        public void ImperialDefender_CopiesSpellcraftOncePerTurn()
+        {
+            var service = CreateHeroService("BG22_HERO_007");
+            service.State.Player.Board.Clear();
+            var target = TestMinion("imperial-target", "IMPERIAL_TARGET", 1, 1);
+            service.State.Player.Board.Add(target);
+            PlayBuddy(service, "BG22_HERO_007_Buddy");
+            var defender = service.State.Player.Board.Single(card => card.CardId == "BG22_HERO_007_Buddy");
+            var defenderAttack = defender.Attack;
+            var defenderHealth = defender.MaxHealth;
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "DEEP_SEA_ANGLER_SPELL", CardKind.Spell));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.Greater(target.Attack, 1);
+            Assert.Greater(defender.Attack, defenderAttack);
+            Assert.Greater(defender.MaxHealth, defenderHealth);
+            Assert.AreEqual(service.State.Round, service.State.Player.Tavern.HeroEffectCounters["hero:azshara:imperial_defender_copied_round"]);
+        }
+
+        [Test]
+        public void Clocksworth_TwoCopiesMakeGoldenAndGoldenGivesTavernCoin()
+        {
+            var service = CreateHeroService("BG34_HERO_002");
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 10;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var first = TestMinion("clock-copy-a", "CLOCK_COPY", 1, 1);
+            var second = TestMinion("clock-copy-b", "CLOCK_COPY", 1, 1);
+            first.DefinitionId = "clock-copy";
+            second.DefinitionId = "clock-copy";
+            tavern.Shop = new System.Collections.Generic.List<MinionInstance> { first, second };
+
+            BuyFirstShopMinion(service);
+            BuyFirstShopMinion(service);
+
+            var goldenIndex = tavern.Hand.FindIndex(card => card.Golden && card.DefinitionId == "clock-copy");
+            Assert.GreaterOrEqual(goldenIndex, 0);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, goldenIndex));
+
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "104436"));
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "TRIPLE_REWARD"));
+        }
+
+        [Test]
+        public void Genn_TurnFourDiscoversTwoHeroPowersAndReplacesPrimaryPlusSecond()
+        {
+            var service = CreateHeroService("BG35_HERO_001");
+            while (service.State.Round < 4)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("hero-power:genn-duality", discover.Source);
+            Assert.AreEqual(2, discover.RemainingPicks);
+            var firstPick = discover.Options[0].CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual(firstPick, service.State.Player.HeroPowerCardId);
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            Assert.AreEqual(1, service.State.Player.Tavern.Discover.RemainingPicks);
+            var secondPick = service.State.Player.Tavern.Discover.Options[0].CardId;
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.AreEqual(firstPick, service.State.Player.HeroPowerCardId);
+            CollectionAssert.Contains(service.State.Player.ExtraHeroPowerCardIds, secondPick);
+            Assert.AreNotEqual("BG35_HERO_001p", service.State.Player.HeroPowerCardId);
+        }
+
         private static MatchService CreateHeroService(string heroCardId)
         {
             return CreateHeroService(heroCardId, null);
@@ -3335,6 +4070,16 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
         }
 
+        private static void AddSecret(MatchService service, string secretCardId, string name)
+        {
+            service.State.Player.Tavern.Secrets.Add(new SecretState
+            {
+                SecretCardId = secretCardId,
+                Name = name,
+                Owner = BoardSide.Player
+            });
+        }
+
         private static void AssertDarkmoonPrizeDiscover(MatchService service, string source, int tier)
         {
             var tavern = service.State.Player.Tavern;
@@ -3383,6 +4128,17 @@ namespace LearnHearthstone.Tests.EditMode
             var minion = TestMinion(instanceId, cardId, 1, 1);
             minion.TavernTier = tavernTier;
             return minion;
+        }
+
+        private static MinionInstance TestTripleReward(string instanceId)
+        {
+            var card = TestMinion(instanceId, "TRIPLE_REWARD", 0, 1);
+            card.CardKind = CardKind.TavernSpell;
+            card.DefinitionId = "triple-reward";
+            card.Name = "Triple Reward";
+            card.Keywords.Add(Keyword.Discover);
+            card.Keywords.Add(Keyword.TavernSpell);
+            return card;
         }
 
         private static MinionInstance TestMinion(string instanceId, string cardId, int attack, int health, System.Collections.Generic.List<Tribe> tribes = null)

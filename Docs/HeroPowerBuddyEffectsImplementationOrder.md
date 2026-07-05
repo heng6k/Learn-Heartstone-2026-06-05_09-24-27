@@ -120,7 +120,7 @@
 | 5.0 | Combat hero effect context | Framework First | Implemented | 已增加英雄战斗开始上下文；攻击、击杀、通用死亡、通用召唤仍需 CombatEngine 内部事件 |
 | 5.1 | Al'Akir | Spirit of Air | Framework First | 战斗开始关键词已实现；宝宝亡语暂用售出代理 |
 | 5.2 | Y'Shaarj | Baby Y'Shaarj | Implemented | 战斗开始同等级召唤、入手复制、宝宝同等级召唤 +1/+1 已覆盖英雄效果召唤和 CombatEngine 内部召唤 |
-| 5.3 | Deathwing | Sinestra | Framework First | 友方永久 +2 攻击和 Sinestra +1 生命已实现；对手战队已有快照历史，但对手永久属性写回仍需完整大厅状态 |
+| 5.3 | Deathwing | Sinestra | Implemented | 双方战斗副本 +2 攻击、友方永久 +2 攻击和 Sinestra +1 生命已实现；对手永久属性写回按单人训练器边界删除 |
 | 5.4 | Illidan Stormrage | Eclipsion Illidari | Framework First | 边位 +2/+1、正常战斗开始前立即攻击、宝宝一次攻击免疫已实现；通用友方攻击计数与更完整英雄触发排序仍待后续框架 |
 | 5.5 | Queen Wagtoggle | Elder Taggawag | Implemented | 多种族战斗开始增益和 Elder 四种族收益已实现 |
 | 5.6 | N'Zoth | Baby N'Zoth | Framework First | 开局鱼和 Baby N'Zoth 战吼已实现；鱼收集亡语待亡语转移支持 |
@@ -154,28 +154,28 @@
 | 6.3 | Galakrond | Galakrond's Apostle | Implemented | 目标酒馆随从后发现更高等级替换；Apostle 战吼升级酒馆随从 |
 | 6.4 | E.T.C., Band Manager | Talent Scout | Implemented | Tier 2 后发现真实 Buddy；Talent Scout 战吼使 Buddy 金色 |
 | 6.5 | Sir Finley Mrrgglton | Maxwell, Mighty Steed | Implemented | 开局发现英雄技能；Maxwell 出售获得当前英雄技能对应 Buddy |
-| 6.6 | Murloc Holmes | Watfin | Planned | 猜测/奖励状态 |
+| 6.6 | Murloc Holmes | Watfin | Implemented | 单人对手快照竞猜、正确奖励 Tavern Coin；Watfin 正确后获得普通复制 |
 | 6.7 | Thorim, Stormlord | Veranus | Implemented | 开局合法 Tier 7 发现、60 金币延迟发放；Veranus 回合结束变形左侧随从，最高 Tier 7 |
 | 6.8 | Snake Eyes | Box Cars | Implemented | 掷骰、冷却和回合开始酒馆法术发现 |
-| 6.9 | Galewing | Flight Trainer | FrameworkFirst | 已接入飞行路径选择、延迟完成、不连续重复选择和 Flight Trainer 双触发；三条航线奖励因本地缺少完整文本，当前为明确 proxy |
+| 6.9 | Galewing | Flight Trainer | Implemented | 已接入飞行路径选择、延迟完成、不连续重复选择、官方三航线奖励和 Flight Trainer 双触发 |
 | 6.10 | Cariel Roame | Captain Fairmount | Implemented | Conviction 主动随机 buff、战斗后改进选择和 Captain Fairmount 回合结束随机改进 |
 | 6.11 | Infinite Toki | Clockwork Assistant | Implemented | Temporal Tavern 在可替换普通随从槽最右侧放入两个当前剩余池的高一等级普通随从，冻结牌按类型补齐；动态注入当前池的 Timewarped/Oathstone 随从进入通用随从候选；Clockwork Assistant 战吼从当前剩余池和 BuddyPool 发现高一等级随从，受当前 6/7 本上限截断 |
 | 6.12 | Mr. Bigglesworth | Lil' K.T. | Framework First | 已淘汰玩家战队快照发现和 Lil' K.T. 单人最低血量代理已实现；真实大厅淘汰/血量排序待补 |
 | 6.13 | Ambassador Faelin | Submersible Chef | Implemented | 首回合限制、开局 6/4/2 发现并按等级延迟获得；Submersible Chef 战吼给 1/3/5 级随从 |
 | 6.14 | Guff Runetotem | Baby Kodo | Implemented | 购买卡牌累计酒馆等级，满 20 点给三连奖励；Baby Kodo 战吼刷新酒馆并尽量包含每个可用等级的随从 |
-| 6.15 | The Rat King | Rat King buddy | Planned | 种族轮换和对应奖励 |
+| 6.15 | The Rat King | Rat King buddy | Implemented | 回合开始种族轮换、当前类型发现；Pigeon Lord 在酒馆缺当前类型时给免费刷新 |
 | 6.16 | Alexstrasza | Vaelastrasz | Implemented | 升到 4 级酒馆时触发 Dragon 发现；Vaelastrasz Rally 获得随机龙 |
 | 6.17 | Sire Denathrius | Shady Aristocrat | Implemented | 复用 Quest/Reward 系统：开局二选一任务，Shady Aristocrat 出售发现 Bonus Quest，完成后获得 8 金币 Coin Pouch |
 | 6.18 | Tickatus | Ticket Collector | Implemented | 每 4 回合暗月奖品发现和 Ticket Collector 出售发现下一等级奖品已接入共享 Darkmoon Prize 目录；33 张本地暗月奖品效果均已实现 |
 | 6.19 | Master Nguyen | Lei Flamepaw | Implemented | 回合开始二选一临时英雄技能；选择后本回合替换并在回合结束恢复；Lei Flamepaw 按所选临时英雄技能映射 Buddy |
-| 6.20 | Scabbs Cutterbutter | Warden Thelwater | Framework First | 下个对手战队普通复制发现和下个对手 Buddy 单人代理已实现；真实对阵排程待补 |
+| 6.20 | Scabbs Cutterbutter | Warden Thelwater | Implemented | 按已接受的单人模拟对手代理完成：下个对手战队普通复制发现和下个对手 Buddy |
 | 6.21 | A. F. Kay | Snack Vendor | Implemented | 前两回合限制主要操作，第 3 回合发放 3/4 级发现；Snack Vendor 回合结束转移属性 |
-| 6.22 | Loh, the Living Legend | Stoneshell Guardian | Planned | 伙伴/奖励选择类效果 |
-| 6.23 | Dinotamer Brann | Brann's Epic Egg | Planned | Battlecry 相关发现或奖励 |
-| 6.24 | Yogg-Saron, Hope's End | Acolyte of Yogg-Saron | FrameworkFirst | Puzzle Box 从第 3 回合起自动施放合法随机 Tavern spell；Acolyte 使用可见 Wheel proxy，完整官方结果表待补 |
-| 6.25 | Queen Azshara | Imperial Defender | Planned | Naga Conquest 状态和法术复制到宝宝 |
-| 6.26 | Lady Vashj | Coilfang Elite | Planned | Spellcraft 法术生成和酒馆 Spellcraft 随从复制法术 |
-| 6.27 | Lord Barov | Barov's Apprentice | Planned | 战斗胜负下注选择和 Coin 触发奖励 |
+| 6.22 | Loh, the Living Legend | Stoneshell Guardian | Implemented | 本体友方攻击计数和 Triple Reward 已接；Stoneshell Guardian 每回合第一个 Triple Reward 改为从金色随从发现 |
+| 6.23 | Dinotamer Brann | Brann's Epic Egg | Implemented | 本体 4 个战吼随从购买给 Brann Bronzebeard 已接；Brann's Epic Egg 亡语召唤并获得当前酒馆等级上限内的随机 Battlecry minion，金色翻倍 |
+| 6.24 | Yogg-Saron, Hope's End | Acolyte of Yogg-Saron | Implemented | Puzzle Box 从第 3 回合起自动施放合法随机 Tavern spell；Acolyte 使用项目认可的五格 Wheel 表 |
+| 6.25 | Queen Azshara | Imperial Defender | Implemented | 30 攻开启 Naga Conquest；Imperial Defender 每回合一次复制对另一个友方随从施放的 Spellcraft |
+| 6.26 | Lady Vashj | Coilfang Elite | Implemented | 每回合获得不高于当前酒馆等级的临时 Spellcraft；Coilfang Elite 复制酒馆 Spellcraft 随从法术 |
+| 6.27 | Lord Barov | Barov's Apprentice | Implemented | 战斗胜负下注选择、正确后 Tavern Coin、Coin 触发 Gold 奖励 |
 
 ## Phase 7: 明确暂缓系统
 
@@ -185,15 +185,15 @@
 | --- | --- | --- | --- |
 | Marin the Manager | Fantastic Bellhop | FrameworkFirst | Fantastic Bellhop 回合结束给 helpful card；Trinket 系统仍暂缓 |
 | Buttons | Zippers | FrameworkFirst | Zippers 用 Tavern death proxy 给 helpful card；Trinket 系统仍暂缓 |
-| Mister Clocksworth | None | Deferred | 两张三连、三连奖励替换为 Tavern Coin 的 TripleEngine 规则 |
-| Morchie | None | Deferred | Timewarp/时间线系统 |
-| Murozond, Unbounded | None | Deferred | Timewarp/对手历史状态 |
-| Genn, Worgen King | None | Deferred | 多英雄技能替换和费用规则 |
+| Mister Clocksworth | None | Implemented | 两张合金和 Tavern Coin 奖励替换已接入 Triple 规则 |
+| Morchie | None | Implemented | Turn 5 打开 Minor Timewarped Tavern |
+| Murozond, Unbounded | None | Implemented | Turn 8 打开 Major Timewarped Tavern；previous-warband 属于 Timewarp 牌/数据底座 |
+| Genn, Worgen King | None | Implemented | Cosmic Duality 下禁用；非 Cosmic Duality Turn 4 发现两个英雄技能替换 |
 | The Great Akazamzarak | Street Magician | FrameworkFirst | Street Magician 生成 Better Secret proxy；Secret 系统仍暂缓 |
-| Professor Putricide | Festergut | FrameworkFirst | Festergut 用 Tavern death proxy 召唤并获得 Undead Creation proxy；自定义 Undead 仍暂缓 |
-| Jim Raynor | Tychus | FrameworkFirst | Tychus 两个 Tavern spell 后给可施放 Battlecruiser Upgrade；Terran/战巡系统仍暂缓 |
-| Artanis | Probius | FrameworkFirst | Probius 可 Magnetic，磁力后使目标 Mech 金色；Protoss 延迟奖励仍暂缓 |
-| Kerrigan, Queen of Blades | Broken Horn | FrameworkFirst | Broken Horn 出售发现 6/6 Zerg proxy；Zerg morph 系统仍暂缓 |
+| Professor Putricide | Festergut | Implemented | Build-An-Undead 两次三选一组件 Discover 已接；身材/关键词/效果叠加，第二段过滤重复关键词；Festergut 复用同一 Putricide's Creation factory。 |
+| Jim Raynor | Tychus | Implemented | 开局战巡、刷新/宝宝官方升级池、升级施放和核心战斗钩子已完成 |
+| Artanis | Probius | Implemented | Warp Gate 二选一、买 14 张牌奖励、Protoss 核心钩子和 Probius 磁力变金已完成 |
+| Kerrigan, Queen of Blades | Broken Horn | Implemented | 幼虫、解锁/费用递减、Zerg morph、Broken Horn 真实 6/6 非变异 Zerg 已完成 |
 | Tess Greymane | Hunter of Old | FrameworkFirst | Tess 刷新上次对手战队普通复制，Hunter of Old 回合开始获取上次对手 Buddy；真实多对手排程仍暂缓 |
 | Duos-only hero powers/buddies | Various | Deferred | 当前项目范围是单人 Battlegrounds Tavern |
 

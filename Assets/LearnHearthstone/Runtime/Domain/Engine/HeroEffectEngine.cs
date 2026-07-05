@@ -23,7 +23,9 @@ namespace LearnHearthstone.Domain.Engine
         FriendlyMinionDiedInCombat,
         FriendlyDeathrattleTriggeredInCombat,
         FriendlyMinionKilledEnemyInCombat,
-        FriendlyMinionSummonedInCombat
+        FriendlyMinionAttackedInCombat,
+        FriendlyMinionSummonedInCombat,
+        CombatEnded
     }
 
     public sealed class HeroBattlecryReplayRequest
@@ -164,6 +166,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string PyramadPowerId = "TB_BaconShop_HP_040";
         private const string TitanicGuardianCardId = "TB_BaconShop_HERO_39_Buddy";
         private const string VoljinPowerId = "BG20_HERO_201p";
+        private const string MasterGadrinCardId = "BG20_HERO_201_Buddy";
         private const string IngePowerId = "BG26_HERO_102p";
         private const string SolemnSerenaderCardId = "BG26_HERO_102_Buddy";
         private const string MalygosPowerId = "TB_BaconShop_HP_052";
@@ -223,9 +226,11 @@ namespace LearnHearthstone.Domain.Engine
         private const string SylvanasPowerId = "BG23_HERO_306p";
         private const string NathanosCardId = "BG23_HERO_306_Buddy";
         private const string SneedPowerId = "BG21_HERO_030p";
+        private const string PilotedWhirlOTronCardId = "BG21_HERO_030_Buddy";
         private const string JailerPowerId = "TB_BaconShop_HP_702";
         private const string MawswornSoulkeeperCardId = "TB_BaconShop_HERO_702_Buddy";
         private const string GreyboughPowerId = "TB_BaconShop_HP_107";
+        private const string WanderingTreantCardId = "TB_BaconShop_HERO_95_Buddy";
         private const string IniStormcoilPowerId = "BG22_HERO_200p";
         private const string SubScrubberCardId = "BG22_HERO_200_Buddy";
         private const string OzumatPowerId = "BG23_HERO_201p";
@@ -244,11 +249,28 @@ namespace LearnHearthstone.Domain.Engine
         private const string TalentScoutCardId = "BG25_HERO_105_Buddy";
         private const string FinleyPowerId = "TB_BaconShop_HP_057";
         private const string MaxwellCardId = "TB_BaconShop_HERO_40_Buddy";
+        private const string RatKingPowerId = "TB_BaconShop_HP_041";
+        private const string PigeonLordCardId = "TB_BaconShop_HERO_12_Buddy";
+        private const string BarovPowerId = "TB_BaconShop_HP_081";
+        private const string BarovsApprenticeCardId = "TB_BaconShop_HERO_72_Buddy";
+        private const string HolmesPowerId = "BG23_HERO_303p2";
+        private const string WatfinCardId = "BG23_HERO_303_Buddy";
         private const string TessPowerId = "TB_BaconShop_HP_077";
         private const string BigglesworthPowerId = "TB_BaconShop_HP_080";
         private const string LilKtCardId = "TB_BaconShop_HERO_70_Buddy";
         private const string ScabbsPowerId = "BG21_HERO_010p";
         private const string WardenThelwaterCardId = "BG21_HERO_010_Buddy";
+        private const string LohPowerId = "BG33_HERO_001p_ALT";
+        private const string LohAttackCounter = "hero:loh:friendly_attacks";
+        private const int LohAttackThreshold = 15;
+        private const string DinotamerBrannPowerId = "TB_BaconShop_HP_048";
+        private const string DinotamerBrannBoughtCounter = "hero:dinotamer_brann:battlecry_bought";
+        private const string DinotamerBrannGrantedCounter = "hero:dinotamer_brann:granted";
+        private const string BrannBronzebeardCardId = "BG_LOE_077";
+        private const string QueenAzsharaPowerId = "BG22_HERO_007p";
+        private const string QueenAzsharaConquestCounter = "hero:azshara:naga_conquest_started";
+        private const string QueenAzsharaConquestSource = "hero-power:naga-conquest";
+        private const int QueenAzsharaAttackThreshold = 30;
         private const string AkazamzarakPowerId = "TB_BaconShop_HP_020";
         private const string FantasticBellhopCardId = "BG30_HERO_304_Buddy";
         private const string ZippersCardId = "BG32_HERO_002_Buddy";
@@ -257,6 +279,15 @@ namespace LearnHearthstone.Domain.Engine
         private const string TychusFindlayCardId = "BG31_HERO_801_Buddy";
         private const string ProbiusCardId = "BG31_HERO_802_Buddy";
         private const string BrokenHornCardId = "BG31_HERO_811_Buddy";
+        private const string PutricidePowerId = "BG25_HERO_100p";
+        private const string PutricideCreationCardId = "BG25_HERO_100pt";
+        private const string RaynorPowerId = "BG31_HERO_801p";
+        private const string BattlecruiserCardId = "BG31_HERO_801pt";
+        private const string KerriganPowerTier2Id = "BG31_HERO_811p";
+        private const string KerriganPowerTier3Id = "BG31_HERO_811p2";
+        private const string KerriganPowerFinalId = "BG31_HERO_811p3";
+        private const string ZergLarvaCardId = "BG31_HERO_811t";
+        private const string ArtanisPowerId = "BG31_HERO_802p";
         private const string HunterOfOldCardId = "TB_BaconShop_HERO_50_Buddy";
         private const string BattlecruiserUpgradeCardId = "BATTLECRUISER_UPGRADE";
         private const string ZergProxyCardId = "ZERG_MINION_PROXY";
@@ -316,8 +347,18 @@ namespace LearnHearthstone.Domain.Engine
         private const string RafaamArmedCounter = "hero:rafaam:armed";
         private const string CombatKillRoundCounter = "hero:shared:combat_kill_round";
         private const string CombatKillCountCounter = "hero:shared:combat_kills_this_round";
+        private const string IniCombatFriendlyDeathsCounter = "hero:ini:combat_friendly_deaths";
+        private const string ArannaAttackCounter = "hero:aranna:friendly_attacks";
+        private const string ArannaFirstBuyFreeCounter = "hero:aranna:first_buy_free";
         private const string BigglesworthDiscoverCountCounter = "hero:bigglesworth:discovers";
         private const string BigglesworthSnapshotIndexCounter = "hero:bigglesworth:snapshot_index";
+        private const string RatKingCurrentTribeCounter = "hero:rat_king:current_tribe";
+        private const string RatKingLastTribeCounter = "hero:rat_king:last_tribe";
+        private const string PigeonLordRefreshRoundCounter = "hero:rat_king:pigeon_refresh_round";
+        private const string BarovPredictionRoundCounter = "hero:barov:prediction_round";
+        private const string BarovPredictionCounter = "hero:barov:prediction";
+        public const string HolmesDiscoverSource = "hero-power:murloc-holmes";
+        private const string HolmesCorrectGuessTag = "murloc_holmes_correct_guess";
         private const string SilasTicketTag = "silas_darkmoon_ticket";
         private const string SilasTicketCounter = "hero:silas:tickets";
         private const string BurthBuffCounter = "hero:silas:burth_buff";
@@ -326,16 +367,159 @@ namespace LearnHearthstone.Domain.Engine
         private const string CookieFedCounter = "hero:cookie:fed";
         private const string CookieTribeCounterPrefix = "hero:cookie:tribe:";
         private const string TychusSpellCounter = "hero:tychus:tavern_spells";
+        private const string PutricideCreationsLeftCounter = "hero:putricide:creations_left";
+        private const string KerriganUnlockedTierCounter = "hero:kerrigan:unlocked_tier";
+        private const string KerriganCostCounter = "hero:kerrigan:cost";
+        private const string ArtanisBoughtCounter = "hero:artanis:cards_bought";
+        private const string ArtanisRewardClaimedCounter = "hero:artanis:reward_claimed";
+        public const string PutricideFirstDiscoverSource = "hero:putricide:first-component";
+        public const string PutricideSecondDiscoverSource = "hero:putricide:second-component";
+        public const string PutricideComponentTagPrefix = "putricide_component:";
+        public const string PutricideCreationTag = "putricide_creation";
+        public const string KerriganMorphDiscoverSource = "hero:kerrigan:morph";
+        public const string ArtanisProtossDiscoverSource = "hero:artanis:warp-gate";
+        public const string ArtanisSelectedRewardKey = "hero:artanis:selected_reward";
         private const string LichKingRebornSource = "Reborn Rites";
         private const string VoljinSwapSource = "Spirit Swap";
         private const string TeronTargetTag = "teron_reanimation_target";
+        private const string SneedDeathrattleTierTagPrefix = "sneed_deathrattle_tier:";
         private const string LockedTurnsCounter = "locked-turns";
+        private static readonly string[] BattlecruiserUpgradeFamilies =
+        {
+            "BG31_HERO_801pta",
+            "BG31_HERO_801ptb",
+            "BG31_HERO_801ptc",
+            "BG31_HERO_801ptd",
+            "BG31_HERO_801pte",
+            "BG31_HERO_801ptf",
+            "BG31_HERO_801pth",
+            "BG31_HERO_801pti",
+            "BG31_HERO_801ptj"
+        };
+        private static readonly string[] ZergTier2CardIds =
+        {
+            "BG31_HERO_811t2",
+            "BG31_HERO_811t3",
+            "BG31_HERO_811t4",
+            "BG31_HERO_811t5"
+        };
+        private static readonly string[] ZergTier3CardIds =
+        {
+            "BG31_HERO_811t6",
+            "BG31_HERO_811t7",
+            "BG31_HERO_811t8",
+            "BG31_HERO_811t9",
+            "BG31_HERO_811t10"
+        };
+        private static readonly string[] ProtossRewardCardIds =
+        {
+            "BG31_HERO_802pt",
+            "BG31_HERO_802pt1",
+            "BG31_HERO_802pt4",
+            "BG31_HERO_802pt5",
+            "BG31_HERO_802pt7"
+        };
         private static readonly Keyword[] BonusKeywords =
         {
             Keyword.Taunt,
             Keyword.DivineShield,
             Keyword.Reborn,
             Keyword.Windfury
+        };
+        private sealed class PutricideCreationComponent
+        {
+            public string Id;
+            public string Name;
+            public int Attack;
+            public int Health;
+            public Keyword? Keyword;
+            public string Text;
+            public string EffectTag;
+        }
+
+        private static readonly PutricideCreationComponent[] PutricideComponents =
+        {
+            new PutricideCreationComponent
+            {
+                Id = "hulking-frame",
+                Name = "Hulking Frame",
+                Attack = 4,
+                Health = 5,
+                Text = "+4/+5."
+            },
+            new PutricideCreationComponent
+            {
+                Id = "spiked-shell",
+                Name = "Spiked Shell",
+                Attack = 3,
+                Health = 4,
+                Keyword = Keyword.Taunt,
+                Text = "+3/+4 and Taunt.",
+                EffectTag = "putricide_taunt_component"
+            },
+            new PutricideCreationComponent
+            {
+                Id = "reborn-stitching",
+                Name = "Reborn Stitching",
+                Attack = 2,
+                Health = 3,
+                Keyword = Keyword.Reborn,
+                Text = "+2/+3 and Reborn.",
+                EffectTag = "putricide_reborn_component"
+            },
+            new PutricideCreationComponent
+            {
+                Id = "volatile-glands",
+                Name = "Volatile Glands",
+                Attack = 3,
+                Health = 2,
+                Keyword = Keyword.Deathrattle,
+                Text = "+3/+2 and Deathrattle.",
+                EffectTag = "putricide_deathrattle_component"
+            },
+            new PutricideCreationComponent
+            {
+                Id = "toxic-ichor",
+                Name = "Toxic Ichor",
+                Attack = 2,
+                Health = 2,
+                Keyword = Keyword.Venomous,
+                Text = "+2/+2 and Venomous.",
+                EffectTag = "putricide_venomous_component"
+            },
+            new PutricideCreationComponent
+            {
+                Id = "borrowed-wings",
+                Name = "Borrowed Wings",
+                Attack = 3,
+                Health = 1,
+                Keyword = Keyword.Windfury,
+                Text = "+3/+1 and Windfury.",
+                EffectTag = "putricide_windfury_component"
+            },
+            new PutricideCreationComponent
+            {
+                Id = "plated-heart",
+                Name = "Plated Heart",
+                Attack = 1,
+                Health = 4,
+                Keyword = Keyword.DivineShield,
+                Text = "+1/+4 and Divine Shield.",
+                EffectTag = "putricide_divine_shield_component"
+            }
+        };
+        private static readonly Tribe[] RatKingTribes =
+        {
+            Tribe.Beast,
+            Tribe.Demon,
+            Tribe.Dragon,
+            Tribe.Elemental,
+            Tribe.Mech,
+            Tribe.Murloc,
+            Tribe.Naga,
+            Tribe.Pirate,
+            Tribe.Quilboar,
+            Tribe.Undead
         };
 
         public static HeroEffectResult Dispatch(HeroEffectContext context)
@@ -376,6 +560,19 @@ namespace LearnHearthstone.Domain.Engine
                 if (target != null)
                 {
                     result.Messages.Add("Swatting Insects: left-most minion gained Windfury, Divine Shield, and Taunt for combat.");
+                }
+            }
+
+            foreach (var gadrin in context.PlayerBoard
+                         .Where(minion => string.Equals(minion.CardId, MasterGadrinCardId, StringComparison.OrdinalIgnoreCase))
+                         .ToList())
+            {
+                var index = context.PlayerBoard.FindIndex(minion => minion.InstanceId == gadrin.InstanceId);
+                if (index > 0)
+                {
+                    var amount = gadrin.Golden ? 4 : 2;
+                    Buff(context.PlayerBoard[index - 1], amount, amount, "Master Gadrin");
+                    result.Messages.Add("Master Gadrin: buffed the minion to its left for combat.");
                 }
             }
 
@@ -453,7 +650,7 @@ namespace LearnHearthstone.Domain.Engine
             EnsureCounters(state.Player.Tavern);
             if (string.Equals(heroPowerCardId, ArannaPowerId, StringComparison.OrdinalIgnoreCase) &&
                 target.CardKind == CardKind.Minion &&
-                GetCounterOrDefault(state.Player.Tavern, "hero:aranna:first_buy_free", 0) > 0)
+                GetCounterOrDefault(state.Player.Tavern, ArannaFirstBuyFreeCounter, 0) > 0)
             {
                 return 0;
             }
@@ -614,6 +811,14 @@ namespace LearnHearthstone.Domain.Engine
                     {
                         MarkSilasTickets(context, result);
                     }
+                    if (IsPower(powerId, RatKingPowerId))
+                    {
+                        ResolvePigeonLordRefresh(context, result);
+                    }
+                    if (IsPower(powerId, RaynorPowerId))
+                    {
+                        AddBattlecruiserUpgradeToShop(context, result);
+                    }
                     if (HasBuddy(context.State, SklibbCardId))
                     {
                         AddSklibbRefreshMinion(context, result);
@@ -621,6 +826,9 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case HeroEffectEventType.CardPlayed:
                     ResolveCardPlayedHeroPowers(context, result, powerId);
+                    break;
+                case HeroEffectEventType.TavernSpellCast:
+                    ResolveTavernSpellCastHeroPowers(context, result, powerId);
                     break;
                 case HeroEffectEventType.BattlecryTriggered:
                     ResolveBattlecryHeroEffects(context, result, powerId);
@@ -634,6 +842,9 @@ namespace LearnHearthstone.Domain.Engine
                 case HeroEffectEventType.FriendlyMinionKilledEnemyInCombat:
                     ResolveCombatKillHeroPowers(context, result, powerId);
                     break;
+                case HeroEffectEventType.FriendlyMinionAttackedInCombat:
+                    ResolveCombatAttackHeroPowers(context, result, powerId);
+                    break;
                 case HeroEffectEventType.TurnStarted:
                     ResolveTurnStartedHeroPowers(context, result, powerId);
                     break;
@@ -642,6 +853,9 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case HeroEffectEventType.DiscoverChosen:
                     ResolveDiscoverChosenHeroPowers(context, result, powerId);
+                    break;
+                case HeroEffectEventType.CombatEnded:
+                    ResolveCombatEndedHeroPowers(context, result, powerId);
                     break;
             }
         }
@@ -657,8 +871,10 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, SneedPowerId) && context.State.Player.Board.Count < 7)
             {
                 var shredder = CreateGeneratedMinion(SneedShredderCardId, "Sneed's Shredder", 2, 1, Tribe.Mech, "sneed-shredder");
+                AddKeyword(shredder, Keyword.Deathrattle, "Pilot the Shredder");
                 AddTag(shredder, "sneed_shredder");
                 AddTag(shredder, "deathrattle");
+                AddTag(shredder, SneedDeathrattleTierTagPrefix + "1");
                 context.State.Player.Board.Add(shredder);
                 result.Messages.Add("Pilot the Shredder: started with a 2/1 Shredder.");
             }
@@ -667,6 +883,21 @@ namespace LearnHearthstone.Domain.Engine
             {
                 StartHeroPowerDiscover(context, "hero-power:adventure");
                 result.Messages.Add("Adventure!: started a Hero Power Discover.");
+            }
+
+            if (IsPower(powerId, RaynorPowerId))
+            {
+                AddStartingBattlecruiser(context, result);
+            }
+
+            if (IsPower(powerId, KerriganPowerTier2Id))
+            {
+                AddStartingLarva(context, result);
+            }
+
+            if (IsPower(powerId, ArtanisPowerId))
+            {
+                StartArtanisProtossDiscover(context, result);
             }
 
             if (!IsPower(powerId, CuratorPowerId) || context.State.Player.Board.Count >= 7)
@@ -760,6 +991,19 @@ namespace LearnHearthstone.Domain.Engine
                 IncrementCounter(context.State.Player.Tavern, OzumatTentacleStatsCounter, 1);
                 result.Messages.Add("Tentacular: future Tentacles gained +1/+1 from a combat death.");
             }
+
+            if (IsPower(powerId, IniStormcoilPowerId))
+            {
+                var deaths = IncrementCounter(context.State.Player.Tavern, IniCombatFriendlyDeathsCounter, 1);
+                if (deaths >= 9)
+                {
+                    context.State.Player.Tavern.HeroEffectCounters[IniCombatFriendlyDeathsCounter] = deaths - 9;
+                    if (AddRandomMechToHand(context, "mechgyver"))
+                    {
+                        result.Messages.Add("MechGyver: gained a random Mech after friendly minions died.");
+                    }
+                }
+            }
         }
 
         private static void ResolveCombatKillHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
@@ -784,6 +1028,129 @@ namespace LearnHearthstone.Domain.Engine
                 {
                     result.Messages.Add("I'll Take That!: kill target data was unavailable, so no copy was created.");
                 }
+            }
+        }
+
+        private static void ResolveCombatAttackHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (IsPower(powerId, LohPowerId))
+            {
+                var tavern = context.State.Player.Tavern;
+                var attacks = IncrementCounter(tavern, LohAttackCounter, Math.Max(1, context.GoldCost));
+                while (attacks >= LohAttackThreshold)
+                {
+                    attacks -= LohAttackThreshold;
+                    AddTripleRewardToHand(context);
+                    result.Messages.Add("Heroic Inspiration: 15 friendly attacks granted a Triple Reward.");
+                }
+
+                tavern.HeroEffectCounters[LohAttackCounter] = attacks;
+            }
+
+            if (IsPower(powerId, ArannaPowerId) &&
+                GetCounterOrDefault(context.State.Player.Tavern, ArannaFirstBuyFreeCounter, 0) <= 0)
+            {
+                var attacks = IncrementCounter(context.State.Player.Tavern, ArannaAttackCounter, Math.Max(1, context.GoldCost));
+                if (attacks >= 7)
+                {
+                    context.State.Player.Tavern.HeroEffectCounters[ArannaAttackCounter] = 0;
+                    context.State.Player.Tavern.HeroEffectCounters[ArannaFirstBuyFreeCounter] = 1;
+                    result.Messages.Add("Demon Hunter Training: unlocked a free first minion buy.");
+                }
+            }
+        }
+
+        private static void RecordBarovPrediction(HeroEffectContext context, HeroEffectResult result)
+        {
+            var prediction = ParseBarovPrediction(context.ChoiceId);
+            if (prediction == 0)
+            {
+                throw new InvalidOperationException("Friendly Wager needs choiceId win/player, loss/opponent, or draw.");
+            }
+
+            var tavern = context.State.Player.Tavern;
+            tavern.HeroEffectCounters[BarovPredictionRoundCounter] = context.State.Round;
+            tavern.HeroEffectCounters[BarovPredictionCounter] = prediction;
+            result.Messages.Add("Friendly Wager: predicted " + BarovPredictionLabel(prediction) + ".");
+        }
+
+        private static void ResolveCombatEndedHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (!IsPower(powerId, BarovPowerId))
+            {
+                return;
+            }
+
+            var tavern = context.State.Player.Tavern;
+            var pendingRound = GetCounterOrDefault(tavern, BarovPredictionRoundCounter, 0);
+            var prediction = GetCounterOrDefault(tavern, BarovPredictionCounter, 0);
+            if (pendingRound != context.State.Round || prediction == 0)
+            {
+                return;
+            }
+
+            tavern.HeroEffectCounters[BarovPredictionRoundCounter] = 0;
+            tavern.HeroEffectCounters[BarovPredictionCounter] = 0;
+            var actual = ParseBarovPrediction(context.ChoiceId);
+            if (actual == 0)
+            {
+                return;
+            }
+
+            if (prediction != actual)
+            {
+                result.Messages.Add("Friendly Wager: prediction missed.");
+                return;
+            }
+
+            for (var index = 0; index < 3; index += 1)
+            {
+                AddTavernCoinToHand(context, "barov");
+            }
+
+            result.Messages.Add("Friendly Wager: prediction hit and added 3 Tavern Coins.");
+        }
+
+        private static int ParseBarovPrediction(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            if (string.Equals(value, "win", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, "player", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, CombatWinner.Player.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return 1;
+            }
+
+            if (string.Equals(value, "loss", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, "lose", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, "opponent", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, CombatWinner.Opponent.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return 2;
+            }
+
+            return string.Equals(value, "draw", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(value, CombatWinner.Draw.ToString(), StringComparison.OrdinalIgnoreCase)
+                ? 3
+                : 0;
+        }
+
+        private static string BarovPredictionLabel(int prediction)
+        {
+            switch (prediction)
+            {
+                case 1:
+                    return "win";
+                case 2:
+                    return "loss";
+                case 3:
+                    return "draw";
+                default:
+                    return "unknown";
             }
         }
 
@@ -831,6 +1198,29 @@ namespace LearnHearthstone.Domain.Engine
                 SpendGold(context.State.Player.Tavern, 1);
                 context.State.Player.Tavern.HeroEffectCounters[RafaamArmedCounter] = 1;
                 result.Messages.Add("I'll Take That!: armed the next combat kill copy.");
+            }
+
+            if (IsPower(powerId, SneedPowerId))
+            {
+                var target = GetFriendlyBoardTarget(context, "Sneed's Replicator needs a friendly minion target.");
+                SpendGold(context.State.Player.Tavern, 1);
+                AddKeyword(target, Keyword.Deathrattle, "Sneed's Replicator");
+                target.Tags.RemoveAll(tag => tag.StartsWith(SneedDeathrattleTierTagPrefix, StringComparison.Ordinal));
+                AddTag(target, SneedDeathrattleTierTagPrefix + Math.Max(1, context.State.Player.Tavern.Tier));
+                result.Messages.Add("Sneed's Replicator: gave a friendly minion a summon Deathrattle.");
+            }
+
+            if (IsPower(powerId, JaraxxusPowerId))
+            {
+                SpendGold(context.State.Player.Tavern, 1);
+                var buffed = 0;
+                foreach (var demon in context.State.Player.Board.Where(card => card.Tribes.Contains(Tribe.Demon)))
+                {
+                    Buff(demon, 1, 1, "Bloodfury");
+                    buffed += 1;
+                }
+
+                result.Messages.Add("Bloodfury: gave " + buffed + " friendly Demon(s) +1/+1.");
             }
 
             if (IsPower(powerId, KraggPowerId))
@@ -894,16 +1284,24 @@ namespace LearnHearthstone.Domain.Engine
                 var tavern = context.State.Player.Tavern;
                 tavern.HeroEffectCounters.TryGetValue(BlackthornRoundCounter, out var round);
                 var uses = round == context.State.Round ? GetCounterOrDefault(tavern, BlackthornUsesCounter, 0) : 0;
-                if (uses >= 2)
-                {
-                    throw new InvalidOperationException("Bloodbound has already been used twice this turn.");
-                }
 
                 SpendGold(tavern, 1);
                 tavern.HeroEffectCounters[BlackthornRoundCounter] = context.State.Round;
                 tavern.HeroEffectCounters[BlackthornUsesCounter] = uses + 1;
                 AddBloodGemsToHand(context, 2, "blackthorn");
                 result.Messages.Add("Bloodbound: gained 2 Blood Gems.");
+            }
+
+            if (IsPower(powerId, PutricidePowerId))
+            {
+                UsePutricideHeroPower(context, result);
+            }
+
+            if (IsPower(powerId, KerriganPowerTier2Id) ||
+                IsPower(powerId, KerriganPowerTier3Id) ||
+                IsPower(powerId, KerriganPowerFinalId))
+            {
+                UseKerriganHeroPower(context, result, powerId);
             }
 
             if (IsPower(powerId, LichBazHialPowerId))
@@ -967,6 +1365,24 @@ namespace LearnHearthstone.Domain.Engine
                 tavern.HeroEffectCounters[PatchesDiscountCounter] = 0;
                 AddRandomTribeMinionToHand(context, Tribe.Pirate, "patches");
                 result.Messages.Add("Pirate Parrrrty!: gained a Pirate.");
+            }
+
+            if (IsPower(powerId, RatKingPowerId))
+            {
+                SpendGold(context.State.Player.Tavern, 1);
+                StartRatKingCurrentTribeDiscover(context, result);
+            }
+
+            if (IsPower(powerId, BarovPowerId))
+            {
+                SpendGold(context.State.Player.Tavern, 1);
+                RecordBarovPrediction(context, result);
+            }
+
+            if (IsPower(powerId, HolmesPowerId))
+            {
+                SpendGold(context.State.Player.Tavern, 1);
+                StartHolmesGuessDiscover(context, result);
             }
 
             if (IsPower(powerId, CaptainEudoraPowerId))
@@ -1284,7 +1700,14 @@ namespace LearnHearthstone.Domain.Engine
                 result.Messages.Add("Hat Trick: played minion gained a +1/+1 hat.");
             }
 
+            ResolveKerriganCardPlayed(context, result, powerId);
             ResolveLateBattlecryHeroEffects(context, result);
+            TryStartAzsharaNagaConquest(context, result, powerId);
+        }
+
+        private static void ResolveTavernSpellCastHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            TryStartAzsharaNagaConquest(context, result, powerId);
         }
 
         private static void ResolveBattlecryHeroEffects(HeroEffectContext context, HeroEffectResult result, string powerId)
@@ -1386,6 +1809,14 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var tavern = context.State.Player.Tavern;
+            if (IsPower(powerId, ArannaPowerId) &&
+                card.CardKind == CardKind.Minion &&
+                GetCounterOrDefault(tavern, ArannaFirstBuyFreeCounter, 0) > 0)
+            {
+                tavern.HeroEffectCounters[ArannaFirstBuyFreeCounter] = 0;
+                result.Messages.Add("Demon Hunter Training: consumed the free minion buy.");
+            }
+
             if (IsPower(powerId, KaelthasPowerId) && card.CardKind == CardKind.Minion)
             {
                 var bought = IncrementCounter(tavern, KaelthasBoughtCounter, 1);
@@ -1483,12 +1914,51 @@ namespace LearnHearthstone.Domain.Engine
                     result.Messages.Add("Come One, Come All!: collected Darkmoon Ticket " + tickets + "/3.");
                 }
             }
+
+            if (IsPower(powerId, DinotamerBrannPowerId) &&
+                card.CardKind == CardKind.Minion &&
+                IsBattlecryMinion(card) &&
+                GetCounterOrDefault(tavern, DinotamerBrannGrantedCounter, 0) == 0)
+            {
+                var bought = IncrementCounter(tavern, DinotamerBrannBoughtCounter, 1);
+                if (bought >= 4 && AddMinionByCardIdToHand(context, BrannBronzebeardCardId, "dinotamer-brann"))
+                {
+                    tavern.HeroEffectCounters[DinotamerBrannGrantedCounter] = 1;
+                    result.Messages.Add("Battle Brand: gained Brann Bronzebeard after buying 4 Battlecry minions.");
+                }
+            }
+
+            if (IsPower(powerId, ArtanisPowerId))
+            {
+                AdvanceArtanisBuyReward(context, result);
+            }
         }
 
         private static void ResolveDiscoverChosenHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
         {
             if (context.Card == null || context.Card.CardKind != CardKind.Minion)
             {
+                return;
+            }
+
+            if (IsPower(powerId, HolmesPowerId) &&
+                string.Equals(context.DiscoverSource, HolmesDiscoverSource, StringComparison.OrdinalIgnoreCase))
+            {
+                if (context.Card.Tags != null && context.Card.Tags.Contains(HolmesCorrectGuessTag))
+                {
+                    AddTavernCoinToHand(context, "murloc-holmes");
+                    if (HasBuddy(context.State, WatfinCardId))
+                    {
+                        AddPlainCopyToHand(context.State, context.Card, "watfin");
+                    }
+
+                    result.Messages.Add("Detective for Hire: correct guess rewarded a Tavern Coin.");
+                }
+                else
+                {
+                    result.Messages.Add("Detective for Hire: guess missed.");
+                }
+
                 return;
             }
 
@@ -1514,6 +1984,11 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, BigglesworthPowerId))
             {
                 StartBigglesworthEliminatedWarbandDiscover(context, result);
+            }
+
+            if (IsPower(powerId, RatKingPowerId))
+            {
+                RotateRatKingTribe(context, result);
             }
 
             if (IsPower(powerId, NozdormuPowerId))
@@ -1551,6 +2026,16 @@ namespace LearnHearthstone.Domain.Engine
                 context.State.Player.Tavern.HeroEffectCounters[TogwaggleDiscountCounter] = discount;
                 result.Messages.Add("The Perfect Crime: next Hero Power costs " + discount + " less.");
             }
+
+            if (IsPower(powerId, KerriganPowerTier2Id) ||
+                IsPower(powerId, KerriganPowerTier3Id) ||
+                IsPower(powerId, KerriganPowerFinalId))
+            {
+                ReduceKerriganHeroPowerCost(context, result, powerId);
+                StartKerriganMorphDiscovers(context, result);
+            }
+
+            TryStartAzsharaNagaConquest(context, result, powerId);
         }
 
         private static void ResolveTurnEndedHeroPowers(HeroEffectContext context, HeroEffectResult result, string powerId)
@@ -1618,6 +2103,9 @@ namespace LearnHearthstone.Domain.Engine
 
                 result.Messages.Add("Stay Frosty: froze a Tavern minion slot at end of turn.");
             }
+
+            ResolveRaynorTurnEnded(context, result, powerId);
+            ResolveKerriganTurnEnded(context, result, powerId);
 
             if (!IsPower(powerId, CThunPowerId))
             {
@@ -1915,9 +2403,22 @@ namespace LearnHearthstone.Domain.Engine
                 if (spells >= 2)
                 {
                     tavern.HeroEffectCounters[TychusSpellCounter] = 0;
-                    AddBattlecruiserUpgradeToHand(context, "tychus");
-                    result.Messages.Add("Tychus Findlay: gained a Battlecruiser Upgrade after two Tavern spells.");
+                    var copies = MatchingBoardBuddies(context.State, TychusFindlayCardId).Any(card => card.Golden) ? 2 : 1;
+                    for (var index = 0; index < copies; index += 1)
+                    {
+                        AddBattlecruiserUpgradeToHand(context, "tychus-" + index);
+                    }
+
+                    result.Messages.Add("Tychus Findlay: gained " + copies + " Battlecruiser Upgrade(s) after two Tavern spells.");
                 }
+            }
+
+            if (HasBuddy(context.State, BarovsApprenticeCardId) &&
+                context.Card.Tags != null &&
+                context.Card.Tags.Contains("tavern_coin"))
+            {
+                tavern.Gold = StatMath.SaturatingAdd(tavern.Gold, 1, 0, StatMath.MaxStat);
+                result.Messages.Add("Barov's Apprentice: gained 1 Gold after you played a Tavern Coin.");
             }
         }
 
@@ -2212,6 +2713,12 @@ namespace LearnHearthstone.Domain.Engine
                 {
                     result.Messages.Add("Mawsworn Soulkeeper: summoned " + added + " random Undead from a combat Deathrattle.");
                 }
+            }
+
+            if (string.Equals(context.Card.CardId, KilrekCardId, StringComparison.OrdinalIgnoreCase))
+            {
+                AddRandomTribeMinionToHand(context, Tribe.Demon, "kilrek-combat");
+                result.Messages.Add("Kil'rek: gained a random Demon from a combat Deathrattle.");
             }
 
             if (string.Equals(context.Card.CardId, TuskarrRaiderCardId, StringComparison.OrdinalIgnoreCase))
@@ -2594,10 +3101,6 @@ namespace LearnHearthstone.Domain.Engine
             var tavern = context.State.Player.Tavern;
             tavern.HeroEffectCounters.TryGetValue(MalygosRoundCounter, out var round);
             var uses = round == context.State.Round ? GetCounterOrDefault(tavern, MalygosUsesCounter, 0) : 0;
-            if (uses >= 2)
-            {
-                throw new InvalidOperationException("Arcane Alteration has already been used twice this turn.");
-            }
 
             tavern.HeroEffectCounters[MalygosRoundCounter] = context.State.Round;
             tavern.HeroEffectCounters[MalygosUsesCounter] = uses + 1;
@@ -2909,11 +3412,6 @@ namespace LearnHearthstone.Domain.Engine
             var tavern = context.State.Player.Tavern;
             tavern.HeroEffectCounters.TryGetValue(CookieRoundCounter, out var round);
             var uses = round == context.State.Round ? GetCounterOrDefault(tavern, CookieUsesCounter, 0) : 0;
-            var useLimit = HasBuddy(context.State, SousChefCardId) ? 2 : 1;
-            if (uses >= useLimit)
-            {
-                throw new InvalidOperationException("Stir the Pot has no uses left this turn.");
-            }
 
             var fed = TakeCookieTarget(context);
             foreach (var tribe in fed.Tribes.Where(tribe => tribe != Tribe.None && tribe != Tribe.All).Distinct())
@@ -3184,6 +3682,70 @@ namespace LearnHearthstone.Domain.Engine
             return true;
         }
 
+        private static void AddStartingBattlecruiser(HeroEffectContext context, HeroEffectResult result)
+        {
+            if (context.State.Player.Board.Count >= BoardLimit ||
+                context.State.Player.Board.Any(card => card.Tags.Contains("battlecruiser")))
+            {
+                return;
+            }
+
+            context.State.Player.Board.Add(CreateBattlecruiser("start-" + context.State.Round));
+            result.Messages.Add("Lift Off: started with a 2/2 Battlecruiser.");
+        }
+
+        private static MinionInstance CreateBattlecruiser(string suffix)
+        {
+            return new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "player-battlecruiser-" + suffix,
+                DefinitionId = BattlecruiserCardId,
+                CardId = BattlecruiserCardId,
+                Name = "Battlecruiser",
+                Cost = 0,
+                BaseAttack = 2,
+                BaseHealth = 2,
+                Attack = 2,
+                Health = 2,
+                MaxHealth = 2,
+                TavernTier = 1,
+                Tribes = new List<Tribe> { Tribe.Mech },
+                Keywords = new List<Keyword>(),
+                Text = "Terran Battlecruiser. Battlecruiser Upgrades modify this minion.",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                OriginPoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                Tags = new List<string> { "battlecruiser", "terran_battlecruiser" }
+            };
+        }
+
+        private static MinionInstance CurrentBattlecruiser(MatchState state)
+        {
+            return state?.Player?.Board?.FirstOrDefault(card =>
+                card != null &&
+                (card.Tags.Contains("battlecruiser") ||
+                 string.Equals(card.CardId, BattlecruiserCardId, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        private static void AddBattlecruiserUpgradeToShop(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tavern = context.State.Player.Tavern;
+            var card = CreateRandomBattlecruiserUpgrade(context, "shop");
+            var insertIndex = tavern.Shop.FindIndex(slot => slot == null);
+            if (insertIndex >= 0)
+            {
+                tavern.Shop[insertIndex] = card;
+            }
+            else
+            {
+                tavern.Shop.Add(card);
+            }
+
+            result.Messages.Add("Lift Off: added a Battlecruiser Upgrade to the Tavern.");
+        }
+
         private static void AddBattlecruiserUpgradeToHand(HeroEffectContext context, string source)
         {
             var tavern = context.State.Player.Tavern;
@@ -3192,24 +3754,544 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            tavern.Hand.Add(new MinionInstance
+            tavern.Hand.Add(CreateRandomBattlecruiserUpgrade(context, source));
+        }
+
+        private static MinionInstance CreateRandomBattlecruiserUpgrade(HeroEffectContext context, string source)
+        {
+            var family = BattlecruiserUpgradeFamilies[context.Rng.NextInt(BattlecruiserUpgradeFamilies.Length)];
+            var battlecruiser = CurrentBattlecruiser(context.State);
+            var level = battlecruiser != null && battlecruiser.Counters.TryGetValue("battlecruiser_upgrade:" + family, out var current)
+                ? current + 1
+                : 1;
+            return CreateBattlecruiserUpgradeCard(ResolveBattlecruiserUpgradeCardId(family, level), source, context.State.Round, context.State.Player.Tavern.Hand.Count);
+        }
+
+        private static string ResolveBattlecruiserUpgradeCardId(string family, int level)
+        {
+            var capped = Math.Max(1, level);
+            if (family == "BG31_HERO_801pti")
+            {
+                return capped <= 1 ? family : family + "2";
+            }
+
+            if (family == "BG31_HERO_801ptj")
+            {
+                return capped <= 1 ? family : family + "2";
+            }
+
+            if (family == "BG31_HERO_801ptf" || family == "BG31_HERO_801pth")
+            {
+                capped = Math.Min(4, capped);
+                return capped == 1 ? family : family + capped;
+            }
+
+            capped = Math.Min(7, capped);
+            return capped == 1 ? family : family + capped;
+        }
+
+        private static MinionInstance CreateBattlecruiserUpgradeCard(string cardId, string source, int round, int sequence)
+        {
+            var name = BattlecruiserUpgradeName(cardId);
+            return new MinionInstance
             {
                 CardKind = CardKind.TavernSpell,
-                InstanceId = "player-battlecruiser-upgrade-" + source + "-" + context.State.Round + "-" + tavern.Hand.Count,
-                DefinitionId = BattlecruiserUpgradeCardId,
-                CardId = BattlecruiserUpgradeCardId,
-                Name = "Battlecruiser Upgrade",
-                Cost = 1,
-                TavernTier = 0,
+                InstanceId = "player-battlecruiser-upgrade-" + source + "-" + round + "-" + sequence,
+                DefinitionId = cardId,
+                CardId = cardId,
+                Name = name,
+                Cost = BattlecruiserUpgradeCost(cardId),
+                TavernTier = BattlecruiserUpgradeTier(cardId),
                 Tribes = new List<Tribe> { Tribe.None },
                 Keywords = new List<Keyword> { Keyword.TavernSpell },
-                Text = "Give your Battlecruiser, or your left-most minion, +3/+3.",
+                Text = BattlecruiserUpgradeText(cardId),
                 Owner = BoardSide.Player,
                 PoolSource = PoolSource.Copy,
                 OriginPoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
-                Tags = new List<string> { "generated_spell", "battlecruiser_upgrade", "terran_proxy" }
+                Tags = new List<string> { "generated_spell", "battlecruiser_upgrade", "terran_battlecruiser_upgrade" }
+            };
+        }
+
+        private static string BattlecruiserUpgradeName(string cardId)
+        {
+            if (cardId.StartsWith("BG31_HERO_801pta", StringComparison.OrdinalIgnoreCase)) return "Hyperflight Rotors";
+            if (cardId.StartsWith("BG31_HERO_801ptb", StringComparison.OrdinalIgnoreCase)) return "Smart Servos";
+            if (cardId.StartsWith("BG31_HERO_801ptc", StringComparison.OrdinalIgnoreCase)) return "Yamato Cannon";
+            if (cardId.StartsWith("BG31_HERO_801ptd", StringComparison.OrdinalIgnoreCase)) return "Advanced Ballistics";
+            if (cardId.StartsWith("BG31_HERO_801pte", StringComparison.OrdinalIgnoreCase)) return "Caduceus Reactor";
+            if (cardId.StartsWith("BG31_HERO_801ptf", StringComparison.OrdinalIgnoreCase)) return "Advanced Construction";
+            if (cardId.StartsWith("BG31_HERO_801pth", StringComparison.OrdinalIgnoreCase)) return "Fortified Bunker";
+            if (cardId.StartsWith("BG31_HERO_801pti", StringComparison.OrdinalIgnoreCase)) return "Missile Pod";
+            if (cardId.StartsWith("BG31_HERO_801ptj", StringComparison.OrdinalIgnoreCase)) return "Ultra-Capacitor";
+            return "Battlecruiser Upgrade";
+        }
+
+        private static int BattlecruiserUpgradeCost(string cardId)
+        {
+            if (cardId.StartsWith("BG31_HERO_801ptf", StringComparison.OrdinalIgnoreCase)) return 3;
+            if (cardId.StartsWith("BG31_HERO_801pth", StringComparison.OrdinalIgnoreCase)) return 4;
+            if (cardId.StartsWith("BG31_HERO_801pti", StringComparison.OrdinalIgnoreCase)) return 5;
+            if (cardId.StartsWith("BG31_HERO_801ptj", StringComparison.OrdinalIgnoreCase)) return 6;
+            return 2;
+        }
+
+        private static int BattlecruiserUpgradeTier(string cardId)
+        {
+            if (cardId.StartsWith("BG31_HERO_801ptf", StringComparison.OrdinalIgnoreCase)) return 4;
+            if (cardId.StartsWith("BG31_HERO_801pth", StringComparison.OrdinalIgnoreCase)) return 5;
+            if (cardId.StartsWith("BG31_HERO_801pti", StringComparison.OrdinalIgnoreCase) ||
+                cardId.StartsWith("BG31_HERO_801ptj", StringComparison.OrdinalIgnoreCase)) return 6;
+            return 1;
+        }
+
+        private static string BattlecruiserUpgradeText(string cardId)
+        {
+            var name = BattlecruiserUpgradeName(cardId);
+            return name + ": upgrade your Battlecruiser.";
+        }
+
+        private static void ResolveRaynorTurnEnded(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (!IsPower(powerId, RaynorPowerId))
+            {
+                return;
+            }
+
+            var battlecruiser = CurrentBattlecruiser(context.State);
+            if (battlecruiser == null || !battlecruiser.Tags.Contains("battlecruiser_bunker_magnetic"))
+            {
+                return;
+            }
+
+            if (AddRandomMagneticMechToHand(context, "battlecruiser-bunker"))
+            {
+                result.Messages.Add("Fortified Bunker: gained a random Magnetic Mech.");
+            }
+        }
+
+        private static void AddStartingLarva(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tavern = context.State.Player.Tavern;
+            tavern.HeroEffectCounters[KerriganUnlockedTierCounter] = 2;
+            tavern.HeroEffectCounters[KerriganCostCounter] = 6;
+            if (context.State.Player.Board.Count >= BoardLimit ||
+                context.State.Player.Board.Any(card => string.Equals(card.CardId, ZergLarvaCardId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            context.State.Player.Board.Add(CreateZergMinion(ZergLarvaCardId, "start-" + context.State.Round, false));
+            result.Messages.Add("Spawning Pool: started with a 2/2 Larva.");
+        }
+
+        private static void ReduceKerriganHeroPowerCost(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            var tavern = context.State.Player.Tavern;
+            var fallback = IsPower(powerId, KerriganPowerTier3Id) ? 8 : IsPower(powerId, KerriganPowerFinalId) ? 0 : 6;
+            var current = GetCounterOrDefault(tavern, KerriganCostCounter, fallback);
+            if (current > 0)
+            {
+                tavern.HeroEffectCounters[KerriganCostCounter] = current - 1;
+                result.Messages.Add("Spawning Pool: Hero Power cost reduced to " + (current - 1) + ".");
+            }
+        }
+
+        private static void UseKerriganHeroPower(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            var tavern = context.State.Player.Tavern;
+            var cost = GetCounterOrDefault(tavern, KerriganCostCounter, IsPower(powerId, KerriganPowerTier3Id) ? 8 : 6);
+            SpendGold(tavern, Math.Max(0, cost));
+            if (IsPower(powerId, KerriganPowerTier2Id))
+            {
+                tavern.HeroEffectCounters[KerriganUnlockedTierCounter] = 3;
+                tavern.HeroEffectCounters[KerriganCostCounter] = 8;
+                context.State.Player.HeroPowerCardId = KerriganPowerTier3Id;
+                result.Messages.Add("Spawning Pool: Tier 2 Zerg unlocked; Evolution Chamber is ready.");
+            }
+            else if (IsPower(powerId, KerriganPowerTier3Id))
+            {
+                tavern.HeroEffectCounters[KerriganUnlockedTierCounter] = 4;
+                tavern.HeroEffectCounters[KerriganCostCounter] = 0;
+                context.State.Player.HeroPowerCardId = KerriganPowerFinalId;
+                result.Messages.Add("Evolution Chamber: Tier 3 Zerg unlocked; Ultralisk Cavern is ready.");
+            }
+            else
+            {
+                tavern.HeroEffectCounters[KerriganUnlockedTierCounter] = Math.Max(4, GetCounterOrDefault(tavern, KerriganUnlockedTierCounter, 4));
+                result.Messages.Add("Ultralisk Cavern: Zerg morphing is fully unlocked.");
+            }
+        }
+
+        private static void StartKerriganMorphDiscovers(HeroEffectContext context, HeroEffectResult result)
+        {
+            var unlocked = Math.Max(2, GetCounterOrDefault(context.State.Player.Tavern, KerriganUnlockedTierCounter, 2));
+            var targets = context.State.Player.Board
+                .Where(card => IsMorphingZerg(card))
+                .ToList();
+            foreach (var target in targets)
+            {
+                var options = CreateZergMorphOptions(context, unlocked, target.InstanceId);
+                if (options.Count == 0)
+                {
+                    continue;
+                }
+
+                context.State.Player.Tavern.QueueDiscover(new DiscoverState
+                {
+                    Source = KerriganMorphDiscoverSource,
+                    TargetInstanceId = target.InstanceId,
+                    RewardTier = unlocked,
+                    Options = options
+                });
+            }
+
+            if (targets.Count > 0)
+            {
+                result.Messages.Add("Kerrigan: queued Zerg morph choices for " + targets.Count + " morphing Zerg.");
+            }
+        }
+
+        private static bool IsMorphingZerg(MinionInstance card)
+        {
+            return card != null &&
+                   card.Tags != null &&
+                   card.Tags.Contains("zerg_morphing") &&
+                   !card.Tags.Contains("does_not_morph");
+        }
+
+        private static List<MinionInstance> CreateZergMorphOptions(HeroEffectContext context, int unlockedTier, string targetInstanceId)
+        {
+            var ids = new List<string>();
+            if (unlockedTier >= 2)
+            {
+                ids.AddRange(ZergTier2CardIds);
+            }
+
+            if (unlockedTier >= 4)
+            {
+                ids.AddRange(ZergTier3CardIds);
+            }
+
+            var options = new List<MinionInstance>();
+            var pool = ids
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            while (options.Count < 3 && pool.Count > 0)
+            {
+                var index = context.Rng.NextInt(pool.Count);
+                var id = pool[index];
+                pool.RemoveAt(index);
+                var option = CreateZergMinion(id, "morph-" + targetInstanceId + "-" + options.Count, false);
+                option.PoolSource = PoolSource.Discover;
+                option.OriginPoolSource = PoolSource.Discover;
+                options.Add(option);
+            }
+
+            return options;
+        }
+
+        private static MinionInstance CreateZergMinion(string cardId, string suffix, bool noMorph)
+        {
+            var name = ZergName(cardId);
+            var card = new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "player-zerg-" + cardId + "-" + suffix,
+                DefinitionId = cardId,
+                CardId = cardId,
+                Name = name,
+                Cost = 0,
+                BaseAttack = 2,
+                BaseHealth = 2,
+                Attack = noMorph ? 6 : 2,
+                Health = noMorph ? 6 : 2,
+                MaxHealth = noMorph ? 6 : 2,
+                TavernTier = ZergTier(cardId),
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword>(),
+                Text = ZergText(cardId),
+                Owner = BoardSide.Player,
+                PoolSource = noMorph ? PoolSource.Discover : PoolSource.Copy,
+                OriginPoolSource = noMorph ? PoolSource.Discover : PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                Tags = new List<string> { "zerg_minion", "zerg_morphing" }
+            };
+            ConfigureZergKeywords(card);
+            if (noMorph)
+            {
+                AddTag(card, "does_not_morph");
+            }
+
+            return card;
+        }
+
+        private static string ZergName(string cardId)
+        {
+            switch (cardId)
+            {
+                case "BG31_HERO_811t2": return "Zergling";
+                case "BG31_HERO_811t3": return "Roach";
+                case "BG31_HERO_811t4": return "Hydralisk";
+                case "BG31_HERO_811t5": return "Baneling";
+                case "BG31_HERO_811t6": return "Mutalisk";
+                case "BG31_HERO_811t7": return "Lurker";
+                case "BG31_HERO_811t8": return "Viper";
+                case "BG31_HERO_811t9": return "Infestor";
+                case "BG31_HERO_811t10": return "Ultralisk";
+                default: return "Larva";
+            }
+        }
+
+        private static int ZergTier(string cardId)
+        {
+            if (ZergTier3CardIds.Contains(cardId))
+            {
+                return 3;
+            }
+
+            if (ZergTier2CardIds.Contains(cardId))
+            {
+                return 2;
+            }
+
+            return 1;
+        }
+
+        private static string ZergText(string cardId)
+        {
+            return ZergName(cardId) + ". Morphs each turn unless created by Broken Horn.";
+        }
+
+        private static void ConfigureZergKeywords(MinionInstance card)
+        {
+            if (card.CardId == "BG31_HERO_811t3")
+            {
+                AddKeyword(card, Keyword.Taunt, "Roach");
+            }
+            else if (card.CardId == "BG31_HERO_811t4")
+            {
+                AddKeyword(card, Keyword.Windfury, "Hydralisk");
+                AddKeyword(card, Keyword.Rally, "Hydralisk");
+            }
+            else if (card.CardId == "BG31_HERO_811t5")
+            {
+                AddKeyword(card, Keyword.Deathrattle, "Baneling");
+            }
+            else if (card.CardId == "BG31_HERO_811t7")
+            {
+                AddKeyword(card, Keyword.Stealth, "Lurker");
+                AddKeyword(card, Keyword.Avenge, "Lurker");
+                card.Counters["avenge_threshold"] = 1;
+            }
+            else if (card.CardId == "BG31_HERO_811t8")
+            {
+                AddKeyword(card, Keyword.Venomous, "Viper");
+            }
+            else if (card.CardId == "BG31_HERO_811t10")
+            {
+                AddKeyword(card, Keyword.Cleave, "Ultralisk");
+            }
+        }
+
+        private static void ResolveKerriganTurnEnded(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (!IsPower(powerId, KerriganPowerTier2Id) &&
+                !IsPower(powerId, KerriganPowerTier3Id) &&
+                !IsPower(powerId, KerriganPowerFinalId))
+            {
+                return;
+            }
+
+            foreach (var roach in context.State.Player.Board.Where(card => string.Equals(card.CardId, "BG31_HERO_811t3", StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                var amount = Math.Max(1, context.State.Player.Tavern.Tier) * (roach.Golden ? 2 : 1);
+                Buff(roach, 0, amount, "Roach");
+                result.Messages.Add("Roach: gained Health equal to your Tavern Tier.");
+            }
+        }
+
+        private static void ResolveKerriganCardPlayed(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (!IsPower(powerId, KerriganPowerTier2Id) &&
+                !IsPower(powerId, KerriganPowerTier3Id) &&
+                !IsPower(powerId, KerriganPowerFinalId))
+            {
+                return;
+            }
+
+            var infest = context.State.Player.Board
+                .Where(card => string.Equals(card.CardId, "BG31_HERO_811t9", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            foreach (var infestor in infest)
+            {
+                var amount = infestor.Golden ? 2 : 1;
+                foreach (var minion in context.State.Player.Board.Where(card => card.CardKind == CardKind.Minion))
+                {
+                    Buff(minion, amount, amount, "Infestor");
+                }
+
+                result.Messages.Add("Infestor: your minions gained +" + amount + "/+" + amount + ".");
+            }
+        }
+
+        private static void StartArtanisProtossDiscover(HeroEffectContext context, HeroEffectResult result)
+        {
+            var options = new List<MinionInstance>();
+            var pool = ProtossRewardCardIds.ToList();
+            while (options.Count < 2 && pool.Count > 0)
+            {
+                var index = context.Rng.NextInt(pool.Count);
+                var id = pool[index];
+                pool.RemoveAt(index);
+                options.Add(CreateProtossReward(id, "choice-" + options.Count, false));
+            }
+
+            if (options.Count == 0)
+            {
+                return;
+            }
+
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = ArtanisProtossDiscoverSource,
+                RewardTier = 5,
+                Options = options
             });
+            context.State.Player.Tavern.HeroEffectCounters[ArtanisBoughtCounter] = 0;
+            context.State.Player.Tavern.HeroEffectCounters[ArtanisRewardClaimedCounter] = 0;
+            result.Messages.Add("Warp Gate: started a Protoss reward choice.");
+        }
+
+        private static void AdvanceArtanisBuyReward(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (GetCounterOrDefault(tavern, ArtanisRewardClaimedCounter, 0) > 0 ||
+                !tavern.AdvancedMechanics.Selections.TryGetValue(ArtanisSelectedRewardKey, out var selected) ||
+                string.IsNullOrEmpty(selected))
+            {
+                return;
+            }
+
+            var bought = IncrementCounter(tavern, ArtanisBoughtCounter, 1);
+            if (bought < 14)
+            {
+                return;
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                result.Messages.Add("Warp Gate: reward is ready, but your hand is full.");
+                return;
+            }
+
+            tavern.Hand.Add(CreateProtossReward(selected, "reward-" + context.State.Round, false));
+            tavern.HeroEffectCounters[ArtanisRewardClaimedCounter] = 1;
+            result.Messages.Add("Warp Gate: gained the selected Protoss minion after buying 14 cards.");
+        }
+
+        private static MinionInstance CreateProtossReward(string cardId, string suffix, bool golden)
+        {
+            var stats = ProtossStats(cardId, golden);
+            var card = new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "player-protoss-" + cardId + "-" + suffix,
+                DefinitionId = golden ? cardId + "_G" : cardId,
+                CardId = cardId,
+                Name = ProtossName(cardId),
+                Cost = 0,
+                BaseAttack = stats.Attack,
+                BaseHealth = stats.Health,
+                Attack = stats.Attack,
+                Health = stats.Health,
+                MaxHealth = stats.Health,
+                TavernTier = 5,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword>(),
+                Text = "Protoss reward from Warp Gate.",
+                Golden = golden,
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                OriginPoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                Tags = new List<string> { "protoss_reward", "starcraft_protoss" }
+            };
+            ConfigureProtossKeywords(card);
+            return card;
+        }
+
+        private static (int Attack, int Health) ProtossStats(string cardId, bool golden)
+        {
+            switch (cardId)
+            {
+                case "BG31_HERO_802pt": return golden ? (12, 24) : (6, 12);
+                case "BG31_HERO_802pt1": return golden ? (8, 24) : (4, 12);
+                case "BG31_HERO_802pt4": return golden ? (16, 16) : (8, 8);
+                case "BG31_HERO_802pt5": return golden ? (14, 2) : (7, 1);
+                case "BG31_HERO_802pt7": return golden ? (12, 16) : (6, 8);
+                default: return (6, 6);
+            }
+        }
+
+        private static string ProtossName(string cardId)
+        {
+            switch (cardId)
+            {
+                case "BG31_HERO_802pt": return "Colossus";
+                case "BG31_HERO_802pt1": return "Carrier";
+                case "BG31_HERO_802pt4": return "Immortal";
+                case "BG31_HERO_802pt5": return "Void Ray";
+                case "BG31_HERO_802pt7": return "Mothership";
+                default: return "Protoss";
+            }
+        }
+
+        private static void ConfigureProtossKeywords(MinionInstance card)
+        {
+            if (card.CardId == "BG31_HERO_802pt")
+            {
+                AddKeyword(card, Keyword.Rally, "Colossus");
+            }
+            else if (card.CardId == "BG31_HERO_802pt1" || card.CardId == "BG31_HERO_802pt7")
+            {
+                AddKeyword(card, Keyword.Avenge, card.Name);
+                card.Counters["avenge_threshold"] = 4;
+            }
+            else if (card.CardId == "BG31_HERO_802pt4")
+            {
+                AddKeyword(card, Keyword.StartOfCombat, "Immortal");
+            }
+            else if (card.CardId == "BG31_HERO_802pt5")
+            {
+                AddKeyword(card, Keyword.DivineShield, "Void Ray");
+            }
+        }
+
+        private static void UsePutricideHeroPower(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tavern = context.State.Player.Tavern;
+            var left = GetCounterOrDefault(tavern, PutricideCreationsLeftCounter, 3);
+            if (left <= 0)
+            {
+                throw new InvalidOperationException("Build-An-Undead has no creations left.");
+            }
+
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                throw new InvalidOperationException("Hand is full.");
+            }
+
+            SpendGold(tavern, 3);
+            tavern.HeroEffectCounters[PutricideCreationsLeftCounter] = left - 1;
+            tavern.QueueDiscover(new DiscoverState
+            {
+                Source = PutricideFirstDiscoverSource,
+                RewardTier = 0,
+                Options = CreatePutricideComponentOptions(context, null, "hero-power-first")
+            });
+            result.Messages.Add("Build-An-Undead: started a two-part Undead Creation. " + (left - 1) + " creation(s) left.");
         }
 
         private static void AddBetterSecretProxyToHand(HeroEffectContext context, HeroEffectResult result)
@@ -3243,11 +4325,24 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void SummonAndGetUndeadCreation(HeroEffectContext context, HeroEffectResult result)
         {
-            var summoned = AddRandomUndeadCreationToBoard(context, "festergut-summon");
-            var gained = AddRandomUndeadCreationToHand(context, "festergut-hand");
-            if (summoned || gained)
+            var count = context.Card != null && context.Card.Golden ? 2 : 1;
+            var resolved = 0;
+            for (var index = 0; index < count; index += 1)
             {
-                result.Messages.Add("Festergut: summoned and gained random Undead Creation proxies on the Tavern death proxy.");
+                if (AddRandomUndeadCreationToBoard(context, "festergut-summon-" + index))
+                {
+                    resolved += 1;
+                }
+
+                if (AddRandomUndeadCreationToHand(context, "festergut-hand-" + index))
+                {
+                    resolved += 1;
+                }
+            }
+
+            if (resolved > 0)
+            {
+                result.Messages.Add("Festergut: summoned and gained Putricide's Creation through the shared factory.");
             }
         }
 
@@ -3287,64 +4382,183 @@ namespace LearnHearthstone.Domain.Engine
 
         private static MinionInstance CreateRandomUndeadCreation(HeroEffectContext context, string source)
         {
-            var candidates = context.Minions.All
-                .Where(minion => minion.InPool &&
-                                 minion.TavernTier <= Math.Max(1, context.State.Player.Tavern.Tier) &&
-                                 minion.Tribes.Contains(Tribe.Undead))
-                .ToList();
-            if (candidates.Count == 0)
+            if (PutricideComponents.Length == 0)
             {
-                return CreateGeneratedMinion("UNDEAD_CREATION_PROXY", "Undead Creation", 4, 4, Tribe.Undead, source + "-" + context.State.Round);
+                return null;
             }
 
-            var card = MinionFactory.Create(candidates[context.Rng.NextInt(candidates.Count)], BoardSide.Player, source + "-" + context.State.Round + "-" + context.State.Player.Tavern.Hand.Count, false, PoolSource.Copy, 0);
+            var first = PutricideComponents[context.Rng.NextInt(PutricideComponents.Length)];
+            var secondCandidates = GetPutricideComponents(null)
+                .Where(component => IsPutricideComponentAllowedAfterFirst(component, first))
+                .ToList();
+            if (secondCandidates.Count == 0)
+            {
+                secondCandidates = GetPutricideComponents(null).ToList();
+            }
+
+            var second = secondCandidates[context.Rng.NextInt(secondCandidates.Count)];
+            return CreatePutricideCreationFromComponents(first.Id, second.Id, source + "-" + context.State.Round);
+        }
+
+        public static List<MinionInstance> CreatePutricideComponentOptions(HeroEffectContext context, string firstComponentId, string source)
+        {
+            var candidates = GetPutricideComponents(firstComponentId).ToList();
+            var options = new List<MinionInstance>();
+            var take = Math.Min(3, candidates.Count);
+            for (var index = 0; index < take; index += 1)
+            {
+                var selectedIndex = context.Rng.NextInt(candidates.Count);
+                var component = candidates[selectedIndex];
+                candidates.RemoveAt(selectedIndex);
+                options.Add(CreatePutricideComponentOption(component, source, context.State.Round, index));
+            }
+
+            return options;
+        }
+
+        public static string GetPutricideComponentId(MinionInstance option)
+        {
+            if (option == null || option.Tags == null)
+            {
+                return null;
+            }
+
+            var tag = option.Tags.FirstOrDefault(value => value != null && value.StartsWith(PutricideComponentTagPrefix, StringComparison.Ordinal));
+            return tag == null ? null : tag.Substring(PutricideComponentTagPrefix.Length);
+        }
+
+        public static MinionInstance CreatePutricideCreationFromComponents(string firstComponentId, string secondComponentId, string source)
+        {
+            var first = FindPutricideComponent(firstComponentId);
+            var second = FindPutricideComponent(secondComponentId);
+            if (first == null || second == null)
+            {
+                return null;
+            }
+
+            var attack = first.Attack + second.Attack;
+            var health = first.Health + second.Health;
+            var card = CreateGeneratedMinion(PutricideCreationCardId, "Putricide's Creation", attack, health, Tribe.Undead, source);
+            card.DefinitionId = PutricideCreationCardId;
+            card.Text = "Custom Undead Creation: " + first.Name + " + " + second.Name + ". " + first.Text + " " + second.Text;
             AddTag(card, "undead_creation");
-            AddTag(card, "putricide_creation_proxy");
+            AddTag(card, PutricideCreationTag);
+            ApplyPutricideComponent(card, first);
+            ApplyPutricideComponent(card, second);
+
             return card;
+        }
+
+        private static IEnumerable<PutricideCreationComponent> GetPutricideComponents(string firstComponentId)
+        {
+            var first = FindPutricideComponent(firstComponentId);
+            foreach (var component in PutricideComponents)
+            {
+                if (component == first)
+                {
+                    continue;
+                }
+
+                if (IsPutricideComponentAllowedAfterFirst(component, first))
+                {
+                    yield return component;
+                }
+            }
+        }
+
+        private static bool IsPutricideComponentAllowedAfterFirst(PutricideCreationComponent component, PutricideCreationComponent first)
+        {
+            return component != null &&
+                (first == null ||
+                 !component.Keyword.HasValue ||
+                 !first.Keyword.HasValue ||
+                 component.Keyword.Value != first.Keyword.Value);
+        }
+
+        private static PutricideCreationComponent FindPutricideComponent(string componentId)
+        {
+            if (string.IsNullOrEmpty(componentId))
+            {
+                return null;
+            }
+
+            return PutricideComponents.FirstOrDefault(component =>
+                string.Equals(component.Id, componentId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static MinionInstance CreatePutricideComponentOption(PutricideCreationComponent component, string source, int round, int index)
+        {
+            var option = CreateGeneratedMinion(
+                "PUTRICIDE_COMPONENT_" + component.Id.ToUpperInvariant().Replace("-", "_"),
+                component.Name,
+                component.Attack,
+                component.Health,
+                Tribe.Undead,
+                source + "-" + round + "-" + index);
+            option.DefinitionId = option.CardId;
+            option.CardKind = CardKind.Spell;
+            option.Cost = 0;
+            option.TavernTier = 0;
+            option.Text = component.Text;
+            option.PoolSource = PoolSource.Discover;
+            option.OriginPoolSource = PoolSource.Discover;
+            AddTag(option, "putricide_component_option");
+            AddTag(option, PutricideComponentTagPrefix + component.Id);
+            if (!string.IsNullOrEmpty(component.EffectTag))
+            {
+                AddTag(option, component.EffectTag);
+            }
+
+            if (component.Keyword.HasValue)
+            {
+                AddKeyword(option, component.Keyword.Value, component.Name);
+            }
+
+            return option;
+        }
+
+        private static void ApplyPutricideComponent(MinionInstance card, PutricideCreationComponent component)
+        {
+            AddTag(card, PutricideComponentTagPrefix + component.Id);
+            if (!string.IsNullOrEmpty(component.EffectTag))
+            {
+                AddTag(card, component.EffectTag);
+            }
+
+            if (component.Keyword.HasValue)
+            {
+                AddKeyword(card, component.Keyword.Value, component.Name);
+            }
         }
 
         private static void StartBrokenHornDiscover(HeroEffectContext context, HeroEffectResult result)
         {
-            var options = new List<MinionInstance>
+            var copies = context.Card != null && context.Card.Golden ? 2 : 1;
+            for (var pick = 0; pick < copies; pick += 1)
             {
-                CreateZergProxy("Zergling", "zergling", context.State.Round),
-                CreateZergProxy("Hydralisk", "hydralisk", context.State.Round),
-                CreateZergProxy("Ultralisk", "ultralisk", context.State.Round)
-            };
-            context.State.Player.Tavern.QueueDiscover(new DiscoverState
-            {
-                Source = "buddy:broken-horn",
-                RewardTier = 0,
-                Options = options
-            });
-            result.Messages.Add("Broken Horn: started a Zerg minion proxy Discover set to 6/6.");
-        }
+                var unlocked = Math.Max(2, GetCounterOrDefault(context.State.Player.Tavern, KerriganUnlockedTierCounter, 2));
+                var options = CreateZergMorphOptions(context, unlocked >= 4 ? 4 : unlocked, "broken-horn-" + pick)
+                    .Select(card =>
+                    {
+                        card.Attack = 6;
+                        card.Health = 6;
+                        card.MaxHealth = 6;
+                        card.BaseAttack = 6;
+                        card.BaseHealth = 6;
+                        AddTag(card, "does_not_morph");
+                        AddTag(card, "broken_horn_zerg");
+                        return card;
+                    })
+                    .ToList();
+                context.State.Player.Tavern.QueueDiscover(new DiscoverState
+                {
+                    Source = "buddy:broken-horn",
+                    RewardTier = 0,
+                    Options = options
+                });
+            }
 
-        private static MinionInstance CreateZergProxy(string name, string suffix, int round)
-        {
-            return new MinionInstance
-            {
-                CardKind = CardKind.Minion,
-                InstanceId = "player-zerg-proxy-" + suffix + "-" + round,
-                DefinitionId = ZergProxyCardId + "-" + suffix,
-                CardId = ZergProxyCardId,
-                Name = name,
-                Cost = 3,
-                BaseAttack = 6,
-                BaseHealth = 6,
-                Attack = 6,
-                Health = 6,
-                MaxHealth = 6,
-                TavernTier = 0,
-                Tribes = new List<Tribe> { Tribe.None },
-                Keywords = new List<Keyword>(),
-                Text = "Zerg minion proxy. It doesn't morph.",
-                Owner = BoardSide.Player,
-                PoolSource = PoolSource.Discover,
-                OriginPoolSource = PoolSource.Discover,
-                PoolCopiesHeld = 0,
-                Tags = new List<string> { "zerg_proxy", "does_not_morph" }
-            };
+            result.Messages.Add("Broken Horn: started " + copies + " Zerg Discover(s) set to 6/6.");
         }
 
         private static bool AddOpponentBuddyToHand(HeroEffectContext context, string heroId, string source, string tag)
@@ -3920,6 +5134,42 @@ namespace LearnHearthstone.Domain.Engine
             StartMinionDiscover(context, candidates, tier, source);
         }
 
+        private static void TryStartAzsharaNagaConquest(HeroEffectContext context, HeroEffectResult result, string powerId)
+        {
+            if (!IsPower(powerId, QueenAzsharaPowerId) ||
+                GetCounterOrDefault(context.State.Player.Tavern, QueenAzsharaConquestCounter, 0) > 0)
+            {
+                return;
+            }
+
+            var totalAttack = context.State.Player.Board
+                .Where(card => card != null && card.CardKind == CardKind.Minion)
+                .Sum(card => Math.Max(0, card.Attack));
+            if (totalAttack < QueenAzsharaAttackThreshold)
+            {
+                return;
+            }
+
+            var tavern = context.State.Player.Tavern;
+            tavern.HeroEffectCounters[QueenAzsharaConquestCounter] = 1;
+            var tier = Math.Max(1, tavern.Tier);
+            var candidates = context.Minions.All
+                .Where(minion =>
+                    IsMinionAvailableForCurrentPool(context.State, minion) &&
+                    minion.TavernTier <= tier &&
+                    minion.Tribes != null &&
+                    minion.Tribes.Contains(Tribe.Naga))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                result.Messages.Add("Azshara's Ambition: reached 30 Attack, but no legal Naga are available.");
+                return;
+            }
+
+            StartMinionDiscover(context, candidates, tier, QueenAzsharaConquestSource);
+            result.Messages.Add("Azshara's Ambition: began Naga Conquest.");
+        }
+
         private static void StartMagneticMechDiscover(HeroEffectContext context, string source)
         {
             var tier = Math.Max(1, context.State.Player.Tavern.Tier);
@@ -3939,6 +5189,208 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             StartMinionDiscover(context, candidates, tier, source);
+        }
+
+        private static void RotateRatKingTribe(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tavern = context.State.Player.Tavern;
+            var current = DecodeTribe(GetCounterOrDefault(tavern, RatKingCurrentTribeCounter, 0));
+            var candidates = AvailableRatKingTribes(context)
+                .Where(tribe => tribe != current)
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                candidates = AvailableRatKingTribes(context);
+            }
+
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var next = candidates[context.Rng.NextInt(candidates.Count)];
+            tavern.HeroEffectCounters[RatKingCurrentTribeCounter] = EncodeTribe(next);
+            tavern.HeroEffectCounters[RatKingLastTribeCounter] = EncodeTribe(current);
+            result.Messages.Add("King of " + next + ": Rat King changed to " + next + ".");
+            ResolvePigeonLordRefresh(context, result);
+        }
+
+        private static void StartRatKingCurrentTribeDiscover(HeroEffectContext context, HeroEffectResult result)
+        {
+            var tribe = DecodeTribe(GetCounterOrDefault(context.State.Player.Tavern, RatKingCurrentTribeCounter, 0));
+            if (!IsRatKingTribe(tribe))
+            {
+                RotateRatKingTribe(context, result);
+                tribe = DecodeTribe(GetCounterOrDefault(context.State.Player.Tavern, RatKingCurrentTribeCounter, 0));
+            }
+
+            var candidates = RatKingMinionCandidates(context, tribe).ToList();
+            if (candidates.Count == 0)
+            {
+                result.Messages.Add("King of " + tribe + ": no legal minions are available.");
+                return;
+            }
+
+            StartMinionDiscover(context, candidates, Math.Max(1, context.State.Player.Tavern.Tier), "hero-power:rat-king:" + tribe.ToString().ToLowerInvariant());
+            result.Messages.Add("King of " + tribe + ": started a " + tribe + " Discover.");
+        }
+
+        private static void StartHolmesGuessDiscover(HeroEffectContext context, HeroEffectResult result)
+        {
+            var opponentCandidates = GetNextOpponentWarband(context.State)
+                .Where(card => card != null && card.CardKind == CardKind.Minion)
+                .ToList();
+            if (opponentCandidates.Count == 0)
+            {
+                result.Messages.Add("Detective for Hire: no opponent snapshot is available.");
+                return;
+            }
+
+            var correct = opponentCandidates[context.Rng.NextInt(opponentCandidates.Count)];
+            var options = new List<MinionInstance>
+            {
+                CreateHolmesGuessOption(correct, "holmes-correct", true)
+            };
+            var tier = Math.Max(1, context.State.Player.Tavern.Tier);
+            var distractors = context.Minions.All
+                .Where(minion =>
+                    IsMinionAvailableForCurrentPool(context.State, minion) &&
+                    minion.TavernTier <= tier &&
+                    !string.Equals(minion.CardId, correct.CardId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            while (options.Count < 3 && distractors.Count > 0)
+            {
+                var index = context.Rng.NextInt(distractors.Count);
+                var definition = distractors[index];
+                distractors.RemoveAt(index);
+                options.Add(MinionFactory.Create(definition, BoardSide.Player, "holmes-distractor-" + options.Count, false, PoolSource.Discover, 0));
+            }
+
+            Shuffle(options, context.Rng);
+            context.State.Player.Tavern.QueueDiscover(new DiscoverState
+            {
+                Source = HolmesDiscoverSource,
+                RewardTier = tier,
+                RemainingPicks = 1,
+                Options = options
+            });
+            result.Messages.Add("Detective for Hire: started an opponent snapshot guess.");
+        }
+
+        private static MinionInstance CreateHolmesGuessOption(MinionInstance source, string suffix, bool correct)
+        {
+            var option = CreatePlainCopy(source, suffix, BoardSide.Player, PoolSource.Discover);
+            if (correct)
+            {
+                AddTag(option, HolmesCorrectGuessTag);
+            }
+
+            return option;
+        }
+
+        private static void Shuffle<T>(IList<T> values, SeededRng rng)
+        {
+            for (var index = values.Count - 1; index > 0; index -= 1)
+            {
+                var swap = rng.NextInt(index + 1);
+                var temp = values[index];
+                values[index] = values[swap];
+                values[swap] = temp;
+            }
+        }
+
+        private static void ResolvePigeonLordRefresh(HeroEffectContext context, HeroEffectResult result)
+        {
+            if (!HasBuddy(context.State, PigeonLordCardId))
+            {
+                return;
+            }
+
+            var tavern = context.State.Player.Tavern;
+            if (GetCounterOrDefault(tavern, PigeonLordRefreshRoundCounter, 0) == context.State.Round)
+            {
+                return;
+            }
+
+            var tribe = DecodeTribe(GetCounterOrDefault(tavern, RatKingCurrentTribeCounter, 0));
+            if (!IsRatKingTribe(tribe))
+            {
+                return;
+            }
+
+            var hasCurrentType = tavern.Shop.Any(card =>
+                card != null &&
+                card.CardKind == CardKind.Minion &&
+                card.Tribes != null &&
+                card.Tribes.Contains(tribe));
+            if (hasCurrentType)
+            {
+                return;
+            }
+
+            tavern.FreeRefreshes = StatMath.SaturatingAdd(tavern.FreeRefreshes, 1, 0, StatMath.MaxStat);
+            tavern.HeroEffectCounters[PigeonLordRefreshRoundCounter] = context.State.Round;
+            result.Messages.Add("Pigeon Lord: gained a free Refresh because the Tavern has no " + tribe + ".");
+        }
+
+        private static List<Tribe> AvailableRatKingTribes(HeroEffectContext context)
+        {
+            return RatKingTribes
+                .Where(tribe => RatKingMinionCandidates(context, tribe).Any())
+                .ToList();
+        }
+
+        private static IEnumerable<MinionDefinition> RatKingMinionCandidates(HeroEffectContext context, Tribe tribe)
+        {
+            if (context?.Minions?.All == null)
+            {
+                return Enumerable.Empty<MinionDefinition>();
+            }
+
+            var tier = Math.Max(1, context.State.Player.Tavern.Tier);
+            return context.Minions.All
+                .Where(minion =>
+                    IsMinionAvailableForCurrentPool(context.State, minion) &&
+                    minion.TavernTier <= tier &&
+                    minion.Tribes != null &&
+                    minion.Tribes.Contains(tribe));
+        }
+
+        private static bool IsMinionAvailableForCurrentPool(MatchState state, MinionDefinition minion)
+        {
+            if (minion == null || !minion.InPool || IsDuoCardId(minion.CardId))
+            {
+                return false;
+            }
+
+            if (!state.IsDefaultCardPoolVersion &&
+                (state.EnabledMinionCardIds == null ||
+                 !state.EnabledMinionCardIds.Contains(minion.CardId, StringComparer.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            return TribeAvailabilityRules.IsMinionAvailable(minion, state.ActiveTribes);
+        }
+
+        private static bool IsDuoCardId(string cardId)
+        {
+            return !string.IsNullOrEmpty(cardId) && cardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int EncodeTribe(Tribe tribe)
+        {
+            return (int)tribe;
+        }
+
+        private static Tribe DecodeTribe(int value)
+        {
+            return Enum.IsDefined(typeof(Tribe), value) ? (Tribe)value : Tribe.None;
+        }
+
+        private static bool IsRatKingTribe(Tribe tribe)
+        {
+            return RatKingTribes.Contains(tribe);
         }
 
         private static DiscoverState StartMinionDiscover(HeroEffectContext context, List<MinionDefinition> candidates, int rewardTier, string source)
@@ -4319,6 +5771,54 @@ namespace LearnHearthstone.Domain.Engine
             return true;
         }
 
+        private static void AddTripleRewardToHand(HeroEffectContext context)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (tavern.Hand.Count >= HandLimit)
+            {
+                return;
+            }
+
+            tavern.Hand.Add(new MinionInstance
+            {
+                CardKind = CardKind.TavernSpell,
+                InstanceId = "player-triple-reward-hero-" + context.State.Round + "-" + tavern.Hand.Count,
+                DefinitionId = "triple-reward",
+                CardId = "TRIPLE_REWARD",
+                Name = "Triple Reward",
+                Cost = 0,
+                Attack = 0,
+                Health = 1,
+                MaxHealth = 1,
+                TavernTier = 0,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Discover, Keyword.TavernSpell },
+                Text = "Play: Discover a minion from one tavern tier higher, up to tier 7.",
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0
+            });
+        }
+
+        private static bool AddMinionByCardIdToHand(HeroEffectContext context, string cardId, string source)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (context.Minions == null || tavern.Hand.Count >= HandLimit)
+            {
+                return false;
+            }
+
+            var definition = context.Minions.All.FirstOrDefault(minion =>
+                string.Equals(minion.CardId, cardId, StringComparison.OrdinalIgnoreCase));
+            if (definition == null)
+            {
+                return false;
+            }
+
+            tavern.Hand.Add(MinionFactory.Create(definition, BoardSide.Player, source + "-" + context.State.Round + "-" + tavern.Hand.Count, false, PoolSource.Copy, 0));
+            return true;
+        }
+
         private static MinionInstance CreatePlainCopy(MinionInstance source, string instanceId, BoardSide owner, PoolSource poolSource)
         {
             var copy = source.Clone();
@@ -4362,6 +5862,70 @@ namespace LearnHearthstone.Domain.Engine
             card.PoolCopiesHeld = 0;
             AddTag(card, "generated_copy");
             context.State.Player.Tavern.Hand.Add(card);
+        }
+
+        private static bool AddRandomMagneticMechToHand(HeroEffectContext context, string source)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (context.Minions == null || tavern.Hand.Count >= HandLimit)
+            {
+                return false;
+            }
+
+            var tier = Math.Max(1, tavern.Tier);
+            var candidates = context.Minions.All
+                .Where(minion => minion.InPool &&
+                                 minion.TavernTier <= tier &&
+                                 minion.Tribes.Contains(Tribe.Mech) &&
+                                 minion.Keywords.Contains(Keyword.Magnetic))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                candidates = context.Minions.All
+                    .Where(minion => minion.InPool &&
+                                     minion.TavernTier <= tier &&
+                                     minion.Tribes.Contains(Tribe.Mech))
+                    .ToList();
+            }
+
+            if (candidates.Count == 0)
+            {
+                return false;
+            }
+
+            var definition = candidates[context.Rng.NextInt(candidates.Count)];
+            var card = MinionFactory.Create(definition, BoardSide.Player, source + "-" + context.State.Round + "-" + tavern.Hand.Count, false, PoolSource.Copy, 0);
+            card.PoolCopiesHeld = 0;
+            AddTag(card, "generated_copy");
+            tavern.Hand.Add(card);
+            return true;
+        }
+
+        private static bool AddRandomMechToHand(HeroEffectContext context, string source)
+        {
+            var tavern = context.State.Player.Tavern;
+            if (context.Minions == null || tavern.Hand.Count >= HandLimit)
+            {
+                return false;
+            }
+
+            var tier = Math.Max(1, tavern.Tier);
+            var candidates = context.Minions.All
+                .Where(minion => minion.InPool &&
+                                 minion.TavernTier <= tier &&
+                                 minion.Tribes.Contains(Tribe.Mech))
+                .ToList();
+            if (candidates.Count == 0)
+            {
+                return false;
+            }
+
+            var definition = candidates[context.Rng.NextInt(candidates.Count)];
+            var card = MinionFactory.Create(definition, BoardSide.Player, source + "-" + context.State.Round + "-" + tavern.Hand.Count, false, PoolSource.Copy, 0);
+            card.PoolCopiesHeld = 0;
+            AddTag(card, "generated_copy");
+            tavern.Hand.Add(card);
+            return true;
         }
 
         private static int AddRandomTribeMinionsToBoard(HeroEffectContext context, Tribe tribe, int count, string source)

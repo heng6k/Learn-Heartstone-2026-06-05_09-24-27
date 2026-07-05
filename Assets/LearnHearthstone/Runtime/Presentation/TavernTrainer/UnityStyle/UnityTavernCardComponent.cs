@@ -532,6 +532,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 if (mode != UnityTavernCardMode.Board)
                 {
                     BuildName(mode);
+                    BuildDescription(mode);
                 }
             }
             else
@@ -591,6 +592,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.anchorMax = new Vector2(0.92f, 0f);
             rect.offsetMin = new Vector2(0f, 42f);
             rect.offsetMax = new Vector2(0f, 72f);
+        }
+
+        private void BuildDescription(UnityTavernCardMode mode)
+        {
+            var description = DescriptionText(card, false);
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                return;
+            }
+
+            var subtitle = UiFactory.Label("UnityCardSubtitle", transform, description, mode == UnityTavernCardMode.Detail ? 11 : 9, FontStyle.Normal);
+            ConfigureTextDescription(subtitle, description, mode, true);
         }
 
         private void BuildStats(UnityTavernCardMode mode)

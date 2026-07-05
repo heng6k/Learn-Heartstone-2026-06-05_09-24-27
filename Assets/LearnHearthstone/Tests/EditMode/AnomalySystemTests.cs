@@ -1874,6 +1874,29 @@ namespace LearnHearthstone.Tests.EditMode
                     Assert.AreEqual(handBefore + 2, tavern.Hand.Count);
                     Assert.IsTrue(tavern.Hand.Count(card => card.Name == "Tavern Coin" || card.CardId == "104436") >= 2);
                     break;
+                case "wheel_shots":
+                    Assert.GreaterOrEqual(boardMinion.Attack, attackBefore);
+                    Assert.GreaterOrEqual(boardMinion.Health, healthBefore);
+                    Assert.IsTrue(boardMinion.Attack > attackBefore || boardMinion.Health > healthBefore || tavern.RecruitLog.Any(entry => entry.Message.Contains("Wheel shots")));
+                    break;
+                case "wheel_darkmoon_prize":
+                    Assert.IsNotNull(tavern.Discover);
+                    Assert.IsTrue(tavern.Discover.Source.Contains("darkmoon-prize"));
+                    Assert.IsTrue(tavern.Discover.Options.All(card =>
+                        card.Tags.Contains("darkmoon_prize") &&
+                        card.PoolSource == PoolSource.Discover));
+                    break;
+                case "wheel_tavern_spells":
+                    Assert.IsTrue(
+                        tavern.Hand.Count > handBefore ||
+                        tavern.RecruitLog.Any(entry => entry.Message.Contains("cast") && entry.Message.Contains("Tavern spell")));
+                    break;
+                case "wheel_stats_transfer":
+                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("not enough friendly minions") || entry.Message.Contains("added") && entry.Message.Contains("stats")));
+                    break;
+                case "wheel_devour_refresh":
+                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("refreshed") || entry.Message.Contains("devoured")));
+                    break;
                 default:
                     Assert.Fail("Unknown Yogg reward: " + selectedReward);
                     break;

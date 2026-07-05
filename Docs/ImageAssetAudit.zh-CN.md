@@ -191,7 +191,7 @@
 | `FROSTLING_PRIESTESS_SPELL` | Frostling Priestess | 图片：没有；功能：已实现。Spellcraft 会获取随机属性型酒馆法术。 | 霜寒女祭司相关临时法术。 | 用冰霜、祭司、蓝白法术感图。 | `CardImages/FROSTLING_PRIESTESS_SPELL.png` |
 | `RAKANISHU_LANTERN_LIGHT` | Lantern Light | 图片：没有；功能：已实现。拉卡尼休相关法术会按酒馆等级给 +N/+N。 | 拉卡尼休相关“灯火”增益法术。 | 搜 `Rakanishu Lantern Light Battlegrounds`，识别点是灯笼/元素火光。 | `CardImages/RAKANISHU_LANTERN_LIGHT.png` |
 | `MUKLA_BANANA` | Banana | 图片：没有；功能：已实现。穆克拉会生成香蕉，使用后给友方随从 +1/+1。 | 穆克拉的香蕉，通常给友方随从 +1/+1。 | 搜 `Mukla Banana Hearthstone`。这是很常见的香蕉法术，建议优先补。 | `CardImages/TavernSpells/MUKLA_BANANA.png` |
-| `BATTLECRUISER_UPGRADE` | Battlecruiser Upgrade | 图片：没有；功能：部分/代理实现。泰凯斯/星际代理法术会给战巡或最左随从 +3/+3。 | 战列巡航舰升级，星际联动/Terran 代理法术。 | 用战巡、机械升级、科幻升级图；不是普通炉石酒馆法术。 | `CardImages/TavernSpells/BATTLECRUISER_UPGRADE.png` |
+| `BATTLECRUISER_UPGRADE` | Battlecruiser Upgrade | 图片：没有；功能：旧兼容代理。主路径已改为官方 `BG31_HERO_801pt*` 战列巡航舰升级；旧代理不再回退给最左随从。 | 旧战列巡航舰升级兼容资源。 | 优先补官方 `BG31_HERO_801pt*` 升级图片；旧代理可用统一科幻升级占位图。 | `CardImages/TavernSpells/BATTLECRUISER_UPGRADE.png` |
 | `BETTER_SECRET_PROXY` | Better Secret | 图片：没有；功能：部分/代理实现。代码明示完整奥秘战场支持暂缓，目前代理为最左随从 +2/+2。 | 奥秘代理法术，用来表示“更好的奥秘”效果。 | 如果没有官方图，用奥秘问号/紫色神秘法术图；后续可统一成代理图。 | `CardImages/TavernSpells/BETTER_SECRET_PROXY.png` |
 | `TRIPLE_REWARD` | Triple Reward | 图片：没有；功能：已实现。三连后生成奖励卡，打出时进入三选一发现奖励。 | 三连奖励卡，三连后给奖励。 | 搜 `Triple Reward Battlegrounds` 或用金色三连奖励/发现奖励图。这个出现频率高，建议补。 | `CardImages/TavernSpells/TRIPLE_REWARD.png` |
 

@@ -1,14 +1,28 @@
 [CmdletBinding()]
 param(
     [string]$UnityPath = "D:\unity hub Editor\6000.4.10f1\Editor\Unity.exe",
-    [string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+    [string]$ProjectPath = "",
     [int]$ShardCount = 8,
     [int]$TimeoutSeconds = 900,
-    [string]$LogsPath = (Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..")).Path "Logs"),
+    [string]$LogsPath = "",
     [switch]$NoBisect
 )
 
 $ErrorActionPreference = "Stop"
+
+$scriptRoot = if ([string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+    Split-Path -Parent $MyInvocation.MyCommand.Path
+} else {
+    $PSScriptRoot
+}
+
+if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
+    $ProjectPath = (Resolve-Path (Join-Path $scriptRoot "..")).Path
+}
+
+if ([string]::IsNullOrWhiteSpace($LogsPath)) {
+    $LogsPath = Join-Path $ProjectPath "Logs"
+}
 
 function Assert-CleanUnityState {
     $unityProcesses = Get-CimInstance Win32_Process |

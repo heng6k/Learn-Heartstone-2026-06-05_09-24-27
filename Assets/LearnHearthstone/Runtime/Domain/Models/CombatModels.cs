@@ -160,6 +160,7 @@ namespace LearnHearthstone.Domain.Models
         FriendlyAvengeTriggered,
         FriendlyRallyTriggered,
         FriendlyMinionKilledEnemy,
+        FriendlyMinionAttacked,
         FriendlyMinionSummoned,
         BuffHandMinion,
         ImproveBloodGemAttack,
@@ -199,6 +200,8 @@ namespace LearnHearthstone.Domain.Models
         BuffTargetHandMinion,
         AddTripleRewardToHand,
         AddCopyOfKillerToHand,
-        AddPlainCopyOfKilledEnemyToHand
+        AddPlainCopyOfKilledEnemyToHand,
+        AddRandomProtossToHand,
+        AddRandomGoldenBeastToHand
     }
 }

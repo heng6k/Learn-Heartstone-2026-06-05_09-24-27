@@ -89,6 +89,8 @@ namespace LearnHearthstone.Domain.Engine
         private const string LanternLightCardId = "RAKANISHU_LANTERN_LIGHT";
         private const string MuklaBananaCardId = "MUKLA_BANANA";
         private const string BattlecruiserUpgradeCardId = "BATTLECRUISER_UPGRADE";
+        private const string BattlecruiserCardId = "BG31_HERO_801pt";
+        private const string BattlecruiserUpgradeFreeCounter = "battlecruiser_upgrade_free_remaining";
         private const string BetterSecretProxyCardId = "BETTER_SECRET_PROXY";
         private const string DeepwaterSchoolCardId = "131218";
         private const string ArcaneConsumptionCardId = "130311";
@@ -103,6 +105,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string SnowBallerCardId = "BG31_818";
         private const string DisturbedGraveCounter = "disturbed-grave-round";
         private const string LavaLurkerCardId = "BG23_009";
+        private const string TimewarpedLavaLurkerCardId = "BG34_Giant_678";
         private const string TemporarySpellcraftSourceId = "Temporary Spellcraft";
         private const string PermanentSpellcraftSourceId = "Permanent Spellcraft";
         private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
@@ -132,11 +135,16 @@ namespace LearnHearthstone.Domain.Engine
         {
             var cardNumber = spell.CardId;
             var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
+            if (IsOfficialBattlecruiserUpgrade(cardNumber))
+            {
+                return ResolveBattlecruiserUpgrade(state, cardNumber, applyTavernSpellBonus);
+            }
+
             switch (cardNumber)
             {
                 case BloodGemCardId:
-                    Buff(state, FirstFriendlyBoard(state), 1, 1, "鲜血宝石", applyTavernSpellBonus);
-                    return "鲜血宝石：目标随从获得+1/+1";
+                    Buff(state, FirstFriendlyBoard(state), 1, 1, "Blood Gem", applyTavernSpellBonus);
+                    return "Blood Gem: target gains +1/+1";
                 case BristlebackBloodGemCardId:
                     var gemTarget = FirstFriendlyBoard(state);
                     Buff(state, gemTarget, 1, 1, "Bristleback Blood Gem", applyTavernSpellBonus);
@@ -436,8 +444,13 @@ namespace LearnHearthstone.Domain.Engine
                     var battlecruiser = state.Player.Board.FirstOrDefault(card =>
                         card.Tags.Contains("battlecruiser") ||
                         card.Name.IndexOf("Battlecruiser", StringComparison.OrdinalIgnoreCase) >= 0);
-                    Buff(state, battlecruiser ?? FirstFriendlyBoard(state), 3, 3, "Battlecruiser Upgrade", applyTavernSpellBonus);
-                    return "Battlecruiser Upgrade: Battlecruiser or left-most minion gains +3/+3";
+                    if (battlecruiser == null)
+                    {
+                        return "Battlecruiser Upgrade: no Battlecruiser to upgrade";
+                    }
+
+                    Buff(state, battlecruiser, 3, 3, "Battlecruiser Upgrade", applyTavernSpellBonus);
+                    return "Battlecruiser Upgrade: Battlecruiser gains +3/+3";
                 case BetterSecretProxyCardId:
                     Buff(state, FirstFriendlyBoard(state), 2, 2, "Better Secret", false);
                     return "Better Secret proxy: left-most minion gains +2/+2";
@@ -493,82 +506,82 @@ namespace LearnHearthstone.Domain.Engine
                     return "Surf n' Surf Spellcraft: target gains a Crab Deathrattle";
                 case SlimyShieldCardId:
                     var shieldTarget = FirstAnyMinion(state);
-                    Buff(state, shieldTarget, 1, 1, "黏黏盾", applyTavernSpellBonus);
+                    Buff(state, shieldTarget, 1, 1, "Slimy Shield", applyTavernSpellBonus);
                     AddKeyword(shieldTarget, Keyword.Taunt);
-                    return "黏黏盾：目标随从获得+1/+1和嘲讽";
+                    return "Slimy Shield: target gains +1/+1 and Taunt";
                 case "100596":
                     var arrowAttack = spell.Golden || (spell.Tags != null && spell.Tags.Contains("anomaly_golden_arrow")) ? 8 : 4;
-                    Buff(state, FirstAnyMinion(state), arrowAttack, 0, arrowAttack > 4 ? "Golden Arrow" : "尖利箭矢", applyTavernSpellBonus);
-                    return arrowAttack > 4 ? "Golden Arrow: target gains +8 Attack" : "尖利箭矢：目标随从获得+4攻击力";
+                    Buff(state, FirstAnyMinion(state), arrowAttack, 0, arrowAttack > 4 ? "Golden Arrow" : "Sharp Arrow", applyTavernSpellBonus);
+                    return arrowAttack > 4 ? "Golden Arrow: target gains +8 Attack" : "Sharp Arrow: target gains +4 Attack";
                 case "103791":
-                    Buff(state, FirstAnyMinion(state), 0, 3, "强固", applyTavernSpellBonus);
+                    Buff(state, FirstAnyMinion(state), 0, 3, "Fortify", applyTavernSpellBonus);
                     AddKeyword(FirstAnyMinion(state), Keyword.Taunt);
-                    return "强固：目标随从获得+3生命值和嘲讽";
+                    return "Fortify: target gains +3 Health and Taunt";
                 case "105752":
-                    Buff(state, FirstAnyMinion(state), 2, 2, "香蕉果盘", applyTavernSpellBonus);
-                    return "香蕉果盘：目标随从获得+2/+2";
+                    Buff(state, FirstAnyMinion(state), 2, 2, "Fruit Plate", applyTavernSpellBonus);
+                    return "婵☆偓绲鹃悷銊╁疾瑜斿绋款煥閸涱喚锛橀梺鎸庣⊕濮樸劌煤娴兼潙鍐€闁搞儺鍓氶鐟懊归悩鍙夊攭妤犵偛绻愰?2/+2";
                 case "103796":
                     AddKeyword(FirstAnyMinion(state), Keyword.DivineShield);
-                    return "神圣赠礼：目标随从获得圣盾";
+                    return "Divine Gift: target gains Divine Shield";
                 case "104601":
                     SetStats(FirstAnyMinion(state), 20, 20);
-                    return "完美形象：目标随从变为20/20";
+                    return "闁诲海鎳撻惉鑲╂閵娿劊浜归柕蹇ョ秬閺変粙鏌ㄥ☉娆愮殤婵炶弓鍗冲浠嬪炊椤掍緡鍚傛繛瀵稿Т妤犳瓕銇愭径瀣枖?0/20";
                 case "104445":
-                    Buff(state, FirstFriendlyBoard(state), 6, 6, "防御者的仪式", applyTavernSpellBonus);
+                    Buff(state, FirstFriendlyBoard(state), 6, 6, "Defender Rites", applyTavernSpellBonus);
                     AddKeyword(FirstFriendlyBoard(state), Keyword.Taunt);
-                    return "防御者的仪式：友方随从获得+6/+6和嘲讽";
+                    return "Defender Rites: friendly minion gains +6/+6 and Taunt";
                 case "105667":
                     var pantsTarget = FirstAnyMinion(state);
-                    Buff(state, pantsTarget, 1, 2, "搞怪裤", applyTavernSpellBonus);
+                    Buff(state, pantsTarget, 1, 2, "Tricky Trousers", applyTavernSpellBonus);
                     ToggleKeyword(pantsTarget, Keyword.Taunt);
-                    return "搞怪裤：目标随从获得+1/+2并切换嘲讽";
+                    return "Tricky Trousers: target gains +1/+2 and toggles Taunt";
                 case TavernCoinCardId:
                     GainGold(state.Player.Tavern, 1);
-                    return "酒馆币：获得1枚铸币";
+                    return "Tavern Coin: gain 1 Gold";
                 case "103779":
                     state.Player.Tavern.NextTurnBonusGold += 2;
                     return "Careful Investment: gain 2 Gold next turn";
                 case "104029":
                     state.Player.Tavern.MaxGold += 1;
-                    return "钻探原油：铸币上限提高1";
+                    return "闂備胶鏅划顖滄暜娴兼潙鍌ㄩ柣鏃€鐡曡棢闂佹寧绋掑畝鎼佸箺瀹曞洦鏆滃ù锝夘棑閻熸劙姊婚崟顒€濮堢憸棰佺劍椤?";
                 case "104446":
                     state.Player.Tavern.FreeRefreshes += 2;
-                    return "快速浏览：获得2次免费的刷新";
+                    return "Quick Look: gain 2 free Refreshes";
                 case "104559":
                     GainGold(state.Player.Tavern, 1);
-                    return "拼命发掘：获得1枚铸币";
+                    return "Desperate Dig: gain Gold";
                 case "105267":
                     state.Player.Tavern.PendingCombatWinGold += 3;
                     state.Player.Tavern.PendingCombatDrawGold += 1;
                     return "Hired Headhunter: bank combat outcome Gold";
                 case "127288":
-                    StartLockedCurrentTierDiscover(state, minions, rng, "搜寻时光");
-                    return "搜寻时光：发现当前等级随从，并锁入手牌1个回合";
+                    StartLockedCurrentTierDiscover(state, minions, rng, "Search the Ages");
+                    return "Search the Ages: discover a current-tier minion and lock it";
                 case "105664":
-                    AddSameTribeMinionToHand(state, minions, rng, FirstAnyMinion(state), "主厨甄选");
-                    return "主厨甄选：获取相同类型的另一张随从牌";
+                    AddSameTribeMinionToHand(state, minions, rng, FirstAnyMinion(state), "Chef Choice");
+                    return "Chef Choice: get another minion of the same type";
                 case "103785":
                     state.Player.Armor = 5;
-                    return "护甲储备：护甲变为5";
+                    return "Armor Stash: set Armor to 5";
                 case "103793":
-                    AddRandomMinionToHand(state, minions, rng, 1, "招募新人");
-                    return "招募新人：获取等级1随从";
+                    AddRandomMinionToHand(state, minions, rng, 1, "Recruit Minion");
+                    return "Recruit a minion: add a random minion to hand";
                 case "105665":
                     state.Player.Tavern.NextCombatBoardAttack += 2;
                     state.Player.Tavern.NextCombatBoardHealth += 1;
                     return "Fleeting Vigor: next combat board buff";
                 case "122864":
-                    StartDiscover(state, minions, rng, 1, "新生幼苗");
-                    return "新生幼苗：发现等级1随从";
+                    StartDiscover(state, minions, rng, 1, "Tier 1 Discover");
+                    return "Discover a Tier 1 minion";
                 case "119718":
-                    StartDiscover(state, minions, rng, 7, "降圣仪式");
-                    return "降圣仪式：发现等级7随从";
+                    StartDiscover(state, minions, rng, 7, "Tier 7 Discover");
+                    return "Discover a Tier 7 minion";
                 case "105669":
                     StartMajorityTribeDiscover(state, minions, heroes, rng, "Planar Telescope");
                     return "Planar Telescope: discover majority tribe minion";
                 case "109230":
-                    BuffAll(state, state.Player.Board, 1, 1, "闪亮的戒指", applyTavernSpellBonus);
-                    return "闪亮的戒指：你的随从获得+1/+1";
+                    BuffAll(state, state.Player.Board, 1, 1, "Shiny Ring", applyTavernSpellBonus);
+                    return "Shiny Ring: your minions gain +1/+1";
                 case CoinPouch3GoldProxyCardId:
                     state.Player.Tavern.Gold = StatMath.SaturatingAdd(state.Player.Tavern.Gold, 3, 0, StatMath.MaxStat);
                     return "3-Gold Coin Pouch: gain 3 Gold";
@@ -585,8 +598,8 @@ namespace LearnHearthstone.Domain.Engine
                     SellMinionAndBuffLeftmostElemental(state);
                     return "Cascading Avalanche: sell a minion and buff leftmost Elemental";
                 case "109232":
-                    BuffAll(state, state.Player.Board, 4, 4, "艾泽里特强化", applyTavernSpellBonus);
-                    return "艾泽里特强化：你的随从获得+4/+4";
+                    BuffAll(state, state.Player.Board, 4, 4, "Board Buff", applyTavernSpellBonus);
+                    return "Board Buff: your minions gain +4/+4";
                 case "131152":
                     BuffAll(state, state.Player.Board.Take(4), 1, 2, "Might of Stormwind", applyTavernSpellBonus);
                     return "Might of Stormwind: four friendly minions gain +1/+2";
@@ -640,55 +653,55 @@ namespace LearnHearthstone.Domain.Engine
                     state.Player.Tavern.NextCombatLeftmostDoubleAttack = true;
                     return "Nozdormu's Offspring: next combat doubles leftmost minion Attack";
                 case "127506":
-                    BuffAll(state, state.Player.Board, 3, 2, "黄金狂潮", applyTavernSpellBonus);
-                    BuffAll(state, state.Player.Board.Where(minion => minion.Golden), 3, 2, "黄金狂潮-金色", applyTavernSpellBonus);
-                    return "黄金狂潮：你的随从获得+3/+2，金色随从额外获得+3/+2";
+                    BuffAll(state, state.Player.Board, 3, 2, "Golden Frenzy", applyTavernSpellBonus);
+                    BuffAll(state, state.Player.Board.Where(minion => minion.Golden), 3, 2, "Golden Frenzy Golden", applyTavernSpellBonus);
+                    return "Golden Frenzy: your minions gain +3/+2 and Golden minions gain extra +3/+2";
                 case "105271":
-                    BuffOneOfEachTribe(state, state.Player.Board, 2, 2, "乱放的茶具", applyTavernSpellBonus);
-                    return "乱放的茶具：每个类型各一个友方随从获得+2/+2";
+                    BuffOneOfEachTribe(state, state.Player.Board, 2, 2, "Chaotic Tea Set", applyTavernSpellBonus);
+                    return "Chaotic Tea Set: one friendly minion of each type gains +2/+2";
                 case "104472":
-                    BuffSameTribeAsTarget(state, CurrentBoardAndShopMinions(state), FirstAnyMinion(state), 3, 3, "自然祝福", applyTavernSpellBonus);
-                    return "自然祝福：同类型场上和当前酒馆随从获得+3/+3";
+                    BuffSameTribeAsTarget(state, CurrentBoardAndShopMinions(state), FirstAnyMinion(state), 3, 3, "Natural Blessing", applyTavernSpellBonus);
+                    return "Natural Blessing: same-type board and Tavern minions gain +3/+3";
                 case "105903":
-                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 1, 2, "意外之果", applyTavernSpellBonus);
-                    return "意外之果：酒馆随从获得+1/+2";
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 1, 2, "Unexpected Fruit", applyTavernSpellBonus);
+                    return "Unexpected Fruit: Tavern minions gain +1/+2";
                 case "105276":
-                    AddShopGrowth(state, Tribe.All, 2, 2, "富足之杖");
-                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "富足之杖", applyTavernSpellBonus);
-                    return "富足之杖：本局酒馆随从获得+2/+2";
+                    AddShopGrowth(state, Tribe.All, 2, 2, "Plenty Staff");
+                    BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "Plenty Staff", applyTavernSpellBonus);
+                    return "Plenty Staff: Tavern minions gain +2/+2 this game";
                 case "104448":
                     MakeGolden(RandomShopMinion(state, rng));
-                    return "点金之触：随机酒馆随从变为金色";
+                    return "Golden Touch: random Tavern minion becomes Golden";
                 case "104502":
                     StealRandomShopMinion(state, rng);
-                    return "附魔链索：随机偷取酒馆随从";
+                    return "Enchanted Lasso: steal a random Tavern minion";
                 case "110400":
-                    AddRandomTribeMinionAndCopyToHand(state, minions, rng, Tribe.Murloc, "克隆螺号");
-                    return "克隆螺号：获取随机鱼人及其复制";
+                    AddRandomTribeMinionAndCopyToHand(state, minions, rng, Tribe.Murloc, "Cloning Conch");
+                    return "Cloning Conch: get a random Murloc and a copy";
                 case "110406":
                 case "110407":
                     AddSpellcraftBundleToHand(state, spells, rng);
-                    return "恶鳞套餐：获取3张塑造法术";
+                    return "Special: get temporary Spellcraft spells";
                 case "110642":
                     ApplyBloodGemsAndStealAdjacentGems(state, FirstFriendlyBoard(state));
-                    return "查抄宝石：对目标使用2张鲜血宝石并偷取相邻宝石";
+                    return "Blood Gem Scraper: play Blood Gems and steal adjacent Gems";
                 case "117670":
-                    AddMinionByCardIdToHand(state, minions, FireBallerCardId, "寒热骤变-fire");
-                    AddMinionByCardIdToHand(state, minions, SnowBallerCardId, "寒热骤变-snow");
-                    return "寒热骤变：获取火焰投球手和冰雪投球手";
+                    AddMinionByCardIdToHand(state, minions, FireBallerCardId, "ballers-fire");
+                    AddMinionByCardIdToHand(state, minions, SnowBallerCardId, "ballers-snow");
+                    return "Ballers: add Fire Baller and Snow Baller to hand";
                 case "120900":
                     ApplyShiftingTide(state, FirstAnyMinion(state), applyTavernSpellBonus);
-                    return "变换之潮：目标+2/+2两次，纳迦再重复";
+                    return "Shifting Tide: swap stats and give +2/+2";
                 case "123553":
                     state.Player.Tavern.TemporaryAvengeBeastRewards += 1;
-                    return "迅猛龙的复仇：下场战斗复仇4获取野兽，持续1回合";
+                    return "Beast reward: enable temporary Avenge Beast rewards";
                 case "126909":
                     state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 5, 0, StatMath.MaxStat);
                     state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 5, 0, StatMath.MaxStat);
-                    return "乘借东风：本局刷新后最右侧酒馆随从+5/+5";
+                    return "Rightmost Refresh Buff: after refresh, rightmost Tavern minion gets +5/+5";
                 case "126957":
-                    StartTribeDiscoverWithTag(state, minions, rng, Tribe.Undead, "惊扰墓穴", "discover_then_death");
-                    return "惊扰墓穴：发现亡灵，本回合使用则死亡";
+                    StartTribeDiscoverWithTag(state, minions, rng, Tribe.Undead, "Undead Discover", "discover_then_death");
+                    return "Undead Discover: discover an Undead that dies later";
                 case "126676":
                     var barrageAttack = StatMath.SaturatingAdd(
                         StatMath.SaturatingAdd(1, state.Player.Tavern.TavernSpellBonusAttack, 0, StatMath.MaxStat),
@@ -706,9 +719,9 @@ namespace LearnHearthstone.Domain.Engine
                         Tribe = Tribe.All,
                         Attack = barrageAttack,
                         Health = barrageHealth,
-                        SourceId = "鲜血宝石弹幕"
+                        SourceId = "Blood Gem Barrage"
                     });
-                    return "鲜血宝石弹幕：后续酒馆刷新获得鲜血宝石成长";
+                    return "Blood Gem Barrage: create a Blood Gem spell using Tavern spell bonuses";
                 case "100601":
                     MakeGolden(FirstFriendlyBoard(state)?.TavernTier <= 4
                         ? FirstFriendlyBoard(state)
@@ -727,7 +740,7 @@ namespace LearnHearthstone.Domain.Engine
                     state.Player.Tavern.NextCombatTriggerMixedMechanics = true;
                     return "Hand of Deus: next combat triggers a battlecry deathrattle and rally reward";
                 default:
-                    return spell.Name + "：暂未实现具体效果";
+                    return spell.Name + ": effect is not implemented yet";
             }
         }
 
@@ -794,6 +807,115 @@ namespace LearnHearthstone.Domain.Engine
         {
             var candidates = state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion).ToList();
             return candidates.Count == 0 ? null : rng.Pick(candidates);
+        }
+
+        private static bool IsOfficialBattlecruiserUpgrade(string cardId)
+        {
+            return !string.IsNullOrEmpty(cardId) &&
+                cardId.StartsWith("BG31_HERO_801pt", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(cardId, BattlecruiserCardId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static MinionInstance FindBattlecruiser(MatchState state)
+        {
+            return state?.Player?.Board?.FirstOrDefault(card =>
+                card != null &&
+                (string.Equals(card.CardId, BattlecruiserCardId, StringComparison.OrdinalIgnoreCase) ||
+                 (card.Tags != null && card.Tags.Contains("battlecruiser")) ||
+                 (!string.IsNullOrEmpty(card.Name) && card.Name.IndexOf("Battlecruiser", StringComparison.OrdinalIgnoreCase) >= 0)));
+        }
+
+        private static string ResolveBattlecruiserUpgrade(MatchState state, string cardId, bool applyTavernSpellBonus)
+        {
+            var battlecruiser = FindBattlecruiser(state);
+            if (battlecruiser == null)
+            {
+                return "Battlecruiser Upgrade: no Battlecruiser to upgrade";
+            }
+
+            var family = BattlecruiserUpgradeFamily(cardId);
+            var level = Math.Max(1, BattlecruiserUpgradeLevel(cardId));
+            battlecruiser.Counters["battlecruiser_upgrade:" + family] = level;
+
+            if (family == "a")
+            {
+                Buff(state, battlecruiser, level + 1, 0, "Hyperflight Rotors", applyTavernSpellBonus);
+            }
+            else if (family == "b")
+            {
+                Buff(state, battlecruiser, 0, level + 1, "Smart Servos", applyTavernSpellBonus);
+            }
+            else if (family == "c")
+            {
+                AddTag(battlecruiser, "battlecruiser_yamato");
+                battlecruiser.Counters["battlecruiser_yamato"] = Math.Max(1, level);
+            }
+            else if (family == "d")
+            {
+                AddKeyword(battlecruiser, Keyword.Rally);
+                AddTag(battlecruiser, "battlecruiser_ballistics");
+                battlecruiser.Counters["battlecruiser_ballistics_attack"] = level + 1;
+            }
+            else if (family == "e")
+            {
+                AddKeyword(battlecruiser, Keyword.Deathrattle);
+                AddTag(battlecruiser, "battlecruiser_caduceus");
+                battlecruiser.Counters["battlecruiser_caduceus_attack"] = level + 1;
+                battlecruiser.Counters["battlecruiser_caduceus_health"] = level + 1;
+            }
+            else if (family == "f")
+            {
+                AddTag(battlecruiser, "battlecruiser_advanced_construction");
+                battlecruiser.Counters[BattlecruiserUpgradeFreeCounter] = Math.Max(1, level);
+            }
+            else if (family == "h")
+            {
+                AddTag(battlecruiser, "battlecruiser_bunker_magnetic");
+            }
+            else if (family == "i")
+            {
+                AddTag(battlecruiser, "battlecruiser_missile_pod");
+                battlecruiser.Counters["battlecruiser_missile_pod"] = Math.Max(1, level);
+            }
+            else if (family == "j")
+            {
+                AddKeyword(battlecruiser, Keyword.Reborn);
+                AddTag(battlecruiser, "battlecruiser_full_health_reborn");
+            }
+
+            return "Battlecruiser Upgrade: applied " + cardId + " to Battlecruiser";
+        }
+
+        private static string BattlecruiserUpgradeFamily(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId) || cardId.Length <= "BG31_HERO_801pt".Length)
+            {
+                return string.Empty;
+            }
+
+            return cardId.Substring("BG31_HERO_801pt".Length, 1).ToLowerInvariant();
+        }
+
+        private static int BattlecruiserUpgradeLevel(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                return 1;
+            }
+
+            var prefixLength = "BG31_HERO_801pt".Length + 1;
+            if (cardId.Length <= prefixLength)
+            {
+                return 1;
+            }
+
+            var digits = cardId.Substring(prefixLength);
+            if (string.IsNullOrEmpty(digits))
+            {
+                return 1;
+            }
+
+            return int.TryParse(digits, out var parsed) ? Math.Max(1, parsed) : 1;
         }
 
         private static void Buff(MatchState state, MinionInstance target, int attack, int health, string sourceId, bool applyTavernSpellBonus)
@@ -1586,7 +1708,7 @@ namespace LearnHearthstone.Domain.Engine
             var repeats = target.Tribes.Contains(Tribe.Naga) ? 4 : 2;
             for (var index = 0; index < repeats; index += 1)
             {
-                Buff(state, target, 2, 2, "变换之潮", applyTavernSpellBonus);
+                Buff(state, target, 2, 2, "Naga Repeat Buff", applyTavernSpellBonus);
             }
         }
 
@@ -1804,7 +1926,7 @@ namespace LearnHearthstone.Domain.Engine
         {
             return minion.Keywords.Contains(Keyword.Battlecry)
                 || minion.Tags.Any(tag => tag.IndexOf("battlecry", StringComparison.OrdinalIgnoreCase) >= 0)
-                || (!string.IsNullOrWhiteSpace(minion.Text) && minion.Text.IndexOf("战吼", StringComparison.OrdinalIgnoreCase) >= 0);
+                || (!string.IsNullOrWhiteSpace(minion.Text) && minion.Text.IndexOf("Battlecry", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         private static void RefreshShopToTargetTribe(MatchState state, MinionCatalog catalog, SeededRng rng)
@@ -1871,8 +1993,8 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            ApplyBloodGem(state, target, "查抄宝石");
-            ApplyBloodGem(state, target, "查抄宝石");
+            ApplyBloodGem(state, target, "Blood Gem");
+            ApplyBloodGem(state, target, "Blood Gem");
 
             var board = state.Player.Board;
             var index = board.FindIndex(minion => minion.InstanceId == target.InstanceId);
@@ -1890,7 +2012,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 var adjacent = board[adjacentIndex];
                 var gems = adjacent.Enchantments
-                    .Where(enchantment => enchantment.SourceId == "Blood Gem" || enchantment.SourceId == "Blood Gem Growth" || enchantment.SourceId == "查抄宝石")
+                    .Where(enchantment => enchantment.SourceId == "Blood Gem" || enchantment.SourceId == "Blood Gem Growth")
                     .ToList();
                 foreach (var gem in gems)
                 {
@@ -2054,7 +2176,7 @@ namespace LearnHearthstone.Domain.Engine
                     spell.TavernTier <= Math.Max(1, state.Player.Tavern.Tier) &&
                     (spell.Tags.Contains("buff_spell") ||
                         spell.Tags.Contains("targeted_spell") ||
-                        (!string.IsNullOrWhiteSpace(spell.Text) && (spell.Text.Contains("+") || spell.Text.Contains("属性值")))))
+                        (!string.IsNullOrWhiteSpace(spell.Text) && (spell.Text.Contains("+") || spell.Text.Contains("stats")))))
                 .ToList();
             for (var index = 0; index < count && state.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; index += 1)
             {
@@ -2153,7 +2275,8 @@ namespace LearnHearthstone.Domain.Engine
 
         private static bool ConsumePermanentSpellcraft(MinionInstance target)
         {
-            if (target == null || target.CardId != LavaLurkerCardId)
+            if (target == null ||
+                (target.CardId != LavaLurkerCardId && target.CardId != TimewarpedLavaLurkerCardId))
             {
                 return false;
             }

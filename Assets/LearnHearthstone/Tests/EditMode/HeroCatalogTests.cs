@@ -93,20 +93,20 @@ namespace LearnHearthstone.Tests.EditMode
             var options = catalog.GetOfferableDiscoverableHeroPowers("TB_BaconShop_HP_035");
             var ids = options.Select(power => power.CardId).ToList();
 
-            CollectionAssert.DoesNotContain(ids, "BG34_HERO_002p");
             CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_080");
+            CollectionAssert.DoesNotContain(ids, "BG34_HERO_002p");
             CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_081");
             CollectionAssert.DoesNotContain(ids, "BG23_HERO_303p2");
-            CollectionAssert.DoesNotContain(ids, "TB_BaconShop_HP_041");
-            CollectionAssert.DoesNotContain(ids, "BG23_HERO_304p");
-            CollectionAssert.DoesNotContain(ids, "BG22_HERO_007p");
+            CollectionAssert.Contains(ids, "BG23_HERO_304p");
+            CollectionAssert.Contains(ids, "BG22_HERO_007p");
+            CollectionAssert.Contains(ids, "TB_BaconShop_HP_041");
             CollectionAssert.Contains(ids, "TB_BaconShop_HP_086");
             CollectionAssert.Contains(ids, "TB_BaconShop_HP_053");
             CollectionAssert.Contains(ids, "BG21_HERO_010p");
             CollectionAssert.Contains(ids, "TB_BaconShop_HP_077");
 
             var proxyOption = catalog.CreateDiscoverableHeroPowerOption(
-                catalog.GetHeroPowerByCardId("TB_BaconShop_HP_086"),
+                catalog.GetHeroPowerByCardId("TB_BaconShop_HP_080"),
                 BoardSide.Player,
                 "proxy-test");
             CollectionAssert.Contains(proxyOption.Tags, "implementation_status:FrameworkFirst");
@@ -128,6 +128,28 @@ namespace LearnHearthstone.Tests.EditMode
             CollectionAssert.Contains(a1ImplementedOption.Tags, "implementation_status:Implemented");
             CollectionAssert.DoesNotContain(a1ImplementedOption.Tags, "hero_power_proxy");
             CollectionAssert.DoesNotContain(a1ImplementedOption.Tags, "framework_first");
+        }
+
+        [Test]
+        public void OfferableDiscoverableHeroPowers_ExcludeAllPlannedDeferredAndUnregisteredCandidates()
+        {
+            var catalog = HeroCatalogLoader.LoadFromResources();
+
+            var options = catalog.GetOfferableDiscoverableHeroPowers("TB_BaconShop_HP_035");
+            var unsafeOptions = options
+                .Select(power => new
+                {
+                    Power = power,
+                    Status = HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId)
+                })
+                .Where(item =>
+                    item.Status == HeroEffectImplementationStatus.Planned ||
+                    item.Status == HeroEffectImplementationStatus.Deferred ||
+                    item.Status == HeroEffectImplementationStatus.Unregistered)
+                .Select(item => item.Power.CardId + ":" + item.Status)
+                .ToList();
+
+            Assert.IsEmpty(unsafeOptions, string.Join(", ", unsafeOptions));
         }
 
         [Test]

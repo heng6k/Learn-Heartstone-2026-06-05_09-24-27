@@ -1,6 +1,6 @@
-# 英雄机制剩余补齐顺序
+﻿# 英雄机制剩余补齐顺序
 
-Date: 2026-06-29
+Date: 2026-07-04
 
 ## 目的
 
@@ -12,21 +12,21 @@ Date: 2026-06-29
 
 事实来源：[HeroEffectImplementationRegistry.cs](../Assets/LearnHearthstone/Runtime/Domain/Data/HeroEffectImplementationRegistry.cs)
 
-截至 2026-06-29，注册表状态统计如下：
+截至 2026-07-04，注册表状态统计如下：
 
 | 状态 | 数量 | 含义 |
 | --- | ---: | --- |
-| Implemented | 59 | 英雄技能和关联宝宝已按当前项目能力完成。 |
-| FrameworkFirst | 33 | 已有一部分效果或代理实现，但还依赖公共框架、战斗事件、真实大厅信息或专属机制补齐。 |
-| Planned | 20 | 已明确实现目标，但主体逻辑尚未完成。 |
-| Deferred | 2 | 当前必须等公共底座补完后再做。 |
+| Implemented | 109 | 英雄技能和关联宝宝已按当前项目能力完成。 |
+| FrameworkFirst | 5 | 已有一部分效果或代理实现，但还依赖公共框架、战斗事件、真实大厅信息或专属机制补齐。 |
+| Planned | 0 | 当前没有仍停留在 Planned 的英雄技能。 |
+| Deferred | 0 | 当前没有仍停留在 Deferred 的英雄技能。 |
 | Unregistered | 1 | 注册表 fallback 状态，不代表一个具体英雄。 |
 
 当前真正需要继续补的主要是：
 
-- `Planned`：20 个，优先处理，因为目标清楚，很多不需要大改公共框架。
-- `FrameworkFirst`：33 个，按缺失公共机制分批收尾，不能逐个硬塞临时逻辑。
-- `Deferred`：2 个，必须等对应底座完成后再开。
+- `Planned`：0 个。
+- `FrameworkFirst`：24 个，按缺失公共机制分批收尾，不能逐个硬塞临时逻辑。
+- `Deferred`：0 个。
 
 ## 排序原则
 
@@ -124,7 +124,7 @@ Date: 2026-06-29
 
 ### Galewing
 
-状态：框架优先完成（2026-07-02）。`Dungar's Gryphon` 已通过 pending choice 提供三条航线选择，保存当前航线和完成回合；完成后清理航线状态，下次选择会过滤刚完成的航线。`Flight Trainer` 在场时完成航线会触发两次。由于本地 `battlegroundsHeroes.json` 只包含总文本，缺少三条航线的完整奖励文本，当前奖励为明确 proxy：Westfall 给 Tavern Coin、Ironforge 给当前酒馆等级随机随从、Plaguelands 发起当前酒馆等级随从发现。拿到可验证路线文本后需要替换 proxy 才能标完整实现。
+状态：已完成（2026-07-04）。`Dungar's Gryphon` 已通过 pending choice 提供三条航线选择，保存当前航线和完成回合；完成后清理航线状态，下次选择会过滤刚完成的航线。`Flight Trainer` 在场时完成航线会触发两次。航线奖励已替换为当前确认的官方路线表：Westfall 1 回合后给随机 1 费酒馆法术，Ironforge 2 回合后获得 2 金币，Eastern Plaguelands 3 回合后发现一个当前酒馆等级的随从。
 
 需要实现：
 
@@ -209,9 +209,15 @@ Date: 2026-06-29
 
 ### Yogg-Saron, Hope's End
 
-状态：框架优先（2026-07-03）。`Puzzle Box` 从第 3 回合起在回合开始通过统一自动 Tavern spell 执行入口施放合法随机酒馆法术；`Acolyte of Yogg-Saron` 回合开始使用可见 Wheel proxy，并把结果写入状态/日志。
+状态：已完成（2026-07-04）。`Puzzle Box` 从第 3 回合起在回合开始通过统一自动 Tavern spell 执行入口施放合法随机酒馆法术；`Acolyte of Yogg-Saron` 回合开始使用项目确认的五结果 Wheel 表，并把结果写入状态/日志。
 
-注意：Wheel of Yogg-Saron 的完整官方结果表本地不足；当前不能标为完全 `Implemented`，需要补齐结果表和精确效果后再升级状态。
+已确认 Wheel 结果：
+
+- 随机开炮并给命中随从 +10/+10，直到命中玩家。
+- 获得当前暗月奖品等级的暗月奖品；等级按回合每 4 回合提升一次，而不是按酒馆等级。
+- 随机释放 4 个合法酒馆法术。
+- 将一个随机友方随从的身材转移到另一个随机友方随从上。
+- 吞噬当前酒馆所有随从并刷新；每个酒馆随从独立随机吞噬。
 
 第二批完成标准：
 
@@ -225,10 +231,10 @@ Date: 2026-06-29
 
 建议顺序：
 
-1. The Rat King
-2. Master Nguyen
-3. Genn, Worgen King
-4. Cosmic Duality 相关候选过滤复查
+1. The Rat King（已完成）
+2. Master Nguyen（已完成）
+3. Genn, Worgen King（已完成）
+4. Cosmic Duality 相关候选过滤复查（已接入候选过滤）
 
 ### The Rat King
 
@@ -253,21 +259,21 @@ Date: 2026-06-29
 
 ### Genn, Worgen King
 
-需要实现：
+已实现：
 
-- 多英雄技能替换时机。
-- 与 Cosmic Duality、Finley、Nguyen 这类英雄技能替换/复制逻辑的优先级。
-- UI 中多个英雄技能槽位的稳定展示。
+- Cosmic Duality 局禁用。
+- 非 Cosmic Duality 局 Turn 4 发现两个英雄技能替换 `King of Duality`。
+- 第一个选择作为主技能，第二个选择进入额外英雄技能槽。
 
-为什么放第三批：它现在是 `Deferred`，原因就是多英雄技能替换时机还没有统一底座。先补 Rat King 和 Nguyen，可以顺手验证该底座。
+为什么放第三批：它原本依赖多英雄技能替换时机；当前已经通过 Rat King、Nguyen、Cosmic Duality 和 Genn 的共用候选/槽位路径完成验证。
 
 ### Cosmic Duality 相关候选过滤复查
 
-Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但后续补英雄技能时还要复查：
+Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，候选过滤也已接入：
 
-- 第二英雄技能候选中是否包含 `Planned`、`FrameworkFirst`、`Deferred` 技能。
-- 是否需要在选择 UI 中标记“不完整实现”或过滤掉无法运行的技能。
-- 当第二技能本身会替换英雄技能时，是否会覆盖主技能或造成重复槽位。
+- `Planned`、`Deferred` 当前为 0，不再进入普通候选问题。
+- `FrameworkFirst` 默认可进入候选，但带代理/不完整标记；用户明确删除/过滤的 Bigglesworth 仍从普通候选池过滤。
+- 第二技能本身会替换英雄技能时，使用共享主技能/额外技能槽位，避免覆盖主技能或造成重复槽位。
 
 第三批完成标准：
 
@@ -290,7 +296,9 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Murloc Holmes
 
-需要实现：
+状态：已完成（2026-07-04），使用单人训练器对手快照代理。
+
+已实现：
 
 - 选择 UI：猜测对手上一场战斗相关信息。
 - 下一对手或代理对手的上一场战斗记忆。
@@ -301,7 +309,9 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Lord Barov
 
-需要实现：
+状态：已完成（2026-07-04），使用单人训练器战斗预测代理。
+
+已实现：
 
 - 战斗预测选择 UI。
 - 战斗后根据胜负结算。
@@ -312,7 +322,9 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Mr. Bigglesworth
 
-需要实现：
+状态：保留 `FrameworkFirst` 单人代理，不作为 P0-P4 要补的英雄 gameplay；普通英雄技能候选池直接过滤。
+
+运行时边界：
 
 - 淘汰玩家战队快照。
 - 最低血量或淘汰对象选择规则。
@@ -323,27 +335,33 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Scabbs Cutterbutter
 
-需要实现：
+状态：已完成（2026-07-04），使用模拟下一对手战队代理。
+
+已实现：
 
 - 下一对手战队快照。
 - 从下一对手战队发现普通复制。
 - Warden Thelwater 获得该对手的宝宝。
 
-注意：真实下一对手调度未完成前，应继续标记为 `FrameworkFirst`。
+注意：真实下一对手调度不是单人训练器的当前目标；注册表已按接受的单人代理标记为 `Implemented`。
 
 ### Tess Greymane
 
-需要实现：
+状态：已完成（2026-07-04），使用上一场代理对手快照。
+
+已实现：
 
 - 上一对手战队快照。
 - Bob's Burgles 用上一对手战队刷新酒馆。
 - Hunter of Old 获得上一对手宝宝。
 
-注意：单人酒馆可以使用上一场代理对手，但要和 Scabbs 共用对手快照模型。
+注意：单人酒馆使用上一场代理对手；真实 8 人大厅历史仍不是当前训练器目标。
 
 ### Rafaam
 
-需要实现：
+状态：已完成（2026-07-04），使用战斗死亡归属/代理对手边界。
+
+已实现：
 
 - 记录下一次战斗中第一个死亡的敌方随从。
 - 战斗后给该随从普通复制。
@@ -357,7 +375,7 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ## 第五批：战斗事件公共框架收口
 
-目标：先补公共战斗事件，再批量关闭依赖战斗内部事件的 `FrameworkFirst` 和 `Planned` 项。
+目标：先补公共战斗事件，再批量关闭依赖战斗内部事件的 `FrameworkFirst` 项。
 
 需要优先补的公共能力：
 
@@ -382,37 +400,36 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 7. Rokara
 8. Sylvanas Windrunner
 9. Lord Jaraxxus
-10. Loh, the Living Legend
-11. Dinotamer Brann
 
-已从本待做列表移出并转 `Implemented`：Tavish Stormpike、Tamsin Roame、Onyxia、Bru'kan。它们仍可作为战斗开始顺序、立即攻击、亡语和元素选择的回归样例。
+已从本待做列表移出并转 `Implemented`：Tavish Stormpike、Tamsin Roame、Onyxia、Bru'kan、Deathwing、Loh, the Living Legend、Dinotamer Brann。它们仍可作为战斗开始顺序、立即攻击、亡语、元素选择、三连奖励改写和战斗亡语召唤/奖励的回归样例。
 
 相关 `FrameworkFirst` 可在同批复查：
 
 - Al'Akir
-- Deathwing
 - Ini Stormcoil
 - Ozumat
 - Aranna Starseeker
 
 ### Loh, the Living Legend
 
-需要实现：
+状态：已完成（2026-07-04）。
+
+已实现：
 
 - 友方攻击次数统计，达到条件后给三连奖励。
-- Stoneshell Guardian 修改每回合第一个三连奖励，从金色随从池发现。
-
-注意：它应跟攻击计数和三连奖励修改一起做，不建议单独硬写。
+- Stoneshell Guardian 修改每回合第一个被打出的三连奖励，从金色随从池发现。
 
 ### Dinotamer Brann
 
-需要实现：
+状态：已完成（2026-07-04）。
+
+已实现：
 
 - 统计购买战吼随从。
 - 达成条件后给 Brann Bronzebeard。
-- Brann's Epic Egg 的嘲讽亡语召唤和随机战吼随从奖励。
+- Brann's Epic Egg 的亡语召唤和随机战吼随从奖励，奖励不高于当前酒馆等级，金色时翻倍。
 
-注意：它横跨购买统计和亡语召唤，适合在战斗事件底座稳定后做。
+注意：本次已补 `Deathrattle payload` 和战斗召唤 resolver 的最小可用路径；非攻击击杀归属、复杂死亡历史和更广泛的战斗监听点仍是后续 FrameworkFirst 收口的公共底座。
 
 第五批完成标准：
 
@@ -426,17 +443,17 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 建议分组：
 
-1. Lady Vashj / Queen Azshara：Spellcraft、Naga、临时法术、友方法术复制。
+1. Lady Vashj / Queen Azshara：Spellcraft、Naga、临时法术、友方法术复制。（已完成）
 2. Marin the Manager / Buttons：饰品选择、复制候选、排除规则和大/小饰品槽位。
-3. Mister Clocksworth：两张即可合金、三连奖励替换为 Tavern Coin。
+3. Mister Clocksworth：两张即可合金、三连奖励替换为 Tavern Coin。（已完成）
 4. The Great Akazamzarak：Secret 战场支持和 Better Secret。
-5. Professor Putricide：自定义 Undead 制作。
-6. Jim Raynor / Artanis / Kerrigan：Terran、Protoss、Zerg 专属机制。
-7. Morchie / Murozond：时空酒馆扩展和对手历史扩展。
+5. Professor Putricide：已按用户确认语义完成两次三选一组件 Discover、身材/效果叠加、重复关键词过滤，并让 Festergut 共用同一 factory。
+6. Jim Raynor / Artanis / Kerrigan：Terran、Protoss、Zerg 主路径已完成。
+7. Morchie / Murozond：时空酒馆开门已完成；previous-warband 属于 Timewarp 牌/数据底座。
 
 ### Lady Vashj / Queen Azshara
 
-需要实现：
+已实现：
 
 - Spellcraft 临时法术生成。
 - 回合结束清理。
@@ -459,13 +476,14 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Mister Clocksworth
 
-需要实现：
+已实现：
 
 - TripleEngine 支持两张同名即可合成金色。
+- 三连奖励替换为 Tavern Coin。
 - 原三连奖励替换为 Tavern Coin。
 - 与普通三连、金色随从、三连奖励 UI 不冲突。
 
-这是 `Deferred`，应等 TripleEngine 可配置化后再做。
+状态：已完成（2026-07-04），不再是 `Deferred`。
 
 ### The Great Akazamzarak
 
@@ -479,11 +497,13 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Professor Putricide
 
-需要实现：
+已实现：
 
-- 自定义 Undead 制作 UI 或命令流。
-- 组件池、费用、结果随从生成。
-- Festergut 当前 proxy 与正式 Undead Creation 的迁移。
+- Build-An-Undead 消耗 3 金、每局 3 次。
+- 自定义 Undead 制作走两段 Discover：第一次三选一组件，第二次三选一组件。
+- 第二次 Discover 过滤与第一次重复的关键词组件。
+- 结果随从固定为 `BG25_HERO_100pt`，叠加两个组件的身材、关键词和效果标签。
+- Festergut/烂肠复用同一随机两组件 factory。
 
 ### Jim Raynor / Artanis / Kerrigan
 
@@ -498,10 +518,12 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ### Morchie / Murozond
 
-需要实现：
+状态：已完成（2026-07-04）。Morchie 本体在第 5 回合打开 Minor Timewarped Tavern；Murozond 本体在第 8 回合打开 Major Timewarped Tavern。
 
-- Minor/Major Timewarped Tavern 已可打开的部分继续保留。
-- 扩展对手历史、时间线快照和时空奖励。
+已确认边界：
+
+- Timewarped previous-warband 不挂在 Murozond 英雄完成度上，属于 Timewarp 牌/offer 表问题。
+- 相关 Timewarp 固定 offer 已按用户语义改为金铜须、金瑞文、金达卡莱三选一。
 - 确认时空酒馆只将时空随从进入酒馆，效果牌和法术按规则留在对应奖励/效果入口。
 
 第六批完成标准：
@@ -524,7 +546,7 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 
 ## 下一步建议
 
-当前前置批次已推进到 FrameworkFirst 收口：A1 四个战斗事件英雄已转 `Implemented`，Galewing 当前 proxy 不作为完整标准。下一步优先从 Morchie 小批次或已确认顺序的 StarCraft Terran/Battlecruiser 子系统文档/实现开始。
+当前前置批次已推进到 FrameworkFirst 收口：Galewing、Yogg、Deathwing、Loh、Dinotamer Brann、Clocksworth、Genn、Morchie、Murozond 等尾项已转 `Implemented`。下一步只剩 24 个 `FrameworkFirst` 英雄按公共底座或专属机制分批收口。
 
 建议执行顺序：
 
@@ -534,5 +556,20 @@ Cosmic Duality 本身已经完成第二英雄技能授予和 UI 命令流，但�
 4. Alexstrasza、A. F. Kay、Guff Runetotem 已完成；后续只在回归测试中覆盖升级触发、早期回合限制、购买等级计数和对应宝宝效果。
 5. Ambassador Faelin、Thorim 已完成；后续只在回归测试中覆盖开局 Discover、延迟发放、金币统计和 Veranus 邻位变形。
 6. Tickatus / Ticket Collector 已完成；后续只在回归测试中覆盖暗月奖品调度、宝宝出售发现和 P0/P1/P2 奖品效果。
-7. 在 Genn 前补多英雄技能替换时机，避免和 Cosmic Duality、Finley、Master Nguyen 互相覆盖。
+7. 多英雄技能替换路径已接通；后续只在 Cosmic Duality、Finley、Master Nguyen、Genn 回归中防止槽位互相覆盖。
 8. StarCraft 顺序固定为 Jim Raynor -> Kerrigan -> Artanis。
+
+## 2026-07-04 FrameworkFirst 19 Closure Sync
+
+Current registry counts after the 19-hero closure batch:
+
+| Status | Count |
+| --- | ---: |
+| Implemented | 109 |
+| FrameworkFirst | 5 |
+| Planned | 0 |
+| Deferred | 0 |
+
+The closed 19 are Shudderwock, Vol'jin, Al'Akir, Illidan, N'Zoth, Teron, Rafaam, Rokara, Sylvanas, Sneed, The Jailer, Greybough, Ini Stormcoil, Ozumat, Aranna Starseeker, Lord Jaraxxus, Marin the Manager, Buttons, and The Great Akazamzarak.
+
+Remaining `FrameworkFirst` entry is Mr. Bigglesworth only. Bigglesworth remains deleted/filtered by user decision; Professor Putricide is now `Implemented` under the user-confirmed two-component Undead Creation semantics.

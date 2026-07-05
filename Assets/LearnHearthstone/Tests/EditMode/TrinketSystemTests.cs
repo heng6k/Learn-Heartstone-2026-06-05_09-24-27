@@ -44,6 +44,7 @@ namespace LearnHearthstone.Tests.EditMode
         private const string ZestyShakerCardId = "BG26_505";
         private const string TideRaiserCardId = "BG34_920";
         private const string LockedTurnsCounter = "locked-turns";
+        private const string SecretsOfNorgannonAnomalyCardId = "BG27_Anomaly_504";
         private static readonly HashSet<string> Batch2BountyCardIds = new HashSet<string>
         {
             "122182",
@@ -77,10 +78,10 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(330, catalog.All.Count);
             Assert.AreEqual(157, catalog.Lesser.Count);
             Assert.AreEqual(173, catalog.Greater.Count);
-            Assert.AreEqual(323, catalog.Implemented.Count);
-            Assert.AreEqual(322, catalog.Offerable.Count);
-            Assert.AreEqual(152, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
-            Assert.AreEqual(170, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
+            Assert.AreEqual(330, catalog.Implemented.Count);
+            Assert.AreEqual(329, catalog.Offerable.Count);
+            Assert.AreEqual(156, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
+            Assert.AreEqual(173, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
             Assert.IsTrue(catalog.All.All(trinket => !string.IsNullOrWhiteSpace(trinket.ImagePath)));
             Assert.IsTrue(catalog.All.All(trinket => Resources.Load<Texture2D>(trinket.ImagePath) != null));
             Assert.IsTrue(catalog.All.All(trinket => !string.IsNullOrWhiteSpace(trinket.EffectFamily)));
@@ -1302,10 +1303,10 @@ namespace LearnHearthstone.Tests.EditMode
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_816t"), "orb_of_the_unknown", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "economy", "ProxySafe", "trinket_choice", "gold");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_994"), "yogg_tastic_pastry", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "yogg_proxy");
             AssertCatalogTrinket(catalog.GetByCardId("BG30_MagicItem_707"), "tickatus_sticker", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "discover", "turn_start");
-            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426"), "colorful_compass", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
-            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426t"), "colorful_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "turn_start", "ProxySafe", "official_placeholder_92", "tribe_pool");
-            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_901"), "gold_plated_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "shop_refresh", "ProxySafe", "official_placeholder_92", "golden_triple", "shop_refresh");
-            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_973"), "minion_bait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "shop_refresh", "ProxySafe", "official_placeholder_92", "tribe_pool", "shop_refresh");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426"), "colorful_compass", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_426t"), "colorful_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "turn_start", "ProxySafe", "tribe_pool");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG32_MagicItem_901"), "gold_plated_compass", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "shop_refresh", "ProxySafe", "golden_triple", "shop_refresh");
+            AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_973"), "minion_bait", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "shop_refresh", "ProxySafe", "tribe_pool", "shop_refresh");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_823"), "timeworn_candelabra", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "discover", "ProxySafe", "discover", "timewarp_proxy");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG35_MagicItem_823t"), "timeworn_candelabra", TrinketSlotKind.Greater, TrinketPowerLevel.Strong, "discover", "ProxySafe", "discover", "timewarp_proxy");
             AssertCatalogTrinketWithProxyLevel(catalog.GetByCardId("BG30_MagicItem_930"), "burgling_claw", TrinketSlotKind.Lesser, TrinketPowerLevel.Medium, "turn_start", "ProxySafe", "opponent_history");
@@ -1341,6 +1342,61 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(request.Options
                 .Select(option => service.TrinketCatalog.GetByCardId(option.SourceId))
                 .All(definition => TribeAvailabilityRules.IsTrinketAvailable(definition, service.State.ActiveTribes)));
+        }
+
+        [Test]
+        public void TrinketChoices_PrioritizeBoardHandDirectionExpansionAndGeneric()
+        {
+            var service = CreateDirectionalTrinketOfferService(24680);
+
+            service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
+            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+
+            Assert.IsNotNull(request);
+            Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
+            Assert.AreEqual(4, request.Options.Count);
+
+            var active = service.State.ActiveTribes;
+            var main = new List<Tribe> { Tribe.Beast, Tribe.Murloc };
+            var definitions = request.Options
+                .Select(option => service.TrinketCatalog.GetByCardId(option.SourceId))
+                .ToList();
+            var legal = LegalOfferableTrinkets(service, TrinketSlotKind.Lesser, active);
+
+            Assert.IsTrue(definitions.All(definition => TribeAvailabilityRules.IsTrinketAvailable(definition, active)));
+            if (legal.Count(definition => IsFocusTrinket(definition, active, main)) >= 2)
+            {
+                Assert.GreaterOrEqual(definitions.Count(definition => IsFocusTrinket(definition, active, main)), 2);
+            }
+
+            if (legal.Any(definition => IsExpansionTrinket(definition, active, main)))
+            {
+                Assert.IsTrue(definitions.Any(definition => IsExpansionTrinket(definition, active, main)));
+            }
+
+            if (legal.Any(definition => IsGenericTrinket(definition, active)))
+            {
+                Assert.IsTrue(definitions.Any(definition => IsGenericTrinket(definition, active)));
+            }
+        }
+
+        [Test]
+        public void TrinketChoices_AreDeterministicForSameSeedAndState()
+        {
+            var first = CreateDirectionalTrinketOfferService(24681);
+            var second = CreateDirectionalTrinketOfferService(24681);
+
+            first.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
+            second.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
+
+            var firstIds = first.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options
+                .Select(option => option.SourceId)
+                .ToList();
+            var secondIds = second.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options
+                .Select(option => option.SourceId)
+                .ToList();
+
+            CollectionAssert.AreEqual(firstIds, secondIds);
         }
 
         [Test]
@@ -1424,7 +1480,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            var pendingAfterEquip = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            Assert.IsTrue(pendingAfterEquip == null || pendingAfterEquip.RequestId != request.RequestId);
             Assert.AreEqual(expected.CardId, service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId);
             var expectedGold = 10 - expected.Cost;
             if (expected.EffectIds.Contains("ornate_clock") || expected.EffectIds.Contains("wax_imprinter"))
@@ -1604,6 +1661,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Tier = 5;
             service.State.Player.Tavern.UpgradeCost = 0;
             service.State.Player.Tavern.Gold = 0;
+            UnlockTierSevenForTest(service);
 
             QueueTrinketChoice(service, "BG35_MagicItem_814");
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
@@ -2059,6 +2117,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .First(card => card.InPool && card.TavernTier == TavernRules.MaxTavernTier && card.PoolCount > 0 && !card.CardId.StartsWith("BGDUO"));
             var service = CreateServiceWithEnabledMinions(12345, tierSeven.CardId);
             service.State.Player.Tavern.Gold = 20;
+            UnlockTierSevenForTest(service);
 
             QueueTrinketChoice(service, "BG30_MagicItem_993");
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
@@ -6994,6 +7053,7 @@ namespace LearnHearthstone.Tests.EditMode
             var kaleidoscopeIds = SelectMinionIds(card => card.TavernTier == maxTier, 3);
             var kaleidoscope = CreateServiceWithExactEnabledMinions(12345, kaleidoscopeIds.ToArray());
             kaleidoscope.State.Player.Tavern.Gold = 20;
+            UnlockTierSevenForTest(kaleidoscope);
 
             EquipTrinket(kaleidoscope, "BG35_MagicItem_821t");
             kaleidoscope.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
@@ -7587,6 +7647,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(2, request.Options.Count);
             Assert.IsTrue(request.Source.StartsWith("trinket-replace-free:"));
+            Assert.IsFalse(request.Options.Any(option => option.SourceId == "BG30_MagicItem_703"));
             Assert.IsTrue(request.Options.All(option =>
                 service.TrinketCatalog.GetByCardId(option.SourceId).SlotKind == TrinketSlotKind.Lesser));
         }
@@ -7652,6 +7713,196 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("BG30_MagicItem_426t", trinkets.LesserTrinketId);
         }
 
+        [Test]
+        public void MaxwellStickers_AddHeroPowerBuddyAndGoldenBuddy()
+        {
+            var lesser = MatchService.CreateWithDefaultCatalog(7301);
+            lesser.State.Player.Tavern.Gold = 20;
+            lesser.State.Player.HeroPowerCardId = "TB_BaconShop_HP_085";
+
+            EquipTrinket(lesser, "BG35_MagicItem_803");
+
+            var buddy = lesser.State.Player.Tavern.Hand.Single(card => card.CardId == "TB_BaconShop_HERO_75_Buddy");
+            Assert.IsFalse(buddy.Golden);
+
+            var greater = MatchService.CreateWithDefaultCatalog(7302);
+            greater.State.Player.Tavern.Gold = 20;
+            greater.State.Player.HeroPowerCardId = "TB_BaconShop_HP_085";
+
+            EquipTrinket(greater, "BG35_MagicItem_803t");
+
+            var goldenBuddy = greater.State.Player.Tavern.Hand.Single(card => card.CardId == "TB_BaconShop_HERO_75_Buddy");
+            Assert.IsTrue(goldenBuddy.Golden);
+        }
+
+        [Test]
+        public void PutricideSticker_CraftsCreationAndRepeatsEveryTwoTurns()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7303);
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 20;
+
+            EquipTrinket(service, "BG32_MagicItem_300");
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual(HeroEffectEngine.PutricideFirstDiscoverSource, tavern.Discover.Source);
+            Assert.AreEqual(3, tavern.Discover.Options.Count);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            Assert.AreEqual(HeroEffectEngine.PutricideSecondDiscoverSource, tavern.Discover.Source);
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains(HeroEffectEngine.PutricideCreationTag)));
+            tavern.Hand.Clear();
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.IsNull(tavern.Discover);
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual(HeroEffectEngine.PutricideFirstDiscoverSource, tavern.Discover.Source);
+        }
+
+        [Test]
+        public void SousChefSticker_GainsGoldAfterHeroPowerUse()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7304);
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 20;
+            service.State.Player.HeroPowerCardId = "TB_BaconShop_HP_085";
+
+            EquipTrinket(service, "BG35_MagicItem_801");
+            tavern.Gold = 5;
+            Assert.AreEqual(2, service.GetHeroPowerUsesRemainingThisTurn());
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+            Assert.AreEqual(1, service.GetHeroPowerUsesRemainingThisTurn());
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(5, tavern.Gold);
+            Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "RAKANISHU_LANTERN_LIGHT"));
+            Assert.AreEqual(0, service.GetHeroPowerUsesRemainingThisTurn());
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.UseHeroPower)));
+        }
+
+        [Test]
+        public void AncientWishbone_RepeatsHeroPowerWithoutDoubleChargingBaseCost()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7305);
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 20;
+            service.State.Player.HeroPowerCardId = "TB_BaconShop_HP_085";
+
+            EquipTrinket(service, "BG30_MagicItem_804");
+            tavern.Gold = 5;
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            Assert.AreEqual(4, tavern.Gold);
+            Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "RAKANISHU_LANTERN_LIGHT"));
+            Assert.AreEqual(1, tavern.HeroEffectCounters["hero-power-use:count:TB_BaconShop_HP_085"]);
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.UseHeroPower)));
+        }
+
+        [Test]
+        public void CorruptedTome_GrantsTriplePrizeAndReplacesTripleRewards()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7306);
+            var tavern = service.State.Player.Tavern;
+            tavern.Gold = 20;
+
+            EquipTrinket(service, "BG35_MagicItem_812");
+
+            var prize = tavern.Hand.Single(card => card.CardId == "BG35_MagicItem_812t");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(prize)));
+            Assert.IsNotNull(tavern.Discover);
+            Assert.AreEqual(3, tavern.Discover.RewardTier);
+            Assert.IsTrue(tavern.Discover.Options.All(card => card.Tags.Contains("darkmoon_prize_tier_3")));
+            tavern.CompleteDiscover();
+            tavern.Hand.Clear();
+
+            var golden = TestTripleMinion("corrupted-tome-test", "golden", Tribe.Beast, 4, 4);
+            golden.Golden = true;
+            tavern.Hand.Add(golden);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "BG35_MagicItem_812t"));
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "TRIPLE_REWARD"));
+        }
+
+        [Test]
+        public void ArtanisSticker_AddsMothershipCopy()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7307);
+            service.State.Player.Tavern.Gold = 20;
+
+            EquipTrinket(service, "BG32_MagicItem_906");
+
+            var mothership = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG31_HERO_802pt7");
+            Assert.AreEqual("Mothership", mothership.Name);
+            Assert.IsTrue(mothership.Tags.Contains("protoss_reward"));
+        }
+
+        private static MatchService CreateDirectionalTrinketOfferService(int seed)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                seed,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    ActiveTribes = new List<Tribe> { Tribe.Beast, Tribe.Murloc, Tribe.Pirate, Tribe.Dragon }
+                });
+            service.State.Player.Board.Add(TestTribeMinion("test-beast-a", 2, 2, Tribe.Beast));
+            service.State.Player.Board.Add(TestTribeMinion("test-beast-b", 3, 3, Tribe.Beast));
+            service.State.Player.Board.Add(TestTribeMinion("test-beast-c", 4, 4, Tribe.Beast));
+            service.State.Player.Tavern.Hand.Add(TestTribeMinion("test-murloc-hand", 1, 1, Tribe.Murloc));
+            return service;
+        }
+
+        private static List<TrinketDefinition> LegalOfferableTrinkets(
+            MatchService service,
+            TrinketSlotKind slotKind,
+            IReadOnlyCollection<Tribe> active)
+        {
+            return service.TrinketCatalog.GetBySlot(slotKind)
+                .Where(definition =>
+                    definition.ImplementationStatus == TrinketImplementationStatus.Implemented &&
+                    definition.OfferPoolStatus == TrinketOfferPoolStatus.Offerable &&
+                    TribeAvailabilityRules.IsTrinketAvailable(definition, active))
+                .ToList();
+        }
+
+        private static bool IsFocusTrinket(
+            TrinketDefinition definition,
+            IReadOnlyCollection<Tribe> active,
+            IReadOnlyCollection<Tribe> main)
+        {
+            return ActiveTrinketTribes(definition, active).Any(main.Contains);
+        }
+
+        private static bool IsExpansionTrinket(
+            TrinketDefinition definition,
+            IReadOnlyCollection<Tribe> active,
+            IReadOnlyCollection<Tribe> main)
+        {
+            var tribes = ActiveTrinketTribes(definition, active);
+            return tribes.Count > 0 && !tribes.Any(main.Contains);
+        }
+
+        private static bool IsGenericTrinket(TrinketDefinition definition, IReadOnlyCollection<Tribe> active)
+        {
+            return ActiveTrinketTribes(definition, active).Count == 0;
+        }
+
+        private static List<Tribe> ActiveTrinketTribes(TrinketDefinition definition, IReadOnlyCollection<Tribe> active)
+        {
+            return TribeAvailabilityRules.TrinketTribes(definition)
+                .Where(tribe => TribeAvailabilityRules.IsTribeActive(active, tribe))
+                .ToList();
+        }
+
         private static void QueueTrinketChoice(MatchService service, string cardId)
         {
             var definition = service.TrinketCatalog.GetByCardId(cardId);
@@ -7686,6 +7937,17 @@ namespace LearnHearthstone.Tests.EditMode
         {
             QueueTrinketChoice(service, cardId);
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+        }
+
+        private static void UnlockTierSevenForTest(MatchService service)
+        {
+            var anomalies = service.State.Player.Tavern.AdvancedMechanics.Anomalies;
+            anomalies.Enabled = true;
+            anomalies.ActiveAnomalyId = SecretsOfNorgannonAnomalyCardId;
+            anomalies.ActiveCardId = SecretsOfNorgannonAnomalyCardId;
+            anomalies.ActiveName = "Secrets of Norgannon";
+            anomalies.ActiveText = "Tavern Tier 7 exists. Start with 10 extra Armor.";
+            anomalies.ImplementationStatus = AnomalyImplementationStatus.Implemented;
         }
 
         private static MinionInstance CreateTestOpponentMinion(string cardId, string name, int tier, int attack, int health)

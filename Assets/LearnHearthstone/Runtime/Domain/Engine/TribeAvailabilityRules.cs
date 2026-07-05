@@ -125,12 +125,30 @@ namespace LearnHearthstone.Domain.Engine
                 return true;
             }
 
-            var tribes = trinket.AssociatedRaces
-                .Select(MapFaction)
-                .Where(tribe => tribe.HasValue)
-                .Select(tribe => tribe.Value)
-                .ToList();
+            var tribes = TrinketTribes(trinket);
             return tribes.Count == 0 || tribes.Any(tribe => IsTribeActive(activeTribes, tribe));
+        }
+
+        public static IReadOnlyList<Tribe> TrinketTribes(TrinketDefinition trinket)
+        {
+            if (trinket?.AssociatedRaces == null || trinket.AssociatedRaces.Count == 0)
+            {
+                return Array.Empty<Tribe>();
+            }
+
+            var result = new List<Tribe>();
+            foreach (var race in trinket.AssociatedRaces)
+            {
+                var tribe = MapFaction(race);
+                if (!tribe.HasValue || result.Contains(tribe.Value))
+                {
+                    continue;
+                }
+
+                result.Add(tribe.Value);
+            }
+
+            return result;
         }
 
         public static IReadOnlyList<Tribe> SpellTribes(TavernSpellDefinition spell)

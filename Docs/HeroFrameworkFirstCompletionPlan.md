@@ -4,7 +4,7 @@
 
 ## 目标
 
-这份文档最初处理 `HeroEffectImplementationRegistry` 中仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合。2026-07-04 已完成前 4 个决策项后，Tavish、Tamsin、Onyxia、Bru'kan 转为 `Implemented`，当前剩余 `FrameworkFirst` 为 31 个。文档继续把剩余项归入四个技术收口类别，并维护一个横切的决策队列：
+这份文档最初处理 `HeroEffectImplementationRegistry` 中仍为 `FrameworkFirst` 的 35 个英雄/宝宝组合。2026-07-04 已完成前 4 个决策项后，Tavish、Tamsin、Onyxia、Bru'kan 转为 `Implemented`；随后 Morchie、Scabbs、Tess 也按当前项目完成标准转为 `Implemented`。本轮继续完成 Galewing、Yogg 与 Deathwing，并把 Loh、Dinotamer Brann 从 Planned 转为 `Implemented`，当前剩余 `FrameworkFirst` 为 24 个。文档继续把剩余项归入四个技术收口类别，并维护一个横切的决策队列：
 
 1. 可直接转正/补测试
 2. 需要战斗事件底座
@@ -14,7 +14,7 @@
 
 前四类是互斥技术归属；第 5 类是横切阻塞项，可能引用前四类里的英雄或机制，用来标记没有你拍板就不该继续推进的地方。
 
-`Planned` 和 `Deferred` 不在本文件范围内。它们分别继续走各自的 P3/P4/P6 计划，例如 Rat King、Vashj、Azshara、Barov、Holmes、Loh、Dinotamer Brann、Mister Clocksworth、Genn。
+`Planned` 和 `Deferred` 不在本文件范围内。2026-07-04 修补后，Loh 与 Dinotamer Brann 已完成；当前剩余主要是战斗事件泛化、真实大厅代理和独立大机制英雄。
 
 ## Confidence Check
 
@@ -31,11 +31,11 @@
 
 | 类别 | 数量 | 收口原则 |
 | --- | ---: | --- |
-| 可直接转正/补测试 | 3 | A1 四个已转 `Implemented`；剩余 Morchie、Galewing、Yogg 继续按数据/测试边界收口。 |
+| 可直接转正/补测试 | 0 | A1 四个已转 `Implemented`；Morchie、Galewing、Yogg 已转 `Implemented`。 |
 | 需要战斗事件底座 | 17 | 先补 CombatEngine 事件源、payload、死亡/召唤/攻击/伤害记录，再逐批收口。 |
-| 需要真大厅代理 | 4 | 单人训练器可继续用快照代理，但 official-complete 要等大厅对手/历史/淘汰状态。 |
+| 需要真大厅代理 | 1 | Bigglesworth 仍需要淘汰/最低血量；Scabbs/Tess 已按单人模拟对手代理转正。Murozond 英雄本体已按 Turn 8 Major Timewarped Tavern 转正，timeline/previous-warband 属于 Timewarped Tavern 牌/数据底座。 |
 | 需要独立大机制 | 7 | Secret、Trinket、Undead Creation、StarCraft 子系统先落地，再迁移英雄代理。 |
-| 需要你决策的 | 1 | 前 4 个决策项已落地；仅 Yogg Wheel 完成标准仍待后续拍板。 |
+| 需要你决策的 | 0 | 前 4 个决策项已落地；Yogg Wheel 已按用户确认的项目五格表作为当前完成标准。 |
 
 ## 1. 可直接转正/补测试
 
@@ -47,15 +47,15 @@
 | Tamsin Roame | 战斗开始给最低攻击随从挂属性共享 Deathrattle，Monstrosity 友方死亡成长已接通。 | 已转 `Implemented`；后续通用 Deathrattle payload 命名/框架增强不阻塞本体状态。 | A1 已完成 |
 | Onyxia | Avenge(4) 召唤 Whelp、立即攻击、Many Whelps 成长已接通。 | 已转 `Implemented`；后续通用 Avenge/立即攻击框架增强不阻塞本体状态。 | A1 已完成 |
 | Bru'kan | 四元素选择、战斗开始调用、Spirit Raptor 记忆/亡语重放已接通。 | 已转 `Implemented`；本地四元素 baseline 被接受为当前完成标准。 | A1 已完成 |
-| Morchie | Turn 5 打开 Minor Timewarped Tavern 已接通。 | 补独立 focused test 和 UI 可见性 smoke；无宝宝映射，完成后可转 `Implemented`。 | A2 |
-| Galewing | 航线选择、延迟完成、不连续重复、Flight Trainer 双触发已接通。 | 需要官方三条航线奖励文本；若继续采用当前明确 proxy 奖励，则保持 `FrameworkFirst`。 | A3 |
-| Yogg-Saron | Puzzle Box Turn 3 起自动施放合法随机 Tavern spell；Acolyte 可见 Wheel proxy 已接通。 | 需要完整 Wheel of Yogg 官方结果表和逐结果效果测试；补齐后转 `Implemented`。 | A3 |
+| Morchie | Turn 5 打开 Minor Timewarped Tavern 已接通，且已有 focused Timewarped Tavern 覆盖。 | 已转 `Implemented`；无宝宝映射。 | A2 已完成 |
+| Galewing | 航线选择、延迟完成、不连续重复、Flight Trainer 双触发和官方三航线奖励已接通。 | 已转 `Implemented`。 | A3 已完成 |
+| Yogg-Saron | Puzzle Box Turn 3 起自动施放合法随机 Tavern spell；Acolyte 项目五格 Wheel 表已接通。 | 已转 `Implemented`；官方 public API 未展开 Wheel 子结果，当前以用户确认表为项目完成标准。 | A3 已完成 |
 
 ### 直接收口执行线
 
 1. A1 批次：Tavish、Tamsin、Onyxia、Bru'kan 已完成状态清理并转 `Implemented`，保留 focused validation 作为回归。
-2. A2 批次：Morchie。检查 Timewarped Tavern 打开/退出/购买已有测试后单独转正。
-3. A3 批次：Galewing、Yogg。先补官方数据表；数据不足时不强转。
+2. A2 批次：Morchie 已完成。Turn 5 Minor Timewarped Tavern 行为已有 focused 覆盖，registry 已单独转正。
+3. A3 批次：Galewing、Yogg 已完成。Galewing 使用 Westfall/Ironforge/Eastern Plaguelands 奖励表；Yogg 使用用户确认的五格 Wheel 表。
 
 ## 2. 需要战斗事件底座
 
@@ -66,7 +66,6 @@
 | Shudderwock | 更广泛官方 Battlecry 覆盖、二级目标选择。 | Battlecry resolver 能表达多目标和失败原因。 |
 | Vol'jin | Master Gadrin 的精确战斗开始左邻 hook。 | 战斗开始 hero/buddy 小顺序和邻位快照。 |
 | Al'Akir | Spirit of Air 仍依赖 Tavern death proxy。 | 战斗 Deathrattle dispatch 到英雄宝宝。 |
-| Deathwing | 对手永久攻击写回缺真实 opponent warband persistence。 | 战斗后双方原始战队回写和对手持久化。 |
 | Illidan Stormrage | 通用友方攻击计数、更完整立即攻击排序。 | 攻击开始/结束事件和 tagged immediate attack 顺序。 |
 | N'Zoth | Fish 收集死亡随从 Deathrattle。 | Deathrattle payload 转移和死亡快照。 |
 | Teron Gorefiend | 精确死亡触发时序。 | 战斗开始摧毁、死亡事件、空位复活 exact copy。 |
@@ -88,7 +87,6 @@
 3. B3：击杀归属和死亡历史，收口 Rafaam、Rokara、Sylvanas、Ini。
 4. B4：Deathrattle payload 和召唤位置，收口 N'Zoth、Sneed、Teron、Jailer、Al'Akir。
 5. B5：伤害/嘲讽监听，收口 Jaraxxus、Greybough。
-6. B6：对手战队永久写回，收口 Deathwing。
 
 ## 3. 需要真大厅代理
 
@@ -97,15 +95,15 @@
 | 英雄 | 当前代理 | official-complete 缺口 | 建议 |
 | --- | --- | --- | --- |
 | Mr. Bigglesworth | 已淘汰玩家战队快照、最低血量/对手代理。 | 真实英雄淘汰事件、最低血量排序、淘汰玩家战队保留。 | 普通英雄技能候选已过滤；本体保留 `FrameworkFirst`，等大厅状态。 |
-| Scabbs Cutterbutter | 当前/上次对手作为“下个对手”代理；宝宝按该对手 Buddy 映射。 | 真实下个对手排程。 | 保留代理；实现 lobby schedule 后转正。 |
-| Tess Greymane | 上次对手战队快照；宝宝按上次对手 Buddy 映射。 | 真实多玩家上一对手历史。 | 保留代理；实现 last opponent history 后转正。 |
-| Murozond, Unbounded | Turn 8 打开 Major Timewarped Tavern 已接通；历史扩展未完成。 | 时间线/对手历史奖励来源。 | Timewarp 开门可单独验收；完整 Murozond 等 history/timeline 状态。 |
+| Scabbs Cutterbutter | 当前/上次对手作为“下个对手”代理；宝宝按该对手 Buddy 映射。 | 真实下个对手排程不作为当前单人训练器完成标准。 | 已按模拟对手代理转 `Implemented`。 |
+| Tess Greymane | 上次对手战队快照；宝宝按上次对手 Buddy 映射。 | 真实多玩家上一对手历史不作为当前单人训练器完成标准。 | 已按模拟对手代理转 `Implemented`。 |
+| Murozond, Unbounded | Turn 8 打开 Major Timewarped Tavern 已接通。 | previous-warband 属于具体 Timewarp 牌/数据效果，不挂在 Murozond 英雄完成度上。 | 已按英雄本体转 `Implemented`；后续放入 Timewarped Tavern 数据底座。 |
 
 ### 真大厅代理执行线
 
 1. C1：定义 `OpponentSnapshotSource`，区分 current opponent、last opponent、next opponent、eliminated opponent、timeline history。
 2. C2：让 UI/debug state 显示代理来源，避免玩家误以为是真实大厅。
-3. C3：先收口 Scabbs/Tess，因为它们已经有稳定快照路径。
+3. C3：Scabbs/Tess 已按稳定模拟对手快照路径收口。
 4. C4：Bigglesworth 等真实淘汰/最低血量系统；Murozond 等 timeline history。
 
 ## 4. 需要独立大机制
@@ -117,7 +115,7 @@
 | Trinket | Marin the Manager | Fantastic Bellhop end-turn helpful card。 | Lesser/Greater Trinket 候选池、选择 UI、槽位、过滤、复制/排除规则。 |
 | Trinket | Buttons | Zippers 通过 Deathrattle/Tavern proxy 给 helpful card。 | Greater Trinket 选择规则和真实 Deathrattle 奖励。 |
 | Secret | The Great Akazamzarak | Street Magician 生成 Better Secret proxy。 | Secret 选择、挂载、触发、移除、战斗时点。 |
-| Custom Undead | Professor Putricide | Festergut 召唤/获得 Undead Creation proxy。 | Undead Creation 组件池、费用、结果随从、关键字/Deathrattle payload。 |
+| Custom Undead | Professor Putricide | 已完成两次三选一组件 Discover、结果随从生成、关键词重复过滤和 Festergut 共用 factory。 | 后续只剩官方组件数值/资源微调；不再阻塞英雄 gameplay 完成度。 |
 | StarCraft Terran | Jim Raynor | Tychus 给 playable Battlecruiser Upgrade。 | Terran/Battlecruiser 实体、升级池、施放规则。 |
 | StarCraft Protoss | Artanis | Probius Magnetic 后让目标 Mech Golden。 | Protoss 奖励轨道、延迟奖励、正式 Magnetize 事件。 |
 | StarCraft Zerg | Kerrigan, Queen of Blades | Broken Horn sell 后发现 6/6 Zerg proxy。 | Zerg 随从池、等级解锁、morph 限制、禁止变形标记。 |
@@ -139,28 +137,28 @@
 | A1 转正标准 | Tavish、Tamsin、Onyxia、Bru'kan | 已决策：允许在 UI polish/通用框架后续加强的情况下转 `Implemented`。 | 已执行：四个 registry 状态转 `Implemented`，focused tests 作为回归标准。 |
 | Bigglesworth 本体代理 | Mr. Bigglesworth / Lil' K.T. | 已决策：普通英雄技能候选直接过滤；本体运行时保留 `FrameworkFirst` 单人代理，不开放为 Nguyen/Cosmic/Timewarped 候选。 | 后续只在真实大厅淘汰/最低血量系统完成后重新评估转正。 |
 | StarCraft 子系统优先级 | Jim Raynor、Kerrigan、Artanis | 已决策：采用 `Jim Raynor -> Kerrigan -> Artanis`。 | 下一步先写/执行 Terran/Battlecruiser 子系统实现文档，再做 Zerg，最后 Protoss。 |
-| Galewing 航线奖励标准 | Galewing / Flight Trainer | 已决策：当前 proxy 奖励不作为 `Implemented` 标准。 | 保持 `FrameworkFirst`，等官方三航线奖励文本或等价可验证数据后再转正。 |
-| Yogg Wheel 完成标准 | Yogg-Saron / Acolyte | 当前共享 Yogg reward set 不转 `Implemented`。 | 是否必须补完整官方 Wheel 表，还是允许项目内结果集作为完成标准。 |
+| Galewing 航线奖励标准 | Galewing / Flight Trainer | 已决策并完成：使用 Westfall/Ironforge/Eastern Plaguelands 奖励表。 | 已转 `Implemented`。 |
+| Yogg Wheel 完成标准 | Yogg-Saron / Acolyte | 已决策并完成：允许用户确认的项目五格 Wheel 表作为当前完成标准。 | 已转 `Implemented`；官方 public API 未展开子结果，保留来源边界说明。 |
 
 ### 决策后动作
 
 1. A1 已允许转正并已更新 registry；后续只补 UI smoke/通用框架增强，不回退状态。
 2. Bigglesworth 不禁用本体运行时，但保持候选过滤；真实大厅系统完成前不转正。
 3. StarCraft 顺序已确认，先写 Terran/Battlecruiser 子系统实现文档，再开始第一个 runtime 批次。
-4. Galewing 不接受当前项目内 proxy 作为完整标准；继续等待官方航线奖励数据。Yogg Wheel 标准仍待后续决策。
+4. Galewing 与 Yogg 本轮已完成：不再以旧 proxy 状态留在 FrameworkFirst 清单中。
 
 ## 推荐总执行顺序
 
 1. A1 直接转正批次已完成：Tavish、Tamsin、Onyxia、Bru'kan。
-2. A2 小批次：Morchie。
+2. A2 小批次已完成：Morchie。
 3. B1-B3 战斗事件底座第一段：attack/kill/death 记录，优先收口 Aranna、Rokara、Rafaam、Ini、Sylvanas。
-4. C1-C3 真大厅代理模型：先收口 Scabbs、Tess。
+4. C1-C3 真大厅代理模型：Scabbs、Tess 已按单人模拟对手代理完成；后续只剩 Bigglesworth。
 5. D1 Trinket：Marin、Buttons。
 6. D2-D4 StarCraft：Jim Raynor -> Kerrigan -> Artanis。
 7. B4-B6 剩余战斗 payload/召唤/伤害/对手写回。
 8. D5 Secret / Custom Undead。
-9. A3 数据补齐：Galewing 官方航线奖励、Yogg 官方 Wheel 表。
+9. A3 数据补齐已完成：Galewing 官方航线奖励、Yogg 项目确认 Wheel 表。
 
 ## 当前需要用户确认的点
 
-前 4 个决策项已处理完成；第 5 节中仅 Yogg Wheel 完成标准仍是下一批开始前的显式决策队列。
+前 5 个决策项已处理完成；当前没有阻塞 FrameworkFirst 收口的横切决策项。
