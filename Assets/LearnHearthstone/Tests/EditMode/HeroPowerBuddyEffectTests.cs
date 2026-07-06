@@ -3674,7 +3674,7 @@ namespace LearnHearthstone.Tests.EditMode
             currentOpponentMinion.TavernTier = 6;
             tess.State.Opponent.Board.Add(currentOpponentMinion);
             tess.State.Opponent.HeroId = "TB_BaconShop_HERO_40";
-            tess.Apply(new GameCommand(GameCommandType.NextTurn));
+            tess.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.IsTrue(tess.State.Player.Tavern.Hand.Any(card => card.CardId == "TB_BaconShop_HERO_90_Buddy"));
             Assert.IsFalse(tess.State.Player.Tavern.Hand.Any(card => card.CardId == "TB_BaconShop_HERO_40_Buddy"));

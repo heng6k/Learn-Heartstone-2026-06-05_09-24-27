@@ -31,7 +31,7 @@ namespace LearnHearthstone.Tests.EditMode
                     AssertStateWithinLimits(service.State, "seed " + seedIndex + " turn " + turn + " start");
 
                     service.Apply(new GameCommand(GameCommandType.DebugAddGold, 20));
-                    if (service.State.Player.Tavern.Tier < TavernRules.MaxTavernTier && turn % 2 == 1)
+                    if (service.State.Player.Tavern.UpgradeCost > 0 && turn % 2 == 1)
                     {
                         service.Apply(new GameCommand(GameCommandType.UpgradeTavern));
                     }

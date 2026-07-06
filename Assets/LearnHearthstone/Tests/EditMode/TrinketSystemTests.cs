@@ -7691,7 +7691,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.OpponentHistory.LastOpponentWarband.Add(CreateTestOpponentMinion("high-test", "High Test", 6, 7, 8));
 
             EquipTrinket(service, "BG30_MagicItem_930");
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             var copied = service.State.Player.Tavern.Hand.SingleOrDefault(card => card.CardId == "high-test");
             Assert.IsNotNull(copied);
