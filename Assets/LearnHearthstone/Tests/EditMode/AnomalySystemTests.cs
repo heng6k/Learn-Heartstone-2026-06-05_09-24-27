@@ -17,8 +17,14 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var catalog = AnomalyCatalogLoader.LoadFromResources();
 
-            Assert.AreEqual(28, catalog.All.Count);
+            Assert.AreEqual(111, catalog.All.Count);
             Assert.AreEqual(28, catalog.GetByPool(AnomalyPoolVersion.CurrentHsReplay).Count);
+            Assert.AreEqual(111, catalog.GetByPool(AnomalyPoolVersion.AllKnown).Count);
+            Assert.AreEqual(83, catalog.All.Count(anomaly => anomaly.ImplementationStatus == AnomalyImplementationStatus.Unsupported));
+            Assert.AreEqual(83, catalog.All.Count(anomaly =>
+                anomaly.Tags.Contains("historical") &&
+                anomaly.Tags.Contains("data_only") &&
+                anomaly.AvailabilityReasons.Contains(AnomalyAvailabilityReason.RequiresOfficialDataReview)));
             Assert.AreEqual(AnomalyImplementationStatus.Implemented, catalog.GetByCardId("BG31_Anomaly_123").ImplementationStatus);
             Assert.AreEqual(AnomalyImplementationStatus.Implemented, catalog.GetByCardId("BG27_Anomaly_711").ImplementationStatus);
             Assert.AreEqual(AnomalyImplementationStatus.Implemented, catalog.GetByCardId("BG27_Anomaly_303").ImplementationStatus);
@@ -52,6 +58,40 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(catalog.GetByCardId("BG27_Anomaly_580").AvailabilityReasons.Contains(AnomalyAvailabilityReason.RequiresSharedLobbyChoice));
             Assert.IsFalse(catalog.GetByCardId("BG27_Anomaly_503").AvailabilityReasons.Contains(AnomalyAvailabilityReason.RequiresSharedLobbyChoice));
             Assert.IsFalse(catalog.GetByCardId("BG27_Anomaly_503").AvailabilityReasons.Contains(AnomalyAvailabilityReason.RequiresYoggWheel));
+            Assert.AreEqual(AnomalyEffectFamily.SinglePlayerChoice, catalog.GetByCardId("BG27_Anomaly_580").EffectFamily);
+            Assert.AreEqual(AnomalyEffectFamily.SinglePlayerChoice, catalog.GetByCardId("BG27_Anomaly_503").EffectFamily);
+            Assert.IsTrue(catalog.GetByCardId("BG27_Anomaly_580").Tags.Contains("single_player_adaptation"));
+            Assert.IsTrue(catalog.GetByCardId("BG27_Anomaly_503").Tags.Contains("single_player_adaptation"));
+            StringAssert.Contains("Local trainer adaptation", catalog.GetByCardId("BG27_Anomaly_580").Notes);
+            StringAssert.Contains("Local trainer adaptation", catalog.GetByCardId("BG27_Anomaly_503").Notes);
+            Assert.IsTrue(catalog.GetByPool(AnomalyPoolVersion.CurrentHsReplay)
+                .Where(anomaly => anomaly.ImplementationStatus == AnomalyImplementationStatus.Implemented)
+                .All(anomaly => anomaly.DbfId > 0));
+        }
+
+        [Test]
+        public void AnomalyCatalog_RejectsUnknownEffectFamily()
+        {
+            var json = @"{
+                ""snapshotDate"": ""2026-07-05"",
+                ""sourceUrl"": """",
+                ""count"": 1,
+                ""anomalies"": [
+                    {
+                        ""id"": ""TEST_ANOMALY"",
+                        ""cardId"": ""TEST_ANOMALY"",
+                        ""name"": ""Test Anomaly"",
+                        ""text"": ""Test."",
+                        ""sourcePools"": [""CurrentHsReplay""],
+                        ""effectFamily"": ""TypoFamily"",
+                        ""implementationStatus"": ""Implemented"",
+                        ""availabilityReasons"": [],
+                        ""tags"": []
+                    }
+                ]
+            }";
+
+            Assert.Throws<InvalidOperationException>(() => AnomalyCatalogLoader.LoadFromJson(json));
         }
 
         [Test]
@@ -104,6 +144,54 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void AnomalySetup_AllKnownKeepsUnsupportedHistoricalEntriesOutOfDefaultOffers()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    EnableAnomalies = true,
+                    RandomizeAnomaly = true,
+                    AnomalyPoolVersion = AnomalyPoolVersion.AllKnown
+                });
+
+            var candidates = service.GetAnomalyCandidateDefinitions().ToList();
+            var offerable = service.GetDefaultOfferableAnomalies().ToList();
+
+            Assert.AreEqual(111, candidates.Count);
+            Assert.AreEqual(28, offerable.Count);
+            Assert.AreEqual(83, candidates.Count(anomaly => anomaly.ImplementationStatus == AnomalyImplementationStatus.Unsupported));
+            Assert.IsTrue(offerable.All(anomaly => anomaly.ImplementationStatus != AnomalyImplementationStatus.Unsupported));
+            CollectionAssert.DoesNotContain(
+                candidates
+                    .Where(anomaly => anomaly.ImplementationStatus == AnomalyImplementationStatus.Unsupported)
+                    .Select(anomaly => anomaly.CardId)
+                    .ToList(),
+                service.State.Player.Tavern.AdvancedMechanics.Anomalies.ActiveCardId);
+        }
+
+        [Test]
+        public void AnomalySetup_SelectedUnsupportedHistoricalAnomalyIsRejected()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    EnableAnomalies = true,
+                    SelectedAnomalyCardId = "BG27_Anomaly_000",
+                    AnomalyPoolVersion = AnomalyPoolVersion.AllKnown
+                });
+
+            var anomalies = service.State.Player.Tavern.AdvancedMechanics.Anomalies;
+
+            Assert.IsTrue(anomalies.Enabled);
+            Assert.IsTrue(string.IsNullOrEmpty(anomalies.ActiveCardId));
+            Assert.IsTrue(service.AnomalyCatalog.GetByCardId("BG27_Anomaly_000").ImplementationStatus == AnomalyImplementationStatus.Unsupported);
+        }
+
+        [Test]
         public void CosmicDuality_DiscoversAndGrantsSecondHeroPower()
         {
             var service = CreateAnomalyService(
@@ -130,6 +218,23 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(primaryHeroPower, player.HeroPowerCardId);
             CollectionAssert.Contains(player.ExtraHeroPowerCardIds, pickedCardId);
             Assert.AreEqual(1, player.ExtraHeroPowerUnlockRounds[pickedCardId]);
+        }
+
+        [Test]
+        public void CosmicDuality_ReportsHeroPowerCandidateImplementationStatuses()
+        {
+            var service = CreateAnomalyService(
+                "BG31_Anomaly_123",
+                new MatchSetupOptions { SelectedHeroCardId = "TB_BaconShop_HERO_34", EnableTrinkets = false });
+            var primaryHeroPower = service.State.Player.HeroPowerCardId;
+            var statuses = service.GetCosmicDualityHeroPowerCandidateImplementationStatuses();
+            var discoverCardIds = service.State.Player.Tavern.Discover.Options.Select(option => option.CardId).ToList();
+
+            Assert.Greater(statuses.Count, 0);
+            Assert.IsTrue(statuses.All(status => status.Source == "anomaly-cosmic-duality"));
+            Assert.IsTrue(statuses.All(status => status.CardId != primaryHeroPower));
+            Assert.IsTrue(statuses.Any(status => status.Status == "Implemented"));
+            Assert.IsTrue(discoverCardIds.All(cardId => statuses.Any(status => status.CardId == cardId)));
         }
 
         [Test]
@@ -582,9 +687,14 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateAnomalyService("BG31_Anomaly_120");
             var scout = service.State.Player.Board.Single(card => card.CardId == "BG24_715");
 
+            Assert.AreEqual("bg24_715", scout.DefinitionId);
             Assert.IsTrue(scout.Golden);
             Assert.AreEqual(2, scout.Attack);
             Assert.AreEqual(2, scout.MaxHealth);
+            Assert.AreEqual(PoolSource.Copy, scout.PoolSource);
+            Assert.AreEqual(0, scout.PoolCopiesHeld);
+            Assert.IsFalse(scout.Tags.Contains("anomaly_proxy"));
+            Assert.IsFalse(string.IsNullOrEmpty(scout.ImagePath));
             Assert.AreEqual(1, scout.Counters["patient-scout-tier"]);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
@@ -1208,6 +1318,24 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(6, tavern.BuddyPool[buddy.CardId]);
                 Assert.AreEqual(6, tavern.BuddyPoolCapacities[buddy.CardId]);
                 Assert.IsFalse(tavern.Pool.ContainsKey(buddy.CardId));
+            }
+        }
+
+        [Test]
+        public void BringInTheBuddies_ReportsBuddyCandidateImplementationStatuses()
+        {
+            var service = CreateAnomalyService("BG27_Anomaly_810");
+            var statuses = service.GetBuddyPoolCandidateImplementationStatuses();
+
+            Assert.Greater(statuses.Count, 0);
+            Assert.IsTrue(statuses.All(status => status.Source == "BuddyPool"));
+            Assert.IsTrue(statuses.Any(status => status.Status == "Implemented"));
+            Assert.IsTrue(statuses.All(status => !string.IsNullOrEmpty(status.CardId)));
+
+            var bigglesworth = statuses.FirstOrDefault(status => status.CardId == "TB_BaconShop_HERO_70_Buddy");
+            if (bigglesworth != null)
+            {
+                Assert.AreEqual("FrameworkFirst", bigglesworth.Status);
             }
         }
 

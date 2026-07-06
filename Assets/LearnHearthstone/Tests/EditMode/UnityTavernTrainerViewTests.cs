@@ -350,6 +350,68 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TribeSelectionView_AnomalyPoolVersionButtonPassesSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-anomaly-version-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAnomalyPoolVersionButton"));
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(AnomalyPoolVersion.CurrentHsReplay, startedWith.AnomalyPoolVersion);
+
+                FindChild(rootObject.transform, "UnityAnomalyPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(AnomalyPoolVersion.Season5AllBg27, startedWith.AnomalyPoolVersion);
+
+                FindChild(rootObject.transform, "UnityAnomalyPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(AnomalyPoolVersion.Season5Launch, startedWith.AnomalyPoolVersion);
+
+                FindChild(rootObject.transform, "UnityAnomalyPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(AnomalyPoolVersion.AllKnown, startedWith.AnomalyPoolVersion);
+
+                FindChild(rootObject.transform, "UnityAnomalyPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(AnomalyPoolVersion.CurrentHsReplay, startedWith.AnomalyPoolVersion);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
         public void TribeSelectionView_AnomalyPickerPassesSelectedSetup()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));

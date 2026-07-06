@@ -31,6 +31,16 @@ namespace LearnHearthstone.Domain.Models
     }
 
     [Serializable]
+    public sealed class CandidateImplementationStatus
+    {
+        public string CardId;
+        public string Name;
+        public string Status;
+        public string Note;
+        public string Source;
+    }
+
+    [Serializable]
     public sealed class SearchTarget
     {
         public string DefinitionId;

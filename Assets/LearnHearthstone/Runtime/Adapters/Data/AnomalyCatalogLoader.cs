@@ -142,6 +142,7 @@ namespace LearnHearthstone.Adapters.Data
         {
             switch (value)
             {
+                case "Unknown": return AnomalyEffectFamily.Unknown;
                 case "Economy": return AnomalyEffectFamily.Economy;
                 case "TavernRefresh": return AnomalyEffectFamily.TavernRefresh;
                 case "MinionPool": return AnomalyEffectFamily.MinionPool;
@@ -155,8 +156,9 @@ namespace LearnHearthstone.Adapters.Data
                 case "TripleRule": return AnomalyEffectFamily.TripleRule;
                 case "CombatRule": return AnomalyEffectFamily.CombatRule;
                 case "SharedLobbyChoice": return AnomalyEffectFamily.SharedLobbyChoice;
+                case "SinglePlayerChoice": return AnomalyEffectFamily.SinglePlayerChoice;
                 case "HeroReplacement": return AnomalyEffectFamily.HeroReplacement;
-                default: return AnomalyEffectFamily.Economy;
+                default: throw new InvalidOperationException("Unknown anomaly effectFamily: " + value);
             }
         }
 

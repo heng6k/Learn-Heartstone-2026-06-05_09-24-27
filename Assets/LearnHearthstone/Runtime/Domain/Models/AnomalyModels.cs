@@ -39,6 +39,7 @@ namespace LearnHearthstone.Domain.Models
 
     public enum AnomalyEffectFamily
     {
+        Unknown,
         Economy,
         TavernRefresh,
         MinionPool,
@@ -52,6 +53,7 @@ namespace LearnHearthstone.Domain.Models
         TripleRule,
         CombatRule,
         SharedLobbyChoice,
+        SinglePlayerChoice,
         HeroReplacement
     }
 

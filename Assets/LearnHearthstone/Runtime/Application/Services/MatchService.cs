@@ -1202,6 +1202,54 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
         }
 
+        public IReadOnlyList<CandidateImplementationStatus> GetBuddyPoolCandidateImplementationStatuses()
+        {
+            return DiscoverableBuddyDefinitions()
+                .OrderBy(buddy => buddy.Name)
+                .ThenBy(buddy => buddy.CardId)
+                .Select(buddy =>
+                {
+                    var implementation = HeroEffectImplementationRegistry.FindByBuddyCardId(buddy.CardId);
+                    return new CandidateImplementationStatus
+                    {
+                        CardId = buddy.CardId,
+                        Name = buddy.Name,
+                        Status = implementation.Status.ToString(),
+                        Note = implementation.Note,
+                        Source = "BuddyPool"
+                    };
+                })
+                .ToList();
+        }
+
+        public IReadOnlyList<CandidateImplementationStatus> GetCosmicDualityHeroPowerCandidateImplementationStatuses()
+        {
+            if (heroCatalog == null || State?.Player == null)
+            {
+                return new List<CandidateImplementationStatus>();
+            }
+
+            var owned = new HashSet<string>(State.Player.ExtraHeroPowerCardIds ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            owned.Add(State.Player.HeroPowerCardId ?? string.Empty);
+            return heroCatalog.GetOfferableDiscoverableHeroPowers(State.Player.HeroPowerCardId)
+                .Where(power => power != null && !owned.Contains(power.CardId))
+                .OrderBy(power => power.Name)
+                .ThenBy(power => power.CardId)
+                .Select(power =>
+                {
+                    var implementation = HeroEffectImplementationRegistry.FindByHeroPowerCardId(power.CardId);
+                    return new CandidateImplementationStatus
+                    {
+                        CardId = power.CardId,
+                        Name = power.Name,
+                        Status = implementation.Status.ToString(),
+                        Note = implementation.Note,
+                        Source = CosmicDualityDiscoverSource
+                    };
+                })
+                .ToList();
+        }
+
         public bool IsMinionAllowedByCardPool(MinionDefinition minion)
         {
             return cardPoolAvailability.AllowsMinion(minion);
@@ -1814,7 +1862,8 @@ namespace LearnHearthstone.Application.Services
 
             if (!string.IsNullOrEmpty(selectedAnomalyCardId))
             {
-                return anomalyCatalog.TryGetByCardId(selectedAnomalyCardId, out var selected)
+                return anomalyCatalog.TryGetByCardId(selectedAnomalyCardId, out var selected) &&
+                    IsAnomalyDefaultOfferable(selected)
                     ? selected
                     : null;
             }
@@ -2113,19 +2162,20 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var scout = CreateProxyMinion(
-                PatientScoutCardId,
-                "Patient Scout",
-                "When you sell this, Discover a Tier 1 minion. (Improves each turn!)",
-                1,
-                1,
-                1,
+            var scoutDefinition = catalog.GetByCardId(PatientScoutCardId);
+            var scout = MinionFactory.Create(
+                scoutDefinition,
+                BoardSide.Player,
                 "scouts-honor-" + State.Round,
-                new[] { Tribe.None });
-            scout.Tags.Remove("trinket_proxy");
-            scout.Tags.Add("anomaly_proxy");
+                true,
+                PoolSource.Copy,
+                0);
+            if (!scout.Tags.Contains("anomaly_generated_minion"))
+            {
+                scout.Tags.Add("anomaly_generated_minion");
+            }
+
             scout.Counters[PatientScoutTierCounter] = 1;
-            MakeGoldenInPlace(scout);
             State.Player.Board.Add(scout);
             BoardTribeAnalyzer.Refresh(State.Player);
             AddRecruitLog(RecruitLogType.Play, "Scout's Honor: summoned a Golden Patient Scout.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);

@@ -58,6 +58,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool enableAnomalies;
         private bool randomizeAnomaly = true;
         private string selectedAnomalyCardId;
+        private AnomalyPoolVersion anomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay;
         private bool showProxySafe = true;
         private bool showDebugOnly;
         private bool showHiddenEffectOnly;
@@ -455,12 +456,63 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 20f : 22f);
 
+            var anomalyPool = ActionButton("UnityAnomalyPoolVersionButton", strip.transform, AnomalyPoolVersionButtonText(), true, () =>
+            {
+                AdvanceAnomalyPoolVersion();
+                if (!string.IsNullOrEmpty(selectedAnomalyCardId) && !IsAnomalySelectable(CurrentAnomaly()))
+                {
+                    selectedAnomalyCardId = null;
+                    randomizeAnomaly = true;
+                }
+
+                Build();
+            });
+            UnityTavernUiStyle.SetFixedSize(anomalyPool.gameObject, layout.IsCompact ? 112f : 132f, layout.IsCompact ? 42f : 46f);
+            if (anomalyPoolVersion != AnomalyPoolVersion.CurrentHsReplay)
+            {
+                UnityTavernUiStyle.EnsureComponent<Image>(anomalyPool.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.24f);
+            }
+
             var open = ActionButton("UnityCardPoolVersionOpenButton", strip.transform, "编辑卡池", true, () =>
             {
                 versionModalOpen = true;
                 Build();
             });
             UnityTavernUiStyle.SetFixedSize(open.gameObject, layout.IsCompact ? 108f : 128f, layout.IsCompact ? 42f : 46f);
+        }
+
+        private void AdvanceAnomalyPoolVersion()
+        {
+            switch (anomalyPoolVersion)
+            {
+                case AnomalyPoolVersion.CurrentHsReplay:
+                    anomalyPoolVersion = AnomalyPoolVersion.Season5AllBg27;
+                    break;
+                case AnomalyPoolVersion.Season5AllBg27:
+                    anomalyPoolVersion = AnomalyPoolVersion.Season5Launch;
+                    break;
+                case AnomalyPoolVersion.Season5Launch:
+                    anomalyPoolVersion = AnomalyPoolVersion.AllKnown;
+                    break;
+                default:
+                    anomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay;
+                    break;
+            }
+        }
+
+        private string AnomalyPoolVersionButtonText()
+        {
+            switch (anomalyPoolVersion)
+            {
+                case AnomalyPoolVersion.Season5AllBg27:
+                    return "异常: S5全";
+                case AnomalyPoolVersion.Season5Launch:
+                    return "异常: S5初";
+                case AnomalyPoolVersion.AllKnown:
+                    return "异常: 全池";
+                default:
+                    return "异常: 当前";
+            }
         }
 
         private void BuildHeroSummaryStrip(Transform parent)
@@ -1727,7 +1779,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 EnableAnomalies = enableAnomalies,
                 RandomizeAnomaly = shouldRandomizeAnomaly,
                 SelectedAnomalyCardId = resolvedSelectedAnomalyCardId,
-                AnomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay,
+                AnomalyPoolVersion = anomalyPoolVersion,
                 ShowProxySafe = showProxySafe,
                 ShowDebugOnly = showDebugOnly,
                 ShowHiddenEffectOnly = showHiddenEffectOnly,
@@ -1768,7 +1820,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return anomalyCatalog
-                .GetByPool(AnomalyPoolVersion.CurrentHsReplay)
+                .GetByPool(anomalyPoolVersion)
                 .Where(IsAnomalySelectable)
                 .OrderBy(anomaly => anomaly.Name)
                 .ThenBy(anomaly => anomaly.CardId);
@@ -1779,7 +1831,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (definition == null ||
                 string.IsNullOrEmpty(definition.CardId) ||
                 definition.SourcePools == null ||
-                !definition.SourcePools.Contains(AnomalyPoolVersion.CurrentHsReplay))
+                !definition.SourcePools.Contains(anomalyPoolVersion))
             {
                 return false;
             }
