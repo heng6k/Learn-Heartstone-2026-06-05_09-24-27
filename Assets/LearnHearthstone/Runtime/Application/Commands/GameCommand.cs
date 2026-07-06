@@ -20,6 +20,9 @@ namespace LearnHearthstone.Application.Commands
         UseHeroPower,
         ChooseDiscover,
         ChooseMechanicOption,
+        ChoosePlayerDirectedQuestPair,
+        ChoosePlayerDirectedTrinket,
+        ChoosePlayerDirectedSecondHeroPower,
         NextTurn,
         DebugAddGold,
         DebugOfferLesserTrinkets,
@@ -182,6 +185,15 @@ namespace LearnHearthstone.Application.Commands
             TargetIndex = targetIndex;
         }
 
+        public GameCommand(GameCommandType type, string cardId, string secondaryCardId, CardKind cardKind, int targetIndex = -1)
+        {
+            Type = type;
+            CardId = cardId;
+            SecondaryCardId = secondaryCardId;
+            CardKind = cardKind;
+            TargetIndex = targetIndex;
+        }
+
         public GameCommand(GameCommandType type, string cardId, CardKind cardKind, bool flag)
         {
             Type = type;
@@ -235,6 +247,7 @@ namespace LearnHearthstone.Application.Commands
         public string HeroPowerCardId { get; }
         public string InstanceId { get; }
         public string CardId { get; }
+        public string SecondaryCardId { get; }
         public CardKind CardKind { get; }
         public string ScenarioName { get; }
         public CombatTestOptions CombatTestOptions { get; }

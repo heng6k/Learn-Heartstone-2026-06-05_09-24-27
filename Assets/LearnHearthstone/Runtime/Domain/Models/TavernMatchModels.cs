@@ -19,6 +19,7 @@ namespace LearnHearthstone.Domain.Models
         public bool ShowDebugOnly = false;
         public bool ShowHiddenEffectOnly = false;
         public bool ShowDisabled = false;
+        public bool EnablePlayerDirectedChoices = true;
         public bool UseHistoricalTimewarpedPool = false;
         public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
         public bool EnableAnomalies = false;

@@ -119,6 +119,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool advancedCardLibraryOpen;
         private AdvancedCardLibrarySelectionKind advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.QuestReward;
         private int advancedCardLibraryQuestIndex;
+        private bool playerDirectedChoiceOpen;
+        private PlayerDirectedChoiceKind playerDirectedChoiceKind = PlayerDirectedChoiceKind.QuestPair;
+        private TrinketSlotKind playerDirectedTrinketSlotKind = TrinketSlotKind.Lesser;
+        private string playerDirectedSearchText = string.Empty;
+        private int playerDirectedSelectableFilter;
+        private int playerDirectedCostFilter;
+        private string playerDirectedSlotFilter = string.Empty;
+        private string playerDirectedTagFilter = string.Empty;
 
         public void Initialize(MatchService matchService, IAdvisorService advisorService, Action backAction, Action legacyAction)
         {
@@ -195,6 +203,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (service.State.Player.Tavern.AdvancedMechanics?.PendingChoice != null)
             {
                 BuildAdvancedMechanicChoiceModal();
+            }
+
+            if (playerDirectedChoiceOpen)
+            {
+                BuildPlayerDirectedChoiceModal();
             }
 
             if (!string.IsNullOrEmpty(lastError))
@@ -4101,10 +4114,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panelLayout.childForceExpandWidth = true;
             panelLayout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityAdvancedMechanicChoiceTitle", panel.transform, AdvancedMechanicChoiceTitle(request), 20, FontStyle.Bold);
+            var header = Panel("UnityAdvancedMechanicChoiceHeader", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(header, 40f);
+            var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
+            headerLayout.spacing = 10;
+            headerLayout.childAlignment = TextAnchor.MiddleCenter;
+            headerLayout.childControlWidth = true;
+            headerLayout.childControlHeight = true;
+            headerLayout.childForceExpandWidth = false;
+            headerLayout.childForceExpandHeight = true;
+
+            var title = UiFactory.Label("UnityAdvancedMechanicChoiceTitle", header.transform, AdvancedMechanicChoiceTitle(request), 20, FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
             title.color = UnityTavernUiStyle.Text;
-            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 32f);
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            if (CanOpenPlayerDirectedChoice(request))
+            {
+                ActionButton(
+                    "UnityPlayerDirectedChoiceButton-" + request.Kind,
+                    header.transform,
+                    "自由选择",
+                    () => OpenPlayerDirectedChoice(request),
+                    92f,
+                    34f,
+                    false,
+                    UnityTavernActionButtonRole.Utility);
+            }
 
             var options = Panel("UnityAdvancedMechanicChoiceOptions", panel.transform, Color.clear);
             UnityTavernUiStyle.SetFlexible(options, 1f, 1f);
@@ -4227,6 +4263,594 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 : "Choose a Lesser Trinket";
         }
 
+        private bool CanOpenPlayerDirectedChoice(MechanicChoiceRequest request)
+        {
+            return service.PlayerDirectedChoicesEnabled &&
+                   request != null &&
+                   (request.Kind == AdvancedMechanicKind.Quest || request.Kind == AdvancedMechanicKind.Trinket);
+        }
+
+        private void OpenPlayerDirectedChoice(MechanicChoiceRequest request)
+        {
+            if (!CanOpenPlayerDirectedChoice(request))
+            {
+                return;
+            }
+
+            ResetPlayerDirectedChoiceFilters();
+            playerDirectedChoiceKind = request.Kind == AdvancedMechanicKind.Quest
+                ? PlayerDirectedChoiceKind.QuestPair
+                : PlayerDirectedChoiceKind.Trinket;
+            playerDirectedTrinketSlotKind = ParseUiTrinketSlotKind(request.Slot);
+            playerDirectedChoiceOpen = true;
+            Rebuild();
+        }
+
+        private void OpenSecondHeroPowerDirectedChoice()
+        {
+            if (!service.HasPlayerDirectedSecondHeroPowerChoice())
+            {
+                return;
+            }
+
+            ResetPlayerDirectedChoiceFilters();
+            playerDirectedChoiceKind = PlayerDirectedChoiceKind.SecondHeroPower;
+            playerDirectedChoiceOpen = true;
+            Rebuild();
+        }
+
+        private void ResetPlayerDirectedChoiceFilters()
+        {
+            playerDirectedSearchText = string.Empty;
+            playerDirectedSelectableFilter = 0;
+            playerDirectedCostFilter = 0;
+            playerDirectedSlotFilter = string.Empty;
+            playerDirectedTagFilter = string.Empty;
+        }
+
+        private void BuildPlayerDirectedChoiceModal()
+        {
+            var allOptions = PlayerDirectedChoiceOptions();
+            var visible = allOptions
+                .Where(PlayerDirectedChoiceMatchesFilters)
+                .Where(PlayerDirectedChoiceMatchesSearch)
+                .Take(160)
+                .ToList();
+
+            var overlay = Panel("UnityPlayerDirectedChoiceOverlay", transform, new Color(0f, 0f, 0f, 0.68f));
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            overlay.GetComponent<Image>().raycastTarget = true;
+            overlay.transform.SetAsLastSibling();
+
+            var layoutContext = UnityTavernLayoutContext.Current();
+            var panel = Panel("UnityPlayerDirectedChoicePanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            ConfigureInspectorSurface(panel, playerDirectedChoiceKind == PlayerDirectedChoiceKind.Trinket ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue, 0.32f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(layoutContext.IsCompact ? 650f : 900f, layoutContext.IsCompact ? 520f : 610f);
+            rect.anchoredPosition = Vector2.zero;
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(16, 16, 14, 16);
+            panelLayout.spacing = 10;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            BuildPlayerDirectedChoiceHeader(panel.transform, visible.Count, allOptions.Count, allOptions);
+
+            var list = UiFactory.ScrollView("UnityPlayerDirectedChoiceScroll", panel.transform, UnityTavernUiStyle.PanelQuiet, out _);
+            UnityTavernUiStyle.SetFlexible(list.gameObject, 1f, 1f);
+            var listLayout = list.gameObject.AddComponent<VerticalLayoutGroup>();
+            listLayout.padding = new RectOffset(10, 10, 10, 10);
+            listLayout.spacing = 8;
+            listLayout.childControlWidth = true;
+            listLayout.childControlHeight = true;
+            listLayout.childForceExpandWidth = true;
+            listLayout.childForceExpandHeight = false;
+
+            if (visible.Count == 0)
+            {
+                var empty = UiFactory.Label("UnityPlayerDirectedChoiceEmpty", list, "No selectable options under the current filters.", 14, FontStyle.Bold);
+                empty.alignment = TextAnchor.MiddleCenter;
+                empty.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.SetPreferredHeight(empty.gameObject, 74f);
+                return;
+            }
+
+            for (var index = 0; index < visible.Count; index += 1)
+            {
+                BuildPlayerDirectedChoiceRow(list, visible[index], index);
+            }
+        }
+
+        private void BuildPlayerDirectedChoiceHeader(
+            Transform parent,
+            int visibleCount,
+            int totalCount,
+            IReadOnlyList<PlayerDirectedChoiceOption> allOptions)
+        {
+            var header = Panel("UnityPlayerDirectedChoiceHeader", parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(header, playerDirectedChoiceKind == PlayerDirectedChoiceKind.Trinket ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue, 0.22f);
+            UnityTavernUiStyle.SetPreferredHeight(header, 176f);
+            var layout = header.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 8, 8);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var top = Panel("UnityPlayerDirectedChoiceHeaderTop", header.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(top, 34f);
+            var topLayout = top.AddComponent<HorizontalLayoutGroup>();
+            topLayout.spacing = 8;
+            topLayout.childControlWidth = true;
+            topLayout.childControlHeight = true;
+            topLayout.childForceExpandWidth = false;
+            topLayout.childForceExpandHeight = true;
+
+            var title = UiFactory.Label("UnityPlayerDirectedChoiceTitle", top.transform, PlayerDirectedChoiceTitle(), 18, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            var count = UiFactory.Label("UnityPlayerDirectedChoiceCount", top.transform, visibleCount + " / " + totalCount, 12, FontStyle.Bold);
+            count.color = UnityTavernUiStyle.MutedText;
+            count.alignment = TextAnchor.MiddleRight;
+            UnityTavernUiStyle.SetFixedSize(count.gameObject, 90f, 30f);
+
+            ActionButton(
+                "UnityPlayerDirectedChoiceCloseButton",
+                top.transform,
+                "Close",
+                ClosePlayerDirectedChoice,
+                68f,
+                30f,
+                false,
+                UnityTavernActionButtonRole.Neutral);
+
+            var searchObject = new GameObject("UnityPlayerDirectedChoiceSearchInput", typeof(RectTransform), typeof(Image), typeof(InputField));
+            searchObject.transform.SetParent(header.transform, false);
+            UnityTavernUiStyle.SetPreferredHeight(searchObject, 34f);
+            searchObject.GetComponent<Image>().color = UnityTavernUiStyle.PanelQuiet;
+            var input = searchObject.GetComponent<InputField>();
+            input.textComponent = UiFactory.Label("UnityPlayerDirectedChoiceSearchText", searchObject.transform, string.Empty, 13);
+            input.textComponent.alignment = TextAnchor.MiddleLeft;
+            input.textComponent.rectTransform.offsetMin = new Vector2(10f, 0f);
+            input.textComponent.rectTransform.offsetMax = new Vector2(-10f, 0f);
+            input.placeholder = UiFactory.Label("UnityPlayerDirectedChoiceSearchPlaceholder", searchObject.transform, "Search name or CardId", 13);
+            input.placeholder.color = UnityTavernUiStyle.MutedText;
+            input.placeholder.rectTransform.offsetMin = new Vector2(10f, 0f);
+            input.placeholder.rectTransform.offsetMax = new Vector2(-10f, 0f);
+            input.text = playerDirectedSearchText;
+            input.onEndEdit.AddListener(value =>
+            {
+                playerDirectedSearchText = value ?? string.Empty;
+                Rebuild();
+            });
+
+            BuildPlayerDirectedChoiceFilters(header.transform, allOptions);
+        }
+
+        private void BuildPlayerDirectedChoiceFilters(Transform parent, IReadOnlyList<PlayerDirectedChoiceOption> allOptions)
+        {
+            var filters = Panel("UnityPlayerDirectedChoiceFilters", parent, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(filters, 70f);
+            var layout = filters.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var row = Panel("UnityPlayerDirectedChoiceFilterRow", filters.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(row, 32f);
+            var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.spacing = 6;
+            rowLayout.childControlWidth = false;
+            rowLayout.childControlHeight = true;
+            rowLayout.childForceExpandWidth = false;
+            rowLayout.childForceExpandHeight = true;
+
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterStatusAll", row.transform, "全部", playerDirectedSelectableFilter == 0, 54f, () =>
+            {
+                playerDirectedSelectableFilter = 0;
+                Rebuild();
+            });
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterStatusSelectable", row.transform, "可选", playerDirectedSelectableFilter == 1, 54f, () =>
+            {
+                playerDirectedSelectableFilter = 1;
+                Rebuild();
+            });
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterStatusBlocked", row.transform, "不可选", playerDirectedSelectableFilter == 2, 64f, () =>
+            {
+                playerDirectedSelectableFilter = 2;
+                Rebuild();
+            });
+
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterCostAll", row.transform, "费用", playerDirectedCostFilter == 0, 54f, () =>
+            {
+                playerDirectedCostFilter = 0;
+                Rebuild();
+            });
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterCostFree", row.transform, "0", playerDirectedCostFilter == 1, 42f, () =>
+            {
+                playerDirectedCostFilter = 1;
+                Rebuild();
+            });
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterCostLow", row.transform, "1-3", playerDirectedCostFilter == 2, 48f, () =>
+            {
+                playerDirectedCostFilter = 2;
+                Rebuild();
+            });
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterCostHigh", row.transform, "4+", playerDirectedCostFilter == 3, 48f, () =>
+            {
+                playerDirectedCostFilter = 3;
+                Rebuild();
+            });
+
+            var slots = allOptions == null
+                ? new List<string>()
+                : allOptions
+                    .Select(option => option?.Slot)
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(value => value)
+                    .ToList();
+            if (slots.Count > 0)
+            {
+                PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterSlotAll", row.transform, "槽位", string.IsNullOrEmpty(playerDirectedSlotFilter), 54f, () =>
+                {
+                    playerDirectedSlotFilter = string.Empty;
+                    Rebuild();
+                });
+
+                foreach (var slot in slots.Take(3))
+                {
+                    var capturedSlot = slot;
+                    PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterSlot" + SafeObjectName(slot), row.transform, slot, string.Equals(playerDirectedSlotFilter, slot, StringComparison.OrdinalIgnoreCase), 68f, () =>
+                    {
+                        playerDirectedSlotFilter = capturedSlot;
+                        Rebuild();
+                    });
+                }
+            }
+
+            var tagRow = Panel("UnityPlayerDirectedChoiceTagFilterRow", filters.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(tagRow, 32f);
+            var tagLayout = tagRow.AddComponent<HorizontalLayoutGroup>();
+            tagLayout.spacing = 6;
+            tagLayout.childControlWidth = false;
+            tagLayout.childControlHeight = true;
+            tagLayout.childForceExpandWidth = false;
+            tagLayout.childForceExpandHeight = true;
+
+            PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterTagAll", tagRow.transform, "全部标签", string.IsNullOrEmpty(playerDirectedTagFilter), 78f, () =>
+            {
+                playerDirectedTagFilter = string.Empty;
+                Rebuild();
+            });
+
+            var tags = PlayerDirectedVisibleFilterTags(allOptions);
+            foreach (var tag in tags.Take(7))
+            {
+                var capturedTag = tag;
+                PlayerDirectedFilterButton("UnityPlayerDirectedChoiceFilterTag" + SafeObjectName(tag), tagRow.transform, PlayerDirectedFilterTagLabel(tag), string.Equals(playerDirectedTagFilter, tag, StringComparison.OrdinalIgnoreCase), 92f, () =>
+                {
+                    playerDirectedTagFilter = capturedTag;
+                    Rebuild();
+                });
+            }
+        }
+
+        private Button PlayerDirectedFilterButton(string name, Transform parent, string text, bool active, float width, Action onClick)
+        {
+            return LibraryFilterButton(name, parent, text, active, width, onClick);
+        }
+
+        private void BuildPlayerDirectedChoiceRow(Transform parent, PlayerDirectedChoiceOption option, int index)
+        {
+            var row = Panel("UnityPlayerDirectedChoiceOption-" + index + "-" + SafeObjectName(option.CardId + "-" + option.SecondaryCardId), parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(row, option.IsSelectable ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Red, 0.16f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 86f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 6);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            BuildMechanicChoiceImage(row.transform, option.ImagePath, option.CardId, PlayerDirectedCardKind(option), 52f, 72f);
+
+            var details = Panel("UnityPlayerDirectedChoiceDetails", row.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(details, 1f, 0f);
+            var detailsLayout = details.AddComponent<VerticalLayoutGroup>();
+            detailsLayout.spacing = 3;
+            detailsLayout.childControlWidth = true;
+            detailsLayout.childControlHeight = true;
+            detailsLayout.childForceExpandWidth = true;
+            detailsLayout.childForceExpandHeight = false;
+
+            var nameText = option.DisplayName + (string.IsNullOrWhiteSpace(option.SecondaryDisplayName) ? string.Empty : " + " + option.SecondaryDisplayName);
+            var name = UiFactory.Label("UnityPlayerDirectedChoiceName", details.transform, nameText, 13, FontStyle.Bold);
+            name.color = UnityTavernUiStyle.Text;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 20f);
+
+            var metaText = option.CardId + (string.IsNullOrWhiteSpace(option.SecondaryCardId) ? string.Empty : " / " + option.SecondaryCardId);
+            var meta = UiFactory.Label("UnityPlayerDirectedChoiceMeta", details.transform, metaText + "  " + option.Status, 10, FontStyle.Normal);
+            meta.color = UnityTavernUiStyle.MutedText;
+            meta.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(meta.gameObject, 18f);
+
+            var text = UiFactory.Label(
+                "UnityPlayerDirectedChoiceText",
+                details.transform,
+                string.IsNullOrWhiteSpace(option.DisabledReason) ? CleanCardText(option.Text) : option.DisabledReason,
+                10,
+                option.IsSelectable ? FontStyle.Normal : FontStyle.Bold);
+            text.color = option.IsSelectable ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Red;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 34f);
+
+            var buttonName = index == 0 ? "UnityPlayerDirectedChoiceSelectButton" : "UnityPlayerDirectedChoiceSelectButton-" + SafeObjectName(option.CardId + "-" + option.SecondaryCardId);
+            ActionButton(
+                buttonName,
+                row.transform,
+                option.IsSelectable ? "Choose" : "Blocked",
+                () => ApplyPlayerDirectedChoice(option),
+                82f,
+                32f,
+                false,
+                option.IsSelectable ? UnityTavernActionButtonRole.Primary : UnityTavernActionButtonRole.Danger,
+                option.IsSelectable);
+        }
+
+        private List<PlayerDirectedChoiceOption> PlayerDirectedChoiceOptions()
+        {
+            switch (playerDirectedChoiceKind)
+            {
+                case PlayerDirectedChoiceKind.Trinket:
+                    return service.GetPlayerSelectableTrinkets(playerDirectedTrinketSlotKind).ToList();
+                case PlayerDirectedChoiceKind.SecondHeroPower:
+                    return service.GetPlayerSelectableSecondHeroPowers().ToList();
+                default:
+                    var request = service.State.Player.Tavern.AdvancedMechanics?.PendingChoice;
+                    return service.GetPlayerSelectableQuestPairs(new PlayerDirectedChoiceContext
+                    {
+                        Kind = PlayerDirectedChoiceKind.QuestPair,
+                        Source = request?.Source,
+                        Slot = request?.Slot,
+                        Round = service.State.Round
+                    }).ToList();
+            }
+        }
+
+        private bool PlayerDirectedChoiceMatchesSearch(PlayerDirectedChoiceOption option)
+        {
+            if (option == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(playerDirectedSearchText))
+            {
+                return true;
+            }
+
+            var query = playerDirectedSearchText.Trim();
+            return ContainsIgnoreCase(option.DisplayName, query) ||
+                   ContainsIgnoreCase(option.SecondaryDisplayName, query) ||
+                   ContainsIgnoreCase(option.CardId, query) ||
+                   ContainsIgnoreCase(option.SecondaryCardId, query) ||
+                   ContainsIgnoreCase(option.Type, query) ||
+                   ContainsIgnoreCase(option.Status, query) ||
+                   ContainsIgnoreCase(option.Slot, query) ||
+                   ContainsIgnoreCase(option.PowerLevel, query) ||
+                   ContainsIgnoreCase(option.Timing, query) ||
+                   ContainsIgnoreCase(option.Text, query);
+        }
+
+        private bool PlayerDirectedChoiceMatchesFilters(PlayerDirectedChoiceOption option)
+        {
+            if (option == null)
+            {
+                return false;
+            }
+
+            if (playerDirectedSelectableFilter == 1 && !option.IsSelectable)
+            {
+                return false;
+            }
+
+            if (playerDirectedSelectableFilter == 2 && option.IsSelectable)
+            {
+                return false;
+            }
+
+            switch (playerDirectedCostFilter)
+            {
+                case 1:
+                    if (option.Cost != 0)
+                    {
+                        return false;
+                    }
+
+                    break;
+                case 2:
+                    if (option.Cost < 1 || option.Cost > 3)
+                    {
+                        return false;
+                    }
+
+                    break;
+                case 3:
+                    if (option.Cost < 4)
+                    {
+                        return false;
+                    }
+
+                    break;
+            }
+
+            if (!string.IsNullOrWhiteSpace(playerDirectedSlotFilter) &&
+                !string.Equals(option.Slot, playerDirectedSlotFilter, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(playerDirectedTagFilter))
+            {
+                return option.FilterTags != null &&
+                       option.FilterTags.Any(tag => string.Equals(tag, playerDirectedTagFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return true;
+        }
+
+        private static List<string> PlayerDirectedVisibleFilterTags(IReadOnlyList<PlayerDirectedChoiceOption> options)
+        {
+            if (options == null)
+            {
+                return new List<string>();
+            }
+
+            return options
+                .Where(option => option?.FilterTags != null)
+                .SelectMany(option => option.FilterTags)
+                .Where(PlayerDirectedFilterTagIsUseful)
+                .GroupBy(tag => tag, StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(group => group.Count())
+                .ThenBy(group => PlayerDirectedFilterTagLabel(group.Key))
+                .Select(group => group.Key)
+                .ToList();
+        }
+
+        private static bool PlayerDirectedFilterTagIsUseful(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                return false;
+            }
+
+            if (Enum.TryParse(tag, true, out Tribe tribe) && tribe != Tribe.All)
+            {
+                return true;
+            }
+
+            return tag.StartsWith("power:", StringComparison.OrdinalIgnoreCase) ||
+                   tag.StartsWith("timing:", StringComparison.OrdinalIgnoreCase) ||
+                   tag.StartsWith("category:", StringComparison.OrdinalIgnoreCase) ||
+                   tag.StartsWith("race:", StringComparison.OrdinalIgnoreCase) ||
+                   tag.StartsWith("requires:", StringComparison.OrdinalIgnoreCase) ||
+                   tag.IndexOf("trigger", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   tag.IndexOf("combat", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   tag.IndexOf("economy", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   tag.IndexOf("discover", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   tag.IndexOf("buff", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string PlayerDirectedFilterTagLabel(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                return string.Empty;
+            }
+
+            var value = tag;
+            var separator = tag.IndexOf(':');
+            if (separator >= 0 && separator + 1 < tag.Length)
+            {
+                value = tag.Substring(separator + 1);
+            }
+
+            return value.Replace("_", " ");
+        }
+
+        private void ApplyPlayerDirectedChoice(PlayerDirectedChoiceOption option)
+        {
+            if (option == null || !option.IsSelectable)
+            {
+                return;
+            }
+
+            playerDirectedChoiceOpen = false;
+            switch (option.Kind)
+            {
+                case PlayerDirectedChoiceKind.Trinket:
+                    Apply(new GameCommand(
+                        GameCommandType.ChoosePlayerDirectedTrinket,
+                        option.CardId,
+                        CardKind.Trinket,
+                        string.Equals(option.Slot, "Greater", StringComparison.OrdinalIgnoreCase) ? 1 : 0));
+                    break;
+                case PlayerDirectedChoiceKind.SecondHeroPower:
+                    Apply(new GameCommand(GameCommandType.ChoosePlayerDirectedSecondHeroPower, option.CardId, CardKind.HeroPower));
+                    break;
+                default:
+                    Apply(new GameCommand(
+                        GameCommandType.ChoosePlayerDirectedQuestPair,
+                        option.CardId,
+                        option.SecondaryCardId,
+                        CardKind.Quest,
+                        string.Equals(option.Slot, "Bonus", StringComparison.OrdinalIgnoreCase) ? 1 : 0));
+                    break;
+            }
+        }
+
+        private void ClosePlayerDirectedChoice()
+        {
+            playerDirectedChoiceOpen = false;
+            playerDirectedSearchText = string.Empty;
+            Rebuild();
+        }
+
+        private string PlayerDirectedChoiceTitle()
+        {
+            switch (playerDirectedChoiceKind)
+            {
+                case PlayerDirectedChoiceKind.Trinket:
+                    return "自由选择 " + playerDirectedTrinketSlotKind + " Trinket";
+                case PlayerDirectedChoiceKind.SecondHeroPower:
+                    return "自由选择 Second Hero Power";
+                default:
+                    return "自由选择 Quest + Reward";
+            }
+        }
+
+        private static CardKind PlayerDirectedCardKind(PlayerDirectedChoiceOption option)
+        {
+            switch (option.Kind)
+            {
+                case PlayerDirectedChoiceKind.Trinket:
+                    return CardKind.Trinket;
+                case PlayerDirectedChoiceKind.SecondHeroPower:
+                    return CardKind.HeroPower;
+                default:
+                    return CardKind.Quest;
+            }
+        }
+
+        private static TrinketSlotKind ParseUiTrinketSlotKind(string slot)
+        {
+            return string.Equals(slot, "Greater", StringComparison.OrdinalIgnoreCase)
+                ? TrinketSlotKind.Greater
+                : TrinketSlotKind.Lesser;
+        }
+
+        private static bool ContainsIgnoreCase(string source, string query)
+        {
+            return !string.IsNullOrEmpty(source) &&
+                   !string.IsNullOrEmpty(query) &&
+                   source.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         private static string CleanCardText(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -4242,6 +4866,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildDiscoverOptions(Transform parent)
         {
             var options = service.State.Player.Tavern.Discover.Options;
+            if (service.HasPlayerDirectedSecondHeroPowerChoice())
+            {
+                ActionButton(
+                    "UnityPlayerDirectedChoiceButton-SecondHeroPower",
+                    parent,
+                    "自由选择",
+                    OpenSecondHeroPowerDirectedChoice,
+                    0f,
+                    38f,
+                    true,
+                    UnityTavernActionButtonRole.Utility);
+            }
+
             for (var index = 0; index < options.Count; index += 1)
             {
                 var optionIndex = index;

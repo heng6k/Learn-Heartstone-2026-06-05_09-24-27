@@ -39,6 +39,7 @@
 4. [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md)
 5. [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md)
 6. [TimewarpSystemImplementationPlan.md](TimewarpSystemImplementationPlan.md)
+7. [PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md](PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md)
 
 ### 想改 UI 或做更好用的编辑器
 
@@ -74,6 +75,7 @@
 | 英雄/宝宝 | [HeroPowerNonReplaceableList.md](HeroPowerNonReplaceableList.md) | 当前不可替换、禁用或开局限定的英雄技能清单 | 机制边界参考 |
 | 后续机制 | [SharedAdvancedMechanicsFoundationImplementationPlan.md](SharedAdvancedMechanicsFoundationImplementationPlan.md) | 饰品、任务、畸变和扭曲时空共用的选择、奖励、状态、注册和测试底座 | 下一批机制前置文档 |
 | 后续机制 | [IncompleteAndAmbiguousAdvancedMechanics.md](IncompleteAndAmbiguousAdvancedMechanics.md) | 饰品、任务、任务奖励的不完整清单、补齐方案、原因可视化和所需决策 | 当前缺陷与补齐主文档 |
+| 后续机制 | [PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md](PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md) | 玩家可见的任务、饰品、第二英雄技能自由搭配选择器实现方案 | 高级机制自选入口方案 |
 | 后续机制 | [TrinketSystemImplementationPlan.md](TrinketSystemImplementationPlan.md) | 小饰品/大饰品槽位、候选、购买、效果触发和 Marin/Buttons 接入 | 饰品系统实现方案 |
 | 后续机制 | [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md) | Quest/Reward 数据、任务进度、奖励激活和 Denathrius/Shady Aristocrat 接入 | 任务系统实现方案 |
 | 后续机制 | [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md) | 单局畸变选择、全局规则修正、UI 展示和低风险 MVP 畸变池 | 畸变系统实现方案 |

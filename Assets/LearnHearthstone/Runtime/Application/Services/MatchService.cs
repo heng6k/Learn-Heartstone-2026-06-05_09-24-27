@@ -1130,6 +1130,7 @@ namespace LearnHearthstone.Application.Services
         private readonly bool showDebugOnly;
         private readonly bool showHiddenEffectOnly;
         private readonly bool showDisabled;
+        private readonly bool enablePlayerDirectedChoices;
         private readonly bool enableAnomalies;
         private readonly bool randomizeAnomaly;
         private readonly string selectedAnomalyCardId;
@@ -1161,6 +1162,7 @@ namespace LearnHearthstone.Application.Services
             showDebugOnly = setup?.ShowDebugOnly ?? false;
             showHiddenEffectOnly = setup?.ShowHiddenEffectOnly ?? false;
             showDisabled = (setup?.ShowDebugOnly ?? false) && (setup?.ShowDisabled ?? false);
+            enablePlayerDirectedChoices = setup?.EnablePlayerDirectedChoices ?? true;
             enableAnomalies = setup?.EnableAnomalies ?? false;
             randomizeAnomaly = setup?.RandomizeAnomaly ?? false;
             selectedAnomalyCardId = setup?.SelectedAnomalyCardId;
@@ -1183,6 +1185,8 @@ namespace LearnHearthstone.Application.Services
         public AnomalyCatalog AnomalyCatalog => anomalyCatalog;
 
         public DarkmoonPrizeCatalog DarkmoonPrizeCatalog => darkmoonPrizeCatalog;
+
+        public bool PlayerDirectedChoicesEnabled => enablePlayerDirectedChoices;
 
         public IReadOnlyList<AnomalyDefinition> GetAnomalyCandidateDefinitions()
         {
@@ -1216,6 +1220,72 @@ namespace LearnHearthstone.Application.Services
         public IReadOnlyList<QuestRewardDefinition> GetDebugSelectableQuestRewards()
         {
             return EligibleQuestRewards();
+        }
+
+        public IReadOnlyList<PlayerDirectedChoiceOption> GetPlayerSelectableQuestPairs(PlayerDirectedChoiceContext context = null)
+        {
+            if (!enablePlayerDirectedChoices || !enableQuests || !enableQuestRewards || questCatalog == null)
+            {
+                return new List<PlayerDirectedChoiceOption>();
+            }
+
+            var slot = string.IsNullOrWhiteSpace(context?.Slot)
+                ? State.Player.Tavern.AdvancedMechanics?.PendingChoice?.Slot ?? "Main"
+                : context.Slot;
+            var result = new List<PlayerDirectedChoiceOption>();
+            var quests = questCatalog.Quests.Where(IsPlayerSelectableQuest).ToList();
+            var rewards = questCatalog.Rewards.Where(IsPlayerSelectableQuestReward).ToList();
+            foreach (var quest in quests)
+            {
+                foreach (var reward in rewards)
+                {
+                    result.Add(ToPlayerDirectedQuestPairOption(quest, reward, slot));
+                }
+            }
+
+            return result
+                .OrderBy(option => option.DisplayName)
+                .ThenBy(option => option.SecondaryDisplayName)
+                .ToList();
+        }
+
+        public IReadOnlyList<PlayerDirectedChoiceOption> GetPlayerSelectableTrinkets(TrinketSlotKind slotKind, PlayerDirectedChoiceContext context = null)
+        {
+            if (!enablePlayerDirectedChoices || !enableTrinkets || trinketCatalog == null)
+            {
+                return new List<PlayerDirectedChoiceOption>();
+            }
+
+            var equipped = CurrentEquippedTrinketIds(EnsureTrinketState(State.Player.Tavern));
+            return trinketCatalog.GetBySlot(slotKind)
+                .Select(definition => ToPlayerDirectedTrinketOption(definition, slotKind, equipped))
+                .OrderByDescending(option => option.IsSelectable)
+                .ThenBy(option => option.DisplayName)
+                .ToList();
+        }
+
+        public IReadOnlyList<PlayerDirectedChoiceOption> GetPlayerSelectableSecondHeroPowers(PlayerDirectedChoiceContext context = null)
+        {
+            if (!enablePlayerDirectedChoices || heroCatalog == null || State?.Player == null)
+            {
+                return new List<PlayerDirectedChoiceOption>();
+            }
+
+            EnsureSecondHeroPowerState();
+            var owned = new HashSet<string>(State.Player.ExtraHeroPowerCardIds ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            owned.Add(State.Player.HeroPowerCardId ?? string.Empty);
+            return heroCatalog.GetDiscoverableHeroPowers(State.Player.HeroPowerCardId)
+                .Where(power => power != null)
+                .Select(power => ToPlayerDirectedSecondHeroPowerOption(power, owned))
+                .OrderByDescending(option => option.IsSelectable)
+                .ThenBy(option => option.DisplayName)
+                .ToList();
+        }
+
+        public bool HasPlayerDirectedSecondHeroPowerChoice()
+        {
+            return enablePlayerDirectedChoices &&
+                   IsSecondHeroPowerDiscoverSource(State?.Player?.Tavern?.Discover?.Source);
         }
 
         public IReadOnlyList<TimewarpedTavernCardDefinition> GetTimewarpedCandidateDefinitions(TimewarpKind kind)
@@ -1435,6 +1505,15 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.ChooseMechanicOption:
                     ChooseMechanicOption(command.Index);
+                    break;
+                case GameCommandType.ChoosePlayerDirectedQuestPair:
+                    ChoosePlayerDirectedQuestPair(command.CardId, command.SecondaryCardId, command.TargetIndex);
+                    break;
+                case GameCommandType.ChoosePlayerDirectedTrinket:
+                    ChoosePlayerDirectedTrinket(command.CardId, command.TargetIndex);
+                    break;
+                case GameCommandType.ChoosePlayerDirectedSecondHeroPower:
+                    ChoosePlayerDirectedSecondHeroPower(command.CardId);
                     break;
                 case GameCommandType.DebugOfferLesserTrinkets:
                     OfferTrinketChoice(TrinketSlotKind.Lesser, "debug");
@@ -3552,6 +3631,447 @@ namespace LearnHearthstone.Application.Services
                 default:
                     return false;
             }
+        }
+
+        private static bool IsPlayerSelectableQuest(QuestDefinition quest)
+        {
+            return quest != null &&
+                   quest.ImplementationStatus == QuestImplementationStatus.Implemented;
+        }
+
+        private static bool IsPlayerSelectableQuestReward(QuestRewardDefinition reward)
+        {
+            return reward != null &&
+                   reward.ImplementationStatus == QuestImplementationStatus.Implemented &&
+                   reward.OfferPoolStatus == QuestOfferPoolStatus.Offerable;
+        }
+
+        private PlayerDirectedChoiceOption ToPlayerDirectedQuestPairOption(QuestDefinition quest, QuestRewardDefinition reward, string slot)
+        {
+            var difficulty = ResolveQuestDifficulty(reward);
+            var requiredAmount = ResolveQuestRequiredAmount(quest, difficulty.Tier);
+            return new PlayerDirectedChoiceOption
+            {
+                Kind = PlayerDirectedChoiceKind.QuestPair,
+                CardId = quest.CardId,
+                SecondaryCardId = reward.CardId,
+                DisplayName = quest.Name,
+                SecondaryDisplayName = reward.Name,
+                Text = FormatQuestText(quest.Text, requiredAmount) + "\n" + reward.Text,
+                ImagePath = quest.ImagePath,
+                Type = "Quest + Reward",
+                Status = quest.ImplementationStatus + " / " + reward.OfferPoolStatus,
+                Slot = string.IsNullOrWhiteSpace(slot) ? "Main" : slot,
+                PowerLevel = reward.PowerLevel.ToString(),
+                Timing = reward.Trigger.ToString(),
+                IsSelectable = true,
+                FilterTags = PlayerDirectedFilterTags(
+                    PlayerDirectedChoiceKind.QuestPair,
+                    string.IsNullOrWhiteSpace(slot) ? "Main" : slot,
+                    quest.ImplementationStatus.ToString(),
+                    reward.OfferPoolStatus.ToString(),
+                    reward.PowerLevel.ToString(),
+                    reward.Trigger.ToString(),
+                    quest.Tags,
+                    reward.Tags)
+            };
+        }
+
+        private PlayerDirectedChoiceOption ToPlayerDirectedTrinketOption(
+            TrinketDefinition definition,
+            TrinketSlotKind targetSlotKind,
+            HashSet<string> equippedIds)
+        {
+            var disabledReason = PlayerSelectableTrinketDisabledReason(definition, targetSlotKind, equippedIds);
+            return new PlayerDirectedChoiceOption
+            {
+                Kind = PlayerDirectedChoiceKind.Trinket,
+                CardId = definition?.CardId,
+                DisplayName = definition?.Name,
+                Text = definition?.Text,
+                ImagePath = definition?.ImagePath,
+                Type = definition == null ? "Trinket" : definition.SlotKind + " Trinket",
+                Status = definition == null ? string.Empty : definition.ImplementationStatus + " / " + definition.OfferPoolStatus,
+                Slot = targetSlotKind.ToString(),
+                PowerLevel = definition?.PowerLevel.ToString(),
+                Timing = definition?.TriggerTemplate.ToString(),
+                DisabledReason = disabledReason,
+                IsSelectable = string.IsNullOrEmpty(disabledReason),
+                Cost = definition?.Cost ?? 0,
+                FilterTags = PlayerDirectedFilterTags(
+                    PlayerDirectedChoiceKind.Trinket,
+                    targetSlotKind.ToString(),
+                    definition?.ImplementationStatus.ToString(),
+                    definition?.OfferPoolStatus.ToString(),
+                    definition?.PowerLevel.ToString(),
+                    definition?.TriggerTemplate.ToString(),
+                    definition?.Tags,
+                    definition?.Mechanics,
+                    definition?.AssociatedRaces,
+                    definition?.Requires,
+                    definition?.ReferencedTags)
+            };
+        }
+
+        private string PlayerSelectableTrinketDisabledReason(
+            TrinketDefinition definition,
+            TrinketSlotKind targetSlotKind,
+            HashSet<string> equippedIds)
+        {
+            if (definition == null)
+            {
+                return "Trinket definition is missing.";
+            }
+
+            if (definition.ImplementationStatus != TrinketImplementationStatus.Implemented)
+            {
+                return "Trinket is not implemented.";
+            }
+
+            if (definition.OfferPoolStatus != TrinketOfferPoolStatus.Offerable)
+            {
+                return "Trinket is not in the normal player offer pool.";
+            }
+
+            if (!showProxySafe && string.Equals(definition.ProxyLevel, "ProxySafe", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Proxy-safe content is disabled for this match.";
+            }
+
+            if (definition.SlotKind != targetSlotKind)
+            {
+                return "Trinket slot does not match.";
+            }
+
+            if (equippedIds != null && equippedIds.Contains(definition.CardId))
+            {
+                return "Trinket is already equipped.";
+            }
+
+            if (!TribeAvailabilityRules.IsTrinketAvailable(definition, CurrentActiveTribes()))
+            {
+                return "Trinket does not match the active tribes.";
+            }
+
+            return string.Empty;
+        }
+
+        private PlayerDirectedChoiceOption ToPlayerDirectedSecondHeroPowerOption(
+            HeroPowerDefinition power,
+            HashSet<string> owned)
+        {
+            var disabledReason = PlayerSelectableSecondHeroPowerDisabledReason(power, owned);
+            return new PlayerDirectedChoiceOption
+            {
+                Kind = PlayerDirectedChoiceKind.SecondHeroPower,
+                CardId = power?.CardId,
+                DisplayName = power?.Name,
+                Text = power?.Text,
+                ImagePath = power?.ImagePath,
+                Type = "Second Hero Power",
+                Status = power == null ? string.Empty : HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId).ToString(),
+                PowerLevel = power?.PrimaryCategory.ToString(),
+                Timing = power?.ReplacementEligibility.ToString(),
+                DisabledReason = disabledReason,
+                IsSelectable = string.IsNullOrEmpty(disabledReason),
+                Cost = power?.Cost ?? 0,
+                FilterTags = PlayerDirectedFilterTags(
+                    PlayerDirectedChoiceKind.SecondHeroPower,
+                    null,
+                    power == null ? null : HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId).ToString(),
+                    power?.ReplacementEligibility.ToString(),
+                    power?.PrimaryCategory.ToString(),
+                    null,
+                    power?.Tags)
+            };
+        }
+
+        private static List<string> PlayerDirectedFilterTags(
+            PlayerDirectedChoiceKind kind,
+            string slot,
+            string implementationStatus,
+            string poolStatus,
+            string powerLevel,
+            string timing,
+            params IEnumerable<string>[] tagGroups)
+        {
+            var tags = new List<string>();
+            AddPlayerDirectedFilterTag(tags, "kind:" + kind);
+            AddPlayerDirectedFilterTag(tags, slot, "slot");
+            AddPlayerDirectedFilterTag(tags, implementationStatus, "status");
+            AddPlayerDirectedFilterTag(tags, poolStatus, "pool");
+            AddPlayerDirectedFilterTag(tags, powerLevel, "power");
+            AddPlayerDirectedFilterTag(tags, timing, "timing");
+
+            if (tagGroups != null)
+            {
+                foreach (var group in tagGroups)
+                {
+                    if (group == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var tag in group)
+                    {
+                        AddPlayerDirectedFilterTag(tags, tag);
+                    }
+                }
+            }
+
+            return tags;
+        }
+
+        private static void AddPlayerDirectedFilterTag(List<string> tags, string value, string prefix = null)
+        {
+            if (tags == null || string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            var tag = string.IsNullOrWhiteSpace(prefix) ? value.Trim() : prefix + ":" + value.Trim();
+            if (!tags.Any(existing => string.Equals(existing, tag, StringComparison.OrdinalIgnoreCase)))
+            {
+                tags.Add(tag);
+            }
+        }
+
+        private static string PlayerSelectableSecondHeroPowerDisabledReason(HeroPowerDefinition power, HashSet<string> owned)
+        {
+            if (power == null || string.IsNullOrEmpty(power.CardId))
+            {
+                return "Hero Power definition is missing.";
+            }
+
+            if (owned != null && owned.Contains(power.CardId))
+            {
+                return "Hero Power is already owned.";
+            }
+
+            if (power.ReplacementEligibility != HeroPowerReplacementEligibility.DiscoverableAfterStart)
+            {
+                return "Hero Power is not discoverable after start.";
+            }
+
+            if (HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId) != HeroEffectImplementationStatus.Implemented)
+            {
+                return "Hero Power is not implemented.";
+            }
+
+            if (!HeroCatalog.IsOfferableDiscoverHeroPower(power))
+            {
+                return "Hero Power is not in the normal discover pool.";
+            }
+
+            return string.Empty;
+        }
+
+        private void AssertPlayerDirectedChoicesEnabled()
+        {
+            if (!enablePlayerDirectedChoices)
+            {
+                throw new InvalidOperationException("Player-directed choices are disabled for this match.");
+            }
+        }
+
+        private void ChoosePlayerDirectedQuestPair(string questCardId, string rewardCardId, int slotIndex)
+        {
+            AssertPlayerDirectedChoicesEnabled();
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var pending = advanced.PendingChoice;
+            if (pending == null || pending.Kind != AdvancedMechanicKind.Quest)
+            {
+                throw new InvalidOperationException("No Quest choice is pending.");
+            }
+
+            if (!questCatalog.TryGetQuestByCardId(questCardId, out var quest) || !IsPlayerSelectableQuest(quest))
+            {
+                LogPlayerDirectedFailure("Quest", questCardId, "Quest is not selectable.");
+                throw new InvalidOperationException("Quest is not selectable: " + questCardId);
+            }
+
+            if ((!questCatalog.TryGetRewardByCardId(rewardCardId, out var reward) &&
+                 !questCatalog.TryGetRewardById(rewardCardId, out reward)) ||
+                !IsPlayerSelectableQuestReward(reward))
+            {
+                LogPlayerDirectedFailure("Quest Reward", rewardCardId, "Quest reward is not selectable.");
+                throw new InvalidOperationException("Quest reward is not selectable: " + rewardCardId);
+            }
+
+            string slot;
+            try
+            {
+                slot = ResolvePlayerDirectedQuestSlot(pending, slotIndex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                LogPlayerDirectedFailure("Quest", questCardId + " + " + rewardCardId, ex.Message);
+                throw;
+            }
+            var directedRequest = new MechanicChoiceRequest
+            {
+                RequestId = "player-directed-quest-" + slot.ToLowerInvariant() + "-" + State.Round + "-" + tavern.RecruitLog.Count,
+                Kind = AdvancedMechanicKind.Quest,
+                Source = string.IsNullOrWhiteSpace(pending.Source) ? "player-directed-quest" : pending.Source,
+                Slot = slot,
+                Round = State.Round,
+                RemainingPicks = 1
+            };
+            directedRequest.Options.Add(CreateQuestChoiceOption(quest, reward, slot));
+
+            advanced.PendingChoice = directedRequest;
+            try
+            {
+                ChooseMechanicOption(0);
+                AddRecruitLog(
+                    RecruitLogType.Discover,
+                    "Player directed Quest selection: " + quest.CardId + " + " + reward.CardId + ".",
+                    tavern.Gold,
+                    tavern.Gold);
+            }
+            catch
+            {
+                advanced.PendingChoice = pending;
+                throw;
+            }
+        }
+
+        private void ChoosePlayerDirectedTrinket(string trinketCardId, int targetIndex)
+        {
+            AssertPlayerDirectedChoicesEnabled();
+            var tavern = State.Player.Tavern;
+            var advanced = EnsureAdvancedMechanicState(tavern);
+            var pending = advanced.PendingChoice;
+            if (pending == null || pending.Kind != AdvancedMechanicKind.Trinket)
+            {
+                throw new InvalidOperationException("No Trinket choice is pending.");
+            }
+
+            TrinketSlotKind targetSlotKind;
+            try
+            {
+                targetSlotKind = ResolvePlayerDirectedTrinketSlot(pending, targetIndex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                LogPlayerDirectedFailure("Trinket", trinketCardId, ex.Message);
+                throw;
+            }
+            if (!trinketCatalog.TryGetByCardId(trinketCardId, out var definition))
+            {
+                LogPlayerDirectedFailure("Trinket", trinketCardId, "Trinket definition does not exist.");
+                throw new InvalidOperationException("Trinket definition does not exist: " + trinketCardId);
+            }
+
+            var disabledReason = PlayerSelectableTrinketDisabledReason(
+                definition,
+                targetSlotKind,
+                CurrentEquippedTrinketIds(EnsureTrinketState(tavern)));
+            if (!string.IsNullOrEmpty(disabledReason))
+            {
+                LogPlayerDirectedFailure("Trinket", trinketCardId, disabledReason);
+                throw new InvalidOperationException("Trinket is not selectable: " + disabledReason);
+            }
+
+            var directedRequest = new MechanicChoiceRequest
+            {
+                RequestId = "player-directed-trinket-" + targetSlotKind.ToString().ToLowerInvariant() + "-" + State.Round + "-" + tavern.RecruitLog.Count,
+                Kind = AdvancedMechanicKind.Trinket,
+                Source = string.IsNullOrWhiteSpace(pending.Source) ? "player-directed-trinket" : pending.Source,
+                Slot = targetSlotKind.ToString(),
+                Round = State.Round,
+                RemainingPicks = 1
+            };
+            directedRequest.Options.Add(CreateTrinketChoiceOption(definition, targetSlotKind));
+
+            advanced.PendingChoice = directedRequest;
+            try
+            {
+                ChooseMechanicOption(0);
+                AddRecruitLog(
+                    RecruitLogType.Discover,
+                    "Player directed Trinket selection: " + targetSlotKind + " / " + definition.CardId + ".",
+                    tavern.Gold,
+                    tavern.Gold);
+            }
+            catch
+            {
+                advanced.PendingChoice = pending;
+                throw;
+            }
+        }
+
+        private void ChoosePlayerDirectedSecondHeroPower(string heroPowerCardId)
+        {
+            AssertPlayerDirectedChoicesEnabled();
+            if (!HasPlayerDirectedSecondHeroPowerChoice())
+            {
+                throw new InvalidOperationException("No second Hero Power choice is pending.");
+            }
+
+            var option = GetPlayerSelectableSecondHeroPowers()
+                .FirstOrDefault(candidate => string.Equals(candidate.CardId, heroPowerCardId, StringComparison.OrdinalIgnoreCase));
+            if (option == null || !option.IsSelectable)
+            {
+                var reason = option?.DisabledReason ?? "Hero Power is not in the selectable pool.";
+                LogPlayerDirectedFailure("Second Hero Power", heroPowerCardId, reason);
+                throw new InvalidOperationException("Second Hero Power is not selectable: " + reason);
+            }
+
+            var tavern = State.Player.Tavern;
+            GrantSecondHeroPower(heroPowerCardId, "Player directed second Hero Power");
+            tavern.CompleteDiscover();
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Player directed second Hero Power selection: " + heroPowerCardId + ".",
+                tavern.Gold,
+                tavern.Gold);
+        }
+
+        private static string ResolvePlayerDirectedQuestSlot(MechanicChoiceRequest pending, int slotIndex)
+        {
+            var pendingSlot = string.IsNullOrWhiteSpace(pending?.Slot) ? "Main" : pending.Slot;
+            if (slotIndex >= 0)
+            {
+                var requestedSlot = slotIndex == 1 ? "Bonus" : "Main";
+                if (!string.Equals(pendingSlot, requestedSlot, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("Quest slot mismatch: pending " + pendingSlot + ", requested " + requestedSlot + ".");
+                }
+            }
+
+            return pendingSlot;
+        }
+
+        private static TrinketSlotKind ResolvePlayerDirectedTrinketSlot(MechanicChoiceRequest pending, int targetIndex)
+        {
+            var pendingSlotKind = ParseTrinketSlotKind(pending?.Slot, TrinketSlotKind.Lesser);
+            if (targetIndex >= 0)
+            {
+                var requestedSlotKind = ResolveDebugTrinketSlot(targetIndex, TrinketSlotKind.Lesser);
+                if (pendingSlotKind != requestedSlotKind)
+                {
+                    throw new InvalidOperationException("Trinket slot mismatch: pending " + pendingSlotKind + ", requested " + requestedSlotKind + ".");
+                }
+            }
+
+            return pendingSlotKind;
+        }
+
+        private static bool IsSecondHeroPowerDiscoverSource(string source)
+        {
+            return string.Equals(source, "quest-second-hero-power", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, CosmicDualityDiscoverSource, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void LogPlayerDirectedFailure(string kind, string cardId, string reason)
+        {
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Player directed " + kind + " selection failed: " + cardId + " - " + reason,
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
         }
 
         private void OfferTrinketChoice(TrinketSlotKind slotKind, string source)

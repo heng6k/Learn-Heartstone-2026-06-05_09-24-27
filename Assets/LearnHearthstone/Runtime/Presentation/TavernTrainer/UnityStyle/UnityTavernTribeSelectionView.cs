@@ -62,6 +62,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool showDebugOnly;
         private bool showHiddenEffectOnly;
         private bool showDisabled;
+        private bool enablePlayerDirectedChoices = true;
         private GameObject shell;
 
         public UnityTavernTribeSelectionView(
@@ -351,6 +352,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 Build();
             });
 
+            BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-EnablePlayerDirectedChoices", "自由选择", enablePlayerDirectedChoices, true, value =>
+            {
+                enablePlayerDirectedChoices = value;
+                Build();
+            });
             BuildAnomalySetupControls(strip.transform);
         }
 
@@ -1726,6 +1732,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ShowDebugOnly = showDebugOnly,
                 ShowHiddenEffectOnly = showHiddenEffectOnly,
                 ShowDisabled = showDebugOnly && showDisabled,
+                EnablePlayerDirectedChoices = enablePlayerDirectedChoices,
                 EnabledMinionCardIds = enabledMinionCardIds.Where(value => !IsDuoCardId(value)).ToList(),
                 EnabledTavernSpellCardNumbers = enabledTavernSpellCardNumbers.ToList()
             });

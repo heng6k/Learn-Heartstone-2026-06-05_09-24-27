@@ -35,6 +35,47 @@ namespace LearnHearthstone.Domain.Models
         StartOfCombat
     }
 
+    public enum PlayerDirectedChoiceKind
+    {
+        QuestPair,
+        Trinket,
+        SecondHeroPower
+    }
+
+    [Serializable]
+    public sealed class PlayerDirectedChoiceContext
+    {
+        public PlayerDirectedChoiceKind Kind;
+        public string Source;
+        public string Slot;
+        public int Round;
+        public IReadOnlyList<Tribe> ActiveTribes;
+        public bool IncludeDebugOnly;
+        public bool IncludeHiddenEffectOnly;
+        public bool IncludeDisabled;
+    }
+
+    [Serializable]
+    public sealed class PlayerDirectedChoiceOption
+    {
+        public PlayerDirectedChoiceKind Kind;
+        public string CardId;
+        public string SecondaryCardId;
+        public string DisplayName;
+        public string SecondaryDisplayName;
+        public string Text;
+        public string ImagePath;
+        public string Type;
+        public string Status;
+        public string Slot;
+        public string PowerLevel;
+        public string Timing;
+        public string DisabledReason;
+        public bool IsSelectable;
+        public int Cost;
+        public List<string> FilterTags = new List<string>();
+    }
+
     [Serializable]
     public sealed class MechanicChoiceOption
     {
