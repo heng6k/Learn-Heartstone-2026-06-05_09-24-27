@@ -13,12 +13,19 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(2468, new InMemoryTestScenarioRepository());
             service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Hand.Clear();
             service.State.Player.Board.Clear();
             service.State.Opponent.Board.Clear();
             service.State.Player.Tavern.Tier = 4;
             service.State.Player.Tavern.Gold = 7;
             service.State.Player.Tavern.MaxGold = 9;
             service.State.Player.Tavern.UpgradeCost = 6;
+            service.State.Player.Tavern.TavernSpellsCastThisGame = 6;
+            service.State.Player.Tavern.BloodGemBonusAttack = 2;
+            service.State.Player.Tavern.BloodGemBonusHealth = 1;
+            service.State.Opponent.CombatModifiers.BloodGemAttackBonus = 4;
+            service.State.Opponent.CombatModifiers.UndeadAttackBonus = 5;
+            service.State.Opponent.CombatModifiers.AstralAutomatonSummons = 3;
             service.State.Round = 5;
             service.State.Phase = MatchPhase.Result;
 
@@ -35,6 +42,11 @@ namespace LearnHearthstone.Tests.EditMode
             var hand = service.State.Player.Tavern.Shop[1].Clone();
             hand.InstanceId = "hand-edited";
             service.State.Player.Tavern.Hand.Add(hand);
+
+            var opponentHand = service.State.Player.Tavern.Shop[1].Clone();
+            opponentHand.InstanceId = "opponent-hand-edited";
+            opponentHand.Owner = BoardSide.Opponent;
+            service.State.Opponent.Hand.Add(opponentHand);
 
             var opponent = service.State.Player.Tavern.Shop[2].Clone();
             opponent.InstanceId = "opponent-edited";
@@ -63,9 +75,18 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(3, target.Player.Board[0].Counters["test"]);
             Assert.AreEqual(1, target.Player.Tavern.Hand.Count);
             Assert.AreEqual("hand-edited", target.Player.Tavern.Hand[0].InstanceId);
+            Assert.AreEqual(1, target.Opponent.Hand.Count);
+            Assert.AreEqual("opponent-hand-edited", target.Opponent.Hand[0].InstanceId);
+            Assert.AreEqual(BoardSide.Opponent, target.Opponent.Hand[0].Owner);
             Assert.AreEqual(1, target.Opponent.Board.Count);
             Assert.AreEqual(BoardSide.Opponent, target.Opponent.Board[0].Owner);
             Assert.IsTrue(target.Opponent.Board[0].Keywords.Contains(Keyword.Taunt));
+            Assert.AreEqual(6, target.Player.CombatModifiers.SpellsCastThisGame);
+            Assert.AreEqual(2, target.Player.CombatModifiers.BloodGemAttackBonus);
+            Assert.AreEqual(1, target.Player.CombatModifiers.BloodGemHealthBonus);
+            Assert.AreEqual(4, target.Opponent.CombatModifiers.BloodGemAttackBonus);
+            Assert.AreEqual(5, target.Opponent.CombatModifiers.UndeadAttackBonus);
+            Assert.AreEqual(3, target.Opponent.CombatModifiers.AstralAutomatonSummons);
             Assert.AreNotSame(player, target.Player.Board[0]);
         }
 

@@ -63,6 +63,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private enum UnityCardLibraryDestination
         {
             PlayerHand,
+            OpponentHand,
             OpponentBoard
         }
 
@@ -364,6 +365,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             centerLayout.childForceExpandHeight = false;
 
             BuildOpponentBoard(center.transform, layout);
+            BuildOpponentHand(center.transform, layout);
             BuildShop(center.transform, layout);
             BuildPlayerBoard(center.transform, layout);
             BuildHand(center.transform, layout);
@@ -467,6 +469,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 configureCard: (cardObject, card, index) => ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.Shop, index),
                 layoutContext: layout);
             BuildShopSellDropZone(zone.transform);
+        }
+
+        private void BuildOpponentHand(Transform parent, UnityTavernLayoutContext layout)
+        {
+            var hand = service.State.Opponent.Hand ?? new List<MinionInstance>();
+            var zone = Zone("UnityOpponentHandZone", parent, layout, UnityTavernZoneKind.Hand, UnityTavernCardMode.Hand);
+            zone.Build(
+                "对手手牌",
+                hand.Count + "/10",
+                hand,
+                HandLimit,
+                UnityTavernCardMode.Hand,
+                OpponentHandActionLabel,
+                SelectCard,
+                RemoveOpponentHandCard,
+                layoutContext: layout);
         }
 
         private static string TimewarpedTavernTitle(TimewarpKind kind)
@@ -667,7 +685,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton(namePrefix + "RefreshButton", parent, RefreshActionLabel(), () => Apply(new GameCommand(GameCommandType.RerollShop)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanRefreshShop());
             ActionButton(namePrefix + "FreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy);
             ActionButton(namePrefix + "UpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
-            ActionButton(namePrefix + "NextTurnButton", parent, "下回合", () => Apply(new GameCommand(GameCommandType.NextTurn)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Primary);
+            ActionButton(namePrefix + "NextTurnButton", parent, "完整下回合", () => Apply(new GameCommand(GameCommandType.NextTurn)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Primary);
             ActionButton(namePrefix + "CombatButton", parent, "开战", () => ApplyAndOpenReplay(new GameCommand(GameCommandType.SimulateCombat)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Combat);
             ActionButton(namePrefix + "ReplayButton", parent, ReplayActionLabel(), OpenCombatReplay, minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Utility, HasCombatReplay());
             ActionButton(namePrefix + "ToolsButton", parent, "工具", OpenTools, minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Utility);
@@ -1203,6 +1221,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Rebuild();
         }
 
+        private void OpenOpponentHandCardLibrary()
+        {
+            toolsOpen = false;
+            cardLibraryOpen = true;
+            heroSelectionOpen = false;
+            cardLibraryDestination = UnityCardLibraryDestination.OpponentHand;
+            opponentCardLibraryGolden = false;
+            Rebuild();
+        }
+
         private void CloseCardLibrary()
         {
             cardLibraryOpen = false;
@@ -1280,14 +1308,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ToolButton("UnityToolsOpenCardLibraryButton", grid, "打开卡牌库", true, OpenCardLibrary);
             });
 
-            BuildToolsSection(parent, "UnityToolsOpponentSection", "对手", 4, grid =>
+            BuildToolsSection(parent, "UnityToolsOpponentSection", "对手", 6, grid =>
             {
                 ToolButton("UnityToolsAddOpponentButton", grid, "加对手", true, OpenOpponentCardLibrary);
+                ToolButton("UnityToolsAddOpponentHandButton", grid, "加敌方手牌", service.State.Opponent.Hand.Count < HandLimit, OpenOpponentHandCardLibrary);
                 ToolButton("UnityToolsRemoveOpponentButton", grid, "移除对手", SelectedOpponentCard() != null, RemoveSelectedOpponent);
                 ToolButton("UnityToolsClearOpponentButton", grid, "清空对手", service.State.Opponent.Board.Count > 0, () => Apply(new GameCommand(GameCommandType.ClearOpponentBoard)));
                 ToolButton("UnityToolsCopyOpponentButton", grid, "复制", service.State.Player.Board.Count > 0, () => Apply(new GameCommand(GameCommandType.CopyPlayerBoardToOpponent)));
                 ToolButton("UnityToolsMirrorOpponentButton", grid, "镜像", service.State.Player.Board.Count > 0, () => Apply(new GameCommand(GameCommandType.MirrorPlayerBoardToOpponent)));
             });
+
+            BuildSideModifierTools(parent, BoardSide.Player, "UnityToolsPlayerModifierSection", "己方变量");
+            BuildSideModifierTools(parent, BoardSide.Opponent, "UnityToolsOpponentModifierSection", "对手变量");
 
             BuildToolsSection(parent, "UnityToolsSelectedSection", "选中卡牌", 4, grid =>
             {
@@ -1303,13 +1335,86 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ToolButton("UnityToolsSelectedGoldenButton", grid, "金色", canPatch, () => PatchSelected(new MinionPatch { Golden = !selected.Golden }));
             });
 
-            BuildToolsSection(parent, "UnityToolsCombatSection", "战斗测试", 4, grid =>
+            BuildToolsSection(parent, "UnityToolsCombatSection", "战斗测试", 5, grid =>
             {
                 ToolButton("UnityToolsRunCombatTestButton", grid, "运行测试", true, () => ApplyAndOpenReplay(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
+                ToolButton("UnityToolsSkipCombatNextTurnButton", grid, "跳过战斗下回合", true, () => Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn)));
                 ToolButton("UnityToolsResetCombatSnapshotButton", grid, "重置快照", service.HasCombatTestSnapshot, () => Apply(new GameCommand(GameCommandType.ResetCombatTestSnapshot)));
                 ToolButton("UnityToolsSaveScenarioButton", grid, "保存场景", true, () => Apply(new GameCommand(GameCommandType.SaveTestScenario, DefaultScenarioName(), new CombatTestOptions())));
                 ToolButton("UnityToolsLoadScenarioButton", grid, "加载场景", service.TestScenarioNames.Count > 0, LoadFirstScenario);
             });
+        }
+
+        private void BuildSideModifierTools(Transform parent, BoardSide side, string sectionName, string title)
+        {
+            BuildToolsSection(parent, sectionName, title, 10, grid =>
+            {
+                SideModifierStepper(grid, side, SideCombatModifierKind.SpellsCastThisGame, "法术");
+                SideModifierStepper(grid, side, SideCombatModifierKind.SpellPower, "法强");
+                SideModifierStepper(grid, side, SideCombatModifierKind.TavernSpellBonusAttack, "酒法攻");
+                SideModifierStepper(grid, side, SideCombatModifierKind.TavernSpellBonusHealth, "酒法血");
+                SideModifierStepper(grid, side, SideCombatModifierKind.BloodGemAttackBonus, "宝石攻");
+                SideModifierStepper(grid, side, SideCombatModifierKind.BloodGemHealthBonus, "宝石血");
+                SideModifierStepper(grid, side, SideCombatModifierKind.UndeadAttackBonus, "亡灵攻");
+                SideModifierStepper(grid, side, SideCombatModifierKind.EternalKnightDeaths, "永恒死");
+                SideModifierStepper(grid, side, SideCombatModifierKind.AstralAutomatonSummons, "星元机");
+                SideModifierStepper(grid, side, SideCombatModifierKind.FriendlyMinionDeathsThisGame, "复仇死");
+            });
+        }
+
+        private void SideModifierStepper(Transform grid, BoardSide side, SideCombatModifierKind kind, string label)
+        {
+            var value = SideModifierValue(side, kind);
+            var prefix = side == BoardSide.Player ? "Player" : "Opponent";
+            ToolButton(
+                "UnityTools" + prefix + kind + "PlusButton",
+                grid,
+                label + " " + value + " +",
+                true,
+                () => Apply(new GameCommand(GameCommandType.AdjustSideCombatModifier, side, kind, 1)));
+            ToolButton(
+                "UnityTools" + prefix + kind + "MinusButton",
+                grid,
+                label + " " + value + " -",
+                value > 0,
+                () => Apply(new GameCommand(GameCommandType.AdjustSideCombatModifier, side, kind, -1)));
+        }
+
+        private int SideModifierValue(BoardSide side, SideCombatModifierKind kind)
+        {
+            var modifiers = side == BoardSide.Player
+                ? service.State.Player.CombatModifiers
+                : service.State.Opponent.CombatModifiers;
+            if (modifiers == null)
+            {
+                return 0;
+            }
+
+            switch (kind)
+            {
+                case SideCombatModifierKind.SpellsCastThisGame:
+                    return modifiers.SpellsCastThisGame;
+                case SideCombatModifierKind.SpellPower:
+                    return modifiers.SpellPower;
+                case SideCombatModifierKind.BloodGemAttackBonus:
+                    return modifiers.BloodGemAttackBonus;
+                case SideCombatModifierKind.BloodGemHealthBonus:
+                    return modifiers.BloodGemHealthBonus;
+                case SideCombatModifierKind.UndeadAttackBonus:
+                    return modifiers.UndeadAttackBonus;
+                case SideCombatModifierKind.EternalKnightDeaths:
+                    return modifiers.EternalKnightDeaths;
+                case SideCombatModifierKind.AstralAutomatonSummons:
+                    return modifiers.AstralAutomatonSummons;
+                case SideCombatModifierKind.FriendlyMinionDeathsThisGame:
+                    return modifiers.FriendlyMinionDeathsThisGame;
+                case SideCombatModifierKind.TavernSpellBonusAttack:
+                    return modifiers.TavernSpellBonusAttack;
+                case SideCombatModifierKind.TavernSpellBonusHealth:
+                    return modifiers.TavernSpellBonusHealth;
+                default:
+                    return 0;
+            }
         }
 
         private static void BuildToolsSection(Transform parent, string name, string title, int rows, Action<Transform> buildGrid)
@@ -1914,7 +2019,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            AddLibraryCardToHand(card);
+            AddLibraryCardToHand(card, cardLibraryDestination == UnityCardLibraryDestination.OpponentHand ? BoardSide.Opponent : BoardSide.Player);
         }
 
         private bool CanApplyCardLibraryChoice(MinionInstance card)
@@ -1931,6 +2036,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     : card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell;
             }
 
+            if (cardLibraryDestination == UnityCardLibraryDestination.OpponentHand)
+            {
+                return card.CardKind != CardKind.Hero &&
+                       card.CardKind != CardKind.HeroPower &&
+                       service.State.Opponent.Hand.Count < HandLimit;
+            }
+
             if (card.CardKind == CardKind.Hero || card.CardKind == CardKind.HeroPower)
             {
                 return true;
@@ -1943,7 +2055,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (card != null && card.CardKind == CardKind.Hero)
             {
-                return cardLibraryDestination == UnityCardLibraryDestination.OpponentBoard ? "不可用" : "设为英雄";
+                return cardLibraryDestination == UnityCardLibraryDestination.PlayerHand ? "设为英雄" : "不可用";
             }
 
             if (card != null && card.CardKind == CardKind.HeroPower)
@@ -1951,9 +2063,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return "设为技能";
             }
 
-            if (cardLibraryDestination != UnityCardLibraryDestination.OpponentBoard)
+            if (cardLibraryDestination == UnityCardLibraryDestination.PlayerHand)
             {
                 return "加入";
+            }
+
+            if (cardLibraryDestination == UnityCardLibraryDestination.OpponentHand)
+            {
+                return "加入敌方手牌";
             }
 
             return card != null && card.CardKind == CardKind.Minion
@@ -1963,12 +2080,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void AddLibraryCardToHand(MinionInstance card)
         {
+            AddLibraryCardToHand(card, BoardSide.Player);
+        }
+
+        private void AddLibraryCardToHand(MinionInstance card, BoardSide side)
+        {
             if (card == null)
             {
                 return;
             }
 
-            Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind));
+            Apply(new GameCommand(GameCommandType.AddCardToHand, side, card.CardId, card.CardKind));
         }
 
         private void OpenQuestRewardLibrary(int questIndex)
@@ -4402,6 +4524,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private void RemoveOpponentHandCard(MinionInstance card)
+        {
+            var hand = service.State.Opponent.Hand;
+            var index = hand.FindIndex(item => item.InstanceId == card.InstanceId);
+            if (index >= 0)
+            {
+                Apply(new GameCommand(GameCommandType.RemoveHandCard, BoardSide.Opponent, index));
+            }
+        }
+
         private void SellCard(MinionInstance card)
         {
             if (card != null)
@@ -4582,6 +4714,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             foreach (var card in service.State.Player.Tavern.Hand)
+            {
+                if (card != null)
+                {
+                    yield return card;
+                }
+            }
+
+            foreach (var card in service.State.Opponent.Hand)
             {
                 if (card != null)
                 {
@@ -5118,6 +5258,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return card.CardKind == CardKind.TavernSpell ? "施放" : "上场";
+        }
+
+        private static string OpponentHandActionLabel(MinionInstance card)
+        {
+            return card == null ? null : "删除";
         }
 
         private void ClearChildren()

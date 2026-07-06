@@ -30,6 +30,10 @@ namespace LearnHearthstone.Application.Commands
         DebugReplaceTrinket,
         SimulateCombat,
         AddCardToHand,
+        RemoveHandCard,
+        SetSideCombatModifier,
+        AdjustSideCombatModifier,
+        DebugSkipToNextTurn,
         DebugCastCard,
         AddOpponentMinion,
         RemoveOpponentMinion,
@@ -147,6 +151,29 @@ namespace LearnHearthstone.Application.Commands
             CardKind = cardKind;
         }
 
+        public GameCommand(GameCommandType type, BoardSide side, string cardId, CardKind cardKind)
+        {
+            Type = type;
+            Side = side;
+            CardId = cardId;
+            CardKind = cardKind;
+        }
+
+        public GameCommand(GameCommandType type, BoardSide side, int index)
+        {
+            Type = type;
+            Side = side;
+            Index = index;
+        }
+
+        public GameCommand(GameCommandType type, BoardSide side, SideCombatModifierKind modifierKind, int value)
+        {
+            Type = type;
+            Side = side;
+            SideCombatModifierKind = modifierKind;
+            Value = value;
+        }
+
         public GameCommand(GameCommandType type, string cardId, CardKind cardKind, int targetIndex)
         {
             Type = type;
@@ -213,6 +240,9 @@ namespace LearnHearthstone.Application.Commands
         public CombatTestOptions CombatTestOptions { get; }
         public bool Flag { get; }
         public MinionPatch MinionPatch { get; }
+        public BoardSide Side { get; } = BoardSide.Player;
+        public SideCombatModifierKind SideCombatModifierKind { get; }
+        public int Value { get; }
     }
 
     public sealed class MinionPatch

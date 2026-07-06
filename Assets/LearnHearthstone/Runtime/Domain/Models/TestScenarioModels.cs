@@ -14,8 +14,11 @@ namespace LearnHearthstone.Domain.Models
         public PlayerScenarioState Player = new PlayerScenarioState();
         public OpponentScenarioState Opponent = new OpponentScenarioState();
         public ScenarioTavernState Tavern = new ScenarioTavernState();
+        public SideCombatModifierState PlayerCombatModifiers = new SideCombatModifierState();
+        public SideCombatModifierState OpponentCombatModifiers = new SideCombatModifierState();
         public List<ScenarioCardState> Shop = new List<ScenarioCardState>();
         public List<ScenarioCardState> Hand = new List<ScenarioCardState>();
+        public List<ScenarioCardState> OpponentHand = new List<ScenarioCardState>();
         public List<ScenarioCardState> PlayerBoard = new List<ScenarioCardState>();
         public List<ScenarioCardState> OpponentBoard = new List<ScenarioCardState>();
     }

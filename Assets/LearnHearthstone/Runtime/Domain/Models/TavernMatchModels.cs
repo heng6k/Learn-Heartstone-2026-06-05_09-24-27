@@ -770,6 +770,7 @@ namespace LearnHearthstone.Domain.Models
         public int DemonFodderRefreshes;
         public int TavernSpellBonusAttack;
         public int TavernSpellBonusHealth;
+        public int SpellPower;
         public int TavernSpellsCastThisTurn;
         public int TavernSpellsCastThisGame;
         public int CardsPlayedThisTurn;
@@ -986,6 +987,35 @@ namespace LearnHearthstone.Domain.Models
         public bool Triggered;
     }
 
+    public enum SideCombatModifierKind
+    {
+        SpellsCastThisGame,
+        SpellPower,
+        TavernSpellBonusAttack,
+        TavernSpellBonusHealth,
+        BloodGemAttackBonus,
+        BloodGemHealthBonus,
+        UndeadAttackBonus,
+        EternalKnightDeaths,
+        AstralAutomatonSummons,
+        FriendlyMinionDeathsThisGame
+    }
+
+    [Serializable]
+    public sealed class SideCombatModifierState
+    {
+        public int SpellsCastThisGame;
+        public int SpellPower;
+        public int TavernSpellBonusAttack;
+        public int TavernSpellBonusHealth;
+        public int BloodGemAttackBonus;
+        public int BloodGemHealthBonus;
+        public int UndeadAttackBonus;
+        public int EternalKnightDeaths;
+        public int AstralAutomatonSummons;
+        public int FriendlyMinionDeathsThisGame;
+    }
+
     [Serializable]
     public sealed class SearchHint
     {
@@ -1005,6 +1035,7 @@ namespace LearnHearthstone.Domain.Models
         public int MaxHealth;
         public int Armor;
         public TavernState Tavern = new TavernState();
+        public SideCombatModifierState CombatModifiers = new SideCombatModifierState();
         public List<MinionInstance> Board = new List<MinionInstance>();
         public Dictionary<Tribe, int> BoardTribeDistribution = new Dictionary<Tribe, int>();
     }
@@ -1018,6 +1049,8 @@ namespace LearnHearthstone.Domain.Models
         public int Armor;
         public int TavernTier;
         public List<MinionInstance> Board = new List<MinionInstance>();
+        public List<MinionInstance> Hand = new List<MinionInstance>();
+        public SideCombatModifierState CombatModifiers = new SideCombatModifierState();
         public bool Editable;
     }
 

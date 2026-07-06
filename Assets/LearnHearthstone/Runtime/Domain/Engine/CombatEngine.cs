@@ -43,6 +43,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string SleepySupporterCardId = "BG33_241";
         private const string ExpertAviatorCardId = "BG34_140";
         private const string EternalKnightCardId = "BG25_008";
+        private const string AncestralAutomatonCardId = "BG_TTN_401";
         private const string VeryHungryWinterfinnerCardId = "BG29_300";
         private const string BloodGemCardId = "BLOOD_GEM";
         private const string BristlebackBloodGemCardId = "BRISTLEBACK_BLOOD_GEM";
@@ -380,6 +381,7 @@ namespace LearnHearthstone.Domain.Engine
         {
             ResolveTavishDeadeye(context);
             ResolveBrukanElement(context, context.Player, context.Player.Tavern?.HeroBrukanElement);
+            ResolveBrukanElement(context, context.Opponent, context.Opponent.Tavern?.HeroBrukanElement);
             ResolveBattlecruiserStartOfCombat(context, context.Player);
             ResolveBattlecruiserStartOfCombat(context, context.Opponent);
             ResolveZergStartOfCombat(context, context.Player);
@@ -414,14 +416,15 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var result = DealDamage(target, 1, false);
+            var damage = GetCombatSpellDamage(context.Player, 1);
+            var result = DealDamage(target, damage, false);
             if (result.Minion.Health <= 0)
             {
                 MarkKilledBy(result.Minion, TavishPowerId, BoardSide.Player, TavishPowerId);
             }
 
             ReplaceByInstanceId(opponent.Board, result.Minion);
-            AddLog(context.Log, "HeroStartOfCombat", "Deadeye dealt 1 damage to " + target.InstanceId, TavishPowerId, target.InstanceId, LogSeverity.Good);
+            AddLog(context.Log, "HeroStartOfCombat", "Deadeye dealt " + damage + " damage to " + target.InstanceId, TavishPowerId, target.InstanceId, LogSeverity.Good);
         }
 
         private static void ResolveBrukanElement(CombatContext context, CombatSideState owner, string element)
@@ -474,7 +477,7 @@ namespace LearnHearthstone.Domain.Engine
                     }
 
                     var target = new SeededRng(context.Seed + context.AttackSequence * 607 + index * 31 + targets.Count).Pick(targets);
-                    var result = DealDamage(target, 1, false);
+                    var result = DealDamage(target, GetCombatSpellDamage(owner, 1), false);
                     if (result.Minion.Health <= 0)
                     {
                         MarkKilledBy(result.Minion, sourceId, owner.Side, BrukanPowerId);
@@ -608,6 +611,8 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ApplyStartOfCombatAuras(CombatContext context, CombatSideState side)
         {
+            ApplySideCombatHistoryBonuses(context, side);
+
             if (side.Tavern != null && (side.Tavern.NextCombatBoardAttack != 0 || side.Tavern.NextCombatBoardHealth != 0))
             {
                 foreach (var minion in side.Board.Where(IsAlive))
@@ -711,6 +716,80 @@ namespace LearnHearthstone.Domain.Engine
             {
                 BuffMinion(beast, side.BeastAttackAura, 0, "Humming Bird");
             }
+        }
+
+        private static void ApplySideCombatHistoryBonuses(CombatContext context, CombatSideState side)
+        {
+            var tavern = side?.Tavern;
+            if (context == null || side == null || side.Side != BoardSide.Opponent || tavern == null)
+            {
+                return;
+            }
+
+            var buffed = 0;
+            var undeadAttack = Math.Max(0, tavern.UndeadAttackBonus);
+            if (undeadAttack > 0)
+            {
+                foreach (var undead in side.Board.Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Undead)).ToList())
+                {
+                    if (HasTrackedCombatHistoryBuff(undead, "Undead Attack Bonus"))
+                    {
+                        continue;
+                    }
+
+                    BuffMinion(undead, undeadAttack, 0, "Undead Attack Bonus");
+                    buffed += 1;
+                }
+            }
+
+            var eternalDeaths = Math.Max(0, tavern.EternalKnightDeaths);
+            if (eternalDeaths > 0)
+            {
+                foreach (var knight in side.Board.Where(minion => IsAlive(minion) && minion.CardId == EternalKnightCardId).ToList())
+                {
+                    if (HasTrackedCombatHistoryBuff(knight, "Eternal Knight"))
+                    {
+                        continue;
+                    }
+
+                    BuffMinion(
+                        knight,
+                        StatMath.SaturatingMultiply(eternalDeaths, knight.Golden ? 8 : 4, 0, StatMath.MaxStat),
+                        StatMath.SaturatingMultiply(eternalDeaths, knight.Golden ? 4 : 2, 0, StatMath.MaxStat),
+                        "Eternal Knight");
+                    buffed += 1;
+                }
+            }
+
+            var otherAutomatonSummons = Math.Max(0, tavern.AncestralAutomatonSummons - 1);
+            if (otherAutomatonSummons > 0)
+            {
+                foreach (var automaton in side.Board.Where(minion => IsAlive(minion) && minion.CardId == AncestralAutomatonCardId).ToList())
+                {
+                    if (HasTrackedCombatHistoryBuff(automaton, "Ancestral Automaton"))
+                    {
+                        continue;
+                    }
+
+                    BuffMinion(
+                        automaton,
+                        StatMath.SaturatingMultiply(otherAutomatonSummons, automaton.Golden ? 6 : 3, 0, StatMath.MaxStat),
+                        StatMath.SaturatingMultiply(otherAutomatonSummons, automaton.Golden ? 4 : 2, 0, StatMath.MaxStat),
+                        "Ancestral Automaton");
+                    buffed += 1;
+                }
+            }
+
+            if (buffed > 0)
+            {
+                AddLog(context.Log, "StartOfCombat", "Applied " + buffed + " side history bonus(es)", null, null, LogSeverity.Good);
+            }
+        }
+
+        private static bool HasTrackedCombatHistoryBuff(MinionInstance minion, string sourceId)
+        {
+            return minion?.Enchantments != null &&
+                minion.Enchantments.Any(enchantment => string.Equals(enchantment?.SourceId, sourceId, StringComparison.Ordinal));
         }
 
         private static void ResolveTimewarpedChameleonStartOfCombat(CombatContext context, CombatSideState side)
@@ -7474,6 +7553,11 @@ namespace LearnHearthstone.Domain.Engine
             var taunts = targetPool.Where(minion => minion.Keywords.Contains(Keyword.Taunt)).ToList();
             var candidates = taunts.Count > 0 ? taunts : targetPool;
             return new SeededRng(seed).Pick(candidates);
+        }
+
+        private static int GetCombatSpellDamage(CombatSideState owner, int baseAmount)
+        {
+            return StatMath.SaturatingAdd(Math.Max(0, baseAmount), Math.Max(0, owner?.Tavern?.SpellPower ?? 0), 0, StatMath.MaxStat);
         }
 
         private static DamageResult DealDamage(MinionInstance target, int amount, bool poison)

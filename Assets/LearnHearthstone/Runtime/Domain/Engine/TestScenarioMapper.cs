@@ -58,8 +58,11 @@ namespace LearnHearthstone.Domain.Engine
                     AncestralAutomatonSummons = tavern.AncestralAutomatonSummons,
                     FriendlyMinionDeathsThisGame = tavern.FriendlyMinionDeathsThisGame
                 },
+                PlayerCombatModifiers = CapturePlayerCombatModifiers(tavern, state.Player.CombatModifiers),
+                OpponentCombatModifiers = CloneModifiers(state.Opponent.CombatModifiers),
                 Shop = CaptureCards(tavern.Shop),
                 Hand = CaptureCards(tavern.Hand),
+                OpponentHand = CaptureCards(state.Opponent.Hand),
                 PlayerBoard = CaptureCards(state.Player.Board),
                 OpponentBoard = CaptureCards(state.Opponent.Board)
             };
@@ -120,10 +123,76 @@ namespace LearnHearthstone.Domain.Engine
 
             tavern.Shop = RestoreCards(scenario.Shop, BoardSide.Player);
             tavern.Hand = RestoreCards(scenario.Hand, BoardSide.Player);
+            target.Opponent.Hand = RestoreCards(scenario.OpponentHand, BoardSide.Opponent);
             target.Player.Board = RestoreCards(scenario.PlayerBoard, BoardSide.Player);
             target.Opponent.Board = RestoreCards(scenario.OpponentBoard, BoardSide.Opponent);
+            target.Player.CombatModifiers = CloneModifiers(scenario.PlayerCombatModifiers) ?? CapturePlayerCombatModifiers(tavern, target.Player.CombatModifiers);
+            target.Opponent.CombatModifiers = CloneModifiers(scenario.OpponentCombatModifiers) ?? new SideCombatModifierState();
+            ApplyPlayerModifiersToTavern(target.Player.CombatModifiers, tavern);
             target.CombatLog.Clear();
             target.LastResult = null;
+        }
+
+        private static SideCombatModifierState CapturePlayerCombatModifiers(TavernState tavern, SideCombatModifierState existing)
+        {
+            var snapshot = CloneModifiers(existing) ?? new SideCombatModifierState();
+            if (tavern == null)
+            {
+                return snapshot;
+            }
+
+            snapshot.SpellsCastThisGame = Math.Max(0, tavern.TavernSpellsCastThisGame);
+            snapshot.SpellPower = Math.Max(0, tavern.SpellPower);
+            snapshot.TavernSpellBonusAttack = Math.Max(0, tavern.TavernSpellBonusAttack);
+            snapshot.TavernSpellBonusHealth = Math.Max(0, tavern.TavernSpellBonusHealth);
+            snapshot.BloodGemAttackBonus = Math.Max(0, tavern.BloodGemBonusAttack);
+            snapshot.BloodGemHealthBonus = Math.Max(0, tavern.BloodGemBonusHealth);
+            snapshot.UndeadAttackBonus = Math.Max(0, tavern.UndeadAttackBonus);
+            snapshot.EternalKnightDeaths = Math.Max(0, tavern.EternalKnightDeaths);
+            snapshot.AstralAutomatonSummons = Math.Max(0, tavern.AncestralAutomatonSummons);
+            snapshot.FriendlyMinionDeathsThisGame = Math.Max(0, tavern.FriendlyMinionDeathsThisGame);
+            return snapshot;
+        }
+
+        private static SideCombatModifierState CloneModifiers(SideCombatModifierState modifiers)
+        {
+            if (modifiers == null)
+            {
+                return null;
+            }
+
+            return new SideCombatModifierState
+            {
+                SpellsCastThisGame = Math.Max(0, modifiers.SpellsCastThisGame),
+                SpellPower = Math.Max(0, modifiers.SpellPower),
+                TavernSpellBonusAttack = Math.Max(0, modifiers.TavernSpellBonusAttack),
+                TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth),
+                BloodGemAttackBonus = Math.Max(0, modifiers.BloodGemAttackBonus),
+                BloodGemHealthBonus = Math.Max(0, modifiers.BloodGemHealthBonus),
+                UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus),
+                EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths),
+                AstralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons),
+                FriendlyMinionDeathsThisGame = Math.Max(0, modifiers.FriendlyMinionDeathsThisGame)
+            };
+        }
+
+        private static void ApplyPlayerModifiersToTavern(SideCombatModifierState modifiers, TavernState tavern)
+        {
+            if (modifiers == null || tavern == null)
+            {
+                return;
+            }
+
+            tavern.TavernSpellsCastThisGame = Math.Max(0, modifiers.SpellsCastThisGame);
+            tavern.SpellPower = Math.Max(0, modifiers.SpellPower);
+            tavern.TavernSpellBonusAttack = Math.Max(0, modifiers.TavernSpellBonusAttack);
+            tavern.TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth);
+            tavern.BloodGemBonusAttack = Math.Max(0, modifiers.BloodGemAttackBonus);
+            tavern.BloodGemBonusHealth = Math.Max(0, modifiers.BloodGemHealthBonus);
+            tavern.UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus);
+            tavern.EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths);
+            tavern.AncestralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons);
+            tavern.FriendlyMinionDeathsThisGame = Math.Max(0, modifiers.FriendlyMinionDeathsThisGame);
         }
 
         private static List<ScenarioCardState> CaptureCards(IEnumerable<MinionInstance> cards)
