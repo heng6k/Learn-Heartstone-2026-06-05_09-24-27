@@ -17,7 +17,7 @@ namespace LearnHearthstone.Domain.Engine
         {
             requiredCopies = Math.Max(2, requiredCopies);
             return items
-                .Where(item => !item.Golden)
+                .Where(item => IsTripleMaterial(item) && !item.Golden)
                 .GroupBy(item => item.DefinitionId)
                 .Where(group => group.Count() >= requiredCopies)
                 .Select(group => group.Key)
@@ -32,7 +32,7 @@ namespace LearnHearthstone.Domain.Engine
 
             foreach (var item in items)
             {
-                if (item.DefinitionId == definitionId && !item.Golden && materials.Count < requiredCopies)
+                if (IsTripleMaterial(item) && item.DefinitionId == definitionId && !item.Golden && materials.Count < requiredCopies)
                 {
                     materials.Add(item);
                 }
@@ -63,6 +63,13 @@ namespace LearnHearthstone.Domain.Engine
             golden.PoolCopiesHeld = poolCopiesHeld;
 
             return new TripleResult { Remaining = remaining, Golden = golden };
+        }
+
+        private static bool IsTripleMaterial(MinionInstance item)
+        {
+            return item != null &&
+                   (item.CardKind == CardKind.Minion || item.CardKind == CardKind.HeroBuddy) &&
+                   !string.IsNullOrEmpty(item.DefinitionId);
         }
     }
 }

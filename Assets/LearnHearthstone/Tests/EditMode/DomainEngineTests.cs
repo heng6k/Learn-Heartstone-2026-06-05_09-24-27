@@ -54,6 +54,21 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TripleEngine_DoesNotUseTavernSpellsAsTripleMaterials()
+        {
+            var items = new List<MinionInstance>
+            {
+                TestInstance("a", "m1", 1),
+                TestInstance("b", "m1", 1),
+                TestInstance("coin", "m1", 0)
+            };
+            items[2].CardKind = CardKind.TavernSpell;
+
+            Assert.IsNull(TripleEngine.FindTripleCandidate(items));
+            Assert.Throws<System.InvalidOperationException>(() => TripleEngine.ResolveTriple(items, "m1", BoardSide.Player, "spell-ignored"));
+        }
+
+        [Test]
         public void CombatEngine_PrioritizesTauntAndRemovesDivineShield()
         {
             var attacker = TestInstance("p1", "attacker", 0);

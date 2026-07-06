@@ -657,7 +657,7 @@
         "shady_aristocrat"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Shady Aristocrat MVP reward."
+      "notes": "Local Shady Aristocrat reward with no official dbfId. Rule follows text: gain 8 Gold when the Quest is completed."
     },
     {
       "id": "LH_Reward_CoinPouch16",
@@ -677,7 +677,7 @@
         "golden"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Golden Shady Aristocrat MVP reward."
+      "notes": "Local Golden Shady Aristocrat reward with no official dbfId. Rule follows text: gain 16 Gold when the Quest is completed."
     },
     {
       "id": "BG24_Reward_107",
@@ -1284,7 +1284,7 @@
         "minion"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Offerable. Starts the existing current-tier minion Discover flow."
+      "notes": "Offerable. No official dbfId is reconciled locally; rule follows text by starting the existing current-Tavern-Tier minion Discover flow."
     },
     {
       "id": "BG24_Reward_313",
@@ -1325,7 +1325,7 @@
         "golden"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Offerable. Active reward changes the player triple threshold from 3 copies to 2 copies."
+      "notes": "Offerable. No official dbfId is reconciled locally; rule follows text by changing the player triple threshold from 3 copies to 2 copies."
     },
     {
       "id": "BG24_Reward_362",
@@ -1490,7 +1490,7 @@
         "tavern_spell"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Offerable. Active reward contributes +1 to the existing Tavern spell extra-cast path."
+      "notes": "Offerable. No official dbfId is reconciled locally; rule follows text by contributing +1 to the existing Tavern spell extra-cast path."
     },
     {
       "id": "BG28_Reward_509",
@@ -1511,7 +1511,7 @@
         "golden"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Offerable. Tracks the next target tier in RewardCounters and increases it after each trigger."
+      "notes": "Offerable. No official dbfId is reconciled locally; rule follows text by making one friendly minion of the tracked tier Golden, then increasing the tracked tier."
     },
     {
       "id": "BG28_Reward_510",
@@ -1618,7 +1618,7 @@
         "scaling"
       ],
       "implementationStatus": "Implemented",
-      "notes": "Offerable. Active reward adds scaling TavernSpellBonusAttack/Health to Tavern spells and increases after each Tavern spell cast."
+      "notes": "Offerable. No official dbfId is reconciled locally; rule follows text by adding scaling TavernSpellBonusAttack/Health to Tavern spells and increasing after each Tavern spell cast."
     },
     {
       "id": "BG33_Reward_021",
@@ -1638,7 +1638,7 @@
         "rally"
       ],
       "implementationStatus": "Implemented",
-      "notes": "DebugOnly. Rally subsystem is not yet present, so direct activation is a safe passive placeholder."
+      "notes": "DebugOnly. Active reward sets QuestRallyExtraTriggers and CombatEngine adds one extra Rally trigger."
     }
   ]
 }

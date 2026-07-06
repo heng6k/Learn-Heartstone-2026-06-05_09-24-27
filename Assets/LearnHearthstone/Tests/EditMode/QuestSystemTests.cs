@@ -289,6 +289,50 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void HiddenReward_ExquisiteConchOnlyRepeatsFirstBattlecryEachTurn()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            QueueQuestChoice(service, "BG24_Quest_112", "BG24_Reward_123");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            CompleteQuestByRefreshing(service);
+            Assert.AreEqual("BG24_Reward_123", service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.RewardId);
+            Assert.IsTrue(service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.RewardActive);
+            Assert.IsFalse(service.State.Player.Tavern.AdvancedMechanics.Quests.RewardCounters.ContainsKey("BG24_Reward_123:usedRound"));
+
+            service.State.Player.Tavern.Hand.Add(TestBattlecryMinion("shell-conch-first", "BG23_002"));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+
+            Assert.AreEqual(3, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell));
+
+            service.State.Player.Tavern.Hand.Add(TestBattlecryMinion("shell-conch-second", "BG23_002"));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+
+            Assert.AreEqual(4, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell));
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.State.Player.Tavern.Hand.Add(TestBattlecryMinion("shell-conch-next-turn", "BG23_002"));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+
+            Assert.AreEqual(7, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell));
+        }
+
+        [Test]
+        public void DebugReward_GilneanWarHornAddsOneBattlecryRepeat()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            ActivateRewardDirectly(service, "BG27_Reward_802");
+
+            service.State.Player.Tavern.Hand.Add(TestBattlecryMinion("shell-war-horn", "BG23_002"));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell));
+        }
+
+        [Test]
         public void SecondBatch_TealTigerSapphireUsesRefreshCountWithoutOverStackingFrozenMinions()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -380,7 +424,11 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 222, SafetyLimit = 5 }));
 
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "victim-second"));
+            var copy = service.State.Player.Tavern.Hand.Single(card => card.CardId == "victim-second");
+            Assert.AreEqual(PoolSource.Copy, copy.PoolSource);
+            Assert.AreEqual(PoolSource.Copy, copy.OriginPoolSource);
+            Assert.AreEqual(0, copy.PoolCopiesHeld);
+            Assert.IsFalse(copy.CanReturnToPoolAfterAttach);
         }
 
         [Test]
@@ -525,6 +573,66 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DebugReward_RallyingCryAddsOneExtraRallyTrigger()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var supporter = TestMinion("rally-supporter");
+            supporter.CardId = "BG33_241";
+            supporter.DefinitionId = "BG33_241";
+            supporter.Attack = 1;
+            supporter.Health = 5;
+            supporter.MaxHealth = 5;
+            supporter.Keywords.Add(Keyword.Rally);
+            var right = TestMinion("rally-right");
+            right.Attack = 2;
+            right.Health = 2;
+            right.MaxHealth = 2;
+            service.State.Player.Board.Add(supporter);
+            service.State.Player.Board.Add(right);
+            var opponent = TestMinion("rally-opponent");
+            opponent.Attack = 0;
+            opponent.Health = 10;
+            opponent.MaxHealth = 10;
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+            ActivateRewardDirectly(service, "BG33_Reward_021");
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 123, SafetyLimit = 1 }));
+
+            var buffed = service.State.LastResult.FinalPlayerBoard.First(minion => minion.InstanceId == "rally-right");
+            Assert.AreEqual(6, buffed.Attack);
+            Assert.AreEqual(6, buffed.MaxHealth);
+        }
+
+        [Test]
+        public void DebugReward_GhastlyMaskRepeatsEndOfTurnEffects()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            var vendor = TestMinion("ghastly-vendor", 6);
+            vendor.CardKind = CardKind.HeroBuddy;
+            vendor.CardId = "TB_BaconShop_HERO_16_Buddy";
+            vendor.DefinitionId = "TB_BaconShop_HERO_16_Buddy";
+            vendor.Attack = 8;
+            vendor.Health = 9;
+            vendor.MaxHealth = 9;
+            var target = TestMinion("ghastly-target", 3);
+            target.Attack = 2;
+            target.Health = 3;
+            target.MaxHealth = 3;
+            service.State.Player.Board.Add(vendor);
+            service.State.Player.Board.Add(target);
+            ActivateRewardDirectly(service, "BG24_Reward_130");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(18, target.Attack);
+            Assert.AreEqual(21, target.MaxHealth);
+        }
+
+        [Test]
         public void FourthBatch_SecretSinstoneCopiesDiscoveredCard()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -572,11 +680,20 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(discover.Options.All(option => !option.Golden));
             var optionIndex = discover.Options.FindIndex(option => option.CardId == "locket-target");
             Assert.GreaterOrEqual(optionIndex, 0);
-            Assert.IsTrue(discover.Options[optionIndex].Enchantments.Any(enchantment => enchantment.SourceId == "test-buff"));
+            var option = discover.Options[optionIndex];
+            Assert.IsTrue(option.Enchantments.Any(enchantment => enchantment.SourceId == "test-buff"));
+            Assert.AreEqual(PoolSource.Copy, option.PoolSource);
+            Assert.AreEqual(PoolSource.Copy, option.OriginPoolSource);
+            Assert.AreEqual(0, option.PoolCopiesHeld);
+            Assert.IsFalse(option.CanReturnToPoolAfterAttach);
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, optionIndex));
 
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "locket-target"));
+            var copy = service.State.Player.Tavern.Hand.Single(card => card.CardId == "locket-target");
+            Assert.AreEqual(PoolSource.Copy, copy.PoolSource);
+            Assert.AreEqual(PoolSource.Copy, copy.OriginPoolSource);
+            Assert.AreEqual(0, copy.PoolCopiesHeld);
+            Assert.IsFalse(copy.CanReturnToPoolAfterAttach);
         }
 
         [Test]
@@ -736,6 +853,36 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void RemainingBatch_KidnapSackPreservesMovedTavernCardPoolSource()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            ActivateRewardDirectly(service, "BG24_Reward_718");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            var definition = MinionCatalogLoader.LoadFromResources().All.First(card => card.InPool && card.TavernTier == 1);
+            var tavern = service.State.Player.Tavern;
+            tavern.Shop.Clear();
+            tavern.Shop.Add(MinionFactory.Create(definition, BoardSide.Player, "kidnap-pool", false, PoolSource.Pool, 1));
+            tavern.Pool[definition.Id] = 0;
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            var stolen = tavern.Hand.Single(card => card.DefinitionId == definition.Id);
+            Assert.AreEqual(PoolSource.Pool, stolen.PoolSource);
+            Assert.AreEqual(PoolSource.Pool, stolen.OriginPoolSource);
+            Assert.AreEqual(1, stolen.PoolCopiesHeld);
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(stolen), 0));
+            var boardCopy = service.State.Player.Board.Single(card => card.DefinitionId == definition.Id);
+            service.Apply(new GameCommand(GameCommandType.SellMinion, boardCopy.InstanceId));
+
+            Assert.AreEqual(1, service.State.Player.Tavern.Pool[definition.Id]);
+        }
+
+        [Test]
         public void RemainingBatch_TimelineAccelerationTransformsMinionUpOneTier()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -809,6 +956,100 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(9, target.Attack);
             Assert.AreEqual(8, target.MaxHealth);
+        }
+
+        [Test]
+        public void NormalPool_TinyHenchmenBuffsThreeTierThreeOrLowerMinions()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            var tierOne = TestMinion("tiny-tier-one", 1);
+            var tierTwo = TestMinion("tiny-tier-two", 2);
+            var tierThree = TestMinion("tiny-tier-three", 3);
+            var tierFour = TestMinion("tiny-tier-four", 4);
+            service.State.Player.Board.Add(tierOne);
+            service.State.Player.Board.Add(tierTwo);
+            service.State.Player.Board.Add(tierThree);
+            service.State.Player.Board.Add(tierFour);
+            ActivateRewardDirectly(service, "BG24_Reward_136");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(4, tierOne.Attack);
+            Assert.AreEqual(4, tierOne.MaxHealth);
+            Assert.AreEqual(4, tierTwo.Attack);
+            Assert.AreEqual(4, tierTwo.MaxHealth);
+            Assert.AreEqual(4, tierThree.Attack);
+            Assert.AreEqual(4, tierThree.MaxHealth);
+            Assert.AreEqual(1, tierFour.Attack);
+            Assert.AreEqual(1, tierFour.MaxHealth);
+        }
+
+        [Test]
+        public void NormalPool_UntoldRichesGrantsGoldAndRaisesMaximumGold()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_313", "BG33_Reward_012");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            service.State.Player.Tavern.Gold = 3;
+            service.State.Player.Tavern.MaxGold = 10;
+
+            service.Apply(new GameCommand(GameCommandType.DebugCompleteQuest));
+
+            Assert.AreEqual(8, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(15, service.State.Player.Tavern.MaxGold);
+        }
+
+        [Test]
+        public void NormalPool_SixteenGoldCoinPouchGrantsSixteenGoldOnCompletion()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_313", "LH_Reward_CoinPouch16");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            service.State.Player.Tavern.Gold = 2;
+
+            service.Apply(new GameCommand(GameCommandType.DebugCompleteQuest));
+
+            Assert.AreEqual(18, service.State.Player.Tavern.Gold);
+        }
+
+        [Test]
+        public void NormalPool_AnotherHiddenBodyDiscoversCurrentTavernTierMinion()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Tier = 4;
+            QueueQuestChoice(service, "BG24_Quest_313", "BG24_Reward_311");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            service.Apply(new GameCommand(GameCommandType.DebugCompleteQuest));
+
+            var discover = service.State.Player.Tavern.Discover;
+            Assert.IsNotNull(discover);
+            Assert.AreEqual("quest:BG24_Reward_311", discover.Source);
+            Assert.AreEqual(4, discover.RewardTier);
+            Assert.IsTrue(discover.Options.All(option => option.CardKind == CardKind.Minion));
+            Assert.IsTrue(discover.Options.All(option => option.TavernTier == 4));
+        }
+
+        [Test]
+        public void NormalPool_SmeltingChamberMakesTrackedTierFriendlyMinionGoldenAndImproves()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            var tierOne = TestMinion("smelting-tier-one", 1);
+            var tierTwo = TestMinion("smelting-tier-two", 2);
+            service.State.Player.Board.Add(tierOne);
+            service.State.Player.Board.Add(tierTwo);
+            ActivateRewardDirectly(service, "BG28_Reward_509");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(tierOne.Golden);
+            Assert.IsFalse(tierTwo.Golden);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.IsTrue(tierTwo.Golden);
         }
 
         [Test]

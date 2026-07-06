@@ -3896,7 +3896,9 @@ namespace LearnHearthstone.Domain.Engine
 
         private static int GetRallyRepeats(CombatSideState owner)
         {
-            return 1 + GetTimewarpedDeiosExtraTriggers(owner);
+            return 1 +
+                GetTimewarpedDeiosExtraTriggers(owner) +
+                Math.Max(0, owner.Tavern?.QuestRallyExtraTriggers ?? 0);
         }
 
         private static void ResolveTimewarpedCollectorRally(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)

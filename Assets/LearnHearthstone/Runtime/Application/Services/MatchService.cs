@@ -7875,14 +7875,10 @@ namespace LearnHearthstone.Application.Services
                 return "no non-Golden Tavern card";
             }
 
-            tavern.Shop[picked.Index] = null;
-            TavernShopSlots.ClearSlot(tavern, picked.Index);
-            picked.Card.Owner = BoardSide.Player;
-            picked.Card.PoolSource = PoolSource.Copy;
-            picked.Card.PoolCopiesHeld = 0;
-            tavern.Hand.Add(picked.Card);
-            HandleCardsAddedToHand(1, "Kidnap Sack");
-            return "moved " + picked.Card.Name + " to hand";
+            var cardName = picked.Card.Name;
+            return MoveTavernCardToHand(picked.Index, "Kidnap Sack", true)
+                ? "moved " + cardName + " to hand"
+                : "failed to move Tavern card";
         }
 
         private string CastGoldenHammer(int targetIndex)
@@ -11052,7 +11048,7 @@ namespace LearnHearthstone.Application.Services
             MoveTavernCardToHand(rng.Pick(candidates).Index, source);
         }
 
-        private bool MoveTavernCardToHand(int shopIndex, string source)
+        private bool MoveTavernCardToHand(int shopIndex, string source, bool preservePoolMetadata = false)
         {
             var tavern = State.Player.Tavern;
             if (shopIndex < 0 || shopIndex >= tavern.Shop.Count || tavern.Hand.Count >= HandLimit)
@@ -11069,10 +11065,14 @@ namespace LearnHearthstone.Application.Services
             tavern.Shop.RemoveAt(shopIndex);
             card.Owner = BoardSide.Player;
             card.InstanceId = "player-stolen-" + card.DefinitionId + "-" + State.Round + "-" + tavern.Hand.Count + "-" + tavern.RecruitLog.Count;
-            card.PoolSource = PoolSource.Copy;
-            card.OriginPoolSource = PoolSource.Copy;
-            card.PoolCopiesHeld = 0;
-            card.CanReturnToPoolAfterAttach = false;
+            if (!preservePoolMetadata)
+            {
+                card.PoolSource = PoolSource.Copy;
+                card.OriginPoolSource = PoolSource.Copy;
+                card.PoolCopiesHeld = 0;
+                card.CanReturnToPoolAfterAttach = false;
+            }
+
             tavern.Hand.Add(card);
             HandleCardsAddedToHand(1, source);
             AddRecruitLog(RecruitLogType.Play, source + ": stole " + card.Name + " from the Tavern.", tavern.Gold, tavern.Gold);
@@ -13932,6 +13932,7 @@ namespace LearnHearthstone.Application.Services
             tavern.QuestCycleOfEnergyActive = HasActiveQuestReward(CycleOfEnergyRewardId);
             tavern.QuestStableAmalgamationActive = HasActiveQuestReward(StableAmalgamationRewardId);
             tavern.QuestDeathrattleExtraTriggers = HasActiveQuestReward(TurbulentTombsRewardId) ? 1 : 0;
+            tavern.QuestRallyExtraTriggers = HasActiveQuestReward(RallyingCryRewardId) ? 1 : 0;
 
             if (HasActiveQuestReward(StolenGoldRewardId))
             {
@@ -19154,6 +19155,7 @@ namespace LearnHearthstone.Application.Services
             tavern.QuestCycleOfEnergyActive = false;
             tavern.QuestStableAmalgamationActive = false;
             tavern.QuestDeathrattleExtraTriggers = 0;
+            tavern.QuestRallyExtraTriggers = 0;
             tavern.QuestTumblingAttack = 0;
             tavern.QuestTumblingHealth = 0;
             tavern.QuestTumblingAvengeAttack = 0;
@@ -20737,14 +20739,17 @@ namespace LearnHearthstone.Application.Services
                 .OrderByDescending(minion => minion.Golden ? 3 : 2)
                 .FirstOrDefault();
             var repeats = brann == null ? 1 : brann.Golden ? 3 : 2;
-            if (HasActiveQuestReward(ExquisiteConchRewardId))
+            var firstBattlecryExtraReward = ActiveQuestRewards()
+                .Select(active => questCatalog.TryGetRewardById(active.RewardId, out var reward) ? reward : null)
+                .FirstOrDefault(reward => reward != null && reward.EffectKind == QuestRewardEffectKind.FirstBattlecryExtraTriggers);
+            if (firstBattlecryExtraReward != null)
             {
                 var quests = EnsureQuestState(State.Player.Tavern);
-                var key = QuestRewardCounterKey(ExquisiteConchRewardId, "usedRound");
+                var key = QuestRewardCounterKey(firstBattlecryExtraReward.Id, "usedRound");
                 var usedRound = quests.RewardCounters.TryGetValue(key, out var stored) ? stored : -1;
                 if (usedRound != State.Round)
                 {
-                    repeats += 2;
+                    repeats += Math.Max(1, firstBattlecryExtraReward.TargetCount);
                     quests.RewardCounters[key] = State.Round;
                 }
             }
@@ -27327,7 +27332,7 @@ namespace LearnHearthstone.Application.Services
             var falseIdolsActive = IsActiveImplementedAnomaly(FalseIdolsAnomalyCardId);
             var clocksworthActive = HasActiveHeroPower(ClocksworthHeroPowerCardId);
             foreach (var group in all
-                         .Where(item => item != null && !item.Golden && !string.IsNullOrEmpty(item.DefinitionId))
+                         .Where(item => IsPlayerTripleMaterial(item) && !item.Golden)
                          .GroupBy(item => item.DefinitionId))
             {
                 var groupRequiredCopies = GetPlayerTripleRequiredCopies(
@@ -27375,20 +27380,21 @@ namespace LearnHearthstone.Application.Services
 
         private static bool IsPirateTripleCandidate(MinionInstance minion)
         {
-            return BoardTribeAnalyzer.GetCountedTribes(minion).Contains(Tribe.Pirate);
+            return IsPlayerTripleMaterial(minion) &&
+                   BoardTribeAnalyzer.GetCountedTribes(minion).Contains(Tribe.Pirate);
         }
 
         private bool TryResolveSurpriseElementalTriple(List<MinionInstance> all, int requiredCopies)
         {
             requiredCopies = Math.Max(2, requiredCopies);
-            var surprise = all.Where(card => !card.Golden && card.CardId == SurpriseElementalCardId).ToList();
+            var surprise = all.Where(card => IsPlayerTripleMaterial(card) && !card.Golden && card.CardId == SurpriseElementalCardId).ToList();
             if (surprise.Count == 0)
             {
                 return false;
             }
 
             var elementalGroup = all
-                .Where(card => !card.Golden && card.CardId != SurpriseElementalCardId && card.Tribes.Contains(Tribe.Elemental))
+                .Where(card => IsPlayerTripleMaterial(card) && !card.Golden && card.CardId != SurpriseElementalCardId && card.Tribes.Contains(Tribe.Elemental))
                 .GroupBy(card => card.DefinitionId)
                 .FirstOrDefault(group => group.Count() + surprise.Count >= requiredCopies);
             if (elementalGroup == null)
@@ -27430,6 +27436,12 @@ namespace LearnHearthstone.Application.Services
             return true;
         }
 
+        private static bool IsPlayerTripleMaterial(MinionInstance item)
+        {
+            return item != null &&
+                   (item.CardKind == CardKind.Minion || item.CardKind == CardKind.HeroBuddy) &&
+                   !string.IsNullOrEmpty(item.DefinitionId);
+        }
         private void GrantTripleRewardCard()
         {
             if (HasEquippedTrinketEffect(CorruptedTomeEffectId))

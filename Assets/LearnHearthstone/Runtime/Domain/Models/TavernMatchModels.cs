@@ -812,6 +812,7 @@ namespace LearnHearthstone.Domain.Models
         public bool QuestCycleOfEnergyActive;
         public bool QuestStableAmalgamationActive;
         public int QuestDeathrattleExtraTriggers;
+        public int QuestRallyExtraTriggers;
         public int QuestTumblingAttack;
         public int QuestTumblingHealth;
         public int QuestTumblingAvengeAttack;
