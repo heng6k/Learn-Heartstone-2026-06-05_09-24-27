@@ -25,6 +25,8 @@ reclassified as explicit data/product boundaries.
 - Second/extra Hero Power command entry, independent per-power budgets, temporary/replacement
   Hero Power scoping, and Unity button disabled state are covered by the generic Hero Power
   use-limit implementation.
+- The 27 historical/extra Timewarped minions that previously had no runtime handlers are now
+  implemented, tagged `implementation_status:implemented`, and covered by focused EditMode tests.
 
 ## Boundary Register
 
@@ -36,15 +38,15 @@ Canonical status is tracked in `timewarped-tavern-remaining-completion-status.md
 | Boundary id | Boundary | Current classification | Why this is not a P0/P1 runtime gap | Release condition | Do not do |
 | --- | --- | --- | --- | --- | --- |
 | `TW-BDY-001` | `BG34_Treasure_900` Timewarped Evolving Tavern | Closed data/catalog proxy | The effect now uses official local Darkmoon Prize card `BGS_Treasures_006`; the legacy `TIMEWARPED_EVOLVING_TAVERN_SPELL` handler is compatibility code, not the current generated path. | Closed by the `darkmoonPrizes.json` `BGS_Treasures_006` entry and focused Evolving Tavern test coverage. Reopen only if that local official data or focused path regresses. | Do not re-document this as an open proxy while `BGS_Treasures_006` remains local and tested. |
-| `TW-BDY-002` | Historical/extra Timewarped pool | Product switch | Historical/launch-extra cards are outside the default current pool by policy. The runtime already has `UseHistoricalTimewarpedPool` / `TimewarpedPoolVersion` gates, so default omission is expected. | Productize this mode only if the project decides historical/extra pools should be a first-class gameplay option; then add status labels, tests, and UI/config exposure for that mode. | Do not silently mix historical/extra cards into default current Timewarp offers. |
+| `TW-BDY-002` | Historical/extra Timewarped pool | Runtime-complete product switch | Historical/launch-extra cards are outside the default current pool by policy, but the 27 previously unhandled historical/extra minions now have runtime effects. The runtime has `UseHistoricalTimewarpedPool` / `TimewarpedPoolVersion` gates, and the start-game version-control strip exposes `Current`, `FirestoneAll`, and `Launch` choices. | Closed by runtime handlers, implemented data tags, focused historical runtime tests, UI/config exposure, and candidate-pool tests. | Do not silently mix historical/extra cards into default current Timewarp offers. |
 | `TW-BDY-003` | Default full EditMode hang route | Test infrastructure | Focused Timewarped validation passes, and the default 8-shard EditMode route now completes without hangs or failed shards. | Closed for the current route by `Logs/EditModeBisectSummary.txt`; keep `Tools/run-editmode-bisect.ps1` as the regression isolation path if a future broad run fails. | Do not treat future broad failures as Timewarped card defects until the bisect route isolates a concrete gameplay test. |
 
 ## Boundary Decision Rules
 
 - If official card/catalog data lands, close the data proxy boundary and keep a focused regression
   test proving the official generated id is used.
-- If the problem is an optional pool policy, keep it behind an explicit switch and document the
-  default exclusion.
+- If the problem is an optional pool policy, keep it behind an explicit switch, expose it only as a
+  deliberate setup choice, and document the default exclusion.
 - If the problem is broad test execution stability, isolate it with the bisect tool before tying it
   to gameplay implementation.
 - A boundary can move back into runtime work only when there is a concrete failing focused test,
@@ -62,13 +64,19 @@ Canonical status is tracked in `timewarped-tavern-remaining-completion-status.md
 - `Logs/TimewarpedBoundaryShard6Focused.xml`: 2/2 passed for Coilfang Elite and Ini Stormcoil
   after the shard-6 fix pass.
 - `Logs/EditModeBisectSummary.txt`: all 8 default EditMode shards passed on the verified route.
-- `timewarpedTavernCards.json` parses successfully with 158 cards.
-- Focused static audit confirms the 9 target card ids have runtime/test hits and
-  `implementation_status:implemented` tags.
+- `Logs/TimewarpedPoolVersionUi.xml`: 1/1 passed for the start-game version-control
+  `TimewarpedPoolVersion` setup entry.
+- `Logs/TimewarpedHistoricalImplementationTests.xml`: 11/11 passed for focused historical/extra
+  runtime coverage.
+- `Logs/TimewarpedHistoricalPoolBoundaryTests.xml`: 4/4 passed for catalog/default exclusion and
+  opt-in historical inclusion.
+- `timewarpedTavernCards.json` contains 158 cards.
+- Focused static audit confirms the 9 current-pool target ids and 27 historical/extra target ids
+  have runtime/test hits and `implementation_status:implemented` tags.
 
 ## Follow-Up Ownership
 
-- Product follow-up: decide whether historical/extra-pool gameplay should be exposed beyond the
-  existing switch-gated path.
+- Product follow-up: none for `TW-BDY-002`; historical/extra-pool gameplay is implemented and
+  exposed as an explicit setup choice while default current offers stay unchanged.
 - Test-infrastructure follow-up: maintain the verified bisect route for future regressions; no
   current default EditMode shard remains open from this pass.

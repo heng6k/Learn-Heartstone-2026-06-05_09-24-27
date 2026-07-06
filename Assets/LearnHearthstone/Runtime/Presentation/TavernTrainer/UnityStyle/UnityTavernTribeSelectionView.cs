@@ -64,6 +64,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool showHiddenEffectOnly;
         private bool showDisabled;
         private bool enablePlayerDirectedChoices = true;
+        private TimewarpedPoolVersion timewarpedPoolVersion = TimewarpedPoolVersion.Current;
         private GameObject shell;
 
         public UnityTavernTribeSelectionView(
@@ -358,6 +359,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 enablePlayerDirectedChoices = value;
                 Build();
             });
+
             BuildAnomalySetupControls(strip.transform);
         }
 
@@ -456,6 +458,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 20f : 22f);
 
+            var timewarped = ActionButton("UnityTimewarpedPoolVersionButton", strip.transform, TimewarpedPoolVersionButtonText(), true, () =>
+            {
+                AdvanceTimewarpedPoolVersion();
+                Build();
+            });
+            UnityTavernUiStyle.SetFixedSize(timewarped.gameObject, layout.IsCompact ? 112f : 132f, layout.IsCompact ? 42f : 46f);
+            if (timewarpedPoolVersion != TimewarpedPoolVersion.Current)
+            {
+                UnityTavernUiStyle.EnsureComponent<Image>(timewarped.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.24f);
+            }
+
             var anomalyPool = ActionButton("UnityAnomalyPoolVersionButton", strip.transform, AnomalyPoolVersionButtonText(), true, () =>
             {
                 AdvanceAnomalyPoolVersion();
@@ -479,6 +492,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 Build();
             });
             UnityTavernUiStyle.SetFixedSize(open.gameObject, layout.IsCompact ? 108f : 128f, layout.IsCompact ? 42f : 46f);
+        }
+
+        private void AdvanceTimewarpedPoolVersion()
+        {
+            switch (timewarpedPoolVersion)
+            {
+                case TimewarpedPoolVersion.Current:
+                    timewarpedPoolVersion = TimewarpedPoolVersion.FirestoneAll;
+                    break;
+                case TimewarpedPoolVersion.FirestoneAll:
+                    timewarpedPoolVersion = TimewarpedPoolVersion.Launch;
+                    break;
+                default:
+                    timewarpedPoolVersion = TimewarpedPoolVersion.Current;
+                    break;
+            }
         }
 
         private void AdvanceAnomalyPoolVersion()
@@ -512,6 +541,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "异常: 全池";
                 default:
                     return "异常: 当前";
+            }
+        }
+
+        private string TimewarpedPoolVersionButtonText()
+        {
+            switch (timewarpedPoolVersion)
+            {
+                case TimewarpedPoolVersion.FirestoneAll:
+                    return "时空: 全池";
+                case TimewarpedPoolVersion.Launch:
+                    return "时空: 上线";
+                default:
+                    return "时空: 当前";
             }
         }
 
@@ -1785,6 +1827,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ShowHiddenEffectOnly = showHiddenEffectOnly,
                 ShowDisabled = showDebugOnly && showDisabled,
                 EnablePlayerDirectedChoices = enablePlayerDirectedChoices,
+                TimewarpedPoolVersion = timewarpedPoolVersion,
+                UseHistoricalTimewarpedPool = timewarpedPoolVersion != TimewarpedPoolVersion.Current,
                 EnabledMinionCardIds = enabledMinionCardIds.Where(value => !IsDuoCardId(value)).ToList(),
                 EnabledTavernSpellCardNumbers = enabledTavernSpellCardNumbers.ToList()
             });

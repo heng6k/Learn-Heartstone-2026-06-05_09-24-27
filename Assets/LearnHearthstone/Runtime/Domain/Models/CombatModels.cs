@@ -202,6 +202,7 @@ namespace LearnHearthstone.Domain.Models
         AddCopyOfKillerToHand,
         AddPlainCopyOfKilledEnemyToHand,
         AddRandomProtossToHand,
-        AddRandomGoldenBeastToHand
+        AddRandomGoldenBeastToHand,
+        AddKeywordToOriginalFriendlyMinion
     }
 }

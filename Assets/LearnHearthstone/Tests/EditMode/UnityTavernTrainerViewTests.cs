@@ -307,6 +307,67 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TribeSelectionView_TimewarpedPoolVersionButtonPassesSetup()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-timewarped-version-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionPanel"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton"));
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(TimewarpedPoolVersion.Current, startedWith.TimewarpedPoolVersion);
+                Assert.IsFalse(startedWith.UseHistoricalTimewarpedPool);
+
+                FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(TimewarpedPoolVersion.FirestoneAll, startedWith.TimewarpedPoolVersion);
+                Assert.IsTrue(startedWith.UseHistoricalTimewarpedPool);
+
+                FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(TimewarpedPoolVersion.Launch, startedWith.TimewarpedPoolVersion);
+                Assert.IsTrue(startedWith.UseHistoricalTimewarpedPool);
+
+                FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.AreEqual(TimewarpedPoolVersion.Current, startedWith.TimewarpedPoolVersion);
+                Assert.IsFalse(startedWith.UseHistoricalTimewarpedPool);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
         public void TribeSelectionView_AnomalyRandomButtonPassesSetup()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));

@@ -31,7 +31,8 @@
 - Major 当前池：70 张随从。
 - 历史/额外池：33 张随从，默认不进入当前池。
 
-当前唯一开放边界仍是 `TW-BDY-002`：历史/额外池是否要变成正式产品模式。
+`TW-BDY-002` 已通过开始游戏版本控制产品化：历史/额外池仍不进入默认 current，
+但玩家可以在开局 setup 中显式选择 `FirestoneAll` 或 `Launch`。
 
 ## 设计原则
 
@@ -133,11 +134,12 @@ State.Seed
 
 ## 历史/额外池边界
 
-历史/额外池仍是产品开关：
+历史/额外池仍是显式产品开关：
 
 - 默认当前池不能出 `poolStatus = historical_extra`。
 - `TimewarpedPoolVersion.FirestoneAll` 或 `Launch` 开启后，历史候选进入合法池，再走同一套智能选择规则。
 - 不为历史模式写第二套 picker。
+- 开关入口在开始游戏版本控制栏，最终写入 `MatchSetupOptions.TimewarpedPoolVersion`。
 
 测试必须覆盖：
 
@@ -222,7 +224,8 @@ State.Seed
 实现后同步：
 
 - 更新本文件的“当前行为”。
-- 只有当历史/额外池产品策略被改变时，才更新 `timewarped-tavern-remaining-completion-status.md` 的 `TW-BDY-002`。
+- `timewarped-tavern-remaining-completion-status.md` 的 `TW-BDY-002` 已在 UI/config
+  暴露后标记为闭环。
 - 不重新打开 `TW-BDY-001` 或 `TW-BDY-003`。
 
 ## 验证路线
@@ -239,7 +242,7 @@ State.Seed
 | 风险/决策 | 处理 |
 | --- | --- |
 | `implementation_status:data_only` 容易被误解为未实现 | 当前池随从仍可购买；只排除 blocked non-minion。 |
-| 历史/额外模式还没有产品 UI | 保持 switch-gated，不改变默认 current。 |
+| 历史/额外模式需要避免误入默认池 | 通过开始游戏版本控制显式选择，默认仍保持 current。 |
 | Major 的 generic 候选比 Minor 少 | 用 deterministic legal fallback。 |
 | 未来可出非随从变多 | 可把无种族非随从视为 Generic/Utility。 |
 | 战队种族过强导致过拟合 | 只保留 2 个 Focus，留 1 个 Expansion。 |
@@ -254,7 +257,7 @@ State.Seed
 - 新增 Timewarped offer candidate helper，按当前战队/手牌种族打分。
 - 默认 4 个 offer 按 2 个 `Focus`、1 个 `Expansion`、1 个 `Generic` 或 deterministic legal fallback 组成。
 - `implementation_status:data_only` 的当前池随从仍可作为可购买 Timewarped body 出现。
-- `TW-BDY-002` 未改变：历史/额外池仍只在对应开关打开后进入合法池，不混入默认 current 流程。
+- `TW-BDY-002` 已闭环为显式 UI/config 开关：历史/额外池仍只在对应版本选择后进入合法池，不混入默认 current 流程。
 
 验证结果：
 

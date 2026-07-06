@@ -4396,7 +4396,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:shop_or_refresh",
         "timewarp_effect:stats",
         "timewarp_trigger:recruit_phase_reactive"
@@ -4428,7 +4428,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_trigger:damage_reactive"
       ],
@@ -4461,7 +4461,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:blood_gem",
         "timewarp_effect:tribe_synergy",
         "timewarp_trigger:deathrattle"
@@ -4526,7 +4526,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:shop_or_refresh",
         "timewarp_effect:card_generation",
         "timewarp_effect:tribe_synergy",
@@ -4598,7 +4598,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:hand_state"
@@ -4667,7 +4667,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:static_or_aura"
@@ -4703,7 +4703,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:rally"
       ],
@@ -4771,7 +4771,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:damage_reactive"
@@ -4805,7 +4805,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:summon",
         "timewarp_effect:card_generation",
         "timewarp_effect:copy",
@@ -4840,7 +4840,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:card_generation",
         "timewarp_effect:tribe_synergy",
@@ -4876,7 +4876,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_trigger:end_of_turn"
       ],
@@ -4909,7 +4909,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:summon",
         "timewarp_effect:card_generation",
         "timewarp_trigger:deathrattle"
@@ -4977,7 +4977,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:economy",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_effect:tribe_synergy",
@@ -5012,7 +5012,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:blood_gem",
         "timewarp_effect:tribe_synergy",
         "timewarp_trigger:recruit_phase_reactive"
@@ -5047,7 +5047,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:shop_or_refresh",
         "timewarp_effect:card_generation",
         "timewarp_effect:tavern_spell_synergy",
@@ -5083,7 +5083,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:shop_or_refresh",
         "timewarp_effect:stats",
         "timewarp_trigger:end_of_turn"
@@ -5118,7 +5118,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:deathrattle"
       ],
@@ -5152,7 +5152,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_effect:card_generation",
         "timewarp_trigger:end_of_turn"
@@ -5184,7 +5184,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:card_generation",
         "timewarp_trigger:start_of_combat"
       ],
@@ -5218,7 +5218,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:economy",
         "timewarp_effect:stats",
         "timewarp_trigger:end_of_turn"
@@ -5254,7 +5254,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:shop_or_refresh",
         "timewarp_effect:stats",
         "timewarp_effect:card_generation",
@@ -5290,7 +5290,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_trigger:recruit_phase_reactive"
       ],
@@ -5323,7 +5323,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:card_generation",
         "timewarp_effect:copy",
         "timewarp_trigger:deathrattle"
@@ -5358,7 +5358,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_trigger:deathrattle"
       ],
@@ -5391,7 +5391,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:blood_gem",
         "timewarp_trigger:recruit_phase_reactive"
       ],
@@ -5423,7 +5423,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:damage",
         "timewarp_trigger:start_of_combat"
@@ -5490,7 +5490,7 @@
         "timewarped",
         "timewarp:historical",
         "timewarp:historical_extra",
-        "implementation_status:data_only",
+        "implementation_status:implemented",
         "timewarp_effect:stats",
         "timewarp_effect:keyword_grant_or_keyword_body",
         "timewarp_trigger:static_or_aura"

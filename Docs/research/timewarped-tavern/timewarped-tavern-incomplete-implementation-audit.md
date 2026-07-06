@@ -3,7 +3,8 @@
 Date: 2026-07-05
 
 This audit supersedes the earlier incomplete-implementation snapshot. The P0/P1 repair pass
-closed the suspected current-pool minion gaps and the second-Hero-Power integration blocker.
+closed the suspected current-pool minion gaps, the second-Hero-Power integration blocker, and
+the follow-up historical/extra-pool runtime gap.
 
 ## Closed Items
 
@@ -15,6 +16,7 @@ closed the suspected current-pool minion gaps and the second-Hero-Power integrat
 | Scout Tier 7 reward source | Closed. | Rewards draw from current-pool definitions instead of the max-Tavern-tier filtered available-minion path. |
 | Second/extra Hero Power usage | Closed. | `UseHeroPower(... heroPowerCardId)` plus per-power turn budgets cover primary, extra, replacement, and Master Nguyen temporary Hero Powers; Unity buttons disable exhausted unlocked powers. |
 | Big Winner / Darkmoon Prize coverage | Closed for the previously missing Tier 3 branches. | Training Session, Top Shelf, Repeat Customer, All That Glitters, and Mindflayer Goggles are covered. |
+| Historical/extra Timewarped minion runtime effects | Closed for the 27 previously unhandled historical/extra minions. | The 27 card ids now have runtime handlers in `MatchService` or `CombatEngine`, are tagged `implementation_status:implemented`, and are covered by `Logs/TimewarpedHistoricalImplementationTests.xml` 11/11. |
 
 ## Boundary Classification
 
@@ -26,7 +28,7 @@ Canonical status is tracked in `timewarped-tavern-remaining-completion-status.md
 | Boundary id | Area | Classification | Current behavior | Why it stays open | Action that closes it |
 | --- | --- | --- | --- | --- | --- |
 | `TW-BDY-001` | Timewarped Evolving Tavern | Closed data/catalog proxy | `BG34_Treasure_900` now adds official local Darkmoon Prize card `BGS_Treasures_006`; the legacy `TIMEWARPED_EVOLVING_TAVERN_SPELL` branch is compatibility code only. | Closed because local Darkmoon Prize data now contains Evolving Tavern and focused tests assert the official id is generated. | Reopen only if the official local data or focused generation path regresses. |
-| `TW-BDY-002` | Historical/extra Timewarped pool | Product switch | Default current Timewarp offers exclude historical/launch-extra cards. Historical candidates are appended only through `UseHistoricalTimewarpedPool` / `TimewarpedPoolVersion`. | This is a deliberate pool boundary, not missing default implementation. | Make historical/extra mode an approved first-class mode, then add explicit UI/config/test coverage for it. |
+| `TW-BDY-002` | Historical/extra Timewarped pool | Runtime-complete product switch | Default current Timewarp offers exclude historical/launch-extra cards. Historical candidates are appended only through `UseHistoricalTimewarpedPool` / `TimewarpedPoolVersion`, and the 27 previously unhandled historical/extra minions now have runtime effects. | This is a deliberate default-pool boundary, not a remaining implementation gap. | Reopen only if historical-pool runtime tests, UI/config setup wiring, or candidate-pool gating regresses. |
 | `TW-BDY-003` | Default full EditMode stability | Test infrastructure | Focused Timewarped suites pass; the latest default 8-shard EditMode route also passed. | This remains a test-infrastructure classification for future regressions, not a Timewarped card-effect defect. | Closed for the current route; rerun `Tools/run-editmode-bisect.ps1` only when a future broad run hangs or fails. |
 
 ## Boundary Handling Rules
@@ -34,15 +36,18 @@ Canonical status is tracked in `timewarped-tavern-remaining-completion-status.md
 - Keep generated proxies explicit when official card data is absent.
 - Close generated-proxy boundaries when official local card data exists and the generated id is
   covered by focused tests.
-- Keep historical/extra cards out of default current-pool offers unless a product decision changes
-  the default pool.
+- Keep historical/extra cards out of default current-pool offers. Players must opt into those
+  cards through the explicit start-game version-control pool choice.
 - Treat broad EditMode hangs as infrastructure until a focused repro identifies gameplay code.
 - Do not downgrade completed P0/P1 card effects because of these boundaries.
 
 ## Non-Issues Confirmed
 
 - `BG34_Giant_007` Timewarped Annoy-o-Tron and `BG34_Giant_012` Timewarped Cyclone remain static keyword bodies; they do not require effect branches.
-- Historical/extra cards are not expected to appear in the default current pool.
+- Historical/extra cards are implemented for opt-in historical pools, but are not expected to
+  appear in the default current pool.
+- Historical/extra cards are expected to appear only after a non-current Timewarped pool version
+  is selected in the start-game version-control strip.
 - Remaining `darkmoon_prize_proxy` search hits are negative assertions or old non-authoritative context; Big Winner no longer relies on the Bounty proxy path.
 - Evolving Tavern no longer has an open proxy boundary: the current generated id is
   `BGS_Treasures_006`, and the old local id is asserted absent from the focused path.
@@ -58,4 +63,9 @@ Canonical status is tracked in `timewarped-tavern-remaining-completion-status.md
 - `Logs/TimewarpedBoundaryFocused.xml`: 2/2 passed for shard-5 stabilization fixes.
 - `Logs/TimewarpedBoundaryShard6Focused.xml`: 2/2 passed for shard-6 stabilization fixes.
 - `Logs/EditModeBisectSummary.txt`: all 8 default EditMode shards passed.
-- Static JSON parse: `timewarpedTavernCards.json` contains 158 cards and the 9 target current-pool minions are the implemented Timewarped card ids in this pass.
+- `Logs/TimewarpedHistoricalImplementationTests.xml`: 11/11 passed for focused historical/extra
+  runtime coverage.
+- `Logs/TimewarpedHistoricalPoolBoundaryTests.xml`: 4/4 passed for catalog/default exclusion and
+  opt-in historical inclusion.
+- Static JSON/tag audit: `timewarpedTavernCards.json` contains 158 cards; the 9 current-pool
+  target ids and 27 historical/extra target ids are tagged `implementation_status:implemented`.
