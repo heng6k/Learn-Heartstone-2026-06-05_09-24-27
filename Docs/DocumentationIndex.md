@@ -47,7 +47,8 @@
 2. [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md)
 3. [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md)
 4. [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md)
-5. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
+5. [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md)
+6. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
 
 ### 想查官方数据、API 和一致性
 
@@ -89,6 +90,7 @@
 | Unity UI | [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md) | 开局选英雄、局内换英雄和小头像显示方案 | 英雄 UI 近期方案 |
 | Unity UI | [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md) | Prefab 化酒馆 UI 的目录、阶段和实现方案 | UI 工程化方案 |
 | Unity UI | [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md) | 随从右键编辑、关键词悬停、一键套用规则 | 编辑器交互方案 |
+| Unity UI | [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md) | 对手手牌、分阵营全局变量和完整下一回合流程的配置方案 | 战队配置和回合推进方案 |
 | 项目历史 | [ProjectProgress.md](ProjectProgress.md) | 项目进度、决策、已有文档和后续建议 | 早期进度快照 |
 
 ## 当前优先级判断
