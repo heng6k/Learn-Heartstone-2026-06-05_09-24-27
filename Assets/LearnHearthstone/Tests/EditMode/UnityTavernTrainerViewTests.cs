@@ -3245,6 +3245,36 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Tools_MechanicCoverageReportShowsQuestTrinketNotes()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                OpenRightPanelDrawer(rootObject.transform);
+                FindChild(rootObject.transform, "UnityToolsButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsMechanicCoverageSection"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsMechanicCoverageRow-Quest-Trinketinteractions"));
+
+                var status = FindChild(rootObject.transform, "UnityToolsMechanicCoverageStatus-Quest-Trinketinteractions").GetComponent<Text>().text;
+                Assert.That(status, Does.Contain("UI yes"));
+                Assert.That(status, Does.Contain("Tests yes"));
+
+                var notes = FindChild(rootObject.transform, "UnityToolsMechanicCoverageNotes-Quest-Trinketinteractions").GetComponent<Text>().text;
+                Assert.That(notes, Does.Contain("repeated summon overflow"));
+                Assert.That(notes, Does.Contain("stacked repeat sources"));
+                Assert.That(notes, Does.Contain("replay non-duplication"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void Tools_CardLibraryFiltersAndAddsCardsToHand()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));

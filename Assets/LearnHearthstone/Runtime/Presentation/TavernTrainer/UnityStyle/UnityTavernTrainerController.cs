@@ -1356,6 +1356,88 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ToolButton("UnityToolsSaveScenarioButton", grid, "保存场景", true, () => Apply(new GameCommand(GameCommandType.SaveTestScenario, DefaultScenarioName(), new CombatTestOptions())));
                 ToolButton("UnityToolsLoadScenarioButton", grid, "加载场景", service.TestScenarioNames.Count > 0, LoadFirstScenario);
             });
+
+            BuildMechanicCoverageTools(parent);
+        }
+
+        private void BuildMechanicCoverageTools(Transform parent)
+        {
+            var report = service.GetMechanicCoverageReport();
+            if (report == null || report.Rows == null || report.Rows.Count == 0)
+            {
+                return;
+            }
+
+            var section = Panel("UnityToolsMechanicCoverageSection", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureToolsSurface(section, UnityTavernUiStyle.Blue, 0.22f);
+            UnityTavernUiStyle.SetPreferredHeight(section, 46f + report.Rows.Count * 68f);
+            var layout = section.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 10, 10);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            BuildToolsSectionHeader(section.transform, "UnityToolsMechanicCoverageSectionHeader", "UnityToolsMechanicCoverageSectionTitle", "Mechanic Coverage", UnityTavernUiStyle.Blue);
+            for (var index = 0; index < report.Rows.Count; index += 1)
+            {
+                BuildMechanicCoverageRow(section.transform, report.Rows[index], index);
+            }
+        }
+
+        private static void BuildMechanicCoverageRow(Transform parent, MechanicCoverageRow row, int index)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            var safeName = SafeObjectName(row.System);
+            var rowObject = Panel("UnityToolsMechanicCoverageRow-" + safeName, parent, index % 2 == 0 ? UnityTavernUiStyle.Panel : UnityTavernUiStyle.PanelRaised);
+            ConfigureToolsSurface(rowObject, MechanicCoverageAccent(row), 0.14f);
+            UnityTavernUiStyle.SetPreferredHeight(rowObject, 62f);
+            var layout = rowObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 6);
+            layout.spacing = 3;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityToolsMechanicCoverageSystem-" + safeName, rowObject.transform, row.System + " | " + row.DesignConfidence, 12, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 17f);
+
+            var status = UiFactory.Label("UnityToolsMechanicCoverageStatus-" + safeName, rowObject.transform, MechanicCoverageStatus(row), 10, FontStyle.Normal);
+            status.color = UnityTavernUiStyle.Gold;
+            status.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 14f);
+
+            var notes = UiFactory.Label("UnityToolsMechanicCoverageNotes-" + safeName, rowObject.transform, row.Notes, 10, FontStyle.Normal);
+            notes.color = UnityTavernUiStyle.MutedText;
+            notes.horizontalOverflow = HorizontalWrapMode.Wrap;
+            notes.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(notes.gameObject, 22f);
+        }
+
+        private static Color MechanicCoverageAccent(MechanicCoverageRow row)
+        {
+            return row.TestCovered && row.UiVisible ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold;
+        }
+
+        private static string MechanicCoverageStatus(MechanicCoverageRow row)
+        {
+            return "Config " + YesNo(row.Configurable) +
+                " / Combat " + YesNo(row.CombatConsumed) +
+                " / UI " + YesNo(row.UiVisible) +
+                " / Tests " + YesNo(row.TestCovered);
+        }
+
+        private static string YesNo(bool value)
+        {
+            return value ? "yes" : "no";
         }
 
         private void BuildSideModifierTools(Transform parent, BoardSide side, string sectionName, string title)
