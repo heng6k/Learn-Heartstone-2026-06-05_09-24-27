@@ -8,17 +8,19 @@ This document is the handoff map for the current Learn Hearthstone simulation sy
 - where each subsystem lives in the project;
 - which runtime areas each subsystem touches;
 - what has already been validated by tests;
-- what remains to implement in the next Timewarped high-impact content slice.
+- what remains to implement after the current content coverage slice.
 
 The intended reader is a future developer or designer joining the project without this conversation context.
 
 ## Current Scope
 
-This pass covers three practical steps:
+This pass covers five practical steps:
 
 1. Dirty worktree scope separation.
 2. Full Unity EditMode health check.
-3. First two Timewarped high-impact single-card precision slices.
+3. Timewarped high-impact single-card precision slices through Goldrinn.
+4. Quest/Trinket/Timewarped same-combat reward convergence coverage.
+5. Combat reward to next recruit ordering coverage and report.
 
 Large UI/Unity interaction redesign is intentionally deferred. The current priority is functional correctness and maintainable simulation coverage.
 
@@ -29,8 +31,8 @@ Status: audited. No files were reverted or staged.
 | Topic | Files | Project role | Runtime/test relationship | Current status |
 | --- | --- | --- | --- | --- |
 | design-validation | `Assets/LearnHearthstone/Runtime/Application/Services/DesignValidationScenarioCatalog.cs`, `Assets/LearnHearthstone/Runtime/Domain/Engine/CombatResultExplainer.cs`, `Assets/LearnHearthstone/Runtime/Domain/Models/CombatAnalysisModels.cs`, `Assets/LearnHearthstone/Tests/EditMode/DesignValidationToolingTests.cs`, and the design-validation portions of `Assets/LearnHearthstone/Runtime/Application/Services/MatchService.cs` | Provides designer-ready scenarios, combat result explanation, and a report model for "what actually mattered in this simulated fight." | `MatchService` exposes scenario loading and stores `LastCombatExplanation`; `CombatResultExplainer` consumes `CombatOutput`; `DesignValidationToolingTests` validate catalog, explanation, coverage rows, and next-turn ordering. | Belongs together as one coherent design-validation/tooling change. |
-| content-pool-expansion | `Assets/LearnHearthstone/Tests/EditMode/QuestTrinketInteractionTests.cs`, `Docs/ContentPoolExpansionCoverageMatrix.md`, `Docs/ContentPoolExpansionImplementationPlan.md`, and the content-pool rows inside `Assets/LearnHearthstone/Runtime/Application/Services/MechanicCoverageReportService.cs` | Documents and tests high-risk content coverage: Quest/Trinket interactions, Timewarped precision, Darkmoon precision, and anomaly deferral. | `QuestTrinketInteractionTests` exercise `MatchService` quest/trinket setup plus `CombatEngine` combat reward paths. The coverage matrix records implementation status and deferred areas. | Belongs together as the current content-pool expansion slice. |
-| content-pool-expansion: Timewarped precision slices | `Assets/LearnHearthstone/Runtime/Domain/Engine/CombatEngine.cs`, `Assets/LearnHearthstone/Runtime/Application/Services/MatchService.cs`, `Assets/LearnHearthstone/Tests/EditMode/TimewarpedHistoricalImplementationTests.cs`, `Docs/ContentPoolExpansionCoverageMatrix.md` | Adds two high-impact Timewarped single-card precision fixes: Timewarped Deathswarmer and Timewarped Kil'rek. | Deathswarmer now applies immediate in-combat Undead attack and still queues the permanent `ImproveUndeadAttack` reward. Kil'rek now queues `AddRandomDemonToHand` from `CombatEngine`, while `MatchService` no longer double-applies the old player-side implicit Kil'rek deathrattle handler. | New in this pass. Verified through Unity MCP socket on port 6400 and included in the post-Kil'rek full EditMode green run. |
+| content-pool-expansion | `Assets/LearnHearthstone/Tests/EditMode/QuestTrinketInteractionTests.cs`, `Docs/ContentPoolExpansionCoverageMatrix.md`, `Docs/ContentPoolExpansionImplementationPlan.md`, `Docs/QuestTrinketNextTurnRewardOrderTestReport.md`, and the content-pool rows inside `Assets/LearnHearthstone/Runtime/Application/Services/MechanicCoverageReportService.cs` | Documents and tests high-risk content coverage: Quest/Trinket interactions, Timewarped precision, Darkmoon precision, and anomaly deferral. | `QuestTrinketInteractionTests` exercise `MatchService` quest/trinket setup plus `CombatEngine` combat reward paths, including same-combat reward convergence and combat reward visibility before next recruit refresh. The coverage matrix and focused report record implementation status and deferred areas. | Belongs together as the current content-pool expansion slice. |
+| content-pool-expansion: Timewarped precision slices | `Assets/LearnHearthstone/Runtime/Domain/Engine/CombatEngine.cs`, `Assets/LearnHearthstone/Runtime/Application/Services/MatchService.cs`, `Assets/LearnHearthstone/Tests/EditMode/TimewarpedHistoricalImplementationTests.cs`, `Docs/ContentPoolExpansionCoverageMatrix.md` | Adds three high-impact Timewarped single-card precision fixes: Timewarped Deathswarmer, Timewarped Kil'rek, and Timewarped Goldrinn. | Deathswarmer now applies immediate in-combat Undead attack and still queues the permanent `ImproveUndeadAttack` reward. Kil'rek queues `AddRandomDemonToHand` from `CombatEngine`, while `MatchService` no longer double-applies the old player-side implicit Kil'rek deathrattle handler. Goldrinn now immediately buffs friendly Beasts during combat while preserving the persistent Beast growth path. | Verified through Unity MCP socket on port 6400 and included in post-Kil'rek, post-Goldrinn, and post-convergence full EditMode green runs. |
 | bridge between the two | `Assets/LearnHearthstone/Runtime/Application/Services/MechanicCoverageReportService.cs`, `Assets/LearnHearthstone/Runtime/Domain/Models/CombatAnalysisModels.cs` | Converts implementation coverage into designer-readable status rows. | Design-validation UI/tooling can show the report, while the rows reference content-pool systems and test confidence. | Should be committed with design-validation if only one grouping is allowed, but mention content-pool dependency in the commit message. |
 | prior opponent-hand/side-state docs index | `Docs/DocumentationIndex.md` | Adds `OpponentHandAndSideStateConfigurationPlan.md` to the documentation index. | Documentation navigation only; no runtime dependency. | Separate small documentation/index change. |
 | tracked runtime bridge | `Assets/LearnHearthstone/Runtime/Application/Services/MatchService.cs` | Adds public accessors for design-validation scenarios, mechanic coverage report, scenario load, and last combat explanation; clears explanation state when combat/scenarios reset. | Connects new design-validation service classes to the existing match lifecycle. | Not Timewarped-specific. Keep with design-validation tooling. |
@@ -59,16 +61,18 @@ Status: in progress. This section will be expanded while auditing code.
 
 ## Test Health Check
 
-Status: passed from Unity NUnit XML. The active Unity socket on port `6400` ran two full EditMode health checks in this pass: one after Deathswarmer, then another after Kil'rek.
+Status: passed from Unity NUnit XML. The active Unity socket on port `6400` ran full EditMode health checks for the Timewarped precision slices and the Quest/Trinket convergence slice.
 
 | Test suite | Result | What it validates | Notes |
 | --- | --- | --- | --- |
 | Full EditMode after Deathswarmer | Passed: 1034 total, 1033 passed, 0 failed, 1 skipped | Whole EditMode surface after the Deathswarmer precision slice | Unity MCP job `9ced227d8c21443c8472c24ff7cf06b3` ran through port `6400`. XML archived at `.planning/full-health-dirty-boundary-timewarped-second/EditMode-full-post-deathswarmer-2026-07-07.xml`. |
 | Full EditMode after Kil'rek | Passed: 1035 total, 1034 passed, 0 failed, 1 skipped | Whole EditMode surface after the second Timewarped precision slice | The attempted focused run was not narrowed by `run_tests` filter and executed a full EditMode pass instead. XML archived at `.planning/full-health-dirty-boundary-timewarped-second/EditMode-full-post-kilrek-2026-07-07.xml`. This is the current health baseline. |
-| `QuestTrinketInteractionTests` | Previously passed 5/5 | Quest/Trinket start-of-combat stacking, deathrattle repeat stacking, avenge sharing, summon modifiers, opponent reward isolation | Previous session result; will remain referenced as focused coverage |
+| Full EditMode after Quest/Trinket convergence | Passed: 1037 total, 1036 passed, 0 failed, 1 skipped | Whole EditMode surface after adding the same-combat Quest/Trinket/Timewarped reward convergence test | Unity MCP job `530448d799884c1680b808f1a24cd26b` passed through port `6400`. XML archived at `.planning/quest-trinket-complex-interaction/EditMode-full-post-quest-trinket-convergence-2026-07-07.xml`. |
+| Full EditMode after next-turn reward order | Passed: 1038 total, 1037 passed, 0 failed, 1 skipped | Whole EditMode surface after adding the combat reward to next recruit ordering test | Unity MCP job `1fadc89dd20b462a84640f633c438f52` passed through port `6400`. XML archived at `.planning/quest-trinket-next-turn-reward-order/EditMode-full-post-next-turn-reward-order-2026-07-07.xml`. This is the current health baseline. |
+| `QuestTrinketInteractionTests` | Passed 7/7 | Quest/Trinket start-of-combat stacking, deathrattle repeat stacking, avenge sharing, summon modifiers, opponent reward isolation, same-combat reward convergence, and combat reward to next recruit ordering | Unity MCP job `96873dc0b9d0422891241025733bf934` passed after the new next-turn reward order test passed focused 1/1. |
 | `QuestSystemTests` | Previously passed 58/58 | Quest core behavior and reward state | Previous session adjacent coverage |
 | `TrinketSystemTests` | Previously passed 220/220 | Trinket runtime behavior and broad edge cases | Previous session adjacent coverage |
-| `TimewarpedHistoricalImplementationTests` | Passed 13/13 in the post-Kil'rek full EditMode run | Timewarped historical cards hosted in `MatchService` and `CombatEngine`, including Deathswarmer immediate combat buff and Kil'rek demon reward routing | Unity `get_tests` confirmed 13 matching tests after refresh/compile. |
+| `TimewarpedHistoricalImplementationTests` | Passed 14/14 in the post-Goldrinn and post-convergence full EditMode runs | Timewarped historical cards hosted in `MatchService` and `CombatEngine`, including Deathswarmer immediate combat buff, Kil'rek demon reward routing, and Goldrinn immediate Beast combat buff | Unity `get_tests` confirmed 14 matching tests after refresh/compile. |
 
 ### Full EditMode Runner Notes
 
@@ -83,6 +87,8 @@ Observed evidence:
 - Unity later restores test-run throttling and saves `TestResults.xml`.
 - Post-Deathswarmer XML: `Passed`, `total=1034`, `passed=1033`, `failed=0`, `skipped=1`, `duration=479.0931072`.
 - Post-Kil'rek XML: `Passed`, `total=1035`, `passed=1034`, `failed=0`, `skipped=1`, `duration=466.0117126`.
+- Post-convergence XML: `Passed`, `total=1037`, `passed=1036`, `failed=0`, `skipped=1`, `duration=495.0977877`.
+- Post-next-turn-order XML: `Passed`, `total=1038`, `passed=1037`, `failed=0`, `skipped=1`, `duration=507.1451872`.
 
 Recommended validation fallback:
 
@@ -105,11 +111,11 @@ Recommended validation fallback:
 | Hero and buddy effects | `HeroPowerBuddyEffectTests` 147/147, `HeroSetupAndUnmaskedIdentityTests` 6/6 | Passed | Hero-power, buddy, setup, swap, and history-sensitive hero tests are stable after the next-turn/combat changes. |
 | Match service broad behavior | `MatchServiceTests` 169/169, `MatchServiceMechanicTests` 8/8, `MatchServiceDebugCardTests` 7/7, `MatchServiceSpellTests` 11/11 | Passed | Recruit flow, debug card handling, mechanics, spells, Timewarped paths hosted in `MatchService`, and broad match-state transitions are healthy. |
 | Player-directed advanced mechanics | `PlayerDirectedAdvancedMechanicSelectionTests` 5/5 | Passed | Player choice routing for advanced mechanics remains stable. |
-| Quest and Trinket systems | `QuestSystemTests` 58/58, `QuestTrinketInteractionTests` 5/5, `TrinketSystemTests` 220/220 | Passed | Standalone Quest/Trinket behavior and cross-system interactions are healthy. |
+| Quest and Trinket systems | `QuestSystemTests` 58/58, `QuestTrinketInteractionTests` 7/7, `TrinketSystemTests` 220/220 | Passed | Standalone Quest/Trinket behavior and cross-system interactions are healthy. The focused interaction tests now lock same-combat reward convergence and combat reward visibility before next recruit refresh. |
 | UI/EditMode views | `RealisticTavernTrainerViewTests` 10/10, `TavernTrainerViewTests` 20/20, `UnityTavernTrainerViewTests` 72/72 | Passed | Current Unity UI/EditMode surface is stable, including existing trainer view behavior. |
 | Robustness and stress | `RobustnessEdgeTests` 4/5 with 1 explicit skipped, `StressTests` 6/6 | Passed | Core state limits and stress scenarios pass; the skipped case is an explicit 30-minute soak, not a failure. |
 | Tier acceptance and minion mechanics | Tier one through seven acceptance suites and tier-three mechanic suites | Passed | Minion catalog acceptance and representative tier mechanics remain healthy. |
-| Timewarped historical content | `TimewarpedHistoricalImplementationTests` 13/13 plus related `MatchServiceTests` baseline | Passed | Existing high-impact Timewarped historical card paths passed in the full EditMode run. This pass adds focused coverage for Deathswarmer's immediate in-combat Undead attack buff and Kil'rek's CombatEngine-owned demon reward routing. |
+| Timewarped historical content | `TimewarpedHistoricalImplementationTests` 14/14 plus related `MatchServiceTests` baseline | Passed | Existing high-impact Timewarped historical card paths passed in the full EditMode run. Focused precision coverage includes Deathswarmer's immediate in-combat Undead attack buff, Kil'rek's CombatEngine-owned demon reward routing, and Goldrinn's immediate Beast combat buff. |
 
 ## Timewarped High-Impact Slice
 
@@ -243,3 +249,5 @@ Validation status for this slice:
 - The main risk is not a missing framework, but mixed dirty changes and unverified edge gaps.
 - Future work should keep each content slice small, with one runtime entry point, one focused test, and one documentation update per meaningful mechanic.
 - Deathswarmer, Kil'rek, and Goldrinn now have focused precision-slice tests inside the Timewarped historical suite and are covered by green Unity full EditMode baselines.
+- The Quest/Trinket convergence slice now locks one same-combat ordering case across friendly deaths, deathrattle repeat, Avenge, Lucky Tabby, Timewarped Kil'rek, and opponent reward isolation.
+- The next-turn reward order slice now locks that player combat rewards are visible before the next recruit refresh, including hand reward, free refresh, current shop buff, future shop growth, and opponent reward isolation. See `Docs/QuestTrinketNextTurnRewardOrderTestReport.md`.

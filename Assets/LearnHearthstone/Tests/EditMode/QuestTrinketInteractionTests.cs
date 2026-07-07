@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
 
@@ -128,6 +129,135 @@ namespace LearnHearthstone.Tests.EditMode
                 reward.Type == CombatRewardType.AddTavernSpellToHand &&
                 reward.SourceCardId == "BG33_894"));
             Assert.IsEmpty(service.State.Player.Tavern.Hand);
+        }
+
+        [Test]
+        public void CombatRewardsConvergeWithoutLeakingOpponentRewards()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Clear();
+            ActivateRewardDirectly(service, "BG27_Reward_803");
+            ActivateRewardDirectly(service, "BG33_Reward_004", bonusQuest: true);
+            EquipTrinket(service, "BG30_MagicItem_931");
+            service.State.Player.Tavern.AdvancedMechanics.Trinkets.LuckyTabbyDeaths = 6;
+
+            var kilrek = TestMinion("quest-trinket-kilrek", 1, 1, Tribe.Demon, Keyword.Taunt, Keyword.Deathrattle);
+            kilrek.CardId = "BG34_Giant_584";
+            kilrek.DefinitionId = "BG34_Giant_584";
+            service.State.Player.Board.Add(kilrek);
+            service.State.Player.Board.Add(TestMinion("quest-trinket-second-death", 1, 1));
+
+            var opponentColdlight = TestMinion("opponent-coldlight-convergence", 1, 1, Tribe.Murloc, Keyword.Taunt, Keyword.Deathrattle);
+            opponentColdlight.CardId = "BG33_894";
+            opponentColdlight.DefinitionId = "BG33_894";
+            opponentColdlight.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentColdlight);
+            var opponentKiller = TestMinion("opponent-convergence-killer", 5, 30);
+            opponentKiller.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentKiller);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9009, SafetyLimit = 5 }));
+
+            Assert.AreEqual(
+                2,
+                service.State.LastResult.PlayerRewards
+                    .Where(reward => reward.Type == CombatRewardType.FriendlyMinionDied)
+                    .Sum(reward => reward.Amount));
+            Assert.AreEqual(
+                2,
+                service.State.LastResult.PlayerRewards
+                    .Where(reward => reward.Type == CombatRewardType.AddRandomDemonToHand && reward.SourceCardId == "BG34_Giant_584")
+                    .Sum(reward => reward.Amount));
+            Assert.AreEqual(
+                1,
+                service.State.LastResult.PlayerRewards
+                    .Where(reward => reward.Type == CombatRewardType.GainFreeRefresh && reward.SourceCardId == "BG33_Reward_004")
+                    .Sum(reward => reward.Amount));
+            Assert.AreEqual(1, service.State.Player.Tavern.FreeRefreshes);
+            Assert.AreEqual(1, service.State.Player.Tavern.AdvancedMechanics.Trinkets.LuckyTabbyDeaths);
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Hand.Count, 2);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Beast)));
+            Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
+                reward.Type == CombatRewardType.AddTavernSpellToHand &&
+                reward.SourceCardId == "BG33_894"));
+            Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.AddTavernSpellToHand &&
+                reward.SourceCardId == "BG33_894"));
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "104436"));
+        }
+
+        [Test]
+        public void CombatRewardsApplyBeforeNextRecruitRefreshAndStaySideIsolated()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            tavern.Shop.Clear();
+            service.State.Opponent.Board.Clear();
+            ActivateRewardDirectly(service, "BG33_Reward_004", bonusQuest: true);
+
+            var frozenBeast = TestMinion("next-turn-frozen-beast", 2, 3, Tribe.Beast);
+            tavern.Shop.Add(frozenBeast);
+            TavernShopSlots.Ensure(tavern);
+            TavernShopSlots.SetSlotFrozen(tavern, 0, true);
+
+            var goldrinn = TestMinion("next-turn-goldrinn", 1, 1, Tribe.Beast, Keyword.Taunt, Keyword.Deathrattle);
+            goldrinn.CardId = "BG34_Giant_362";
+            goldrinn.DefinitionId = "BG34_Giant_362";
+            service.State.Player.Board.Add(goldrinn);
+            var kilrek = TestMinion("next-turn-kilrek", 1, 1, Tribe.Demon, Keyword.Deathrattle);
+            kilrek.CardId = "BG34_Giant_584";
+            kilrek.DefinitionId = "BG34_Giant_584";
+            service.State.Player.Board.Add(kilrek);
+
+            var opponentColdlight = TestMinion("next-turn-opponent-coldlight", 1, 1, Tribe.Murloc, Keyword.Taunt, Keyword.Deathrattle);
+            opponentColdlight.CardId = "BG33_894";
+            opponentColdlight.DefinitionId = "BG33_894";
+            opponentColdlight.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentColdlight);
+            var opponentKiller = TestMinion("next-turn-opponent-killer", 5, 30);
+            opponentKiller.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentKiller);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9010, SafetyLimit = 5 }));
+
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.AddRandomDemonToHand &&
+                reward.SourceCardId == "BG34_Giant_584"));
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.GainFreeRefresh &&
+                reward.SourceCardId == "BG33_Reward_004"));
+            Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
+                reward.Type == CombatRewardType.AddTavernSpellToHand &&
+                reward.SourceCardId == "BG33_894"));
+            Assert.IsTrue(tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
+            Assert.AreEqual(1, tavern.FreeRefreshes);
+            var goldrinnGrowth = tavern.Growth.ShopModifiers
+                .Where(modifier => modifier.SourceId == "timewarped-goldrinn" && modifier.Tribe == Tribe.Beast)
+                .ToList();
+            Assert.IsTrue(goldrinnGrowth.Count > 0);
+            var growthAttack = goldrinnGrowth.Sum(modifier => modifier.Attack);
+            var growthHealth = goldrinnGrowth.Sum(modifier => modifier.Health);
+            Assert.AreEqual(frozenBeast.BaseAttack + growthAttack, frozenBeast.Attack);
+            Assert.AreEqual(frozenBeast.BaseHealth + growthHealth, frozenBeast.MaxHealth);
+            var nextTurnAttack = frozenBeast.Attack + growthAttack;
+            var nextTurnHealth = frozenBeast.MaxHealth + growthHealth;
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "104436"));
+
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
+
+            Assert.AreEqual(2, service.State.Round);
+            Assert.AreEqual(MatchPhase.Tavern, service.State.Phase);
+            Assert.IsNull(service.State.LastResult);
+            Assert.IsTrue(tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
+            Assert.AreEqual(1, tavern.FreeRefreshes);
+            Assert.AreEqual(nextTurnAttack, frozenBeast.Attack);
+            Assert.AreEqual(nextTurnHealth, frozenBeast.MaxHealth);
+            Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "104436"));
         }
 
         private static void RunStartOfCombat(MatchService service, int seed = 77)
