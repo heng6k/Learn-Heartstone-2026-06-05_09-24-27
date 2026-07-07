@@ -179,6 +179,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string TimewarpedGeomancerCardId = "BG34_Giant_305";
         private const string TimewarpedGhoulAcabraCardId = "BG34_Giant_609";
         private const string TimewarpedHunterCardId = "BG34_Giant_588";
+        private const string TimewarpedKilrekCardId = "BG34_Giant_584";
         private const string TimewarpedPrismscaleCardId = "BG34_PreMadeChamp_022";
         private const string TimewarpedRecyclerCardId = "BG34_Giant_082";
         private const string TimewarpedStormcloudCardId = "BG34_PreMadeChamp_031";
@@ -2652,6 +2653,9 @@ namespace LearnHearthstone.Domain.Engine
                 case TimewarpedJazzerCardId:
                     AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemHealth, minion.CardId, null, minion.Golden ? 2 : 1);
                     break;
+                case TimewarpedKilrekCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomDemonToHand, minion.CardId, null, minion.Golden ? 2 : 1, minion.InstanceId);
+                    break;
                 case TimewarpedLilQuilboarCardId:
                     PlayBloodGemsOnFriendlyQuilboar(owner, minion.Golden ? 6 : 3);
                     break;
@@ -4761,7 +4765,14 @@ namespace LearnHearthstone.Domain.Engine
 
             if (source.CardId == TimewarpedDeathswarmerCardId)
             {
-                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, source.Golden ? 2 : 1, source.InstanceId);
+                var amount = source.Golden ? 2 : 1;
+                foreach (var undead in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead)).ToList())
+                {
+                    BuffMinion(undead, amount, 0, "Timewarped Deathswarmer");
+                }
+
+                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, amount, source.InstanceId);
+                AddLog(context.Log, "DamageTriggered", source.InstanceId + " improved friendly Undead Attack", source.InstanceId, null, LogSeverity.Good);
             }
             else if (source.CardId == TimewarpedPiperCardId)
             {

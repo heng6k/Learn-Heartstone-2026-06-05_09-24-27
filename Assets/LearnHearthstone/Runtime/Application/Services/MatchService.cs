@@ -23609,9 +23609,6 @@ namespace LearnHearthstone.Application.Services
                 case TimewarpedHunterCardId:
                     AddGeneratedSpellsToHand(PointyArrowCardId, multiplier, "timewarped-hunter");
                     break;
-                case TimewarpedKilrekCardId:
-                    AddRandomTribeMinionToHand(Tribe.Demon, multiplier, "timewarped-kilrek");
-                    break;
                 case TimewarpedPlundererCardId:
                     IncreasePlayerMaxGold(2 * multiplier);
                     break;

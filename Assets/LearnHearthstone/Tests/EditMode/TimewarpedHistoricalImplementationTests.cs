@@ -160,6 +160,59 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Combat_TimewarpedDeathswarmerBuffsUndeadImmediatelyAndQueuesPermanentReward()
+        {
+            var deathswarmer = TestMinion("deathswarm", "BG34_Giant_081", 1, 9, Tribe.Undead);
+            deathswarmer.Keywords.Add(Keyword.Taunt);
+            var undeadAlly = TestMinion("undead-ally", "UNDEAD_ALLY", 2, 8, Tribe.Undead);
+            var opponents = new[]
+            {
+                TestMinion("opponent-1", "OPPONENT_1", 1, 20),
+                TestMinion("opponent-2", "OPPONENT_2", 1, 20),
+                TestMinion("opponent-3", "OPPONENT_3", 1, 20)
+            };
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { deathswarmer, undeadAlly }, opponents, 9006, 1);
+            var finalAlly = result.FinalPlayerBoard.Single(minion => minion.InstanceId == undeadAlly.InstanceId);
+
+            Assert.AreEqual(3, finalAlly.Attack);
+            Assert.IsTrue(result.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.ImproveUndeadAttack &&
+                reward.SourceCardId == deathswarmer.CardId &&
+                reward.Amount == 1));
+        }
+
+        [Test]
+        public void Combat_TimewarpedKilrekQueuesDemonRewardOnceThroughCombatEngine()
+        {
+            var service = CreateService();
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Opponent.Board.Clear();
+
+            var kilrek = TestMinion("kilrek", "BG34_Giant_584", 1, 1, Tribe.Demon);
+            kilrek.Keywords.Add(Keyword.Taunt);
+            kilrek.Keywords.Add(Keyword.Deathrattle);
+            service.State.Player.Board.Add(kilrek);
+
+            var firstOpponent = TestMinion("opponent-killer", "OPPONENT_KILLER", 5, 5);
+            firstOpponent.Owner = BoardSide.Opponent;
+            var secondOpponent = TestMinion("opponent-backup", "OPPONENT_BACKUP", 1, 5);
+            secondOpponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(firstOpponent);
+            service.State.Opponent.Board.Add(secondOpponent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9007, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.AddRandomDemonToHand &&
+                reward.SourceCardId == kilrek.CardId &&
+                reward.SourceInstanceId == kilrek.InstanceId &&
+                reward.Amount == 1));
+            Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(card => card.Tribes.Contains(Tribe.Demon)));
+        }
+
+        [Test]
         public void Combat_TimewarpedStoneshellCopiesGuardRally()
         {
             var stoneshell = TestMinion("stoneshell", "BG34_Giant_601", 1, 10);
