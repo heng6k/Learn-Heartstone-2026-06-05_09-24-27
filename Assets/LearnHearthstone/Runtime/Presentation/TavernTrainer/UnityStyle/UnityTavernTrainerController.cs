@@ -1370,7 +1370,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var section = Panel("UnityToolsMechanicCoverageSection", parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureToolsSurface(section, UnityTavernUiStyle.Blue, 0.22f);
-            UnityTavernUiStyle.SetPreferredHeight(section, 46f + report.Rows.Count * 68f);
+            UnityTavernUiStyle.SetPreferredHeight(section, 48f + report.Rows.Count * 76f);
             var layout = section.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 10, 10);
             layout.spacing = 8;
@@ -1396,30 +1396,56 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var safeName = SafeObjectName(row.System);
             var rowObject = Panel("UnityToolsMechanicCoverageRow-" + safeName, parent, index % 2 == 0 ? UnityTavernUiStyle.Panel : UnityTavernUiStyle.PanelRaised);
             ConfigureToolsSurface(rowObject, MechanicCoverageAccent(row), 0.14f);
-            UnityTavernUiStyle.SetPreferredHeight(rowObject, 62f);
-            var layout = rowObject.AddComponent<VerticalLayoutGroup>();
+            UnityTavernUiStyle.SetPreferredHeight(rowObject, 68f);
+            var layout = rowObject.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 6, 6);
-            layout.spacing = 3;
+            layout.spacing = 10;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
 
-            var title = UiFactory.Label("UnityToolsMechanicCoverageSystem-" + safeName, rowObject.transform, row.System + " | " + row.DesignConfidence, 12, FontStyle.Bold);
+            var main = Panel("UnityToolsMechanicCoverageMain-" + safeName, rowObject.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(main, 1f, 0f);
+            var mainLayout = main.AddComponent<VerticalLayoutGroup>();
+            mainLayout.spacing = 3;
+            mainLayout.childControlWidth = true;
+            mainLayout.childControlHeight = true;
+            mainLayout.childForceExpandWidth = true;
+            mainLayout.childForceExpandHeight = false;
+
+            var meta = Panel("UnityToolsMechanicCoverageMeta-" + safeName, rowObject.transform, Color.clear);
+            UnityTavernUiStyle.SetFixedSize(meta, 156f, 56f);
+            var metaLayout = meta.AddComponent<VerticalLayoutGroup>();
+            metaLayout.spacing = 3;
+            metaLayout.childControlWidth = true;
+            metaLayout.childControlHeight = true;
+            metaLayout.childForceExpandWidth = true;
+            metaLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityToolsMechanicCoverageSystem-" + safeName, main.transform, row.System, 12, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
             title.verticalOverflow = VerticalWrapMode.Truncate;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 17f);
 
-            var status = UiFactory.Label("UnityToolsMechanicCoverageStatus-" + safeName, rowObject.transform, MechanicCoverageStatus(row), 10, FontStyle.Normal);
-            status.color = UnityTavernUiStyle.Gold;
-            status.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 14f);
-
-            var notes = UiFactory.Label("UnityToolsMechanicCoverageNotes-" + safeName, rowObject.transform, row.Notes, 10, FontStyle.Normal);
+            var notes = UiFactory.Label("UnityToolsMechanicCoverageNotes-" + safeName, main.transform, row.Notes, 10, FontStyle.Normal);
             notes.color = UnityTavernUiStyle.MutedText;
             notes.horizontalOverflow = HorizontalWrapMode.Wrap;
             notes.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(notes.gameObject, 22f);
+            UnityTavernUiStyle.SetPreferredHeight(notes.gameObject, 34f);
+
+            var confidence = UiFactory.Label("UnityToolsMechanicCoverageConfidence-" + safeName, meta.transform, row.DesignConfidence, 10, FontStyle.Bold);
+            confidence.alignment = TextAnchor.MiddleRight;
+            confidence.color = UnityTavernUiStyle.Text;
+            confidence.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(confidence.gameObject, 16f);
+
+            var status = UiFactory.Label("UnityToolsMechanicCoverageStatus-" + safeName, meta.transform, MechanicCoverageStatus(row).Replace(" / UI", "\nUI"), 9, FontStyle.Normal);
+            status.alignment = TextAnchor.UpperRight;
+            status.color = UnityTavernUiStyle.Gold;
+            status.horizontalOverflow = HorizontalWrapMode.Wrap;
+            status.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 34f);
         }
 
         private static Color MechanicCoverageAccent(MechanicCoverageRow row)

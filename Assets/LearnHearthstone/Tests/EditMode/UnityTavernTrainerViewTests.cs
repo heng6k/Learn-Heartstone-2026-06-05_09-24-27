@@ -3257,13 +3257,29 @@ namespace LearnHearthstone.Tests.EditMode
                 FindChild(rootObject.transform, "UnityToolsButton").GetComponent<Button>().onClick.Invoke();
 
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsMechanicCoverageSection"));
-                Assert.IsNotNull(FindChild(rootObject.transform, "UnityToolsMechanicCoverageRow-Quest-Trinketinteractions"));
+                var row = FindChild(rootObject.transform, "UnityToolsMechanicCoverageRow-Quest-Trinketinteractions");
+                Assert.IsNotNull(row.GetComponent<HorizontalLayoutGroup>());
 
-                var status = FindChild(rootObject.transform, "UnityToolsMechanicCoverageStatus-Quest-Trinketinteractions").GetComponent<Text>().text;
+                var main = FindChild(rootObject.transform, "UnityToolsMechanicCoverageMain-Quest-Trinketinteractions");
+                var meta = FindChild(rootObject.transform, "UnityToolsMechanicCoverageMeta-Quest-Trinketinteractions");
+                Assert.AreSame(row, main.parent);
+                Assert.AreSame(row, meta.parent);
+
+                var title = FindChild(rootObject.transform, "UnityToolsMechanicCoverageSystem-Quest-Trinketinteractions").GetComponent<Text>().text;
+                Assert.That(title, Is.EqualTo("Quest/Trinket interactions"));
+
+                var confidence = FindChild(rootObject.transform, "UnityToolsMechanicCoverageConfidence-Quest-Trinketinteractions").GetComponent<Text>().text;
+                Assert.That(confidence, Is.EqualTo("Medium High"));
+
+                var statusTransform = FindChild(rootObject.transform, "UnityToolsMechanicCoverageStatus-Quest-Trinketinteractions");
+                Assert.AreSame(meta, statusTransform.parent);
+                var status = statusTransform.GetComponent<Text>().text;
                 Assert.That(status, Does.Contain("UI yes"));
                 Assert.That(status, Does.Contain("Tests yes"));
 
-                var notes = FindChild(rootObject.transform, "UnityToolsMechanicCoverageNotes-Quest-Trinketinteractions").GetComponent<Text>().text;
+                var notesTransform = FindChild(rootObject.transform, "UnityToolsMechanicCoverageNotes-Quest-Trinketinteractions");
+                Assert.AreSame(main, notesTransform.parent);
+                var notes = notesTransform.GetComponent<Text>().text;
                 Assert.That(notes, Does.Contain("repeated summon overflow"));
                 Assert.That(notes, Does.Contain("stacked repeat sources"));
                 Assert.That(notes, Does.Contain("replay non-duplication"));
