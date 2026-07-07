@@ -1158,6 +1158,7 @@ namespace LearnHearthstone.Application.Services
         private readonly CardPoolAvailability cardPoolAvailability;
         private readonly TimewarpedPoolVersion timewarpedPoolVersion;
         private CombatTestSnapshot combatTestSnapshot;
+        private CombatExplanation combatExplanation;
         private int automaticTavernSpellCastDepth;
 
         private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, HeroCatalog heroCatalog, TrinketCatalog trinketCatalog, QuestCatalog questCatalog, TimewarpedTavernCatalog timewarpedCatalog, AnomalyCatalog anomalyCatalog, DarkmoonPrizeCatalog darkmoonPrizeCatalog, int seed, ITestScenarioRepository scenarioRepository, MatchSetupOptions setup)
@@ -1450,7 +1451,36 @@ namespace LearnHearthstone.Application.Services
 
         public bool HasCombatTestSnapshot => combatTestSnapshot?.BeforeCombat != null;
 
+        public CombatExplanation LastCombatExplanation => combatExplanation;
+
         public IReadOnlyList<string> TestScenarioNames => scenarioRepository.ListScenarioNames();
+
+        public IReadOnlyList<TestScenarioDefinition> GetDesignValidationScenarios()
+        {
+            return DesignValidationScenarioCatalog.ListScenarios();
+        }
+
+        public MechanicCoverageReport GetMechanicCoverageReport()
+        {
+            return MechanicCoverageReportService.CreateDefaultReport();
+        }
+
+        public void LoadDesignValidationScenario(string scenarioName)
+        {
+            if (!DesignValidationScenarioCatalog.TryGetScenario(scenarioName, out var scenario))
+            {
+                throw new InvalidOperationException("Design validation scenario does not exist: " + scenarioName);
+            }
+
+            TestScenarioMapper.ApplyTo(State, scenario);
+            CurrentActiveTribes();
+            combatTestSnapshot = null;
+            combatExplanation = null;
+            State.LastReplay = null;
+            RefreshPlayerBoardTribeDistribution();
+            SyncPlayerCombatModifiersFromTavern();
+            AddRecruitLog(RecruitLogType.Play, "Loaded design validation scenario: " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
 
         public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
         {
@@ -19010,6 +19040,7 @@ namespace LearnHearthstone.Application.Services
                 State.CombatLog.Clear();
                 State.LastResult = null;
                 State.LastReplay = null;
+                combatExplanation = null;
             }
             AddRecruitLog(RecruitLogType.TurnStart, "Turn " + nextRound + " started.", 0, tavern.Gold);
             ResolveRecruitTurnStartSecrets();
@@ -19919,6 +19950,7 @@ namespace LearnHearthstone.Application.Services
             TestScenarioMapper.ApplyTo(State, scenario);
             CurrentActiveTribes();
             combatTestSnapshot = null;
+            combatExplanation = null;
             State.LastReplay = null;
             AddRecruitLog(RecruitLogType.Play, "鍔犺浇娴嬭瘯鍦烘櫙 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
@@ -19990,6 +20022,7 @@ namespace LearnHearthstone.Application.Services
             State.LastResult = result;
             State.LastReplay = result.Replay;
             combatTestSnapshot.Result = result;
+            combatExplanation = CombatResultExplainer.Analyze(result, combatTestSnapshot.BeforeCombat);
             ApplyPermanentCombatBuffs(result);
             ApplyCombatOutcomeRewards(result);
             ApplyCombatRewards(result.PlayerRewards);
@@ -21486,6 +21519,7 @@ namespace LearnHearthstone.Application.Services
             State.CombatLog.Clear();
             State.LastResult = null;
             State.LastReplay = null;
+            combatExplanation = null;
         }
 
         private void ResolveMinionBattlecry(MinionInstance target, string battlecryTargetId = null)
