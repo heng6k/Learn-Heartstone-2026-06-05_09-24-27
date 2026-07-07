@@ -105,6 +105,12 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(report.Rows.Any(row => row.System == "Opponent hand" && row.Configurable && row.CombatConsumed));
             Assert.IsTrue(report.Rows.Any(row => row.System == "Spell power" && row.Configurable && row.CombatConsumed));
             Assert.IsTrue(report.Rows.Any(row => row.System == "Full next-turn flow" && row.TestCovered));
+            var questTrinketRow = report.Rows.Single(row => row.System == "Quest/Trinket interactions");
+            Assert.That(questTrinketRow.Notes, Does.Contain("repeated summon overflow"));
+            Assert.That(questTrinketRow.Notes, Does.Contain("stacked repeat sources"));
+            Assert.That(questTrinketRow.Notes, Does.Contain("non-Beast filtering"));
+            Assert.That(questTrinketRow.Notes, Does.Contain("counter remainders"));
+            Assert.That(questTrinketRow.Notes, Does.Contain("replay non-duplication"));
             Assert.IsTrue(report.Rows.All(row => !string.IsNullOrEmpty(row.DesignConfidence)));
         }
 
