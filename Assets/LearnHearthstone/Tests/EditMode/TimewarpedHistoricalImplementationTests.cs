@@ -213,6 +213,26 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Combat_TimewarpedGoldrinnBuffsBeastsImmediately()
+        {
+            var goldrinn = TestMinion("goldrinn", "BG34_Giant_362", 1, 1, Tribe.Beast);
+            goldrinn.Keywords.Add(Keyword.Taunt);
+            goldrinn.Keywords.Add(Keyword.Deathrattle);
+            var beastAlly = TestMinion("beast-ally", "BEAST_ALLY", 2, 5, Tribe.Beast);
+            var opponents = new[]
+            {
+                TestMinion("opponent-1", "OPPONENT_1", 5, 5),
+                TestMinion("opponent-2", "OPPONENT_2", 1, 5)
+            };
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { goldrinn, beastAlly }, opponents, 9008, 1);
+            var finalAlly = result.FinalPlayerBoard.Single(minion => minion.InstanceId == beastAlly.InstanceId);
+
+            Assert.AreEqual(6, finalAlly.Attack);
+            Assert.AreEqual(9, finalAlly.MaxHealth);
+        }
+
+        [Test]
         public void Combat_TimewarpedStoneshellCopiesGuardRally()
         {
             var stoneshell = TestMinion("stoneshell", "BG34_Giant_601", 1, 10);

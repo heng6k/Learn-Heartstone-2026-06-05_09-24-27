@@ -203,9 +203,43 @@ Validation status for this slice:
 - XML archived at `.planning/full-health-dirty-boundary-timewarped-second/EditMode-full-post-kilrek-2026-07-07.xml`.
 - `git diff --check` passed with only existing CRLF normalization warnings on touched C# files.
 
+### Third Slice: Timewarped Goldrinn
+
+Card: `BG34_Giant_362` Timewarped Goldrinn.
+
+Source text recorded in `Docs/research/timewarped-tavern/timewarped-minion-mechanisms.md`: "Deathrattle: Your Beasts have +4/+4 this game (wherever they are)."
+
+Existing behavior before this slice:
+
+- `MatchService.ResolveTimewarpedDeathrattleTrigger` applied the post-combat persistent/recruit path: Beast shop growth plus player-owned Beast buffs.
+- `CombatEngine` had an original `GoldrinnCardId` branch, but no `TimewarpedGoldrinnCardId` branch.
+- Result: future/recruit state improved, but current combat Beasts did not immediately receive the Timewarped Goldrinn deathrattle buff.
+
+Implemented behavior in this slice:
+
+- `CombatEngine.ResolveDeathrattleSummons` now handles `BG34_Giant_362`.
+- The branch immediately buffs living friendly Beasts in the combat board by +4/+4, or +8/+8 if Golden.
+- It uses `HasCountedTribe`, so All-tribe minions follow the same counted-tribe rules as nearby Timewarped combat effects.
+- The existing `MatchService` post-combat path remains responsible for the persistent "this game" Beast growth.
+
+Test added:
+
+- `Combat_TimewarpedGoldrinnBuffsBeastsImmediately`
+- Location: `Assets/LearnHearthstone/Tests/EditMode/TimewarpedHistoricalImplementationTests.cs`
+- Scenario: player has a Taunt/Deathrattle Timewarped Goldrinn plus another Beast; opponent kills Goldrinn on the first attack.
+- Assertions: the allied Beast's final combat attack and health both rise by 4.
+
+Validation status for this slice:
+
+- Unity `get_tests` confirmed `TimewarpedHistoricalImplementationTests` now has 14 tests and includes `Combat_TimewarpedGoldrinnBuffsBeastsImmediately`.
+- The attempted focused `run_tests` filter was not narrowed by the Unity MCP bridge and executed a full EditMode pass.
+- `Combat_TimewarpedGoldrinnBuffsBeastsImmediately` passed in the full run.
+- Post-Goldrinn full EditMode result: `Passed`, 1036 total, 1035 passed, 0 failed, 1 skipped, duration 474.4697079 seconds.
+- XML archived at `.planning/timewarped-third-slice/EditMode-full-post-goldrinn-2026-07-07.xml`.
+
 ## Current Handoff Notes
 
 - The simulation core already has strong coverage for opponent hand, side-specific variables, complete next-turn combat flow, Quest/Trinket interaction tests, Darkmoon first batches, and Timewarped broad paths.
 - The main risk is not a missing framework, but mixed dirty changes and unverified edge gaps.
 - Future work should keep each content slice small, with one runtime entry point, one focused test, and one documentation update per meaningful mechanic.
-- Deathswarmer and Kil'rek are now both covered by focused tests inside the Timewarped historical suite and by the post-Kil'rek full EditMode run.
+- Deathswarmer, Kil'rek, and Goldrinn now have focused precision-slice tests inside the Timewarped historical suite and are covered by green Unity full EditMode baselines.

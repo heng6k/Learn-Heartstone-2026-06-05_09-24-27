@@ -188,6 +188,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string TimewarpedArmCardId = "BG34_Giant_027";
         private const string TimewarpedBristlerCardId = "BG34_Giant_104";
         private const string TimewarpedGreaseBotCardId = "BG34_Giant_656";
+        private const string TimewarpedGoldrinnCardId = "BG34_Giant_362";
         private const string TimewarpedGuardCardId = "BG34_Giant_068";
         private const string TimewarpedJellyBellyCardId = "BG34_Giant_024";
         private const string TimewarpedKarathressCardId = "BG34_PreMadeChamp_056";
@@ -2703,6 +2704,9 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case TimewarpedBristlerCardId:
                     ResolveTimewarpedBristlerDeathrattle(context, owner, minion);
+                    break;
+                case TimewarpedGoldrinnCardId:
+                    BuffAll(owner.Board.Where(candidate => IsAlive(candidate) && HasCountedTribe(candidate, Tribe.Beast)), minion.Golden ? 8 : 4, minion.Golden ? 8 : 4, "Timewarped Goldrinn");
                     break;
                 case TimewarpedMagnanimooseCardId:
                     inserted += ResolveTimewarpedMagnanimooseDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
