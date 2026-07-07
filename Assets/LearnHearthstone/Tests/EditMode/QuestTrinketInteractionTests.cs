@@ -110,6 +110,69 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TimewarpedSummonTriggersTrinketSummonRewardAndStaysSideIsolated()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Opponent.Hand.Clear();
+            ActivateRewardDirectly(service, "BG28_Reward_505");
+            EquipTrinket(service, "BG35_MagicItem_700");
+            tavern.Hand.Clear();
+            tavern.AdvancedMechanics.Trinkets.WildfeatherDusterBeastSummons = 5;
+
+            var handBeast = TestMinion("summon-chain-hand-beast", 2, 5, Tribe.Beast);
+            tavern.Hand.Add(handBeast);
+            var bassgill = TestMinion("summon-chain-timewarped-bassgill", 1, 1, Tribe.Murloc, Keyword.Taunt, Keyword.Deathrattle);
+            bassgill.CardId = "BG34_Giant_071";
+            bassgill.DefinitionId = "BG34_Giant_071";
+            service.State.Player.Board.Add(bassgill);
+
+            var opponentHandBeast = TestMinion("summon-chain-opponent-hand-beast", 3, 6, Tribe.Beast);
+            opponentHandBeast.Owner = BoardSide.Opponent;
+            service.State.Opponent.Hand.Add(opponentHandBeast);
+            var opponentBassgill = TestMinion("summon-chain-opponent-timewarped-bassgill", 1, 1, Tribe.Murloc, Keyword.Taunt, Keyword.Deathrattle);
+            opponentBassgill.CardId = "BG34_Giant_071";
+            opponentBassgill.DefinitionId = "BG34_Giant_071";
+            opponentBassgill.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentBassgill);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9011, SafetyLimit = 1 }));
+
+            var playerSummonReward = service.State.LastResult.PlayerRewards.Single(reward =>
+                reward.Type == CombatRewardType.FriendlyMinionSummoned &&
+                reward.SourceCardId == "BG34_Giant_071" &&
+                reward.SourceInstanceId == bassgill.InstanceId);
+            Assert.AreEqual(handBeast.CardId, playerSummonReward.CardId);
+            Assert.IsTrue(playerSummonReward.Tribes.Contains(Tribe.Beast));
+            Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.FriendlyMinionSummoned &&
+                reward.SourceInstanceId == opponentBassgill.InstanceId));
+            Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
+                reward.Type == CombatRewardType.FriendlyMinionSummoned &&
+                reward.SourceCardId == "BG34_Giant_071" &&
+                reward.SourceInstanceId == opponentBassgill.InstanceId &&
+                reward.Tribes.Contains(Tribe.Beast)));
+
+            var summonedBeast = service.State.LastResult.FinalPlayerBoard.Single(card =>
+                card.InstanceId == playerSummonReward.TargetInstanceId);
+            Assert.AreEqual(handBeast.BaseAttack + 4, summonedBeast.Attack);
+            Assert.AreEqual(handBeast.BaseHealth + 4, summonedBeast.MaxHealth);
+            Assert.IsTrue(summonedBeast.Keywords.Contains(Keyword.DivineShield));
+            Assert.AreEqual(0, tavern.AdvancedMechanics.Trinkets.WildfeatherDusterBeastSummons);
+            Assert.IsTrue(tavern.Hand.Any(card => card.InstanceId == handBeast.InstanceId));
+            var handBeasts = tavern.Hand
+                .Where(card => card.CardKind == CardKind.Minion && BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Beast))
+                .ToList();
+            Assert.AreEqual(
+                2,
+                handBeasts.Count);
+            Assert.IsTrue(handBeasts.Any(card => card.InstanceId != handBeast.InstanceId));
+        }
+
+        [Test]
         public void OpponentCombatRewardsDoNotApplyToPlayerRecruitState()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
