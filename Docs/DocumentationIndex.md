@@ -44,11 +44,12 @@
 ### 想改 UI 或做更好用的编辑器
 
 1. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
-2. [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md)
-3. [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md)
-4. [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md)
-5. [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md)
-6. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
+2. [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md)
+3. [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md)
+4. [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md)
+5. [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md)
+6. [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md)
+7. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
 
 ### 想查官方数据、API 和一致性
 
@@ -87,6 +88,7 @@
 | 酒馆规则 | [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md) | 酒馆种族 Ban 选、随从池过滤、发现和法术过滤 | 酒馆池规则设计 |
 | Unity 架构 | [UnityMigrationDesign.md](UnityMigrationDesign.md) | 从源项目迁移到 Unity 的目标结构、领域层、UI 和测试策略 | 迁移总设计 |
 | Unity UI | [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md) | 当前 UI 审计、问题、原则和目标形态 | UI 重做主文档 |
+| Unity UI | [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md) | Battlegrounds 风格 UGUI V2 的调研结论、参考来源、skill 组合和 MCP 实施路线 | V2 UI 开工参考 |
 | Unity UI | [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md) | 开局选英雄、局内换英雄和小头像显示方案 | 英雄 UI 近期方案 |
 | Unity UI | [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md) | Prefab 化酒馆 UI 的目录、阶段和实现方案 | UI 工程化方案 |
 | Unity UI | [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md) | 随从右键编辑、关键词悬停、一键套用规则 | 编辑器交互方案 |
@@ -104,6 +106,7 @@
 ### 中高优先级
 
 - [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)：当前 UI 不方便，后续重做需要靠它定方向。
+- [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md)：开新的 UGUI V2 壳子、用 MCP 截图迭代前先看。
 - [HeroEffectRemainingCompletionOrder.md](HeroEffectRemainingCompletionOrder.md)：从当前剩余 Planned/FrameworkFirst/Deferred 项继续补齐时先看。
 - [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md)：继续按批次补英雄和宝宝时使用。
 - [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md)：避免新增英雄/宝宝时漏掉数据、注册、运行时和测试步骤。

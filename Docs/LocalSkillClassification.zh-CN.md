@@ -8,7 +8,7 @@
 - `C:\Users\wch\.codex\plugins\cache\openai-primary-runtime`
 - `D:\unity project\Learn Heartstone\Tools\ponytail\skills`
 
-共发现 57 个 `SKILL.md`。同名重复项：`skill-creator`、`pdf`。
+共发现 59 个 `SKILL.md`。同名重复项：`skill-creator`、`pdf`。
 
 ## 使用原则
 
@@ -31,7 +31,7 @@
 | 审查 diff 是否过度工程化 | `ponytail-review` |
 | 全仓库查找可删除/可简化内容 | `ponytail-audit` |
 | 汇总 `ponytail:` 延迟项 | `ponytail-debt` |
-| Web/UI 设计、改版、体验优化 | `frontend-design`, `ui-ux-pro-max`, `web-design-guidelines` |
+| Web/UI 设计、改版、体验优化 | `frontend-design`, `ui-ux-pro-max`, `game-ui-design`, `web-design-guidelines`；Unity UI 实装再用 `unity-developer` |
 | React/Next 性能、组合模式、转场动画 | `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions` |
 | Web app 浏览器验证 | `webapp-testing` |
 | Vercel 部署、token 部署、成本优化 | `deploy-to-vercel`, `vercel-cli-with-tokens`, `vercel-optimize` |
@@ -80,6 +80,8 @@
 | --- | --- | --- | --- |
 | `frontend-design` | `.codex/skills` | 新 UI、改版、视觉方向、排版、非模板化设计 | 不负责浏览器自动化验证 |
 | `ui-ux-pro-max` | `.agents/skills` | Web/mobile UI/UX 设计、组件、布局、可访问性、配色 | 不替代项目代码阅读 |
+| `game-ui-design` | `.agents/skills` | 游戏 UI/HUD/菜单、信息层级、手柄导航、安全区、可读性与可访问性设计，适合 V2 UI 视觉与交互方向 | 偏设计判断，不直接替代 Unity 实装、MCP 截图验证或项目测试 |
+| `unity-developer` | `.agents/skills` | Unity 6/UGUI/URP、游戏 UI 实现、性能、资源与跨平台开发建议 | 不能替代项目代码阅读、MCP 实测和本仓库既有架构 |
 | `web-design-guidelines` | `.codex/skills` | 审查 UI、可访问性、UX、设计规范 | 主要是 review |
 | `webapp-testing` | `.codex/skills` | Playwright 截图、浏览器交互、控制台日志验证 | 需要本地服务或可打开页面 |
 | `web-artifacts-builder` | `.codex/skills` | 复杂 HTML/React/Tailwind/shadcn artifact | 简单单文件 HTML 不必用 |
@@ -159,7 +161,7 @@
 1. 报错或测试失败：`troubleshoot`，再按 Unity 代码路径定位。
 2. 实现或修复逻辑：`ponytail`，保持最小正确改动。
 3. 多阶段系统设计或长任务：`planning-with-files`。
-4. UI 相关：如果是 Unity UI 设计理念，可参考 `frontend-design`/`ui-ux-pro-max`；如果是 Web UI 才用 `webapp-testing`。
+4. UI 相关：Unity UI V2/MCP 视觉迭代可组合 `frontend-design`、`ui-ux-pro-max`、`game-ui-design` 和 `unity-developer`；如果是 Web UI 才用 `webapp-testing`。
 5. 文档交付：普通 Markdown 不需要 docx/pdf/pptx/xlsx；只有目标文件格式明确时才触发对应文件技能。
 
 ## 冲突处理
@@ -170,3 +172,4 @@
 - `pptx` vs `presentations`：简单 deck 读写用 `pptx`；正式演示稿创建/编辑用 `presentations`。
 - `skill-creator` 双版本：创建基础 Codex skill 用系统版；评估、优化、benchmark skill 用 `.agents` 版。
 - `ponytail` 与领域技能：领域技能决定正确做法，`ponytail` 负责把实现保持在最小正确范围。
+- `frontend-design`/`ui-ux-pro-max`/`game-ui-design`/`unity-developer`：前两者负责通用视觉和 UX 方向，`game-ui-design` 负责游戏 HUD、手柄导航、可读性和安全区等游戏界面判断，`unity-developer` 负责 Unity/UGUI 实装与性能；最终以项目代码、MCP 截图和 Unity 测试为准。
