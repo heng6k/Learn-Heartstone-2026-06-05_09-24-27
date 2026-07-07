@@ -164,12 +164,129 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(0, tavern.AdvancedMechanics.Trinkets.WildfeatherDusterBeastSummons);
             Assert.IsTrue(tavern.Hand.Any(card => card.InstanceId == handBeast.InstanceId));
             var handBeasts = tavern.Hand
-                .Where(card => card.CardKind == CardKind.Minion && BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Beast))
+                .Where(card => card.CardKind == CardKind.Minion && HasCountedTribe(card, Tribe.Beast))
                 .ToList();
             Assert.AreEqual(
                 2,
                 handBeasts.Count);
             Assert.IsTrue(handBeasts.Any(card => card.InstanceId != handBeast.InstanceId));
+        }
+
+        [Test]
+        public void RepeatedDeathrattleSummonsTriggerTrinketSummonRewardsOncePerSummonAndStaySideIsolated()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            tavern.Gold = 20;
+            service.State.Opponent.Board.Clear();
+            service.State.Opponent.Hand.Clear();
+            ActivateRewardDirectly(service, "BG27_Reward_803");
+            EquipTrinket(service, "BG30_MagicItem_777");
+            EquipTrinket(service, "BG35_MagicItem_700");
+            tavern.Hand.Clear();
+            var trinkets = tavern.AdvancedMechanics.Trinkets;
+            trinkets.GoosePortraitBeastSummons = 2;
+            trinkets.WildfeatherDusterBeastSummons = 5;
+
+            var manasaber = TestMinion("repeat-summon-player-manasaber", 1, 1, Tribe.Beast, Keyword.Taunt, Keyword.Deathrattle);
+            manasaber.CardId = "BG26_800";
+            manasaber.DefinitionId = "BG26_800";
+            service.State.Player.Board.Add(manasaber);
+
+            var opponent = TestMinion("repeat-summon-opponent-killer", 10, 30, Tribe.None, Keyword.Taunt);
+            opponent.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponent);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9012, SafetyLimit = 1 }));
+
+            var deathrattleReward = service.State.LastResult.PlayerRewards.Single(reward =>
+                reward.Type == CombatRewardType.FriendlyDeathrattleTriggered &&
+                reward.SourceCardId == "BG26_800" &&
+                reward.SourceInstanceId == manasaber.InstanceId);
+            Assert.AreEqual(2, deathrattleReward.Amount);
+
+            var summonRewards = service.State.LastResult.PlayerRewards
+                .Where(reward =>
+                    reward.Type == CombatRewardType.FriendlyMinionSummoned &&
+                    reward.SourceCardId == "BG26_800" &&
+                    reward.SourceInstanceId == manasaber.InstanceId)
+                .ToList();
+            Assert.AreEqual(4, summonRewards.Count);
+            Assert.IsTrue(summonRewards.All(reward => reward.Amount == 1));
+            Assert.IsTrue(summonRewards.All(reward => reward.Tribes.Contains(Tribe.Beast)));
+            Assert.IsTrue(summonRewards.All(reward => !string.IsNullOrEmpty(reward.TargetInstanceId)));
+            Assert.AreEqual(4, summonRewards.Select(reward => reward.TargetInstanceId).Distinct().Count());
+            Assert.IsTrue(summonRewards.All(reward =>
+                service.State.LastResult.FinalPlayerBoard.Any(card =>
+                    card.InstanceId == reward.TargetInstanceId &&
+                    card.Name == "Cubling")));
+            Assert.IsFalse(service.State.LastResult.OpponentRewards.Any(reward =>
+                reward.SourceInstanceId == manasaber.InstanceId));
+
+            Assert.AreEqual(0, trinkets.GoosePortraitBeastSummons);
+            Assert.AreEqual(3, trinkets.WildfeatherDusterBeastSummons);
+            Assert.AreEqual(3, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand.All(card =>
+                card.CardKind == CardKind.Minion &&
+                HasCountedTribe(card, Tribe.Beast)));
+        }
+
+        [Test]
+        public void OpponentRepeatedDeathrattleSummonsDoNotAdvancePlayerSummonCounters()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            tavern.Gold = 20;
+            service.State.Opponent.Board.Clear();
+            service.State.Opponent.Hand.Clear();
+            EquipTrinket(service, "BG30_MagicItem_777");
+            EquipTrinket(service, "BG35_MagicItem_700");
+            tavern.Hand.Clear();
+            var trinkets = tavern.AdvancedMechanics.Trinkets;
+            trinkets.GoosePortraitBeastSummons = 2;
+            trinkets.WildfeatherDusterBeastSummons = 5;
+
+            service.State.Player.Board.Add(TestMinion("opponent-repeat-player-killer", 30, 30, Tribe.None, Keyword.Taunt));
+
+            var opponentManasaber = TestMinion("opponent-repeat-manasaber", 1, 1, Tribe.Beast, Keyword.Taunt, Keyword.Deathrattle);
+            opponentManasaber.CardId = "BG26_800";
+            opponentManasaber.DefinitionId = "BG26_800";
+            opponentManasaber.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentManasaber);
+
+            var opponentTitus = TestMinion("opponent-repeat-titus", 0, 30);
+            opponentTitus.CardId = "BG25_354";
+            opponentTitus.DefinitionId = "BG25_354";
+            opponentTitus.Owner = BoardSide.Opponent;
+            service.State.Opponent.Board.Add(opponentTitus);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9013, SafetyLimit = 1 }));
+
+            var deathrattleReward = service.State.LastResult.OpponentRewards.Single(reward =>
+                reward.Type == CombatRewardType.FriendlyDeathrattleTriggered &&
+                reward.SourceCardId == "BG26_800" &&
+                reward.SourceInstanceId == opponentManasaber.InstanceId);
+            Assert.AreEqual(2, deathrattleReward.Amount);
+
+            var opponentSummonRewards = service.State.LastResult.OpponentRewards
+                .Where(reward =>
+                    reward.Type == CombatRewardType.FriendlyMinionSummoned &&
+                    reward.SourceCardId == "BG26_800" &&
+                    reward.SourceInstanceId == opponentManasaber.InstanceId)
+                .ToList();
+            Assert.AreEqual(4, opponentSummonRewards.Count);
+            Assert.IsTrue(opponentSummonRewards.All(reward => reward.Amount == 1));
+            Assert.IsTrue(opponentSummonRewards.All(reward => reward.Tribes.Contains(Tribe.Beast)));
+            Assert.AreEqual(4, opponentSummonRewards.Select(reward => reward.TargetInstanceId).Distinct().Count());
+            Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.SourceInstanceId == opponentManasaber.InstanceId));
+            Assert.AreEqual(2, trinkets.GoosePortraitBeastSummons);
+            Assert.AreEqual(5, trinkets.WildfeatherDusterBeastSummons);
+            Assert.IsEmpty(tavern.Hand);
         }
 
         [Test]
@@ -241,8 +358,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Tavern.FreeRefreshes);
             Assert.AreEqual(1, service.State.Player.Tavern.AdvancedMechanics.Trinkets.LuckyTabbyDeaths);
             Assert.GreaterOrEqual(service.State.Player.Tavern.Hand.Count, 2);
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Beast)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => HasCountedTribe(card, Tribe.Demon)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => HasCountedTribe(card, Tribe.Beast)));
             Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
                 reward.Type == CombatRewardType.AddTavernSpellToHand &&
                 reward.SourceCardId == "BG33_894"));
@@ -297,7 +414,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
                 reward.Type == CombatRewardType.AddTavernSpellToHand &&
                 reward.SourceCardId == "BG33_894"));
-            Assert.IsTrue(tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
+            Assert.IsTrue(tavern.Hand.Any(card => HasCountedTribe(card, Tribe.Demon)));
             Assert.AreEqual(1, tavern.FreeRefreshes);
             var goldrinnGrowth = tavern.Growth.ShopModifiers
                 .Where(modifier => modifier.SourceId == "timewarped-goldrinn" && modifier.Tribe == Tribe.Beast)
@@ -316,7 +433,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(2, service.State.Round);
             Assert.AreEqual(MatchPhase.Tavern, service.State.Phase);
             Assert.IsNull(service.State.LastResult);
-            Assert.IsTrue(tavern.Hand.Any(card => BoardTribeAnalyzer.GetCountedTribes(card).Contains(Tribe.Demon)));
+            Assert.IsTrue(tavern.Hand.Any(card => HasCountedTribe(card, Tribe.Demon)));
             Assert.AreEqual(1, tavern.FreeRefreshes);
             Assert.AreEqual(nextTurnAttack, frozenBeast.Attack);
             Assert.AreEqual(nextTurnHealth, frozenBeast.MaxHealth);
@@ -341,6 +458,16 @@ namespace LearnHearthstone.Tests.EditMode
         private static MinionInstance FinalPlayerMinion(MatchService service, string instanceId)
         {
             return service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == instanceId);
+        }
+
+        private static bool HasCountedTribe(MinionInstance minion, Tribe tribe)
+        {
+            if (minion?.Tribes == null || tribe == Tribe.None)
+            {
+                return false;
+            }
+
+            return minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All);
         }
 
         private static void EquipTrinket(MatchService service, string cardId)
