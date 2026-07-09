@@ -55,6 +55,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool selected;
         private bool hovered;
         private bool pressed;
+        private UnityTavernCardMode boundMode;
+        private float layoutScale = 1f;
+        private bool handFocusLiftEnabled;
 
         public MinionInstance Card => card;
         public bool IsSelected => selected;
@@ -142,6 +145,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             contextAction = null;
             hoverStartAction = null;
             hoverEndAction = null;
+            boundMode = mode;
+            layoutScale = 1f;
+            handFocusLiftEnabled = false;
             selected = isSelected && card != null;
             hovered = false;
             pressed = false;
@@ -162,6 +168,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public void SetSelected(bool value)
         {
             selected = value && card != null;
+            ApplyFeedbackVisuals();
+        }
+
+        public void SetLayoutScale(float value)
+        {
+            layoutScale = Mathf.Max(0.01f, value);
+            ApplyFeedbackVisuals();
+        }
+
+        public void SetHandFocusLiftEnabled(bool value)
+        {
+            handFocusLiftEnabled = value;
             ApplyFeedbackVisuals();
         }
 
@@ -277,9 +295,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 new Vector2(0f, 1f),
                 mode == UnityTavernCardMode.Board ? new Vector2(17f, -17f) : new Vector2(19f, -19f),
                 mode);
-            SetBadge(attackBadge, attackText, !isSpell, card.Attack.ToString());
+            SetBadge(attackBadge, attackText, !isSpell, TavernNumberFormatter.CompactStat(card.Attack));
             ConfigurePrefabBadge(attackBadge, attackText, UnityTavernUiStyle.ColorFromHex(0xBA6A31), new Vector2(0f, 0f), new Vector2(19f, 20f), mode);
-            SetBadge(healthBadge, healthText, !isSpell, card.Health.ToString());
+            SetBadge(healthBadge, healthText, !isSpell, TavernNumberFormatter.CompactStat(card.Health));
             ConfigurePrefabBadge(healthBadge, healthText, UnityTavernUiStyle.Red, new Vector2(1f, 0f), new Vector2(-19f, 20f), mode);
             SetBadge(costBadge, costText, isSpell && !usesFullCardArt, Math.Max(0, card.Cost).ToString());
             ConfigurePrefabBadge(costBadge, costText, UnityTavernUiStyle.Blue, new Vector2(1f, 0f), new Vector2(-19f, 20f), mode);
@@ -402,6 +420,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             SetActive(badge, visible);
             SetText(label, visible ? value : string.Empty);
+            ConfigureBadgeText(label, label == null ? 16 : label.fontSize);
         }
 
         private static void ConfigurePrefabBadge(GameObject badge, Text label, Color color, Vector2 anchor, Vector2 position, UnityTavernCardMode mode)
@@ -427,7 +446,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            label.fontSize = mode == UnityTavernCardMode.Board ? 14 : 16;
+            ConfigureBadgeText(label, mode == UnityTavernCardMode.Board ? 14 : 16);
             label.fontStyle = FontStyle.Bold;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
@@ -614,8 +633,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            BadgeAt("UnityAttackBadge", card.Attack.ToString(), UnityTavernUiStyle.ColorFromHex(0xBA6A31), new Vector2(0f, 0f), new Vector2(19f, 20f));
-            BadgeAt("UnityHealthBadge", card.Health.ToString(), UnityTavernUiStyle.Red, new Vector2(1f, 0f), new Vector2(-19f, 20f));
+            BadgeAt("UnityAttackBadge", TavernNumberFormatter.CompactStat(card.Attack), UnityTavernUiStyle.ColorFromHex(0xBA6A31), new Vector2(0f, 0f), new Vector2(19f, 20f));
+            BadgeAt("UnityHealthBadge", TavernNumberFormatter.CompactStat(card.Health), UnityTavernUiStyle.Red, new Vector2(1f, 0f), new Vector2(-19f, 20f));
         }
 
         private void BuildFullArtTierBadge(UnityTavernCardMode mode)
@@ -667,10 +686,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             badge.GetComponent<RectTransform>().sizeDelta = new Vector2(34f, 34f);
 
             var label = UiFactory.Label(name + "Text", badge.transform, value, 16, FontStyle.Bold);
-            label.alignment = TextAnchor.MiddleCenter;
+            ConfigureBadgeText(label, 16);
             label.color = Color.white;
             UnityTavernUiStyle.Stretch(label.rectTransform);
             return badge;
+        }
+
+        private static void ConfigureBadgeText(Text label, int maxSize)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.fontSize = maxSize;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 8;
+            label.resizeTextMaxSize = maxSize;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
         }
 
         private void BadgeAt(string name, string value, Color color, Vector2 anchor, Vector2 position)
@@ -712,8 +747,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             EnsureFeedbackEffects();
 
-            var scale = pressed ? 0.985f : hovered ? 1.035f : selected ? 1.015f : 1f;
+            var feedbackScale = pressed ? 0.985f : hovered ? 1.035f : selected ? 1.015f : 1f;
+            var scale = layoutScale * feedbackScale;
             transform.localScale = new Vector3(scale, scale, 1f);
+
+            ApplyHandFocusLift();
 
             var frame = frameImage != null ? frameImage : gameObject.GetComponent<Image>();
             if (frame != null)
@@ -748,6 +786,31 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 feedbackShadow.effectColor = new Color(0f, 0f, 0f, hovered ? 0.48f : 0.34f);
                 feedbackShadow.effectDistance = hovered ? new Vector2(3f, -4f) : new Vector2(2f, -2f);
                 feedbackShadow.useGraphicAlpha = true;
+            }
+        }
+
+        private void ApplyHandFocusLift()
+        {
+            if (!handFocusLiftEnabled || boundMode != UnityTavernCardMode.Hand)
+            {
+                return;
+            }
+
+            var rect = transform as RectTransform;
+            if (rect != null)
+            {
+                var lift = hovered ? 26f : selected ? 16f : 0f;
+                rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, lift);
+            }
+
+            if (hovered || selected)
+            {
+                if (transform.parent != null)
+                {
+                    transform.parent.SetAsLastSibling();
+                }
+
+                transform.SetAsLastSibling();
             }
         }
 

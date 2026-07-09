@@ -40,16 +40,18 @@
 5. [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md)
 6. [TimewarpSystemImplementationPlan.md](TimewarpSystemImplementationPlan.md)
 7. [PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md](PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md)
+8. [PlayerChoiceBlockingImplementationPlan.md](PlayerChoiceBlockingImplementationPlan.md)
 
 ### 想改 UI 或做更好用的编辑器
 
 1. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
 2. [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md)
-3. [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md)
-4. [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md)
-5. [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md)
-6. [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md)
-7. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
+3. [TavernTrainerUiSkinAndComponentPlan.md](TavernTrainerUiSkinAndComponentPlan.md)
+4. [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md)
+5. [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md)
+6. [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md)
+7. [OpponentHandAndSideStateConfigurationPlan.md](OpponentHandAndSideStateConfigurationPlan.md)
+8. [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md)
 
 ### 想查官方数据、API 和一致性
 
@@ -78,6 +80,7 @@
 | 后续机制 | [SharedAdvancedMechanicsFoundationImplementationPlan.md](SharedAdvancedMechanicsFoundationImplementationPlan.md) | 饰品、任务、畸变和扭曲时空共用的选择、奖励、状态、注册和测试底座 | 下一批机制前置文档 |
 | 后续机制 | [IncompleteAndAmbiguousAdvancedMechanics.md](IncompleteAndAmbiguousAdvancedMechanics.md) | 饰品、任务、任务奖励的不完整清单、补齐方案、原因可视化和所需决策 | 当前缺陷与补齐主文档 |
 | 后续机制 | [PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md](PlayerDirectedAdvancedMechanicSelectionImplementationPlan.md) | 玩家可见的任务、饰品、第二英雄技能自由搭配选择器实现方案 | 高级机制自选入口方案 |
+| 后续机制 | [PlayerChoiceBlockingImplementationPlan.md](PlayerChoiceBlockingImplementationPlan.md) | 玩家未完成任务、饰品、畸变、扭曲或发现选择时，阻止下一回合、战斗和完整回合推进 | 强制玩家抉择守门规则 |
 | 后续机制 | [TrinketSystemImplementationPlan.md](TrinketSystemImplementationPlan.md) | 小饰品/大饰品槽位、候选、购买、效果触发和 Marin/Buttons 接入 | 饰品系统实现方案 |
 | 后续机制 | [QuestSystemImplementationPlan.md](QuestSystemImplementationPlan.md) | Quest/Reward 数据、任务进度、奖励激活和 Denathrius/Shady Aristocrat 接入 | 任务系统实现方案 |
 | 后续机制 | [AnomalySystemImplementationPlan.md](AnomalySystemImplementationPlan.md) | 单局畸变选择、全局规则修正、UI 展示和低风险 MVP 畸变池 | 畸变系统实现方案 |
@@ -89,6 +92,7 @@
 | Unity 架构 | [UnityMigrationDesign.md](UnityMigrationDesign.md) | 从源项目迁移到 Unity 的目标结构、领域层、UI 和测试策略 | 迁移总设计 |
 | Unity UI | [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md) | 当前 UI 审计、问题、原则和目标形态 | UI 重做主文档 |
 | Unity UI | [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md) | Battlegrounds 风格 UGUI V2 的调研结论、参考来源、skill 组合和 MCP 实施路线 | V2 UI 开工参考 |
+| Unity UI | [TavernTrainerUiSkinAndComponentPlan.md](TavernTrainerUiSkinAndComponentPlan.md) | Tavern Trainer 镜像入口、皮肤素材、开源 UI 组件候选、项目内 UGUI 组件和中文字体决策 | UI 皮肤与组件路线 |
 | Unity UI | [HeroSelectionAndSwapDisplayPlan.md](HeroSelectionAndSwapDisplayPlan.md) | 开局选英雄、局内换英雄和小头像显示方案 | 英雄 UI 近期方案 |
 | Unity UI | [UnityPrefabUiImplementationPlan.md](UnityPrefabUiImplementationPlan.md) | Prefab 化酒馆 UI 的目录、阶段和实现方案 | UI 工程化方案 |
 | Unity UI | [UnityMinionRightClickEditorPlan.md](UnityMinionRightClickEditorPlan.md) | 随从右键编辑、关键词悬停、一键套用规则 | 编辑器交互方案 |
@@ -107,6 +111,7 @@
 
 - [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)：当前 UI 不方便，后续重做需要靠它定方向。
 - [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md)：开新的 UGUI V2 壳子、用 MCP 截图迭代前先看。
+- [TavernTrainerUiSkinAndComponentPlan.md](TavernTrainerUiSkinAndComponentPlan.md)：按镜像入口改 UI、选择现成皮肤、决定是否引入开源 Unity UI 组件和统一中文字体前先看。
 - [HeroEffectRemainingCompletionOrder.md](HeroEffectRemainingCompletionOrder.md)：从当前剩余 Planned/FrameworkFirst/Deferred 项继续补齐时先看。
 - [HeroPowerBuddyEffectsImplementationOrder.md](HeroPowerBuddyEffectsImplementationOrder.md)：继续按批次补英雄和宝宝时使用。
 - [HeroAndBuddyImplementationProcess.md](HeroAndBuddyImplementationProcess.md)：避免新增英雄/宝宝时漏掉数据、注册、运行时和测试步骤。

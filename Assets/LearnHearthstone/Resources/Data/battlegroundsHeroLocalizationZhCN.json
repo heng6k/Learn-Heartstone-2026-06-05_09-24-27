@@ -1,0 +1,1393 @@
+{
+    "source":  "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
+    "generatedAt":  "2026-07-08T00:52:09.121Z",
+    "count":  231,
+    "cards":  [
+                  {
+                      "cardId":  "TB_BaconShop_HERO_35",
+                      "kind":  "hero",
+                      "name":  "尤格-萨隆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_039t",
+                      "kind":  "heroPower",
+                      "name":  "谜之匣",
+                      "text":  "在你的回合开始时，随机施放一个酒馆法术。\u003ci\u003e（第3回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_27",
+                      "kind":  "hero",
+                      "name":  "辛达苟萨",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_014",
+                      "kind":  "heroPower",
+                      "name":  "冰冷静滞",
+                      "text":  "随从消耗（2）枚铸币。酒馆中提供的随从减少一个，且每回合结束时都会\u003cb\u003e\u003cb\u003e冻结\u003c/b\u003e\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_93",
+                      "kind":  "hero",
+                      "name":  "恩佐斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_105",
+                      "kind":  "heroPower",
+                      "name":  "恩佐斯的化身",
+                      "text":  "开局时拥有一条可以在战斗中获得你的所有\u003cb\u003e亡语\u003c/b\u003e效果的2/2的鱼。"
+                  },
+                  {
+                      "cardId":  "BG30_HERO_304",
+                      "kind":  "hero",
+                      "name":  "经理马林",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG30_HERO_304p",
+                      "kind":  "heroPower",
+                      "name":  "神奇宝藏",
+                      "text":  "在第5回合，选择一项小型\u003cb\u003e饰品\u003c/b\u003e并购买。\u003ci\u003e（还剩4回合！）\u003c/i\u003e4在第5回合，选择一项小型\u003cb\u003e饰品\u003c/b\u003e并购买。\u003ci\u003e（已完成！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG34_HERO_004",
+                      "kind":  "hero",
+                      "name":  "米罗克",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG34_HERO_004p",
+                      "kind":  "heroPower",
+                      "name":  "扭曲的时光流汇",
+                      "text":  "在第5回合，前往小型\u003cb\u003e时空扭曲\u003c/b\u003e。\u003ci\u003e（还剩4回合！）\u003c/i\u003e4在第5回合，前往小型\u003cb\u003e时空扭曲\u003c/b\u003e。\u003ci\u003e（已结束！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_90",
+                      "kind":  "hero",
+                      "name":  "希拉斯·暗月",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_101",
+                      "kind":  "heroPower",
+                      "name":  "热闹非凡",
+                      "text":  "酒馆中加入了暗月奖券！收集3张，\u003cb\u003e发现\u003c/b\u003e一个你当前等级的随从。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_301",
+                      "kind":  "hero",
+                      "name":  "吞噬者穆坦努斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_301p",
+                      "kind":  "heroPower",
+                      "name":  "吞噬",
+                      "text":  "出售一个友方随从，将它的属性值吐到另一个友方随从身上。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_201",
+                      "kind":  "hero",
+                      "name":  "厄祖玛特",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG23_HERO_201p",
+                      "kind":  "heroPower",
+                      "name":  "触须",
+                      "text":  "在战斗中，当你有空位时，召唤一条2/2并具有\u003cb\u003e嘲讽\u003c/b\u003e的触须。\u003ci\u003e（在你出售一个随从后获得+1/+1！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_020",
+                      "kind":  "hero",
+                      "name":  "厨师曲奇",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG21_HERO_020p",
+                      "kind":  "heroPower",
+                      "name":  "搅动汤锅",
+                      "text":  "将一个随从投入你的锅中。当你集齐3个随从时，从它们的类型中\u003cb\u003e发现\u003c/b\u003e一个随从。\u003ci\u003e（还剩3个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_76",
+                      "kind":  "hero",
+                      "name":  "奥拉基尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_086",
+                      "kind":  "heroPower",
+                      "name":  "随风而行",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e使你最左边的随从获得\u003cb\u003e风怒\u003c/b\u003e，\u003cb\u003e圣盾\u003c/b\u003e以及\u003cb\u003e嘲讽\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_16",
+                      "kind":  "hero",
+                      "name":  "挂机的阿凯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_044",
+                      "kind":  "heroPower",
+                      "name":  "挂机成瘾",
+                      "text":  "跳过你的前两个回合，然后\u003cb\u003e发现\u003c/b\u003e等级3和等级4的随从各一个。"
+                  },
+                  {
+                      "cardId":  "BG34_HERO_002",
+                      "kind":  "hero",
+                      "name":  "钟表先生克劳沃斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG34_HERO_002p",
+                      "kind":  "heroPower",
+                      "name":  "双倍速",
+                      "text":  "你只需2个复制即可将随从变为金色。使用金色随从不会获取三连奖励，改为获取酒馆币。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_02",
+                      "kind":  "hero",
+                      "name":  "迦拉克隆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_011",
+                      "kind":  "heroPower",
+                      "name":  "迦拉克隆的贪婪",
+                      "text":  "选择酒馆中的一个随从，另选一个更高等级的随从将其替换。"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_105",
+                      "kind":  "hero",
+                      "name":  "乐队经理精英牛头人酋长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG25_HERO_105p",
+                      "kind":  "heroPower",
+                      "name":  "签约新人",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一个\u003cb\u003e伙伴\u003c/b\u003e。\u003ci\u003e（等级2时解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_43",
+                      "kind":  "hero",
+                      "name":  "恐龙大师布莱恩",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_048",
+                      "kind":  "heroPower",
+                      "name":  "战斗印记",
+                      "text":  "在你购买4个\u003cb\u003e战吼\u003c/b\u003e随从后，获取一张布莱恩·铜须。\u003ci\u003e（每局对战限一次）\u003c/i\u003e4在你购买4个\u003cb\u003e战吼\u003c/b\u003e随从后，获取一张布莱恩·铜须。\u003ci\u003e（还剩0个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_23",
+                      "kind":  "hero",
+                      "name":  "沙德沃克",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_022",
+                      "kind":  "heroPower",
+                      "name":  "奇诡尖啸",
+                      "text":  "触发一个友方随从的\u003cb\u003e战吼\u003c/b\u003e。\u003ci\u003e（第3回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_68",
+                      "kind":  "hero",
+                      "name":  "天空上尉库拉格",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_076",
+                      "kind":  "heroPower",
+                      "name":  "招财小猪",
+                      "text":  "获得2枚铸币。每回合都会提高1枚。\u003ci\u003e（每局对战限一次。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_92",
+                      "kind":  "hero",
+                      "name":  "亚煞极",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_103",
+                      "kind":  "heroPower",
+                      "name":  "宣泄怒火",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e召唤并获取一个你当前等级的随机随从。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_40",
+                      "kind":  "hero",
+                      "name":  "芬利·莫格顿爵士",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_057",
+                      "kind":  "heroPower",
+                      "name":  "冒险出发！",
+                      "text":  "对战开始时，\u003cb\u003e发现\u003c/b\u003e一个英雄技能。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_59",
+                      "kind":  "hero",
+                      "name":  "阿兰娜·逐星",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_065",
+                      "kind":  "heroPower",
+                      "name":  "恶魔猎手训练",
+                      "text":  "在14个友方随从攻击后，每回合你购买的第一个随从免费。\u003ci\u003e（还剩14个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_303",
+                      "kind":  "hero",
+                      "name":  "摩洛克·福尔摩斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG23_HERO_303p2",
+                      "kind":  "heroPower",
+                      "name":  "特邀侦探",
+                      "text":  "检视2个随从。猜中来自你下一个对手上一场战斗的随从，即可获取一张酒馆币。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_49",
+                      "kind":  "hero",
+                      "name":  "米尔豪斯·法力风暴",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_054",
+                      "kind":  "heroPower",
+                      "name":  "法力风暴",
+                      "text":  "购买随从和\u003cb\u003e刷新\u003c/b\u003e的消耗改为（2）枚铸币。升级酒馆所需的铸币增加（1）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_22",
+                      "kind":  "hero",
+                      "name":  "巫妖王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_024",
+                      "kind":  "heroPower",
+                      "name":  "复生庇佑",
+                      "text":  "直到下个回合，使一个随从获得\n\u003cb\u003e复生\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "BG32_HERO_001",
+                      "kind":  "hero",
+                      "name":  "森林之王塞纳留斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG32_HERO_001p",
+                      "kind":  "heroPower",
+                      "name":  "古树的智慧",
+                      "text":  "你的铸币上限提高1枚。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_003",
+                      "kind":  "hero",
+                      "name":  "范达尔·雷矛",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_003p",
+                      "kind":  "heroPower",
+                      "name":  "雷矛之力",
+                      "text":  "当你在战斗中有空位时，召唤你生命值最高的随从的一个复制。\u003ci\u003e（第7回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_104",
+                      "kind":  "hero",
+                      "name":  "摇滚教父沃恩",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG26_HERO_104p",
+                      "kind":  "heroPower",
+                      "name":  "蓄势和声",
+                      "text":  "每3个回合，在回合结束时获取你最左边的手牌的一张原始版复制。\u003ci\u003e（还剩3回合！）\u003c/i\u003e3每3个回合，在回合结束时获取你最左边的手牌的一张原始版复制。\u003ci\u003e（就是这回合！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_005",
+                      "kind":  "hero",
+                      "name":  "克隆大师泽里克",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_005p",
+                      "kind":  "heroPower",
+                      "name":  "克隆展览",
+                      "text":  "每局对战限一次。召唤一个友方随从的一个完全相同的\n复制。0每局对战限一次。召唤一个友方随从的一个完全相同的复制。\u003ci\u003e（\u003cb\u003e时空扭曲\u003c/b\u003e随从除外。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_000",
+                      "kind":  "hero",
+                      "name":  "塔维什·雷矛",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_000p",
+                      "kind":  "heroPower",
+                      "name":  "致命狙击",
+                      "text":  "瞄准敌人！\u003cb\u003e战斗开始时：\u003c/b\u003e对你的目标造成99点伤害。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_75",
+                      "kind":  "hero",
+                      "name":  "拉卡尼休",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_085",
+                      "kind":  "heroPower",
+                      "name":  "点亮酒馆",
+                      "text":  "获取一张灯笼火光。灯笼火光可以使一个随从获得等同于你当前等级的属性值。"
+                  },
+                  {
+                      "cardId":  "BG27_HERO_801",
+                      "kind":  "hero",
+                      "name":  "风暴之王托里姆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG27_HERO_801p2",
+                      "kind":  "heroPower",
+                      "name":  "挑选勇士",
+                      "text":  "\u003cb\u003e\u003cb\u003e被动\u003c/b\u003e\u003c/b\u003e\n对战开始时，\u003cb\u003e发现\u003c/b\u003e一个等级7的随从，在你花掉60枚铸币后才可使用。\u003ci\u003e（还剩60枚！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG33_HERO_001",
+                      "kind":  "hero",
+                      "name":  "洛，在世传奇",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG33_HERO_001p_ALT",
+                      "kind":  "heroPower",
+                      "name":  "英勇鼓舞",
+                      "text":  "在15个友方随从攻击后，获取一份三连奖励。\n\u003ci\u003e（还剩15个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_400",
+                      "kind":  "hero",
+                      "name":  "蛇眼",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG28_HERO_400p",
+                      "kind":  "heroPower",
+                      "name":  "好运当投",
+                      "text":  "投一枚6面骰，获得等量的铸币。\u003ci\u003e（在相应数量的回合内无法再次使用！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG34_HERO_000",
+                      "kind":  "hero",
+                      "name":  "无限巨龙姆诺兹多",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG34_HERO_000p",
+                      "kind":  "heroPower",
+                      "name":  "平行时间线",
+                      "text":  "在第8回合，前往大型\u003cb\u003e时空扭曲\u003c/b\u003e。\u003ci\u003e（还剩7回合！）\u003c/i\u003e7在第8回合，前往大型\u003cb\u003e时空扭曲\u003c/b\u003e。\u003ci\u003e（已结束！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_17",
+                      "kind":  "hero",
+                      "name":  "米尔菲丝·法力风暴",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_015",
+                      "kind":  "heroPower",
+                      "name":  "修补匠",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一个\u003cb\u003e磁力\u003c/b\u003e机械。\u003ci\u003e（等级4时解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_305",
+                      "kind":  "hero",
+                      "name":  "奥妮克希亚",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_305p",
+                      "kind":  "heroPower",
+                      "name":  "巢母",
+                      "text":  "\u003cb\u003e复仇（4）：\u003c/b\u003e召唤一条1/1的雏龙，并使其立即发起攻击。此效果提升+1/+1。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_283",
+                      "kind":  "hero",
+                      "name":  "狂风之翼",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_283p",
+                      "kind":  "heroPower",
+                      "name":  "杜加尔的狮鹫",
+                      "text":  "选择一条新航线，完成飞行时获得特效！"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_000",
+                      "kind":  "hero",
+                      "name":  "凯瑞尔·罗姆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG21_HERO_000p",
+                      "kind":  "heroPower",
+                      "name":  "定罪",
+                      "text":  "随机使1个友方随从获得+1/+1。\u003cb\u003e\u003cb\u003e被动\u003c/b\u003e：\u003c/b\u003e在每场战斗后，选择一项提升。1随机使1个友方随从获得+1/+1。\u003cb\u003e\u003cb\u003e被动\u003c/b\u003e：\u003c/b\u003e在每场战斗后，选择一项提升。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_50",
+                      "kind":  "hero",
+                      "name":  "苔丝·格雷迈恩",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_077",
+                      "kind":  "heroPower",
+                      "name":  "鲍勃的豪夺",
+                      "text":  "\u003cb\u003e刷新\u003c/b\u003e酒馆，使其中的随从变为你上一个对手战队随从的原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_15",
+                      "kind":  "hero",
+                      "name":  "堕落的乔治",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_010",
+                      "kind":  "heroPower",
+                      "name":  "圣光恩泽",
+                      "text":  "使一个随从获得\n\u003cb\u003e圣盾\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_53",
+                      "kind":  "hero",
+                      "name":  "伊瑟拉",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_062",
+                      "kind":  "heroPower",
+                      "name":  "梦境之门",
+                      "text":  "每当酒馆\u003cb\u003e刷新\u003c/b\u003e时，总会额外提供一条龙。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_41",
+                      "kind":  "hero",
+                      "name":  "雷诺·杰克逊",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_046",
+                      "kind":  "heroPower",
+                      "name":  "要发财了！",
+                      "text":  "每局对战限一次。使一个友方随从变为金色。0每局对战限一次。使一个友方随从变为金色。\u003ci\u003e（\u003cb\u003e时空扭曲\u003c/b\u003e随从除外。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_10",
+                      "kind":  "hero",
+                      "name":  "贸易亲王加里维克斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_008",
+                      "kind":  "heroPower",
+                      "name":  "理财之道",
+                      "text":  "在你出售一个随从后，下回合获得1枚铸币。0在你出售一个随从后，下回合获得1枚铸币。\u003ci\u003e（已储存0枚）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_34",
+                      "kind":  "hero",
+                      "name":  "帕奇维克",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_035",
+                      "kind":  "heroPower",
+                      "name":  "缝合完毕",
+                      "text":  "开局时额外拥有30点生命值。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_305",
+                      "kind":  "hero",
+                      "name":  "劫匪之王托瓦格尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG23_HERO_305p",
+                      "kind":  "heroPower",
+                      "name":  "完美犯罪",
+                      "text":  "偷取酒馆中的所有牌。每个回合，你的下一个英雄技能消耗的铸币减少（1）枚。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_282",
+                      "kind":  "hero",
+                      "name":  "塔姆辛·罗姆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_282p",
+                      "kind":  "heroPower",
+                      "name":  "香氛护命匣",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e使你攻击力最低的随从获得“\u003cb\u003e亡语：\u003c/b\u003e使你的其他随从获得本随从的属性值。”"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_201",
+                      "kind":  "hero",
+                      "name":  "沃金",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_201p",
+                      "kind":  "heroPower",
+                      "name":  "灵魂互换",
+                      "text":  "选择2个随从。直到下个回合，它们会获得对方的攻击力。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_007",
+                      "kind":  "hero",
+                      "name":  "艾萨拉女王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_007p",
+                      "kind":  "heroPower",
+                      "name":  "艾萨拉的野心",
+                      "text":  "当你的战队总计达到30点攻击力时，开启纳迦远征。0当你的战队总计达到30点攻击力时，开启纳迦远征。\u003ci\u003e（还剩0点！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_28",
+                      "kind":  "hero",
+                      "name":  "永恒者托奇",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_028",
+                      "kind":  "heroPower",
+                      "name":  "时空酒馆",
+                      "text":  "\u003cb\u003e刷新\u003c/b\u003e酒馆，其中包含两个比当前酒馆等级高一级的随从。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_70",
+                      "kind":  "hero",
+                      "name":  "比格沃斯先生",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_080",
+                      "kind":  "heroPower",
+                      "name":  "克尔苏加德的猫",
+                      "text":  "在一个其他英雄死亡后，从其战队中\u003cb\u003e发现\u003c/b\u003e一个随从。保留所有附加效果。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_29",
+                      "kind":  "hero",
+                      "name":  "克苏恩",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_104",
+                      "kind":  "heroPower",
+                      "name":  "古神恩典",
+                      "text":  "在回合结束时，使一个友方随从获得+1/+1。重复0次。\u003ci\u003e（每回合都会提升！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_201",
+                      "kind":  "hero",
+                      "name":  "费林大使",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_201p",
+                      "kind":  "heroPower",
+                      "name":  "远行计划",
+                      "text":  "跳过你的第一个回合。\u003cb\u003e发现\u003c/b\u003e等级6，4和2的随从各一个，当你达到对应等级时才可使用。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_78",
+                      "kind":  "hero",
+                      "name":  "齐恩瓦拉",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_088",
+                      "kind":  "heroPower",
+                      "name":  "雪崩",
+                      "text":  "在你使用3张元素牌后，升级酒馆所需的铸币减少（3）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_21",
+                      "kind":  "hero",
+                      "name":  "伟大的阿卡扎曼扎拉克",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_020",
+                      "kind":  "heroPower",
+                      "name":  "神奇魔术",
+                      "text":  "选择一个\u003cb\u003e奥秘\u003c/b\u003e。将其置入战场。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_006",
+                      "kind":  "hero",
+                      "name":  "大主教奥萨尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_006p",
+                      "kind":  "heroPower",
+                      "name":  "奥术知识",
+                      "text":  "你购买的下一张酒馆法术牌消耗的铸币减少（1）枚。\u003ci\u003e（第3回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_304",
+                      "kind":  "hero",
+                      "name":  "瓦丝琪女士",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG23_HERO_304p",
+                      "kind":  "heroPower",
+                      "name":  "深海遗物",
+                      "text":  "在每个回合开始时，随机获取一张\u003cb\u003e塑造法术\u003c/b\u003e的法术牌。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_101",
+                      "kind":  "hero",
+                      "name":  "泽瑞拉",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_101p",
+                      "kind":  "heroPower",
+                      "name":  "亲见圣光",
+                      "text":  "选择酒馆中的一个随从，将其属性值变为2并置入你的手牌。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_100",
+                      "kind":  "hero",
+                      "name":  "洛卡拉",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_100p",
+                      "kind":  "heroPower",
+                      "name":  "战斗的荣耀",
+                      "text":  "在友方随从消灭敌人后，使其永久获得+1攻击力。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_306",
+                      "kind":  "hero",
+                      "name":  "希尔瓦娜斯·风行者",
+                      "text":  "不要妄想邀请她一起游泳。女王绝不沉浮。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_306p",
+                      "kind":  "heroPower",
+                      "name":  "重拾灵魂",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一个在上一场战斗中死亡的随从的原始版复制。\u003ci\u003e（第3回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_004",
+                      "kind":  "hero",
+                      "name":  "瓦尔登·晨拥",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_004p",
+                      "kind":  "heroPower",
+                      "name":  "好事成霜",
+                      "text":  "在酒馆\u003cb\u003e刷新\u003c/b\u003e后，复制酒馆中等级最高的随从并\u003cb\u003e冻结\u003c/b\u003e这两个随从。"
+                  },
+                  {
+                      "cardId":  "BG24_HERO_204",
+                      "kind":  "hero",
+                      "name":  "强化机器人",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG24_HERO_204p",
+                      "kind":  "heroPower",
+                      "name":  "强化",
+                      "text":  "在酒馆\u003cb\u003e刷新\u003c/b\u003e后，随机使其中的一个随从获得一项随机\u003cb\u003e额外关键词\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_002",
+                      "kind":  "hero",
+                      "name":  "德雷克塔尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_002p",
+                      "kind":  "heroPower",
+                      "name":  "霜狼热血",
+                      "text":  "当你在战斗中有空位时，召唤你攻击力最高的随从的一个复制。\u003ci\u003e（第7回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_242",
+                      "kind":  "hero",
+                      "name":  "古夫·符文图腾",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_242p",
+                      "kind":  "heroPower",
+                      "name":  "自然的平衡",
+                      "text":  "在你购买总计20级的卡牌后，获取一份三连奖励。\u003ci\u003e（还剩20级！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG32_HERO_002",
+                      "kind":  "hero",
+                      "name":  "扣子",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG32_HERO_002p",
+                      "kind":  "heroPower",
+                      "name":  "藏品增生",
+                      "text":  "在第8回合，选择一项大型\u003cb\u003e饰品\u003c/b\u003e并购买。\u003ci\u003e（还剩7回合！）\u003c/i\u003e7在第8回合，选择一项大型\u003cb\u003e饰品\u003c/b\u003e并购买。\u003ci\u003e（已完成！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_33",
+                      "kind":  "hero",
+                      "name":  "馆长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_033",
+                      "kind":  "heroPower",
+                      "name":  "馆长奇珍",
+                      "text":  "开局时拥有一个具有\u003cb\u003e烈毒\u003c/b\u003e和全部随从类型的2/2的融合怪。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_12",
+                      "kind":  "hero",
+                      "name":  "鼠王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_041",
+                      "kind":  "heroPower",
+                      "name":  "鼠王的故事",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一张特定类型的随从牌。每回合切换类型。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_60",
+                      "kind":  "hero",
+                      "name":  "凯尔萨斯·逐日者",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_066",
+                      "kind":  "heroPower",
+                      "name":  "翠绿魔珠",
+                      "text":  "在你购买3个随从后，获取一张酒馆币。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_56",
+                      "kind":  "hero",
+                      "name":  "阿莱克丝塔萨",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_064",
+                      "kind":  "heroPower",
+                      "name":  "红龙女王",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一张龙牌。\u003ci\u003e（等级4时解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG24_HERO_100",
+                      "kind":  "hero",
+                      "name":  "德纳修斯大帝",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG24_HERO_100p",
+                      "kind":  "heroPower",
+                      "name":  "悬案疑云",
+                      "text":  "对战开始时，从两个\u003cb\u003e任务\u003c/b\u003e中选择\n一个。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_94",
+                      "kind":  "hero",
+                      "name":  "提克特斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_106",
+                      "kind":  "heroPower",
+                      "name":  "奖品满墙",
+                      "text":  "每4个回合，\u003cb\u003e发现\u003c/b\u003e一个暗月奖品。\u003ci\u003e（还剩3回合！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_702",
+                      "kind":  "hero",
+                      "name":  "典狱长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_702",
+                      "kind":  "heroPower",
+                      "name":  "符文强化",
+                      "text":  "使一个随从获得+1/+1。在五个友方随从死亡后提升。\u003ci\u003e（还剩5个！）\u003c/i\u003e5使一个随从获得+1/+1。在五个友方随从死亡后提升。\u003ci\u003e（还剩5个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_58",
+                      "kind":  "hero",
+                      "name":  "玛里苟斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_052",
+                      "kind":  "heroPower",
+                      "name":  "奥术变易",
+                      "text":  "将一张牌随机替换为一张等级相同的牌。\u003ci\u003e（每回合可使用两次。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_42",
+                      "kind":  "hero",
+                      "name":  "伊莉斯·逐星",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_047",
+                      "kind":  "heroPower",
+                      "name":  "探险者领队",
+                      "text":  "\u003cb\u003e发现\u003c/b\u003e一个你当前等级的随从。每次使用后消耗的铸币增加（1）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_36",
+                      "kind":  "hero",
+                      "name":  "舞者达瑞尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_042",
+                      "kind":  "heroPower",
+                      "name":  "帽子戏法",
+                      "text":  "当你使用随从牌时，使其获得一顶+1/+1的帽子。帽子会在出售随从时传递给一个友方随从。"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_102",
+                      "kind":  "hero",
+                      "name":  "因葛，钢铁颂歌",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG26_HERO_102p",
+                      "kind":  "heroPower",
+                      "name":  "大调颂歌",
+                      "text":  "使一个随从获得等同于你当前等级的攻击力。\u003ci\u003e（下回合切换为\n生命值！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_202",
+                      "kind":  "hero",
+                      "name":  "阮大师",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_202p",
+                      "kind":  "heroPower",
+                      "name":  "风暴之力",
+                      "text":  "在每个回合开始时，从2个新英雄技能中选择一个。"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_010",
+                      "kind":  "hero",
+                      "name":  "斯卡布斯·刀油",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG21_HERO_010p",
+                      "kind":  "heroPower",
+                      "name":  "间谍探查",
+                      "text":  "从你下一个对手的战队中\u003cb\u003e发现\u003c/b\u003e一个随从的原始版复制。"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_103",
+                      "kind":  "hero",
+                      "name":  "塔隆·血魔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG25_HERO_103p",
+                      "kind":  "heroPower",
+                      "name":  "飞速复活",
+                      "text":  "选择一个友方随从。\u003cb\u003e战斗开始时：\u003c/b\u003e将其消灭。当你有空位时，重新召唤一个完全相同的复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_45",
+                      "kind":  "hero",
+                      "name":  "至尊盗王拉法姆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_053",
+                      "kind":  "heroPower",
+                      "name":  "归我了",
+                      "text":  "下一场战斗，获取你消灭的第一个随从的一张原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_64",
+                      "kind":  "hero",
+                      "name":  "尤朵拉船长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_074",
+                      "kind":  "heroPower",
+                      "name":  "埋藏的宝藏",
+                      "text":  "挖出一个金色随从！\u003ci\u003e（还要挖4次）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_57",
+                      "kind":  "hero",
+                      "name":  "诺兹多姆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_063",
+                      "kind":  "heroPower",
+                      "name":  "洞察未来",
+                      "text":  "在你的回合开始时，获得一次免费的\u003cb\u003e刷新\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_37",
+                      "kind":  "hero",
+                      "name":  "加拉克苏斯大王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_036",
+                      "kind":  "heroPower",
+                      "name":  "血怒",
+                      "text":  "在友方随从造成150点伤害后，打开一道通往扭曲虚空的传送门！\u003ci\u003e（还剩150点！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_25",
+                      "kind":  "hero",
+                      "name":  "巫妖巴兹亚尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_049",
+                      "kind":  "heroPower",
+                      "name":  "夜鬼淘金",
+                      "text":  "偷取\n酒馆中的一张牌。受到2点伤害。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_18",
+                      "kind":  "hero",
+                      "name":  "海盗帕奇斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_072",
+                      "kind":  "heroPower",
+                      "name":  "海盗聚会！",
+                      "text":  "获取一个海盗。在你购买一个海盗后，你的下一个英雄技能消耗减少（1）枚铸币。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_52",
+                      "kind":  "hero",
+                      "name":  "死亡之翼",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_061",
+                      "kind":  "heroPower",
+                      "name":  "万物尽焚！",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e使所有随从永久获得+2攻击力。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_103",
+                      "kind":  "hero",
+                      "name":  "亡语者布莱克松",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_103p",
+                      "kind":  "heroPower",
+                      "name":  "血脉连接",
+                      "text":  "获取2张\u003cb\u003e鲜血宝石\u003c/b\u003e。\u003ci\u003e（每回合两次。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_030",
+                      "kind":  "hero",
+                      "name":  "斯尼德",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG21_HERO_030p",
+                      "kind":  "heroPower",
+                      "name":  "驾驶伐木机",
+                      "text":  "开局时拥有一台2/1的伐木机。伐木机可以召唤你手牌中生命值最高的随从并使其获得\u003cb\u003e圣盾\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_003",
+                      "kind":  "hero",
+                      "name":  "预言者努波顿",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_003p",
+                      "kind":  "heroPower",
+                      "name":  "星系投影",
+                      "text":  "获取你施放的上一个酒馆法术的一张复制。每个回合，你的下一个英雄技能消耗的铸币减少（1）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_67",
+                      "kind":  "hero",
+                      "name":  "钩牙船长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_075",
+                      "kind":  "heroPower",
+                      "name":  "变废为宝",
+                      "text":  "移除一个友方随从，\u003cb\u003e发现\u003c/b\u003e一张低一级的随从牌。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_280",
+                      "kind":  "hero",
+                      "name":  "库尔特鲁斯·陨烬",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_280p5",
+                      "kind":  "heroPower",
+                      "name":  "战刃飞旋",
+                      "text":  "每回合一次：在你购买3个随从后，获取所购买的一个随从的一张原始版复制。\u003ci\u003e（还剩3个！）\u003c/i\u003e3每回合一次：在你购买3个随从后，获取所购买的一个随从的一张原始版复制。\u003ci\u003e（已获取！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG35_HERO_001",
+                      "kind":  "hero",
+                      "name":  "吉恩，狼人国王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG35_HERO_001p",
+                      "kind":  "heroPower",
+                      "name":  "双面之王",
+                      "text":  "在第4回合，\u003cb\u003e发现\u003c/b\u003e两项英雄技能以替换本技能。\u003ci\u003e（还剩3回合！）\u003c/i\u003e3在第4回合，\u003cb\u003e发现\u003c/b\u003e两项英雄技能以替换本技能。\u003ci\u003e（已完成！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_55",
+                      "kind":  "hero",
+                      "name":  "菌菇术士弗洛格尔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_056",
+                      "kind":  "heroPower",
+                      "name":  "愿者上钩",
+                      "text":  "在你出售5个随从后，随机获取一个鱼人。\u003ci\u003e（还剩5个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_39",
+                      "kind":  "hero",
+                      "name":  "疯狂金字塔",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_040",
+                      "kind":  "heroPower",
+                      "name":  "添砖加瓦",
+                      "text":  "随机偷取酒馆中的一个随从，使其生命值翻倍。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_102",
+                      "kind":  "hero",
+                      "name":  "萨鲁法尔大王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG20_HERO_102p",
+                      "kind":  "heroPower",
+                      "name":  "为了部落！",
+                      "text":  "酒馆中的随从拥有+1/+1。在你购买4个随从后提升此效果。\u003ci\u003e（还剩4个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_71",
+                      "kind":  "hero",
+                      "name":  "詹迪斯·巴罗夫",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_084",
+                      "kind":  "heroPower",
+                      "name":  "强买强换",
+                      "text":  "将一个非金色的友方随从和酒馆中随机一个随从交换。"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_800",
+                      "kind":  "hero",
+                      "name":  "泰瑟兰·血望者",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG28_HERO_800p",
+                      "kind":  "heroPower",
+                      "name":  "神圣遗物学会研究",
+                      "text":  "你每购买四张酒馆法术牌，第四张消耗的铸币为（0）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_95",
+                      "kind":  "hero",
+                      "name":  "格雷布",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_107",
+                      "kind":  "heroPower",
+                      "name":  "老树新芽",
+                      "text":  "使你在战斗阶段中召唤的随从获得+1/+2和\u003cb\u003e嘲讽\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_38",
+                      "kind":  "hero",
+                      "name":  "穆克拉",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_038",
+                      "kind":  "heroPower",
+                      "name":  "香蕉明猩",
+                      "text":  "在你的回合开始时，获取2根香蕉，并使其他所有人获得\n一根。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_01",
+                      "kind":  "hero",
+                      "name":  "艾德温·范克里夫",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_001",
+                      "kind":  "heroPower",
+                      "name":  "打磨利刃",
+                      "text":  "使一个随从获得+2/+2。在你购买5张牌后提升。\u003ci\u003e（还剩5张！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG34_HERO_001",
+                      "kind":  "hero",
+                      "name":  "时光扭曲者克罗米",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG34_HERO_001p",
+                      "kind":  "heroPower",
+                      "name":  "法力时刻",
+                      "text":  "\u003cb\u003e刷新\u003c/b\u003e酒馆，使其中变为酒馆法术牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_62",
+                      "kind":  "hero",
+                      "name":  "玛维·影歌",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_068",
+                      "kind":  "heroPower",
+                      "name":  "禁锢",
+                      "text":  "选择酒馆中的一张牌锁入你的手牌，2回合后解锁。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_91",
+                      "kind":  "hero",
+                      "name":  "了不起的杰弗里斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_102",
+                      "kind":  "heroPower",
+                      "name":  "三个愿望",
+                      "text":  "如果你有两个\n相同的随从，找到第三个。\u003ci\u003e（还剩3个愿望）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_08",
+                      "kind":  "hero",
+                      "name":  "伊利丹·怒风",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_069",
+                      "kind":  "heroPower",
+                      "name":  "左膀右臂",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e你最左边和最右边的随从获得+2/+1并立即发起攻击。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_74",
+                      "kind":  "hero",
+                      "name":  "林地守护者欧穆",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_082",
+                      "kind":  "heroPower",
+                      "name":  "永远绽放",
+                      "text":  "在你升级酒馆后，获得2枚铸币。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_001",
+                      "kind":  "hero",
+                      "name":  "布鲁坎",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_001p",
+                      "kind":  "heroPower",
+                      "name":  "拥抱元素",
+                      "text":  "选择一个元素。\u003cb\u003e战斗开始时：\u003c/b\u003e唤起选择的元素。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_11",
+                      "kind":  "hero",
+                      "name":  "炎魔之王拉格纳罗斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_087",
+                      "kind":  "heroPower",
+                      "name":  "买吧，虫子！",
+                      "text":  "在你购买16张牌后，获得萨弗拉斯。\u003ci\u003e（还剩16张！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_14",
+                      "kind":  "hero",
+                      "name":  "瓦托格尔女王",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_037a",
+                      "kind":  "heroPower",
+                      "name":  "蜡油战队",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e使每个类型的各一个友方随从获得+1/+1。\u003ci\u003e（在你花掉10枚铸币后提升！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_811",
+                      "kind":  "hero",
+                      "name":  "刀锋女王凯瑞甘",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_811p",
+                      "kind":  "heroPower",
+                      "name":  "孵化池",
+                      "text":  "解锁等级2的异虫。每个回合，消耗的铸币都会减少（1）枚。\u003cb\u003e\u003cb\u003e被动：\u003c/b\u003e\u003c/b\u003e开局时拥有一个2/2的幼虫。"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_801",
+                      "kind":  "hero",
+                      "name":  "荷利戴医生",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG28_HERO_801p",
+                      "kind":  "heroPower",
+                      "name":  "九蛙赐福",
+                      "text":  "随机获取一张酒馆法术牌。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_801",
+                      "kind":  "hero",
+                      "name":  "吉姆·雷诺",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_801p",
+                      "kind":  "heroPower",
+                      "name":  "升空",
+                      "text":  "开局时拥有一艘2/2的战列巡航舰。每当酒馆\u003cb\u003e刷新\u003c/b\u003e时，在其中添加一项战列巡航舰升级。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_802",
+                      "kind":  "hero",
+                      "name":  "阿塔尼斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG31_HERO_802p",
+                      "kind":  "heroPower",
+                      "name":  "折跃门",
+                      "text":  "对战开始时，从2个星灵随从中选择一个，在你购买14张牌后才可使用。\u003ci\u003e（还剩14张！）\u003c/i\u003e14对战开始时，从2个星灵随从中选择一个，在你购买14张牌后才可使用。\u003ci\u003e（已完成！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_101",
+                      "kind":  "hero",
+                      "name":  "霍格船长",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG26_HERO_101p",
+                      "kind":  "heroPower",
+                      "name":  "我当船长啦",
+                      "text":  "在你购买一个海盗后，获得1枚铸币。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_200",
+                      "kind":  "hero",
+                      "name":  "伊妮·积雷",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG22_HERO_200p",
+                      "kind":  "heroPower",
+                      "name":  "敲打机械",
+                      "text":  "在9个友方随从死亡后，随机获取一张机械牌。9在9个友方随从死亡后，随机获取一张机械牌。\u003ci\u003e（还剩9个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_100",
+                      "kind":  "hero",
+                      "name":  "普崔塞德教授",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG25_HERO_100p",
+                      "kind":  "heroPower",
+                      "name":  "构造亡灵",
+                      "text":  "制造一个自定义的亡灵。\u003ci\u003e（还剩3件作品！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_72",
+                      "kind":  "hero",
+                      "name":  "巴罗夫领主",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HP_081",
+                      "kind":  "heroPower",
+                      "name":  "友好投注",
+                      "text":  "猜测下一场战斗中获胜的玩家。如果猜中，获取3张酒馆币。"
+                  },
+                  {
+                      "cardId":  "BG35_Anomaly_008t",
+                      "kind":  "heroPower",
+                      "name":  "大型水晶球",
+                      "text":  "当你购买大型\u003cb\u003e饰品\u003c/b\u003e时，本技能变形成为它的复制。"
+                  },
+                  {
+                      "cardId":  "BG35_Anomaly_002t",
+                      "kind":  "heroPower",
+                      "name":  "神秘魔方",
+                      "text":  "每回合中，免费从2个新的小型\u003cb\u003e\u003cb\u003e饰品\u003c/b\u003e\u003c/b\u003e中选择一个以替换本饰品。\u003ci\u003e（第5回合解锁。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG35_Anomaly_007t",
+                      "kind":  "heroPower",
+                      "name":  "小型水晶球",
+                      "text":  "当你购买小型\u003cb\u003e饰品\u003c/b\u003e时，本技能变形成为它的复制。"
+                  }
+              ]
+}

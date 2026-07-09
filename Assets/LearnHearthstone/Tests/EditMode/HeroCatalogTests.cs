@@ -45,6 +45,25 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void LoadFromResources_MergesZhCnHeroAndHeroPowerLocalization()
+        {
+            var catalog = HeroCatalogLoader.LoadFromResources();
+
+            var yogg = catalog.GetHeroByCardId("TB_BaconShop_HERO_35");
+
+            Assert.AreEqual("Yogg-Saron, Hope's End", yogg.Name);
+            Assert.AreEqual("尤格-萨隆", yogg.ZhName);
+            Assert.IsNotNull(yogg.HeroPower);
+            Assert.AreEqual("Puzzle Box", yogg.HeroPower.Name);
+            Assert.AreEqual("谜之匣", yogg.HeroPower.ZhName);
+            Assert.IsTrue(yogg.HeroPower.ZhText.Contains("酒馆法术"));
+
+            var lesserCrystalBall = catalog.GetHeroPowerByCardId("BG35_Anomaly_007t");
+            Assert.AreEqual("小型水晶球", lesserCrystalBall.ZhName);
+            Assert.IsTrue(lesserCrystalBall.ZhText.Contains("饰品"));
+        }
+
+        [Test]
         public void LoadFromResources_ExplicitlyListsMissingBuddyMappings()
         {
             var catalog = HeroCatalogLoader.LoadFromResources();

@@ -74,6 +74,11 @@ namespace LearnHearthstone.Domain.Engine
         private const string RefreshingAnomalyCardId = "BGS_116";
         private const string TavernTempestCardId = "BGS_123";
         private const string KingBagurgleCardId = "BGS_030";
+        private const string OminousSeerCardId = "BG31_330";
+        private const string RazorfenGeomancerCardId = "BG20_100";
+        private const string SouthseaBuskerCardId = "BG26_135";
+        private const string ShellCollectorCardId = "BG23_002";
+        private const string IntrepidBotanistCardId = "BG32_237";
         private const string PricklyPiperCardId = "BG26_525";
         private const string BalladistCardId = "BG26_814";
         private const string FeedingTigerSharkCardId = "BG34_523";
@@ -81,6 +86,15 @@ namespace LearnHearthstone.Domain.Engine
         private const string BrannosaurCardId = "BG34_865";
         private const string SaloonDancerCardId = "BG35_702";
         private const string DustyCycloneCardId = "BG32_841";
+        private const string NerubianDeathswarmerCardId = "BG25_011";
+        private const string FelElementalCardId = "BG25_041";
+        private const string JazzerCardId = "BG26_159";
+        private const string SlimyFelbloodCardId = "BG29_873";
+        private const string BlackChromawhelpCardId = "BG34_635t";
+        private const string BristlingDrummerCardId = "BG34_683";
+        private const string BoarHerderCardId = "BG33_888";
+        private const string GrittyHeadhunterCardId = "BG31_822";
+        private const string FirelandsFlameCardId = "BG35_882";
         private const string FriendlyFelboarCardId = "BG32_880";
         private const string MobileProjectionistCardId = "BG31_175";
         private const string HatchingResearcherCardId = "BG34_632";
@@ -125,6 +139,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string QueenGuardCardId = "BG34_926";
         private const string FallenSkyGolemCardId = "BG35_342";
         private const string ThornedTrailblazerCardId = "BG35_437";
+        private const string SkyPirateFlagbearerCardId = "BG30_119";
         private const string SkyPirateCardId = "SKY_PIRATE";
         private const string ImpulsiveTricksterCardId = "BG21_006";
         private const string KaboomBotCardId = "BG_BOT_606";
@@ -204,19 +219,26 @@ namespace LearnHearthstone.Domain.Engine
         private const string EyesOfTheEarthMotherCardNumber = "100601";
         private const string DisturbedGraveCardNumber = "126957";
         private const string ButcheringCardNumber = "110412";
+        private const string TavernCoinCardNumber = "104436";
         private const string MenagerieTablewareCardNumber = "105271";
         private const string StaffOfEnrichmentCardNumber = "105276";
         private const string SacredGiftCardNumber = "122899";
+        private const string ConflagrationCardNumber = "130310";
+        private const string MaraudersContractCardNumber = "BG31_891";
         private const string DeepwaterSchoolCardId = "131218";
         private const string ArcaneConsumptionCardId = "130311";
         private const string HealthyBountyCardId = "BG33_811";
+        private const string BassgillPortraitCardId = "BG32_MagicItem_301";
+        private const string BristlebachPortraitCardId = "BG32_MagicItem_274";
         private const string DeathlyPhylacteryCardId = "BG30_MagicItem_700";
         private const string HeraldStickerCardId = "BG32_MagicItem_306";
         private const string DivineSignetCardId = "BG32_MagicItem_171";
         private const string MechagonAdapterCardId = "BG30_MagicItem_910";
         private const string DeathtouchAppleCardId = "BG35_MagicItem_731";
+        private const string ReinforcedShieldCardId = "BG30_MagicItem_886";
         private const string JarredFrostlingCardId = "BG30_MagicItem_952";
         private const string PowderKegCardId = "BG35_MagicItem_714";
+        private const string FlagbearerPortraitCardId = "BG30_MagicItem_921";
         private const string SkyGolemPortraitCardId = "BG35_MagicItem_740";
         private const string HoggyBankCardId = "BG30_MagicItem_411";
         private const string RustyTridentCardId = "BG30_MagicItem_917";
@@ -237,6 +259,12 @@ namespace LearnHearthstone.Domain.Engine
         private const string BoomControllerCardId = "BG30_MagicItem_440";
         private const string BloodGolemStickerCardId = "BG30_MagicItem_442";
         private const string BloodAmuletCardId = "BG35_MagicItem_432";
+        private const string SlammaStickerCardId = "BG30_MagicItem_540";
+        private const string MamaBearStickerCardId = "BG35_MagicItem_871";
+        private const string VinespeakerPortraitCardId = "BG35_MagicItem_433";
+        private const string WildfeatherDusterCardId = "BG35_MagicItem_700";
+        private const string ImpulsivePortraitCardId = "BG32_MagicItem_820";
+        private const string KaboomBotPortraitCardId = "BG30_MagicItem_803";
         private const string AllPurposeKibbleCardId = "BG32_MagicItem_200";
         private const string STharaStickerCardId = "BG32_MagicItem_907";
         private const string BloodGolemTokenId = "blood-golem";
@@ -413,35 +441,40 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveTavishDeadeye(CombatContext context)
         {
-            var tavern = context.Player.Tavern;
+            ResolveTavishDeadeye(context, context.Player, context.Opponent);
+            ResolveTavishDeadeye(context, context.Opponent, context.Player);
+        }
+
+        private static void ResolveTavishDeadeye(CombatContext context, CombatSideState owner, CombatSideState enemy)
+        {
+            var tavern = owner?.Tavern;
             if (tavern == null || !tavern.HeroTavishDeadeyeActive)
             {
                 return;
             }
 
-            var opponent = context.Opponent;
             var target = !string.IsNullOrEmpty(tavern.HeroTavishTargetInstanceId)
-                ? opponent.Board.FirstOrDefault(minion => minion.InstanceId == tavern.HeroTavishTargetInstanceId && IsAlive(minion))
+                ? enemy.Board.FirstOrDefault(minion => minion.InstanceId == tavern.HeroTavishTargetInstanceId && IsAlive(minion))
                 : null;
-            if (target == null && tavern.HeroTavishTargetIndex >= 0 && tavern.HeroTavishTargetIndex < opponent.Board.Count)
+            if (target == null && tavern.HeroTavishTargetIndex >= 0 && tavern.HeroTavishTargetIndex < enemy.Board.Count)
             {
-                target = opponent.Board[tavern.HeroTavishTargetIndex];
+                target = enemy.Board[tavern.HeroTavishTargetIndex];
             }
 
-            target = target ?? opponent.Board.FirstOrDefault(IsAlive);
+            target = target ?? enemy.Board.FirstOrDefault(IsAlive);
             if (target == null)
             {
                 return;
             }
 
-            var damage = GetCombatSpellDamage(context.Player, 1);
+            var damage = GetCombatSpellDamage(owner, 1);
             var result = DealDamage(target, damage, false);
             if (result.Minion.Health <= 0)
             {
-                MarkKilledBy(result.Minion, TavishPowerId, BoardSide.Player, TavishPowerId);
+                MarkKilledBy(result.Minion, TavishPowerId, owner.Side, TavishPowerId);
             }
 
-            ReplaceByInstanceId(opponent.Board, result.Minion);
+            ReplaceByInstanceId(enemy.Board, result.Minion);
             AddLog(context.Log, "HeroStartOfCombat", "Deadeye dealt " + damage + " damage to " + target.InstanceId, TavishPowerId, target.InstanceId, LogSeverity.Good);
         }
 
@@ -1369,6 +1402,8 @@ namespace LearnHearthstone.Domain.Engine
                     damagedIds);
             }
 
+            var targetDamageAmount = defenderDamage.CombatDamageDealt || defenderDamage.DivineShieldBroken ? attacker.Attack : 0;
+            var actorDamageAmount = attackerDamage.CombatDamageDealt || attackerDamage.DivineShieldBroken ? defender.Attack : 0;
             RecordFrame(
                 context,
                 CombatEventType.DamageResolved,
@@ -1389,7 +1424,9 @@ namespace LearnHearthstone.Domain.Engine
                 0,
                 (attackerDamage.CombatDamageDealt ? 1 : 0) + (defenderDamage.CombatDamageDealt ? 1 : 0),
                 (attackerDamage.DivineShieldBroken ? 1 : 0) + (defenderDamage.DivineShieldBroken ? 1 : 0),
-                triggeredAttack);
+                triggeredAttack,
+                targetDamageAmount: targetDamageAmount,
+                actorDamageAmount: actorDamageAmount);
             ResolveDamageTriggers(
                 context,
                 attackers,
@@ -1992,7 +2029,19 @@ namespace LearnHearthstone.Domain.Engine
                 sourceRemoved ? new[] { minion.InstanceId } : null,
                 null,
                 new[] { minion.InstanceId });
+            var phylacteryExtra = Math.Max(0, owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0);
             var deathrattleRepeats = GetDeathrattleRepeats(owner);
+            if (phylacteryExtra > 0)
+            {
+                AddLog(
+                    context.Log,
+                    "TrinketDeathrattleTriggered",
+                    "Deathly Phylactery repeated " + minion.InstanceId + " deathrattle",
+                    DeathlyPhylacteryCardId,
+                    minion.InstanceId,
+                    LogSeverity.Good);
+            }
+
             AddReward(context.Log, owner, CombatRewardType.FriendlyDeathrattleTriggered, minion.CardId, null, deathrattleRepeats, minion.InstanceId);
             var thornedTrailblazerBonus = owner.Board
                 .Where(candidate => IsAlive(candidate) && candidate.CardId == ThornedTrailblazerCardId)
@@ -2003,6 +2052,13 @@ namespace LearnHearthstone.Domain.Engine
                 if (owner.Tavern != null && owner.Tavern.TrinketVinespeakerPortraitHealthActive)
                 {
                     AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemHealth, ThornedTrailblazerCardId, null, thornedTrailblazerBonus);
+                    AddLog(
+                        context.Log,
+                        "TrinketDeathrattleTriggered",
+                        "Vinespeaker Portrait improved Blood Gem Health",
+                        VinespeakerPortraitCardId,
+                        minion.InstanceId,
+                        LogSeverity.Good);
                 }
             }
 
@@ -2428,6 +2484,9 @@ namespace LearnHearthstone.Domain.Engine
                         (minion.Golden ? 4 : 2) + (owner.Tavern?.BeetleHealthBonus ?? 0),
                         Tribe.Beast);
                     break;
+                case SkyPirateFlagbearerCardId:
+                    inserted += ResolveSkyPirateFlagbearerDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    break;
                 case GlowgulletWarlordCardId:
                     inserted += AddBloodGemToken(context, owner, minion, insertIndex + inserted, newEntityIds);
                     inserted += AddBloodGemToken(context, owner, minion, insertIndex + inserted, newEntityIds);
@@ -2799,7 +2858,13 @@ namespace LearnHearthstone.Domain.Engine
 
             if (targets.Count > 0)
             {
-                AddLog(context.Log, "DeathrattleResolved", minion.InstanceId + " gave Health to adjacent minions", minion.InstanceId, targets.First().InstanceId, LogSeverity.Good);
+                AddLog(
+                    context.Log,
+                    "DeathrattleResolved",
+                    "Impulsive Portrait gave Health to adjacent minions",
+                    ImpulsivePortraitCardId,
+                    targets.First().InstanceId,
+                    LogSeverity.Good);
             }
         }
 
@@ -2827,7 +2892,13 @@ namespace LearnHearthstone.Domain.Engine
                 MarkKilledBy(result.Minion, minion.InstanceId, owner.Side, minion.CardId);
             }
 
-            AddLog(context.Log, "DeathrattleResolved", minion.InstanceId + " dealt " + amount + " Kaboom Bot Portrait damage to " + target.InstanceId, minion.InstanceId, target.InstanceId, LogSeverity.Good);
+            AddLog(
+                context.Log,
+                "DeathrattleResolved",
+                "Kaboom Bot Portrait dealt " + amount + " damage to " + target.InstanceId,
+                KaboomBotPortraitCardId,
+                target.InstanceId,
+                LogSeverity.Good);
             ResolveDeaths(context, enemy.Side);
         }
 
@@ -2911,6 +2982,56 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return inserted;
+        }
+
+        private static int ResolveSkyPirateFlagbearerDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
+        {
+            var sourceCardId = (owner.Tavern?.TrinketSkyPirateAttackBonus ?? 0) > 0
+                ? FlagbearerPortraitCardId
+                : source?.InstanceId;
+            var token = AddToken(
+                context,
+                owner,
+                source,
+                insertIndex,
+                "flagbearer-sky-pirate",
+                "Sky Pirate",
+                StatMath.SaturatingAdd(
+                    StatMath.SaturatingAdd(1, Math.Max(0, source?.Attack ?? 0), 0, StatMath.MaxStat),
+                    owner.Tavern?.TrinketSkyPirateAttackBonus ?? 0,
+                    0,
+                    StatMath.MaxStat),
+                1,
+                Tribe.Pirate);
+            if (token == null)
+            {
+                return 0;
+            }
+
+            token.CardId = SkyPirateCardId;
+            newEntityIds?.Add(token.InstanceId);
+            context.ImmediateAttacks.Enqueue(new ImmediateAttackRequest(owner.Side, token.InstanceId));
+            AddLog(
+                context.Log,
+                "TrinketDeathTriggered",
+                "Flagbearer Portrait summoned " + token.InstanceId,
+                sourceCardId,
+                token.InstanceId,
+                LogSeverity.Good);
+            RecordFrame(
+                context,
+                CombatEventType.ImmediateAttackQueued,
+                token.InstanceId + " queued by Flagbearer Portrait",
+                owner.Side,
+                sourceCardId,
+                owner.Side,
+                token.InstanceId,
+                new[] { source?.InstanceId, token.InstanceId, FlagbearerPortraitCardId },
+                null,
+                null,
+                null,
+                new[] { sourceCardId });
+            return 1;
         }
 
         private static void ResolveHoggyBankDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int count)
@@ -3617,7 +3738,9 @@ namespace LearnHearthstone.Domain.Engine
                 candidates.Add(owner.Board[rightIndex]);
             }
 
-            var targets = candidates.Where(IsAlive).ToList();
+            var targets = candidates
+                .Where(minion => IsAlive(minion) && minion.Keywords.Contains(Keyword.Battlecry))
+                .ToList();
             if (targets.Count == 0)
             {
                 return;
@@ -3670,14 +3793,46 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void TriggerBattlecryResource(CombatContext context, CombatSideState owner, MinionInstance source, MinionInstance target)
         {
+            if (target == null || !IsAlive(target) || target.Keywords == null || !target.Keywords.Contains(Keyword.Battlecry))
+            {
+                return;
+            }
+
             var multiplier = target.Golden ? 2 : 1;
+            var rewardCountBefore = owner.Rewards.Count;
             switch (target.CardId)
             {
+                case OminousSeerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.TavernSpellCostReduction, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case RazorfenGeomancerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, target.CardId, BloodGemCardId, 2 * multiplier, target.InstanceId);
+                    break;
+                case SouthseaBuskerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.GainNextTurnGold, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case ShellCollectorCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, TavernCoinCardNumber, multiplier, target.InstanceId);
+                    break;
+                case IntrepidBotanistCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellAttack, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case ForestRoverCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveBeetleStats, target.CardId, null, 1, 2 * multiplier, multiplier, target.InstanceId);
+                    break;
+                case NerubianDeathswarmerCardId:
+                    foreach (var undead in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead)).ToList())
+                    {
+                        BuffMinion(undead, multiplier, 0, "Nerubian Deathswarmer");
+                    }
+
+                    AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, target.CardId, null, multiplier, target.InstanceId);
+                    break;
                 case FeedingTigerSharkCardId:
-                    AddReward(context.Log, owner, CombatRewardType.AddRandomBeastToHand, source.CardId, null, multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomBeastToHand, target.CardId, null, multiplier, target.InstanceId);
                     break;
                 case PricklyPiperCardId:
-                    AddReward(context.Log, owner, CombatRewardType.AddRandomDemonToHand, source.CardId, null, multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomDemonToHand, target.CardId, null, multiplier, target.InstanceId);
                     break;
                 case BalladistCardId:
                     BuffFirstFriendly(owner.Board.Where(minion => minion.InstanceId != target.InstanceId && minion.Tribes.Contains(Tribe.Pirate)), 0, multiplier, "Balladist");
@@ -3693,19 +3848,19 @@ namespace LearnHearthstone.Domain.Engine
                     MagnetizeRandomMechOntoFriendlyMech(context, owner, target, multiplier);
                     break;
                 case DeepwaterChieftainCardId:
-                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, source.CardId, DeepwaterSchoolCardId, multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, target.CardId, DeepwaterSchoolCardId, multiplier, target.InstanceId);
                     break;
                 case ManasparkCardId:
-                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, source.CardId, ArcaneConsumptionCardId, multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, target.CardId, ArcaneConsumptionCardId, multiplier, target.InstanceId);
                     break;
                 case RefreshingAnomalyCardId:
-                    AddReward(context.Log, owner, CombatRewardType.GainFreeRefresh, source.CardId, null, 2 * multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.GainFreeRefresh, target.CardId, null, 2 * multiplier, target.InstanceId);
                     break;
                 case TavernTempestCardId:
-                    AddReward(context.Log, owner, CombatRewardType.AddRandomElementalToHand, source.CardId, null, multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomElementalToHand, target.CardId, null, multiplier, target.InstanceId);
                     break;
                 case BrannosaurCardId:
-                    AddReward(context.Log, owner, CombatRewardType.ImproveRefreshBuff, source.CardId, null, 1, 7 * multiplier, 7 * multiplier);
+                    AddReward(context.Log, owner, CombatRewardType.ImproveRefreshBuff, target.CardId, null, 1, 7 * multiplier, 7 * multiplier, target.InstanceId);
                     break;
                 case SaloonDancerCardId:
                     BuffFirstFriendly(owner.Board.Where(minion => minion.InstanceId != target.InstanceId), 2 * multiplier, 2 * multiplier, "Saloon Dancer");
@@ -3716,6 +3871,58 @@ namespace LearnHearthstone.Domain.Engine
                         BuffMinion(elemental, multiplier, 0, "Dusty Cyclone");
                     }
 
+                    AddShopStatsReward(context.Log, owner, target.CardId, Tribe.Elemental, multiplier, 0, target.InstanceId);
+                    break;
+                case FelElementalCardId:
+                    AddShopStatsReward(context.Log, owner, target.CardId, Tribe.All, 2 * multiplier, multiplier, target.InstanceId);
+                    break;
+                case SlimyFelbloodCardId:
+                    AddShopStatsReward(context.Log, owner, target.CardId, Tribe.All, 0, 2 * multiplier, target.InstanceId);
+                    break;
+                case JazzerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemHealth, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case BlackChromawhelpCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellStats, target.CardId, null, 1, 0, multiplier, target.InstanceId);
+                    break;
+                case RedChromawhelpCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellAttack, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case BristlingDrummerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, BloodGemBarrageCardNumber, multiplier, target.InstanceId);
+                    break;
+                case BoarHerderCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, target.CardId, BristlebackBloodGemCardId, multiplier, target.InstanceId);
+                    break;
+                case FarmhandWhirlOMatronCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveElementalShopStats, target.CardId, null, 8 * multiplier, target.InstanceId);
+                    break;
+                case FirelandsFlameCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, ConflagrationCardNumber, multiplier, target.InstanceId);
+                    break;
+                case NightmareParlorGuestCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, MenagerieTablewareCardNumber, multiplier, target.InstanceId);
+                    break;
+                case GrittyHeadhunterCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, MaraudersContractCardNumber, multiplier, target.InstanceId);
+                    break;
+                case ShadowdancerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, StaffOfEnrichmentCardNumber, multiplier, target.InstanceId);
+                    break;
+                case ShipwreckedCaptainCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddBountyToHand, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case DragonCaretakerCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomChromawhelpToHand, target.CardId, null, multiplier, target.InstanceId);
+                    break;
+                case BloodChampionCardId:
+                    AddReward(context.Log, owner, CombatRewardType.ImproveBloodGemStats, target.CardId, null, 1, multiplier, multiplier, target.InstanceId);
+                    break;
+                case SargerasChampionCardId:
+                    AddShopStatsReward(context.Log, owner, target.CardId, Tribe.All, 5 * multiplier, 5 * multiplier, target.InstanceId);
+                    break;
+                case RheaSupremeWardenCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddRandomTierSixMinionToHand, target.CardId, null, multiplier, target.InstanceId);
                     break;
                 case TimewarpedBuskerCardId:
                     AddReward(context.Log, owner, CombatRewardType.GainNextTurnGold, target.CardId, null, multiplier, target.InstanceId);
@@ -3732,6 +3939,30 @@ namespace LearnHearthstone.Domain.Engine
                 case TimewarpedThorncallerCardId:
                     AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, target.CardId, BloodGemBarrageCardNumber, multiplier, target.InstanceId);
                     break;
+            }
+
+            if (owner.Rewards.Count <= rewardCountBefore)
+            {
+                return;
+            }
+
+            var triggerSourceId = source == null ? null : source.InstanceId;
+            for (var index = rewardCountBefore; index < owner.Rewards.Count; index += 1)
+            {
+                var reward = owner.Rewards[index];
+                RecordFrame(
+                    context,
+                    CombatEventType.CombatRewardQueued,
+                    (string.IsNullOrEmpty(triggerSourceId) ? "Battlecry" : triggerSourceId) + " triggered " + target.InstanceId + " -> " + reward.Type,
+                    owner.Side,
+                    triggerSourceId,
+                    owner.Side,
+                    target.InstanceId,
+                    new[] { triggerSourceId, target.InstanceId, reward.SourceCardId, reward.CardId },
+                    null,
+                    null,
+                    null,
+                    new[] { triggerSourceId });
             }
         }
 
@@ -4171,8 +4402,9 @@ namespace LearnHearthstone.Domain.Engine
         private static void ResolveDustboneDestroyerRally(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)
         {
             var amount = attacker.Golden ? 2 : 1;
+            AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, attacker.CardId, null, amount, attacker.InstanceId);
             var targets = owner.Board
-                .Where(minion => minion.InstanceId != attacker.InstanceId && IsAlive(minion) && minion.Tribes.Contains(Tribe.Undead))
+                .Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Undead))
                 .ToList();
             if (targets.Count == 0)
             {
@@ -4821,31 +5053,32 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var target = new SeededRng(context.Seed + context.AttackSequence * 613 + candidates.Count).Pick(candidates);
+            var sourceCardId = tavern.TrinketTigerCarvingAttack >= 6 ? TigerCarvingGreaterCardId : TigerCarvingCardId;
             BuffMinion(target, tavern.TrinketTigerCarvingAttack, tavern.TrinketTigerCarvingHealth, "Tiger Carving");
             AddTargetedReward(
                 context.Log,
                 owner,
                 CombatRewardType.BuffOriginalFriendlyMinion,
-                tavern.TrinketTigerCarvingAttack >= 6 ? TigerCarvingGreaterCardId : TigerCarvingCardId,
+                sourceCardId,
                 target.InstanceId,
                 1,
                 tavern.TrinketTigerCarvingAttack,
                 tavern.TrinketTigerCarvingHealth,
                 damagedId);
-            AddLog(context.Log, "TrinketDamageTriggered", "Tiger Carving buffed " + target.InstanceId, damagedId, target.InstanceId, LogSeverity.Good);
+            AddLog(context.Log, "TrinketDamageTriggered", "Tiger Carving buffed " + target.InstanceId, sourceCardId, target.InstanceId, LogSeverity.Good);
             RecordFrame(
                 context,
                 CombatEventType.DamageTriggered,
                 "Tiger Carving buffed " + target.InstanceId,
                 owner.Side,
-                damagedId,
+                sourceCardId,
                 owner.Side,
                 target.InstanceId,
-                new[] { damagedId, target.InstanceId },
+                new[] { sourceCardId, damagedId, target.InstanceId },
                 new[] { damagedId },
                 null,
                 null,
-                new[] { target.InstanceId });
+                new[] { sourceCardId });
         }
 
         private static void ResolveTrinketDivineShieldLostTriggers(CombatContext context, CombatSideState owner, string minionId, bool shieldBroken)
@@ -5580,6 +5813,17 @@ namespace LearnHearthstone.Domain.Engine
                                 ApplyBloodGem(target, owner.Tavern);
                             }
                         }
+
+                        if (owner.Tavern != null && owner.Tavern.TrinketBristlebachPortraitActive && targets.Count > 0)
+                        {
+                            AddLog(
+                                context.Log,
+                                "TrinketAvenge",
+                                "Bristlebach Portrait played Blood Gems on " + targets.Count + " minion(s)",
+                                BristlebachPortraitCardId,
+                                source.InstanceId,
+                                LogSeverity.Good);
+                        }
                     }
                     else if (source.CardId == DeadlySporebatCardId)
                     {
@@ -6185,6 +6429,27 @@ namespace LearnHearthstone.Domain.Engine
             return owner.Board
                 .Where(minion => IsAlive(minion) && minion.CardId == TimewarpedDeiosCardId)
                 .Sum(minion => minion.Golden ? 2 : 1);
+        }
+
+        private static void AddShopStatsReward(List<CombatLogEntry> log, CombatSideState owner, string sourceCardId, Tribe tribe, int attack, int health, string sourceInstanceId = null)
+        {
+            if (attack == 0 && health == 0)
+            {
+                return;
+            }
+
+            owner.Rewards.Add(new CombatReward
+            {
+                Type = CombatRewardType.ImproveShopStats,
+                Side = owner.Side,
+                SourceCardId = sourceCardId,
+                SourceInstanceId = sourceInstanceId,
+                Amount = 1,
+                Attack = attack,
+                Health = health,
+                Tribes = new List<Tribe> { tribe }
+            });
+            AddLog(log, "CombatRewardQueued", "ImproveShopStats +" + attack + "/+" + health + " for " + tribe + " from " + sourceCardId, sourceCardId, null, LogSeverity.Good);
         }
 
         private static void AddReward(List<CombatLogEntry> log, CombatSideState owner, CombatRewardType type, string sourceCardId, string cardId, int amount, string sourceInstanceId = null)
@@ -7396,6 +7661,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             QueueFriendlySummonReward(context, owner, source, summoned);
+            ResolveWildfeatherDusterSummonReward(context, owner, summoned);
         }
 
         private static void ResolveTimewarpedKarathressSummon(CombatContext context, CombatSideState owner, MinionInstance summoned)
@@ -7421,22 +7687,50 @@ namespace LearnHearthstone.Domain.Engine
                 (tavern.TrinketCombatBeastSummonBonusAttack != 0 || tavern.TrinketCombatBeastSummonBonusHealth != 0))
             {
                 BuffMinion(summoned, tavern.TrinketCombatBeastSummonBonusAttack, tavern.TrinketCombatBeastSummonBonusHealth, "Mama Bear Sticker");
+                RecordTrinketSummonModifier(
+                    context,
+                    owner,
+                    MamaBearStickerCardId,
+                    "Mama Bear Sticker buffed " + summoned.InstanceId,
+                    summoned,
+                    source);
             }
 
             if (HasCountedTribe(summoned, Tribe.Beast) && tavern.TrinketSlammaStickerActive)
             {
                 BuffMinion(summoned, summoned.Attack, 0, "Slamma Sticker");
+                RecordTrinketSummonModifier(
+                    context,
+                    owner,
+                    SlammaStickerCardId,
+                    "Slamma Sticker buffed " + summoned.InstanceId,
+                    summoned,
+                    source);
             }
 
             if (HasCountedTribe(summoned, Tribe.Murloc) && tavern.TrinketBassgillPortraitActive)
             {
                 AddKeyword(summoned, Keyword.DivineShield);
+                RecordTrinketSummonModifier(
+                    context,
+                    owner,
+                    BassgillPortraitCardId,
+                    "Bassgill Portrait gave Divine Shield to " + summoned.InstanceId,
+                    summoned,
+                    source);
             }
 
             if (tavern.TrinketReinforcedShieldUses > 0)
             {
                 AddKeyword(summoned, Keyword.DivineShield);
                 tavern.TrinketReinforcedShieldUses -= 1;
+                RecordTrinketSummonModifier(
+                    context,
+                    owner,
+                    ReinforcedShieldCardId,
+                    "Reinforced Shield gave Divine Shield to " + summoned.InstanceId,
+                    summoned,
+                    source);
             }
 
             if (tavern.TrinketBlingtronSunglassesActive && HasCountedTribe(summoned, Tribe.Mech))
@@ -7466,6 +7760,39 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             ResolveTwinSkyLanterns(context, owner, summoned, source);
+        }
+
+        private static void RecordTrinketSummonModifier(
+            CombatContext context,
+            CombatSideState owner,
+            string sourceCardId,
+            string message,
+            MinionInstance summoned,
+            MinionInstance source)
+        {
+            if (context == null || owner == null || summoned == null || string.IsNullOrEmpty(sourceCardId))
+            {
+                return;
+            }
+
+            var related = new[] { sourceCardId, source?.InstanceId, summoned.InstanceId }
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            AddLog(context.Log, "TrinketSummonTriggered", message, sourceCardId, summoned.InstanceId, LogSeverity.Good);
+            RecordFrame(
+                context,
+                CombatEventType.TrinketTriggered,
+                message,
+                owner.Side,
+                sourceCardId,
+                owner.Side,
+                summoned.InstanceId,
+                related,
+                null,
+                null,
+                null,
+                new[] { sourceCardId });
         }
 
         private static void ResolveTwinSkyLanterns(CombatContext context, CombatSideState owner, MinionInstance summoned, MinionInstance source)
@@ -7584,6 +7911,48 @@ namespace LearnHearthstone.Domain.Engine
                 Tribes = summoned.Tribes == null ? new List<Tribe>() : new List<Tribe>(summoned.Tribes)
             });
             AddLog(context.Log, "CombatRewardQueued", "FriendlyMinionSummoned from " + (source?.CardId ?? "combat"), source?.InstanceId, summoned.InstanceId, LogSeverity.Good);
+        }
+
+        private static void ResolveWildfeatherDusterSummonReward(CombatContext context, CombatSideState owner, MinionInstance summoned)
+        {
+            var tavern = owner?.Tavern;
+            if (context == null ||
+                tavern == null ||
+                !tavern.TrinketWildfeatherDusterActive ||
+                summoned == null ||
+                !HasCountedTribe(summoned, Tribe.Beast))
+            {
+                return;
+            }
+
+            tavern.TrinketWildfeatherDusterBeastSummons += 1;
+            if (tavern.TrinketWildfeatherDusterBeastSummons < 6)
+            {
+                AddLog(
+                    context.Log,
+                    "TrinketSummonCounter",
+                    "Wildfeather Duster Beast summon " + tavern.TrinketWildfeatherDusterBeastSummons + "/6",
+                    WildfeatherDusterCardId,
+                    summoned.InstanceId,
+                    LogSeverity.Good);
+                return;
+            }
+
+            tavern.TrinketWildfeatherDusterBeastSummons = 0;
+            AddReward(context.Log, owner, CombatRewardType.AddRandomBeastToHand, WildfeatherDusterCardId, null, 1, summoned.InstanceId);
+            RecordFrame(
+                context,
+                CombatEventType.TrinketTriggered,
+                "Wildfeather Duster queued a random Beast",
+                owner.Side,
+                WildfeatherDusterCardId,
+                owner.Side,
+                summoned.InstanceId,
+                new[] { WildfeatherDusterCardId, summoned.InstanceId },
+                null,
+                null,
+                null,
+                new[] { WildfeatherDusterCardId });
         }
 
         private static void RecordRebornOverflow(CombatContext context, CombatSideState owner, MinionInstance source)
@@ -7748,7 +8117,9 @@ namespace LearnHearthstone.Domain.Engine
             int divineShieldBreakCount = 0,
             bool triggeredAttack = false,
             int mechanicCounter = 0,
-            int mechanicThreshold = 0)
+            int mechanicThreshold = 0,
+            int targetDamageAmount = 0,
+            int actorDamageAmount = 0)
         {
             context.Replay.Frames.Add(new CombatFrame
             {
@@ -7775,7 +8146,9 @@ namespace LearnHearthstone.Domain.Engine
                 DivineShieldBreakCount = divineShieldBreakCount,
                 TriggeredAttack = triggeredAttack,
                 MechanicCounter = mechanicCounter,
-                MechanicThreshold = mechanicThreshold
+                MechanicThreshold = mechanicThreshold,
+                TargetDamageAmount = targetDamageAmount,
+                ActorDamageAmount = actorDamageAmount
             });
         }
 

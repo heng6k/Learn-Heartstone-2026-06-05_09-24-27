@@ -27,6 +27,26 @@ namespace LearnHearthstone.Application.Services
         private const int BuyCost = 3;
         private const int RerollCost = 1;
         private const int SellValue = 1;
+        private const string OpponentMechanicConfigSource = "opponent-config";
+        private const string AlAkirOpponentCombatHeroPowerId = "TB_BaconShop_HP_086";
+        private const string TavishOpponentCombatHeroPowerId = "BG22_HERO_000p";
+        private const string OnyxiaOpponentCombatHeroPowerId = "BG22_HERO_305p";
+        private const string BrukanOpponentCombatHeroPowerId = "BG22_HERO_001p";
+        private const string YshaarjOpponentCombatHeroPowerId = "TB_BaconShop_HP_103";
+        private const string DeathwingOpponentCombatHeroPowerId = "TB_BaconShop_HP_061";
+        private const string TamsinOpponentCombatHeroPowerId = "BG20_HERO_282p";
+        private const string IllidanOpponentCombatHeroPowerId = "TB_BaconShop_HP_069";
+        private const string QueenWagtoggleOpponentCombatHeroPowerId = "TB_BaconShop_HP_037a";
+        private const string VanndarOpponentCombatHeroPowerId = "BG22_HERO_003p";
+        private const string DrektharOpponentCombatHeroPowerId = "BG22_HERO_002p";
+        private const string TeronOpponentCombatHeroPowerId = "BG25_HERO_103p";
+        private const string OzumatOpponentCombatHeroPowerId = "BG23_HERO_201p";
+        private const string OpponentOnyxiaWhelpStatsCounter = "hero:onyxia:whelp_stats";
+        private const string OpponentTamsinPhylacteryTag = "hero_tamsin_phylactery";
+        private const string OpponentTeronReanimationTag = "teron_reanimation_target";
+        private const string OpponentOzumatTentacleCardId = "OZUMAT_TENTACLE";
+        private const int OpponentLesserTrinketActiveRound = 6;
+        private const int OpponentGreaterTrinketActiveRound = 9;
         private const string TripleRewardDefinitionId = "triple-reward";
         private const string TripleRewardCardId = "TRIPLE_REWARD";
         private const string TripleRewardGrantedCounter = "triple-reward-granted";
@@ -648,6 +668,7 @@ namespace LearnHearthstone.Application.Services
         private const string ThornspikePauldronEffectId = "thornspike_pauldron";
         private const string TigerCarvingEffectId = "tiger_carving";
         private const string BlingtronsSunglassesEffectId = "blingtrons_sunglasses";
+        private const string WildfeatherDusterEffectId = "wildfeather_duster";
         private const string ScrapsmithPortraitEffectId = "scrapsmith_portrait";
         private const string RustyTridentEffectId = "rusty_trident";
         private const string EyeOfDalaranEffectId = "eye_of_dalaran";
@@ -1154,6 +1175,14 @@ namespace LearnHearthstone.Application.Services
         private readonly bool randomizeAnomaly;
         private readonly string selectedAnomalyCardId;
         private readonly AnomalyPoolVersion anomalyPoolVersion;
+        private readonly bool useExplicitQuestPools;
+        private readonly bool useExplicitTrinketPools;
+        private readonly bool useExplicitAnomalyPool;
+        private readonly HashSet<string> enabledQuestCardIds;
+        private readonly HashSet<string> enabledQuestRewardCardIds;
+        private readonly HashSet<string> enabledLesserTrinketCardIds;
+        private readonly HashSet<string> enabledGreaterTrinketCardIds;
+        private readonly HashSet<string> enabledAnomalyCardIds;
         private readonly CardPoolVersionSelection cardPoolVersionSelection;
         private readonly CardPoolAvailability cardPoolAvailability;
         private readonly TimewarpedPoolVersion timewarpedPoolVersion;
@@ -1187,6 +1216,14 @@ namespace LearnHearthstone.Application.Services
             randomizeAnomaly = setup?.RandomizeAnomaly ?? false;
             selectedAnomalyCardId = setup?.SelectedAnomalyCardId;
             anomalyPoolVersion = setup?.AnomalyPoolVersion ?? AnomalyPoolVersion.CurrentHsReplay;
+            enabledQuestCardIds = ToSetupIdSet(setup?.EnabledQuestCardIds);
+            enabledQuestRewardCardIds = ToSetupIdSet(setup?.EnabledQuestRewardCardIds);
+            enabledLesserTrinketCardIds = ToSetupIdSet(setup?.EnabledLesserTrinketCardIds);
+            enabledGreaterTrinketCardIds = ToSetupIdSet(setup?.EnabledGreaterTrinketCardIds);
+            enabledAnomalyCardIds = ToSetupIdSet(setup?.EnabledAnomalyCardIds);
+            useExplicitQuestPools = enabledQuestCardIds.Count > 0 || enabledQuestRewardCardIds.Count > 0;
+            useExplicitTrinketPools = enabledLesserTrinketCardIds.Count > 0 || enabledGreaterTrinketCardIds.Count > 0;
+            useExplicitAnomalyPool = enabledAnomalyCardIds.Count > 0;
             cardPoolVersionSelection = CreateCardPoolVersionSelection(setup);
             cardPoolAvailability = new CardPoolAvailability(cardPoolVersionSelection);
             timewarpedPoolVersion = ResolveTimewarpedPoolVersion(setup);
@@ -1207,6 +1244,12 @@ namespace LearnHearthstone.Application.Services
         public DarkmoonPrizeCatalog DarkmoonPrizeCatalog => darkmoonPrizeCatalog;
 
         public bool PlayerDirectedChoicesEnabled => enablePlayerDirectedChoices;
+
+        public bool OpponentQuestRewardConfigurationEnabled => enableQuests && enableQuestRewards;
+
+        public bool OpponentTrinketConfigurationEnabled => enableTrinkets;
+
+        public bool OpponentHeroPowerConfigurationEnabled => heroCatalog != null;
 
         public IReadOnlyList<AnomalyDefinition> GetAnomalyCandidateDefinitions()
         {
@@ -1290,6 +1333,56 @@ namespace LearnHearthstone.Application.Services
             return EligibleQuestRewards();
         }
 
+        public IReadOnlyList<QuestRewardDefinition> GetOpponentSelectableQuestRewards()
+        {
+            return OpponentQuestRewardConfigurationEnabled ? EligibleQuestRewards() : new List<QuestRewardDefinition>();
+        }
+
+        public IReadOnlyList<TrinketDefinition> GetOpponentSelectableTrinkets(TrinketSlotKind slotKind)
+        {
+            return OpponentTrinketConfigurationEnabled ? EligibleTrinkets(slotKind) : new List<TrinketDefinition>();
+        }
+
+        public IReadOnlyList<HeroPowerDefinition> GetOpponentSelectableHeroPowers()
+        {
+            if (!OpponentHeroPowerConfigurationEnabled)
+            {
+                return new List<HeroPowerDefinition>();
+            }
+
+            return heroCatalog.AllHeroPowers
+                .Where(IsOpponentSelectableHeroPower)
+                .OrderBy(power => power.PrimaryCategory)
+                .ThenBy(power => power.Name)
+                .ThenBy(power => power.CardId)
+                .ToList();
+        }
+
+        public QuestRewardDefinition GetOpponentQuestRewardDefinition()
+        {
+            var rewardId = State?.Opponent?.AdvancedMechanics?.Quests?.MainQuest?.RewardId;
+            return ResolveOptionalQuestReward(rewardId);
+        }
+
+        public TrinketDefinition GetOpponentTrinketDefinition(TrinketSlotKind slotKind)
+        {
+            var trinkets = State?.Opponent?.AdvancedMechanics?.Trinkets;
+            var trinketId = slotKind == TrinketSlotKind.Greater
+                ? trinkets?.GreaterTrinketId
+                : trinkets?.LesserTrinketId;
+            return ResolveOptionalTrinket(trinketId);
+        }
+
+        public HeroPowerDefinition GetOpponentHeroPowerDefinition()
+        {
+            return ResolveOptionalHeroPower(State?.Opponent?.HeroPowerCardId);
+        }
+
+        public TavernState GetOpponentCombatTavernStatePreview()
+        {
+            return CreateOpponentCombatTavernState();
+        }
+
         public IReadOnlyList<PlayerDirectedChoiceOption> GetPlayerSelectableQuestPairs(PlayerDirectedChoiceContext context = null)
         {
             if (!enablePlayerDirectedChoices || !enableQuests || !enableQuestRewards || questCatalog == null)
@@ -1301,8 +1394,14 @@ namespace LearnHearthstone.Application.Services
                 ? State.Player.Tavern.AdvancedMechanics?.PendingChoice?.Slot ?? "Main"
                 : context.Slot;
             var result = new List<PlayerDirectedChoiceOption>();
-            var quests = questCatalog.Quests.Where(IsPlayerSelectableQuest).ToList();
-            var rewards = questCatalog.Rewards.Where(IsPlayerSelectableQuestReward).ToList();
+            var quests = questCatalog.Quests
+                .Where(IsPlayerSelectableQuest)
+                .Where(IsQuestInSelectedPool)
+                .ToList();
+            var rewards = questCatalog.Rewards
+                .Where(IsPlayerSelectableQuestReward)
+                .Where(IsQuestRewardInSelectedPool)
+                .ToList();
             foreach (var quest in quests)
             {
                 foreach (var reward in rewards)
@@ -1326,6 +1425,7 @@ namespace LearnHearthstone.Application.Services
 
             var equipped = CurrentEquippedTrinketIds(EnsureTrinketState(State.Player.Tavern));
             return trinketCatalog.GetBySlot(slotKind)
+                .Where(IsTrinketInSelectedPool)
                 .Select(definition => ToPlayerDirectedTrinketOption(definition, slotKind, equipped))
                 .OrderByDescending(option => option.IsSelectable)
                 .ThenBy(option => option.DisplayName)
@@ -1515,8 +1615,30 @@ namespace LearnHearthstone.Application.Services
                     StringComparer.OrdinalIgnoreCase),
                 EnabledTavernSpellCardNumbers = new HashSet<string>(
                     (setup.EnabledTavernSpellCardNumbers ?? new List<string>()).Where(cardNumber => !string.IsNullOrEmpty(cardNumber)),
+                    StringComparer.OrdinalIgnoreCase),
+                EnabledQuestCardIds = new HashSet<string>(
+                    (setup.EnabledQuestCardIds ?? new List<string>()).Where(cardId => !string.IsNullOrEmpty(cardId)),
+                    StringComparer.OrdinalIgnoreCase),
+                EnabledQuestRewardCardIds = new HashSet<string>(
+                    (setup.EnabledQuestRewardCardIds ?? new List<string>()).Where(cardId => !string.IsNullOrEmpty(cardId)),
+                    StringComparer.OrdinalIgnoreCase),
+                EnabledLesserTrinketCardIds = new HashSet<string>(
+                    (setup.EnabledLesserTrinketCardIds ?? new List<string>()).Where(cardId => !string.IsNullOrEmpty(cardId)),
+                    StringComparer.OrdinalIgnoreCase),
+                EnabledGreaterTrinketCardIds = new HashSet<string>(
+                    (setup.EnabledGreaterTrinketCardIds ?? new List<string>()).Where(cardId => !string.IsNullOrEmpty(cardId)),
+                    StringComparer.OrdinalIgnoreCase),
+                EnabledAnomalyCardIds = new HashSet<string>(
+                    (setup.EnabledAnomalyCardIds ?? new List<string>()).Where(cardId => !string.IsNullOrEmpty(cardId)),
                     StringComparer.OrdinalIgnoreCase)
             };
+        }
+
+        private static HashSet<string> ToSetupIdSet(IEnumerable<string> values)
+        {
+            return new HashSet<string>(
+                (values ?? Enumerable.Empty<string>()).Where(value => !string.IsNullOrEmpty(value)),
+                StringComparer.OrdinalIgnoreCase);
         }
 
         private static TimewarpedPoolVersion ResolveTimewarpedPoolVersion(MatchSetupOptions setup)
@@ -1595,7 +1717,7 @@ namespace LearnHearthstone.Application.Services
                     DebugSkipToNextTurn();
                     break;
                 case GameCommandType.SimulateCombat:
-                    SimulateCombat();
+                    SimulateCombat(command.CombatTestOptions);
                     break;
                 case GameCommandType.ChooseDiscover:
                     ChooseDiscover(command.Index);
@@ -1629,6 +1751,33 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.DebugReplaceTrinket:
                     DebugReplaceTrinket(command.CardId, command.TargetIndex);
+                    break;
+                case GameCommandType.SetOpponentQuestReward:
+                    SetOpponentQuestReward(command.CardId);
+                    break;
+                case GameCommandType.ClearOpponentQuestReward:
+                    ClearOpponentQuestReward();
+                    break;
+                case GameCommandType.SetOpponentTrinket:
+                    SetOpponentTrinket(command.CardId, command.TargetIndex);
+                    break;
+                case GameCommandType.ClearOpponentTrinket:
+                    ClearOpponentTrinket(command.TargetIndex >= 0 ? command.TargetIndex : command.Index);
+                    break;
+                case GameCommandType.SetOpponentHeroPower:
+                    SetOpponentHeroPower(command.CardId);
+                    break;
+                case GameCommandType.ClearOpponentHeroPower:
+                    ClearOpponentHeroPower();
+                    break;
+                case GameCommandType.SetOpponentHeroPowerTarget:
+                    SetOpponentHeroPowerTarget(command.Side, command.Index);
+                    break;
+                case GameCommandType.ClearOpponentHeroPowerTarget:
+                    ClearOpponentHeroPowerTarget();
+                    break;
+                case GameCommandType.SetOpponentHeroPowerElement:
+                    SetOpponentHeroPowerElement(command.InstanceId);
                     break;
                 case GameCommandType.MoveMinion:
                     MoveMinionToHand(command.InstanceId);
@@ -1768,6 +1917,11 @@ namespace LearnHearthstone.Application.Services
                 UseHistoricalTimewarpedPool = timewarpedPoolVersion != TimewarpedPoolVersion.Current,
                 EnabledMinionCardIds = cardPoolVersionSelection.EnabledMinionCardIds.ToList(),
                 EnabledTavernSpellCardNumbers = cardPoolVersionSelection.EnabledTavernSpellCardNumbers.ToList(),
+                EnabledQuestCardIds = enabledQuestCardIds.ToList(),
+                EnabledQuestRewardCardIds = enabledQuestRewardCardIds.ToList(),
+                EnabledLesserTrinketCardIds = enabledLesserTrinketCardIds.ToList(),
+                EnabledGreaterTrinketCardIds = enabledGreaterTrinketCardIds.ToList(),
+                EnabledAnomalyCardIds = enabledAnomalyCardIds.ToList(),
                 Player = new LocalPlayerState
                 {
                     HeroId = initialHero?.HeroCardId,
@@ -1804,7 +1958,8 @@ namespace LearnHearthstone.Application.Services
                     Editable = true,
                     Board = new List<MinionInstance>(),
                     Hand = new List<MinionInstance>(),
-                    CombatModifiers = new SideCombatModifierState()
+                    CombatModifiers = new SideCombatModifierState(),
+                    AdvancedMechanics = new AdvancedMechanicState()
                 },
                 RecruitHints = new List<SearchHint>
                 {
@@ -1832,8 +1987,8 @@ namespace LearnHearthstone.Application.Services
 
             StartOpeningHeroDiscovers();
             LogHeroEffectImplementationStatus(state);
-            MaybeOfferOpeningQuestMode(state);
             MaybeOfferStartingQuest(state);
+            MaybeOfferOpeningQuestMode(state);
             return state;
         }
 
@@ -1940,6 +2095,11 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
+            if (!IsAnomalyInSelectedPool(definition))
+            {
+                return false;
+            }
+
             if (definition.ImplementationStatus != AnomalyImplementationStatus.Implemented &&
                 definition.ImplementationStatus != AnomalyImplementationStatus.OfferableWithExactProxy)
             {
@@ -1952,6 +2112,14 @@ namespace LearnHearthstone.Application.Services
             }
 
             return definition.AvailabilityReasons.All(IsAnomalyAvailabilitySatisfied);
+        }
+
+        private bool IsAnomalyInSelectedPool(AnomalyDefinition definition)
+        {
+            return !useExplicitAnomalyPool ||
+                   (definition != null &&
+                    (enabledAnomalyCardIds.Contains(definition.CardId ?? string.Empty) ||
+                     enabledAnomalyCardIds.Contains(definition.Id ?? string.Empty)));
         }
 
         private bool IsAnomalyAvailabilitySatisfied(AnomalyAvailabilityReason reason)
@@ -3479,6 +3647,51 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private HeroPowerDefinition ResolveOpponentHeroPower(string heroPowerCardId)
+        {
+            if (!OpponentHeroPowerConfigurationEnabled)
+            {
+                throw new InvalidOperationException("Opponent Hero Power configuration is unavailable.");
+            }
+
+            if (string.IsNullOrWhiteSpace(heroPowerCardId))
+            {
+                throw new InvalidOperationException("Opponent Hero Power card id is required.");
+            }
+
+            var power = heroCatalog.GetHeroPowerByCardId(heroPowerCardId);
+            if (!IsOpponentSelectableHeroPower(power))
+            {
+                throw new InvalidOperationException("Opponent Hero Power is not selectable for combat simulation: " + heroPowerCardId);
+            }
+
+            return power;
+        }
+
+        private HeroPowerDefinition ResolveOptionalHeroPower(string heroPowerCardId)
+        {
+            if (string.IsNullOrWhiteSpace(heroPowerCardId) || heroCatalog == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return heroCatalog.GetHeroPowerByCardId(heroPowerCardId);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        private static bool IsOpponentSelectableHeroPower(HeroPowerDefinition power)
+        {
+            return power != null &&
+                !string.IsNullOrEmpty(power.CardId) &&
+                HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId) == HeroEffectImplementationStatus.Implemented;
+        }
+
         private string GetBuddyName(string buddyCardId)
         {
             if (string.IsNullOrWhiteSpace(buddyCardId) || heroCatalog == null)
@@ -3659,6 +3872,43 @@ namespace LearnHearthstone.Application.Services
             return source + " / " + slot + " / " + options + " option(s)";
         }
 
+        private void AssertNoRequiredPlayerChoicePending()
+        {
+            var tavern = State?.Player?.Tavern;
+            if (tavern == null)
+            {
+                return;
+            }
+
+            if (tavern.Discover != null)
+            {
+                throw new InvalidOperationException("\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u53d1\u73b0\u9009\u62e9\u3002");
+            }
+
+            var pendingChoice = tavern.AdvancedMechanics?.PendingChoice;
+            if (pendingChoice != null)
+            {
+                throw new InvalidOperationException(RequiredPlayerChoiceMessage(pendingChoice.Kind));
+            }
+        }
+
+        private static string RequiredPlayerChoiceMessage(AdvancedMechanicKind kind)
+        {
+            switch (kind)
+            {
+                case AdvancedMechanicKind.Quest:
+                    return "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u4efb\u52a1\u9009\u62e9\u3002";
+                case AdvancedMechanicKind.Trinket:
+                    return "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u9970\u54c1\u9009\u62e9\u3002";
+                case AdvancedMechanicKind.Anomaly:
+                    return "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u7578\u53d8\u9009\u62e9\u3002";
+                case AdvancedMechanicKind.Distortion:
+                    return "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u626d\u66f2\u9009\u62e9\u3002";
+                default:
+                    return "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u9ad8\u7ea7\u673a\u5236\u9009\u62e9\u3002";
+            }
+        }
+
         private List<TrinketDefinition> EligibleTrinkets(TrinketSlotKind slotKind)
         {
             if (!enableTrinkets || trinketCatalog == null)
@@ -3676,6 +3926,11 @@ namespace LearnHearthstone.Application.Services
         private bool IsTrinketEligible(TrinketDefinition definition)
         {
             if (definition == null || definition.ImplementationStatus != TrinketImplementationStatus.Implemented)
+            {
+                return false;
+            }
+
+            if (!IsTrinketInSelectedPool(definition))
             {
                 return false;
             }
@@ -3717,6 +3972,11 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
+            if (!IsQuestRewardInSelectedPool(reward))
+            {
+                return false;
+            }
+
             switch (reward.OfferPoolStatus)
             {
                 case QuestOfferPoolStatus.Offerable:
@@ -3743,6 +4003,38 @@ namespace LearnHearthstone.Application.Services
             return reward != null &&
                    reward.ImplementationStatus == QuestImplementationStatus.Implemented &&
                    reward.OfferPoolStatus == QuestOfferPoolStatus.Offerable;
+        }
+
+        private bool IsQuestInSelectedPool(QuestDefinition quest)
+        {
+            return !useExplicitQuestPools ||
+                   (quest != null && enabledQuestCardIds.Contains(quest.CardId ?? string.Empty));
+        }
+
+        private bool IsQuestRewardInSelectedPool(QuestRewardDefinition reward)
+        {
+            return !useExplicitQuestPools ||
+                   (reward != null &&
+                    (enabledQuestRewardCardIds.Contains(reward.CardId ?? string.Empty) ||
+                     enabledQuestRewardCardIds.Contains(reward.Id ?? string.Empty)));
+        }
+
+        private bool IsTrinketInSelectedPool(TrinketDefinition definition)
+        {
+            if (!useExplicitTrinketPools)
+            {
+                return true;
+            }
+
+            if (definition == null)
+            {
+                return false;
+            }
+
+            var pool = definition.SlotKind == TrinketSlotKind.Greater
+                ? enabledGreaterTrinketCardIds
+                : enabledLesserTrinketCardIds;
+            return pool.Contains(definition.CardId ?? string.Empty) || pool.Contains(definition.Id ?? string.Empty);
         }
 
         private PlayerDirectedChoiceOption ToPlayerDirectedQuestPairOption(QuestDefinition quest, QuestRewardDefinition reward, string slot)
@@ -5281,8 +5573,7 @@ namespace LearnHearthstone.Application.Services
                 !enableQuestRewards ||
                 state?.Player == null ||
                 !string.Equals(state.Player.HeroId, SireDenathriusHeroCardId, StringComparison.OrdinalIgnoreCase) ||
-                questCatalog == null ||
-                questCatalog.ImplementedQuests.Count == 0)
+                questCatalog == null)
             {
                 return;
             }
@@ -5294,8 +5585,15 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            var options = PickQuestOptions(2, state.Seed + 240100);
+            if (options.Count == 0 || EligibleQuestRewards().Count == 0)
+            {
+                AddRecruitLog(state, RecruitLogType.Discover, "Sire Denathrius could not offer Quests because the selected Quest pool is empty.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                return;
+            }
+
             advanced.PendingChoice = CreateQuestChoiceRequest(
-                PickQuestOptions(2, state.Seed + 240100),
+                options,
                 "sire-denathrius",
                 "Main",
                 null,
@@ -5308,8 +5606,7 @@ namespace LearnHearthstone.Application.Services
         {
             if (!ModeIncludesQuests() ||
                 state?.Player == null ||
-                questCatalog == null ||
-                questCatalog.ImplementedQuests.Count == 0)
+                questCatalog == null)
             {
                 return;
             }
@@ -5321,8 +5618,15 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            var options = PickQuestOptions(3, state.Seed + 330006);
+            if (options.Count == 0 || EligibleQuestRewards().Count == 0)
+            {
+                AddRecruitLog(state, RecruitLogType.Discover, "Quest mode could not offer Quests because the selected Quest pool is empty.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                return;
+            }
+
             advanced.PendingChoice = CreateQuestChoiceRequest(
-                PickQuestOptions(3, state.Seed + 330006),
+                options,
                 "quest-mode-opening",
                 "Main",
                 null,
@@ -5364,6 +5668,11 @@ namespace LearnHearthstone.Application.Services
             }
 
             var quests = PickQuestOptions(count, State.Seed + State.Round * 6151 + tavern.RecruitLog.Count);
+            if (quests.Count == 0 || EligibleQuestRewards().Count == 0)
+            {
+                throw new InvalidOperationException("No offerable Quest or Quest Reward exists under current setup.");
+            }
+
             advanced.PendingChoice = CreateQuestChoiceRequest(quests, source, slot, rewardOverrideId, State.Round, tavern.RecruitLog.Count);
             AddRecruitLog(RecruitLogType.Discover, "Quest choices offered (" + advanced.PendingChoice.Options.Count + ").", tavern.Gold, tavern.Gold);
         }
@@ -5449,6 +5758,253 @@ namespace LearnHearthstone.Application.Services
             throw new InvalidOperationException("Quest reward definition does not exist: " + rewardIdOrCardId);
         }
 
+        private QuestRewardDefinition ResolveOptionalQuestReward(string rewardIdOrCardId)
+        {
+            if (string.IsNullOrWhiteSpace(rewardIdOrCardId) || questCatalog == null)
+            {
+                return null;
+            }
+
+            return questCatalog.TryGetRewardById(rewardIdOrCardId, out var byId)
+                ? byId
+                : questCatalog.TryGetRewardByCardId(rewardIdOrCardId, out var byCardId)
+                    ? byCardId
+                    : null;
+        }
+
+        private void SetOpponentHeroPower(string heroPowerCardId)
+        {
+            var power = ResolveOpponentHeroPower(heroPowerCardId);
+            var opponent = EnsureOpponentState();
+            opponent.HeroPowerCardId = power.CardId;
+            if (opponent.ExtraHeroPowerCardIds == null)
+            {
+                opponent.ExtraHeroPowerCardIds = new List<string>();
+            }
+
+            ClearOpponentHeroPowerTarget(opponent);
+            opponent.HeroPowerElement = null;
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Hero Power " + power.Name + ".",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void ClearOpponentHeroPower()
+        {
+            var opponent = EnsureOpponentState();
+            opponent.HeroPowerCardId = null;
+            if (opponent.ExtraHeroPowerCardIds != null)
+            {
+                opponent.ExtraHeroPowerCardIds.Clear();
+            }
+
+            ClearOpponentHeroPowerTarget(opponent);
+            opponent.HeroPowerElement = null;
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Hero Power cleared.",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void SetOpponentHeroPowerTarget(BoardSide targetSide, int targetIndex)
+        {
+            var opponent = EnsureOpponentState();
+            if (string.IsNullOrWhiteSpace(opponent.HeroPowerCardId))
+            {
+                throw new InvalidOperationException("Configure an opponent Hero Power before setting its target.");
+            }
+
+            var board = targetSide == BoardSide.Opponent ? State.Opponent.Board : State.Player.Board;
+            if (targetIndex < 0 || targetIndex >= board.Count)
+            {
+                throw new InvalidOperationException("Opponent Hero Power target does not exist.");
+            }
+
+            var target = board[targetIndex];
+            opponent.HeroPowerTargetSide = targetSide;
+            opponent.HeroPowerTargetIndex = targetIndex;
+            opponent.HeroPowerTargetInstanceId = target?.InstanceId;
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Hero Power target set to " + OpponentHeroPowerTargetLabel(opponent) + ".",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void SetOpponentHeroPowerElement(string element)
+        {
+            var opponent = EnsureOpponentState();
+            if (string.IsNullOrWhiteSpace(opponent.HeroPowerCardId))
+            {
+                throw new InvalidOperationException("Configure an opponent Hero Power before choosing its combat element.");
+            }
+
+            if (!GetOpponentActiveHeroPowerCardIds().Any(powerId =>
+                    string.Equals(powerId, BrukanOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("Opponent Hero Power element is only supported for Bru'kan.");
+            }
+
+            if (!IsBrukanElement(element))
+            {
+                throw new InvalidOperationException("Unsupported Bru'kan element: " + element);
+            }
+
+            opponent.HeroPowerElement = element.Trim().ToLowerInvariant();
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Bru'kan element set to " + opponent.HeroPowerElement + ".",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void ClearOpponentHeroPowerTarget()
+        {
+            var opponent = EnsureOpponentState();
+            ClearOpponentHeroPowerTarget(opponent);
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Hero Power target cleared.",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private static void ClearOpponentHeroPowerTarget(LocalOpponentState opponent)
+        {
+            if (opponent == null)
+            {
+                return;
+            }
+
+            opponent.HeroPowerTargetSide = BoardSide.Player;
+            opponent.HeroPowerTargetIndex = -1;
+            opponent.HeroPowerTargetInstanceId = null;
+        }
+
+        private string OpponentHeroPowerTargetLabel(LocalOpponentState opponent)
+        {
+            if (opponent == null || opponent.HeroPowerTargetIndex < 0)
+            {
+                return "none";
+            }
+
+            var board = opponent.HeroPowerTargetSide == BoardSide.Opponent ? State.Opponent.Board : State.Player.Board;
+            var sideLabel = opponent.HeroPowerTargetSide == BoardSide.Opponent ? "opponent board" : "player board";
+            var target = !string.IsNullOrEmpty(opponent.HeroPowerTargetInstanceId)
+                ? board.FirstOrDefault(minion => string.Equals(minion.InstanceId, opponent.HeroPowerTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+                : null;
+            if (target == null && opponent.HeroPowerTargetIndex >= 0 && opponent.HeroPowerTargetIndex < board.Count)
+            {
+                target = board[opponent.HeroPowerTargetIndex];
+            }
+
+            return sideLabel + " " + (target?.Name ?? "#" + opponent.HeroPowerTargetIndex);
+        }
+
+        private void SetOpponentQuestReward(string rewardIdOrCardId)
+        {
+            if (!OpponentQuestRewardConfigurationEnabled)
+            {
+                throw new InvalidOperationException("Opponent Quest Reward configuration is disabled for this match.");
+            }
+
+            var reward = ResolveDebugQuestReward(rewardIdOrCardId);
+            if (!IsQuestRewardEligible(reward))
+            {
+                throw new InvalidOperationException("Opponent Quest Reward is not eligible under current setup: " + rewardIdOrCardId);
+            }
+
+            var opponent = EnsureOpponentState();
+            var advanced = EnsureAdvancedMechanicState(opponent);
+            advanced.PendingChoice = null;
+
+            var active = CreateOpponentConfiguredQuestReward(reward);
+            advanced.Quests.MainQuest = active;
+            advanced.Quests.Completed.RemoveAll(IsOpponentConfiguredQuestReward);
+            advanced.Quests.Completed.Add(CloneActiveQuestState(active));
+            UpsertOpponentEquippedQuestReward(advanced, reward);
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Quest Reward " + reward.Name + ".",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void ClearOpponentQuestReward()
+        {
+            var opponent = EnsureOpponentState();
+            var advanced = EnsureAdvancedMechanicState(opponent);
+            advanced.PendingChoice = null;
+            advanced.Quests.MainQuest = null;
+            advanced.Quests.Completed.RemoveAll(IsOpponentConfiguredQuestReward);
+            advanced.Equipped.RemoveAll(IsOpponentConfiguredQuestReward);
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: Quest Reward cleared.",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private static ActiveQuestState CreateOpponentConfiguredQuestReward(QuestRewardDefinition reward)
+        {
+            return new ActiveQuestState
+            {
+                QuestId = OpponentMechanicConfigSource,
+                QuestCardId = OpponentMechanicConfigSource,
+                QuestName = "Opponent configuration",
+                QuestText = "Configured opponent Quest Reward.",
+                RewardId = reward.Id,
+                RewardCardId = reward.CardId,
+                RewardName = reward.Name,
+                RewardText = reward.Text,
+                RewardImagePath = reward.ImagePath,
+                Source = OpponentMechanicConfigSource,
+                Progress = 1,
+                BaseRequiredAmount = 1,
+                RequiredAmount = 1,
+                DifficultyTier = Math.Max(1, (int)reward.PowerLevel),
+                RewardPowerLevel = reward.PowerLevel,
+                Completed = true,
+                RewardActive = true,
+                ImplementationStatus = reward.ImplementationStatus
+            };
+        }
+
+        private static void UpsertOpponentEquippedQuestReward(AdvancedMechanicState advanced, QuestRewardDefinition reward)
+        {
+            advanced.Equipped.RemoveAll(IsOpponentConfiguredQuestReward);
+            advanced.Equipped.Add(new EquippedAdvancedMechanic
+            {
+                Kind = AdvancedMechanicKind.Quest,
+                SourceId = reward.CardId,
+                DisplayName = reward.Name,
+                Slot = "QuestReward",
+                EquippedRound = 1,
+                CostPaid = 0,
+                ImplementationStatus = reward.ImplementationStatus.ToString()
+            });
+        }
+
+        private static bool IsOpponentConfiguredQuestReward(ActiveQuestState quest)
+        {
+            return quest != null &&
+                   string.Equals(quest.Source, OpponentMechanicConfigSource, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsOpponentConfiguredQuestReward(EquippedAdvancedMechanic equipped)
+        {
+            return equipped != null &&
+                   equipped.Kind == AdvancedMechanicKind.Quest &&
+                   string.Equals(equipped.Slot, "QuestReward", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void ApplyQuestRewardReplacement(ActiveQuestState active, QuestRewardDefinition reward, bool recomputeDifficulty)
         {
             active.RewardId = reward.Id;
@@ -5500,10 +6056,12 @@ namespace LearnHearthstone.Application.Services
 
         private List<QuestDefinition> PickQuestOptions(int count, int seed)
         {
-            var pool = questCatalog == null ? new List<QuestDefinition>() : questCatalog.ImplementedQuests;
+            var pool = questCatalog == null
+                ? new List<QuestDefinition>()
+                : questCatalog.ImplementedQuests.Where(IsQuestInSelectedPool).ToList();
             if (pool.Count == 0)
             {
-                throw new InvalidOperationException("No implemented Quests exist.");
+                return new List<QuestDefinition>();
             }
 
             var remaining = new List<QuestDefinition>(pool);
@@ -5521,7 +6079,9 @@ namespace LearnHearthstone.Application.Services
 
         private QuestRewardDefinition ResolveQuestReward(QuestDefinition quest, string rewardOverrideId, int optionIndex)
         {
-            if (!string.IsNullOrEmpty(rewardOverrideId) && questCatalog.TryGetRewardById(rewardOverrideId, out var overrideReward))
+            if (!string.IsNullOrEmpty(rewardOverrideId) &&
+                questCatalog.TryGetRewardById(rewardOverrideId, out var overrideReward) &&
+                IsQuestRewardEligible(overrideReward))
             {
                 return overrideReward;
             }
@@ -9225,6 +9785,129 @@ namespace LearnHearthstone.Application.Services
             throw new InvalidOperationException("Trinket definition does not exist: " + trinketIdOrCardId);
         }
 
+        private TrinketDefinition ResolveOptionalTrinket(string trinketIdOrCardId)
+        {
+            if (string.IsNullOrWhiteSpace(trinketIdOrCardId) || trinketCatalog == null)
+            {
+                return null;
+            }
+
+            return trinketCatalog.TryGetById(trinketIdOrCardId, out var byId)
+                ? byId
+                : trinketCatalog.TryGetByCardId(trinketIdOrCardId, out var byCardId)
+                    ? byCardId
+                    : null;
+        }
+
+        private void SetOpponentTrinket(string trinketIdOrCardId, int targetIndex)
+        {
+            if (!OpponentTrinketConfigurationEnabled)
+            {
+                throw new InvalidOperationException("Opponent Trinket configuration is disabled for this match.");
+            }
+
+            var definition = ResolveDebugTrinket(trinketIdOrCardId);
+            var slotKind = ResolveDebugTrinketSlot(targetIndex, definition.SlotKind);
+            if (slotKind != definition.SlotKind)
+            {
+                throw new InvalidOperationException("Opponent Trinket slot mismatch: " + definition.SlotKind + " into " + slotKind);
+            }
+
+            if (!IsTrinketEligible(definition) ||
+                !TribeAvailabilityRules.IsTrinketAvailable(definition, CurrentActiveTribes()))
+            {
+                throw new InvalidOperationException("Opponent Trinket is not eligible under current setup: " + trinketIdOrCardId);
+            }
+
+            var opponent = EnsureOpponentState();
+            var advanced = EnsureAdvancedMechanicState(opponent);
+            advanced.PendingChoice = null;
+
+            ClearOpponentTrinketSlot(advanced, slotKind);
+            var equippedRound = OpponentTrinketActiveRound(slotKind);
+            if (slotKind == TrinketSlotKind.Greater)
+            {
+                advanced.Trinkets.GreaterTrinketId = definition.CardId;
+            }
+            else
+            {
+                advanced.Trinkets.LesserTrinketId = definition.CardId;
+            }
+
+            advanced.Trinkets.Equipped.Add(new EquippedTrinketState
+            {
+                TrinketId = definition.CardId,
+                Name = definition.Name,
+                SlotKind = slotKind,
+                EquippedRound = equippedRound,
+                CostPaid = 0,
+                ImplementationStatus = definition.ImplementationStatus
+            });
+            advanced.Equipped.Add(new EquippedAdvancedMechanic
+            {
+                Kind = AdvancedMechanicKind.Trinket,
+                SourceId = definition.CardId,
+                DisplayName = definition.Name,
+                Slot = slotKind.ToString(),
+                EquippedRound = equippedRound,
+                CostPaid = 0,
+                ImplementationStatus = definition.ImplementationStatus.ToString()
+            });
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " " + definition.Name + ".",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private void ClearOpponentTrinket(int targetIndex)
+        {
+            var slotKind = ResolveDebugTrinketSlot(targetIndex, TrinketSlotKind.Lesser);
+            var opponent = EnsureOpponentState();
+            var advanced = EnsureAdvancedMechanicState(opponent);
+            advanced.PendingChoice = null;
+            ClearOpponentTrinketSlot(advanced, slotKind);
+
+            AddRecruitLog(
+                RecruitLogType.Discover,
+                "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " cleared.",
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
+        private static void ClearOpponentTrinketSlot(AdvancedMechanicState advanced, TrinketSlotKind slotKind)
+        {
+            if (slotKind == TrinketSlotKind.Greater)
+            {
+                advanced.Trinkets.GreaterTrinketId = null;
+                advanced.Trinkets.GreaterCrystalBallCopiedTrinketId = null;
+            }
+            else
+            {
+                advanced.Trinkets.LesserTrinketId = null;
+                advanced.Trinkets.LesserCrystalBallCopiedTrinketId = null;
+            }
+
+            advanced.Trinkets.Equipped.RemoveAll(equipped => equipped != null && equipped.SlotKind == slotKind);
+            advanced.Equipped.RemoveAll(equipped =>
+                equipped != null &&
+                equipped.Kind == AdvancedMechanicKind.Trinket &&
+                string.Equals(equipped.Slot, slotKind.ToString(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static int OpponentTrinketActiveRound(TrinketSlotKind slotKind)
+        {
+            return slotKind == TrinketSlotKind.Greater
+                ? OpponentGreaterTrinketActiveRound
+                : OpponentLesserTrinketActiveRound;
+        }
+
+        private static string OpponentTrinketSlotLabel(TrinketSlotKind slotKind)
+        {
+            return slotKind == TrinketSlotKind.Greater ? "Greater Trinket" : "Lesser Trinket";
+        }
+
         private static TrinketSlotKind ResolveDebugTrinketSlot(int targetIndex, TrinketSlotKind fallback)
         {
             if (targetIndex < 0)
@@ -10928,7 +11611,16 @@ namespace LearnHearthstone.Application.Services
 
         private int CurrentDazzlingDaggerAttack()
         {
-            return 1 + (Math.Max(0, GetAdvancedMechanicCounter(AllSpellsCastThisGameCounter)) >> 2);
+            return CurrentDazzlingDaggerAttack(State.Player.Tavern);
+        }
+
+        private static int CurrentDazzlingDaggerAttack(TavernState tavern)
+        {
+            var counters = tavern?.AdvancedMechanics?.Counters;
+            var castCount = counters != null && counters.TryGetValue(AllSpellsCastThisGameCounter, out var stored)
+                ? stored
+                : 0;
+            return 1 + (Math.Max(0, castCount) >> 2);
         }
 
         private void ApplyDazzlingDaggerAura(MinionInstance target)
@@ -10957,6 +11649,14 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private void ApplyDazzlingDaggerAuraToCombatBoard(CombatStartSideContext context)
+        {
+            foreach (var minion in CombatBoardMinions(context?.CombatBoard))
+            {
+                SetTrackedBuff(minion, DazzlingDaggerAuraSourceId, CurrentDazzlingDaggerAttack(context.Tavern), 0);
+            }
+        }
+
         private void ApplyBoardTrinketAuras()
         {
             ApplyBoardTrinketAuras(State.Player.Board);
@@ -10964,13 +11664,18 @@ namespace LearnHearthstone.Application.Services
 
         private void ApplyBoardTrinketAuras(List<MinionInstance> board)
         {
+            ApplyBoardTrinketAuras(board, EquippedTrinketDefinitions());
+        }
+
+        private void ApplyBoardTrinketAuras(List<MinionInstance> board, IReadOnlyList<TrinketDefinition> trinkets)
+        {
             if (board == null)
             {
                 return;
             }
 
-            var feralBonus = GetFeralTalismanBonus();
-            var artisanalUrnAttack = GetArtisanalUrnAttackBonus();
+            var feralBonus = GetFeralTalismanBonus(trinkets);
+            var artisanalUrnAttack = GetArtisanalUrnAttackBonus(trinkets);
 
             foreach (var minion in board.Where(card => card != null && card.CardKind == CardKind.Minion))
             {
@@ -10991,9 +11696,14 @@ namespace LearnHearthstone.Application.Services
 
         private (int Attack, int Health) GetFeralTalismanBonus()
         {
+            return GetFeralTalismanBonus(EquippedTrinketDefinitions());
+        }
+
+        private static (int Attack, int Health) GetFeralTalismanBonus(IReadOnlyList<TrinketDefinition> trinkets)
+        {
             var attack = 0;
             var health = 0;
-            foreach (var definition in EquippedTrinketDefinitions())
+            foreach (var definition in trinkets ?? Array.Empty<TrinketDefinition>())
             {
                 if (definition.EffectIds == null || !definition.EffectIds.Contains(FeralTalismanEffectId))
                 {
@@ -11009,8 +11719,13 @@ namespace LearnHearthstone.Application.Services
 
         private int GetArtisanalUrnAttackBonus()
         {
+            return GetArtisanalUrnAttackBonus(EquippedTrinketDefinitions());
+        }
+
+        private static int GetArtisanalUrnAttackBonus(IReadOnlyList<TrinketDefinition> trinkets)
+        {
             var attack = 0;
-            foreach (var definition in EquippedTrinketDefinitions())
+            foreach (var definition in trinkets ?? Array.Empty<TrinketDefinition>())
             {
                 if (definition.EffectIds == null || !definition.EffectIds.Contains(ArtisanalUrnEffectId))
                 {
@@ -13614,21 +14329,67 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private void PrepareTrinketCombatStartEffects(List<MinionInstance> playerCombatBoard)
+        private sealed class CombatStartSideContext
         {
-            ClearTemporaryTrinketBloodGemBonus();
-            PrepareTrinketAvengeEffects();
-            var tavern = State.Player.Tavern;
-            var valdrakkenExtraTriggers = HasEquippedTrinketEffect(ValdrakkenWindChimesEffectId) ? 1 : 0;
-            var promoExtraTriggers = HasEquippedTrinketEffect(PromoPortraitEffectId) ? 1 : 0;
-
-            if (HasEquippedTrinketEffect(FeralTalismanEffectId) ||
-                HasEquippedTrinketEffect(ArtisanalUrnEffectId))
+            public CombatStartSideContext(
+                BoardSide side,
+                List<MinionInstance> combatBoard,
+                TavernState tavern,
+                List<MinionInstance> hand,
+                IReadOnlyList<TrinketDefinition> trinkets)
             {
-                ApplyBoardTrinketAuras(playerCombatBoard);
+                Side = side;
+                CombatBoard = combatBoard;
+                Tavern = tavern;
+                Hand = hand ?? new List<MinionInstance>();
+                Trinkets = trinkets ?? Array.Empty<TrinketDefinition>();
             }
 
-            foreach (var definition in EquippedTrinketDefinitions())
+            public BoardSide Side { get; }
+            public List<MinionInstance> CombatBoard { get; }
+            public TavernState Tavern { get; }
+            public List<MinionInstance> Hand { get; }
+            public IReadOnlyList<TrinketDefinition> Trinkets { get; }
+        }
+
+        private void PrepareTrinketCombatStartEffects(List<MinionInstance> playerCombatBoard)
+        {
+            var context = new CombatStartSideContext(
+                BoardSide.Player,
+                playerCombatBoard,
+                State.Player.Tavern,
+                State.Player.Tavern.Hand,
+                EquippedTrinketDefinitions());
+            ClearTemporaryTrinketBloodGemBonus(context.Tavern);
+            ResetTrinketCombatState(context.Tavern);
+            PrepareTrinketAvengeEffects(context);
+            PrepareTrinketCombatStartEffects(context);
+        }
+
+        private void PrepareTrinketCombatStartEffects(CombatStartSideContext context)
+        {
+            if (context?.Tavern == null)
+            {
+                return;
+            }
+
+            var tavern = context.Tavern;
+            var valdrakkenExtraTriggers = HasTrinketEffect(context, ValdrakkenWindChimesEffectId) ? 1 : 0;
+            var promoExtraTriggers = HasTrinketEffect(context, PromoPortraitEffectId) ? 1 : 0;
+
+            if (HasTrinketEffect(context, FeralTalismanEffectId) ||
+                HasTrinketEffect(context, ArtisanalUrnEffectId))
+            {
+                ApplyBoardTrinketAuras(context.CombatBoard, context.Trinkets);
+            }
+
+            if (context.Side == BoardSide.Opponent && HasTrinketEffect(context, WildfeatherDusterEffectId))
+            {
+                tavern.TrinketWildfeatherDusterActive = true;
+                tavern.TrinketWildfeatherDusterBeastSummons = 0;
+            }
+
+            foreach (var definition in context.Trinkets)
             {
                 if (definition.EffectIds == null)
                 {
@@ -13683,125 +14444,125 @@ namespace LearnHearthstone.Application.Services
 
                 if (definition.EffectIds.Contains(ShipInABottleEffectId))
                 {
-                    ApplyShipInABottleCombatStart(playerCombatBoard, definition, batch5StartRepeats);
+                    ApplyShipInABottleCombatStart(context, definition, batch5StartRepeats);
                 }
 
                 if (definition.EffectIds.Contains("valorous_medallion"))
                 {
                     var amount = definition.SlotKind == TrinketSlotKind.Greater ? 6 : 2;
-                    State.Player.Tavern.NextCombatBoardAttack += amount;
-                    State.Player.Tavern.NextCombatBoardHealth += amount;
+                    tavern.NextCombatBoardAttack += amount;
+                    tavern.NextCombatBoardHealth += amount;
                     AddRecruitLog(RecruitLogType.Play, definition.Name + ": next combat board +" + amount + "/+" + amount + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 }
 
                 if (definition.EffectIds.Contains("dazzling_dagger"))
                 {
-                    ApplyDazzlingDaggerAuraToCombatBoard(playerCombatBoard);
+                    ApplyDazzlingDaggerAuraToCombatBoard(context);
                 }
 
                 if (definition.EffectIds.Contains("bewitched_ribbon"))
                 {
-                    ApplyBewitchedRibbonCombatStart(playerCombatBoard, definition);
+                    ApplyBewitchedRibbonCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("bronze_timepiece"))
                 {
-                    ApplyBronzeTimepieceCombatStart(playerCombatBoard, definition);
+                    ApplyBronzeTimepieceCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("dramaloc_sticker"))
                 {
-                    ApplyDramalocStickerCombatStart(playerCombatBoard, definition);
+                    ApplyDramalocStickerCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("emerald_dreamcatcher"))
                 {
-                    ApplyEmeraldDreamcatcherCombatStart(playerCombatBoard, definition);
+                    ApplyEmeraldDreamcatcherCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("ironforge_anvil"))
                 {
-                    ApplyIronforgeAnvilCombatStart(playerCombatBoard, definition);
+                    ApplyIronforgeAnvilCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("karazhan_chess_set"))
                 {
-                    ApplyKarazhanChessSetCombatStart(playerCombatBoard, definition);
+                    ApplyKarazhanChessSetCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("protective_ring"))
                 {
-                    ApplyProtectiveRingCombatStart(playerCombatBoard, definition);
+                    ApplyProtectiveRingCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("tinyfin_onesie"))
                 {
-                    ApplyTinyfinOnesieCombatStart(playerCombatBoard, definition);
+                    ApplyTinyfinOnesieCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("automaton_portrait"))
                 {
-                    ApplyAutomatonPortraitCombatStart(playerCombatBoard, definition);
+                    ApplyAutomatonPortraitCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("baleful_incense"))
                 {
-                    ApplyBalefulIncenseCombatStart(playerCombatBoard, definition);
+                    ApplyBalefulIncenseCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("eternal_portrait"))
                 {
-                    ApplyEternalPortraitCombatStart(playerCombatBoard, definition);
+                    ApplyEternalPortraitCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("holy_mallet"))
                 {
-                    ApplyHolyMalletCombatStart(playerCombatBoard, definition);
+                    ApplyHolyMalletCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("training_certificate"))
                 {
-                    ApplyTrainingCertificateCombatStart(playerCombatBoard, definition);
+                    ApplyTrainingCertificateCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("hogwash_basin"))
                 {
-                    ApplyHogwashBasinCombatStart(playerCombatBoard, definition);
+                    ApplyHogwashBasinCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("rivendare_portrait"))
                 {
-                    ApplyRivendarePortraitCombatStart(playerCombatBoard, definition);
+                    ApplyRivendarePortraitCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("crocheted_sungill"))
                 {
-                    ApplyCrochetedSungillCombatStart(playerCombatBoard, definition);
+                    ApplyCrochetedSungillCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("eclectic_shrine"))
                 {
-                    ApplyEclecticShrineCombatStart(playerCombatBoard, definition);
+                    ApplyEclecticShrineCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("vashjir_anemone"))
                 {
-                    ApplyVashjirAnemoneCombatStart(playerCombatBoard, definition);
+                    ApplyVashjirAnemoneCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("yulon_sticker"))
                 {
-                    ApplyYulonStickerCombatStart(playerCombatBoard, definition);
+                    ApplyYulonStickerCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("stegodon_portrait"))
                 {
-                    ApplyStegodonPortraitCombatStart(playerCombatBoard, definition);
+                    ApplyStegodonPortraitCombatStart(context.CombatBoard, definition);
                 }
 
                 if (definition.EffectIds.Contains("fang_anklet"))
                 {
-                    ApplyFangAnkletCombatStart(playerCombatBoard, definition);
+                    ApplyFangAnkletCombatStart(context, definition);
                 }
 
                 if (definition.EffectIds.Contains("mama_bear_sticker"))
@@ -13990,7 +14751,16 @@ namespace LearnHearthstone.Application.Services
 
         private void ClearTemporaryTrinketBloodGemBonus()
         {
-            var tavern = State.Player.Tavern;
+            ClearTemporaryTrinketBloodGemBonus(State.Player.Tavern);
+        }
+
+        private static void ClearTemporaryTrinketBloodGemBonus(TavernState tavern)
+        {
+            if (tavern == null)
+            {
+                return;
+            }
+
             if (tavern.TrinketTemporaryBloodGemAttack != 0)
             {
                 tavern.BloodGemBonusAttack = Math.Max(0, tavern.BloodGemBonusAttack - tavern.TrinketTemporaryBloodGemAttack);
@@ -14032,33 +14802,36 @@ namespace LearnHearthstone.Application.Services
                 effectId == ShipInABottleEffectId;
         }
 
-        private void ApplyShipInABottleCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition, int repeats)
+        private void ApplyShipInABottleCombatStart(CombatStartSideContext context, TrinketDefinition definition, int repeats)
         {
-            var rng = new SeededRng(State.Seed + State.Round * 911 + State.Player.Tavern.RecruitLog.Count);
+            var rng = new SeededRng(State.Seed + State.Round * 911 + CombatStartLogSeedOffset(context));
             var candidates = SelectSupplyMinionDefinitions(Tribe.Pirate);
             for (var index = 0; index < repeats && candidates.Count > 0; index += 1)
             {
                 var picked = rng.Pick(candidates);
-                if (State.Player.Tavern.Hand.Count < HandLimit)
+                if (context.Hand.Count < HandLimit)
                 {
-                    State.Player.Tavern.Hand.Add(MinionFactory.Create(
+                    context.Hand.Add(MinionFactory.Create(
                         picked,
-                        BoardSide.Player,
+                        context.Side,
                         definition.Name + "-hand-" + State.Round + "-" + index,
                         false,
                         PoolSource.Copy,
                         0));
-                    HandleCardsAddedToHand(1, definition.Name);
+                    if (context.Side == BoardSide.Player)
+                    {
+                        HandleCardsAddedToHand(1, definition.Name);
+                    }
                 }
 
-                if (combatBoard == null || combatBoard.Count >= BoardLimit)
+                if (context.CombatBoard == null || context.CombatBoard.Count >= BoardLimit)
                 {
                     continue;
                 }
 
                 var summoned = MinionFactory.Create(
                     picked,
-                    BoardSide.Player,
+                    context.Side,
                     definition.Name + "-combat-" + State.Round + "-" + index,
                     false,
                     PoolSource.Summon,
@@ -14069,16 +14842,25 @@ namespace LearnHearthstone.Application.Services
                     summoned.Tags.Add("wingmen_immediate_attack_pending");
                 }
 
-                combatBoard.Add(summoned);
+                context.CombatBoard.Add(summoned);
                 AddRecruitLog(RecruitLogType.Play, definition.Name + ": summoned and got " + summoned.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
-        private void PrepareTrinketAvengeEffects()
+        private static int CombatStartLogSeedOffset(CombatStartSideContext context)
         {
-            ResetTrinketCombatState();
-            var tavern = State.Player.Tavern;
-            foreach (var definition in EquippedTrinketDefinitions())
+            return context?.Tavern?.RecruitLog?.Count ?? 0;
+        }
+
+        private void PrepareTrinketAvengeEffects(CombatStartSideContext context)
+        {
+            var tavern = context?.Tavern;
+            if (tavern == null)
+            {
+                return;
+            }
+
+            foreach (var definition in context.Trinkets)
             {
                 if (definition.EffectIds == null)
                 {
@@ -14150,9 +14932,9 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyDramalocStickerCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyDramalocStickerCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var highestHandAttack = State.Player.Tavern.Hand
+            var highestHandAttack = context.Hand
                 .Where(card => card != null && card.CardKind == CardKind.Minion)
                 .Select(card => Math.Max(0, card.Attack))
                 .DefaultIfEmpty(0)
@@ -14162,7 +14944,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var targets = CombatBoardMinions(combatBoard)
+            var targets = CombatBoardMinions(context.CombatBoard)
                 .Where(minion => HasTribe(minion, Tribe.Murloc))
                 .ToList();
             foreach (var murloc in targets)
@@ -14204,14 +14986,14 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyKarazhanChessSetCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyKarazhanChessSetCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            if (combatBoard == null || combatBoard.Count >= BoardLimit)
+            if (context.CombatBoard == null || context.CombatBoard.Count >= BoardLimit)
             {
                 return;
             }
 
-            var leftmost = CombatBoardMinions(combatBoard).FirstOrDefault();
+            var leftmost = CombatBoardMinions(context.CombatBoard).FirstOrDefault();
             if (leftmost == null)
             {
                 return;
@@ -14219,21 +15001,21 @@ namespace LearnHearthstone.Application.Services
 
             var copy = leftmost.Clone();
             copy.InstanceId = "trinket-karazhan-chess-set-" + leftmost.InstanceId + "-" + State.Round;
-            copy.Owner = BoardSide.Player;
+            copy.Owner = context.Side;
             copy.PoolSource = PoolSource.Summon;
             copy.OriginPoolSource = PoolSource.Summon;
             copy.PoolCopiesHeld = 0;
             copy.CanAttack = true;
-            combatBoard.Add(copy);
+            context.CombatBoard.Add(copy);
             LogTrinketCombatStart(definition, 1);
         }
 
-        private void ApplyProtectiveRingCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyProtectiveRingCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var candidates = CombatBoardMinions(combatBoard)
+            var candidates = CombatBoardMinions(context.CombatBoard)
                 .Where(minion => HasTribe(minion, Tribe.Pirate))
                 .ToList();
-            var rng = new SeededRng(State.Seed + State.Round * 3571 + State.Player.Tavern.RecruitLog.Count);
+            var rng = new SeededRng(State.Seed + State.Round * 3571 + CombatStartLogSeedOffset(context));
             var applied = 0;
             while (applied < 4 && candidates.Count > 0)
             {
@@ -14247,10 +15029,10 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, applied);
         }
 
-        private void ApplyTinyfinOnesieCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyTinyfinOnesieCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var target = CombatBoardMinions(combatBoard).FirstOrDefault();
-            var handMinion = State.Player.Tavern.Hand
+            var target = CombatBoardMinions(context.CombatBoard).FirstOrDefault();
+            var handMinion = context.Hand
                 .Where(card => card != null && card.CardKind == CardKind.Minion)
                 .OrderByDescending(card => card.MaxHealth)
                 .ThenByDescending(card => card.Health)
@@ -14265,22 +15047,22 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, 1);
         }
 
-        private void ApplyAutomatonPortraitCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyAutomatonPortraitCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            if (combatBoard == null || combatBoard.Count >= BoardLimit)
+            if (context.CombatBoard == null || context.CombatBoard.Count >= BoardLimit)
             {
                 return;
             }
 
-            var automaton = CreateCombatMinionByCardId(AncestralAutomatonCardId, "trinket-automaton-portrait-" + State.Round);
+            var automaton = CreateCombatMinionByCardId(AncestralAutomatonCardId, "trinket-automaton-portrait-" + State.Round, context.Side);
             if (automaton == null)
             {
                 return;
             }
 
-            combatBoard.Add(automaton);
-            var summonCount = State.Player.Tavern.AncestralAutomatonSummons + 1;
-            ApplyAutomatonCombatStats(combatBoard, summonCount);
+            context.CombatBoard.Add(automaton);
+            var summonCount = Math.Max(0, context.Tavern?.AncestralAutomatonSummons ?? 0) + 1;
+            ApplyAutomatonCombatStats(context.CombatBoard, summonCount);
             LogTrinketCombatStart(definition, 1);
         }
 
@@ -14361,11 +15143,12 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyHogwashBasinCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyHogwashBasinCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var attack = StatMath.SaturatingMultiply(3, 1 + State.Player.Tavern.BloodGemBonusAttack, 0, StatMath.MaxStat);
-            var health = StatMath.SaturatingMultiply(3, 1 + State.Player.Tavern.BloodGemBonusHealth, 0, StatMath.MaxStat);
-            var targets = CombatBoardMinions(combatBoard).ToList();
+            var tavern = context.Tavern;
+            var attack = StatMath.SaturatingMultiply(3, 1 + Math.Max(0, tavern?.BloodGemBonusAttack ?? 0), 0, StatMath.MaxStat);
+            var health = StatMath.SaturatingMultiply(3, 1 + Math.Max(0, tavern?.BloodGemBonusHealth ?? 0), 0, StatMath.MaxStat);
+            var targets = CombatBoardMinions(context.CombatBoard).ToList();
             foreach (var target in targets)
             {
                 BuffMinion(target, attack, health, definition.Name);
@@ -14387,9 +15170,9 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyCrochetedSungillCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyCrochetedSungillCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var handMinion = State.Player.Tavern.Hand
+            var handMinion = context.Hand
                 .Where(card => card != null && card.CardKind == CardKind.Minion)
                 .OrderByDescending(card => card.MaxHealth)
                 .ThenByDescending(card => card.Health)
@@ -14402,26 +15185,26 @@ namespace LearnHearthstone.Application.Services
 
             BuffMinion(handMinion, 4, 4, definition.Name);
             var affected = 1;
-            if (combatBoard != null && combatBoard.Count < BoardLimit)
+            if (context.CombatBoard != null && context.CombatBoard.Count < BoardLimit)
             {
                 var copy = handMinion.Clone();
                 copy.InstanceId = "trinket-crocheted-sungill-" + handMinion.InstanceId + "-" + State.Round;
-                copy.Owner = BoardSide.Player;
+                copy.Owner = context.Side;
                 copy.PoolSource = PoolSource.Summon;
                 copy.OriginPoolSource = PoolSource.Summon;
                 copy.PoolCopiesHeld = 0;
                 copy.CanReturnToPoolAfterAttach = false;
                 copy.CanAttack = true;
-                combatBoard.Add(copy);
+                context.CombatBoard.Add(copy);
                 affected += 1;
             }
 
             LogTrinketCombatStart(definition, affected);
         }
 
-        private void ApplyEclecticShrineCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyEclecticShrineCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var mechanics = EnsureAdvancedMechanicState(State.Player.Tavern);
+            var mechanics = EnsureAdvancedMechanicState(context.Tavern);
             var attackKey = "trinket:eclectic_shrine:attack";
             var healthKey = "trinket:eclectic_shrine:health";
             var attack = mechanics.Counters.TryGetValue(attackKey, out var storedAttack) ? Math.Max(3, storedAttack) : 3;
@@ -14444,7 +15227,7 @@ namespace LearnHearthstone.Application.Services
 
             foreach (var tribe in tribes)
             {
-                var target = CombatBoardMinions(combatBoard)
+                var target = CombatBoardMinions(context.CombatBoard)
                     .FirstOrDefault(minion => HasTribe(minion, tribe) && !usedInstances.Contains(minion.InstanceId));
                 if (target == null)
                 {
@@ -14465,10 +15248,10 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyVashjirAnemoneCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyVashjirAnemoneCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var amount = 1 + (Math.Max(0, State.Player.Tavern.TavernSpellsCastThisGame) >> 2);
-            var targets = CombatBoardMinions(combatBoard)
+            var amount = 1 + (Math.Max(0, context.Tavern?.TavernSpellsCastThisGame ?? 0) >> 2);
+            var targets = CombatBoardMinions(context.CombatBoard)
                 .Where(minion => HasTribe(minion, Tribe.Naga))
                 .ToList();
             foreach (var target in targets)
@@ -14509,11 +15292,11 @@ namespace LearnHearthstone.Application.Services
             LogTrinketCombatStart(definition, targets.Count);
         }
 
-        private void ApplyFangAnkletCombatStart(List<MinionInstance> combatBoard, TrinketDefinition definition)
+        private void ApplyFangAnkletCombatStart(CombatStartSideContext context, TrinketDefinition definition)
         {
-            var trinkets = EnsureTrinketState(State.Player.Tavern);
+            var trinkets = EnsureTrinketState(context.Tavern);
             EnsureFangAnkletBonus(trinkets);
-            var targets = CombatBoardMinions(combatBoard)
+            var targets = CombatBoardMinions(context.CombatBoard)
                 .Where(minion => HasTribe(minion, Tribe.Beast))
                 .ToList();
             foreach (var target in targets)
@@ -14531,7 +15314,7 @@ namespace LearnHearthstone.Application.Services
                 : combatBoard.Where(minion => minion != null && minion.CardKind == CardKind.Minion);
         }
 
-        private MinionInstance CreateCombatMinionByCardId(string cardId, string instanceId)
+        private MinionInstance CreateCombatMinionByCardId(string cardId, string instanceId, BoardSide side)
         {
             var definition = catalog.All.FirstOrDefault(minion => string.Equals(minion.CardId, cardId, StringComparison.OrdinalIgnoreCase));
             if (definition == null)
@@ -14539,8 +15322,8 @@ namespace LearnHearthstone.Application.Services
                 return null;
             }
 
-            var minion = MinionFactory.Create(definition, BoardSide.Player, instanceId, false, PoolSource.Summon, 0);
-            minion.Owner = BoardSide.Player;
+            var minion = MinionFactory.Create(definition, side, instanceId, false, PoolSource.Summon, 0);
+            minion.Owner = side;
             minion.CanAttack = true;
             return minion;
         }
@@ -14640,6 +15423,106 @@ namespace LearnHearthstone.Application.Services
                     }
                 }
             }
+        }
+
+        private void PrepareOpponentTrinketCombatStartEffects(List<MinionInstance> opponentCombatBoard, TavernState opponentCombatTavern)
+        {
+            if (opponentCombatTavern == null)
+            {
+                return;
+            }
+
+            if (opponentCombatTavern.Hand == null)
+            {
+                opponentCombatTavern.Hand = new List<MinionInstance>();
+            }
+
+            var context = new CombatStartSideContext(
+                BoardSide.Opponent,
+                opponentCombatBoard,
+                opponentCombatTavern,
+                opponentCombatTavern.Hand,
+                OpponentCombatTrinketDefinitions(opponentCombatTavern));
+            ResetTrinketCombatState(opponentCombatTavern);
+            PrepareTrinketAvengeEffects(context);
+            PrepareTrinketCombatStartEffects(context);
+        }
+
+        private void PrepareOpponentQuestCombatStartEffects(TavernState opponentCombatTavern)
+        {
+            if (opponentCombatTavern == null)
+            {
+                return;
+            }
+
+            opponentCombatTavern.QuestFriendlyAttackAura = HasActiveQuestReward(opponentCombatTavern, TheSmokingGunRewardId) ? 4 : 0;
+            opponentCombatTavern.QuestVolatileVenomActive = HasActiveQuestReward(opponentCombatTavern, VolatileVenomRewardId);
+            opponentCombatTavern.QuestBoomSquadActive = HasActiveQuestReward(opponentCombatTavern, BoomSquadRewardId);
+            opponentCombatTavern.QuestGrimFreshenerActive = HasActiveQuestReward(opponentCombatTavern, GrimFreshenerRewardId);
+            opponentCombatTavern.QuestCycleOfEnergyActive = HasActiveQuestReward(opponentCombatTavern, CycleOfEnergyRewardId);
+            opponentCombatTavern.QuestStableAmalgamationActive = HasActiveQuestReward(opponentCombatTavern, StableAmalgamationRewardId);
+            opponentCombatTavern.QuestDeathrattleExtraTriggers = HasActiveQuestReward(opponentCombatTavern, TurbulentTombsRewardId) ? 1 : 0;
+            opponentCombatTavern.QuestRallyExtraTriggers = HasActiveQuestReward(opponentCombatTavern, RallyingCryRewardId) ? 1 : 0;
+
+            if (HasActiveQuestReward(opponentCombatTavern, StaffOfOriginationRewardId))
+            {
+                opponentCombatTavern.NextCombatBoardAttack += 12;
+                opponentCombatTavern.NextCombatBoardHealth += 12;
+            }
+        }
+
+        private List<TrinketDefinition> OpponentCombatTrinketDefinitions(TavernState opponentCombatTavern)
+        {
+            var result = new List<TrinketDefinition>();
+            if (!enableTrinkets || trinketCatalog == null)
+            {
+                return result;
+            }
+
+            var trinkets = opponentCombatTavern?.AdvancedMechanics?.Trinkets;
+            if (trinkets == null)
+            {
+                return result;
+            }
+
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            AddEquippedTrinketDefinition(result, seen, trinkets.LesserTrinketId);
+            AddEquippedTrinketDefinition(result, seen, trinkets.GreaterTrinketId);
+            if (trinkets.Equipped == null)
+            {
+                return result;
+            }
+
+            foreach (var equipped in trinkets.Equipped)
+            {
+                AddEquippedTrinketDefinition(result, seen, equipped?.TrinketId);
+            }
+
+            return result;
+        }
+
+        private static List<ActiveQuestState> ActiveQuestRewards(TavernState tavern)
+        {
+            var active = new List<ActiveQuestState>();
+            var quests = tavern?.AdvancedMechanics?.Quests;
+            if (quests?.MainQuest?.RewardActive == true)
+            {
+                active.Add(quests.MainQuest);
+            }
+
+            if (quests?.BonusQuest?.RewardActive == true)
+            {
+                active.Add(quests.BonusQuest);
+            }
+
+            return active;
+        }
+
+        private static bool HasActiveQuestReward(TavernState tavern, string rewardId)
+        {
+            return ActiveQuestRewards(tavern).Any(active =>
+                string.Equals(active.RewardId, rewardId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(active.RewardCardId, rewardId, StringComparison.OrdinalIgnoreCase));
         }
 
         private void RecordTrinketShopRefresh()
@@ -15024,6 +15907,13 @@ namespace LearnHearthstone.Application.Services
                 definition.EffectIds != null && definition.EffectIds.Contains(effectId));
         }
 
+        private static bool HasTrinketEffect(CombatStartSideContext context, string effectId)
+        {
+            return !string.IsNullOrWhiteSpace(effectId) &&
+                context?.Trinkets != null &&
+                context.Trinkets.Any(definition => definition?.EffectIds != null && definition.EffectIds.Contains(effectId));
+        }
+
         private List<TrinketDefinition> EquippedTrinketDefinitions()
         {
             var result = new List<TrinketDefinition>();
@@ -15067,6 +15957,38 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private LocalOpponentState EnsureOpponentState()
+        {
+            if (State.Opponent == null)
+            {
+                State.Opponent = new LocalOpponentState
+                {
+                    Name = "Opponent",
+                    Health = 30,
+                    TavernTier = 1,
+                    Editable = true
+                };
+            }
+
+            if (State.Opponent.Board == null)
+            {
+                State.Opponent.Board = new List<MinionInstance>();
+            }
+
+            if (State.Opponent.Hand == null)
+            {
+                State.Opponent.Hand = new List<MinionInstance>();
+            }
+
+            if (State.Opponent.CombatModifiers == null)
+            {
+                State.Opponent.CombatModifiers = new SideCombatModifierState();
+            }
+
+            EnsureAdvancedMechanicState(State.Opponent);
+            return State.Opponent;
+        }
+
         private static AdvancedMechanicState EnsureAdvancedMechanicState(TavernState tavern)
         {
             if (tavern.AdvancedMechanics == null)
@@ -15074,92 +15996,107 @@ namespace LearnHearthstone.Application.Services
                 tavern.AdvancedMechanics = new AdvancedMechanicState();
             }
 
-            if (tavern.AdvancedMechanics.Equipped == null)
+            return EnsureAdvancedMechanicState(tavern.AdvancedMechanics);
+        }
+
+        private static AdvancedMechanicState EnsureAdvancedMechanicState(LocalOpponentState opponent)
+        {
+            if (opponent.AdvancedMechanics == null)
             {
-                tavern.AdvancedMechanics.Equipped = new List<EquippedAdvancedMechanic>();
+                opponent.AdvancedMechanics = new AdvancedMechanicState();
             }
 
-            if (tavern.AdvancedMechanics.Counters == null)
+            return EnsureAdvancedMechanicState(opponent.AdvancedMechanics);
+        }
+
+        private static AdvancedMechanicState EnsureAdvancedMechanicState(AdvancedMechanicState advanced)
+        {
+            if (advanced.Equipped == null)
             {
-                tavern.AdvancedMechanics.Counters = new Dictionary<string, int>();
+                advanced.Equipped = new List<EquippedAdvancedMechanic>();
             }
 
-            if (tavern.AdvancedMechanics.Selections == null)
+            if (advanced.Counters == null)
             {
-                tavern.AdvancedMechanics.Selections = new Dictionary<string, string>();
+                advanced.Counters = new Dictionary<string, int>();
             }
 
-            if (tavern.AdvancedMechanics.Trinkets == null)
+            if (advanced.Selections == null)
             {
-                tavern.AdvancedMechanics.Trinkets = new PlayerTrinketState();
+                advanced.Selections = new Dictionary<string, string>();
             }
 
-            if (tavern.AdvancedMechanics.Trinkets.Equipped == null)
+            if (advanced.Trinkets == null)
             {
-                tavern.AdvancedMechanics.Trinkets.Equipped = new List<EquippedTrinketState>();
+                advanced.Trinkets = new PlayerTrinketState();
             }
 
-            if (tavern.AdvancedMechanics.Quests == null)
+            if (advanced.Trinkets.Equipped == null)
             {
-                tavern.AdvancedMechanics.Quests = new PlayerQuestState();
+                advanced.Trinkets.Equipped = new List<EquippedTrinketState>();
             }
 
-            if (tavern.AdvancedMechanics.Anomalies == null)
+            if (advanced.Quests == null)
             {
-                tavern.AdvancedMechanics.Anomalies = new AnomalyState();
+                advanced.Quests = new PlayerQuestState();
             }
 
-            if (tavern.AdvancedMechanics.Anomalies.Counters == null)
+            if (advanced.Anomalies == null)
             {
-                tavern.AdvancedMechanics.Anomalies.Counters = new Dictionary<string, int>();
+                advanced.Anomalies = new AnomalyState();
             }
 
-            if (tavern.AdvancedMechanics.Anomalies.Flags == null)
+            if (advanced.Anomalies.Counters == null)
             {
-                tavern.AdvancedMechanics.Anomalies.Flags = new Dictionary<string, string>();
+                advanced.Anomalies.Counters = new Dictionary<string, int>();
             }
 
-            if (tavern.AdvancedMechanics.Anomalies.AppliedPoolModifiers == null)
+            if (advanced.Anomalies.Flags == null)
             {
-                tavern.AdvancedMechanics.Anomalies.AppliedPoolModifiers = new List<string>();
+                advanced.Anomalies.Flags = new Dictionary<string, string>();
             }
 
-            if (tavern.AdvancedMechanics.Anomalies.AvailabilityReasons == null)
+            if (advanced.Anomalies.AppliedPoolModifiers == null)
             {
-                tavern.AdvancedMechanics.Anomalies.AvailabilityReasons = new List<AnomalyAvailabilityReason>();
+                advanced.Anomalies.AppliedPoolModifiers = new List<string>();
             }
 
-            if (tavern.AdvancedMechanics.Quests.Completed == null)
+            if (advanced.Anomalies.AvailabilityReasons == null)
             {
-                tavern.AdvancedMechanics.Quests.Completed = new List<ActiveQuestState>();
+                advanced.Anomalies.AvailabilityReasons = new List<AnomalyAvailabilityReason>();
             }
 
-            if (tavern.AdvancedMechanics.Quests.RewardCounters == null)
+            if (advanced.Quests.Completed == null)
             {
-                tavern.AdvancedMechanics.Quests.RewardCounters = new Dictionary<string, int>();
+                advanced.Quests.Completed = new List<ActiveQuestState>();
             }
 
-            if (tavern.AdvancedMechanics.Quests.RewardFlags == null)
+            if (advanced.Quests.RewardCounters == null)
             {
-                tavern.AdvancedMechanics.Quests.RewardFlags = new Dictionary<string, bool>();
+                advanced.Quests.RewardCounters = new Dictionary<string, int>();
             }
 
-            if (tavern.AdvancedMechanics.Quests.HiddenTreasureVaultGold <= 0)
+            if (advanced.Quests.RewardFlags == null)
             {
-                tavern.AdvancedMechanics.Quests.HiddenTreasureVaultGold = 1;
+                advanced.Quests.RewardFlags = new Dictionary<string, bool>();
             }
 
-            if (tavern.AdvancedMechanics.Quests.CookedBookAttack <= 0)
+            if (advanced.Quests.HiddenTreasureVaultGold <= 0)
             {
-                tavern.AdvancedMechanics.Quests.CookedBookAttack = 2;
+                advanced.Quests.HiddenTreasureVaultGold = 1;
             }
 
-            if (tavern.AdvancedMechanics.Quests.CookedBookHealth <= 0)
+            if (advanced.Quests.CookedBookAttack <= 0)
             {
-                tavern.AdvancedMechanics.Quests.CookedBookHealth = 2;
+                advanced.Quests.CookedBookAttack = 2;
             }
 
-            return tavern.AdvancedMechanics;
+            if (advanced.Quests.CookedBookHealth <= 0)
+            {
+                advanced.Quests.CookedBookHealth = 2;
+            }
+
+            return advanced;
         }
 
         private static PlayerTrinketState EnsureTrinketState(TavernState tavern)
@@ -17267,10 +18204,11 @@ namespace LearnHearthstone.Application.Services
 
         private TavernState CreateOpponentCombatTavernState()
         {
+            var opponent = EnsureOpponentState();
             var modifiers = EnsureSideCombatModifiers(BoardSide.Opponent);
-            return new TavernState
+            var tavern = new TavernState
             {
-                Tier = Math.Max(1, State.Opponent.TavernTier),
+                Tier = Math.Max(1, opponent.TavernTier),
                 TavernSpellsCastThisGame = Math.Max(0, modifiers.SpellsCastThisGame),
                 SpellPower = Math.Max(0, modifiers.SpellPower),
                 TavernSpellBonusAttack = Math.Max(0, modifiers.TavernSpellBonusAttack),
@@ -17281,7 +18219,269 @@ namespace LearnHearthstone.Application.Services
                 EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths),
                 AncestralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons),
                 FriendlyMinionDeathsThisGame = Math.Max(0, modifiers.FriendlyMinionDeathsThisGame),
-                Hand = State.Opponent.Hand?.Select(card => card.Clone()).ToList() ?? new List<MinionInstance>()
+                AdvancedMechanics = CreateOpponentCombatAdvancedMechanics(opponent),
+                Hand = opponent.Hand?.Select(card => card.Clone()).ToList() ?? new List<MinionInstance>()
+            };
+            ConfigureOpponentCombatHeroPowerTavernState(tavern, opponent);
+            return tavern;
+        }
+
+        private void ConfigureOpponentCombatHeroPowerTavernState(TavernState tavern, LocalOpponentState opponent)
+        {
+            if (tavern == null || opponent == null)
+            {
+                return;
+            }
+
+            var activePowerIds = GetOpponentActiveHeroPowerCardIds();
+            if (activePowerIds.Any(powerId => string.Equals(powerId, TavishOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase)))
+            {
+                tavern.HeroTavishDeadeyeActive = true;
+                if (opponent.HeroPowerTargetSide == BoardSide.Player)
+                {
+                    var target = ResolveOpponentConfiguredHeroPowerTarget(State.Player.Board, opponent);
+                    if (target != null)
+                    {
+                        tavern.HeroTavishTargetInstanceId = target.InstanceId;
+                        tavern.HeroTavishTargetIndex = State.Player.Board.FindIndex(minion =>
+                            minion != null &&
+                            string.Equals(minion.InstanceId, target.InstanceId, StringComparison.OrdinalIgnoreCase));
+                    }
+                }
+            }
+
+            if (activePowerIds.Any(powerId => string.Equals(powerId, OnyxiaOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase)))
+            {
+                tavern.HeroOnyxiaBroodmotherActive = true;
+                EnsureHeroEffectCounters(tavern);
+                if (!tavern.HeroEffectCounters.TryGetValue(OpponentOnyxiaWhelpStatsCounter, out var stats) || stats <= 0)
+                {
+                    tavern.HeroEffectCounters[OpponentOnyxiaWhelpStatsCounter] = 3;
+                }
+            }
+
+            if (activePowerIds.Any(powerId => string.Equals(powerId, BrukanOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase)) &&
+                !string.IsNullOrWhiteSpace(opponent.HeroPowerElement))
+            {
+                tavern.HeroBrukanElement = opponent.HeroPowerElement;
+                tavern.HeroBrukanElementActive = true;
+            }
+        }
+
+        private static MinionInstance ResolveOpponentConfiguredHeroPowerTarget(IList<MinionInstance> board, LocalOpponentState opponent)
+        {
+            if (board == null || opponent == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(opponent.HeroPowerTargetInstanceId))
+            {
+                var target = board.FirstOrDefault(minion =>
+                    minion != null &&
+                    string.Equals(minion.InstanceId, opponent.HeroPowerTargetInstanceId, StringComparison.OrdinalIgnoreCase));
+                if (target != null)
+                {
+                    return target;
+                }
+            }
+
+            return opponent.HeroPowerTargetIndex >= 0 && opponent.HeroPowerTargetIndex < board.Count
+                ? board[opponent.HeroPowerTargetIndex]
+                : null;
+        }
+
+        private AdvancedMechanicState CreateOpponentCombatAdvancedMechanics(LocalOpponentState opponent)
+        {
+            var source = EnsureAdvancedMechanicState(opponent);
+            var result = EnsureAdvancedMechanicState(new AdvancedMechanicState());
+            result.PendingChoice = null;
+
+            if (OpponentQuestRewardConfigurationEnabled)
+            {
+                result.Quests = CloneOpponentCombatQuestState(source.Quests);
+                AddOpponentCombatQuestRewardEquipped(result, result.Quests.MainQuest);
+                AddOpponentCombatQuestRewardEquipped(result, result.Quests.BonusQuest);
+            }
+
+            if (OpponentTrinketConfigurationEnabled)
+            {
+                result.Trinkets = CloneOpponentCombatTrinketState(source.Trinkets);
+                AddOpponentCombatTrinketEquipped(result, source.Trinkets, TrinketSlotKind.Lesser);
+                AddOpponentCombatTrinketEquipped(result, source.Trinkets, TrinketSlotKind.Greater);
+            }
+
+            return EnsureAdvancedMechanicState(result);
+        }
+
+        private static void AddOpponentCombatQuestRewardEquipped(AdvancedMechanicState result, ActiveQuestState active)
+        {
+            if (active?.RewardActive != true)
+            {
+                return;
+            }
+
+            result.Equipped.Add(new EquippedAdvancedMechanic
+            {
+                Kind = AdvancedMechanicKind.Quest,
+                SourceId = active.RewardCardId,
+                DisplayName = active.RewardName,
+                Slot = "QuestReward",
+                EquippedRound = 1,
+                CostPaid = 0,
+                ImplementationStatus = active.ImplementationStatus.ToString()
+            });
+        }
+
+        private static PlayerQuestState CloneOpponentCombatQuestState(PlayerQuestState source)
+        {
+            var result = new PlayerQuestState();
+            if (source == null)
+            {
+                return result;
+            }
+
+            result.MainQuest = source.MainQuest?.RewardActive == true ? CloneActiveQuestState(source.MainQuest) : null;
+            result.BonusQuest = source.BonusQuest?.RewardActive == true ? CloneActiveQuestState(source.BonusQuest) : null;
+            result.Completed = source.Completed?
+                .Where(quest => quest != null && quest.RewardActive)
+                .Select(CloneActiveQuestState)
+                .ToList() ?? new List<ActiveQuestState>();
+            result.HiddenTreasureVaultGold = source.HiddenTreasureVaultGold;
+            result.CookedBookAttack = source.CookedBookAttack;
+            result.CookedBookHealth = source.CookedBookHealth;
+            result.RewardCounters = source.RewardCounters == null
+                ? new Dictionary<string, int>()
+                : new Dictionary<string, int>(source.RewardCounters, StringComparer.OrdinalIgnoreCase);
+            result.RewardFlags = source.RewardFlags == null
+                ? new Dictionary<string, bool>()
+                : new Dictionary<string, bool>(source.RewardFlags, StringComparer.OrdinalIgnoreCase);
+            return result;
+        }
+
+        private PlayerTrinketState CloneOpponentCombatTrinketState(PlayerTrinketState source)
+        {
+            var result = new PlayerTrinketState();
+            if (source == null)
+            {
+                return result;
+            }
+
+            CopyOpponentCombatTrinketSlot(source, result, TrinketSlotKind.Lesser);
+            CopyOpponentCombatTrinketSlot(source, result, TrinketSlotKind.Greater);
+            return result;
+        }
+
+        private void CopyOpponentCombatTrinketSlot(PlayerTrinketState source, PlayerTrinketState result, TrinketSlotKind slotKind)
+        {
+            if (State.Round < OpponentTrinketActiveRound(slotKind))
+            {
+                return;
+            }
+
+            var sourceId = slotKind == TrinketSlotKind.Greater ? source.GreaterTrinketId : source.LesserTrinketId;
+            var definition = ResolveOptionalTrinket(sourceId);
+            if (definition == null)
+            {
+                return;
+            }
+
+            if (slotKind == TrinketSlotKind.Greater)
+            {
+                result.GreaterTrinketId = definition.CardId;
+            }
+            else
+            {
+                result.LesserTrinketId = definition.CardId;
+            }
+
+            var equipped = source.Equipped?.FirstOrDefault(item => item != null && item.SlotKind == slotKind);
+            result.Equipped.Add(equipped == null
+                ? CreateOpponentEquippedTrinketState(definition, slotKind)
+                : CloneEquippedTrinketState(equipped));
+        }
+
+        private void AddOpponentCombatTrinketEquipped(AdvancedMechanicState result, PlayerTrinketState source, TrinketSlotKind slotKind)
+        {
+            if (State.Round < OpponentTrinketActiveRound(slotKind))
+            {
+                return;
+            }
+
+            var sourceId = slotKind == TrinketSlotKind.Greater ? source?.GreaterTrinketId : source?.LesserTrinketId;
+            var definition = ResolveOptionalTrinket(sourceId);
+            if (definition == null)
+            {
+                return;
+            }
+
+            result.Equipped.Add(new EquippedAdvancedMechanic
+            {
+                Kind = AdvancedMechanicKind.Trinket,
+                SourceId = definition.CardId,
+                DisplayName = definition.Name,
+                Slot = slotKind.ToString(),
+                EquippedRound = OpponentTrinketActiveRound(slotKind),
+                CostPaid = 0,
+                ImplementationStatus = definition.ImplementationStatus.ToString()
+            });
+        }
+
+        private static ActiveQuestState CloneActiveQuestState(ActiveQuestState source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            return new ActiveQuestState
+            {
+                QuestId = source.QuestId,
+                QuestCardId = source.QuestCardId,
+                QuestName = source.QuestName,
+                QuestText = source.QuestText,
+                QuestImagePath = source.QuestImagePath,
+                RewardId = source.RewardId,
+                RewardCardId = source.RewardCardId,
+                RewardName = source.RewardName,
+                RewardText = source.RewardText,
+                RewardImagePath = source.RewardImagePath,
+                Source = source.Source,
+                Progress = source.Progress,
+                BaseRequiredAmount = source.BaseRequiredAmount,
+                RequiredAmount = source.RequiredAmount,
+                DifficultyTier = source.DifficultyTier,
+                DifficultyModifier = source.DifficultyModifier,
+                RewardPowerLevel = source.RewardPowerLevel,
+                Completed = source.Completed,
+                RewardActive = source.RewardActive,
+                ImplementationStatus = source.ImplementationStatus
+            };
+        }
+
+        private static EquippedTrinketState CloneEquippedTrinketState(EquippedTrinketState source)
+        {
+            return new EquippedTrinketState
+            {
+                TrinketId = source.TrinketId,
+                Name = source.Name,
+                SlotKind = source.SlotKind,
+                EquippedRound = source.EquippedRound,
+                CostPaid = source.CostPaid,
+                ImplementationStatus = source.ImplementationStatus
+            };
+        }
+
+        private static EquippedTrinketState CreateOpponentEquippedTrinketState(TrinketDefinition definition, TrinketSlotKind slotKind)
+        {
+            return new EquippedTrinketState
+            {
+                TrinketId = definition.CardId,
+                Name = definition.Name,
+                SlotKind = slotKind,
+                EquippedRound = OpponentTrinketActiveRound(slotKind),
+                CostPaid = 0,
+                ImplementationStatus = definition.ImplementationStatus
             };
         }
 
@@ -17897,6 +19097,363 @@ namespace LearnHearthstone.Application.Services
             }
 
             return powerIds;
+        }
+
+        private List<string> GetOpponentActiveHeroPowerCardIds()
+        {
+            var powerIds = new List<string>();
+            var opponent = EnsureOpponentState();
+            AddUniqueHeroPowerCardId(powerIds, opponent.HeroPowerCardId);
+            if (opponent.ExtraHeroPowerCardIds != null)
+            {
+                foreach (var extraCardId in opponent.ExtraHeroPowerCardIds)
+                {
+                    AddUniqueHeroPowerCardId(powerIds, extraCardId);
+                }
+            }
+
+            return powerIds;
+        }
+
+        private void ApplyOpponentCombatStartHeroPowers(
+            List<MinionInstance> opponentCombatBoard,
+            List<MinionInstance> playerCombatBoard,
+            TavernState opponentCombatTavern)
+        {
+            if (opponentCombatBoard == null)
+            {
+                return;
+            }
+
+            foreach (var heroPowerCardId in GetOpponentActiveHeroPowerCardIds())
+            {
+                if (string.Equals(heroPowerCardId, AlAkirOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    var target = opponentCombatBoard.FirstOrDefault();
+                    AddCombatKeyword(target, Keyword.Windfury, "Opponent Swatting Insects");
+                    AddCombatKeyword(target, Keyword.DivineShield, "Opponent Swatting Insects");
+                    AddCombatKeyword(target, Keyword.Taunt, "Opponent Swatting Insects");
+                    if (target != null)
+                    {
+                        AddRecruitLog(
+                            RecruitLogType.Play,
+                            "Opponent Swatting Insects: left-most minion gained Windfury, Divine Shield, and Taunt for combat.",
+                            State.Player.Tavern.Gold,
+                            State.Player.Tavern.Gold);
+                    }
+                }
+
+                if (string.Equals(heroPowerCardId, DeathwingOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var target in opponentCombatBoard.Concat(playerCombatBoard ?? new List<MinionInstance>()))
+                    {
+                        BuffCombatMinion(target, 2, 0, "Opponent ALL Will Burn!");
+                    }
+                }
+
+                if (string.Equals(heroPowerCardId, YshaarjOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    SummonOpponentYshaarjCombatMinion(opponentCombatBoard, opponentCombatTavern);
+                }
+
+                if (string.Equals(heroPowerCardId, TamsinOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApplyOpponentTamsinPhylactery(opponentCombatBoard);
+                }
+
+                if (string.Equals(heroPowerCardId, IllidanOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApplyOpponentIllidanWingmen(opponentCombatBoard);
+                }
+
+                if (string.Equals(heroPowerCardId, QueenWagtoggleOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApplyOpponentWagtoggleCombatBuffs(opponentCombatBoard, opponentCombatTavern);
+                }
+
+                if (string.Equals(heroPowerCardId, VanndarOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase) && State.Round >= 7)
+                {
+                    SummonOpponentCombatCopy(
+                        opponentCombatBoard.OrderByDescending(minion => minion.MaxHealth).ThenBy(minion => minion.InstanceId).FirstOrDefault(),
+                        opponentCombatBoard,
+                        "opponent-vanndar");
+                }
+
+                if (string.Equals(heroPowerCardId, DrektharOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase) && State.Round >= 7)
+                {
+                    SummonOpponentCombatCopy(
+                        opponentCombatBoard.OrderByDescending(minion => minion.Attack).ThenBy(minion => minion.InstanceId).FirstOrDefault(),
+                        opponentCombatBoard,
+                        "opponent-drekthar");
+                }
+
+                if (string.Equals(heroPowerCardId, TeronOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ResolveOpponentTeronCombatStart(opponentCombatBoard);
+                }
+
+                if (string.Equals(heroPowerCardId, OzumatOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
+                {
+                    SummonOpponentOzumatTentacle(opponentCombatBoard, opponentCombatTavern);
+                }
+            }
+        }
+
+        private void SummonOpponentYshaarjCombatMinion(List<MinionInstance> opponentCombatBoard, TavernState opponentCombatTavern)
+        {
+            if (opponentCombatBoard.Count >= BoardLimit || catalog == null)
+            {
+                return;
+            }
+
+            var tier = Math.Max(1, opponentCombatTavern?.Tier ?? State.Opponent.TavernTier);
+            var candidates = catalog.All.Where(minion => minion.TavernTier == tier && minion.InPool).ToList();
+            if (candidates.Count == 0)
+            {
+                candidates = catalog.All.Where(minion => minion.TavernTier <= tier && minion.InPool).ToList();
+            }
+
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var rng = new SeededRng(State.Seed + State.Round * 4049 + opponentCombatBoard.Count);
+            var definition = candidates[rng.NextInt(candidates.Count)];
+            var summoned = MinionFactory.Create(
+                definition,
+                BoardSide.Opponent,
+                "opponent-yshaarj-combat-" + State.Round + "-" + opponentCombatBoard.Count,
+                false,
+                PoolSource.Summon,
+                0);
+            opponentCombatBoard.Add(summoned);
+
+            if (State.Opponent.Hand.Count < HandLimit)
+            {
+                State.Opponent.Hand.Add(MinionFactory.Create(
+                    definition,
+                    BoardSide.Opponent,
+                    "opponent-yshaarj-hand-" + State.Round + "-" + State.Opponent.Hand.Count,
+                    false,
+                    PoolSource.Copy,
+                    0));
+            }
+        }
+
+        private static void ApplyOpponentTamsinPhylactery(List<MinionInstance> opponentCombatBoard)
+        {
+            var target = opponentCombatBoard
+                .Where(card => card != null && card.CardKind == CardKind.Minion)
+                .OrderBy(card => card.Attack)
+                .ThenBy(card => card.InstanceId)
+                .FirstOrDefault();
+            AddCombatKeyword(target, Keyword.Deathrattle, "Opponent Fragrant Phylactery");
+            AddCombatTag(target, OpponentTamsinPhylacteryTag);
+        }
+
+        private static void ApplyOpponentIllidanWingmen(List<MinionInstance> opponentCombatBoard)
+        {
+            var targets = opponentCombatBoard
+                .Select((card, index) => new { Card = card, Index = index })
+                .Where(item => item.Card != null)
+                .Where(item => item.Index == 0 || item.Index == opponentCombatBoard.Count - 1)
+                .Select(item => item.Card)
+                .Distinct()
+                .ToList();
+            foreach (var target in targets)
+            {
+                BuffCombatMinion(target, 2, 1, "Opponent Wingmen");
+                AddCombatTag(target, "wingmen_immediate_attack_pending");
+            }
+        }
+
+        private static void ApplyOpponentWagtoggleCombatBuffs(List<MinionInstance> opponentCombatBoard, TavernState opponentCombatTavern)
+        {
+            var amount = 2 + Math.Max(0, (opponentCombatTavern?.GoldSpentThisGame ?? 0) / 10);
+            var buffed = new HashSet<string>();
+            foreach (var tribe in opponentCombatBoard
+                         .Where(minion => minion != null)
+                         .SelectMany(minion => minion.Tribes ?? new List<Tribe>())
+                         .Where(tribe => tribe != Tribe.None && tribe != Tribe.All)
+                         .Distinct()
+                         .ToList())
+            {
+                var target = opponentCombatBoard.FirstOrDefault(minion =>
+                    minion != null &&
+                    minion.Tribes != null &&
+                    minion.Tribes.Contains(tribe) &&
+                    !buffed.Contains(minion.InstanceId));
+                if (target == null)
+                {
+                    continue;
+                }
+
+                BuffCombatMinion(target, amount, amount, "Opponent Wax Warband");
+                buffed.Add(target.InstanceId);
+            }
+        }
+
+        private static void SummonOpponentCombatCopy(MinionInstance target, List<MinionInstance> opponentCombatBoard, string source)
+        {
+            if (target == null || opponentCombatBoard.Count >= BoardLimit)
+            {
+                return;
+            }
+
+            var copy = target.Clone();
+            copy.InstanceId = source + "-combat-copy-" + target.InstanceId;
+            copy.Owner = BoardSide.Opponent;
+            copy.PoolSource = PoolSource.Summon;
+            copy.PoolCopiesHeld = 0;
+            opponentCombatBoard.Add(copy);
+        }
+
+        private void ResolveOpponentTeronCombatStart(List<MinionInstance> opponentCombatBoard)
+        {
+            var opponent = EnsureOpponentState();
+            if (opponent.HeroPowerTargetSide != BoardSide.Opponent)
+            {
+                return;
+            }
+
+            var configured = ResolveOpponentConfiguredHeroPowerTarget(State.Opponent.Board, opponent);
+            if (configured == null)
+            {
+                return;
+            }
+
+            var index = opponentCombatBoard.FindIndex(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, configured.InstanceId, StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+            {
+                return;
+            }
+
+            var copy = opponentCombatBoard[index].Clone();
+            copy.InstanceId = copy.InstanceId + "-teron-reanimated";
+            AddCombatTag(copy, OpponentTeronReanimationTag);
+            opponentCombatBoard.RemoveAt(index);
+            opponentCombatBoard.Insert(Math.Min(index, opponentCombatBoard.Count), copy);
+        }
+
+        private static void SummonOpponentOzumatTentacle(List<MinionInstance> opponentCombatBoard, TavernState opponentCombatTavern)
+        {
+            if (opponentCombatBoard.Count >= BoardLimit)
+            {
+                return;
+            }
+
+            var bonus = 0;
+            if (opponentCombatTavern?.HeroEffectCounters != null)
+            {
+                opponentCombatTavern.HeroEffectCounters.TryGetValue("hero:ozumat:tentacle_stats", out bonus);
+            }
+
+            bonus = Math.Max(0, bonus);
+            opponentCombatBoard.Add(new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "opponent-ozumat-tentacle-" + opponentCombatBoard.Count,
+                DefinitionId = OpponentOzumatTentacleCardId,
+                CardId = OpponentOzumatTentacleCardId,
+                Name = "Tentacle",
+                BaseAttack = 2 + bonus,
+                BaseHealth = 2 + bonus,
+                Attack = 2 + bonus,
+                Health = 2 + bonus,
+                MaxHealth = 2 + bonus,
+                TavernTier = 1,
+                Owner = BoardSide.Opponent,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Taunt },
+                OfficialKeywords = new List<Keyword> { Keyword.Taunt },
+                Enchantments = new List<Enchantment>(),
+                Counters = new Dictionary<string, int>(),
+                Tags = new List<string>(),
+                PoolSource = PoolSource.Summon,
+                PoolCopiesHeld = 0,
+                CanAttack = true
+            });
+        }
+
+        private static void BuffCombatMinion(MinionInstance target, int attack, int health, string sourceId)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            StatMath.ApplyStatDelta(target, attack, health);
+            if (target.Enchantments == null)
+            {
+                target.Enchantments = new List<Enchantment>();
+            }
+
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = sourceId,
+                SourceId = sourceId,
+                AttackBonus = attack,
+                HealthBonus = health
+            });
+        }
+
+        private static void AddCombatTag(MinionInstance target, string tag)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(tag))
+            {
+                return;
+            }
+
+            if (target.Tags == null)
+            {
+                target.Tags = new List<string>();
+            }
+
+            if (!target.Tags.Contains(tag))
+            {
+                target.Tags.Add(tag);
+            }
+        }
+
+        private static void AddCombatKeyword(MinionInstance target, Keyword keyword, string sourceId)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (target.Keywords == null)
+            {
+                target.Keywords = new List<Keyword>();
+            }
+
+            if (!target.Keywords.Contains(keyword))
+            {
+                target.Keywords.Add(keyword);
+            }
+
+            if (target.Enchantments == null)
+            {
+                target.Enchantments = new List<Enchantment>();
+            }
+
+            if (target.Enchantments.Any(enchantment =>
+                    string.Equals(enchantment.SourceId, sourceId, StringComparison.OrdinalIgnoreCase) &&
+                    enchantment.AddedKeywords != null &&
+                    enchantment.AddedKeywords.Contains(keyword)))
+            {
+                return;
+            }
+
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = sourceId + ":" + keyword,
+                SourceId = sourceId,
+                AddedKeywords = new List<Keyword> { keyword }
+            });
         }
 
         private bool HasActiveHeroPower(string cardId)
@@ -18956,15 +20513,16 @@ namespace LearnHearthstone.Application.Services
 
         private void NextTurn()
         {
-            NextTurn(true);
+            AssertNoRequiredPlayerChoicePending();
+            NextTurn(true, null);
         }
 
         private void DebugSkipToNextTurn()
         {
-            NextTurn(false);
+            NextTurn(false, null);
         }
 
-        private void NextTurn(bool resolveCombat)
+        private void NextTurn(bool resolveCombat, CombatTestOptions combatOptions)
         {
             var endingRound = State.Round;
             DispatchBoardEvent(MechanicEventType.TurnEnded);
@@ -18990,11 +20548,7 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(RecruitLogType.TurnStart, "Turn " + endingRound + " ended.", tavern.Gold, tavern.Gold);
             if (resolveCombat)
             {
-                RunCombatTest(new CombatTestOptions
-                {
-                    Seed = State.Seed + State.Round,
-                    SafetyLimit = 200
-                });
+                RunCombatTest(CreateNextTurnCombatOptions(combatOptions));
                 AddRecruitLog(RecruitLogType.Play, "Combat resolved before turn " + nextRound + ".", tavern.Gold, tavern.Gold);
             }
 
@@ -19067,6 +20621,16 @@ namespace LearnHearthstone.Application.Services
             HandleTurnStartedForTierThreeMinions();
             HandleTurnStartedForTimewarpedMinions();
             HandleAnomalyTurnStarted();
+        }
+
+        private CombatTestOptions CreateNextTurnCombatOptions(CombatTestOptions options)
+        {
+            return new CombatTestOptions
+            {
+                Seed = options?.Seed > 0 ? options.Seed : State.Seed + State.Round,
+                SafetyLimit = options?.SafetyLimit > 0 ? options.SafetyLimit : 200,
+                ResetBeforeRun = false
+            };
         }
 
         private void ResolveRecruitTurnStartSecrets()
@@ -19918,13 +21482,10 @@ namespace LearnHearthstone.Application.Services
             return updated;
         }
 
-        private void SimulateCombat()
+        private void SimulateCombat(CombatTestOptions options = null)
         {
-            RunCombatTest(new CombatTestOptions
-            {
-                Seed = State.Seed + State.Round,
-                SafetyLimit = 200
-            });
+            AssertNoRequiredPlayerChoicePending();
+            NextTurn(true, options);
         }
 
         private void SaveTestScenario(string scenarioName)
@@ -20000,9 +21561,22 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(RecruitLogType.Play, message, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
-            PrepareTrinketCombatStartEffects(playerCombatBoard);
-            PrepareQuestCombatStartEffects(playerCombatBoard);
-            PrepareTimewarpedCombatStartEffects(playerCombatBoard);
+            var opponentCombatTavern = CreateOpponentCombatTavernState();
+            ApplyOpponentCombatStartHeroPowers(opponentCombatBoard, playerCombatBoard, opponentCombatTavern);
+            foreach (var side in CombatStartSideOrder(nextOptions.Seed))
+            {
+                if (side == BoardSide.Player)
+                {
+                    PrepareTrinketCombatStartEffects(playerCombatBoard);
+                    PrepareQuestCombatStartEffects(playerCombatBoard);
+                    PrepareTimewarpedCombatStartEffects(playerCombatBoard);
+                }
+                else
+                {
+                    PrepareOpponentTrinketCombatStartEffects(opponentCombatBoard, opponentCombatTavern);
+                    PrepareOpponentQuestCombatStartEffects(opponentCombatTavern);
+                }
+            }
 
             CaptureLastPlayerWarband(playerCombatBoard);
             CaptureLastOpponentWarband(opponentCombatBoard);
@@ -20013,9 +21587,9 @@ namespace LearnHearthstone.Application.Services
                 nextOptions.Seed,
                 nextOptions.SafetyLimit,
                 State.Player.Tavern,
-                CreateOpponentCombatTavernState(),
+                opponentCombatTavern,
                 State.Player.Tavern.Hand,
-                State.Opponent.Hand,
+                opponentCombatTavern.Hand,
                 CreateCombatBattlecrySummonPool());
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
@@ -20055,9 +21629,33 @@ namespace LearnHearthstone.Application.Services
             ResetQuestCombatState();
         }
 
+        private static IEnumerable<BoardSide> CombatStartSideOrder(int seed)
+        {
+            var playerFirst = new SeededRng(seed + 7919).NextInt(2) == 0;
+            if (playerFirst)
+            {
+                yield return BoardSide.Player;
+                yield return BoardSide.Opponent;
+            }
+            else
+            {
+                yield return BoardSide.Opponent;
+                yield return BoardSide.Player;
+            }
+        }
+
         private void ResetTrinketCombatState()
         {
-            var tavern = State.Player.Tavern;
+            ResetTrinketCombatState(State.Player.Tavern);
+        }
+
+        private static void ResetTrinketCombatState(TavernState tavern)
+        {
+            if (tavern == null)
+            {
+                return;
+            }
+
             tavern.TrinketBirdFeederAvengeThreshold = 0;
             tavern.TrinketBirdFeederAttack = 0;
             tavern.TrinketBirdFeederHealth = 0;
@@ -20076,6 +21674,8 @@ namespace LearnHearthstone.Application.Services
             tavern.TrinketBristlebachPortraitActive = false;
             tavern.TrinketCombatBeastSummonBonusAttack = 0;
             tavern.TrinketCombatBeastSummonBonusHealth = 0;
+            tavern.TrinketWildfeatherDusterActive = false;
+            tavern.TrinketWildfeatherDusterBeastSummons = 0;
             tavern.TrinketSlammaStickerActive = false;
             tavern.TrinketBassgillPortraitActive = false;
             tavern.TrinketReinforcedShieldUses = 0;
@@ -20348,27 +21948,8 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            foreach (var original in State.Player.Board.Where(minion => minion.CardId == TarecgosaCardId))
-            {
-                var final = result.FinalPlayerBoard.FirstOrDefault(minion => minion.InstanceId == original.InstanceId);
-                if (final == null)
-                {
-                    continue;
-                }
-
-                var multiplier = original.Golden ? 2 : 1;
-                var attackDelta = StatMath.SaturatingMultiply(Math.Max(0, StatMath.SaturatingDelta(final.Attack, original.Attack)), multiplier, 0, StatMath.MaxStat);
-                var healthDelta = StatMath.SaturatingMultiply(Math.Max(0, StatMath.SaturatingDelta(final.MaxHealth, original.MaxHealth)), multiplier, 0, StatMath.MaxStat);
-                if (attackDelta > 0 || healthDelta > 0)
-                {
-                    BuffMinion(original, attackDelta, healthDelta, "Tarecgosa");
-                }
-
-                foreach (var keyword in final.Keywords.Where(keyword => !original.Keywords.Contains(keyword)))
-                {
-                    original.Keywords.Add(keyword);
-                }
-            }
+            PersistTarecgosaMinions(State.Player.Board, result.FinalPlayerBoard);
+            PersistTarecgosaMinions(State.Opponent.Board, result.FinalOpponentBoard);
 
             foreach (var original in State.Player.Board.Where(minion => minion.CardId == TrigoreTheLasherCardId || minion.CardId == DevoutSatyressCardId))
             {
@@ -20377,22 +21958,12 @@ namespace LearnHearthstone.Application.Services
 
             if (State.Player.Tavern.TrinketTarecgosaStickerActive)
             {
-                var edgeDragons = State.Player.Board
-                    .Where(minion => minion.Tribes.Contains(Tribe.Dragon))
-                    .ToList();
-                var persisted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var original in new[] { edgeDragons.FirstOrDefault(), edgeDragons.LastOrDefault() })
-                {
-                    if (original == null || !persisted.Add(original.InstanceId))
-                    {
-                        continue;
-                    }
+                PersistTarecgosaStickerEdgeDragons(State.Player.Board, result.FinalPlayerBoard);
+            }
 
-                    PersistPositiveCombatDelta(
-                        original,
-                        result.FinalPlayerBoard.FirstOrDefault(minion => minion.InstanceId == original.InstanceId),
-                        "Tarecgosa Sticker");
-                }
+            if (HasOpponentEquippedTrinketEffect("tarecgosa_sticker"))
+            {
+                PersistTarecgosaStickerEdgeDragons(State.Opponent.Board, result.FinalOpponentBoard);
             }
 
             var poetPositions = State.Player.Board
@@ -20417,6 +21988,67 @@ namespace LearnHearthstone.Application.Services
                     PersistPositiveCombatDelta(original, result.FinalPlayerBoard.FirstOrDefault(minion => minion.InstanceId == original.InstanceId), "Persistent Poet");
                 }
             }
+        }
+
+        private void PersistTarecgosaMinions(IEnumerable<MinionInstance> originalBoard, IEnumerable<MinionInstance> finalBoard)
+        {
+            var finals = finalBoard?.ToList() ?? new List<MinionInstance>();
+            foreach (var original in (originalBoard ?? Enumerable.Empty<MinionInstance>()).Where(minion => minion.CardId == TarecgosaCardId))
+            {
+                var final = finals.FirstOrDefault(minion => minion.InstanceId == original.InstanceId);
+                if (final == null)
+                {
+                    continue;
+                }
+
+                var multiplier = original.Golden ? 2 : 1;
+                var attackDelta = StatMath.SaturatingMultiply(Math.Max(0, StatMath.SaturatingDelta(final.Attack, original.Attack)), multiplier, 0, StatMath.MaxStat);
+                var healthDelta = StatMath.SaturatingMultiply(Math.Max(0, StatMath.SaturatingDelta(final.MaxHealth, original.MaxHealth)), multiplier, 0, StatMath.MaxStat);
+                if (attackDelta > 0 || healthDelta > 0)
+                {
+                    BuffMinion(original, attackDelta, healthDelta, "Tarecgosa");
+                }
+
+                foreach (var keyword in final.Keywords.Where(keyword => !original.Keywords.Contains(keyword)))
+                {
+                    original.Keywords.Add(keyword);
+                }
+            }
+        }
+
+        private void PersistTarecgosaStickerEdgeDragons(List<MinionInstance> originalBoard, IReadOnlyList<MinionInstance> finalBoard)
+        {
+            if (originalBoard == null)
+            {
+                return;
+            }
+
+            var edgeDragons = originalBoard
+                .Where(minion => minion.Tribes.Contains(Tribe.Dragon))
+                .ToList();
+            var persisted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var original in new[] { edgeDragons.FirstOrDefault(), edgeDragons.LastOrDefault() })
+            {
+                if (original == null || !persisted.Add(original.InstanceId))
+                {
+                    continue;
+                }
+
+                PersistPositiveCombatDelta(
+                    original,
+                    finalBoard?.FirstOrDefault(minion => minion.InstanceId == original.InstanceId),
+                    "Tarecgosa Sticker");
+            }
+        }
+
+        private bool HasOpponentEquippedTrinketEffect(string effectId)
+        {
+            return !string.IsNullOrWhiteSpace(effectId) &&
+                new[]
+                {
+                    GetOpponentTrinketDefinition(TrinketSlotKind.Lesser),
+                    GetOpponentTrinketDefinition(TrinketSlotKind.Greater)
+                }.Any(definition => definition?.EffectIds != null && definition.EffectIds.Contains(effectId));
         }
 
         private void PersistPositiveCombatDelta(MinionInstance original, MinionInstance final, string sourceId)
@@ -20566,7 +22198,11 @@ namespace LearnHearthstone.Application.Services
                         State.Player.Tavern.RefreshBuffHealth += reward.Health;
                         break;
                     case CombatRewardType.AddTavernSpellToHand:
-                        AddTavernSpellToHand(reward.CardId, "combat-" + reward.SourceCardId);
+                        for (var index = 0; index < Math.Max(1, reward.Amount); index += 1)
+                        {
+                            AddTavernSpellToHand(reward.CardId, "combat-" + reward.SourceCardId);
+                        }
+
                         break;
                     case CombatRewardType.AddRandomTavernSpellToHand:
                         AddRandomTavernSpellToHand(State.Player.Tavern.Tier, reward.Amount, "combat-" + reward.SourceCardId);
@@ -20616,11 +22252,49 @@ namespace LearnHearthstone.Application.Services
                         AddShopGrowth(Tribe.All, reward.Amount, reward.Amount, "combat-" + reward.SourceCardId);
                         BuffAllMinions(State.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), reward.Amount, reward.Amount, "combat-" + reward.SourceCardId);
                         break;
+                    case CombatRewardType.ImproveShopStats:
+                        ApplyShopStatsCombatReward(reward);
+                        break;
                     case CombatRewardType.AddRandomTierSixMinionToHand:
                         AddRandomTierMinionsToHand(6, reward.Amount, "combat-" + reward.SourceCardId);
                         break;
                 }
             }
+        }
+
+        private void ApplyShopStatsCombatReward(CombatReward reward)
+        {
+            if (reward == null)
+            {
+                return;
+            }
+
+            var amount = Math.Max(1, reward.Amount);
+            var attack = StatMath.SaturatingMultiply(reward.Attack, amount, 0, StatMath.MaxStat);
+            var health = StatMath.SaturatingMultiply(reward.Health, amount, 0, StatMath.MaxStat);
+            if (attack == 0 && health == 0)
+            {
+                return;
+            }
+
+            var tribe = reward.Tribes == null
+                ? Tribe.All
+                : reward.Tribes.FirstOrDefault(candidate => candidate != Tribe.None);
+            if (tribe == Tribe.None)
+            {
+                tribe = Tribe.All;
+            }
+
+            var sourceId = "combat-" + reward.SourceCardId;
+            AddShopGrowth(tribe, attack, health, sourceId);
+            BuffAllMinions(
+                State.Player.Tavern.Shop.Where(card =>
+                    card != null &&
+                    card.CardKind == CardKind.Minion &&
+                    (tribe == Tribe.All || HasTribe(card, tribe))),
+                attack,
+                health,
+                sourceId);
         }
 
         private void HandleVaelastraszRally(CombatReward reward)
@@ -20835,7 +22509,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var trinkets = EnsureTrinketState(State.Player.Tavern);
-            if (HasEquippedTrinketEffect("wildfeather_duster"))
+            if (HasEquippedTrinketEffect(WildfeatherDusterEffectId))
             {
                 AdvanceTrinketCounterReward(ref trinkets.WildfeatherDusterBeastSummons, reward.Amount, 6, Tribe.Beast, "Wildfeather Duster");
             }

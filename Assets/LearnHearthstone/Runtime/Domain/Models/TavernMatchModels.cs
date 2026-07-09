@@ -28,6 +28,11 @@ namespace LearnHearthstone.Domain.Models
         public AnomalyPoolVersion AnomalyPoolVersion = AnomalyPoolVersion.CurrentHsReplay;
         public List<string> EnabledMinionCardIds = new List<string>();
         public List<string> EnabledTavernSpellCardNumbers = new List<string>();
+        public List<string> EnabledQuestCardIds = new List<string>();
+        public List<string> EnabledQuestRewardCardIds = new List<string>();
+        public List<string> EnabledLesserTrinketCardIds = new List<string>();
+        public List<string> EnabledGreaterTrinketCardIds = new List<string>();
+        public List<string> EnabledAnomalyCardIds = new List<string>();
     }
 
     [Serializable]
@@ -846,6 +851,8 @@ namespace LearnHearthstone.Domain.Models
         public bool TrinketBristlebachPortraitActive;
         public int TrinketCombatBeastSummonBonusAttack;
         public int TrinketCombatBeastSummonBonusHealth;
+        public bool TrinketWildfeatherDusterActive;
+        public int TrinketWildfeatherDusterBeastSummons;
         public bool TrinketSlammaStickerActive;
         public bool TrinketBassgillPortraitActive;
         public int TrinketReinforcedShieldUses;
@@ -1057,12 +1064,19 @@ namespace LearnHearthstone.Domain.Models
     {
         public string Name;
         public string HeroId;
+        public string HeroPowerCardId;
+        public List<string> ExtraHeroPowerCardIds = new List<string>();
+        public BoardSide HeroPowerTargetSide = BoardSide.Player;
+        public int HeroPowerTargetIndex = -1;
+        public string HeroPowerTargetInstanceId;
+        public string HeroPowerElement;
         public int Health;
         public int Armor;
         public int TavernTier;
         public List<MinionInstance> Board = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public SideCombatModifierState CombatModifiers = new SideCombatModifierState();
+        public AdvancedMechanicState AdvancedMechanics = new AdvancedMechanicState();
         public bool Editable;
     }
 
@@ -1104,6 +1118,11 @@ namespace LearnHearthstone.Domain.Models
         public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
         public List<string> EnabledMinionCardIds = new List<string>();
         public List<string> EnabledTavernSpellCardNumbers = new List<string>();
+        public List<string> EnabledQuestCardIds = new List<string>();
+        public List<string> EnabledQuestRewardCardIds = new List<string>();
+        public List<string> EnabledLesserTrinketCardIds = new List<string>();
+        public List<string> EnabledGreaterTrinketCardIds = new List<string>();
+        public List<string> EnabledAnomalyCardIds = new List<string>();
         public LocalPlayerState Player = new LocalPlayerState();
         public LocalOpponentState Opponent = new LocalOpponentState();
         public OpponentHistoryState OpponentHistory = new OpponentHistoryState();

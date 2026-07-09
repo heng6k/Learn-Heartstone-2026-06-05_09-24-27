@@ -144,6 +144,34 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void AnomalySetup_RandomUsesOnlySelectedAnomalyPool()
+        {
+            var selectedPool = new List<string>
+            {
+                "BG31_Anomaly_123",
+                "BG27_Anomaly_711"
+            };
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    EnableAnomalies = true,
+                    RandomizeAnomaly = true,
+                    EnabledAnomalyCardIds = selectedPool
+                });
+
+            var offerableCardIds = service.GetDefaultOfferableAnomalies()
+                .Select(anomaly => anomaly.CardId)
+                .ToList();
+            var anomalies = service.State.Player.Tavern.AdvancedMechanics.Anomalies;
+
+            CollectionAssert.AreEquivalent(selectedPool, offerableCardIds);
+            CollectionAssert.Contains(selectedPool, anomalies.ActiveCardId);
+            CollectionAssert.AreEquivalent(selectedPool, service.State.EnabledAnomalyCardIds);
+        }
+
+        [Test]
         public void AnomalySetup_AllKnownKeepsUnsupportedHistoricalEntriesOutOfDefaultOffers()
         {
             var service = MatchService.CreateWithDefaultCatalog(

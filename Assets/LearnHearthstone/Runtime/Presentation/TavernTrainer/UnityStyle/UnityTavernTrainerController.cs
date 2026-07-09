@@ -7,6 +7,7 @@ using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
@@ -21,9 +22,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private const int BoardLimit = 7;
         private const int HandLimit = 10;
         private const string HeroPowerDragInstanceId = "unity-current-hero-power";
+        private const int CombatStatsSampleCount = 100;
         private static readonly float[] ReplayFrameDurations = { 0.65f, 0.36f, 0.18f };
         private static readonly string[] ReplaySpeedLabels = { "1x", "2x", "4x" };
+        private static readonly int[] CombatMaxStepChoices = { 50, 100, 200, 400, 800 };
         private static readonly Regex RichTextTagPattern = new Regex("<.*?>", RegexOptions.Compiled);
+        private static readonly Regex OptionCountPattern = new Regex(@"(\d+)\s+option", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Tribe[] ToolsAcquisitionTribes =
         {
             Tribe.None,
@@ -74,6 +78,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             GreaterTrinket
         }
 
+        private enum OpponentMechanicLibraryKind
+        {
+            HeroPower,
+            QuestReward,
+            LesserTrinket,
+            GreaterTrinket
+        }
+
         private sealed class AdvancedCardLibraryItem
         {
             public CardKind CardKind;
@@ -99,6 +111,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool cardDetailOpen;
         private bool combatReplayOpen;
         private bool toolsOpen;
+        private bool opponentPanelOpen;
         private bool cardLibraryOpen;
         private bool heroSelectionOpen;
         private string minionEditorInstanceId;
@@ -108,6 +121,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool replayPlaying;
         private float replayPlaybackElapsed;
         private int replaySpeedIndex;
+        private int combatMaxSteps = 200;
+        private bool combatTimelineOpen;
+        private CombatRunStats combatRunStats;
         private CardKind toolsAcquisitionKind = CardKind.Minion;
         private int toolsAcquisitionTierFilter;
         private Tribe toolsAcquisitionTribeFilter = Tribe.All;
@@ -119,6 +135,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool advancedCardLibraryOpen;
         private AdvancedCardLibrarySelectionKind advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.QuestReward;
         private int advancedCardLibraryQuestIndex;
+        private bool opponentMechanicLibraryOpen;
+        private OpponentMechanicLibraryKind opponentMechanicLibraryKind = OpponentMechanicLibraryKind.QuestReward;
         private bool playerDirectedChoiceOpen;
         private PlayerDirectedChoiceKind playerDirectedChoiceKind = PlayerDirectedChoiceKind.QuestPair;
         private TrinketSlotKind playerDirectedTrinketSlotKind = TrinketSlotKind.Lesser;
@@ -127,6 +145,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private int playerDirectedCostFilter;
         private string playerDirectedSlotFilter = string.Empty;
         private string playerDirectedTagFilter = string.Empty;
+        private bool rebuildQueued;
+
+        private sealed class CombatRunStats
+        {
+            public int Samples;
+            public int Wins;
+            public int Draws;
+            public int Losses;
+            public int OverLimits;
+            public int MaxSteps;
+        }
 
         public void Initialize(MatchService matchService, IAdvisorService advisorService, Action backAction, Action legacyAction)
         {
@@ -140,10 +169,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void Update()
         {
             TickReplayPlayback(UnityEngine.Time.unscaledDeltaTime);
+
+            if (rebuildQueued)
+            {
+                rebuildQueued = false;
+                Rebuild();
+            }
         }
 
         public void Rebuild()
         {
+            if (UnityEngine.Application.isPlaying &&
+                (CanvasUpdateRegistry.IsRebuildingLayout() || CanvasUpdateRegistry.IsRebuildingGraphics()))
+            {
+                rebuildQueued = true;
+                return;
+            }
+
+            rebuildQueued = false;
             ClearChildren();
             keywordTooltip = null;
             BuildBackground();
@@ -158,6 +201,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (rightPanelOpen)
             {
                 BuildFloatingRightPanel();
+            }
+
+            if (opponentPanelOpen)
+            {
+                BuildOpponentPanelOverlay();
             }
 
             if (combatReplayOpen)
@@ -183,6 +231,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (advancedCardLibraryOpen)
             {
                 BuildAdvancedCardLibraryOverlay();
+            }
+
+            if (opponentMechanicLibraryOpen)
+            {
+                BuildOpponentMechanicLibraryOverlay();
             }
 
             if (heroSelectionOpen)
@@ -377,8 +430,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             centerLayout.childForceExpandWidth = true;
             centerLayout.childForceExpandHeight = false;
 
-            BuildOpponentBoard(center.transform, layout);
-            BuildOpponentHand(center.transform, layout);
+            BuildOpponentEntry(center.transform, layout);
             BuildShop(center.transform, layout);
             BuildPlayerBoard(center.transform, layout);
             BuildHand(center.transform, layout);
@@ -414,6 +466,764 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             group.childForceExpandHeight = false;
 
             BuildActionButtons(bar.transform, "UnityQuick", true, layout);
+        }
+
+        private void BuildOpponentEntry(Transform parent, UnityTavernLayoutContext layout)
+        {
+            var entry = Panel("UnityOpponentEntryPanel", parent, new Color(0.12f, 0.15f, 0.19f, 0.92f));
+            UnityTavernUiStyle.SetPreferredHeight(entry, OpponentEntryShowsMechanicChips() ? (layout.IsCompact ? 74f : 80f) : (layout.IsCompact ? 48f : 56f));
+            UnityTavernUiStyle.ConfigureOutline(
+                entry,
+                new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.42f),
+                new Vector2(1.5f, -1.5f));
+
+            var row = entry.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(14, 12, 8, 8);
+            row.spacing = 12;
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+
+            var summary = Panel("UnityOpponentEntrySummary", entry.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(summary, 1f, 0f);
+            var stack = summary.AddComponent<VerticalLayoutGroup>();
+            stack.spacing = 1;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = true;
+            stack.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityOpponentEntryTitle", summary.transform, "对手", 14, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+
+            var meta = UiFactory.Label("UnityOpponentEntrySummaryText", summary.transform, OpponentSummaryText(), 11, FontStyle.Bold);
+            meta.color = UnityTavernUiStyle.MutedText;
+            meta.alignment = TextAnchor.MiddleLeft;
+            meta.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(meta.gameObject, 17f);
+
+            BuildOpponentEntryMechanicChips(summary.transform);
+
+            ActionButton(
+                "UnityOpponentEntryButton",
+                entry.transform,
+                "查看对手",
+                OpenOpponentPanel,
+                layout.IsCompact ? 104f : 128f,
+                layout.IsCompact ? 32f : 36f,
+                false,
+                UnityTavernActionButtonRole.Utility);
+        }
+
+        private bool OpponentEntryShowsMechanicChips()
+        {
+            return service.OpponentHeroPowerConfigurationEnabled ||
+                service.OpponentQuestRewardConfigurationEnabled ||
+                service.OpponentTrinketConfigurationEnabled;
+        }
+
+        private void BuildOpponentEntryMechanicChips(Transform parent)
+        {
+            if (!OpponentEntryShowsMechanicChips())
+            {
+                return;
+            }
+
+            var chips = Panel("UnityOpponentEntryMechanicChips", parent, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(chips, 24f);
+            var layout = chips.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 6;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.childControlWidth = false;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            if (service.OpponentHeroPowerConfigurationEnabled)
+            {
+                BuildOpponentEntryChip(
+                    chips.transform,
+                    "UnityOpponentEntryHeroPowerChip",
+                    "技能:" + (OpponentHeroPowerConfigured() ? "已配置" : "未配置"),
+                    OpponentHeroPowerConfigured() ? UnityTavernUiStyle.Green : UnityTavernUiStyle.PanelRaised);
+            }
+
+            if (service.OpponentQuestRewardConfigurationEnabled)
+            {
+                BuildOpponentEntryChip(
+                    chips.transform,
+                    "UnityOpponentEntryQuestRewardChip",
+                    "任务：" + (OpponentQuestRewardConfigured() ? "已配置" : "未配置"),
+                    OpponentQuestRewardConfigured() ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.PanelRaised);
+            }
+
+            if (service.OpponentTrinketConfigurationEnabled)
+            {
+                BuildOpponentEntryChip(
+                    chips.transform,
+                    "UnityOpponentEntryLesserTrinketChip",
+                    "小饰品：" + OpponentTrinketShortStatus(TrinketSlotKind.Lesser),
+                    UnityTavernUiStyle.Gold);
+                BuildOpponentEntryChip(
+                    chips.transform,
+                    "UnityOpponentEntryGreaterTrinketChip",
+                    "大饰品：" + OpponentTrinketShortStatus(TrinketSlotKind.Greater),
+                    UnityTavernUiStyle.Gold);
+            }
+        }
+
+        private static void BuildOpponentEntryChip(Transform parent, string name, string text, Color accent)
+        {
+            var chip = Panel(name, parent, new Color(0.08f, 0.10f, 0.12f, 0.86f));
+            ConfigureInspectorSurface(chip, accent, 0.16f);
+            UnityTavernUiStyle.SetFixedSize(chip, Mathf.Max(86f, text.Length * 9.5f), 22f);
+            var label = UiFactory.Label(name + "Text", chip.transform, text, 10, FontStyle.Bold);
+            label.color = UnityTavernUiStyle.Text;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.Stretch(label.rectTransform);
+            label.rectTransform.offsetMin = new Vector2(5f, 1f);
+            label.rectTransform.offsetMax = new Vector2(-5f, -1f);
+        }
+
+        private string OpponentSummaryText()
+        {
+            var boardCount = service.State.Opponent.Board != null ? service.State.Opponent.Board.Count : 0;
+            var handCount = service.State.Opponent.Hand != null ? service.State.Opponent.Hand.Count : 0;
+            return "战场 " + boardCount + "/7 · 手牌 " + handCount + "/10";
+        }
+
+        private bool OpponentQuestRewardConfigured()
+        {
+            return service.State.Opponent.AdvancedMechanics?.Quests?.MainQuest?.RewardActive == true;
+        }
+
+        private bool OpponentHeroPowerConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(service.State.Opponent.HeroPowerCardId);
+        }
+
+        private bool OpponentTrinketConfigured(TrinketSlotKind slotKind)
+        {
+            var trinkets = service.State.Opponent.AdvancedMechanics?.Trinkets;
+            var trinketId = slotKind == TrinketSlotKind.Greater ? trinkets?.GreaterTrinketId : trinkets?.LesserTrinketId;
+            return !string.IsNullOrWhiteSpace(trinketId);
+        }
+
+        private string OpponentTrinketShortStatus(TrinketSlotKind slotKind)
+        {
+            if (!OpponentTrinketConfigured(slotKind))
+            {
+                return "未配置";
+            }
+
+            return service.State.Round >= OpponentTrinketActiveRound(slotKind) ? "已装备" : "未生效";
+        }
+
+        private string OpponentTrinketName(TrinketSlotKind slotKind, TrinketDefinition definition)
+        {
+            if (definition != null)
+            {
+                return definition.Name;
+            }
+
+            var equipped = service.State.Opponent.AdvancedMechanics?.Trinkets?.Equipped?
+                .FirstOrDefault(item => item != null && item.SlotKind == slotKind);
+            return equipped == null ? "未配置" : equipped.Name;
+        }
+
+        private string OpponentTrinketStatus(TrinketSlotKind slotKind, TrinketDefinition definition)
+        {
+            if (!OpponentTrinketConfigured(slotKind))
+            {
+                return "未配置。用于模拟对手状态，不消耗玩家金币。";
+            }
+
+            var dueRound = OpponentTrinketActiveRound(slotKind);
+            var status = service.State.Round >= dueRound ? "已装备" : "已预设，未生效";
+            if (definition != null && definition.ImplementationStatus != TrinketImplementationStatus.Implemented)
+            {
+                status += " / " + definition.ImplementationStatus;
+            }
+
+            return status + " / 第 " + dueRound + " 回合生效";
+        }
+
+        private static int OpponentTrinketActiveRound(TrinketSlotKind slotKind)
+        {
+            return slotKind == TrinketSlotKind.Greater ? 9 : 6;
+        }
+
+        private void OpenOpponentPanel()
+        {
+            opponentPanelOpen = true;
+            rightPanelOpen = false;
+            toolsOpen = false;
+            cardLibraryOpen = false;
+            heroSelectionOpen = false;
+            advancedCardLibraryOpen = false;
+            Rebuild();
+        }
+
+        private void CloseOpponentPanel()
+        {
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
+            Rebuild();
+        }
+
+        private void OpenOpponentMechanicLibrary(OpponentMechanicLibraryKind kind)
+        {
+            opponentMechanicLibraryKind = kind;
+            opponentMechanicLibraryOpen = true;
+            cardLibraryOpen = false;
+            advancedCardLibraryOpen = false;
+            toolsOpen = false;
+            heroSelectionOpen = false;
+            Rebuild();
+        }
+
+        private void DismissOpponentMechanicLibrary()
+        {
+            opponentMechanicLibraryOpen = false;
+            Rebuild();
+        }
+
+        private void BuildOpponentPanelOverlay()
+        {
+            var overlay = Panel("UnityOpponentPanelOverlay", transform, new Color(0f, 0f, 0f, 0.56f));
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
+            overlay.transform.SetAsLastSibling();
+
+            var layoutContext = UnityTavernLayoutContext.Current();
+            var panel = Panel("UnityOpponentPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = layoutContext.IsCompact ? new Vector2(0.03f, 0.08f) : new Vector2(0.08f, 0.12f);
+            rect.anchorMax = layoutContext.IsCompact ? new Vector2(0.97f, 0.92f) : new Vector2(0.92f, 0.88f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            UnityTavernUiStyle.ConfigureOutline(
+                panel,
+                new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.36f),
+                new Vector2(2f, -2f));
+            var shadow = UnityTavernUiStyle.EnsureComponent<Shadow>(panel);
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
+            shadow.effectDistance = new Vector2(6f, -6f);
+            shadow.useGraphicAlpha = true;
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(16, 16, 14, 16);
+            panelLayout.spacing = 10;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var header = Panel("UnityOpponentPanelHeader", panel.transform, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.SetPreferredHeight(header, 44f);
+            var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
+            headerLayout.padding = new RectOffset(12, 8, 6, 6);
+            headerLayout.spacing = 10;
+            headerLayout.childAlignment = TextAnchor.MiddleCenter;
+            headerLayout.childControlWidth = true;
+            headerLayout.childControlHeight = true;
+            headerLayout.childForceExpandWidth = false;
+            headerLayout.childForceExpandHeight = true;
+
+            var titleStack = Panel("UnityOpponentPanelTitleStack", header.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(titleStack, 1f, 0f);
+            var titleLayout = titleStack.AddComponent<VerticalLayoutGroup>();
+            titleLayout.spacing = 0;
+            titleLayout.childControlWidth = true;
+            titleLayout.childControlHeight = true;
+            titleLayout.childForceExpandWidth = true;
+            titleLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityOpponentPanelTitle", titleStack.transform, "对手详情", 15, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 22f);
+
+            var summary = UiFactory.Label("UnityOpponentPanelSummary", titleStack.transform, OpponentSummaryText(), 11, FontStyle.Bold);
+            summary.color = UnityTavernUiStyle.MutedText;
+            summary.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, 16f);
+
+            ActionButton(
+                "UnityOpponentPanelCloseButton",
+                header.transform,
+                "关闭",
+                CloseOpponentPanel,
+                82f,
+                32f,
+                false,
+                UnityTavernActionButtonRole.Utility);
+
+            var body = Panel("UnityOpponentPanelBody", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(body, 1f, 1f);
+            var bodyLayout = body.AddComponent<VerticalLayoutGroup>();
+            bodyLayout.spacing = layoutContext.ZoneStackSpacing;
+            bodyLayout.childControlWidth = true;
+            bodyLayout.childControlHeight = true;
+            bodyLayout.childForceExpandWidth = true;
+            bodyLayout.childForceExpandHeight = false;
+
+            BuildOpponentMechanicSection(body.transform, layoutContext);
+            BuildOpponentBoard(body.transform, layoutContext);
+            BuildOpponentHand(body.transform, layoutContext);
+        }
+
+        private void BuildOpponentMechanicSection(Transform parent, UnityTavernLayoutContext layoutContext)
+        {
+            if (!service.OpponentHeroPowerConfigurationEnabled &&
+                !service.OpponentQuestRewardConfigurationEnabled &&
+                !service.OpponentTrinketConfigurationEnabled)
+            {
+                return;
+            }
+
+            var section = Panel("UnityOpponentMechanicSection", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(section, UnityTavernUiStyle.Gold, 0.18f);
+            UnityTavernUiStyle.SetPreferredHeight(section, OpponentMechanicSectionHeight(layoutContext));
+            var layout = section.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 9, 10);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityOpponentMechanicTitle", section.transform, "对手机制", 13, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 22f);
+
+            if (service.OpponentHeroPowerConfigurationEnabled)
+            {
+                BuildOpponentHeroPowerSection(section.transform);
+            }
+
+            if (service.OpponentQuestRewardConfigurationEnabled)
+            {
+                BuildOpponentQuestRewardSection(section.transform);
+            }
+
+            if (service.OpponentTrinketConfigurationEnabled)
+            {
+                BuildOpponentTrinketSection(section.transform);
+            }
+        }
+
+        private float OpponentMechanicSectionHeight(UnityTavernLayoutContext layoutContext)
+        {
+            var height = 44f;
+            if (service.OpponentHeroPowerConfigurationEnabled)
+            {
+                height += OpponentHeroPowerSectionHeight(layoutContext);
+            }
+
+            if (service.OpponentQuestRewardConfigurationEnabled)
+            {
+                height += layoutContext.IsCompact ? 78f : 86f;
+            }
+
+            if (service.OpponentTrinketConfigurationEnabled)
+            {
+                height += layoutContext.IsCompact ? 130f : 146f;
+            }
+
+            return height;
+        }
+
+        private float OpponentHeroPowerSectionHeight(UnityTavernLayoutContext layoutContext)
+        {
+            if (!OpponentHeroPowerConfigured())
+            {
+                return 112f;
+            }
+
+            return layoutContext.IsCompact ? 176f : 188f;
+        }
+
+        private void BuildOpponentHeroPowerSection(Transform parent)
+        {
+            var power = service.GetOpponentHeroPowerDefinition();
+            var configured = power != null && OpponentHeroPowerConfigured();
+            var section = Panel("UnityOpponentHeroPowerSection", parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(section, UnityTavernUiStyle.Green, configured ? 0.22f : 0.12f);
+            UnityTavernUiStyle.SetPreferredHeight(section, OpponentHeroPowerSectionHeight(UnityTavernLayoutContext.Current()));
+            var sectionLayout = section.AddComponent<VerticalLayoutGroup>();
+            sectionLayout.padding = new RectOffset(8, 8, 6, 6);
+            sectionLayout.spacing = 6;
+            sectionLayout.childControlWidth = true;
+            sectionLayout.childControlHeight = true;
+            sectionLayout.childForceExpandWidth = true;
+            sectionLayout.childForceExpandHeight = false;
+
+            var row = Panel("UnityOpponentHeroPowerMainRow", section.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(row, 62f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var details = Panel("UnityOpponentHeroPowerDetails", row.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(details, 1f, 0f);
+            var detailsLayout = details.AddComponent<VerticalLayoutGroup>();
+            detailsLayout.spacing = 3;
+            detailsLayout.childControlWidth = true;
+            detailsLayout.childControlHeight = true;
+            detailsLayout.childForceExpandWidth = true;
+            detailsLayout.childForceExpandHeight = false;
+
+            var name = UiFactory.Label("UnityOpponentHeroPowerName", details.transform, configured ? power.Name : "未配置", 12, FontStyle.Bold);
+            name.color = configured ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
+            name.alignment = TextAnchor.MiddleLeft;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 22f);
+
+            var text = UiFactory.Label(
+                "UnityOpponentHeroPowerText",
+                details.transform,
+                configured ? CleanCardText(power.Text) : "用于模拟对手战斗触发技能，不占用玩家选择流程。",
+                10,
+                FontStyle.Normal);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.UpperLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 32f);
+
+            var select = ActionButton(
+                "UnityOpponentHeroPowerSelectButton",
+                row.transform,
+                configured ? "更换" : "选择",
+                () => OpenOpponentMechanicLibrary(OpponentMechanicLibraryKind.HeroPower),
+                72f,
+                32f,
+                false,
+                UnityTavernActionButtonRole.Primary);
+            UnityTavernUiStyle.SetPreferredHeight(select.gameObject, 32f);
+
+            var clear = ActionButton(
+                "UnityOpponentHeroPowerClearButton",
+                row.transform,
+                "清除",
+                () => Apply(new GameCommand(GameCommandType.ClearOpponentHeroPower)),
+                72f,
+                32f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured);
+            UnityTavernUiStyle.SetPreferredHeight(clear.gameObject, 32f);
+
+            BuildOpponentHeroPowerTargetRow(section.transform, configured);
+            if (configured)
+            {
+                BuildOpponentHeroPowerTargetPickerRow(section.transform, BoardSide.Player);
+                BuildOpponentHeroPowerTargetPickerRow(section.transform, BoardSide.Opponent);
+            }
+        }
+
+        private void BuildOpponentHeroPowerTargetRow(Transform parent, bool configured)
+        {
+            var row = Panel("UnityOpponentHeroPowerTargetRow", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, UnityTavernUiStyle.Green, configured ? 0.12f : 0.06f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 34f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 4, 4);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var label = UiFactory.Label("UnityOpponentHeroPowerTargetText", row.transform, OpponentHeroPowerTargetText(), 10, FontStyle.Bold);
+            label.color = UnityTavernUiStyle.MutedText;
+            label.alignment = TextAnchor.MiddleLeft;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFlexible(label.gameObject, 1f, 0f);
+
+            ActionButton(
+                "UnityOpponentHeroPowerTargetPlayerLeftButton",
+                row.transform,
+                "玩家最左",
+                () => Apply(new GameCommand(GameCommandType.SetOpponentHeroPowerTarget, BoardSide.Player, 0)),
+                78f,
+                26f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured && service.State.Player.Board.Count > 0);
+
+            ActionButton(
+                "UnityOpponentHeroPowerTargetOpponentLeftButton",
+                row.transform,
+                "对手最左",
+                () => Apply(new GameCommand(GameCommandType.SetOpponentHeroPowerTarget, BoardSide.Opponent, 0)),
+                78f,
+                26f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured && service.State.Opponent.Board.Count > 0);
+
+            ActionButton(
+                "UnityOpponentHeroPowerTargetClearButton",
+                row.transform,
+                "清目标",
+                () => Apply(new GameCommand(GameCommandType.ClearOpponentHeroPowerTarget)),
+                68f,
+                26f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured && service.State.Opponent.HeroPowerTargetIndex >= 0);
+        }
+
+        private void BuildOpponentHeroPowerTargetPickerRow(Transform parent, BoardSide targetSide)
+        {
+            var board = targetSide == BoardSide.Opponent ? service.State.Opponent.Board : service.State.Player.Board;
+            var rowName = targetSide == BoardSide.Opponent
+                ? "UnityOpponentHeroPowerTargetOpponentBoardRow"
+                : "UnityOpponentHeroPowerTargetPlayerBoardRow";
+            var row = Panel(rowName, parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, UnityTavernUiStyle.Green, 0.10f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 28f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 2, 2);
+            layout.spacing = 5;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var label = UiFactory.Label(rowName + "Label", row.transform, targetSide == BoardSide.Opponent ? "对手目标" : "玩家目标", 10, FontStyle.Bold);
+            label.color = UnityTavernUiStyle.MutedText;
+            label.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetFixedSize(label.gameObject, 62f, 24f);
+
+            if (board.Count == 0)
+            {
+                var empty = UiFactory.Label(rowName + "Empty", row.transform, "无随从", 10, FontStyle.Normal);
+                empty.color = UnityTavernUiStyle.MutedText;
+                empty.alignment = TextAnchor.MiddleLeft;
+                UnityTavernUiStyle.SetFlexible(empty.gameObject, 1f, 0f);
+                return;
+            }
+
+            for (var index = 0; index < board.Count; index += 1)
+            {
+                var capturedIndex = index;
+                var minion = board[index];
+                var selected = IsOpponentHeroPowerTarget(targetSide, index, minion);
+                ActionButton(
+                    "UnityOpponentHeroPowerTargetButton-" + targetSide + "-" + index,
+                    row.transform,
+                    (index + 1).ToString(),
+                    () => Apply(new GameCommand(GameCommandType.SetOpponentHeroPowerTarget, targetSide, capturedIndex)),
+                    34f,
+                    24f,
+                    false,
+                    selected ? UnityTavernActionButtonRole.Primary : UnityTavernActionButtonRole.Utility);
+            }
+        }
+
+        private bool IsOpponentHeroPowerTarget(BoardSide targetSide, int targetIndex, MinionInstance minion)
+        {
+            var opponent = service.State.Opponent;
+            if (opponent == null || opponent.HeroPowerTargetSide != targetSide || opponent.HeroPowerTargetIndex < 0)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(opponent.HeroPowerTargetInstanceId) && minion != null)
+            {
+                return string.Equals(opponent.HeroPowerTargetInstanceId, minion.InstanceId, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return opponent.HeroPowerTargetIndex == targetIndex;
+        }
+
+        private string OpponentHeroPowerTargetText()
+        {
+            var opponent = service.State.Opponent;
+            if (opponent == null || opponent.HeroPowerTargetIndex < 0)
+            {
+                return "目标: 未设置";
+            }
+
+            var board = opponent.HeroPowerTargetSide == BoardSide.Opponent
+                ? service.State.Opponent.Board
+                : service.State.Player.Board;
+            var sideLabel = opponent.HeroPowerTargetSide == BoardSide.Opponent ? "对手战场" : "玩家战场";
+            var target = !string.IsNullOrEmpty(opponent.HeroPowerTargetInstanceId)
+                ? board.FirstOrDefault(minion => string.Equals(minion.InstanceId, opponent.HeroPowerTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+                : null;
+            if (target == null && opponent.HeroPowerTargetIndex >= 0 && opponent.HeroPowerTargetIndex < board.Count)
+            {
+                target = board[opponent.HeroPowerTargetIndex];
+            }
+
+            return "目标: " + sideLabel + " " + (target?.Name ?? "#" + opponent.HeroPowerTargetIndex);
+        }
+
+        private void BuildOpponentQuestRewardSection(Transform parent)
+        {
+            var reward = service.GetOpponentQuestRewardDefinition();
+            var active = service.State.Opponent.AdvancedMechanics?.Quests?.MainQuest;
+            var configured = active?.RewardActive == true;
+            var row = Panel("UnityOpponentQuestRewardSection", parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(row, UnityTavernUiStyle.Blue, configured ? 0.22f : 0.12f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 76f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 6);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var details = Panel("UnityOpponentQuestRewardDetails", row.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(details, 1f, 0f);
+            var detailsLayout = details.AddComponent<VerticalLayoutGroup>();
+            detailsLayout.spacing = 3;
+            detailsLayout.childControlWidth = true;
+            detailsLayout.childControlHeight = true;
+            detailsLayout.childForceExpandWidth = true;
+            detailsLayout.childForceExpandHeight = false;
+
+            var name = UiFactory.Label("UnityOpponentQuestRewardName", details.transform, configured ? active.RewardName : "未配置", 12, FontStyle.Bold);
+            name.color = configured ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
+            name.alignment = TextAnchor.MiddleLeft;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 22f);
+
+            var text = UiFactory.Label(
+                "UnityOpponentQuestRewardText",
+                details.transform,
+                configured ? CleanCardText(reward?.Text ?? active.RewardText) : "对手战斗模拟用任务奖励，不会占用玩家选择流程。",
+                10,
+                FontStyle.Normal);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.UpperLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 32f);
+
+            var select = ActionButton(
+                "UnityOpponentQuestRewardSelectButton",
+                row.transform,
+                configured ? "更换" : "选择",
+                () => OpenOpponentMechanicLibrary(OpponentMechanicLibraryKind.QuestReward),
+                72f,
+                32f,
+                false,
+                UnityTavernActionButtonRole.Primary);
+            UnityTavernUiStyle.SetPreferredHeight(select.gameObject, 32f);
+
+            var clear = ActionButton(
+                "UnityOpponentQuestRewardClearButton",
+                row.transform,
+                "清除",
+                () => Apply(new GameCommand(GameCommandType.ClearOpponentQuestReward)),
+                72f,
+                32f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured);
+            UnityTavernUiStyle.SetPreferredHeight(clear.gameObject, 32f);
+        }
+
+        private void BuildOpponentTrinketSection(Transform parent)
+        {
+            var section = Panel("UnityOpponentTrinketSection", parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(section, UnityTavernUiStyle.Gold, 0.16f);
+            UnityTavernUiStyle.SetPreferredHeight(section, 132f);
+            var layout = section.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 8);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityOpponentTrinketTitle", section.transform, "对手饰品", 12, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+
+            BuildOpponentTrinketSlot(section.transform, TrinketSlotKind.Lesser);
+            BuildOpponentTrinketSlot(section.transform, TrinketSlotKind.Greater);
+        }
+
+        private void BuildOpponentTrinketSlot(Transform parent, TrinketSlotKind slotKind)
+        {
+            var configured = OpponentTrinketConfigured(slotKind);
+            var definition = service.GetOpponentTrinketDefinition(slotKind);
+            var suffix = slotKind == TrinketSlotKind.Greater ? "Greater" : "Lesser";
+            var row = Panel("UnityOpponentTrinketSlot-" + suffix, parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureInspectorSurface(row, UnityTavernUiStyle.Gold, configured ? 0.20f : 0.10f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 46f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 4, 4);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var details = Panel("UnityOpponentTrinketDetails-" + suffix, row.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(details, 1f, 0f);
+            var detailsLayout = details.AddComponent<VerticalLayoutGroup>();
+            detailsLayout.spacing = 1;
+            detailsLayout.childControlWidth = true;
+            detailsLayout.childControlHeight = true;
+            detailsLayout.childForceExpandWidth = true;
+            detailsLayout.childForceExpandHeight = false;
+
+            var name = UiFactory.Label("UnityOpponentTrinketName-" + suffix, details.transform, OpponentTrinketName(slotKind, definition), 11, FontStyle.Bold);
+            name.color = configured ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
+            name.alignment = TextAnchor.MiddleLeft;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 20f);
+
+            var status = UiFactory.Label("UnityOpponentTrinketStatus-" + suffix, details.transform, OpponentTrinketStatus(slotKind, definition), 10, FontStyle.Normal);
+            status.color = UnityTavernUiStyle.MutedText;
+            status.alignment = TextAnchor.MiddleLeft;
+            status.horizontalOverflow = HorizontalWrapMode.Wrap;
+            status.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 17f);
+
+            ActionButton(
+                "UnityOpponentTrinketSelectButton-" + suffix,
+                row.transform,
+                configured ? "更换" : "选择",
+                () => OpenOpponentMechanicLibrary(slotKind == TrinketSlotKind.Greater ? OpponentMechanicLibraryKind.GreaterTrinket : OpponentMechanicLibraryKind.LesserTrinket),
+                72f,
+                30f,
+                false,
+                UnityTavernActionButtonRole.Primary);
+
+            ActionButton(
+                "UnityOpponentTrinketClearButton-" + suffix,
+                row.transform,
+                "清除",
+                () => Apply(new GameCommand(GameCommandType.ClearOpponentTrinket, slotKind == TrinketSlotKind.Greater ? 1 : 0)),
+                72f,
+                30f,
+                false,
+                UnityTavernActionButtonRole.Utility,
+                configured);
         }
 
         private void BuildOpponentBoard(Transform parent, UnityTavernLayoutContext layout)
@@ -698,8 +1508,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton(namePrefix + "RefreshButton", parent, RefreshActionLabel(), () => Apply(new GameCommand(GameCommandType.RerollShop)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanRefreshShop());
             ActionButton(namePrefix + "FreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy);
             ActionButton(namePrefix + "UpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
-            ActionButton(namePrefix + "NextTurnButton", parent, "完整下回合", () => Apply(new GameCommand(GameCommandType.NextTurn)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Primary);
-            ActionButton(namePrefix + "CombatButton", parent, "开战", () => ApplyAndOpenReplay(new GameCommand(GameCommandType.SimulateCombat)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Combat);
+            ActionButton(namePrefix + "NextTurnButton", parent, "完整下一回合", () => ApplyAndOpenReplay(new GameCommand(GameCommandType.NextTurn)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Primary);
             ActionButton(namePrefix + "ReplayButton", parent, ReplayActionLabel(), OpenCombatReplay, minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Utility, HasCombatReplay());
             ActionButton(namePrefix + "ToolsButton", parent, "工具", OpenTools, minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Utility);
         }
@@ -1032,7 +1841,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return "手牌 " + Math.Max(0, card.Cost) + "费";
             }
 
-            return "攻 " + card.Attack + " / 血 " + card.Health;
+            return "攻 " + TavernNumberFormatter.FullNumber(card.Attack) + " / 血 " + TavernNumberFormatter.FullNumber(card.Health);
         }
 
         private void OpenCardDetail()
@@ -1064,6 +1873,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OpenCombatReplay()
         {
             combatReplayOpen = true;
+            combatTimelineOpen = false;
             replayPlaying = false;
             replayPlaybackElapsed = 0f;
             Rebuild();
@@ -1073,6 +1883,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             combatReplayOpen = false;
             replayPlaying = false;
+            combatTimelineOpen = false;
             replayPlaybackElapsed = 0f;
             Rebuild();
         }
@@ -1166,12 +1977,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panel.GetComponent<UnityTavernCombatReplayPanelComponent>().Build(
                 service.State.LastReplay,
                 activeReplayFrameIndex,
-                replayPlaying,
-                ReplaySpeedLabels[Mathf.Clamp(replaySpeedIndex, 0, ReplaySpeedLabels.Length - 1)],
-                SetReplayFrameIndex,
-                ToggleReplayPlayback,
-                CycleReplaySpeed,
-                CloseCombatReplay);
+                new UnityCombatReplayPanelOptions
+                {
+                    ReplayPlaying = replayPlaying,
+                    SpeedLabel = ReplaySpeedLabels[Mathf.Clamp(replaySpeedIndex, 0, ReplaySpeedLabels.Length - 1)],
+                    MaxSteps = combatMaxSteps,
+                    StatsText = CombatStatsText(),
+                    StatsMetaText = CombatStatsMetaText(),
+                    TimelineOpen = combatTimelineOpen,
+                    SetFrame = SetReplayFrameIndex,
+                    TogglePlayback = ToggleReplayPlayback,
+                    CycleSpeed = CycleReplaySpeed,
+                    ToggleTimeline = ToggleCombatTimeline,
+                    DecreaseMaxSteps = () => AdjustCombatMaxSteps(-1),
+                    IncreaseMaxSteps = () => AdjustCombatMaxSteps(1),
+                    RunStatistics = RunCombatStatistics,
+                    Close = CloseCombatReplay
+                });
         }
 
         private void ClampReplayFrameIndex()
@@ -1187,9 +2009,138 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             activeReplayFrameIndex = Mathf.Clamp(activeReplayFrameIndex, 0, replay.Frames.Count - 1);
         }
 
+        private CombatTestOptions CurrentCombatOptions(bool resetBeforeRun = false, int seed = 0)
+        {
+            return new CombatTestOptions
+            {
+                Seed = seed == 0 ? DefaultCombatSeed() : seed,
+                ResetBeforeRun = resetBeforeRun,
+                SafetyLimit = Mathf.Max(1, combatMaxSteps)
+            };
+        }
+
+        private void ToggleCombatTimeline()
+        {
+            combatTimelineOpen = !combatTimelineOpen;
+            Rebuild();
+        }
+
+        private void AdjustCombatMaxSteps(int direction)
+        {
+            var index = Array.IndexOf(CombatMaxStepChoices, combatMaxSteps);
+            if (index < 0)
+            {
+                index = Array.FindIndex(CombatMaxStepChoices, value => value >= combatMaxSteps);
+                if (index < 0)
+                {
+                    index = CombatMaxStepChoices.Length - 1;
+                }
+            }
+
+            index = Mathf.Clamp(index + Math.Sign(direction), 0, CombatMaxStepChoices.Length - 1);
+            combatMaxSteps = CombatMaxStepChoices[index];
+            combatRunStats = null;
+            Rebuild();
+        }
+
+        private void RunCombatStatistics()
+        {
+            try
+            {
+                lastError = null;
+                var stats = new CombatRunStats
+                {
+                    Samples = CombatStatsSampleCount,
+                    MaxSteps = Mathf.Max(1, combatMaxSteps)
+                };
+
+                var hasExistingSnapshot = service.LastCombatTestSnapshot?.BeforeCombat != null;
+                for (var sample = 0; sample < CombatStatsSampleCount; sample += 1)
+                {
+                    var options = CurrentCombatOptions(hasExistingSnapshot || sample > 0, DefaultCombatSeed() + sample);
+                    service.Apply(new GameCommand(GameCommandType.RunCombatTest, options));
+                    AccumulateCombatStats(stats, service.State.LastResult);
+                    hasExistingSnapshot = true;
+                }
+
+                combatRunStats = stats;
+                combatReplayOpen = service.State.LastReplay != null;
+                toolsOpen = false;
+                cardDetailOpen = false;
+                activeReplayFrameIndex = 0;
+                replayPlaying = false;
+                replayPlaybackElapsed = 0f;
+                lastFeedback = "\u5df2\u7edf\u8ba1" + CombatStatsSampleCount + "\u573a\u6218\u6597";
+            }
+            catch (Exception ex)
+            {
+                lastError = ex.Message;
+                replayPlaying = false;
+            }
+
+            Rebuild();
+        }
+
+        private static void AccumulateCombatStats(CombatRunStats stats, CombatOutput result)
+        {
+            if (stats == null || result == null)
+            {
+                return;
+            }
+
+            if (result.SafetyStopped)
+            {
+                stats.OverLimits += 1;
+                return;
+            }
+
+            if (result.Winner == CombatWinner.Player)
+            {
+                stats.Wins += 1;
+            }
+            else if (result.Winner == CombatWinner.Draw)
+            {
+                stats.Draws += 1;
+            }
+            else
+            {
+                stats.Losses += 1;
+            }
+        }
+
+        private string CombatStatsText()
+        {
+            if (combatRunStats == null || combatRunStats.Samples <= 0)
+            {
+                return null;
+            }
+
+            return "\u80dc " + Percent(combatRunStats.Wins, combatRunStats.Samples)
+                + "  \u5e73 " + Percent(combatRunStats.Draws, combatRunStats.Samples)
+                + "  \u8d1f " + Percent(combatRunStats.Losses, combatRunStats.Samples)
+                + "  \u8d85\u9650 " + Percent(combatRunStats.OverLimits, combatRunStats.Samples);
+        }
+
+        private string CombatStatsMetaText()
+        {
+            if (combatRunStats == null || combatRunStats.Samples <= 0)
+            {
+                return null;
+            }
+
+            return "\u6837\u672c " + combatRunStats.Samples + " / \u6700\u5927\u8f6e\u6b21 " + combatRunStats.MaxSteps;
+        }
+
+        private static string Percent(int count, int total)
+        {
+            return total <= 0 ? "0%" : Mathf.RoundToInt(count * 100f / total) + "%";
+        }
+
         private void OpenTools()
         {
             toolsOpen = true;
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = false;
             heroSelectionOpen = false;
             Rebuild();
@@ -1204,6 +2155,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OpenHeroSelection()
         {
             heroSelectionOpen = true;
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = false;
             toolsOpen = false;
             Rebuild();
@@ -1218,6 +2171,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OpenCardLibrary()
         {
             toolsOpen = false;
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = true;
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.PlayerHand;
@@ -1227,6 +2182,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OpenOpponentCardLibrary()
         {
             toolsOpen = false;
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = true;
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentBoard;
@@ -1237,6 +2194,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OpenOpponentHandCardLibrary()
         {
             toolsOpen = false;
+            opponentPanelOpen = false;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = true;
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentHand;
@@ -1321,6 +2280,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ToolButton("UnityToolsOpenCardLibraryButton", grid, "打开卡牌库", true, OpenCardLibrary);
             });
 
+            BuildToolsSection(parent, "UnityToolsTrinketDebugSection", "饰品调试", 1, grid =>
+            {
+                ToolButton(
+                    "UnityToolsReplaceLesserTrinketButton",
+                    grid,
+                    "替换小饰品",
+                    service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser).Count > 0,
+                    () => OpenTrinketLibrary(TrinketSlotKind.Lesser));
+                ToolButton(
+                    "UnityToolsReplaceGreaterTrinketButton",
+                    grid,
+                    "替换大饰品",
+                    service.GetDebugSelectableTrinkets(TrinketSlotKind.Greater).Count > 0,
+                    () => OpenTrinketLibrary(TrinketSlotKind.Greater));
+            });
+
             BuildToolsSection(parent, "UnityToolsOpponentSection", "对手", 6, grid =>
             {
                 ToolButton("UnityToolsAddOpponentButton", grid, "加对手", true, OpenOpponentCardLibrary);
@@ -1350,8 +2325,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             BuildToolsSection(parent, "UnityToolsCombatSection", "战斗测试", 5, grid =>
             {
-                ToolButton("UnityToolsRunCombatTestButton", grid, "运行测试", true, () => ApplyAndOpenReplay(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
-                ToolButton("UnityToolsSkipCombatNextTurnButton", grid, "跳过战斗下回合", true, () => Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn)));
+                ToolButton("UnityToolsRunCombatTestButton", grid, "仅战斗调试", true, () => ApplyAndOpenReplay(new GameCommand(GameCommandType.RunCombatTest, CurrentCombatOptions())));
+                ToolButton("UnityToolsSkipCombatNextTurnButton", grid, "跳过战斗进下回合", true, () => Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn)));
                 ToolButton("UnityToolsResetCombatSnapshotButton", grid, "重置快照", service.HasCombatTestSnapshot, () => Apply(new GameCommand(GameCommandType.ResetCombatTestSnapshot)));
                 ToolButton("UnityToolsSaveScenarioButton", grid, "保存场景", true, () => Apply(new GameCommand(GameCommandType.SaveTestScenario, DefaultScenarioName(), new CombatTestOptions())));
                 ToolButton("UnityToolsLoadScenarioButton", grid, "加载场景", service.TestScenarioNames.Count > 0, LoadFirstScenario);
@@ -1468,6 +2443,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildSideModifierTools(Transform parent, BoardSide side, string sectionName, string title)
         {
+            if (side == BoardSide.Player)
+            {
+                BuildPlayerUndeadAttackStatusCard(parent);
+            }
+
             BuildToolsSection(parent, sectionName, title, 10, grid =>
             {
                 SideModifierStepper(grid, side, SideCombatModifierKind.SpellsCastThisGame, "法术");
@@ -1481,6 +2461,51 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SideModifierStepper(grid, side, SideCombatModifierKind.AstralAutomatonSummons, "星元机");
                 SideModifierStepper(grid, side, SideCombatModifierKind.FriendlyMinionDeathsThisGame, "复仇死");
             });
+        }
+
+        private void BuildPlayerUndeadAttackStatusCard(Transform parent)
+        {
+            var card = Panel("UnityToolsPlayerUndeadAttackStatusCard", parent, UnityTavernUiStyle.PanelQuiet);
+            ConfigureToolsSurface(card, UnityTavernUiStyle.Gold, 0.30f);
+            UnityTavernUiStyle.SetPreferredHeight(card, 126f);
+
+            var layout = card.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(12, 12, 10, 10);
+            layout.spacing = 4;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var value = service.State.Player.Tavern == null ? 0 : Math.Max(0, service.State.Player.Tavern.UndeadAttackBonus);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusValue", "亡灵攻击加成：+" + value, 14, FontStyle.Bold, UnityTavernUiStyle.Gold);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusSource", "来源：永久全局 State.Player.Tavern.UndeadAttackBonus", 12, FontStyle.Normal, UnityTavernUiStyle.Text);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusRecent", RecentUndeadAttackRewardText(), 12, FontStyle.Normal, UnityTavernUiStyle.Text);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusImpact", "影响：后续亡灵/酒馆成长", 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusManual", "手动修改只改全局，不会重算已有永久牌", 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
+        }
+
+        private string RecentUndeadAttackRewardText()
+        {
+            var rewards = service.State.LastReplay?.PlayerRewards;
+            var amount = rewards == null
+                ? 0
+                : rewards
+                    .Where(reward => reward != null && reward.Type == CombatRewardType.ImproveUndeadAttack)
+                    .Sum(reward => Math.Max(0, reward.Amount));
+            return amount > 0
+                ? "最近变化：战斗奖励 ImproveUndeadAttack +" + amount
+                : "最近变化：无";
+        }
+
+        private static void AddStatusCardLine(Transform parent, string name, string text, int size, FontStyle style, Color color)
+        {
+            var label = UiFactory.Label(name, parent, text, size, style);
+            label.color = color;
+            label.alignment = TextAnchor.MiddleLeft;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(label.gameObject, style == FontStyle.Bold ? 20f : 17f);
         }
 
         private void SideModifierStepper(Transform grid, BoardSide side, SideCombatModifierKind kind, string label)
@@ -1503,6 +2528,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private int SideModifierValue(BoardSide side, SideCombatModifierKind kind)
         {
+            if (side == BoardSide.Player && kind == SideCombatModifierKind.UndeadAttackBonus)
+            {
+                return service.State.Player.Tavern == null
+                    ? 0
+                    : Math.Max(0, service.State.Player.Tavern.UndeadAttackBonus);
+            }
+
             var modifiers = side == BoardSide.Player
                 ? service.State.Player.CombatModifiers
                 : service.State.Opponent.CombatModifiers;
@@ -2219,6 +3251,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             advancedCardLibraryKind = AdvancedCardLibrarySelectionKind.QuestReward;
             advancedCardLibraryQuestIndex = questIndex;
             advancedCardLibraryOpen = true;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = false;
             toolsOpen = false;
             Rebuild();
@@ -2231,6 +3264,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 : AdvancedCardLibrarySelectionKind.LesserTrinket;
             advancedCardLibraryQuestIndex = 0;
             advancedCardLibraryOpen = true;
+            opponentMechanicLibraryOpen = false;
             cardLibraryOpen = false;
             toolsOpen = false;
             Rebuild();
@@ -2456,6 +3490,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             };
         }
 
+        private static AdvancedCardLibraryItem ToAdvancedCardLibraryItem(HeroPowerDefinition power)
+        {
+            var status = HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power?.CardId).ToString();
+            var tags = power?.Tags == null || power.Tags.Count == 0
+                ? string.Empty
+                : " / " + string.Join("/", power.Tags.Take(2).ToArray());
+            return new AdvancedCardLibraryItem
+            {
+                CardKind = CardKind.HeroPower,
+                CardId = power?.CardId,
+                DisplayName = power?.Name,
+                Text = power?.Text,
+                ImagePath = power?.ImagePath,
+                Meta = "Hero Power / " + (power?.Cost ?? 0) + "g / " + power?.PrimaryCategory,
+                Notes = status + " / " + power?.ReplacementEligibility + tags,
+                TargetIndex = -1
+            };
+        }
+
         private void ApplyAdvancedCardLibraryChoice(AdvancedCardLibraryItem item)
         {
             if (item == null)
@@ -2491,6 +3544,242 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "Replace Greater Trinket";
                 default:
                     return "Replace Lesser Trinket";
+            }
+        }
+
+        private void BuildOpponentMechanicLibraryOverlay()
+        {
+            var choices = OpponentMechanicLibraryChoices().ToList();
+            var overlay = Panel("UnityOpponentMechanicLibraryOverlay", transform, new Color(0f, 0f, 0f, 0.64f));
+            overlay.transform.SetAsLastSibling();
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
+
+            var panel = Panel("UnityOpponentMechanicLibraryPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            ConfigureToolsSurface(panel, OpponentMechanicLibraryAccent(), 0.30f);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.08f, 0.08f);
+            rect.anchorMax = new Vector2(0.92f, 0.92f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(14, 14, 12, 14);
+            layout.spacing = 10;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            BuildOpponentMechanicLibraryHeader(panel.transform, choices.Count);
+
+            var content = UiFactory.ScrollView("UnityOpponentMechanicLibraryScroll", panel.transform, UnityTavernUiStyle.PanelQuiet, out _);
+            UnityTavernUiStyle.SetFlexible(content.gameObject, 1f, 1f);
+
+            if (choices.Count == 0)
+            {
+                var empty = UiFactory.Label("UnityOpponentMechanicLibraryEmpty", content, "当前设置下没有可选机制。", 14, FontStyle.Bold);
+                empty.alignment = TextAnchor.MiddleCenter;
+                empty.color = UnityTavernUiStyle.MutedText;
+                UnityTavernUiStyle.SetPreferredHeight(empty.gameObject, 90f);
+                return;
+            }
+
+            var gridLayout = content.gameObject.AddComponent<GridLayoutGroup>();
+            gridLayout.padding = new RectOffset(12, 12, 12, 18);
+            gridLayout.spacing = new Vector2(14f, 16f);
+            gridLayout.cellSize = new Vector2(188f, 308f);
+            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            gridLayout.constraintCount = 4;
+
+            for (var index = 0; index < choices.Count; index += 1)
+            {
+                BuildOpponentMechanicLibraryCard(content, choices[index], index);
+            }
+        }
+
+        private void BuildOpponentMechanicLibraryHeader(Transform parent, int visibleCount)
+        {
+            var header = Panel("UnityOpponentMechanicLibraryHeader", parent, UnityTavernUiStyle.Panel);
+            ConfigureToolsSurface(header, OpponentMechanicLibraryAccent(), 0.22f);
+            UnityTavernUiStyle.SetPreferredHeight(header, 58f);
+            var layout = header.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 8, 8);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityOpponentMechanicLibraryTitle", header.transform, OpponentMechanicLibraryTitle(), 18, FontStyle.Bold);
+            title.alignment = TextAnchor.MiddleLeft;
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            var summary = UiFactory.Label("UnityOpponentMechanicLibraryCountText", header.transform, visibleCount + " 项可选", 12, FontStyle.Bold);
+            summary.alignment = TextAnchor.MiddleRight;
+            summary.color = UnityTavernUiStyle.MutedText;
+            UnityTavernUiStyle.SetFixedSize(summary.gameObject, 120f, 32f);
+
+            if (opponentMechanicLibraryKind == OpponentMechanicLibraryKind.LesserTrinket ||
+                opponentMechanicLibraryKind == OpponentMechanicLibraryKind.GreaterTrinket)
+            {
+                var lesser = ToolButton("UnityOpponentMechanicLibraryLesserTab", header.transform, "小饰品", true, () =>
+                {
+                    opponentMechanicLibraryKind = OpponentMechanicLibraryKind.LesserTrinket;
+                    Rebuild();
+                });
+                UnityTavernUiStyle.SetFixedSize(lesser.gameObject, 76f, 32f);
+                var greater = ToolButton("UnityOpponentMechanicLibraryGreaterTab", header.transform, "大饰品", true, () =>
+                {
+                    opponentMechanicLibraryKind = OpponentMechanicLibraryKind.GreaterTrinket;
+                    Rebuild();
+                });
+                UnityTavernUiStyle.SetFixedSize(greater.gameObject, 82f, 32f);
+            }
+
+            var close = ToolButton("UnityOpponentMechanicLibraryCloseButton", header.transform, "关闭", true, DismissOpponentMechanicLibrary);
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 68f, 32f);
+        }
+
+        private void BuildOpponentMechanicLibraryCard(Transform parent, AdvancedCardLibraryItem item, int index)
+        {
+            var card = Panel("UnityOpponentMechanicLibraryCard-" + index + "-" + SafeObjectName(item.CardId), parent, UnityTavernUiStyle.Panel);
+            ConfigureInspectorSurface(card, OpponentMechanicLibraryAccent(), 0.18f);
+            var layout = card.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 10, 10);
+            layout.spacing = 6;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            BuildMechanicChoiceImage(card.transform, item.ImagePath, item.CardId, item.CardKind, 92f, 126f);
+
+            var name = UiFactory.Label("UnityOpponentMechanicLibraryCardName", card.transform, item.DisplayName, 13, FontStyle.Bold);
+            name.alignment = TextAnchor.MiddleCenter;
+            name.color = UnityTavernUiStyle.Text;
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 34f);
+
+            var meta = UiFactory.Label("UnityOpponentMechanicLibraryCardMeta", card.transform, item.Meta, 10, FontStyle.Bold);
+            meta.alignment = TextAnchor.MiddleCenter;
+            meta.color = UnityTavernUiStyle.Gold;
+            meta.horizontalOverflow = HorizontalWrapMode.Wrap;
+            meta.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(meta.gameObject, 30f);
+
+            var text = UiFactory.Label("UnityOpponentMechanicLibraryCardText", card.transform, CleanCardText(item.Text), 10, FontStyle.Normal);
+            text.color = UnityTavernUiStyle.MutedText;
+            text.alignment = TextAnchor.UpperCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 44f);
+
+            var notes = UiFactory.Label("UnityOpponentMechanicLibraryCardNotes", card.transform, item.Notes, 9, FontStyle.Normal);
+            notes.color = UnityTavernUiStyle.MutedText;
+            notes.alignment = TextAnchor.UpperCenter;
+            notes.horizontalOverflow = HorizontalWrapMode.Wrap;
+            notes.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(notes.gameObject, 28f);
+
+            var buttonName = index == 0 ? "UnityOpponentMechanicLibrarySelectButton" : "UnityOpponentMechanicLibrarySelectButton-" + SafeObjectName(item.CardId);
+            ActionButton(
+                buttonName,
+                card.transform,
+                "设为对手",
+                () => ApplyOpponentMechanicLibraryChoice(item),
+                0f,
+                32f,
+                true,
+                UnityTavernActionButtonRole.Primary);
+        }
+
+        private IEnumerable<AdvancedCardLibraryItem> OpponentMechanicLibraryChoices()
+        {
+            switch (opponentMechanicLibraryKind)
+            {
+                case OpponentMechanicLibraryKind.HeroPower:
+                    return service.GetOpponentSelectableHeroPowers()
+                        .Select(ToAdvancedCardLibraryItem)
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+                case OpponentMechanicLibraryKind.QuestReward:
+                    return service.GetOpponentSelectableQuestRewards()
+                        .Select(ToAdvancedCardLibraryItem)
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+                case OpponentMechanicLibraryKind.GreaterTrinket:
+                    return service.GetOpponentSelectableTrinkets(TrinketSlotKind.Greater)
+                        .Select(definition => ToAdvancedCardLibraryItem(definition, 1))
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+                default:
+                    return service.GetOpponentSelectableTrinkets(TrinketSlotKind.Lesser)
+                        .Select(definition => ToAdvancedCardLibraryItem(definition, 0))
+                        .OrderBy(item => item.Meta)
+                        .ThenBy(item => item.DisplayName)
+                        .Take(96)
+                        .ToList();
+            }
+        }
+
+        private void ApplyOpponentMechanicLibraryChoice(AdvancedCardLibraryItem item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            opponentMechanicLibraryOpen = false;
+            opponentPanelOpen = true;
+            if (item.CardKind == CardKind.HeroPower)
+            {
+                Apply(new GameCommand(GameCommandType.SetOpponentHeroPower, item.CardId, CardKind.HeroPower));
+                return;
+            }
+
+            if (item.CardKind == CardKind.QuestReward)
+            {
+                Apply(new GameCommand(GameCommandType.SetOpponentQuestReward, item.CardId, CardKind.QuestReward));
+                return;
+            }
+
+            Apply(new GameCommand(GameCommandType.SetOpponentTrinket, item.CardId, CardKind.Trinket, item.TargetIndex));
+        }
+
+        private Color OpponentMechanicLibraryAccent()
+        {
+            switch (opponentMechanicLibraryKind)
+            {
+                case OpponentMechanicLibraryKind.HeroPower:
+                    return UnityTavernUiStyle.Green;
+                case OpponentMechanicLibraryKind.QuestReward:
+                    return UnityTavernUiStyle.Blue;
+                default:
+                    return UnityTavernUiStyle.Gold;
+            }
+        }
+
+        private string OpponentMechanicLibraryTitle()
+        {
+            switch (opponentMechanicLibraryKind)
+            {
+                case OpponentMechanicLibraryKind.HeroPower:
+                    return "选择对手英雄技能";
+                case OpponentMechanicLibraryKind.QuestReward:
+                    return "选择对手任务奖励";
+                case OpponentMechanicLibraryKind.GreaterTrinket:
+                    return "选择对手大饰品";
+                default:
+                    return "选择对手小饰品";
             }
         }
 
@@ -3311,15 +4600,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (card.CardKind == CardKind.Hero)
             {
-                return card.Health + "生命 / " + card.Attack + "护甲" + HeroPowerSuffix(card);
+                return TavernNumberFormatter.FullNumber(card.Health) + "生命 / " + TavernNumberFormatter.FullNumber(card.Attack) + "护甲" + HeroPowerSuffix(card);
             }
 
             if (card.CardKind == CardKind.HeroBuddy)
             {
-                return card.TavernTier + "本 / " + card.Attack + "/" + card.Health + " / " + TribesText(card) + HeroBuddyHeroSuffix(card);
+                return card.TavernTier + "本 / " + TavernNumberFormatter.FullStats(card.Attack, card.Health) + " / " + TribesText(card) + HeroBuddyHeroSuffix(card);
             }
 
-            return card.TavernTier + "本 / " + card.Attack + "/" + card.Health + " / " + TribesText(card);
+            return card.TavernTier + "本 / " + TavernNumberFormatter.FullStats(card.Attack, card.Health) + " / " + TribesText(card);
         }
 
         private static string HeroPowerTagValue(MinionInstance card, string prefix)
@@ -3884,36 +5173,41 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            var panel = Panel("UnityQuestTrackerPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            var panel = Panel("UnityQuestTrackerPanel", MechanicStatusStripRoot(), new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.9f));
             ConfigureInspectorSurface(panel, UnityTavernUiStyle.Blue, 0.28f);
-            var rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(18f, -86f);
-            rect.sizeDelta = new Vector2(360f, QuestTrackerHeight(activeCount));
+            UnityTavernUiStyle.SetFixedSize(panel, 360f, QuestTrackerHeight(activeCount));
 
-            var layout = panel.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 9, 10);
+            var layout = panel.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 7, 7);
             layout.spacing = 7;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
+            layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityQuestTrackerTitle", panel.transform, "Quests", 14, FontStyle.Bold);
+            var title = UiFactory.Label("UnityQuestTrackerTitle", panel.transform, "Quests", 12, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
-            title.alignment = TextAnchor.MiddleLeft;
-            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+            title.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(title.gameObject, 54f, 34f);
+
+            var rows = Panel("UnityQuestTrackerRows", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(rows, 1f, 0f);
+            var rowsLayout = rows.AddComponent<VerticalLayoutGroup>();
+            rowsLayout.spacing = 4;
+            rowsLayout.childControlWidth = true;
+            rowsLayout.childControlHeight = true;
+            rowsLayout.childForceExpandWidth = true;
+            rowsLayout.childForceExpandHeight = false;
 
             if (questState?.MainQuest != null)
             {
-                BuildQuestTrackerRow(panel.transform, questState.MainQuest, "Main", 0);
+                BuildQuestTrackerRow(rows.transform, questState.MainQuest, "Main", 0);
             }
 
             if (questState?.BonusQuest != null)
             {
-                BuildQuestTrackerRow(panel.transform, questState.BonusQuest, "Bonus", 1);
+                BuildQuestTrackerRow(rows.transform, questState.BonusQuest, "Bonus", 1);
             }
         }
 
@@ -3921,37 +5215,30 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var row = Panel("UnityQuestTrackerRow-" + slot, parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureInspectorSurface(row, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold, 0.18f);
-            UnityTavernUiStyle.SetPreferredHeight(row, 76f);
-            var layout = row.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 5, 6);
-            layout.spacing = 4;
+            UnityTavernUiStyle.SetPreferredHeight(row, 34f);
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(7, 7, 3, 3);
+            layout.spacing = 5;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
 
-            var heading = UiFactory.Label("UnityQuestTrackerHeading", row.transform, slot + ": " + quest.QuestName + "  " + quest.Progress + "/" + quest.RequiredAmount, 11, FontStyle.Bold);
+            var headingText = slot + " " + quest.Progress + "/" + quest.RequiredAmount + "  " + quest.QuestName;
+            var heading = UiFactory.Label("UnityQuestTrackerHeading", row.transform, headingText, 11, FontStyle.Bold);
             heading.color = quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Text;
+            heading.horizontalOverflow = HorizontalWrapMode.Wrap;
             heading.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(heading.gameObject, 17f);
+            UnityTavernUiStyle.SetFlexible(heading.gameObject, 1f, 0f);
 
-            var reward = UiFactory.Label("UnityQuestTrackerReward", row.transform, (quest.RewardActive ? "Active: " : "Reward: ") + quest.RewardName, 10, FontStyle.Normal);
+            var reward = UiFactory.Label("UnityQuestTrackerReward", row.transform, quest.RewardActive ? "Active" : "Reward", 10, FontStyle.Bold);
             reward.color = UnityTavernUiStyle.MutedText;
-            reward.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, 15f);
+            reward.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(reward.gameObject, 48f, 24f);
 
-            var actions = Panel("UnityQuestTrackerActions-" + slot, row.transform, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(actions, 28f);
-            var actionLayout = actions.AddComponent<HorizontalLayoutGroup>();
-            actionLayout.spacing = 6;
-            actionLayout.childAlignment = TextAnchor.MiddleCenter;
-            actionLayout.childControlWidth = true;
-            actionLayout.childControlHeight = true;
-            actionLayout.childForceExpandWidth = false;
-            actionLayout.childForceExpandHeight = true;
-
-            var barBack = Panel("UnityQuestProgressBack", actions.transform, new Color(0f, 0f, 0f, 0.28f));
-            UnityTavernUiStyle.SetFlexible(barBack, 1f, 0f);
+            var barBack = Panel("UnityQuestProgressBack", row.transform, new Color(0f, 0f, 0f, 0.28f));
+            UnityTavernUiStyle.SetFixedSize(barBack, 46f, 6f);
             var fill = Panel("UnityQuestProgressFill", barBack.transform, quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Gold);
             var fillRect = fill.GetComponent<RectTransform>();
             fillRect.anchorMin = Vector2.zero;
@@ -3961,21 +5248,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             ActionButton(
                 "UnityQuestCompleteButton-" + slot,
-                actions.transform,
-                "Complete",
+                row.transform,
+                "Done",
                 () => Apply(new GameCommand(GameCommandType.DebugCompleteQuest, questIndex)),
-                76f,
-                26f,
+                48f,
+                28f,
                 false,
                 UnityTavernActionButtonRole.Primary,
                 !quest.Completed);
             ActionButton(
                 "UnityQuestReplaceRewardButton-" + slot,
-                actions.transform,
+                row.transform,
                 "Reward",
                 () => OpenQuestRewardLibrary(questIndex),
-                72f,
-                26f,
+                58f,
+                28f,
                 false,
                 UnityTavernActionButtonRole.Utility);
         }
@@ -3985,78 +5272,81 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var state = service.State.Player.Tavern.AdvancedMechanics?.Trinkets;
             var lesser = ResolveTrinketDefinition(state?.LesserTrinketId);
             var greater = ResolveTrinketDefinition(state?.GreaterTrinketId);
-            var hasCandidates = service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser).Count > 0 ||
-                service.GetDebugSelectableTrinkets(TrinketSlotKind.Greater).Count > 0;
-            if (lesser == null && greater == null && !hasCandidates)
+            if (lesser == null && greater == null)
             {
                 return;
             }
 
-            var questCount = ActiveQuestCount();
-            var panel = Panel("UnityTrinketTrackerPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            var panel = Panel("UnityTrinketTrackerPanel", MechanicStatusStripRoot(), new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.9f));
             ConfigureInspectorSurface(panel, UnityTavernUiStyle.Gold, 0.24f);
-            var rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(18f, -86f - (questCount > 0 ? QuestTrackerHeight(questCount) + 8f : 0f));
-            rect.sizeDelta = new Vector2(360f, 132f);
+            UnityTavernUiStyle.SetFixedSize(panel, 340f, 68f);
 
-            var layout = panel.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 9, 10);
+            var layout = panel.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 6);
             layout.spacing = 7;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
+            layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityTrinketTrackerTitle", panel.transform, "Trinkets", 14, FontStyle.Bold);
+            var title = UiFactory.Label("UnityTrinketTrackerTitle", panel.transform, "饰品", 12, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
-            title.alignment = TextAnchor.MiddleLeft;
-            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+            title.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(title.gameObject, 60f, 34f);
 
-            BuildTrinketTrackerRow(panel.transform, "Lesser", TrinketSlotKind.Lesser, lesser);
-            BuildTrinketTrackerRow(panel.transform, "Greater", TrinketSlotKind.Greater, greater);
+            var rows = Panel("UnityTrinketTrackerRows", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(rows, 1f, 0f);
+            var rowsLayout = rows.AddComponent<VerticalLayoutGroup>();
+            rowsLayout.spacing = 3;
+            rowsLayout.childControlWidth = true;
+            rowsLayout.childControlHeight = true;
+            rowsLayout.childForceExpandWidth = true;
+            rowsLayout.childForceExpandHeight = false;
+
+            BuildTrinketTrackerRow(rows.transform, "Lesser", TrinketSlotKind.Lesser, lesser);
+            BuildTrinketTrackerRow(rows.transform, "Greater", TrinketSlotKind.Greater, greater);
         }
 
         private void BuildTrinketTrackerRow(Transform parent, string slotName, TrinketSlotKind slotKind, TrinketDefinition definition)
         {
             var row = Panel("UnityTrinketTrackerRow-" + slotName, parent, UnityTavernUiStyle.PanelQuiet);
             ConfigureInspectorSurface(row, slotKind == TrinketSlotKind.Greater ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue, 0.16f);
-            UnityTavernUiStyle.SetPreferredHeight(row, 42f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 26f);
             var layout = row.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 5, 5);
-            layout.spacing = 7;
+            layout.padding = new RectOffset(6, 6, 1, 1);
+            layout.spacing = 5;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
 
-            var slot = UiFactory.Label("UnityTrinketSlotLabel-" + slotName, row.transform, slotName, 11, FontStyle.Bold);
+            var slot = UiFactory.Label("UnityTrinketSlotLabel-" + slotName, row.transform, TrinketSlotDisplayName(slotKind), 10, FontStyle.Bold);
             slot.color = UnityTavernUiStyle.Gold;
             slot.alignment = TextAnchor.MiddleLeft;
-            UnityTavernUiStyle.SetFixedSize(slot.gameObject, 54f, 30f);
+            UnityTavernUiStyle.SetFixedSize(slot.gameObject, 54f, 22f);
 
-            var name = UiFactory.Label("UnityTrinketName-" + slotName, row.transform, definition == null ? "None equipped" : definition.Name, 11, FontStyle.Bold);
+            var name = UiFactory.Label("UnityTrinketName-" + slotName, row.transform, definition == null ? TrinketSlotScheduledText(slotKind) : definition.Name, 11, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
             name.verticalOverflow = VerticalWrapMode.Truncate;
             UnityTavernUiStyle.SetFlexible(name.gameObject, 1f, 0f);
 
-            var meta = UiFactory.Label("UnityTrinketMeta-" + slotName, row.transform, definition == null ? string.Empty : definition.Cost + "g / " + definition.OfferPoolStatus, 10, FontStyle.Normal);
+            var meta = UiFactory.Label("UnityTrinketMeta-" + slotName, row.transform, definition == null ? "待选" : definition.Cost + "g", 10, FontStyle.Normal);
             meta.color = UnityTavernUiStyle.MutedText;
             meta.alignment = TextAnchor.MiddleRight;
             meta.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetFixedSize(meta.gameObject, 86f, 30f);
+            UnityTavernUiStyle.SetFixedSize(meta.gameObject, 34f, 22f);
+        }
 
-            ActionButton(
-                "UnityTrinketReplaceButton-" + slotName,
-                row.transform,
-                "Replace",
-                () => OpenTrinketLibrary(slotKind),
-                70f,
-                30f,
-                false,
-                UnityTavernActionButtonRole.Utility);
+        private static string TrinketSlotDisplayName(TrinketSlotKind slotKind)
+        {
+            return slotKind == TrinketSlotKind.Greater ? "大饰品" : "小饰品";
+        }
+
+        private static string TrinketSlotScheduledText(TrinketSlotKind slotKind)
+        {
+            return slotKind == TrinketSlotKind.Greater ? "第 9 回合选择" : "第 6 回合选择";
         }
 
         private int ActiveQuestCount()
@@ -4078,7 +5368,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static float QuestTrackerHeight(int activeCount)
         {
-            return 46f + activeCount * 82f;
+            return 18f + activeCount * 40f;
         }
 
         private ActiveQuestState ActiveQuestByIndex(int questIndex)
@@ -4116,31 +5406,36 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 .Take(4)
                 .ToList();
 
-            var panel = Panel("UnityAdvancedChoiceStatusPanel", transform, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
+            var panel = Panel("UnityAdvancedChoiceStatusPanel", MechanicStatusStripRoot(), new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.9f));
             ConfigureInspectorSurface(panel, UnityTavernUiStyle.Green, 0.22f);
-            var rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.anchoredPosition = new Vector2(0f, -86f);
-            rect.sizeDelta = new Vector2(430f, 42f + visible.Count * 42f);
+            UnityTavernUiStyle.SetFixedSize(panel, 520f, AdvancedChoiceStatusPanelHeight(visible.Count));
 
-            var layout = panel.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 9, 10);
-            layout.spacing = 6;
+            var layout = panel.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(8, 8, 6, 6);
+            layout.spacing = 7;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
+            layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityAdvancedChoiceStatusTitle", panel.transform, "Advanced choices", 14, FontStyle.Bold);
+            var title = UiFactory.Label("UnityAdvancedChoiceStatusTitle", panel.transform, "机制", 12, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
-            title.alignment = TextAnchor.MiddleLeft;
-            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 20f);
+            title.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(title.gameObject, 62f, 34f);
+
+            var rows = Panel("UnityAdvancedChoiceStatusRows", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetFlexible(rows, 1f, 0f);
+            var rowsLayout = rows.AddComponent<VerticalLayoutGroup>();
+            rowsLayout.spacing = 3;
+            rowsLayout.childControlWidth = true;
+            rowsLayout.childControlHeight = true;
+            rowsLayout.childForceExpandWidth = true;
+            rowsLayout.childForceExpandHeight = false;
 
             foreach (var status in visible)
             {
-                BuildAdvancedChoiceStatusRow(panel.transform, status);
+                BuildAdvancedChoiceStatusRow(rows.transform, status);
             }
         }
 
@@ -4149,28 +5444,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var safeId = SafeObjectName(status.Id);
             var row = Panel("UnityAdvancedChoiceStatusRow-" + safeId, parent, status.IsCurrent ? UnityTavernUiStyle.PanelRaised : UnityTavernUiStyle.PanelQuiet);
             ConfigureInspectorSurface(row, status.IsCurrent ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Green, 0.16f);
-            UnityTavernUiStyle.SetPreferredHeight(row, 36f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 26f);
             var layout = row.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 4, 4);
-            layout.spacing = 7;
+            layout.padding = new RectOffset(6, 6, 1, 1);
+            layout.spacing = 5;
+            layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
 
-            var markerText = status.IsCurrent ? "Now" : "R" + status.DueRound;
-            var marker = UiFactory.Label("UnityAdvancedChoiceStatusMarker-" + safeId, row.transform, markerText, 11, FontStyle.Bold);
+            var markerText = AdvancedChoiceStatusMarkerText(status);
+            var marker = UiFactory.Label("UnityAdvancedChoiceStatusMarker-" + safeId, row.transform, markerText, 10, FontStyle.Bold);
             marker.color = status.IsCurrent ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Green;
             marker.alignment = TextAnchor.MiddleCenter;
-            UnityTavernUiStyle.SetFixedSize(marker.gameObject, 38f, 28f);
+            UnityTavernUiStyle.SetFixedSize(marker.gameObject, 52f, 22f);
 
-            var title = UiFactory.Label("UnityAdvancedChoiceStatusName-" + safeId, row.transform, status.Title, 11, FontStyle.Bold);
+            var title = UiFactory.Label("UnityAdvancedChoiceStatusName-" + safeId, row.transform, AdvancedChoiceStatusTitleText(status), 11, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
             title.alignment = TextAnchor.MiddleLeft;
             title.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetFixedSize(title.gameObject, 130f, 28f);
+            UnityTavernUiStyle.SetFixedSize(title.gameObject, 136f, 22f);
 
-            var detail = UiFactory.Label("UnityAdvancedChoiceStatusDetail-" + safeId, row.transform, status.Detail, 10, FontStyle.Normal);
+            var detail = UiFactory.Label("UnityAdvancedChoiceStatusDetail-" + safeId, row.transform, AdvancedChoiceStatusDetailText(status), 10, FontStyle.Normal);
             detail.color = status.IsBlocking ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
             detail.alignment = TextAnchor.MiddleLeft;
             detail.verticalOverflow = VerticalWrapMode.Truncate;
@@ -4182,13 +5478,166 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ActionButton(
                     "UnityAdvancedChoiceStatusOpenButton-" + safeId,
                     row.transform,
-                    "Open",
+                    "选择",
                     Rebuild,
                     58f,
-                    28f,
+                    24f,
                     false,
                     UnityTavernActionButtonRole.Primary);
             }
+        }
+
+        private static string AdvancedChoiceStatusMarkerText(AdvancedChoiceStatus status)
+        {
+            if (status == null)
+            {
+                return string.Empty;
+            }
+
+            if (status.IsCurrent)
+            {
+                return "请选择";
+            }
+
+            return status.DueRound > 0 ? "第" + status.DueRound + "回合" : "待定";
+        }
+
+        private static string AdvancedChoiceStatusTitleText(AdvancedChoiceStatus status)
+        {
+            if (status == null)
+            {
+                return string.Empty;
+            }
+
+            var title = status.Title ?? string.Empty;
+
+            if (string.Equals(status.Id, "trinket-lesser-round-6", StringComparison.OrdinalIgnoreCase))
+            {
+                return "小饰品";
+            }
+
+            if (string.Equals(status.Id, "trinket-greater-round-9", StringComparison.OrdinalIgnoreCase))
+            {
+                return "大饰品";
+            }
+
+            if (string.Equals(status.Id, "discover-current", StringComparison.OrdinalIgnoreCase))
+            {
+                return "发现";
+            }
+
+            if (title.IndexOf("Lesser Trinket", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return status.IsCurrent ? "请选择小饰品" : "小饰品";
+            }
+
+            if (title.IndexOf("Greater Trinket", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return status.IsCurrent ? "请选择大饰品" : "大饰品";
+            }
+
+            if (title.IndexOf("Bonus Quest", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return status.IsCurrent ? "请选择额外任务" : "额外任务";
+            }
+
+            if (title.IndexOf("Quest", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return status.IsCurrent ? "请选择任务" : "任务";
+            }
+
+            if (title.IndexOf("Anomaly", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return status.IsCurrent ? "请选择畸变" : "畸变";
+            }
+
+            if (title.IndexOf("Flightpath", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "请选择飞行路线";
+            }
+
+            if (title.IndexOf("Hero", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                title.IndexOf("Conviction", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "请选择英雄机制";
+            }
+
+            return status.Title;
+        }
+
+        private static string AdvancedChoiceStatusDetailText(AdvancedChoiceStatus status)
+        {
+            if (status == null)
+            {
+                return string.Empty;
+            }
+
+            if (string.Equals(status.Id, "trinket-lesser-round-6", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(status.Id, "trinket-greater-round-9", StringComparison.OrdinalIgnoreCase))
+            {
+                return "未到回合";
+            }
+
+            if (string.Equals(status.Id, "discover-current", StringComparison.OrdinalIgnoreCase))
+            {
+                return "请先完成发现选择";
+            }
+
+            if (status.IsCurrent)
+            {
+                var optionCount = OptionCount(status.Detail);
+                return optionCount > 0 ? optionCount + " 个选项，必须选择" : "必须选择";
+            }
+
+            if (status.DueRound > 0)
+            {
+                return "第 " + status.DueRound + " 回合开放";
+            }
+
+            return status.Detail;
+        }
+
+        private static int OptionCount(string detail)
+        {
+            if (string.IsNullOrWhiteSpace(detail))
+            {
+                return 0;
+            }
+
+            var match = OptionCountPattern.Match(detail);
+            return match.Success && int.TryParse(match.Groups[1].Value, out var count) ? count : 0;
+        }
+
+        private Transform MechanicStatusStripRoot()
+        {
+            var existing = transform.Find("UnityMechanicStatusStrip");
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var strip = Panel("UnityMechanicStatusStrip", transform, Color.clear);
+            var rect = strip.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.offsetMin = new Vector2(18f, -172f);
+            rect.offsetMax = new Vector2(-18f, -84f);
+
+            var layout = strip.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8;
+            layout.childAlignment = TextAnchor.UpperLeft;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            return strip.transform;
+        }
+
+        private static float AdvancedChoiceStatusPanelHeight(int visibleCount)
+        {
+            return 16f + Mathf.Min(visibleCount, 4) * 29f;
         }
 
         private void BuildAdvancedMechanicChoiceModal()
@@ -4211,12 +5660,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(layoutContext.IsCompact ? 620f : 820f, layoutContext.IsCompact ? 430f : 470f);
+            panelRect.sizeDelta = AdvancedMechanicChoicePanelSize(layoutContext);
             panelRect.anchoredPosition = Vector2.zero;
 
             var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
-            panelLayout.padding = new RectOffset(18, 18, 16, 18);
-            panelLayout.spacing = 12;
+            panelLayout.padding = new RectOffset(22, 22, 18, 22);
+            panelLayout.spacing = 14;
             panelLayout.childControlWidth = true;
             panelLayout.childControlHeight = true;
             panelLayout.childForceExpandWidth = true;
@@ -4262,15 +5711,30 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             for (var index = 0; index < request.Options.Count; index += 1)
             {
-                BuildAdvancedMechanicChoiceCard(options.transform, request, request.Options[index], index);
+                BuildAdvancedMechanicChoiceCard(options.transform, request, request.Options[index], index, layoutContext.IsCompact);
             }
         }
 
-        private void BuildAdvancedMechanicChoiceCard(Transform parent, MechanicChoiceRequest request, MechanicChoiceOption option, int index)
+        private static Vector2 AdvancedMechanicChoicePanelSize(UnityTavernLayoutContext layoutContext)
+        {
+            var targetWidth = layoutContext.IsCompact ? 720f : 1080f;
+            var targetHeight = layoutContext.IsCompact ? 540f : 620f;
+            var minimumWidth = layoutContext.IsCompact ? 680f : 980f;
+            var minimumHeight = layoutContext.IsCompact ? 500f : 560f;
+            var width = Mathf.Clamp(layoutContext.Width - 96f, minimumWidth, targetWidth);
+            var height = Mathf.Clamp(layoutContext.Height - 96f, minimumHeight, targetHeight);
+            return new Vector2(width, height);
+        }
+
+        private void BuildAdvancedMechanicChoiceCard(Transform parent, MechanicChoiceRequest request, MechanicChoiceOption option, int index, bool compact)
         {
             var card = Panel("UnityAdvancedMechanicChoiceCard-" + index, parent, UnityTavernUiStyle.Panel);
             ConfigureInspectorSurface(card, request.Kind == AdvancedMechanicKind.Quest ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Gold, 0.22f);
-            UnityTavernUiStyle.SetFixedSize(card, request.Kind == AdvancedMechanicKind.Quest ? 250f : 190f, 366f);
+            var cardWidth = request.Kind == AdvancedMechanicKind.Quest
+                ? (compact ? 250f : 292f)
+                : (compact ? 190f : 224f);
+            var cardHeight = compact ? 366f : 430f;
+            UnityTavernUiStyle.SetFixedSize(card, cardWidth, cardHeight);
 
             var layout = card.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 10, 10);
@@ -4282,11 +5746,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (request.Kind == AdvancedMechanicKind.Quest)
             {
-                BuildQuestChoiceImages(card.transform, option);
+                BuildQuestChoiceImages(card.transform, option, compact);
             }
             else
             {
-                BuildMechanicChoiceImage(card.transform, option.ImagePath, option.SourceId, CardKind.Trinket, 128f, 184f);
+                BuildMechanicChoiceImage(
+                    card.transform,
+                    option.ImagePath,
+                    option.SourceId,
+                    CardKind.Trinket,
+                    compact ? 128f : 156f,
+                    compact ? 184f : 222f);
             }
 
             var name = UiFactory.Label("UnityAdvancedMechanicChoiceName", card.transform, option.DisplayName, 14, FontStyle.Bold);
@@ -4294,14 +5764,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             name.color = UnityTavernUiStyle.Text;
             name.horizontalOverflow = HorizontalWrapMode.Wrap;
             name.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 36f);
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, compact ? 36f : 44f);
 
             var text = UiFactory.Label("UnityAdvancedMechanicChoiceText", card.transform, CleanCardText(option.Text), 11, FontStyle.Normal);
             text.color = UnityTavernUiStyle.MutedText;
             text.alignment = TextAnchor.UpperCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
-            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, request.Kind == AdvancedMechanicKind.Quest ? 42f : 48f);
+            UnityTavernUiStyle.SetPreferredHeight(text.gameObject, request.Kind == AdvancedMechanicKind.Quest ? (compact ? 42f : 54f) : (compact ? 48f : 58f));
 
             if (request.Kind == AdvancedMechanicKind.Quest)
             {
@@ -4310,10 +5780,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 reward.alignment = TextAnchor.UpperCenter;
                 reward.horizontalOverflow = HorizontalWrapMode.Wrap;
                 reward.verticalOverflow = VerticalWrapMode.Truncate;
-                UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, 50f);
+                UnityTavernUiStyle.SetPreferredHeight(reward.gameObject, compact ? 50f : 60f);
             }
 
-            var label = request.Kind == AdvancedMechanicKind.Trinket && option.Cost > 0 ? "Choose (" + option.Cost + ")" : "Choose";
+            var label = request.Kind == AdvancedMechanicKind.Trinket && option.Cost > 0 ? "选择 (" + option.Cost + ")" : "选择";
             ActionButton(
                 "UnityAdvancedMechanicChoiceButton-" + index,
                 card.transform,
@@ -4325,10 +5795,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 UnityTavernActionButtonRole.Primary);
         }
 
-        private void BuildQuestChoiceImages(Transform parent, MechanicChoiceOption option)
+        private void BuildQuestChoiceImages(Transform parent, MechanicChoiceOption option, bool compact)
         {
             var row = Panel("UnityQuestChoiceImageRow", parent, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(row, 132f);
+            UnityTavernUiStyle.SetPreferredHeight(row, compact ? 132f : 162f);
             var layout = row.AddComponent<HorizontalLayoutGroup>();
             layout.spacing = 8;
             layout.childAlignment = TextAnchor.MiddleCenter;
@@ -4337,8 +5807,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            BuildMechanicChoiceImage(row.transform, option.ImagePath, option.SourceId, CardKind.Quest, 88f, 124f);
-            BuildMechanicChoiceImage(row.transform, option.RewardImagePath, option.RewardId, CardKind.QuestReward, 88f, 124f);
+            BuildMechanicChoiceImage(row.transform, option.ImagePath, option.SourceId, CardKind.Quest, compact ? 88f : 108f, compact ? 124f : 152f);
+            BuildMechanicChoiceImage(row.transform, option.RewardImagePath, option.RewardId, CardKind.QuestReward, compact ? 88f : 108f, compact ? 124f : 152f);
         }
 
         private static void BuildMechanicChoiceImage(Transform parent, string imagePath, string cardId, CardKind kind, float width, float height)
@@ -4362,13 +5832,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (request.Kind == AdvancedMechanicKind.Quest)
             {
                 return string.Equals(request.Slot, "Bonus", StringComparison.OrdinalIgnoreCase)
-                    ? "Choose a Bonus Quest + Reward"
-                    : "Choose a Quest + Reward";
+                    ? "请选择额外任务和奖励"
+                    : "请选择任务和奖励";
+            }
+
+            if (request.Kind == AdvancedMechanicKind.Anomaly)
+            {
+                return "请选择畸变";
+            }
+
+            if (request.Kind == AdvancedMechanicKind.Distortion)
+            {
+                return "请选择英雄机制";
             }
 
             return string.Equals(request.Slot, "Greater", StringComparison.OrdinalIgnoreCase)
-                ? "Choose a Greater Trinket"
-                : "Choose a Lesser Trinket";
+                ? "请选择大饰品"
+                : "请选择小饰品";
         }
 
         private bool CanOpenPlayerDirectedChoice(MechanicChoiceRequest request)
@@ -5342,6 +6822,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 if (service.State.LastReplay != null)
                 {
                     combatReplayOpen = true;
+                    combatTimelineOpen = false;
+                    combatRunStats = null;
                     toolsOpen = false;
                     cardDetailOpen = false;
                     activeReplayFrameIndex = 0;
@@ -5397,12 +6879,28 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "Quest reward replaced";
                 case GameCommandType.DebugReplaceTrinket:
                     return "Trinket replaced";
+                case GameCommandType.SetOpponentQuestReward:
+                    return "已配置对手任务奖励";
+                case GameCommandType.ClearOpponentQuestReward:
+                    return "已清除对手任务奖励";
+                case GameCommandType.SetOpponentTrinket:
+                    return "已配置对手饰品";
+                case GameCommandType.ClearOpponentTrinket:
+                    return "已清除对手饰品";
+                case GameCommandType.SetOpponentHeroPower:
+                    return "已配置对手英雄技能";
+                case GameCommandType.ClearOpponentHeroPower:
+                    return "已清除对手英雄技能";
+                case GameCommandType.SetOpponentHeroPowerTarget:
+                    return "已配置对手英雄技能目标";
+                case GameCommandType.ClearOpponentHeroPowerTarget:
+                    return "已清除对手英雄技能目标";
                 case GameCommandType.NextTurn:
                     return "进入下一回合";
                 case GameCommandType.DebugAddGold:
                     return "已增加金币";
                 case GameCommandType.SimulateCombat:
-                    return "战斗已开始";
+                    return "已完成战斗并进入下一回合";
                 case GameCommandType.AddCardToHand:
                     return "已加入手牌";
                 case GameCommandType.DebugCastCard:

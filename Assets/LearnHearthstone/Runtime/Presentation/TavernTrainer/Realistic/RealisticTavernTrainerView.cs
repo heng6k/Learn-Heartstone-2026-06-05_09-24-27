@@ -259,7 +259,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
         private void BuildActionPanel(Transform parent)
         {
             var panel = UiFactory.Panel("RealisticActionPanel", parent, ColorFromHex(0x2D2117));
-            UiFactory.SetHeight(panel, 238f);
+            UiFactory.SetHeight(panel, 194f);
             UiFactory.Vertical(panel, 10, 8);
             Label(panel.transform, "主要操作", 15, FontStyle.Bold, ColorFromHex(0xF2D598), TextAnchor.MiddleLeft);
 
@@ -273,12 +273,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             UiFactory.SetHeight(secondRow, 38f);
             UiFactory.Horizontal(secondRow, 0, 6);
             SmallButton("RealisticUpgradeButton", secondRow.transform, "升级 " + service.State.Player.Tavern.UpgradeCost, service.State.Player.Tavern.UpgradeCost > 0 && service.State.Player.Tavern.Gold >= service.State.Player.Tavern.UpgradeCost, () => Apply(new GameCommand(GameCommandType.UpgradeTavern)));
-            SmallButton("RealisticNextTurnButton", secondRow.transform, "下回合", true, () => Apply(new GameCommand(GameCommandType.NextTurn)));
-
-            var thirdRow = UiFactory.Panel("RealisticActionRowC", panel.transform, Color.clear);
-            UiFactory.SetHeight(thirdRow, 36f);
-            UiFactory.Horizontal(thirdRow, 0, 6);
-            SmallButton("RealisticCombatButton", thirdRow.transform, "模拟战斗", true, () => Apply(new GameCommand(GameCommandType.SimulateCombat)), 148f);
+            SmallButton("RealisticNextTurnButton", secondRow.transform, "完整下一回合", true, () => Apply(new GameCommand(GameCommandType.NextTurn)), 148f);
 
             var sellZone = UiFactory.Panel("RealisticSellZone", panel.transform, ColorFromHex(0x4C1D1B));
             UiFactory.SetHeight(sellZone, 44f);
@@ -554,7 +549,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             var panel = UiFactory.Panel("RealisticBattleTestPanel", parent, ColorFromHex(0x211A14));
             UiFactory.SetHeight(panel, service.State.LastReplay == null || service.State.LastReplay.Frames.Count == 0 ? 560f : 880f);
             UiFactory.Vertical(panel, 10, 8);
-            BuildPanelHeader(panel.transform, "战斗测试", "种子 " + DefaultCombatSeed());
+            BuildPanelHeader(panel.transform, "战斗调试", "种子 " + DefaultCombatSeed());
 
             var scenario = UiFactory.Panel("RealisticScenarioControls", panel.transform, ColorFromHex(0x18130F));
             UiFactory.SetHeight(scenario, 110f);
@@ -567,13 +562,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             SmallButton("RealisticLoadScenarioButton", scenarioButtons.transform, "加载", true, () => Apply(new GameCommand(GameCommandType.LoadTestScenario, DefaultScenarioName(), new CombatTestOptions())));
 
             var combat = UiFactory.Panel("RealisticCombatControls", panel.transform, ColorFromHex(0x18130F));
-            UiFactory.SetHeight(combat, 112f);
+            UiFactory.SetHeight(combat, 132f);
             UiFactory.Vertical(combat, 8, 6);
             Label(combat.transform, "固定种子：" + DefaultCombatSeed(), 12, FontStyle.Bold, ColorFromHex(0xD7C7A3), TextAnchor.MiddleLeft).gameObject.name = "RealisticCombatSeedInput";
+            Label(combat.transform, "仅战斗调试，不结算下一回合资源。", 11, FontStyle.Normal, ColorFromHex(0xBDAA84), TextAnchor.MiddleLeft).gameObject.name = "RealisticCombatDebugOnlyHint";
             var combatButtons = UiFactory.Panel("RealisticCombatButtons", combat.transform, Color.clear);
             UiFactory.SetHeight(combatButtons, 36f);
             UiFactory.Horizontal(combatButtons, 0, 6);
-            SmallButton("RealisticRunCombatTestButton", combatButtons.transform, "开始战斗", true, () => Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
+            SmallButton("RealisticRunCombatTestButton", combatButtons.transform, "仅战斗调试", true, () => Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = DefaultCombatSeed(), SafetyLimit = 200 })));
             SmallButton("RealisticResetCombatSnapshotButton", combatButtons.transform, "重置战前", true, () => Apply(new GameCommand(GameCommandType.ResetCombatTestSnapshot)));
 
             var list = UiFactory.Panel("RealisticScenarioList", panel.transform, ColorFromHex(0x18130F));

@@ -13,6 +13,8 @@ namespace LearnHearthstone.Presentation.Common
         public const string ModalPanelName = "DebugAspectRatioModalPanel";
         public const string CurrentLabelName = "DebugAspectRatioCurrentLabel";
         public const string PresetButtonPrefix = "DebugAspectRatioPreset-";
+        private const float ButtonBottomOffset = 88f;
+        private const float ModalBottomOffset = 140f;
 
         private static readonly AspectRatioPreset[] Presets =
         {
@@ -52,7 +54,7 @@ namespace LearnHearthstone.Presentation.Common
             rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(1f, 0f);
             rect.sizeDelta = new Vector2(132f, 44f);
-            rect.anchoredPosition = new Vector2(-16f, 16f);
+            rect.anchoredPosition = new Vector2(-16f, ButtonBottomOffset);
 
             var image = button.GetComponent<Image>();
             image.color = new Color(0.18f, 0.25f, 0.29f, 0.94f);
@@ -93,7 +95,7 @@ namespace LearnHearthstone.Presentation.Common
             panelRect.anchorMax = new Vector2(1f, 0f);
             panelRect.pivot = new Vector2(1f, 0f);
             panelRect.sizeDelta = new Vector2(300f, 292f);
-            panelRect.anchoredPosition = new Vector2(-16f, 68f);
+            panelRect.anchoredPosition = new Vector2(-16f, ModalBottomOffset);
 
             var panelImage = panel.GetComponent<Image>();
             panelImage.raycastTarget = true;

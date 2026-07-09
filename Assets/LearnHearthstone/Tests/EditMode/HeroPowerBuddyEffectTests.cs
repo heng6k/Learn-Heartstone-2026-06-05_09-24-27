@@ -292,7 +292,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Options = new System.Collections.Generic.List<MinionInstance> { pendingChoice }
             };
 
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             var roll = tavern.HeroEffectCounters["hero:snake_eyes:box_cars_last_roll"];
             Assert.AreEqual("test-pending", tavern.Discover.Source);
@@ -2384,7 +2384,7 @@ namespace LearnHearthstone.Tests.EditMode
             var alakir = CreateHeroService("TB_BaconShop_HERO_76");
             alakir.State.Player.Board.Clear();
             alakir.State.Player.Board.Add(TestMinion("alakir-left", "ALAKIR_LEFT", 1, 1));
-            alakir.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            alakir.Apply(new GameCommand(GameCommandType.RunCombatTest));
             var alakirSnapshot = alakir.State.LastReplay.InitialSnapshot.Player.Minions[0];
             Assert.IsTrue(alakirSnapshot.Keywords.Contains(Keyword.Windfury));
             Assert.IsTrue(alakirSnapshot.Keywords.Contains(Keyword.DivineShield));
@@ -2395,7 +2395,7 @@ namespace LearnHearthstone.Tests.EditMode
             yshaarj.State.Player.Board.Clear();
             PlayBuddy(yshaarj, "TB_BaconShop_HERO_92_Buddy");
             var handBefore = yshaarj.State.Player.Tavern.Hand.Count;
-            yshaarj.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            yshaarj.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.Greater(yshaarj.State.LastReplay.InitialSnapshot.Player.Minions.Count, 1);
             Assert.Greater(yshaarj.State.Player.Tavern.Hand.Count, handBefore);
             Assert.IsTrue(yshaarj.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.EnchantmentSourceIds.Contains("Baby Y'Shaarj")));
@@ -2406,7 +2406,7 @@ namespace LearnHearthstone.Tests.EditMode
             deathwing.State.Player.Board.Add(TestMinion("deathwing-friendly", "DEATHWING_FRIENDLY", 2, 2));
             deathwing.State.Opponent.Board.Add(TestMinion("deathwing-enemy", "DEATHWING_ENEMY", 3, 3));
             PlayBuddy(deathwing, "TB_BaconShop_HERO_52_Buddy");
-            deathwing.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            deathwing.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.AreEqual(4, deathwing.State.Player.Board.First(card => card.CardId == "DEATHWING_FRIENDLY").Attack);
             Assert.AreEqual(3, deathwing.State.Player.Board.First(card => card.CardId == "DEATHWING_FRIENDLY").MaxHealth);
             Assert.AreEqual(5, deathwing.State.LastReplay.InitialSnapshot.Opponent.Minions[0].Attack);
@@ -2420,7 +2420,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestMinion("extra-alakir-left", "EXTRA_ALAKIR_LEFT", 1, 1));
             service.GrantSecondHeroPower("TB_BaconShop_HP_086", "test-second-power");
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             var snapshot = service.State.LastReplay.InitialSnapshot.Player.Minions[0];
             Assert.IsTrue(snapshot.Keywords.Contains(Keyword.Windfury));
@@ -2436,7 +2436,7 @@ namespace LearnHearthstone.Tests.EditMode
             vanndar.State.Player.Board.Clear();
             vanndar.State.Player.Board.Add(TestMinion("van-low", "VAN_LOW", 1, 2));
             vanndar.State.Player.Board.Add(TestMinion("van-high", "VAN_HIGH", 1, 9));
-            vanndar.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            vanndar.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.AreEqual(3, vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Count);
             Assert.IsTrue(vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "VAN_HIGH" && card.InstanceId.Contains("combat-copy")));
 
@@ -2450,7 +2450,7 @@ namespace LearnHearthstone.Tests.EditMode
             drek.State.Player.Board.Clear();
             drek.State.Player.Board.Add(TestMinion("drek-high", "DREK_HIGH", 8, 2));
             drek.State.Player.Board.Add(TestMinion("drek-low", "DREK_LOW", 1, 2));
-            drek.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            drek.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.IsTrue(drek.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "DREK_HIGH" && card.InstanceId.Contains("combat-copy")));
 
             PlayBuddy(drek, "BG22_HERO_002_Buddy");
@@ -2504,7 +2504,7 @@ namespace LearnHearthstone.Tests.EditMode
             reno.State.Opponent.Board.Clear();
             reno.State.Opponent.Board.Add(TestMinion("reno-combat-enemy", "RENO_COMBAT_ENEMY", 20, 20));
 
-            reno.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            reno.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(rightmost.Golden);
             Assert.AreEqual(4, rightmost.Attack);
@@ -2516,7 +2516,7 @@ namespace LearnHearthstone.Tests.EditMode
             patches.State.Opponent.Board.Clear();
             patches.State.Opponent.Board.Add(TestMinion("tuskarr-combat-enemy", "TUSKARR_COMBAT_ENEMY", 20, 20));
 
-            patches.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            patches.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(patches.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("bounty")));
         }
@@ -2532,7 +2532,7 @@ namespace LearnHearthstone.Tests.EditMode
             spirit.State.Opponent.Board.Clear();
             spirit.State.Opponent.Board.Add(TestMinion("spirit-combat-enemy", "SPIRIT_COMBAT_ENEMY", 20, 20));
 
-            spirit.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            spirit.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(keywordTarget.Keywords.Contains(Keyword.Windfury));
             Assert.IsTrue(keywordTarget.Keywords.Contains(Keyword.DivineShield));
@@ -2545,7 +2545,7 @@ namespace LearnHearthstone.Tests.EditMode
             buttons.State.Opponent.Board.Clear();
             buttons.State.Opponent.Board.Add(TestMinion("zippers-combat-enemy", "ZIPPERS_COMBAT_ENEMY", 20, 20));
 
-            buttons.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            buttons.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.Greater(buttons.State.Player.Tavern.Hand.Count, 0);
 
@@ -2556,7 +2556,7 @@ namespace LearnHearthstone.Tests.EditMode
             putricide.State.Opponent.Board.Clear();
             putricide.State.Opponent.Board.Add(TestMinion("festergut-combat-enemy", "FESTERGUT_COMBAT_ENEMY", 20, 20));
 
-            putricide.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            putricide.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(putricide.State.Player.Board.Any(card => card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
             Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
@@ -2573,7 +2573,7 @@ namespace LearnHearthstone.Tests.EditMode
             var enemy = TestMinion("squirrel-combat-enemy", "SQUIRREL_COMBAT_ENEMY", 20, 20);
             service.State.Opponent.Board.Add(enemy);
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.Less(enemy.Health, 20);
         }
@@ -2587,7 +2587,7 @@ namespace LearnHearthstone.Tests.EditMode
             var sold = TestMinion("ozumat-sold", "OZUMAT_SOLD", 1, 1);
             ozumat.State.Player.Board.Add(sold);
             ozumat.Apply(new GameCommand(GameCommandType.SellMinion, sold.InstanceId));
-            ozumat.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            ozumat.Apply(new GameCommand(GameCommandType.RunCombatTest));
             var tentacle = ozumat.State.LastReplay.InitialSnapshot.Player.Minions.First(card => card.CardId == "OZUMAT_TENTACLE");
             Assert.IsTrue(tentacle.Keywords.Contains(Keyword.Taunt));
             Assert.AreEqual(6, tentacle.Attack);
@@ -2597,7 +2597,7 @@ namespace LearnHearthstone.Tests.EditMode
             teron.State.Player.Board.Add(TestMinion("teron-target", "TERON_TARGET", 4, 5));
             PlayBuddy(teron, "BG25_HERO_103_Buddy");
             teron.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
-            teron.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            teron.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.IsTrue(teron.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.InstanceId.Contains("teron-reanimated")));
             Assert.IsTrue(teron.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "BG25_HERO_103_Buddy" && card.Attack > 4));
 

@@ -9,6 +9,7 @@ namespace LearnHearthstone.Adapters.Data
     public static class HeroCatalogLoader
     {
         private const string ResourcePath = "Data/battlegroundsHeroes";
+        private const string LocalizationZhCnResourcePath = "Data/battlegroundsHeroLocalizationZhCN";
 
         public static HeroCatalog LoadFromResources()
         {
@@ -18,10 +19,16 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Missing Resources/" + ResourcePath + ".json");
             }
 
-            return LoadFromJson(asset.text);
+            var localizationAsset = Resources.Load<TextAsset>(LocalizationZhCnResourcePath);
+            return LoadFromJson(asset.text, localizationAsset == null ? null : localizationAsset.text);
         }
 
         public static HeroCatalog LoadFromJson(string json)
+        {
+            return LoadFromJson(json, null);
+        }
+
+        public static HeroCatalog LoadFromJson(string json, string zhCnJson)
         {
             var payload = JsonUtility.FromJson<RawPayload>(json);
             if (payload == null || payload.heroes == null)
@@ -35,7 +42,62 @@ namespace LearnHearthstone.Adapters.Data
                 definitions.Add(ToDefinition(raw));
             }
 
+            ApplyZhCnLocalization(definitions, zhCnJson);
             return new HeroCatalog(definitions);
+        }
+
+        private static void ApplyZhCnLocalization(List<HeroDefinition> definitions, string json)
+        {
+            if (definitions == null || string.IsNullOrEmpty(json))
+            {
+                return;
+            }
+
+            var payload = JsonUtility.FromJson<RawLocalizationPayload>(json);
+            if (payload == null || payload.cards == null || payload.cards.Count == 0)
+            {
+                return;
+            }
+
+            var cardsById = new Dictionary<string, RawLocalizedCard>(StringComparer.OrdinalIgnoreCase);
+            foreach (var card in payload.cards)
+            {
+                if (card != null && !string.IsNullOrEmpty(card.cardId) && !cardsById.ContainsKey(card.cardId))
+                {
+                    cardsById.Add(card.cardId, card);
+                }
+            }
+
+            foreach (var definition in definitions)
+            {
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(definition.HeroCardId) &&
+                    cardsById.TryGetValue(definition.HeroCardId, out var heroCard) &&
+                    !string.IsNullOrEmpty(heroCard.name))
+                {
+                    definition.ZhName = heroCard.name;
+                }
+
+                var heroPower = definition.HeroPower;
+                if (heroPower != null &&
+                    !string.IsNullOrEmpty(heroPower.CardId) &&
+                    cardsById.TryGetValue(heroPower.CardId, out var powerCard))
+                {
+                    if (!string.IsNullOrEmpty(powerCard.name))
+                    {
+                        heroPower.ZhName = powerCard.name;
+                    }
+
+                    if (!string.IsNullOrEmpty(powerCard.text))
+                    {
+                        heroPower.ZhText = powerCard.text;
+                    }
+                }
+            }
         }
 
         private static HeroDefinition ToDefinition(RawHero raw)
@@ -198,6 +260,24 @@ namespace LearnHearthstone.Adapters.Data
             public List<string> tribes;
             public List<string> keywords;
             public bool excludedFromBuddyDiscover;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizationPayload
+        {
+            public string source;
+            public string generatedAt;
+            public int count;
+            public List<RawLocalizedCard> cards;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizedCard
+        {
+            public string cardId;
+            public string kind;
+            public string name;
+            public string text;
         }
     }
 }

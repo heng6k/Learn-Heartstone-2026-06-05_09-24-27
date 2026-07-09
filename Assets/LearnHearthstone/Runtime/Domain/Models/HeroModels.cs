@@ -30,6 +30,7 @@ namespace LearnHearthstone.Domain.Models
         public string HeroCardId;
         public int HeroDbfId;
         public string Name;
+        public string ZhName;
         public int Health;
         public int Armor;
         public string ImagePath;
@@ -45,8 +46,10 @@ namespace LearnHearthstone.Domain.Models
         public string CardId;
         public int DbfId;
         public string Name;
+        public string ZhName;
         public int Cost;
         public string Text;
+        public string ZhText;
         public string ImagePath;
         public HeroPowerCategory PrimaryCategory;
         public List<string> Tags = new List<string>();

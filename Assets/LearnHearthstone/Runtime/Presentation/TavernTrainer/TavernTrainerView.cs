@@ -919,7 +919,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             ResourcePill(controls.transform, "升级费用 " + service.State.Player.Tavern.UpgradeCost);
             var spacer = UiFactory.Panel("ControlsSpacer", controls.transform, Color.clear);
             UiFactory.SetFlexible(spacer, 1, 1);
-            UiFactory.Button("CombatButton", controls.transform, "模拟战斗", () => Apply(new GameCommand(GameCommandType.SimulateCombat)));
+            UiFactory.Button("CombatButton", controls.transform, "开战下回合", () => Apply(new GameCommand(GameCommandType.SimulateCombat)));
         }
 
         private void BuildBottomDock(Transform parent)
@@ -942,11 +942,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             UiFactory.Vertical(replay, 10, 8);
             BuildDockHeader(replay.transform, "回放控制", service.State.CombatLog.Count + " 条战斗日志");
             var result = service.State.LastResult == null
-                ? "尚未模拟战斗"
+                ? "尚未开战"
                 : "结果：" + service.State.LastResult.Winner + "，步数 " + service.State.LastResult.Steps;
             var resultLabel = UiFactory.Label("CombatResult", replay.transform, result, 14, FontStyle.Bold);
             UiFactory.SetHeight(resultLabel.gameObject, 30);
-            var hint = UiFactory.Label("ReplayHint", replay.transform, "点击“模拟战斗”后在右侧日志查看每一步。", 13);
+            var hint = UiFactory.Label("ReplayHint", replay.transform, "点击“开战下回合”后在右侧日志查看每一步。", 13);
             UiFactory.SetTextColor(hint, ColorFromHex(0x9AA7B4));
             UiFactory.SetHeight(hint.gameObject, 42);
         }

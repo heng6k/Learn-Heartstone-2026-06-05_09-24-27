@@ -53,10 +53,21 @@ function Invoke-UnityMcpCommand {
         $stream.ReadTimeout = $CommandTimeoutMs
         $stream.WriteTimeout = $CommandTimeoutMs
 
-        Start-Sleep -Milliseconds 50
-        if ($client.Available -gt 0) {
-            $banner = New-Object byte[] ([Math]::Min($client.Available, 256))
-            [void]$stream.Read($banner, 0, $banner.Length)
+        $quietReads = 0
+        while ($quietReads -lt 6) {
+            Start-Sleep -Milliseconds 75
+            if ($client.Available -le 0) {
+                $quietReads += 1
+                continue
+            }
+
+            while ($client.Available -gt 0) {
+                $banner = New-Object byte[] ([Math]::Min($client.Available, 1024))
+                [void]$stream.Read($banner, 0, $banner.Length)
+                Start-Sleep -Milliseconds 25
+            }
+
+            $quietReads = 0
         }
 
         $json = $Payload | ConvertTo-Json -Depth 32 -Compress
@@ -122,7 +133,12 @@ function Wait-UnityIdle {
         }
         catch {
             Start-Sleep -Seconds $PollSeconds
-            $port = Find-UnityMcpPort
+            try {
+                $port = Find-UnityMcpPort
+            }
+            catch {
+                Write-Host "Unity MCP bridge is temporarily unavailable while Unity reloads; continuing to wait."
+            }
             continue
         }
 
@@ -166,7 +182,13 @@ for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
             include_details = $false
             include_failed_tests = $true
         }
-    } -CommandTimeoutMs 20000
+    } -CommandTimeoutMs $TimeoutMs
+
+    if ($job.status -eq "error" -and $job.error -like "*timed out*") {
+        Write-Host "Unity test job query timed out; continuing to poll."
+        Start-Sleep -Seconds $PollSeconds
+        continue
+    }
 
     $data = $job.result.data
     if ($data.status -eq "running") {
@@ -180,6 +202,7 @@ for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
 
     if ($null -eq $data.result) {
         Write-Host "Unity test job ended without a result. Status: $($data.status)"
+        $job | ConvertTo-Json -Depth 16
         if ($data.progress.failures_so_far) {
             $data.progress.failures_so_far | ConvertTo-Json -Depth 8
         }

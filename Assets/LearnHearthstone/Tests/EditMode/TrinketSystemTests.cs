@@ -43,6 +43,7 @@ namespace LearnHearthstone.Tests.EditMode
         private const string ShiftingTideSpellCardId = "TRINKET_SHIFTING_TIDE_SPELL";
         private const string ZestyShakerCardId = "BG26_505";
         private const string TideRaiserCardId = "BG34_920";
+        private const string NerubianDeathswarmerCardId = "BG25_011";
         private const string LockedTurnsCounter = "locked-turns";
         private const string SecretsOfNorgannonAnomalyCardId = "BG27_Anomaly_504";
         private static readonly HashSet<string> Batch2BountyCardIds = new HashSet<string>
@@ -1324,6 +1325,40 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.Throws<System.InvalidOperationException>(() =>
                 service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets)));
+        }
+
+        [Test]
+        public void Setup_SelectedTrinketPoolsFilterLesserAndGreaterSeparately()
+        {
+            var catalog = TrinketCatalogLoader.LoadFromResources();
+            var activeTribes = TribeAvailabilityRules.AllPlayableTribes();
+            var lesser = catalog.Lesser.First(trinket =>
+                trinket.ImplementationStatus == TrinketImplementationStatus.Implemented &&
+                trinket.OfferPoolStatus == TrinketOfferPoolStatus.Offerable &&
+                TribeAvailabilityRules.IsTrinketAvailable(trinket, activeTribes));
+            var greater = catalog.Greater.First(trinket =>
+                trinket.ImplementationStatus == TrinketImplementationStatus.Implemented &&
+                trinket.OfferPoolStatus == TrinketOfferPoolStatus.Offerable &&
+                TribeAvailabilityRules.IsTrinketAvailable(trinket, activeTribes));
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    ActiveTribes = activeTribes,
+                    EnableTrinkets = true,
+                    EnabledLesserTrinketCardIds = new List<string> { lesser.CardId },
+                    EnabledGreaterTrinketCardIds = new List<string> { greater.CardId }
+                });
+
+            CollectionAssert.AreEquivalent(
+                new[] { lesser.CardId },
+                service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser).Select(trinket => trinket.CardId).ToList());
+            CollectionAssert.AreEquivalent(
+                new[] { greater.CardId },
+                service.GetDebugSelectableTrinkets(TrinketSlotKind.Greater).Select(trinket => trinket.CardId).ToList());
+            CollectionAssert.AreEquivalent(new[] { lesser.CardId }, service.State.EnabledLesserTrinketCardIds);
+            CollectionAssert.AreEquivalent(new[] { greater.CardId }, service.State.EnabledGreaterTrinketCardIds);
         }
 
         [Test]
@@ -6255,7 +6290,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(
                 1,
                 service.State.LastResult.PlayerRewards
-                    .Where(reward => reward.Type == CombatRewardType.AddRandomBeastToHand && reward.SourceCardId == "BG26_801")
+                    .Where(reward => reward.Type == CombatRewardType.AddRandomBeastToHand && reward.SourceCardId == "BG34_523")
                     .Sum(reward => reward.Amount));
             Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
                 reward.Type == CombatRewardType.AddTavernSpellToHand &&
@@ -6290,11 +6325,33 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(
                 3,
                 service.State.LastResult.PlayerRewards
-                    .Where(reward => reward.Type == CombatRewardType.AddRandomBeastToHand && reward.SourceCardId == "BG26_801")
+                    .Where(reward => reward.Type == CombatRewardType.AddRandomBeastToHand && reward.SourceCardId == "BG34_523")
                     .Sum(reward => reward.Amount));
             Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
                 reward.Type == CombatRewardType.AddTavernSpellToHand &&
                 reward.SourceCardId == "BG33_894"));
+        }
+
+        [Test]
+        public void RylakPortrait_TriggeredBattlecryPaysUndeadAttackReward()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+
+            QueueTrinketChoice(service, "BG35_MagicItem_834");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            var rylak = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG26_801");
+            service.State.Player.Tavern.Hand.Remove(rylak);
+            service.State.Player.Board.Add(rylak);
+            service.State.Player.Board.Add(TestTribeMinion(NerubianDeathswarmerCardId, 1, 20, Tribe.Undead, Keyword.Battlecry));
+
+            RunStartOfCombat(service);
+
+            Assert.AreEqual(1, service.State.Player.Tavern.UndeadAttackBonus);
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.ImproveUndeadAttack &&
+                reward.SourceCardId == NerubianDeathswarmerCardId &&
+                reward.Amount == 1));
         }
 
         [Test]
@@ -7559,7 +7616,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestTribeMinion("test-elemental", 1, 1, Tribe.Elemental));
             service.State.Opponent.Board.Add(TestTribeMinion("test-opponent", 1, 1, Tribe.Beast));
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(minion => minion.CardId == "TRINKET_FLOURISHING_FROSTLING"));
             Assert.IsTrue(service.State.LastReplay.Frames.Any(frame => frame.EventType == CombatEventType.TrinketTriggered && frame.LogText.Contains("Jarred Frostling")));
@@ -7575,7 +7632,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestTribeMinion("test-quilboar-b", 1, 10, Tribe.Quilboar));
             service.State.Opponent.Board.Add(TestTribeMinion("test-opponent", 0, 10, Tribe.Beast));
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsTrue(service.State.LastReplay.Frames.Any(frame => frame.LogText.Contains("Jar o' Gems")));
             Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Count(minion => minion.MaxHealth > 10) >= 2);
@@ -7593,7 +7650,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(target);
             service.State.Opponent.Board.Add(TestTribeMinion("test-opponent", 1, 1, Tribe.Beast));
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.AreEqual(5, target.Attack);
             Assert.AreEqual(3, target.MaxHealth);
@@ -7609,7 +7666,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestTribeMinion("test-pirate-b", 3, 5, Tribe.Pirate));
             service.State.Opponent.Board.Add(TestTribeMinion("test-opponent", 0, 4, Tribe.Beast));
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.AreEqual(1, service.State.Player.Tavern.NextTurnBonusGold);
         }

@@ -68,6 +68,8 @@ namespace LearnHearthstone.Domain.Models
         public bool TriggeredAttack;
         public int ActualDamageCount;
         public int DivineShieldBreakCount;
+        public int TargetDamageAmount;
+        public int ActorDamageAmount;
     }
 
     [Serializable]
@@ -203,6 +205,7 @@ namespace LearnHearthstone.Domain.Models
         AddPlainCopyOfKilledEnemyToHand,
         AddRandomProtossToHand,
         AddRandomGoldenBeastToHand,
-        AddKeywordToOriginalFriendlyMinion
+        AddKeywordToOriginalFriendlyMinion,
+        ImproveShopStats
     }
 }

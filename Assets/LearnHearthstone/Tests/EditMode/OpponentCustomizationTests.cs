@@ -291,6 +291,27 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void SimulateCombat_CompletesNextTurnAndPaysQueuedCombatGold()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(CreateBoardMinion("player-sim-turn", "player-sim-turn-card", BoardSide.Player, 10, 10));
+            service.State.Opponent.Board.Add(CreateBoardMinion("opponent-sim-turn", "opponent-sim-turn-card", BoardSide.Opponent, 1, 1));
+            service.State.Player.Tavern.PendingCombatWinGold = 2;
+
+            service.Apply(new GameCommand(GameCommandType.SimulateCombat, new CombatTestOptions { Seed = 777, SafetyLimit = 20 }));
+
+            Assert.AreEqual(2, service.State.Round);
+            Assert.AreEqual(MatchPhase.Tavern, service.State.Phase);
+            Assert.IsNotNull(service.State.LastResult);
+            Assert.AreEqual(0, service.State.Player.Tavern.PendingCombatWinGold);
+            Assert.AreEqual(0, service.State.Player.Tavern.NextTurnBonusGold);
+            Assert.AreEqual(service.State.Player.Tavern.MaxGold + 2, service.State.Player.Tavern.Gold);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(log => log.Message == "Combat resolved before turn 2."));
+        }
+
+        [Test]
         public void DebugSkipToNextTurn_RunsTurnTransitionWithoutCombatResult()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -300,7 +321,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(CreateBoardMinion("player-skip-turn", source.CardId, BoardSide.Player, 2, 2));
             service.State.Opponent.Board.Add(CreateBoardMinion("opponent-skip-turn", source.CardId, BoardSide.Opponent, 1, 2));
 
-            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest));
 
             Assert.IsNotNull(service.State.LastResult);
 

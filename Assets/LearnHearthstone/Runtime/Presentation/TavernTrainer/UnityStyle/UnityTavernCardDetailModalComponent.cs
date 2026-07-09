@@ -194,7 +194,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             AddLine(parent, "酒馆等级 " + card.TavernTier + "  " + KindText(card), 13, FontStyle.Bold, UnityTavernUiStyle.Gold, 28f);
-            AddLine(parent, card.CardKind == CardKind.TavernSpell ? "消耗 " + Math.Max(0, card.Cost) : card.Attack + "/" + card.Health + "（上限 " + card.MaxHealth + "）", 13, FontStyle.Bold, UnityTavernUiStyle.Text, 28f);
+            AddLine(parent, card.CardKind == CardKind.TavernSpell ? "消耗 " + Math.Max(0, card.Cost) : TavernNumberFormatter.FullStats(card.Attack, card.Health) + "（上限 " + TavernNumberFormatter.FullNumber(card.MaxHealth) + "）", 13, FontStyle.Bold, UnityTavernUiStyle.Text, 28f);
 
             var keywords = card.OfficialKeywords != null && card.OfficialKeywords.Count > 0
                 ? card.OfficialKeywords

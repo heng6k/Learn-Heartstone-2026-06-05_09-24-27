@@ -133,6 +133,54 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void QuestModeOpening_UsesSelectedQuestAndRewardPools()
+        {
+            var catalog = QuestCatalogLoader.LoadFromResources();
+            var quest = catalog.ImplementedQuests.First();
+            var reward = catalog.OfferableRewards.First();
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Quests,
+                    EnableQuests = true,
+                    EnableQuestRewards = true,
+                    EnabledQuestCardIds = new List<string> { quest.CardId },
+                    EnabledQuestRewardCardIds = new List<string> { reward.CardId }
+                });
+
+            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+
+            Assert.IsNotNull(request);
+            Assert.AreEqual(1, request.Options.Count);
+            Assert.AreEqual(quest.CardId, request.Options[0].SourceId);
+            Assert.AreEqual(reward.Id, request.Options[0].RewardId);
+            CollectionAssert.AreEquivalent(new[] { quest.CardId }, service.State.EnabledQuestCardIds);
+            CollectionAssert.AreEquivalent(new[] { reward.CardId }, service.State.EnabledQuestRewardCardIds);
+        }
+
+        [Test]
+        public void QuestModeOpening_RequiresSelectedQuestAndRewardPoolsTogether()
+        {
+            var quest = QuestCatalogLoader.LoadFromResources().ImplementedQuests.First();
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Quests,
+                    EnableQuests = true,
+                    EnableQuestRewards = true,
+                    EnabledQuestCardIds = new List<string> { quest.CardId }
+                });
+
+            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            CollectionAssert.AreEquivalent(new[] { quest.CardId }, service.State.EnabledQuestCardIds);
+            Assert.AreEqual(0, service.State.EnabledQuestRewardCardIds.Count);
+        }
+
+        [Test]
         public void FirstBatch_AnimaBribeSellingMinionBuffsTavernMinion()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
@@ -1059,6 +1107,26 @@ namespace LearnHearthstone.Tests.EditMode
                 12345,
                 new InMemoryTestScenarioRepository(),
                 new MatchSetupOptions { SelectedHeroCardId = "BG24_HERO_100" });
+
+            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            Assert.IsNotNull(request);
+            Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
+            Assert.AreEqual("sire-denathrius", request.Source);
+            Assert.AreEqual("Main", request.Slot);
+            Assert.AreEqual(2, request.Options.Count);
+        }
+
+        [Test]
+        public void SireDenathrius_QuestModeKeepsHeroOpeningQuestChoice()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions
+                {
+                    SelectedHeroCardId = "BG24_HERO_100",
+                    AdvancedMechanicMode = AdvancedMechanicMode.Quests
+                });
 
             var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
             Assert.IsNotNull(request);

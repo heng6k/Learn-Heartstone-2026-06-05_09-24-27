@@ -20,6 +20,7 @@ namespace LearnHearthstone.Presentation
         private Canvas canvas;
         private MatchService matchService;
         private IAdvisorService advisor;
+        private bool useEnglish;
 
         private void Awake()
         {
@@ -39,15 +40,40 @@ namespace LearnHearthstone.Presentation
         private void ShowHub()
         {
             ClearCanvas();
-            new MainHubView(canvas.transform, ShowLegacyTrainer, ShowRealisticTrainer, ShowUnityTrainer).Build();
+            new MainHubView(
+                canvas.transform,
+                ShowLegacyTrainer,
+                ShowRealisticTrainer,
+                ShowUnityTrainer,
+                openUnityTrainerMirror: ShowUnityTrainerMirror,
+                useEnglish: useEnglish,
+                languageChanged: SetLanguage).Build();
             AddDebugAspectRatioOverlay();
         }
 
         private void ShowUnityTrainer()
         {
             ClearCanvas();
-            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub).Build();
+            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish).Build();
             AddDebugAspectRatioOverlay();
+        }
+
+        private void ShowUnityTrainerMirror()
+        {
+            ClearCanvas();
+            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish).Build();
+            AddDebugAspectRatioOverlay();
+        }
+
+        private void SetLanguage(bool nextUseEnglish)
+        {
+            if (useEnglish == nextUseEnglish)
+            {
+                return;
+            }
+
+            useEnglish = nextUseEnglish;
+            ShowHub();
         }
 
         private void StartUnityTrainer(MatchSetupOptions setup)

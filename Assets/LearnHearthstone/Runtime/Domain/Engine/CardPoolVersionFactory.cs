@@ -45,7 +45,12 @@ namespace LearnHearthstone.Domain.Engine
                 VersionName = string.IsNullOrEmpty(profile.Name) ? "自定义版本" : profile.Name,
                 IsDefault = false,
                 EnabledMinionCardIds = ToMinionSet(profile.EnabledMinionCardIds),
-                EnabledTavernSpellCardNumbers = ToSet(profile.EnabledTavernSpellCardNumbers)
+                EnabledTavernSpellCardNumbers = ToSet(profile.EnabledTavernSpellCardNumbers),
+                EnabledQuestCardIds = ToSet(profile.EnabledQuestCardIds),
+                EnabledQuestRewardCardIds = ToSet(profile.EnabledQuestRewardCardIds),
+                EnabledLesserTrinketCardIds = ToSet(profile.EnabledLesserTrinketCardIds),
+                EnabledGreaterTrinketCardIds = ToSet(profile.EnabledGreaterTrinketCardIds),
+                EnabledAnomalyCardIds = ToSet(profile.EnabledAnomalyCardIds)
             };
         }
 
@@ -59,7 +64,12 @@ namespace LearnHearthstone.Domain.Engine
                 CreatedAtUnixSeconds = now,
                 UpdatedAtUnixSeconds = now,
                 EnabledMinionCardIds = OrderedMinions(selection?.EnabledMinionCardIds),
-                EnabledTavernSpellCardNumbers = Ordered(selection?.EnabledTavernSpellCardNumbers)
+                EnabledTavernSpellCardNumbers = Ordered(selection?.EnabledTavernSpellCardNumbers),
+                EnabledQuestCardIds = Ordered(selection?.EnabledQuestCardIds),
+                EnabledQuestRewardCardIds = Ordered(selection?.EnabledQuestRewardCardIds),
+                EnabledLesserTrinketCardIds = Ordered(selection?.EnabledLesserTrinketCardIds),
+                EnabledGreaterTrinketCardIds = Ordered(selection?.EnabledGreaterTrinketCardIds),
+                EnabledAnomalyCardIds = Ordered(selection?.EnabledAnomalyCardIds)
             };
         }
 
@@ -87,6 +97,11 @@ namespace LearnHearthstone.Domain.Engine
         {
             profile.EnabledMinionCardIds = OrderedMinions(profile.EnabledMinionCardIds);
             profile.EnabledTavernSpellCardNumbers = Ordered(profile.EnabledTavernSpellCardNumbers);
+            profile.EnabledQuestCardIds = Ordered(profile.EnabledQuestCardIds);
+            profile.EnabledQuestRewardCardIds = Ordered(profile.EnabledQuestRewardCardIds);
+            profile.EnabledLesserTrinketCardIds = Ordered(profile.EnabledLesserTrinketCardIds);
+            profile.EnabledGreaterTrinketCardIds = Ordered(profile.EnabledGreaterTrinketCardIds);
+            profile.EnabledAnomalyCardIds = Ordered(profile.EnabledAnomalyCardIds);
             if (string.IsNullOrEmpty(profile.Name))
             {
                 profile.Name = "自定义版本";

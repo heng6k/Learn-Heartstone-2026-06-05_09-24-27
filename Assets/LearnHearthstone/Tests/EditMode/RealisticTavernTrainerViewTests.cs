@@ -58,7 +58,8 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticPlayerBoard"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticHandDock"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticActionPanel"));
-                Assert.IsNotNull(FindChild(rootObject.transform, "RealisticCombatButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "RealisticNextTurnButton"));
+                Assert.IsNull(FindChild(rootObject.transform, "RealisticCombatButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticTrainerDrawer"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticDrawerTabs"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticDrawerScroll"));
@@ -95,6 +96,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticSaveScenarioButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticLoadScenarioButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticCombatSeedInput"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "RealisticCombatDebugOnlyHint"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticRunCombatTestButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticResetCombatSnapshotButton"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "RealisticScenarioList"));
@@ -135,7 +137,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Build_QuickCombatButtonUsesLegacySimulateCombatCommand()
+        public void Build_PrimaryNextTurnCompletesCombatAndNextTurn()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
             try
@@ -153,9 +155,10 @@ namespace LearnHearthstone.Tests.EditMode
                 service.State.Opponent.Board.Add(opponent);
 
                 new RealisticTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
-                FindChild(rootObject.transform, "RealisticCombatButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "RealisticNextTurnButton").GetComponent<Button>().onClick.Invoke();
 
-                Assert.AreEqual(MatchPhase.Result, service.State.Phase);
+                Assert.AreEqual(2, service.State.Round);
+                Assert.AreEqual(MatchPhase.Tavern, service.State.Phase);
                 Assert.IsNotNull(service.State.LastResult);
                 Assert.IsNotNull(service.State.LastReplay);
             }

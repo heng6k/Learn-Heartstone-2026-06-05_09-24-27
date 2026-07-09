@@ -133,17 +133,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.caretColor = UnityTavernUiStyle.Text;
             input.selectionColor = new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.35f);
 
-            var placeholder = UiFactory.Label(name + "Placeholder", inputObject.transform, "0", 15, FontStyle.Normal);
-            placeholder.color = new Color(UnityTavernUiStyle.MutedText.r, UnityTavernUiStyle.MutedText.g, UnityTavernUiStyle.MutedText.b, 0.55f);
-            placeholder.alignment = TextAnchor.MiddleCenter;
-            UnityTavernUiStyle.Stretch(placeholder.rectTransform);
-
             var text = UiFactory.Label(name + "Text", inputObject.transform, value.ToString(), 16, FontStyle.Bold);
             text.color = UnityTavernUiStyle.Text;
             text.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.Stretch(text.rectTransform);
 
-            input.placeholder = placeholder;
             input.textComponent = text;
             return input;
         }

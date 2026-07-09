@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
@@ -162,11 +164,36 @@ namespace LearnHearthstone.Tests.EditMode
 
             var result = CombatEngine.SimulateBasicCombat(new[] { dustbone, undead }, new[] { wall }, 3207, 3);
             var trigger = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackTriggered && frame.ActorId == "p-dustbone");
+            var buffedSource = trigger.PlayerBoardSnapshot.Minions.Single(minion => minion.InstanceId == "p-dustbone");
             var buffed = trigger.PlayerBoardSnapshot.Minions.Single(minion => minion.InstanceId == "p-undead");
 
+            Assert.AreEqual(3, buffedSource.Attack);
             Assert.AreEqual(4, buffed.Attack);
             Assert.AreEqual(3, buffed.Health);
             Assert.That(trigger.TriggerSourceIds, Does.Contain("p-dustbone"));
+            Assert.IsTrue(result.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.ImproveUndeadAttack &&
+                reward.SourceCardId == DustboneDestroyerCardId &&
+                reward.Amount == 1));
+        }
+
+        [Test]
+        public void DustboneDestroyer_RallyPaysUndeadAttackIntoTavernState()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(CardMinion("p-dustbone-service", BoardSide.Player, DustboneDestroyerCardId, false, 2, 6, Tribe.Undead, Keyword.Rally));
+            service.State.Player.Board.Add(TestMinion("p-undead-service", BoardSide.Player, 3, 3, Tribe.Undead));
+            service.State.Opponent.Board.Add(TestMinion("o-wall-service", BoardSide.Opponent, 0, 50, Tribe.None));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 3207, SafetyLimit = 3 }));
+
+            Assert.AreEqual(1, service.State.Player.Tavern.UndeadAttackBonus);
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.ImproveUndeadAttack &&
+                reward.SourceCardId == DustboneDestroyerCardId &&
+                reward.Amount == 1));
         }
 
         [Test]

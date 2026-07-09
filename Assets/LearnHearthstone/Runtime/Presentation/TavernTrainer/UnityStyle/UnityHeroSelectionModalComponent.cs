@@ -29,6 +29,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private ImplementationFilter implementationFilter = ImplementationFilter.All;
         private HeroPowerCategory? categoryFilter;
         private string previewHeroCardId;
+        private bool useEnglish;
+        private bool useLocalizedCardText;
 
         public static GameObject CreateModalHost(Transform parent, string fallbackName)
         {
@@ -43,14 +45,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             bool matchMode,
             Action<HeroDefinition> selected,
             Action close,
-            string modalTitle = null)
+            string modalTitle = null,
+            bool useEnglish = false,
+            bool useLocalizedCardText = false)
         {
             heroCatalog = catalog;
             currentHeroCardId = selectedHeroCardId;
             inMatch = matchMode;
             onHeroSelected = selected;
             onClose = close;
-            title = string.IsNullOrWhiteSpace(modalTitle) ? (matchMode ? "更换英雄" : "选择英雄") : modalTitle;
+            this.useEnglish = useEnglish;
+            this.useLocalizedCardText = useLocalizedCardText;
+            title = string.IsNullOrWhiteSpace(modalTitle) ? (matchMode ? T("更换英雄", "Change Hero") : T("选择英雄", "Choose Hero")) : modalTitle;
 
             if (string.IsNullOrEmpty(previewHeroCardId))
             {
@@ -58,6 +64,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             Rebuild();
+        }
+
+        private string T(string chinese, string english)
+        {
+            return useEnglish ? english : chinese;
         }
 
         private void Rebuild()
@@ -103,21 +114,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             heading.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetFlexible(heading.gameObject, 1f, 0f);
 
-            var count = UiFactory.Label("UnityHeroSelectionResultCount", header.transform, FilteredHeroes().Count() + " 个英雄", layout.IsCompact ? 11 : 12, FontStyle.Bold);
+            var count = UiFactory.Label(
+                "UnityHeroSelectionResultCount",
+                header.transform,
+                useEnglish ? FilteredHeroes().Count() + " heroes" : FilteredHeroes().Count() + " 个英雄",
+                layout.IsCompact ? 11 : 12,
+                FontStyle.Bold);
             count.alignment = TextAnchor.MiddleRight;
             count.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetFixedSize(count.gameObject, layout.IsCompact ? 78f : 106f, 30f);
 
             BuildSearchInput(header.transform, layout);
 
-            var clearSearch = ModalButton("UnityHeroSelectionClearSearchButton", header.transform, "清空", !string.IsNullOrWhiteSpace(searchText), () =>
+            var clearSearch = ModalButton("UnityHeroSelectionClearSearchButton", header.transform, T("清空", "Clear"), !string.IsNullOrWhiteSpace(searchText), () =>
             {
                 searchText = string.Empty;
                 ResetPreviewToFiltered();
             });
             UnityTavernUiStyle.SetFixedSize(clearSearch.gameObject, 52f, 32f);
 
-            var close = ModalButton("UnityHeroSelectionCloseButton", header.transform, "关闭", true, () => onClose?.Invoke());
+            var close = ModalButton("UnityHeroSelectionCloseButton", header.transform, T("关闭", "Close"), true, () => onClose?.Invoke());
             UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, 32f);
         }
 
@@ -129,7 +145,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.ConfigureSurface(inputObject, UnityTavernUiStyle.PanelQuiet, true);
             UnityTavernUiStyle.ConfigureOutline(inputObject, new Color(0f, 0f, 0f, 0.24f), new Vector2(1f, -1f));
 
-            var placeholder = UiFactory.Label("UnityHeroSelectionSearchPlaceholder", inputObject.transform, "搜索英雄...", 12);
+            var placeholder = UiFactory.Label("UnityHeroSelectionSearchPlaceholder", inputObject.transform, T("搜索英雄...", "Search heroes..."), 12);
             placeholder.color = UnityTavernUiStyle.MutedText;
             placeholder.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.Stretch(placeholder.rectTransform);
@@ -180,17 +196,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 group.childForceExpandHeight = true;
             }
 
-            FilterButton("UnityHeroSelectionStatusAllButton", row.transform, "全部", implementationFilter == ImplementationFilter.All, () =>
+            FilterButton("UnityHeroSelectionStatusAllButton", row.transform, T("全部", "All"), implementationFilter == ImplementationFilter.All, () =>
             {
                 implementationFilter = ImplementationFilter.All;
                 ResetPreviewToFiltered();
             });
-            FilterButton("UnityHeroSelectionImplementedButton", row.transform, "已实现", implementationFilter == ImplementationFilter.Implemented, () =>
+            FilterButton("UnityHeroSelectionImplementedButton", row.transform, T("已实现", "Implemented"), implementationFilter == ImplementationFilter.Implemented, () =>
             {
                 implementationFilter = ImplementationFilter.Implemented;
                 ResetPreviewToFiltered();
             });
-            FilterButton("UnityHeroSelectionIncompleteButton", row.transform, "未完成", implementationFilter == ImplementationFilter.Incomplete, () =>
+            FilterButton("UnityHeroSelectionIncompleteButton", row.transform, T("未完成", "Incomplete"), implementationFilter == ImplementationFilter.Incomplete, () =>
             {
                 implementationFilter = ImplementationFilter.Incomplete;
                 ResetPreviewToFiltered();
@@ -281,20 +297,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             textLayout.childForceExpandWidth = true;
             textLayout.childForceExpandHeight = false;
 
-            var name = UiFactory.Label("UnityHeroSelectionPreviewName", textStack.transform, hero == null ? "未设置英雄" : hero.Name, compact ? 14 : 16, FontStyle.Bold);
+            var name = UiFactory.Label("UnityHeroSelectionPreviewName", textStack.transform, hero == null ? T("未设置英雄", "No hero set") : DisplayHeroName(hero), compact ? 14 : 16, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(name.gameObject, compact ? 20f : 24f);
 
-            var stats = UiFactory.Label("UnityHeroSelectionPreviewStats", textStack.transform, hero == null ? "由对局兜底" : "生命 " + hero.Health + " / 护甲 " + hero.Armor, 12, FontStyle.Bold);
+            var stats = UiFactory.Label("UnityHeroSelectionPreviewStats", textStack.transform, hero == null ? T("由对局兜底", "Match fallback") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 12, FontStyle.Bold);
             stats.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 18f);
 
             var power = hero?.HeroPower;
-            AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewPower", power == null ? "技能：未设置" : "技能：" + power.Name + "  费用 " + power.Cost, compact ? 12 : 13, UnityTavernUiStyle.Text);
+            AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewPower", power == null ? T("技能：未设置", "Power: not set") : T("技能：", "Power: ") + DisplayHeroPowerName(power) + T("  费用 ", "  Cost ") + power.Cost, compact ? 12 : 13, UnityTavernUiStyle.Text);
             if (!compact)
             {
-                AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewText", string.IsNullOrWhiteSpace(power?.Text) ? "暂无技能描述。" : power.Text, 11, UnityTavernUiStyle.MutedText, 54f);
-                AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewCategory", power == null ? "分类：其他" : "分类：" + CategoryName(power.PrimaryCategory) + " / " + EligibilityName(power.ReplacementEligibility), 11, UnityTavernUiStyle.MutedText);
+                AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewText", string.IsNullOrWhiteSpace(DisplayHeroPowerText(power)) ? T("暂无技能描述。", "No hero power text.") : DisplayHeroPowerText(power), 11, UnityTavernUiStyle.MutedText, 54f);
+                AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewCategory", power == null ? T("分类：其他", "Category: Other") : T("分类：", "Category: ") + CategoryName(power.PrimaryCategory) + " / " + EligibilityName(power.ReplacementEligibility), 11, UnityTavernUiStyle.MutedText);
                 AddPreviewLine(preview.transform, "UnityHeroSelectionPreviewStatus", StatusLabel(hero), 11, UnityTavernUiStyle.Gold);
             }
 
@@ -304,7 +320,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 AddPreviewLine(
                     preview.transform,
                     "UnityHeroSelectionPreviewRisk",
-                    isCurrent ? "这是你当前正在使用的英雄。" : "确认后会刷新英雄、技能、生命和护甲。",
+                    isCurrent ? T("这是你当前正在使用的英雄。", "This is your current hero.") : T("确认后会刷新英雄、技能、生命和护甲。", "Confirming refreshes hero, power, health, and armor."),
                     11,
                     isCurrent ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Red,
                     compact ? 22f : 34f);
@@ -334,7 +350,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var heroes = FilteredHeroes().ToList();
             if (heroes.Count == 0)
             {
-                var empty = UiFactory.Label("UnityHeroSelectionEmpty", scrollContent, "没有符合条件的英雄。", 14, FontStyle.Bold);
+                var empty = UiFactory.Label("UnityHeroSelectionEmpty", scrollContent, T("没有符合条件的英雄。", "No heroes match the filters."), 14, FontStyle.Bold);
                 empty.alignment = TextAnchor.MiddleCenter;
                 empty.color = UnityTavernUiStyle.MutedText;
                 UnityTavernUiStyle.SetPreferredHeight(empty.gameObject, 56f);
@@ -387,11 +403,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             textLayout.childForceExpandWidth = true;
             textLayout.childForceExpandHeight = false;
 
-            var name = UiFactory.Label("UnityHeroSelectionHeroName-" + SafeName(hero.HeroCardId), textStack.transform, hero.Name, layout.IsCompact ? 13 : 14, FontStyle.Bold);
+            var name = UiFactory.Label("UnityHeroSelectionHeroName-" + SafeName(hero.HeroCardId), textStack.transform, DisplayHeroName(hero), layout.IsCompact ? 13 : 14, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(name.gameObject, layout.IsCompact ? 20f : 24f);
 
-            var detailText = (hero.HeroPower == null ? "无技能" : hero.HeroPower.Name + " · 费用 " + hero.HeroPower.Cost) + " · " + (current ? "当前英雄" : ShortStatusLabel(hero));
+            var detailText = (hero.HeroPower == null ? T("无技能", "No power") : DisplayHeroPowerName(hero.HeroPower) + T(" · 费用 ", " · Cost ") + hero.HeroPower.Cost) + " · " + (current ? T("当前英雄", "Current hero") : ShortStatusLabel(hero));
             var detail = UiFactory.Label("UnityHeroSelectionHeroDetail-" + SafeName(hero.HeroCardId), textStack.transform, detailText, 11, FontStyle.Bold);
             detail.color = current ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, layout.IsCompact ? 18f : 20f);
@@ -399,7 +415,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var choose = ModalButton(
                 "UnityHeroSelectionHeroChooseButton-" + SafeName(hero.HeroCardId),
                 rowObject.transform,
-                current ? "当前" : inMatch ? "预览" : "选择",
+                current ? T("当前", "Current") : inMatch ? T("预览", "Preview") : T("选择", "Choose"),
                 !current,
                 () =>
                 {
@@ -425,7 +441,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var sprite = hero == null ? null : CardImageProvider.LoadSprite(hero.ImagePath, hero.HeroCardId, CardKind.Hero);
             if (sprite == null)
             {
-                var missing = UiFactory.Label(name + "Missing", frame.transform, "无图", 10, FontStyle.Bold);
+                var missing = UiFactory.Label(name + "Missing", frame.transform, T("无图", "No art"), 10, FontStyle.Bold);
                 missing.alignment = TextAnchor.MiddleCenter;
                 missing.color = UnityTavernUiStyle.MutedText;
                 UnityTavernUiStyle.Stretch(missing.rectTransform);
@@ -449,8 +465,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 heroes = heroes.Where(hero =>
                     Contains(hero.Name, query) ||
+                    Contains(hero.ZhName, query) ||
                     Contains(hero.HeroCardId, query) ||
-                    Contains(hero.HeroPower?.Name, query));
+                    Contains(hero.HeroPower?.Name, query) ||
+                    Contains(hero.HeroPower?.ZhName, query) ||
+                    Contains(hero.HeroPower?.Text, query) ||
+                    Contains(hero.HeroPower?.ZhText, query));
             }
 
             if (implementationFilter == ImplementationFilter.Implemented)
@@ -467,7 +487,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 heroes = heroes.Where(hero => hero.HeroPower != null && hero.HeroPower.PrimaryCategory == categoryFilter.Value);
             }
 
-            return heroes.OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase);
+            return heroes.OrderBy(DisplayHeroName, StringComparer.OrdinalIgnoreCase);
         }
 
         private HeroDefinition PreviewHero()
@@ -536,15 +556,45 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (hero == null)
             {
-                return "没有可选英雄";
+                return T("没有可选英雄", "No selectable hero");
             }
 
             if (isCurrent)
             {
-                return "当前英雄";
+                return T("当前英雄", "Current hero");
             }
 
-            return inMatch ? "确认更换：" + hero.Name : "选择此英雄";
+            return inMatch ? T("确认更换：", "Confirm: ") + DisplayHeroName(hero) : T("选择此英雄", "Choose this hero");
+        }
+
+        private string DisplayHeroName(HeroDefinition hero)
+        {
+            if (useLocalizedCardText && !string.IsNullOrEmpty(hero?.ZhName))
+            {
+                return hero.ZhName;
+            }
+
+            return hero?.Name ?? string.Empty;
+        }
+
+        private string DisplayHeroPowerName(HeroPowerDefinition power)
+        {
+            if (useLocalizedCardText && !string.IsNullOrEmpty(power?.ZhName))
+            {
+                return power.ZhName;
+            }
+
+            return power?.Name ?? string.Empty;
+        }
+
+        private string DisplayHeroPowerText(HeroPowerDefinition power)
+        {
+            if (useLocalizedCardText && !string.IsNullOrEmpty(power?.ZhText))
+            {
+                return power.ZhText;
+            }
+
+            return power?.Text ?? string.Empty;
         }
 
         private void AddPreviewLine(Transform parent, string name, string text, int size, Color color, float height = 22f)
@@ -591,11 +641,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (hero == null)
             {
-                return "实现状态：未注册";
+                return T("实现状态：未注册", "Status: Unregistered");
             }
 
             var implementation = HeroEffectImplementationRegistry.FindByHeroCardId(hero.HeroCardId);
-            return "实现状态：" + ShortStatusLabel(hero) + " / " + implementation.Phase;
+            return T("实现状态：", "Status: ") + ShortStatusLabel(hero) + " / " + implementation.Phase;
         }
 
         private string ShortStatusLabel(HeroDefinition hero)
@@ -603,38 +653,38 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var status = HeroEffectImplementationRegistry.FindByHeroCardId(hero?.HeroCardId).Status;
             switch (status)
             {
-                case HeroEffectImplementationStatus.Implemented: return "已实现";
-                case HeroEffectImplementationStatus.FrameworkFirst: return "代理";
+                case HeroEffectImplementationStatus.Implemented: return T("已实现", "Implemented");
+                case HeroEffectImplementationStatus.FrameworkFirst: return T("代理", "Proxy");
                 case HeroEffectImplementationStatus.Deferred:
-                case HeroEffectImplementationStatus.Unregistered: return "禁用";
-                default: return "未完成";
+                case HeroEffectImplementationStatus.Unregistered: return T("禁用", "Disabled");
+                default: return T("未完成", "Incomplete");
             }
         }
 
-        private static string CategoryName(HeroPowerCategory category)
+        private string CategoryName(HeroPowerCategory category)
         {
             switch (category)
             {
-                case HeroPowerCategory.Economy: return "经济";
-                case HeroPowerCategory.Buff: return "增益";
-                case HeroPowerCategory.Combat: return "战斗";
-                case HeroPowerCategory.Minion: return "随从";
-                case HeroPowerCategory.Discover: return "发现";
-                case HeroPowerCategory.Health: return "生命";
-                case HeroPowerCategory.Passive: return "被动";
-                case HeroPowerCategory.HeroSwap: return "换技能";
-                default: return "其他";
+                case HeroPowerCategory.Economy: return T("经济", "Economy");
+                case HeroPowerCategory.Buff: return T("增益", "Buff");
+                case HeroPowerCategory.Combat: return T("战斗", "Combat");
+                case HeroPowerCategory.Minion: return T("随从", "Minion");
+                case HeroPowerCategory.Discover: return T("发现", "Discover");
+                case HeroPowerCategory.Health: return T("生命", "Health");
+                case HeroPowerCategory.Passive: return T("被动", "Passive");
+                case HeroPowerCategory.HeroSwap: return T("换技能", "Swap Power");
+                default: return T("其他", "Other");
             }
         }
 
-        private static string EligibilityName(HeroPowerReplacementEligibility eligibility)
+        private string EligibilityName(HeroPowerReplacementEligibility eligibility)
         {
             switch (eligibility)
             {
-                case HeroPowerReplacementEligibility.DiscoverableAfterStart: return "可替换";
-                case HeroPowerReplacementEligibility.InitialOnly: return "开局限定";
-                case HeroPowerReplacementEligibility.NonSelectable: return "不可选";
-                default: return "禁用";
+                case HeroPowerReplacementEligibility.DiscoverableAfterStart: return T("可替换", "Discoverable");
+                case HeroPowerReplacementEligibility.InitialOnly: return T("开局限定", "Opening only");
+                case HeroPowerReplacementEligibility.NonSelectable: return T("不可选", "Not selectable");
+                default: return T("禁用", "Disabled");
             }
         }
 

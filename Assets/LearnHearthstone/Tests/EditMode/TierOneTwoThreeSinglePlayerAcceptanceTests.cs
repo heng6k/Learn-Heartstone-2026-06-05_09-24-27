@@ -257,9 +257,9 @@ namespace LearnHearthstone.Tests.EditMode
             PlaySpell(service, "105267");
 
             service.Apply(new GameCommand(GameCommandType.SimulateCombat));
-            Assert.AreEqual(3, service.State.Player.Tavern.NextTurnBonusGold);
 
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            Assert.AreEqual(2, service.State.Round);
+            Assert.AreEqual(0, service.State.Player.Tavern.NextTurnBonusGold);
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
         }
 
