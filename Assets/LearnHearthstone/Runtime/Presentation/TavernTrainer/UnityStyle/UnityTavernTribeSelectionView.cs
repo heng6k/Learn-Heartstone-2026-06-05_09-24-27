@@ -89,6 +89,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool heroSelectionOpen;
         private bool advancedMechanicsOpen;
         private bool advancedPoolEditorOpen;
+        private GameObject advancedPoolEditorOverlay;
         private List<Tribe> pendingStartTribes = new List<Tribe>();
         private bool hasUnsavedCardPoolChanges;
         private bool versionSwitchConfirmOpen;
@@ -444,9 +445,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             grid.constraintCount = layout.IsCompact ? 2 : 4;
             grid.cellSize = layout.IsCompact ? new Vector2(150f, 62f) : new Vector2(176f, 72f);
 
-            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedQuestRewardPoolCard", T("任务/奖励池", "Quest / Reward Pool"), QuestRewardPoolSummaryText(), QuestPoolsEnabled(), () => OpenAdvancedPoolEditor(AdvancedPoolTab.QuestRewards));
-            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedTrinketPoolCard", T("饰品池", "Trinket Pool"), TrinketPoolSummaryText(), TrinketPoolsEnabled(), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Trinkets));
-            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedAnomalyPoolCard", T("畸变池", "Anomaly Pool"), AnomalyPoolSummaryText(), AnomalyPoolEnabled(), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Anomalies));
+            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedQuestRewardPoolCard", T("任务/奖励池", "Quest / Reward Pool"), QuestRewardPoolSummaryText(), QuestPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.QuestRewards), () => OpenAdvancedPoolEditor(AdvancedPoolTab.QuestRewards));
+            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedTrinketPoolCard", T("饰品池", "Trinket Pool"), TrinketPoolSummaryText(), TrinketPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.Trinkets), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Trinkets));
+            BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedAnomalyPoolCard", T("畸变池", "Anomaly Pool"), AnomalyPoolSummaryText(), AnomalyPoolEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.Anomalies), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Anomalies));
             BuildSetupToggle(gridObject.transform, "UnityAdvancedMechanicsToggle-ShowProxySafe", T("代理实现", "Proxy-safe"), showProxySafe, true, value =>
             {
                 showProxySafe = value;
@@ -480,7 +481,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             });
         }
 
-        private void BuildAdvancedPoolSummaryCard(Transform parent, string name, string titleText, string detailText, bool active, Action edit)
+        private void BuildAdvancedPoolSummaryCard(Transform parent, string name, string titleText, string detailText, bool active, Action quickEnable, Action edit)
         {
             var card = UiFactory.Panel(name, parent, active ? Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.12f) : UnityTavernUiStyle.PanelQuiet);
             UnityTavernUiStyle.ConfigureOutline(
@@ -507,8 +508,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             detail.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetFlexible(detail.gameObject, 1f, 0f);
 
-            var button = ActionButton(name + "EditButton", card.transform, T("编辑", "Edit"), true, edit);
-            UnityTavernUiStyle.SetPreferredHeight(button.gameObject, layout.IsCompact ? 22f : 26f);
+            var actions = UiFactory.Panel(name + "Actions", card.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(actions, layout.IsCompact ? 22f : 26f);
+            ConfigureButtonRow(actions, 0, 4);
+            ActionButton(name + "EnableButton", actions.transform, active ? T("已开启", "On") : T("一键开启", "Enable"), !active, quickEnable);
+            ActionButton(name + "EditButton", actions.transform, T("编辑", "Edit"), true, edit);
+        }
+
+        private void QuickEnableAdvancedPool(AdvancedPoolTab tab)
+        {
+            activeAdvancedPoolTab = tab;
+            advancedPoolSearchText = string.Empty;
+            advancedPoolTypeFilter = AdvancedPoolTypeFilter.All;
+            advancedPoolStatusFilter = AdvancedPoolStatusFilter.All;
+            SelectAdvancedOfferableOnly();
         }
 
         private void OpenAdvancedPoolEditor(AdvancedPoolTab tab)
@@ -526,6 +539,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildAdvancedPoolEditorOverlay()
         {
             var overlay = UiFactory.Panel("UnityAdvancedPoolEditorOverlay", shell.transform, new Color(0f, 0f, 0f, 0.62f));
+            advancedPoolEditorOverlay = overlay;
             overlay.transform.SetAsLastSibling();
             UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
             UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
@@ -551,6 +565,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildAdvancedPoolFilters(panel.transform);
             BuildAdvancedPoolBulkActions(panel.transform);
             BuildAdvancedPoolList(panel.transform);
+        }
+
+        private void RebuildAdvancedPoolEditorOverlay()
+        {
+            if (!advancedPoolEditorOpen || shell == null)
+            {
+                Build();
+                return;
+            }
+
+            if (advancedPoolEditorOverlay != null)
+            {
+                advancedPoolEditorOverlay.SetActive(false);
+                if (UnityEngine.Application.isPlaying)
+                {
+                    UnityEngine.Object.Destroy(advancedPoolEditorOverlay);
+                }
+                else
+                {
+                    UnityEngine.Object.DestroyImmediate(advancedPoolEditorOverlay);
+                }
+
+                advancedPoolEditorOverlay = null;
+            }
+
+            BuildAdvancedPoolEditorOverlay();
         }
 
         private void BuildAdvancedPoolHeader(Transform parent)
@@ -594,7 +634,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 activeAdvancedPoolTab = tab;
                 advancedPoolTypeFilter = AdvancedPoolTypeFilter.All;
                 advancedPoolStatusFilter = AdvancedPoolStatusFilter.All;
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             });
             UnityTavernUiStyle.SetFixedSize(button.gameObject, layout.IsCompact ? 92f : 112f, 42f);
             if (activeAdvancedPoolTab == tab)
@@ -627,7 +667,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.onEndEdit.AddListener(value =>
             {
                 advancedPoolSearchText = value ?? string.Empty;
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             });
         }
 
@@ -654,7 +694,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var button = FilterButton("UnityAdvancedPoolTypeFilter-" + filter, parent, label, advancedPoolTypeFilter == filter, UnityTavernUiStyle.Blue, () =>
             {
                 advancedPoolTypeFilter = filter;
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             });
             UnityTavernUiStyle.SetPreferredHeight(button.gameObject, 30f);
         }
@@ -664,7 +704,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var button = FilterButton("UnityAdvancedPoolStatusFilter-" + filter, parent, label, advancedPoolStatusFilter == filter, UnityTavernUiStyle.Green, () =>
             {
                 advancedPoolStatusFilter = filter;
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             });
             UnityTavernUiStyle.SetPreferredHeight(button.gameObject, 30f);
         }
@@ -696,7 +736,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 advancedPoolSearchText = string.Empty;
                 advancedPoolTypeFilter = AdvancedPoolTypeFilter.All;
                 advancedPoolStatusFilter = AdvancedPoolStatusFilter.All;
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             });
         }
 
@@ -936,7 +976,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SyncAdvancedMechanicFlagsFromPools();
             }
 
-            Build();
+            RebuildAdvancedPoolEditorOverlay();
         }
 
         private void SelectAdvancedImplementedOnly()
@@ -985,7 +1025,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             MarkCardPoolDirty();
             SyncAdvancedMechanicFlagsFromPools();
-            Build();
+            RebuildAdvancedPoolEditorOverlay();
         }
 
         private void ClearActiveAdvancedPool()
@@ -1015,7 +1055,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 MarkCardPoolDirty();
                 SyncAdvancedMechanicFlagsFromPools();
-                Build();
+                RebuildAdvancedPoolEditorOverlay();
             }
         }
 

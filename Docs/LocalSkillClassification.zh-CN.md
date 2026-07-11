@@ -8,7 +8,7 @@
 - `C:\Users\wch\.codex\plugins\cache\openai-primary-runtime`
 - `D:\unity project\Learn Heartstone\Tools\ponytail\skills`
 
-共发现 59 个 `SKILL.md`。同名重复项：`skill-creator`、`pdf`。
+共发现 60 个 `SKILL.md`。同名重复项：`skill-creator`、`pdf`。
 
 ## 使用原则
 
@@ -44,6 +44,7 @@
 | OpenAI/Codex 官方信息 | `openai-docs` |
 | Claude/Anthropic API | `claude-api` |
 | MCP server | `mcp-builder` |
+| 首次接入 Matt Pocock engineering skills 的仓库配置 | `setup-matt-pocock-skills` |
 | 创建/安装/查找 skills 或插件 | `skill-creator`, `skill-installer`, `find-skills`, `plugin-creator` |
 | GitHub repo/PR/issue 总览 | `github` |
 | GitHub PR review comments | `gh-address-comments` |
@@ -141,6 +142,7 @@
 | --- | --- | --- | --- |
 | `find-skills` | `.agents/skills` | 用户问“有没有 skill 可以做 X”或想找可安装能力 | 发现/推荐为主 |
 | `skill-installer` | `.codex/skills/.system` | 安装 Codex skills 到 `$CODEX_HOME/skills` | 不用于创建 skill |
+| `setup-matt-pocock-skills` | `.codex/skills` | 首次使用 Matt Pocock engineering skills 前，为仓库配置 issue tracker、triage labels、domain docs/ADR 布局 | 只做一次仓库工程约定初始化；不是 Unity/C# 实现技能 |
 | `skill-creator` | `.codex/skills/.system` | 创建/更新 Codex skill，写 `SKILL.md` | 基础创建流程 |
 | `skill-creator` | `.agents/skills` | 创建、修改、优化、评估 skill，跑 eval/benchmark | 更偏高级优化 |
 | `plugin-creator` | `.codex/skills/.system` | 创建 Codex plugin、`.codex-plugin/plugin.json`、marketplace 条目 | 不用于普通 repo 插件 |

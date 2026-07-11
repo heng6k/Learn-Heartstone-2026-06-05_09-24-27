@@ -14,7 +14,6 @@ namespace LearnHearthstone.Presentation.MainHub
         private readonly Transform root;
         private readonly Action openTrainer;
         private readonly Action openUnityTrainer;
-        private readonly Action openUnityTrainerMirror;
         private readonly UnityTavernLayoutContext layout;
         private readonly bool useEnglish;
         private readonly Action<bool> languageChanged;
@@ -25,14 +24,12 @@ namespace LearnHearthstone.Presentation.MainHub
             Action openRealisticTrainer,
             Action openUnityTrainer = null,
             UnityTavernLayoutContext? layoutContext = null,
-            Action openUnityTrainerMirror = null,
             bool useEnglish = false,
             Action<bool> languageChanged = null)
         {
             this.root = root;
             this.openTrainer = openTrainer;
             this.openUnityTrainer = openUnityTrainer;
-            this.openUnityTrainerMirror = openUnityTrainerMirror;
             layout = layoutContext ?? UnityTavernLayoutContext.FromRoot(root);
             this.useEnglish = useEnglish;
             this.languageChanged = languageChanged;
@@ -56,19 +53,6 @@ namespace LearnHearthstone.Presentation.MainHub
                 primaryTrainer,
                 true,
                 layout);
-
-            if (openUnityTrainerMirror != null)
-            {
-                ModuleButton(
-                    shell.transform,
-                    TavernTitle,
-                    T(TavernTitle, "Tavern Trainer"),
-                    T(TavernDescription, "Practice solo Battlegrounds, board positioning, combat tests, and replays"),
-                    true,
-                    openUnityTrainerMirror,
-                    true,
-                    layout);
-            }
 
             var grid = UiFactory.Panel("ModuleGrid", shell.transform, new Color(0.10f, 0.13f, 0.16f));
             UiFactory.SetFlexible(grid, 1, 1);

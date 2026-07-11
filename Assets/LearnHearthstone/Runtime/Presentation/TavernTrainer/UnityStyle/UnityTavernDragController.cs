@@ -59,7 +59,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (drag.Source == UnityTavernDragSource.Shop && target == UnityTavernDropTarget.Hand)
             {
-                command = new GameCommand(GameCommandType.BuyMinion, drag.Index);
+                command = new GameCommand(GameCommandType.BuyMinion, drag.Index, targetIndex);
                 return true;
             }
 
@@ -125,6 +125,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private MinionInstance card;
         private UnityTavernDragSource source;
         private int index;
+
+        public MinionInstance Card => card;
+        public UnityTavernDragSource Source => source;
 
         public void Initialize(UnityTavernTrainerController controller, MinionInstance value, UnityTavernDragSource dragSource, int cardIndex)
         {
@@ -232,9 +235,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ApplyVisuals();
         }
 
-        public void SetDropCue(UnityTavernDragContext drag)
+        public void SetDropCue(UnityTavernDragContext drag, bool commandAllowed = true)
         {
-            var allowed = UnityTavernDragController.CanDrop(drag, target, targetIndex);
+            var allowed = commandAllowed && UnityTavernDragController.CanDrop(drag, target, targetIndex);
             cueVisible = cueOnlyWhenAllowed ? allowed : drag != null;
             cueAllowed = allowed;
 

@@ -6,7 +6,7 @@ namespace LearnHearthstone.Domain.Models
     [Serializable]
     public sealed class TestScenarioDefinition
     {
-        public string Version = "battle-test-loop-v1";
+        public string Version = "battle-test-loop-v2";
         public string Name;
         public int SavedAtRound;
         public int Seed;
@@ -14,6 +14,7 @@ namespace LearnHearthstone.Domain.Models
         public PlayerScenarioState Player = new PlayerScenarioState();
         public OpponentScenarioState Opponent = new OpponentScenarioState();
         public ScenarioTavernState Tavern = new ScenarioTavernState();
+        public bool PlayerCombatModifiersAreAuthoritative;
         public SideCombatModifierState PlayerCombatModifiers = new SideCombatModifierState();
         public SideCombatModifierState OpponentCombatModifiers = new SideCombatModifierState();
         public List<ScenarioCardState> Shop = new List<ScenarioCardState>();

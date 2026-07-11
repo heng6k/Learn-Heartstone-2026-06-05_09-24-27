@@ -197,7 +197,20 @@ namespace LearnHearthstone.Tests.EditMode
 
             for (var turn = 0; turn < turns; turn += 1)
             {
-                var target = service.State.Player.Board[0];
+                var target = service.State.Player.Board.FirstOrDefault(minion => minion.CardId == "RECRUIT_EDGE");
+                if (target == null)
+                {
+                    target = Card("recruit-edge-target-" + seed + "-" + turn, BoardSide.Player, "RECRUIT_EDGE", int.MaxValue - 11, int.MaxValue - 11, Tribe.All, 6);
+                    if (service.State.Player.Board.Count >= BoardLimit)
+                    {
+                        service.State.Player.Board[0] = target;
+                    }
+                    else
+                    {
+                        service.State.Player.Board.Add(target);
+                    }
+                }
+
                 MechanicEngine.ApplyToMinion(target, new MechanicAction
                 {
                     Type = MechanicActionType.BuffStats,
@@ -209,11 +222,11 @@ namespace LearnHearthstone.Tests.EditMode
                 service.Apply(new GameCommand(GameCommandType.DebugAddGold, 30));
                 service.Apply(new GameCommand(GameCommandType.RerollShop));
                 BuyFirstAvailableCard(service);
-                ResolveDiscoverChoices(service);
+                ResolveRequiredChoices(service);
                 AssertStateWithinLimits(service.State, "seed " + seed + " turn " + turn);
 
                 service.Apply(new GameCommand(GameCommandType.NextTurn));
-                ResolveDiscoverChoices(service);
+                ResolveRequiredChoices(service);
                 AssertStateWithinLimits(service.State, "seed " + seed + " turn " + turn + " next");
             }
         }
@@ -357,19 +370,33 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
-        private static void ResolveDiscoverChoices(MatchService service)
+        private static void ResolveRequiredChoices(MatchService service)
         {
-            for (var guard = 0; service.State.Player.Tavern.Discover != null && guard < 16; guard += 1)
+            for (var guard = 0; guard < 32; guard += 1)
             {
-                if (service.State.Player.Tavern.Hand.Count >= HandLimit)
+                var tavern = service.State.Player.Tavern;
+                if (tavern.Discover != null)
                 {
-                    service.State.Player.Tavern.Hand.RemoveAt(service.State.Player.Tavern.Hand.Count - 1);
+                    if (tavern.Hand.Count >= HandLimit)
+                    {
+                        tavern.Hand.RemoveAt(tavern.Hand.Count - 1);
+                    }
+
+                    service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                    continue;
                 }
 
-                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                if (tavern.AdvancedMechanics?.PendingChoice != null)
+                {
+                    service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+                    continue;
+                }
+
+                break;
             }
 
             Assert.IsNull(service.State.Player.Tavern.Discover, "discover chain should resolve within guard");
+            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics?.PendingChoice, "advanced choice chain should resolve within guard");
         }
 
         private static void AssertStateWithinLimits(MatchState state, string context)

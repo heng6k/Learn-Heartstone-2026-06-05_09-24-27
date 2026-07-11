@@ -1295,7 +1295,7 @@ namespace LearnHearthstone.Tests.EditMode
 
                 service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
                 controller.Rebuild();
-                Assert.IsNotNull(root.transform.Find("UnityQuestTrackerPanel"));
+                Assert.IsNotNull(root.transform.Find("UnityMechanicStatusStrip/UnityQuestTrackerPanel"));
             }
             finally
             {

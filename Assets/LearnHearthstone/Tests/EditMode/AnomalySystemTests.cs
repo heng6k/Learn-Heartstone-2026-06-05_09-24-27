@@ -1056,7 +1056,8 @@ namespace LearnHearthstone.Tests.EditMode
                 "BG34_Anomaly_805",
                 new MatchSetupOptions
                 {
-                    UseHistoricalTimewarpedPool = true
+                    UseHistoricalTimewarpedPool = true,
+                    EnableTrinkets = false
                 });
             var tavern = service.State.Player.Tavern;
             var historicalMinorIds = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
@@ -1464,7 +1465,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == selectedCardId));
             Assert.IsFalse(tavern.AdvancedMechanics.Selections.ContainsKey("anomaly_audiences_choice_selected_card"));
 
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == selectedCardId));
         }
@@ -1477,7 +1478,7 @@ namespace LearnHearthstone.Tests.EditMode
             AssertSinglePlayerAnomalyChoice(tavern.AdvancedMechanics.PendingChoice, "anomaly-audiences-choice");
             var handBefore = tavern.Hand.Count;
 
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.AreEqual(handBefore, tavern.Hand.Count);
             AssertSinglePlayerAnomalyChoice(tavern.AdvancedMechanics.PendingChoice, "anomaly-audiences-choice");
@@ -1532,7 +1533,7 @@ namespace LearnHearthstone.Tests.EditMode
 
         private static MatchService CreateAnomalyService(string anomalyCardId)
         {
-            return CreateAnomalyService(anomalyCardId, null);
+            return CreateAnomalyService(anomalyCardId, new MatchSetupOptions { EnableTrinkets = false });
         }
 
         private static MatchService CreateAnomalyService(string anomalyCardId, MatchSetupOptions setup)

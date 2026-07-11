@@ -17,6 +17,7 @@ namespace LearnHearthstone.Domain.Engine
             var tavern = state.Player.Tavern;
             return new TestScenarioDefinition
             {
+                Version = TestScenarioMigration.CurrentVersion,
                 Name = name,
                 SavedAtRound = state.Round,
                 Seed = state.Seed,
@@ -58,6 +59,7 @@ namespace LearnHearthstone.Domain.Engine
                     AncestralAutomatonSummons = tavern.AncestralAutomatonSummons,
                     FriendlyMinionDeathsThisGame = tavern.FriendlyMinionDeathsThisGame
                 },
+                PlayerCombatModifiersAreAuthoritative = true,
                 PlayerCombatModifiers = CapturePlayerCombatModifiers(tavern, state.Player.CombatModifiers),
                 OpponentCombatModifiers = CloneModifiers(state.Opponent.CombatModifiers),
                 Shop = CaptureCards(tavern.Shop),
@@ -86,6 +88,8 @@ namespace LearnHearthstone.Domain.Engine
             {
                 throw new ArgumentNullException(nameof(scenario));
             }
+
+            scenario = TestScenarioMigration.MigrateToCurrent(scenario);
 
             target.Phase = scenario.Phase;
             target.Round = Math.Max(1, scenario.SavedAtRound);
@@ -127,6 +131,7 @@ namespace LearnHearthstone.Domain.Engine
             target.Player.Board = RestoreCards(scenario.PlayerBoard, BoardSide.Player);
             target.Opponent.Board = RestoreCards(scenario.OpponentBoard, BoardSide.Opponent);
             target.Player.CombatModifiers = CloneModifiers(scenario.PlayerCombatModifiers) ?? CapturePlayerCombatModifiers(tavern, target.Player.CombatModifiers);
+
             target.Opponent.CombatModifiers = CloneModifiers(scenario.OpponentCombatModifiers) ?? new SideCombatModifierState();
             ApplyPlayerModifiersToTavern(target.Player.CombatModifiers, tavern);
             target.CombatLog.Clear();

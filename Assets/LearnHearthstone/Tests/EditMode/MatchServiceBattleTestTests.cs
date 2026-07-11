@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
@@ -71,6 +72,100 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(firstWinner, service.State.LastResult.Winner);
             CollectionAssert.AreEqual(first, second);
+        }
+
+        [Test]
+        public void CommandPhasePolicy_TavernAllowsEveryDefinedCommandAndCombatRejectsAll()
+        {
+            var commands = Enum.GetValues(typeof(GameCommandType)).Cast<GameCommandType>().ToList();
+            var recruitOnly = new[]
+            {
+                GameCommandType.BuyMinion,
+                GameCommandType.BuyTimewarpedTavernCard,
+                GameCommandType.ExitTimewarpedTavern,
+                GameCommandType.SellMinion,
+                GameCommandType.RerollShop,
+                GameCommandType.FreezeShop,
+                GameCommandType.UpgradeTavern,
+                GameCommandType.PlayMinion,
+                GameCommandType.DiscardCardFromHand,
+                GameCommandType.UseHeroPower,
+                GameCommandType.NextTurn,
+                GameCommandType.SimulateCombat
+            };
+
+            Assert.IsTrue(commands.All(command => MatchService.IsCommandAllowedInPhase(command, MatchPhase.Tavern)));
+            Assert.IsTrue(commands.All(command => !MatchService.IsCommandAllowedInPhase(command, MatchPhase.Combat)));
+            CollectionAssert.AreEquivalent(recruitOnly, commands.Where(command => !MatchService.IsCommandAllowedInPhase(command, MatchPhase.Editing)));
+            CollectionAssert.AreEquivalent(recruitOnly, commands.Where(command => !MatchService.IsCommandAllowedInPhase(command, MatchPhase.Result)));
+        }
+
+        [TestCase(GameCommandType.BuyMinion)]
+        [TestCase(GameCommandType.BuyTimewarpedTavernCard)]
+        [TestCase(GameCommandType.ExitTimewarpedTavern)]
+        [TestCase(GameCommandType.SellMinion)]
+        [TestCase(GameCommandType.RerollShop)]
+        [TestCase(GameCommandType.FreezeShop)]
+        [TestCase(GameCommandType.UpgradeTavern)]
+        [TestCase(GameCommandType.PlayMinion)]
+        [TestCase(GameCommandType.DiscardCardFromHand)]
+        [TestCase(GameCommandType.UseHeroPower)]
+        [TestCase(GameCommandType.NextTurn)]
+        [TestCase(GameCommandType.SimulateCombat)]
+        public void CommandPhasePolicy_RecruitCommandsAreTavernOnly(GameCommandType commandType)
+        {
+            Assert.IsFalse(MatchService.IsCommandAllowedInPhase(commandType, MatchPhase.Editing));
+            Assert.IsFalse(MatchService.IsCommandAllowedInPhase(commandType, MatchPhase.Result));
+        }
+
+        [TestCase(GameCommandType.ChooseMechanicOption)]
+        [TestCase(GameCommandType.UpdateMinion)]
+        [TestCase(GameCommandType.SetOpponentStartOfCombatSpell)]
+        [TestCase(GameCommandType.DebugSkipToNextTurn)]
+        [TestCase(GameCommandType.SaveTestScenario)]
+        [TestCase(GameCommandType.LoadTestScenario)]
+        [TestCase(GameCommandType.RunCombatTest)]
+        [TestCase(GameCommandType.ResetCombatTestSnapshot)]
+        public void CommandPhasePolicy_TestEditingAndPostCombatCommandsRemainAvailable(GameCommandType commandType)
+        {
+            Assert.IsTrue(MatchService.IsCommandAllowedInPhase(commandType, MatchPhase.Editing));
+            Assert.IsTrue(MatchService.IsCommandAllowedInPhase(commandType, MatchPhase.Result));
+        }
+
+        [Test]
+        public void Apply_ResultPhaseRejectsRecruitCommandWithoutMutatingState()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            BuildSimpleBattle(service);
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 889, SafetyLimit = 20 }));
+            var round = service.State.Round;
+            var gold = service.State.Player.Tavern.Gold;
+            var shop = service.State.Player.Tavern.Shop.Select(card => card?.InstanceId).ToList();
+            var result = service.State.LastResult;
+
+            var exception = Assert.Throws<InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.RerollShop)));
+
+            StringAssert.Contains("RerollShop", exception.Message);
+            StringAssert.Contains("Result", exception.Message);
+            Assert.AreEqual(round, service.State.Round);
+            Assert.AreEqual(gold, service.State.Player.Tavern.Gold);
+            CollectionAssert.AreEqual(shop, service.State.Player.Tavern.Shop.Select(card => card?.InstanceId).ToList());
+            Assert.AreSame(result, service.State.LastResult);
+        }
+
+        [Test]
+        public void Apply_EditingPhaseAllowsToolsButRejectsRecruitCommands()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Phase = MatchPhase.Editing;
+            var gold = service.State.Player.Tavern.Gold;
+
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 2));
+
+            Assert.AreEqual(gold + 2, service.State.Player.Tavern.Gold);
+            Assert.Throws<InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.RerollShop)));
         }
 
         private static void BuildSimpleBattle(MatchService service)

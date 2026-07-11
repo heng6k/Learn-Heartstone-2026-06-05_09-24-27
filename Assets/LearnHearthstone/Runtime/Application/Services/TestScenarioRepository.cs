@@ -82,9 +82,10 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("Scenario name is required.");
             }
 
+            var current = TestScenarioMapper.Clone(scenario);
             Directory.CreateDirectory(directory);
-            var json = JsonUtility.ToJson(scenario, true);
-            File.WriteAllText(PathFor(scenario.Name), json);
+            var json = JsonUtility.ToJson(current, true);
+            File.WriteAllText(PathFor(current.Name), json);
         }
 
         public TestScenarioDefinition Load(string name)
@@ -97,7 +98,7 @@ namespace LearnHearthstone.Application.Services
 
             try
             {
-                return JsonUtility.FromJson<TestScenarioDefinition>(File.ReadAllText(path));
+                return TestScenarioMigration.MigrateToCurrent(JsonUtility.FromJson<TestScenarioDefinition>(File.ReadAllText(path)));
             }
             catch (Exception exception)
             {

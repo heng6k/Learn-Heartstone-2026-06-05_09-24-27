@@ -1,6 +1,7 @@
 using System.Linq;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
@@ -112,6 +113,26 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.That(questTrinketRow.Notes, Does.Contain("counter remainders"));
             Assert.That(questTrinketRow.Notes, Does.Contain("replay non-duplication"));
             Assert.IsTrue(report.Rows.All(row => !string.IsNullOrEmpty(row.DesignConfidence)));
+        }
+
+        [Test]
+        public void MechanicCoverageRegistry_HasStableUniqueCompleteEntriesAndDrivesReport()
+        {
+            var entries = MechanicCoverageRegistry.All;
+            var report = MechanicCoverageReportService.CreateDefaultReport();
+
+            Assert.IsNotEmpty(entries);
+            Assert.AreEqual(entries.Count, entries.Select(entry => entry.Key).Distinct().Count());
+            Assert.AreEqual(entries.Count, entries.Select(entry => entry.System).Distinct().Count());
+            Assert.IsTrue(entries.All(entry => !string.IsNullOrWhiteSpace(entry.Key)));
+            Assert.IsTrue(entries.All(entry => !string.IsNullOrWhiteSpace(entry.System)));
+            Assert.IsTrue(entries.All(entry => !string.IsNullOrWhiteSpace(entry.DesignConfidence)));
+            Assert.IsTrue(entries.All(entry => !string.IsNullOrWhiteSpace(entry.Notes)));
+            Assert.AreEqual(entries.Count, report.Rows.Count);
+            Assert.AreEqual("Spell power", MechanicCoverageRegistry.Find("SPELL-POWER").System);
+
+            report.Rows[0].Notes = "mutated report row";
+            Assert.AreNotEqual(report.Rows[0].Notes, entries[0].Notes);
         }
 
         [Test]

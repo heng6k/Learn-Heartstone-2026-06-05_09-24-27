@@ -57,17 +57,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static UnityTavernLayoutContext FromRoot(Transform root)
         {
+            var rectTransform = root as RectTransform;
+            if (rectTransform != null && rectTransform.rect.width > 0f && rectTransform.rect.height > 0f)
+            {
+                return ForSize(rectTransform.rect.width, rectTransform.rect.height);
+            }
+
             var screenWidth = Screen.width;
             var screenHeight = Screen.height;
             if (screenWidth > 0 && screenHeight > 0)
             {
                 return ForSize(screenWidth, screenHeight);
-            }
-
-            var rectTransform = root as RectTransform;
-            if (rectTransform != null && rectTransform.rect.width > 0f && rectTransform.rect.height > 0f)
-            {
-                return ForSize(rectTransform.rect.width, rectTransform.rect.height);
             }
 
             return ForSize(1366f, 768f);

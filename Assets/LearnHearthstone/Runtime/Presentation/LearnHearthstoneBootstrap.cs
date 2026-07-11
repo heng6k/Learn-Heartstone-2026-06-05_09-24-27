@@ -45,20 +45,12 @@ namespace LearnHearthstone.Presentation
                 ShowLegacyTrainer,
                 ShowRealisticTrainer,
                 ShowUnityTrainer,
-                openUnityTrainerMirror: ShowUnityTrainerMirror,
                 useEnglish: useEnglish,
                 languageChanged: SetLanguage).Build();
             AddDebugAspectRatioOverlay();
         }
 
         private void ShowUnityTrainer()
-        {
-            ClearCanvas();
-            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish).Build();
-            AddDebugAspectRatioOverlay();
-        }
-
-        private void ShowUnityTrainerMirror()
         {
             ClearCanvas();
             new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish).Build();

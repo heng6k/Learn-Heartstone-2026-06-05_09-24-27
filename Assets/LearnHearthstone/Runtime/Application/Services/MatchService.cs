@@ -457,7 +457,6 @@ namespace LearnHearthstone.Application.Services
         private const int AutomaticTavernSpellCastMaxDepth = 4;
         private const string GlobalEternalKnightSourceId = "Eternal Knight";
         private const string GlobalAutomatonSourceId = "Ancestral Automaton";
-        private const string GlobalUndeadAttackBonusSourceId = "Undead Attack Bonus";
         private const string PatientScoutTierCounter = "patient-scout-tier";
         private const string PatientScoutDiscoverSource = "patient-scout";
         private const string UpbeatFrontdrakeTurnCounter = "upbeat-frontdrake-turns";
@@ -1572,14 +1571,21 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("Design validation scenario does not exist: " + scenarioName);
             }
 
-            TestScenarioMapper.ApplyTo(State, scenario);
+            ApplyTestScenarioState(scenario);
             CurrentActiveTribes();
             combatTestSnapshot = null;
             combatExplanation = null;
             State.LastReplay = null;
             RefreshPlayerBoardTribeDistribution();
-            SyncPlayerCombatModifiersFromTavern();
             AddRecruitLog(RecruitLogType.Play, "Loaded design validation scenario: " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+        }
+
+        private void ApplyTestScenarioState(TestScenarioDefinition scenario)
+        {
+            TestScenarioMapper.ApplyTo(State, scenario);
+            SyncPlayerCombatModifiersFromTavern();
+            ApplySideCombatModifiersToRetainedCards(BoardSide.Player);
+            ApplySideCombatModifiersToRetainedCards(BoardSide.Opponent);
         }
 
         public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
@@ -1660,12 +1666,13 @@ namespace LearnHearthstone.Application.Services
 
         public MatchState Apply(GameCommand command)
         {
+            AssertCommandAllowedInCurrentPhase(command.Type);
             AssertAfKayActionAllowed(command.Type);
             AssertFaelinActionAllowed(command.Type);
             switch (command.Type)
             {
                 case GameCommandType.BuyMinion:
-                    BuyMinion(command.Index);
+                    BuyMinion(command.Index, command.TargetIndex);
                     break;
                 case GameCommandType.BuyTimewarpedTavernCard:
                     BuyTimewarpedTavernCard(command.Index);
@@ -1779,6 +1786,9 @@ namespace LearnHearthstone.Application.Services
                 case GameCommandType.SetOpponentHeroPowerElement:
                     SetOpponentHeroPowerElement(command.InstanceId);
                     break;
+                case GameCommandType.SetOpponentStartOfCombatSpell:
+                    SetOpponentStartOfCombatSpell(command.CardId);
+                    break;
                 case GameCommandType.MoveMinion:
                     MoveMinionToHand(command.InstanceId);
                     break;
@@ -1845,6 +1855,88 @@ namespace LearnHearthstone.Application.Services
             RefreshPlayerBoardTribeDistribution();
             SyncPlayerCombatModifiersFromTavern();
             return State;
+        }
+
+        public static bool IsCommandAllowedInPhase(GameCommandType commandType, MatchPhase phase)
+        {
+            if (!Enum.IsDefined(typeof(GameCommandType), commandType))
+            {
+                return false;
+            }
+
+            switch (phase)
+            {
+                case MatchPhase.Tavern:
+                    return true;
+                case MatchPhase.Editing:
+                case MatchPhase.Result:
+                    return IsTestEditingOrChoiceCommand(commandType);
+                case MatchPhase.Combat:
+                default:
+                    return false;
+            }
+        }
+
+        private void AssertCommandAllowedInCurrentPhase(GameCommandType commandType)
+        {
+            if (State == null || IsCommandAllowedInPhase(commandType, State.Phase))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException("Command " + commandType + " is not allowed during " + State.Phase + " phase.");
+        }
+
+        private static bool IsTestEditingOrChoiceCommand(GameCommandType commandType)
+        {
+            switch (commandType)
+            {
+                case GameCommandType.MoveMinion:
+                case GameCommandType.MoveBoardMinion:
+                case GameCommandType.UpdateMinion:
+                case GameCommandType.ChooseDiscover:
+                case GameCommandType.ChooseMechanicOption:
+                case GameCommandType.ChoosePlayerDirectedQuestPair:
+                case GameCommandType.ChoosePlayerDirectedTrinket:
+                case GameCommandType.ChoosePlayerDirectedSecondHeroPower:
+                case GameCommandType.DebugAddGold:
+                case GameCommandType.DebugOfferLesserTrinkets:
+                case GameCommandType.DebugOfferGreaterTrinkets:
+                case GameCommandType.DebugOfferQuests:
+                case GameCommandType.DebugCompleteQuest:
+                case GameCommandType.DebugReplaceQuestReward:
+                case GameCommandType.DebugReplaceTrinket:
+                case GameCommandType.SetOpponentQuestReward:
+                case GameCommandType.ClearOpponentQuestReward:
+                case GameCommandType.SetOpponentTrinket:
+                case GameCommandType.ClearOpponentTrinket:
+                case GameCommandType.SetOpponentHeroPower:
+                case GameCommandType.ClearOpponentHeroPower:
+                case GameCommandType.SetOpponentHeroPowerTarget:
+                case GameCommandType.ClearOpponentHeroPowerTarget:
+                case GameCommandType.SetOpponentHeroPowerElement:
+                case GameCommandType.SetOpponentStartOfCombatSpell:
+                case GameCommandType.AddCardToHand:
+                case GameCommandType.RemoveHandCard:
+                case GameCommandType.SetSideCombatModifier:
+                case GameCommandType.AdjustSideCombatModifier:
+                case GameCommandType.DebugSkipToNextTurn:
+                case GameCommandType.DebugCastCard:
+                case GameCommandType.AddOpponentMinion:
+                case GameCommandType.RemoveOpponentMinion:
+                case GameCommandType.MoveOpponentMinion:
+                case GameCommandType.UpdateOpponentMinion:
+                case GameCommandType.ClearOpponentBoard:
+                case GameCommandType.CopyPlayerBoardToOpponent:
+                case GameCommandType.MirrorPlayerBoardToOpponent:
+                case GameCommandType.SaveTestScenario:
+                case GameCommandType.LoadTestScenario:
+                case GameCommandType.RunCombatTest:
+                case GameCommandType.ResetCombatTestSnapshot:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private void AssertAfKayActionAllowed(GameCommandType commandType)
@@ -16455,7 +16547,7 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private void BuyMinion(int shopIndex)
+        private void BuyMinion(int shopIndex, int handInsertIndex = -1)
         {
             var tavern = State.Player.Tavern;
             TavernShopSlots.Ensure(tavern);
@@ -16496,7 +16588,14 @@ namespace LearnHearthstone.Application.Services
             }
 
             target.Counters["last_purchase_cost"] = cost;
-            tavern.Hand.Add(target);
+            if (handInsertIndex >= 0)
+            {
+                tavern.Hand.Insert(Math.Min(handInsertIndex, tavern.Hand.Count), target);
+            }
+            else
+            {
+                tavern.Hand.Add(target);
+            }
             tavern.Shop[shopIndex] = null;
             TavernShopSlots.ClearSlot(tavern, shopIndex);
             RecordBatch3PurchaseCostUsage(target, evaluation);
@@ -17879,7 +17978,18 @@ namespace LearnHearthstone.Application.Services
 
         private void ValidateExplicitPlayTarget(MinionInstance card, int targetIndex)
         {
-            if (card == null || targetIndex < 0)
+            if (card == null)
+            {
+                return;
+            }
+
+            if (TavernSpellEngine.IsStartOfCombatSpell(card.CardId) &&
+                !TavernSpellEngine.CanQueueStartOfCombatSpell(card.CardId, State.Player.Tavern))
+            {
+                throw new InvalidOperationException(card.Name + " can only be used once before the next combat.");
+            }
+
+            if (targetIndex < 0)
             {
                 return;
             }
@@ -18067,7 +18177,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            ApplyOpponentCombatModifiersToRetainedCards();
+            ApplySideCombatModifiersToRetainedCards(BoardSide.Opponent);
             AddRecruitLog(RecruitLogType.Buy, "Debug add opponent hand " + card.Name, tavern.Gold, tavern.Gold);
         }
 
@@ -18126,10 +18236,11 @@ namespace LearnHearthstone.Application.Services
             if (side == BoardSide.Player)
             {
                 ApplyPlayerCombatModifiersToTavern();
+                ApplySideCombatModifiersToRetainedCards(BoardSide.Player);
             }
             else
             {
-                ApplyOpponentCombatModifiersToRetainedCards();
+                ApplySideCombatModifiersToRetainedCards(BoardSide.Opponent);
             }
 
             AddRecruitLog(
@@ -18172,34 +18283,12 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var modifiers = EnsureSideCombatModifiers(BoardSide.Player);
-            var tavern = State.Player.Tavern;
-            modifiers.SpellsCastThisGame = Math.Max(0, tavern.TavernSpellsCastThisGame);
-            modifiers.SpellPower = Math.Max(0, tavern.SpellPower);
-            modifiers.TavernSpellBonusAttack = Math.Max(0, tavern.TavernSpellBonusAttack);
-            modifiers.TavernSpellBonusHealth = Math.Max(0, tavern.TavernSpellBonusHealth);
-            modifiers.BloodGemAttackBonus = Math.Max(0, tavern.BloodGemBonusAttack);
-            modifiers.BloodGemHealthBonus = Math.Max(0, tavern.BloodGemBonusHealth);
-            modifiers.UndeadAttackBonus = Math.Max(0, tavern.UndeadAttackBonus);
-            modifiers.EternalKnightDeaths = Math.Max(0, tavern.EternalKnightDeaths);
-            modifiers.AstralAutomatonSummons = Math.Max(0, tavern.AncestralAutomatonSummons);
-            modifiers.FriendlyMinionDeathsThisGame = Math.Max(0, tavern.FriendlyMinionDeathsThisGame);
+            SideModifierService.CopyFromTavern(State.Player.Tavern, EnsureSideCombatModifiers(BoardSide.Player));
         }
 
         private void ApplyPlayerCombatModifiersToTavern()
         {
-            var modifiers = EnsureSideCombatModifiers(BoardSide.Player);
-            var tavern = State.Player.Tavern;
-            tavern.TavernSpellsCastThisGame = Math.Max(0, modifiers.SpellsCastThisGame);
-            tavern.SpellPower = Math.Max(0, modifiers.SpellPower);
-            tavern.TavernSpellBonusAttack = Math.Max(0, modifiers.TavernSpellBonusAttack);
-            tavern.TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth);
-            tavern.BloodGemBonusAttack = Math.Max(0, modifiers.BloodGemAttackBonus);
-            tavern.BloodGemBonusHealth = Math.Max(0, modifiers.BloodGemHealthBonus);
-            tavern.UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus);
-            tavern.EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths);
-            tavern.AncestralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons);
-            tavern.FriendlyMinionDeathsThisGame = Math.Max(0, modifiers.FriendlyMinionDeathsThisGame);
+            SideModifierService.ApplyToTavern(EnsureSideCombatModifiers(BoardSide.Player), State.Player.Tavern);
         }
 
         private TavernState CreateOpponentCombatTavernState()
@@ -18222,8 +18311,35 @@ namespace LearnHearthstone.Application.Services
                 AdvancedMechanics = CreateOpponentCombatAdvancedMechanics(opponent),
                 Hand = opponent.Hand?.Select(card => card.Clone()).ToList() ?? new List<MinionInstance>()
             };
+            foreach (var cardId in opponent.NextCombatTavernSpellCardIds ?? new List<string>())
+            {
+                TavernSpellEngine.TryQueueStartOfCombatSpell(cardId, tavern);
+            }
+
             ConfigureOpponentCombatHeroPowerTavernState(tavern, opponent);
             return tavern;
+        }
+
+        private void SetOpponentStartOfCombatSpell(string cardId)
+        {
+            var opponent = EnsureOpponentState();
+            if (!TavernSpellEngine.IsStartOfCombatSpell(cardId))
+            {
+                throw new InvalidOperationException("The selected card is not a supported start-of-combat Tavern spell.");
+            }
+
+            if (opponent.NextCombatTavernSpellCardIds == null)
+            {
+                opponent.NextCombatTavernSpellCardIds = new List<string>();
+            }
+
+            if (opponent.NextCombatTavernSpellCardIds.Any(queued => string.Equals(queued, cardId, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("This start-of-combat Tavern spell is already configured for the opponent this turn.");
+            }
+
+            opponent.NextCombatTavernSpellCardIds.Add(cardId);
+            AddRecruitLog(RecruitLogType.Play, "Configured opponent start-of-combat Tavern spell: " + cardId + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ConfigureOpponentCombatHeroPowerTavernState(TavernState tavern, LocalOpponentState opponent)
@@ -18485,110 +18601,25 @@ namespace LearnHearthstone.Application.Services
             };
         }
 
-        private void ApplyOpponentCombatModifiersToRetainedCards()
+        private void ApplySideCombatModifiersToRetainedCards(BoardSide side)
         {
-            var modifiers = EnsureSideCombatModifiers(BoardSide.Opponent);
-            foreach (var minion in State.Opponent.Board.Concat(State.Opponent.Hand ?? Enumerable.Empty<MinionInstance>()))
-            {
-                ApplyOpponentCombatModifiersToRetainedCard(minion, modifiers);
-            }
-        }
-
-        private static void ApplyOpponentCombatModifiersToRetainedCard(MinionInstance minion, SideCombatModifierState modifiers)
-        {
-            if (minion == null || modifiers == null || minion.CardKind != CardKind.Minion)
-            {
-                return;
-            }
-
-            ApplyOrRemoveTrackedBuff(
-                minion,
-                GlobalUndeadAttackBonusSourceId,
-                Math.Max(0, modifiers.UndeadAttackBonus),
-                0,
-                modifiers.UndeadAttackBonus > 0 && minion.Tribes.Contains(Tribe.Undead));
-
-            var eternalDeaths = Math.Max(0, modifiers.EternalKnightDeaths);
-            ApplyOrRemoveTrackedBuff(
-                minion,
-                GlobalEternalKnightSourceId,
-                StatMath.SaturatingMultiply(eternalDeaths, minion.Golden ? 8 : 4, 0, StatMath.MaxStat),
-                StatMath.SaturatingMultiply(eternalDeaths, minion.Golden ? 4 : 2, 0, StatMath.MaxStat),
-                eternalDeaths > 0 && minion.CardId == EternalKnightCardId);
-
-            var otherAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons - 1);
-            ApplyOrRemoveTrackedBuff(
-                minion,
-                GlobalAutomatonSourceId,
-                StatMath.SaturatingMultiply(otherAutomatonSummons, minion.Golden ? 6 : 3, 0, StatMath.MaxStat),
-                StatMath.SaturatingMultiply(otherAutomatonSummons, minion.Golden ? 4 : 2, 0, StatMath.MaxStat),
-                otherAutomatonSummons > 0 && minion.CardId == AncestralAutomatonCardId);
+            var modifiers = EnsureSideCombatModifiers(side);
+            var retainedCards = side == BoardSide.Player
+                ? State.Player.Board
+                    .Concat(State.Player.Tavern.Hand ?? Enumerable.Empty<MinionInstance>())
+                    .Concat(State.Player.Tavern.Shop?.Where(card => card != null) ?? Enumerable.Empty<MinionInstance>())
+                : State.Opponent.Board.Concat(State.Opponent.Hand ?? Enumerable.Empty<MinionInstance>());
+            SideModifierService.ApplyToRetainedCards(retainedCards, modifiers);
         }
 
         private static int GetSideCombatModifierValue(SideCombatModifierState modifiers, SideCombatModifierKind kind)
         {
-            switch (kind)
-            {
-                case SideCombatModifierKind.SpellsCastThisGame:
-                    return modifiers.SpellsCastThisGame;
-                case SideCombatModifierKind.SpellPower:
-                    return modifiers.SpellPower;
-                case SideCombatModifierKind.TavernSpellBonusAttack:
-                    return modifiers.TavernSpellBonusAttack;
-                case SideCombatModifierKind.TavernSpellBonusHealth:
-                    return modifiers.TavernSpellBonusHealth;
-                case SideCombatModifierKind.BloodGemAttackBonus:
-                    return modifiers.BloodGemAttackBonus;
-                case SideCombatModifierKind.BloodGemHealthBonus:
-                    return modifiers.BloodGemHealthBonus;
-                case SideCombatModifierKind.UndeadAttackBonus:
-                    return modifiers.UndeadAttackBonus;
-                case SideCombatModifierKind.EternalKnightDeaths:
-                    return modifiers.EternalKnightDeaths;
-                case SideCombatModifierKind.AstralAutomatonSummons:
-                    return modifiers.AstralAutomatonSummons;
-                case SideCombatModifierKind.FriendlyMinionDeathsThisGame:
-                    return modifiers.FriendlyMinionDeathsThisGame;
-                default:
-                    return 0;
-            }
+            return SideModifierService.GetValue(modifiers, kind);
         }
 
         private static void SetSideCombatModifierValue(SideCombatModifierState modifiers, SideCombatModifierKind kind, int value)
         {
-            switch (kind)
-            {
-                case SideCombatModifierKind.SpellsCastThisGame:
-                    modifiers.SpellsCastThisGame = value;
-                    break;
-                case SideCombatModifierKind.SpellPower:
-                    modifiers.SpellPower = value;
-                    break;
-                case SideCombatModifierKind.TavernSpellBonusAttack:
-                    modifiers.TavernSpellBonusAttack = value;
-                    break;
-                case SideCombatModifierKind.TavernSpellBonusHealth:
-                    modifiers.TavernSpellBonusHealth = value;
-                    break;
-                case SideCombatModifierKind.BloodGemAttackBonus:
-                    modifiers.BloodGemAttackBonus = value;
-                    break;
-                case SideCombatModifierKind.BloodGemHealthBonus:
-                    modifiers.BloodGemHealthBonus = value;
-                    break;
-                case SideCombatModifierKind.UndeadAttackBonus:
-                    modifiers.UndeadAttackBonus = value;
-                    break;
-                case SideCombatModifierKind.EternalKnightDeaths:
-                    modifiers.EternalKnightDeaths = value;
-                    break;
-                case SideCombatModifierKind.AstralAutomatonSummons:
-                    modifiers.AstralAutomatonSummons = value;
-                    break;
-                case SideCombatModifierKind.FriendlyMinionDeathsThisGame:
-                    modifiers.FriendlyMinionDeathsThisGame = value;
-                    break;
-            }
+            SideModifierService.SetValue(modifiers, kind, value);
         }
 
         private void CastDebugCard(string cardId, CardKind cardKind, int targetIndex)
@@ -19994,7 +20025,9 @@ namespace LearnHearthstone.Application.Services
             var definition = catalog.GetByCardId(cardId);
             var minion = MinionFactory.Create(definition, BoardSide.Opponent, "debug-board-" + State.Round + "-" + State.Opponent.Board.Count, golden, PoolSource.Debug, 0);
             State.Opponent.Board.Add(minion);
-            ApplyOpponentCombatModifiersToRetainedCard(minion, EnsureSideCombatModifiers(BoardSide.Opponent));
+            SideModifierService.ApplyToRetainedCards(
+                new[] { minion },
+                EnsureSideCombatModifiers(BoardSide.Opponent));
             AddRecruitLog(RecruitLogType.Play, "Debug opponent add " + minion.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
@@ -20036,7 +20069,9 @@ namespace LearnHearthstone.Application.Services
             }
 
             var target = State.Opponent.Board.FirstOrDefault(minion => minion.InstanceId == instanceId);
-            ApplyOpponentCombatModifiersToRetainedCard(target, EnsureSideCombatModifiers(BoardSide.Opponent));
+            SideModifierService.ApplyToRetainedCards(
+                new[] { target },
+                EnsureSideCombatModifiers(BoardSide.Opponent));
         }
 
         private void ClearOpponentBoard()
@@ -20062,6 +20097,8 @@ namespace LearnHearthstone.Application.Services
                 State.Opponent.Board.Add(copy);
                 index += 1;
             }
+
+            ApplySideCombatModifiersToRetainedCards(BoardSide.Opponent);
 
             AddRecruitLog(
                 RecruitLogType.Play,
@@ -21508,7 +21545,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var scenario = scenarioRepository.Load(scenarioName.Trim());
-            TestScenarioMapper.ApplyTo(State, scenario);
+            ApplyTestScenarioState(scenario);
             CurrentActiveTribes();
             combatTestSnapshot = null;
             combatExplanation = null;
@@ -21531,7 +21568,7 @@ namespace LearnHearthstone.Application.Services
 
             if (nextOptions.ResetBeforeRun && combatTestSnapshot?.BeforeCombat != null)
             {
-                TestScenarioMapper.ApplyTo(State, combatTestSnapshot.BeforeCombat);
+                ApplyTestScenarioState(combatTestSnapshot.BeforeCombat);
             }
 
             SyncPlayerCombatModifiersFromTavern();
@@ -21563,7 +21600,8 @@ namespace LearnHearthstone.Application.Services
             }
             var opponentCombatTavern = CreateOpponentCombatTavernState();
             ApplyOpponentCombatStartHeroPowers(opponentCombatBoard, playerCombatBoard, opponentCombatTavern);
-            foreach (var side in CombatStartSideOrder(nextOptions.Seed))
+            var combatStartSideOrder = CombatStartSideOrder(nextOptions.Seed).ToList();
+            foreach (var side in combatStartSideOrder)
             {
                 if (side == BoardSide.Player)
                 {
@@ -21590,7 +21628,9 @@ namespace LearnHearthstone.Application.Services
                 opponentCombatTavern,
                 State.Player.Tavern.Hand,
                 opponentCombatTavern.Hand,
-                CreateCombatBattlecrySummonPool());
+                CreateCombatBattlecrySummonPool(),
+                null,
+                combatStartSideOrder[0]);
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;
@@ -21600,6 +21640,7 @@ namespace LearnHearthstone.Application.Services
             ApplyPermanentCombatBuffs(result);
             ApplyCombatOutcomeRewards(result);
             ApplyCombatRewards(result.PlayerRewards);
+            ApplyOpponentCombatRewards(result.OpponentRewards);
             DispatchHeroEffect(HeroEffectEventType.CombatEnded, choiceId: result.Winner.ToString());
             ApplyTideRaiserPortraitCombatRewards(result);
             PersistQuestCombatRewards();
@@ -21608,13 +21649,8 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.LostLastCombat = result.Winner == CombatWinner.Opponent;
             TryOfferCarielImprovementChoice();
             State.Player.Tavern.TemporaryAvengeBeastRewards = 0;
-            State.Player.Tavern.NextCombatBoardAttack = 0;
-            State.Player.Tavern.NextCombatBoardHealth = 0;
-            State.Player.Tavern.NextCombatBeetles = 0;
-            State.Player.Tavern.NextCombatEnemyHealthToOne = 0;
-            State.Player.Tavern.NextCombatLeftmostCopiesNearestEnemyStats = false;
-            State.Player.Tavern.NextCombatLeftmostDoubleAttack = false;
-            State.Player.Tavern.NextCombatTriggerMixedMechanics = false;
+            TavernSpellEngine.ConsumeStartOfCombatSpells(State.Player.Tavern);
+            State.Opponent.NextCombatTavernSpellCardIds?.Clear();
             State.Player.Tavern.CombatSummonBonusAttack = 0;
             State.Player.Tavern.CombatSummonBonusHealth = 0;
             State.Player.Tavern.CombatSummonTaunt = false;
@@ -22259,6 +22295,15 @@ namespace LearnHearthstone.Application.Services
                         AddRandomTierMinionsToHand(6, reward.Amount, "combat-" + reward.SourceCardId);
                         break;
                 }
+            }
+        }
+
+        private void ApplyOpponentCombatRewards(IEnumerable<CombatReward> rewards)
+        {
+            var modifiers = EnsureSideCombatModifiers(BoardSide.Opponent);
+            if (SideModifierService.ApplyCombatRewards(modifiers, rewards))
+            {
+                ApplySideCombatModifiersToRetainedCards(BoardSide.Opponent);
             }
         }
 
@@ -23189,7 +23234,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            TestScenarioMapper.ApplyTo(State, combatTestSnapshot.BeforeCombat);
+            ApplyTestScenarioState(combatTestSnapshot.BeforeCombat);
             State.CombatLog.Clear();
             State.LastResult = null;
             State.LastReplay = null;

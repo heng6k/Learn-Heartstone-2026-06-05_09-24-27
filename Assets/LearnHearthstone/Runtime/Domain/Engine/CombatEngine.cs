@@ -342,7 +342,8 @@ namespace LearnHearthstone.Domain.Engine
             IEnumerable<MinionInstance> playerHand = null,
             IEnumerable<MinionInstance> opponentHand = null,
             IEnumerable<MinionInstance> playerCombatSummonPool = null,
-            IEnumerable<MinionInstance> opponentCombatSummonPool = null)
+            IEnumerable<MinionInstance> opponentCombatSummonPool = null,
+            BoardSide startOfCombatFirstSide = BoardSide.Player)
         {
             var context = new CombatContext(
                 playerBoard.Select(minion => minion.Clone()).Where(IsAlive).ToList(),
@@ -363,12 +364,21 @@ namespace LearnHearthstone.Domain.Engine
             ResolveHeroStartOfCombatEffects(context, ref steps, safetyLimit);
             var preCombatImmediateSide = QueueTaggedImmediateAttacks(context);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
-            ResolveTrinketStartOfCombatEffects(context, context.Player);
-            ResolveTrinketStartOfCombatEffects(context, context.Opponent);
-            ResolveTrinketStartOfCombatDeathrattles(context, context.Player);
-            ResolveTrinketStartOfCombatDeathrattles(context, context.Opponent);
-            ApplyStartOfCombatAuras(context, context.Player);
-            ApplyStartOfCombatAuras(context, context.Opponent);
+            var startOfCombatSides = StartOfCombatSides(context, startOfCombatFirstSide).ToList();
+            foreach (var side in startOfCombatSides)
+            {
+                ResolveTrinketStartOfCombatEffects(context, side);
+            }
+
+            foreach (var side in startOfCombatSides)
+            {
+                ResolveTrinketStartOfCombatDeathrattles(context, side);
+            }
+
+            foreach (var side in startOfCombatSides)
+            {
+                ApplyStartOfCombatAuras(context, side);
+            }
             if (preCombatImmediateSide.HasValue)
             {
                 attackerSide = preCombatImmediateSide.Value == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
@@ -421,6 +431,13 @@ namespace LearnHearthstone.Domain.Engine
                 Steps = steps,
                 SafetyStopped = steps >= safetyLimit
             };
+        }
+
+        private static IEnumerable<CombatSideState> StartOfCombatSides(CombatContext context, BoardSide firstSide)
+        {
+            var first = context.Get(firstSide);
+            yield return first;
+            yield return context.Get(firstSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
         }
 
         private static void ResolveHeroStartOfCombatEffects(CombatContext context, ref int steps, int safetyLimit)

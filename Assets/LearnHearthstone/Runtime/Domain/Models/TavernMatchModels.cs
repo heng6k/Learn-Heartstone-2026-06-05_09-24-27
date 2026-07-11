@@ -779,6 +779,7 @@ namespace LearnHearthstone.Domain.Models
         public int NextTurnBonusGold;
         public int PendingCombatWinGold;
         public int PendingCombatDrawGold;
+        public List<string> NextCombatTavernSpellCardIds = new List<string>();
         public int NextCombatBoardAttack;
         public int NextCombatBoardHealth;
         public int NextTavernSpellCostReduction;
@@ -1075,6 +1076,7 @@ namespace LearnHearthstone.Domain.Models
         public int TavernTier;
         public List<MinionInstance> Board = new List<MinionInstance>();
         public List<MinionInstance> Hand = new List<MinionInstance>();
+        public List<string> NextCombatTavernSpellCardIds = new List<string>();
         public SideCombatModifierState CombatModifiers = new SideCombatModifierState();
         public AdvancedMechanicState AdvancedMechanics = new AdvancedMechanicState();
         public bool Editable;

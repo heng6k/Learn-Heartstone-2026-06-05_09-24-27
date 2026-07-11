@@ -40,6 +40,7 @@ namespace LearnHearthstone.Application.Commands
         SetOpponentHeroPowerTarget,
         ClearOpponentHeroPowerTarget,
         SetOpponentHeroPowerElement,
+        SetOpponentStartOfCombatSpell,
         SimulateCombat,
         AddCardToHand,
         RemoveHandCard,

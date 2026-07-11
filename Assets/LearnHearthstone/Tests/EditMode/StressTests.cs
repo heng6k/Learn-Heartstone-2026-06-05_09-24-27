@@ -51,16 +51,16 @@ namespace LearnHearthstone.Tests.EditMode
                         {
                             service.Apply(new GameCommand(GameCommandType.DebugAddGold, 10));
                             service.Apply(new GameCommand(GameCommandType.BuyMinion, buyIndex));
-                            ResolveDiscoverChoices(service);
+                            ResolveRequiredChoices(service);
                         }
 
                         PlayCards(service, 2);
                         AssertStateWithinLimits(service.State, "seed " + seedIndex + " turn " + turn + " buy " + buy);
                     }
 
-                    ResolveDiscoverChoices(service);
+                    ResolveRequiredChoices(service);
                     service.Apply(new GameCommand(GameCommandType.NextTurn));
-                    ResolveDiscoverChoices(service);
+                    ResolveRequiredChoices(service);
                     EnsureStressTarget(service);
                     AssertStateWithinLimits(service.State, "seed " + seedIndex + " turn " + turn + " end");
                 }
@@ -221,7 +221,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.DoesNotThrow(
                     () => service.Apply(new GameCommand(GameCommandType.PlayMinion, handIndex)),
                     definition.CardId + " " + definition.Name + " play");
-                ResolveDiscoverChoices(service);
+                ResolveRequiredChoices(service);
                 AssertStateWithinLimits(service.State, definition.CardId + " " + definition.Name + " recruit flow");
             }
         }
@@ -230,7 +230,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             for (var attempt = 0; attempt < attempts; attempt += 1)
             {
-                ResolveDiscoverChoices(service);
+                ResolveRequiredChoices(service);
                 MakeBoardRoom(service);
                 var handIndex = FindPlayableHandIndex(service.State);
                 if (handIndex < 0)
@@ -310,18 +310,31 @@ namespace LearnHearthstone.Tests.EditMode
             return -1;
         }
 
-        private static void ResolveDiscoverChoices(MatchService service)
+        private static void ResolveRequiredChoices(MatchService service)
         {
-            for (var guard = 0; service.State.Player.Tavern.Discover != null && guard < 8; guard += 1)
+            for (var guard = 0; guard < 32; guard += 1)
             {
-                var discover = service.State.Player.Tavern.Discover;
-                Assert.IsNotNull(discover.Options, "discover options");
-                Assert.Greater(discover.Options.Count, 0, "discover from " + discover.Source + " should have options");
-                TrimHandToRoom(service, HandLimit - 1);
-                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                var tavern = service.State.Player.Tavern;
+                if (tavern.Discover != null)
+                {
+                    Assert.IsNotNull(tavern.Discover.Options, "discover options");
+                    Assert.Greater(tavern.Discover.Options.Count, 0, "discover from " + tavern.Discover.Source + " should have options");
+                    TrimHandToRoom(service, HandLimit - 1);
+                    service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                    continue;
+                }
+
+                if (tavern.AdvancedMechanics?.PendingChoice != null)
+                {
+                    service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+                    continue;
+                }
+
+                break;
             }
 
             Assert.IsNull(service.State.Player.Tavern.Discover, "discover chain should resolve within guard");
+            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics?.PendingChoice, "advanced choice chain should resolve within guard");
         }
 
         private static void MakeHandRoom(MatchService service)

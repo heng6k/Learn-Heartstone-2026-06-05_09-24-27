@@ -110,7 +110,85 @@ namespace LearnHearthstone.Domain.Engine
         private const string PermanentSpellcraftSourceId = "Permanent Spellcraft";
         private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
         private const string LockedTurnsCounter = "locked-turns";
+        private static readonly HashSet<string> StartOfCombatSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "105665",
+            "110401",
+            "104560",
+            "127503",
+            "119599",
+            "127642"
+        };
         [ThreadStatic] private static MinionInstance explicitTarget;
+
+        public static bool IsStartOfCombatSpell(string cardId)
+        {
+            return !string.IsNullOrWhiteSpace(cardId) && StartOfCombatSpellCardIds.Contains(cardId);
+        }
+
+        public static bool CanQueueStartOfCombatSpell(string cardId, TavernState tavern)
+        {
+            return tavern != null &&
+                   IsStartOfCombatSpell(cardId) &&
+                   (tavern.NextCombatTavernSpellCardIds == null ||
+                    !tavern.NextCombatTavernSpellCardIds.Any(queued => string.Equals(queued, cardId, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public static bool TryQueueStartOfCombatSpell(string cardId, TavernState tavern)
+        {
+            if (!CanQueueStartOfCombatSpell(cardId, tavern))
+            {
+                return false;
+            }
+
+            if (tavern.NextCombatTavernSpellCardIds == null)
+            {
+                tavern.NextCombatTavernSpellCardIds = new List<string>();
+            }
+
+            tavern.NextCombatTavernSpellCardIds.Add(cardId);
+            switch (cardId)
+            {
+                case "105665":
+                    tavern.NextCombatBoardAttack += 2;
+                    tavern.NextCombatBoardHealth += 1;
+                    break;
+                case "110401":
+                    tavern.NextCombatBeetles += 2;
+                    break;
+                case "104560":
+                    tavern.NextCombatEnemyHealthToOne += 1;
+                    break;
+                case "127503":
+                    tavern.NextCombatLeftmostDoubleAttack = true;
+                    break;
+                case "119599":
+                    tavern.NextCombatLeftmostCopiesNearestEnemyStats = true;
+                    break;
+                case "127642":
+                    tavern.NextCombatTriggerMixedMechanics = true;
+                    break;
+            }
+
+            return true;
+        }
+
+        public static void ConsumeStartOfCombatSpells(TavernState tavern)
+        {
+            if (tavern == null)
+            {
+                return;
+            }
+
+            tavern.NextCombatBoardAttack = 0;
+            tavern.NextCombatBoardHealth = 0;
+            tavern.NextCombatBeetles = 0;
+            tavern.NextCombatEnemyHealthToOne = 0;
+            tavern.NextCombatLeftmostCopiesNearestEnemyStats = false;
+            tavern.NextCombatLeftmostDoubleAttack = false;
+            tavern.NextCombatTriggerMixedMechanics = false;
+            tavern.NextCombatTavernSpellCardIds?.Clear();
+        }
 
         public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1, HeroCatalog heroes = null, DarkmoonPrizeCatalog darkmoonPrizes = null)
         {
@@ -567,9 +645,9 @@ namespace LearnHearthstone.Domain.Engine
                     AddRandomMinionToHand(state, minions, rng, 1, "Recruit Minion");
                     return "Recruit a minion: add a random minion to hand";
                 case "105665":
-                    state.Player.Tavern.NextCombatBoardAttack += 2;
-                    state.Player.Tavern.NextCombatBoardHealth += 1;
-                    return "Fleeting Vigor: next combat board buff";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Fleeting Vigor: next combat board buff"
+                        : "Fleeting Vigor: already queued this turn";
                 case "122864":
                     StartDiscover(state, minions, rng, 1, "Tier 1 Discover");
                     return "Discover a Tier 1 minion";
@@ -604,8 +682,9 @@ namespace LearnHearthstone.Domain.Engine
                     BuffAll(state, state.Player.Board.Take(4), 1, 2, "Might of Stormwind", applyTavernSpellBonus);
                     return "Might of Stormwind: four friendly minions gain +1/+2";
                 case "110401":
-                    state.Player.Tavern.NextCombatBeetles += 2;
-                    return "Boon of Beetles: summon two 1/1 Taunt Beetles next combat";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Boon of Beetles: summon two 1/1 Taunt Beetles next combat"
+                        : "Boon of Beetles: already queued this turn";
                 case "130310":
                     ResolveConflagration(state, applyTavernSpellBonus);
                     return "Conflagration: first minion gains scaling Elemental stats";
@@ -638,8 +717,9 @@ namespace LearnHearthstone.Domain.Engine
                     RefreshShopWithTavernSpells(state, spells, rng);
                     return "Top Shelf: refresh the Tavern into Tavern Spells";
                 case "104560":
-                    state.Player.Tavern.NextCombatEnemyHealthToOne += 1;
-                    return "Overconfidence: next combat sets one enemy Health to 1";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Overconfidence: next combat sets one enemy Health to 1"
+                        : "Overconfidence: already queued this turn";
                 case "105264":
                     StartTaggedMinionDiscover(state, minions, rng, HasBattlecry, "Head Hunting");
                     return "Head Hunting: discover a Battlecry minion";
@@ -650,8 +730,9 @@ namespace LearnHearthstone.Domain.Engine
                     BuffAll(state, state.Player.Board.Where(minion => minion.Keywords.Contains(Keyword.DivineShield)), 6, 0, "Sacred Gift", applyTavernSpellBonus);
                     return "Sacred Gift: Divine Shield minions gain +6 Attack";
                 case "127503":
-                    state.Player.Tavern.NextCombatLeftmostDoubleAttack = true;
-                    return "Nozdormu's Offspring: next combat doubles leftmost minion Attack";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Nozdormu's Offspring: next combat doubles leftmost minion Attack"
+                        : "Nozdormu's Offspring: already queued this turn";
                 case "127506":
                     BuffAll(state, state.Player.Board, 3, 2, "Golden Frenzy", applyTavernSpellBonus);
                     BuffAll(state, state.Player.Board.Where(minion => minion.Golden), 3, 2, "Golden Frenzy Golden", applyTavernSpellBonus);
@@ -731,14 +812,16 @@ namespace LearnHearthstone.Domain.Engine
                     RefreshShopToTargetTribe(state, minions, rng);
                     return "Hamuul's Lost Staff: refresh the Tavern into the target type";
                 case "119599":
-                    state.Player.Tavern.NextCombatLeftmostCopiesNearestEnemyStats = true;
-                    return "Share the Love: next combat leftmost minion copies nearest enemy stats";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Share the Love: next combat leftmost minion copies nearest enemy stats"
+                        : "Share the Love: already queued this turn";
                 case "119603":
                     SetFirstFriendlyToBestTeamStats(state);
                     return "Blade of Ambition: target gains the best team stats";
                 case "127642":
-                    state.Player.Tavern.NextCombatTriggerMixedMechanics = true;
-                    return "Hand of Deus: next combat triggers a battlecry deathrattle and rally reward";
+                    return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
+                        ? "Hand of Deus: next combat triggers a battlecry deathrattle and rally reward"
+                        : "Hand of Deus: already queued this turn";
                 default:
                     return spell.Name + ": effect is not implemented yet";
             }

@@ -421,7 +421,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 case UnityTavernZoneKind.Shop:
                     return UnityTavernUiStyle.ColorFromHex(0x2E2619);
                 case UnityTavernZoneKind.PlayerBoard:
-                    return UnityTavernUiStyle.ColorFromHex(0x1C2D23);
+                    return new Color(0.08f, 0.10f, 0.10f, 0.42f);
                 case UnityTavernZoneKind.OpponentBoard:
                     return UnityTavernUiStyle.ColorFromHex(0x232A38);
                 case UnityTavernZoneKind.Hand:
@@ -457,6 +457,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Color ZoneRowColor(UnityTavernZoneKind kind)
         {
+            if (kind == UnityTavernZoneKind.PlayerBoard)
+            {
+                return Color.clear;
+            }
+
             var color = Color.Lerp(ZoneSurfaceColor(kind), Color.black, 0.18f);
             color.a = 0.38f;
             return color;
@@ -464,8 +469,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Color SlotColor(UnityTavernZoneKind kind, bool empty)
         {
-            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), empty ? 0.18f : 0.08f);
-            color.a = empty ? 0.66f : 0.28f;
+            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), empty ? 0.07f : 0.1f);
+            color.a = empty ? 0.26f : 0.3f;
             return color;
         }
 

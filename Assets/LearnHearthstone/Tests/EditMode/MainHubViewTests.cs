@@ -10,34 +10,27 @@ namespace LearnHearthstone.Tests.EditMode
     public sealed class MainHubViewTests
     {
         [Test]
-        public void Build_CreatesIdenticalTavernMirrorEntry()
+        public void Build_CreatesSingleTavernTrainerEntry()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
             try
             {
-                var originalOpened = false;
-                var mirrorOpened = false;
+                var trainerOpened = false;
 
                 new MainHubView(
                     rootObject.transform,
                     () => { },
                     () => { },
-                    () => originalOpened = true,
-                    UnityTavernLayoutContext.ForSize(1366f, 768f),
-                    () => mirrorOpened = true).Build();
+                    () => trainerOpened = true,
+                    UnityTavernLayoutContext.ForSize(1366f, 768f)).Build();
 
                 var buttons = FindChildren(rootObject.transform, "酒馆训练器Button");
 
-                Assert.AreEqual(2, buttons.Count);
-                Assert.AreEqual(
-                    buttons[0].GetComponentInChildren<Text>().text,
-                    buttons[1].GetComponentInChildren<Text>().text);
+                Assert.AreEqual(1, buttons.Count);
 
                 buttons[0].GetComponent<Button>().onClick.Invoke();
-                buttons[1].GetComponent<Button>().onClick.Invoke();
 
-                Assert.IsTrue(originalOpened);
-                Assert.IsTrue(mirrorOpened);
+                Assert.IsTrue(trainerOpened);
             }
             finally
             {

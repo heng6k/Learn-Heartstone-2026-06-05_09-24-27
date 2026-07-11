@@ -58,7 +58,13 @@ namespace LearnHearthstone.Tests.EditMode
                 var playerTile = FindChild(panelObject.transform, "UnityReplayMinion-accept-player-1");
                 Assert.IsNotNull(playerTile);
                 Assert.IsNotNull(FindChild(playerTile, "UnityCombatCardFace-accept-player-1"));
-                Assert.IsNotNull(FindChild(playerTile, "UnityCombatCardArt-accept-player-1").GetComponent<Image>());
+                var playerArt = FindChild(playerTile, "UnityCombatCardArt-accept-player-1").GetComponent<Image>();
+                var playerArtViewport = FindChild(playerTile, "UnityCombatCardArtViewport-accept-player-1");
+                Assert.IsNotNull(playerArt);
+                Assert.IsNotNull(playerArtViewport.GetComponent<RectMask2D>());
+                Assert.AreSame(playerArtViewport, playerArt.transform.parent);
+                Assert.AreEqual(new Vector2(0f, -1f), playerArt.rectTransform.anchorMin);
+                Assert.AreEqual(new Vector2(1f, 1f), playerArt.rectTransform.anchorMax);
                 Assert.AreEqual("4本 野兽", FindChild(playerTile, "UnityCombatCardHeader-accept-player-1").GetComponent<Text>().text);
                 Assert.AreEqual("复活的骑兵", FindChild(playerTile, "UnityCombatCardName-accept-player-1").GetComponent<Text>().text);
                 Assert.AreEqual("圣盾 嘲讽", FindChild(playerTile, "UnityCombatCardKeywords-accept-player-1").GetComponent<Text>().text);
@@ -66,6 +72,10 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual("7", FindChild(playerTile, "UnityCombatCardHealthText-accept-player-1").GetComponent<Text>().text);
 
                 var opponentTile = FindChild(panelObject.transform, "UnityReplayMinion-accept-opponent-1");
+                var opponentArt = FindChild(opponentTile, "UnityCombatCardArt-accept-opponent-1").GetComponent<Image>();
+                Assert.IsNotNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<RectMask2D>());
+                Assert.AreEqual(new Vector2(0f, -1f), opponentArt.rectTransform.anchorMin);
+                Assert.AreEqual(new Vector2(1f, 1f), opponentArt.rectTransform.anchorMax);
                 Assert.AreEqual("烈毒", FindChild(opponentTile, "UnityCombatCardKeywords-accept-opponent-1").GetComponent<Text>().text);
                 Assert.AreEqual("饰品触发", FindChild(panelObject.transform, "UnityReplayEventChipText-Event").GetComponent<Text>().text);
                 Assert.IsFalse(ContainsText(panelObject.transform, "DivineShield"));

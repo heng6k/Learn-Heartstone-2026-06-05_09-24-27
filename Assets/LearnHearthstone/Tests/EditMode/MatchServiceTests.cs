@@ -2148,6 +2148,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(TestBoardMinion("enemy-calligrapher-rally", "Enemy", "TEST_ENEMY", 0, 80, Tribe.None, 1));
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 15, SafetyLimit = 1 }));
             Assert.Greater(service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell), afterBattlecry);
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             service.State.Player.Board.Clear();
             service.State.Opponent.Board.Clear();
@@ -2825,7 +2826,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(TestOpponentMinion("winner-enemy", "Winner Enemy", "WINNER_ENEMY", 0, 20, Tribe.None, 1));
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 52, SafetyLimit = 1 }));
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.DefinitionId == "triple-reward"));
         }
@@ -3432,11 +3433,13 @@ namespace LearnHearthstone.Tests.EditMode
             var specialGemIndex = bully.State.Player.Tavern.Hand.FindIndex(card => card.CardKind == CardKind.Spell && card.CardId == "BRISTLEBACK_BLOOD_GEM");
             Assert.GreaterOrEqual(specialGemIndex, 0);
 
+            bully.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
             bully.State.Player.Board.Clear();
             bully.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_100", CardKind.Minion));
             bully.Apply(new GameCommand(GameCommandType.PlayMinion, bully.State.Player.Tavern.Hand.Count - 1));
             var target = bully.State.Player.Board[0];
             var beforeAttack = target.Attack;
+            specialGemIndex = bully.State.Player.Tavern.Hand.FindIndex(card => card.CardKind == CardKind.Spell && card.CardId == "BRISTLEBACK_BLOOD_GEM");
             bully.Apply(new GameCommand(GameCommandType.PlayMinion, specialGemIndex));
 
             Assert.AreEqual(beforeAttack + 1, target.Attack);
@@ -3593,7 +3596,7 @@ namespace LearnHearthstone.Tests.EditMode
             var crab = surf.State.LastResult.FinalPlayerBoard.First(card => card.DefinitionId == "crab");
             Assert.AreEqual(3, crab.Attack);
             Assert.AreEqual(2, crab.MaxHealth);
-            surf.Apply(new GameCommand(GameCommandType.NextTurn));
+            surf.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
             Assert.IsFalse(surf.State.Player.Board[0].Tags.Contains("surf_n_surf_crab"));
         }
 

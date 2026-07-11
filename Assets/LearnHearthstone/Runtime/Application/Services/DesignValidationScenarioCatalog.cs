@@ -67,6 +67,8 @@ namespace LearnHearthstone.Application.Services
             scenario.OpponentCombatModifiers.TavernSpellBonusHealth = 2;
             scenario.PlayerCombatModifiers.SpellPower = 2;
             scenario.PlayerCombatModifiers.SpellsCastThisGame = 5;
+            scenario.PlayerCombatModifiers.TavernSpellBonusAttack = 3;
+            scenario.PlayerCombatModifiers.TavernSpellBonusHealth = 2;
             scenario.Tavern.TavernSpellBonusAttack = 3;
             scenario.Tavern.TavernSpellBonusHealth = 2;
             return scenario;
@@ -75,8 +77,8 @@ namespace LearnHearthstone.Application.Services
         private static TestScenarioDefinition CreateHistoricalStats()
         {
             var scenario = BaseScenario(HistoricalStats, 9, 91003);
-            scenario.PlayerBoard.Add(Minion("player-eternal", "Eternal Knight", "BG25_008", 16, 8, Tribe.Undead, BoardSide.Player, 2));
-            scenario.PlayerBoard.Add(Minion("player-automaton", "Ancestral Automaton", "BG_TTN_401", 12, 10, Tribe.Mech, BoardSide.Player, 2));
+            scenario.PlayerBoard.Add(Minion("player-eternal", "Eternal Knight", "BG25_008", 4, 1, Tribe.Undead, BoardSide.Player, 2));
+            scenario.PlayerBoard.Add(Minion("player-automaton", "Ancestral Automaton", "BG_TTN_401", 3, 4, Tribe.Mech, BoardSide.Player, 2));
             scenario.OpponentBoard.Add(Minion("opponent-eternal-history", "Eternal Knight", "BG25_008", 4, 1, Tribe.Undead, BoardSide.Opponent, 2));
             scenario.OpponentBoard.Add(Minion("opponent-automaton-history", "Ancestral Automaton", "BG_TTN_401", 3, 4, Tribe.Mech, BoardSide.Opponent, 2));
             scenario.OpponentBoard.Add(Minion("opponent-timewarped-mrrrglr", "Timewarped Mrrrglr", "BG34_Giant_321", 5, 5, Tribe.Murloc, BoardSide.Opponent, 5));
@@ -125,6 +127,7 @@ namespace LearnHearthstone.Application.Services
         {
             return new TestScenarioDefinition
             {
+                PlayerCombatModifiersAreAuthoritative = true,
                 Name = name,
                 SavedAtRound = round,
                 Seed = seed,

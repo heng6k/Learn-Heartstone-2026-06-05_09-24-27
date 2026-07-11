@@ -330,7 +330,8 @@ namespace LearnHearthstone.Tests.EditMode
                     {
                         disabledPirateSpell.CardNumber,
                         fallbackNeutralSpell.CardNumber
-                    }
+                    },
+                    EnableTrinkets = false
                 });
             PlayBuddy(service, "BG28_HERO_400_Buddy");
 
@@ -683,6 +684,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = CreateHeroService("BG22_HERO_201");
             var tavern = service.State.Player.Tavern;
+            ResolveDiscoverChoices(service);
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern.Hand.Clear();
 
@@ -723,6 +725,7 @@ namespace LearnHearthstone.Tests.EditMode
         public void Veranus_EndTurnTransformsLeftNeighborOneTierHigherUpToTierSeven()
         {
             var service = CreateHeroService("BG27_HERO_801");
+            ResolveDiscoverChoices(service);
             service.State.Player.Board.Clear();
             var target = TestTierMinion("veranus-target", "VERANUS_TARGET", 1);
             var veranus = TestTierMinion("veranus", "BG27_HERO_801_Buddy", 2);
@@ -737,6 +740,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreNotEqual("VERANUS_TARGET", service.State.Player.Board[0].CardId);
 
             var tierSevenService = CreateHeroService("BG27_HERO_801");
+            ResolveDiscoverChoices(tierSevenService);
             tierSevenService.State.Player.Board.Clear();
             var tierSix = TestTierMinion("veranus-tier-six-target", "VERANUS_TIER_SIX_TARGET", 6);
             var secondVeranus = TestTierMinion("veranus-tier-seven", "BG27_HERO_801_Buddy", 2);
@@ -2439,6 +2443,7 @@ namespace LearnHearthstone.Tests.EditMode
             vanndar.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.AreEqual(3, vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Count);
             Assert.IsTrue(vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "VAN_HIGH" && card.InstanceId.Contains("combat-copy")));
+            vanndar.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             PlayBuddy(vanndar, "BG22_HERO_003_Buddy");
             var rightMost = vanndar.State.Player.Board.Last(card => card.CardKind == CardKind.Minion);
@@ -2452,6 +2457,7 @@ namespace LearnHearthstone.Tests.EditMode
             drek.State.Player.Board.Add(TestMinion("drek-low", "DREK_LOW", 1, 2));
             drek.Apply(new GameCommand(GameCommandType.RunCombatTest));
             Assert.IsTrue(drek.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "DREK_HIGH" && card.InstanceId.Contains("combat-copy")));
+            drek.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             PlayBuddy(drek, "BG22_HERO_002_Buddy");
             var leftMost = drek.State.Player.Board.First(card => card.CardKind == CardKind.Minion);
@@ -2696,6 +2702,8 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2110 + combat, SafetyLimit = 4 }));
             }
+
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             service.State.Player.Tavern.Gold = 0;
             service.State.Player.Tavern.Shop = new System.Collections.Generic.List<MinionInstance>
@@ -3642,6 +3650,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(2, service.State.OpponentHistory.LastOpponentWarband.Count);
             Assert.IsTrue(service.State.OpponentHistory.LastOpponentWarband.Any(card => card.CardId == "HISTORY_OLD_HIGH"));
             Assert.IsTrue(service.State.OpponentHistory.RecentCombatDeaths.Any(card => card.CardId == "HISTORY_OLD_LOW" || card.CardId == "HISTORY_OLD_HIGH"));
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             service.State.Opponent.Board.Clear();
             var current = TestMinion("history-current", "HISTORY_CURRENT", 9, 9);
@@ -3724,7 +3733,7 @@ namespace LearnHearthstone.Tests.EditMode
             eliminated.TavernTier = 5;
             bigglesworth.State.Opponent.Board.Add(eliminated);
             bigglesworth.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1703, SafetyLimit = 1 }));
-            bigglesworth.Apply(new GameCommand(GameCommandType.NextTurn));
+            bigglesworth.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.AreEqual(1, bigglesworth.State.OpponentHistory.EliminatedPlayerWarbands.Count);
             Assert.IsNotNull(bigglesworth.State.Player.Tavern.Discover);
@@ -3982,7 +3991,7 @@ namespace LearnHearthstone.Tests.EditMode
 
         private static MatchService CreateHeroService(string heroCardId)
         {
-            return CreateHeroService(heroCardId, null);
+            return CreateHeroService(heroCardId, new MatchSetupOptions { EnableTrinkets = false });
         }
 
         private static MatchService CreateHeroService(string heroCardId, MatchSetupOptions setup)
@@ -4007,6 +4016,16 @@ namespace LearnHearthstone.Tests.EditMode
                     EnabledMinionCardIds = new System.Collections.Generic.List<string>(),
                     EnabledTavernSpellCardNumbers = new System.Collections.Generic.List<string> { "105669", "122185" }
                 });
+        }
+
+        private static void ResolveDiscoverChoices(MatchService service)
+        {
+            for (var guard = 0; service.State.Player.Tavern.Discover != null && guard < 8; guard += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            }
+
+            Assert.IsNull(service.State.Player.Tavern.Discover, "initial hero discover chain should resolve within guard");
         }
 
         private static HeroBuddyDefinition TierThreePirateBuddy(MatchService service)

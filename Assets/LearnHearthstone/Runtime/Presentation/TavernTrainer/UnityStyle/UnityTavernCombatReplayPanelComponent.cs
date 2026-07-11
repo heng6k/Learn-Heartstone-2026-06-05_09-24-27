@@ -318,6 +318,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildEventHighlights(eventHighlightParent, frame);
             BuildBoard(playerBoardParent, BoardSide.Player, "Player", frame == null ? null : frame.PlayerBoardSnapshot, previousFrame == null ? null : previousFrame.PlayerBoardSnapshot, frame);
             BuildBoard(opponentBoardParent, BoardSide.Opponent, "Opponent", frame == null ? null : frame.OpponentBoardSnapshot, previousFrame == null ? null : previousFrame.OpponentBoardSnapshot, frame);
+            BuildReplayTargetingConnector(transform, frame);
             BuildTimeline(timelineParent, replay, clampedIndex, setFrame);
         }
 
@@ -373,6 +374,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 frame == null ? null : frame.PlayerBoardSnapshot,
                 previousFrame == null ? null : previousFrame.PlayerBoardSnapshot,
                 frame);
+            BuildReplayTargetingConnector(root.transform, frame);
 
             BuildCombatRewardDiagnostics(safeArea.transform, replay);
             BuildPlaybackBar(safeArea.transform, replay, clampedIndex, options);
@@ -996,12 +998,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             AddEventChip(parent, "Event", EventTypeText(frame.EventType), EventTypeColor(frame.EventType));
             if (!string.IsNullOrEmpty(frame.ActorId))
             {
-                AddEventChip(parent, "Actor", "攻击方", UnityTavernUiStyle.Green);
+                AddEventChip(parent, "Actor", "来源 " + EntityName(frame, frame.ActorSide, frame.ActorId), UnityTavernUiStyle.Gold);
             }
 
             if (!string.IsNullOrEmpty(frame.TargetId))
             {
-                AddEventChip(parent, "Target", "目标", UnityTavernUiStyle.Red);
+                AddEventChip(parent, "Target", "目标 " + EntityName(frame, frame.TargetSide, frame.TargetId), UnityTavernUiStyle.Red);
             }
 
             var damageText = DamageAmountText(frame);
@@ -1077,10 +1079,142 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             tileImage.color = tileColor;
             tileImage.raycastTarget = false;
             ConfigureTileOutline(tile, tileColor);
+            ConfigureReplayTargetingOutline(tile, minion.InstanceId, frame);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
 
             BuildCombatCardFace(tile.transform, minion, tileColor, false);
+            BuildReplayTargetingLabel(tile.transform, minion.InstanceId, frame);
             ConfigureTileMotion(tile, side, minion.InstanceId, tileColor, frame);
+        }
+
+        private static void ConfigureReplayTargetingOutline(GameObject tile, string instanceId, CombatFrame frame)
+        {
+            if (tile == null || frame == null || string.IsNullOrEmpty(instanceId))
+            {
+                return;
+            }
+
+            var actor = string.Equals(frame.ActorId, instanceId, StringComparison.OrdinalIgnoreCase);
+            var target = string.Equals(frame.TargetId, instanceId, StringComparison.OrdinalIgnoreCase);
+            if (!actor && !target)
+            {
+                return;
+            }
+
+            var color = target ? UnityTavernUiStyle.Red : UnityTavernUiStyle.Gold;
+            var outline = UnityTavernUiStyle.EnsureComponent<Outline>(tile);
+            outline.enabled = true;
+            outline.effectColor = color;
+            outline.effectDistance = new Vector2(3f, -3f);
+            outline.useGraphicAlpha = false;
+        }
+
+        private static void BuildReplayTargetingLabel(Transform parent, string instanceId, CombatFrame frame)
+        {
+            if (parent == null || frame == null || string.IsNullOrEmpty(instanceId))
+            {
+                return;
+            }
+
+            var actor = string.Equals(frame.ActorId, instanceId, StringComparison.OrdinalIgnoreCase);
+            var target = string.Equals(frame.TargetId, instanceId, StringComparison.OrdinalIgnoreCase);
+            if (!actor && !target)
+            {
+                return;
+            }
+
+            var color = target ? UnityTavernUiStyle.Red : UnityTavernUiStyle.Gold;
+            var labelObject = new GameObject("UnityReplayTargetingLabel-" + instanceId, typeof(RectTransform), typeof(Image));
+            labelObject.transform.SetParent(parent, false);
+            var image = labelObject.GetComponent<Image>();
+            image.color = new Color(color.r, color.g, color.b, 0.94f);
+            image.raycastTarget = false;
+
+            var rect = labelObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(0f, -5f);
+            rect.sizeDelta = new Vector2(72f, 22f);
+
+            var label = AddCombatCardLabel(
+                "UnityReplayTargetingLabelText-" + instanceId,
+                labelObject.transform,
+                target ? "目标" : "来源",
+                11,
+                FontStyle.Bold,
+                Color.white,
+                TextAnchor.MiddleCenter);
+            UnityTavernUiStyle.Stretch(label.rectTransform);
+        }
+
+        private static void BuildReplayTargetingConnector(Transform root, CombatFrame frame)
+        {
+            if (root == null || frame == null || string.IsNullOrEmpty(frame.ActorId) || string.IsNullOrEmpty(frame.TargetId))
+            {
+                return;
+            }
+
+            var rootRect = root as RectTransform;
+            if (rootRect == null)
+            {
+                return;
+            }
+
+            var source = FindDeepChild(root, "UnityReplayMinion-" + frame.ActorId) as RectTransform;
+            var target = FindDeepChild(root, "UnityReplayMinion-" + frame.TargetId) as RectTransform;
+            if (source == null || target == null)
+            {
+                return;
+            }
+
+            var connector = new GameObject(
+                "UnityReplayTargetingConnector",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(LayoutElement),
+                typeof(UnityReplayTargetingConnectorComponent));
+            connector.transform.SetParent(root, false);
+            connector.transform.SetAsLastSibling();
+            connector.GetComponent<LayoutElement>().ignoreLayout = true;
+            var image = connector.GetComponent<Image>();
+            image.color = new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.88f);
+            image.raycastTarget = false;
+
+            var rect = connector.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.sizeDelta = new Vector2(0f, 3f);
+
+            var arrow = AddCombatCardLabel("UnityReplayTargetingConnectorArrow", connector.transform, "▶", 14, FontStyle.Bold, UnityTavernUiStyle.Gold, TextAnchor.MiddleRight);
+            UnityTavernUiStyle.Stretch(arrow.rectTransform);
+            connector.GetComponent<UnityReplayTargetingConnectorComponent>().Configure(rootRect, source, target, arrow);
+        }
+
+        private static Transform FindDeepChild(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            for (var index = 0; index < parent.childCount; index += 1)
+            {
+                var child = parent.GetChild(index);
+                if (child.name == childName)
+                {
+                    return child;
+                }
+
+                var nested = FindDeepChild(child, childName);
+                if (nested != null)
+                {
+                    return nested;
+                }
+            }
+
+            return null;
         }
 
         private static void BuildDeathMarker(Transform parent, BoardSide side, CombatMinionSnapshot minion)
@@ -1128,8 +1262,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             faceImage.raycastTarget = false;
             ConfigureTileOutline(face, minion.Golden ? UnityTavernUiStyle.Gold : accentColor);
 
+            var artViewport = new GameObject("UnityCombatCardArtViewport-" + minion.InstanceId, typeof(RectTransform), typeof(RectMask2D));
+            artViewport.transform.SetParent(face.transform, false);
+            SetAnchored(artViewport.GetComponent<RectTransform>(), new Vector2(0.14f, 0.30f), new Vector2(0.86f, 0.84f), Vector2.zero, Vector2.zero);
+
             var artObject = new GameObject("UnityCombatCardArt-" + minion.InstanceId, typeof(RectTransform), typeof(Image));
-            artObject.transform.SetParent(face.transform, false);
+            artObject.transform.SetParent(artViewport.transform, false);
             var artImage = artObject.GetComponent<Image>();
             artImage.sprite = CardImageProvider.LoadSprite(null, minion.CardId, CardKind.Minion);
             artImage.preserveAspect = true;
@@ -1137,7 +1275,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             artImage.color = artImage.sprite == null
                 ? CombatCardFallbackColor(minion, defeated)
                 : new Color(1f, 1f, 1f, defeated ? 0.42f : 0.92f);
-            SetAnchored(artImage.rectTransform, new Vector2(0.08f, 0.28f), new Vector2(0.92f, 0.84f), Vector2.zero, Vector2.zero);
+            SetAnchored(artImage.rectTransform, new Vector2(0f, -1f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+            artImage.rectTransform.pivot = new Vector2(0.5f, 1f);
 
             if (artImage.sprite == null)
             {
@@ -1858,7 +1997,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (frame.ActorId == instanceId)
             {
-                return UnityTavernUiStyle.Green;
+                return UnityTavernUiStyle.Gold;
             }
 
             if (Contains(frame.DeadEntityIds, instanceId))
@@ -2449,6 +2588,90 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     UnityEngine.Object.DestroyImmediate(child);
                 }
             }
+        }
+    }
+
+    [ExecuteAlways]
+    public sealed class UnityReplayTargetingConnectorComponent : MonoBehaviour
+    {
+        private RectTransform root;
+        private RectTransform source;
+        private RectTransform target;
+        private RectTransform line;
+        private Image lineImage;
+        private Text arrow;
+
+        public void Configure(RectTransform rootRect, RectTransform sourceRect, RectTransform targetRect, Text arrowText)
+        {
+            root = rootRect;
+            source = sourceRect;
+            target = targetRect;
+            line = transform as RectTransform;
+            lineImage = GetComponent<Image>();
+            arrow = arrowText;
+            Canvas.willRenderCanvases -= Refresh;
+            Canvas.willRenderCanvases += Refresh;
+            Refresh();
+        }
+
+        private void OnEnable()
+        {
+            Canvas.willRenderCanvases -= Refresh;
+            Canvas.willRenderCanvases += Refresh;
+        }
+
+        private void OnDisable()
+        {
+            Canvas.willRenderCanvases -= Refresh;
+        }
+
+        private void LateUpdate()
+        {
+            Refresh();
+        }
+
+        public void Refresh()
+        {
+            if (root == null || source == null || target == null || line == null || lineImage == null)
+            {
+                return;
+            }
+
+            var sourceBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(root, source);
+            var targetBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(root, target);
+            var direction = ((Vector2)targetBounds.center - (Vector2)sourceBounds.center).normalized;
+            var start = EdgePoint(sourceBounds, direction);
+            var end = EdgePoint(targetBounds, -direction);
+            var delta = end - start;
+            var canvas = root.GetComponentInParent<Canvas>();
+            var renderedWidth = root.rect.width * (canvas == null ? 1f : canvas.scaleFactor);
+            var visible = renderedWidth > 1000f && delta.sqrMagnitude >= 1f;
+            lineImage.enabled = visible;
+            if (arrow != null)
+            {
+                arrow.enabled = visible;
+            }
+
+            if (!visible)
+            {
+                return;
+            }
+
+            line.anchoredPosition = start;
+            line.sizeDelta = new Vector2(delta.magnitude, 3f);
+            line.localEulerAngles = new Vector3(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
+        }
+
+        private static Vector2 EdgePoint(Bounds bounds, Vector2 direction)
+        {
+            if (direction.sqrMagnitude < 0.001f)
+            {
+                return bounds.center;
+            }
+
+            var xDistance = Mathf.Abs(direction.x) < 0.001f ? float.PositiveInfinity : bounds.extents.x / Mathf.Abs(direction.x);
+            var yDistance = Mathf.Abs(direction.y) < 0.001f ? float.PositiveInfinity : bounds.extents.y / Mathf.Abs(direction.y);
+            return (Vector2)bounds.center + direction * Mathf.Min(xDistance, yDistance);
         }
     }
 }

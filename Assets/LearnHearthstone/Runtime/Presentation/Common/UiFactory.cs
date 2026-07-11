@@ -9,6 +9,7 @@ namespace LearnHearthstone.Presentation.Common
         public const float MinimumButtonHeight = 44f;
 
         private static Font uiFont;
+        private static Font fontOverride;
 
         public static GameObject Panel(string name, Transform parent, Color color)
         {
@@ -126,6 +127,19 @@ namespace LearnHearthstone.Presentation.Common
             text.color = color;
         }
 
+        public static void EnsureFont(Text text)
+        {
+            if (text != null && text.font == null)
+            {
+                text.font = GetUiFont(text.fontSize);
+            }
+        }
+
+        public static void SetFontOverride(Font font)
+        {
+            fontOverride = font;
+        }
+
         public static void SetImageColor(GameObject target, Color color)
         {
             var image = target.GetComponent<Image>();
@@ -137,6 +151,11 @@ namespace LearnHearthstone.Presentation.Common
 
         private static Font GetUiFont(int size)
         {
+            if (fontOverride != null)
+            {
+                return fontOverride;
+            }
+
             if (uiFont != null)
             {
                 return uiFont;
