@@ -6,6 +6,7 @@ namespace LearnHearthstone.Domain.Models
     [Serializable]
     public sealed class MatchSetupOptions
     {
+        public bool UseEnglish;
         public List<Tribe> ActiveTribes = new List<Tribe>();
         public string SelectedHeroCardId;
         public string CardPoolVersionId;
@@ -20,8 +21,11 @@ namespace LearnHearthstone.Domain.Models
         public bool ShowHiddenEffectOnly = false;
         public bool ShowDisabled = false;
         public bool EnablePlayerDirectedChoices = true;
+        public bool EnableTimewarpedTavern = true;
         public bool UseHistoricalTimewarpedPool = false;
         public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
+        public bool UseExplicitTimewarpedPool = false;
+        public List<string> EnabledTimewarpedCardIds = new List<string>();
         public bool EnableAnomalies = false;
         public bool RandomizeAnomaly = false;
         public string SelectedAnomalyCardId;
@@ -1116,8 +1120,11 @@ namespace LearnHearthstone.Domain.Models
         public string CardPoolVersionId;
         public string CardPoolVersionName;
         public bool IsDefaultCardPoolVersion = true;
+        public bool TimewarpedTavernEnabled = true;
         public bool UseHistoricalTimewarpedPool = false;
         public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
+        public bool UseExplicitTimewarpedPool = false;
+        public List<string> EnabledTimewarpedCardIds = new List<string>();
         public List<string> EnabledMinionCardIds = new List<string>();
         public List<string> EnabledTavernSpellCardNumbers = new List<string>();
         public List<string> EnabledQuestCardIds = new List<string>();

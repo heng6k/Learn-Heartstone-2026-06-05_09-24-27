@@ -8,6 +8,7 @@ using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LearnHearthstone.Tests.EditMode
 {
@@ -39,6 +40,30 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(QuestObjectiveKind.SellMinions, quest.Objective.Kind);
             Assert.AreEqual("CardImages/BG27_Quest_800", quest.ImagePath);
             Assert.IsNotNull(CardImageProvider.LoadSprite(quest.ImagePath, quest.CardId, CardKind.Quest));
+        }
+
+        [Test]
+        public void Catalog_LocalizesEveryQuestAndRewardAndPreservesEnglishMode()
+        {
+            var chinese = QuestCatalogLoader.LoadFromResources(false);
+            var english = QuestCatalogLoader.LoadFromResources(true);
+
+            Assert.AreEqual(6, chinese.Quests.Count);
+            Assert.AreEqual(73, chinese.Rewards.Count);
+            Assert.IsTrue(chinese.Quests.All(quest => ContainsChinese(quest.Name) && ContainsChinese(quest.Text)));
+            Assert.IsTrue(chinese.Rewards.All(reward => ContainsChinese(reward.Name) && ContainsChinese(reward.Text)));
+            Assert.AreEqual("Follow the Money", english.GetQuestByCardId("BG24_Quest_126").Name);
+            Assert.AreEqual("追查钱财", chinese.GetQuestByCardId("BG24_Quest_126").Name);
+            StringAssert.Contains("10枚铸币", chinese.GetQuestByCardId("BG24_Quest_126").Text);
+            StringAssert.DoesNotContain(">0<", chinese.GetQuestByCardId("BG24_Quest_126").Text);
+            Assert.AreEqual("16枚铸币钱袋", chinese.GetRewardByCardId("LH_Reward_CoinPouch16").Name);
+            StringAssert.DoesNotContain("0", chinese.GetRewardByCardId("BG27_Reward_803").Text);
+            StringAssert.Contains("最左边的非金色卡牌", chinese.GetRewardByCardId("BG24_Reward_718").Text);
+
+            var chineseService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = false });
+            var englishService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = true });
+            Assert.AreEqual("心能贿赂", chineseService.QuestCatalog.GetRewardByCardId("BG24_Reward_305").Name);
+            Assert.AreEqual("Anima Bribe", englishService.QuestCatalog.GetRewardByCardId("BG24_Reward_305").Name);
         }
 
         [Test]
@@ -178,6 +203,77 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
             CollectionAssert.AreEquivalent(new[] { quest.CardId }, service.State.EnabledQuestCardIds);
             Assert.AreEqual(0, service.State.EnabledQuestRewardCardIds.Count);
+        }
+
+        [Test]
+        public void FollowTheMoney_TracksSharedGoldSpendAndCompletesAtRequiredAmount()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_126", "BG33_Reward_012");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
+            service.State.Player.Tavern.Gold = 100;
+            service.State.Player.Tavern.MaxGold = 100;
+
+            for (var index = 0; index < active.RequiredAmount - 1; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+            }
+
+            Assert.AreEqual(active.RequiredAmount - 1, active.Progress);
+            Assert.IsFalse(active.Completed);
+
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.AreEqual(active.RequiredAmount, active.Progress);
+            Assert.IsTrue(active.Completed);
+            Assert.IsTrue(active.RewardActive);
+        }
+
+        [Test]
+        public void CryForHelp_OnlyTracksPlayedBattlecryMinions()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            QueueQuestChoice(service, "BG24_Quest_311", "BG24_Reward_136");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+
+            service.State.Player.Tavern.Hand.Add(TestMinion("cry-for-help-plain"));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+            Assert.AreEqual(0, active.Progress);
+
+            for (var index = 0; index < active.RequiredAmount; index += 1)
+            {
+                service.State.Player.Tavern.Hand.Add(TestBattlecryMinion("cry-for-help-" + index, "BG23_002"));
+                service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+            }
+
+            Assert.AreEqual(active.RequiredAmount, active.Progress);
+            Assert.IsTrue(active.Completed);
+            Assert.IsTrue(active.RewardActive);
+        }
+
+        [Test]
+        public void HiddenReward_RighteousChargeShieldsLeftmostCombatCopyAndQueuesImmediateAttack()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var left = TestMinion("righteous-left");
+            service.State.Player.Board.Add(left);
+            service.State.Player.Board.Add(TestMinion("righteous-right"));
+            service.State.Opponent.Board.Add(TestMinion("righteous-opponent"));
+            ActivateRewardDirectly(service, "BG33_Reward_003");
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 123, SafetyLimit = 1 }));
+
+            var initialLeft = service.State.LastReplay.InitialSnapshot.Player.Minions
+                .Single(minion => minion.InstanceId == left.InstanceId);
+            Assert.IsTrue(initialLeft.Keywords.Contains(Keyword.DivineShield));
+            Assert.IsTrue(service.State.LastReplay.Frames.Any(frame => frame.EventType == CombatEventType.ImmediateAttackQueued));
+            Assert.IsFalse(left.Keywords.Contains(Keyword.DivineShield));
         }
 
         [Test]
@@ -1276,7 +1372,7 @@ namespace LearnHearthstone.Tests.EditMode
             var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
             Assert.IsFalse(active.Completed);
             Assert.AreEqual("BG24_Reward_305", active.RewardId);
-            Assert.AreEqual("Anima Bribe", active.RewardName);
+            Assert.AreEqual(service.QuestCatalog.GetRewardById(active.RewardId).Name, active.RewardName);
             Assert.AreEqual(QuestRewardPowerLevel.Medium, active.RewardPowerLevel);
             Assert.Greater(active.RequiredAmount, 0);
         }
@@ -1286,13 +1382,34 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
             service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+            var missingArtOption = service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options[0];
+            var sourceId = missingArtOption.SourceId;
+            var rewardId = missingArtOption.RewardId;
+            missingArtOption.ImagePath = "CardImages/does-not-exist-quest";
+            missingArtOption.RewardImagePath = "CardImages/does-not-exist-reward";
+            missingArtOption.SourceId = "MISSING_QUEST_ART";
+            missingArtOption.RewardId = "MISSING_REWARD_ART";
             var root = new GameObject("QuestUiTestRoot", typeof(RectTransform));
             try
             {
                 var controller = root.AddComponent<UnityTavernTrainerController>();
                 controller.Initialize(service, null, null, null);
                 Assert.IsNotNull(root.transform.Find("UnityAdvancedMechanicChoiceOverlay"));
+                var fallbackLabels = root.GetComponentsInChildren<Text>(true)
+                    .Where(text => text.name == "UnityMechanicChoiceImageFallbackText")
+                    .ToList();
+                Assert.AreEqual(2, fallbackLabels.Count);
+                CollectionAssert.AreEquivalent(
+                    new[]
+                    {
+                        UnityTavernUiStyle.ArtFallbackText(missingArtOption.DisplayName, "Q"),
+                        UnityTavernUiStyle.ArtFallbackText(missingArtOption.RewardName, "R")
+                    },
+                    fallbackLabels.Select(text => text.text).ToList());
+                Assert.IsTrue(fallbackLabels.All(text => text.fontSize >= 24 && text.GetComponent<Outline>().enabled));
 
+                missingArtOption.SourceId = sourceId;
+                missingArtOption.RewardId = rewardId;
                 service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
                 controller.Rebuild();
                 Assert.IsNotNull(root.transform.Find("UnityMechanicStatusStrip/UnityQuestTrackerPanel"));
@@ -1430,6 +1547,11 @@ namespace LearnHearthstone.Tests.EditMode
             "BG24_Reward_134",
             "BG27_Reward_812"
         };
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Any(character => character >= '\u3400' && character <= '\u9fff');
+        }
 
         private static MinionInstance TestMinion(string instanceId, int tavernTier = 1)
         {

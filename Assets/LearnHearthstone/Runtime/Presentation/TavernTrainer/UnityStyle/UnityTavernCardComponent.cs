@@ -1318,44 +1318,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return string.Empty;
             }
 
-            var abbreviation = CardNameAbbreviation(minion.Name);
-            return string.IsNullOrEmpty(abbreviation) ? ArtFallbackTypeText(minion) : abbreviation;
-        }
-
-        private static string CardNameAbbreviation(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return string.Empty;
-            }
-
-            var trimmed = value.Trim();
-            var firstVisible = trimmed.FirstOrDefault(char.IsLetterOrDigit);
-            if (IsCjkCharacter(firstVisible))
-            {
-                return new string(trimmed.Where(char.IsLetterOrDigit).Take(2).ToArray());
-            }
-
-            var words = trimmed.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            if (words.Length > 1)
-            {
-                var initials = words
-                    .Select(word => word.FirstOrDefault(char.IsLetterOrDigit))
-                    .Where(character => character != default(char))
-                    .Take(2)
-                    .ToArray();
-                if (initials.Length > 1)
-                {
-                    return new string(initials).ToUpperInvariant();
-                }
-            }
-
-            return new string(trimmed.Where(char.IsLetterOrDigit).Take(2).ToArray()).ToUpperInvariant();
-        }
-
-        private static bool IsCjkCharacter(char value)
-        {
-            return value >= '\u3400' && value <= '\u9fff';
+            return UnityTavernUiStyle.ArtFallbackText(minion.Name, ArtFallbackTypeText(minion));
         }
 
         private static string ArtFallbackTypeText(MinionInstance minion)

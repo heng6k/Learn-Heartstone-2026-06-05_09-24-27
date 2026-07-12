@@ -72,6 +72,29 @@ namespace LearnHearthstone.Tests.EditMode
         };
 
         [Test]
+        public void Catalog_LocalizesEveryTrinketAndPreservesEnglishMode()
+        {
+            var chinese = TrinketCatalogLoader.LoadFromResources(false);
+            var english = TrinketCatalogLoader.LoadFromResources(true);
+
+            Assert.AreEqual(330, chinese.All.Count);
+            Assert.IsTrue(chinese.All.All(trinket => ContainsChinese(trinket.Name) && ContainsChinese(trinket.Text)));
+            Assert.AreEqual("Artanis Sticker", english.GetByCardId("BG32_MagicItem_906").Name);
+            Assert.AreEqual("阿塔尼斯标签", chinese.GetByCardId("BG32_MagicItem_906").Name);
+            StringAssert.Contains("母舰", chinese.GetByCardId("BG32_MagicItem_906").Text);
+            StringAssert.DoesNotContain("92", string.Join("", chinese.All.Select(trinket => trinket.Text)));
+            StringAssert.DoesNotContain(">0<", string.Join("", chinese.All.Select(trinket => trinket.Text)));
+            StringAssert.DoesNotContain("</i>4", string.Join("", chinese.All.Select(trinket => trinket.Text)));
+            StringAssert.Contains("当前酒馆等级", chinese.GetByCardId("BG30_MagicItem_426").Text);
+            StringAssert.Contains("仅记录提示", chinese.GetByCardId("BG35_MagicItem_820").Text);
+
+            var chineseService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = false });
+            var englishService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = true });
+            Assert.AreEqual("随从诱饵", chineseService.TrinketCatalog.GetByCardId("BG30_MagicItem_973").Name);
+            Assert.AreEqual("Minion Bait", englishService.TrinketCatalog.GetByCardId("BG30_MagicItem_973").Name);
+        }
+
+        [Test]
         public void Catalog_LoadsLesserAndGreaterTrinketsWithVisibleStatuses()
         {
             var catalog = TrinketCatalogLoader.LoadFromResources();
@@ -1377,6 +1400,18 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(request.Options
                 .Select(option => service.TrinketCatalog.GetByCardId(option.SourceId))
                 .All(definition => TribeAvailabilityRules.IsTrinketAvailable(definition, service.State.ActiveTribes)));
+        }
+
+        [Test]
+        public void TrinketAvailability_ParsesCanonicalUppercaseRaceTags()
+        {
+            var dragon = new TrinketDefinition { AssociatedRaces = new List<string> { "DRAGON" } };
+            var mech = new TrinketDefinition { AssociatedRaces = new List<string> { "MECHANICAL" } };
+
+            Assert.IsTrue(TribeAvailabilityRules.IsTrinketAvailable(dragon, new[] { Tribe.Dragon }));
+            Assert.IsFalse(TribeAvailabilityRules.IsTrinketAvailable(dragon, new[] { Tribe.Murloc }));
+            Assert.IsTrue(TribeAvailabilityRules.IsTrinketAvailable(mech, new[] { Tribe.Mech }));
+            Assert.IsFalse(TribeAvailabilityRules.IsTrinketAvailable(mech, new[] { Tribe.Dragon }));
         }
 
         [Test]
@@ -8329,6 +8364,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotEmpty(shopMinions);
             Assert.IsTrue(shopMinions.All(minion => minion.Attack >= minion.BaseAttack + attack));
             Assert.IsTrue(shopMinions.All(minion => minion.MaxHealth >= minion.BaseHealth + health));
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Any(character => character >= '\u3400' && character <= '\u9fff');
         }
     }
 }

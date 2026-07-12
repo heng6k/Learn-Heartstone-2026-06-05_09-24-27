@@ -14,6 +14,7 @@ namespace LearnHearthstone.Domain.Models
     {
         public string CardId;
         public int DbfId;
+        public string SourceName;
         public string Name;
         public string Text;
         public int Tier;

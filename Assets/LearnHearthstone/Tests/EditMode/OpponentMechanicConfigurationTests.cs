@@ -12,6 +12,7 @@ namespace LearnHearthstone.Tests.EditMode
     {
         private const string AlAkirHeroPowerCardId = "TB_BaconShop_HP_086";
         private const string TavishHeroPowerCardId = "BG22_HERO_000p";
+        private const string EvilTwinRewardId = "BG24_Reward_111";
 
         [Test]
         public void DisabledMechanics_DoNotExposeOpponentConfiguration()
@@ -208,6 +209,26 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(opponentLeft.Keywords.Contains(Keyword.Windfury));
             Assert.IsTrue(opponentLeft.Keywords.Contains(Keyword.DivineShield));
             Assert.IsTrue(opponentLeft.Keywords.Contains(Keyword.Taunt));
+        }
+
+        [Test]
+        public void RunCombatTest_OpponentEvilTwinCopiesForOpponentInitialSnapshotOnly()
+        {
+            var service = CreateService();
+            service.State.Round = 9;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("player-control", BoardSide.Player, 0, 100));
+            service.State.Opponent.Board.Add(TestMinion("opponent-high", BoardSide.Opponent, 2, 7));
+            service.Apply(new GameCommand(GameCommandType.SetOpponentQuestReward, EvilTwinRewardId, CardKind.QuestReward));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 18, SafetyLimit = 1 }));
+
+            var player = service.State.LastReplay.InitialSnapshot.Player.Minions;
+            var opponent = service.State.LastReplay.InitialSnapshot.Opponent.Minions;
+            Assert.AreEqual(1, player.Count);
+            Assert.AreEqual(2, opponent.Count);
+            Assert.AreEqual(2, opponent.Count(minion => minion.CardId == "OPPONENT-HIGH"));
         }
 
         [Test]

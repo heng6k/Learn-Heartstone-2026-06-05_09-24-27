@@ -70,6 +70,50 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void AnomalyCatalog_LocalizesEveryEntryAndPreservesEnglishMode()
+        {
+            var chinese = AnomalyCatalogLoader.LoadFromResources(false);
+            var english = AnomalyCatalogLoader.LoadFromResources(true);
+
+            Assert.AreEqual(111, chinese.All.Count);
+            Assert.IsTrue(chinese.All.All(anomaly =>
+                anomaly.Name.Any(character => character >= '\u3400' && character <= '\u9fff') &&
+                anomaly.Text.Any(character => character >= '\u3400' && character <= '\u9fff')));
+            Assert.AreEqual("Fly the Flag", english.GetByCardId("BG35_Anomaly_001").Name);
+            Assert.AreEqual("升起旗帜", chinese.GetByCardId("BG35_Anomaly_001").Name);
+            StringAssert.Contains("12", chinese.GetByCardId("BG35_Anomaly_001").Text);
+            StringAssert.DoesNotContain("还剩", chinese.GetByCardId("BG35_Anomaly_001").Text);
+            StringAssert.Contains("2个尤格-萨隆奖励", chinese.GetByCardId("BG27_Anomaly_503").Text);
+
+            var chineseService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = false });
+            var englishService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = true });
+            Assert.AreEqual("双重宇宙", chineseService.GetDefaultOfferableAnomalies().Single(anomaly => anomaly.CardId == "BG31_Anomaly_123").Name);
+            Assert.AreEqual("Cosmic Duality", englishService.GetDefaultOfferableAnomalies().Single(anomaly => anomaly.CardId == "BG31_Anomaly_123").Name);
+        }
+
+        [Test]
+        public void AnomalyRuntimeText_LocalizesChineseAndPreservesEnglishMode()
+        {
+            var chinese = CreateAnomalyService(
+                "BG27_Anomaly_503",
+                new MatchSetupOptions { EnableTrinkets = false, UseEnglish = false });
+            var english = CreateAnomalyService(
+                "BG27_Anomaly_503",
+                new MatchSetupOptions { EnableTrinkets = false, UseEnglish = true });
+
+            Assert.IsTrue(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "已选择畸变：尤格专场。"));
+            Assert.IsTrue(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("尤格专场：选择2个奖励中的1个")));
+            Assert.IsFalse(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Implemented")));
+            Assert.IsTrue(chinese.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.All(option =>
+                ContainsChinese(option.DisplayName) && ContainsChinese(option.Text)));
+
+            Assert.IsTrue(english.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Battlegrounds anomaly selected: The Yogg-iseum")));
+            Assert.IsTrue(english.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "The Yogg-iseum: choose 1 of 2 rewards for end of turn."));
+            Assert.IsTrue(english.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.All(option =>
+                !ContainsChinese(option.DisplayName) && !ContainsChinese(option.Text)));
+        }
+
+        [Test]
         public void AnomalyCatalog_RejectsUnknownEffectFamily()
         {
             var json = @"{
@@ -779,8 +823,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             var arrow = tavern.Hand.Single(card => card.CardId == "100596");
             Assert.IsTrue(arrow.Golden);
-            Assert.AreEqual("Golden Arrow", arrow.Name);
-            Assert.AreEqual("Give a minion +8 Attack.", arrow.Text);
+            Assert.AreEqual("点金箭", arrow.Name);
+            Assert.AreEqual("使一个随从获得+8攻击力。", arrow.Text);
             Assert.IsTrue(arrow.Tags.Contains("anomaly_golden_arrow"));
 
             var target = new MinionInstance
@@ -824,7 +868,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
             var spell = tavern.Hand.Single(card => card.CardId == "FLY_THE_FLAG_SPELL");
-            Assert.AreEqual("Fly the Flag", spell.Name);
+            Assert.AreEqual("升起旗帜", spell.Name);
             Assert.IsTrue(spell.Tags.Contains("anomaly_fly_the_flag"));
         }
 
@@ -858,7 +902,7 @@ namespace LearnHearthstone.Tests.EditMode
                     TargetZone.Unspecified)));
 
             Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "FLY_THE_FLAG_SPELL"));
-            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Fly the Flag: rejected target")));
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("目标无效")));
         }
 
         [Test]
@@ -1642,7 +1686,7 @@ namespace LearnHearthstone.Tests.EditMode
                 case "wheel_shots":
                     Assert.GreaterOrEqual(boardMinion.Attack, attackBefore);
                     Assert.GreaterOrEqual(boardMinion.Health, healthBefore);
-                    Assert.IsTrue(boardMinion.Attack > attackBefore || boardMinion.Health > healthBefore || tavern.RecruitLog.Any(entry => entry.Message.Contains("Wheel shots")));
+                    Assert.IsTrue(boardMinion.Attack > attackBefore || boardMinion.Health > healthBefore || tavern.RecruitLog.Any(entry => entry.Message.Contains("命运之轮")));
                     break;
                 case "wheel_darkmoon_prize":
                     Assert.IsNotNull(tavern.Discover);
@@ -1654,13 +1698,13 @@ namespace LearnHearthstone.Tests.EditMode
                 case "wheel_tavern_spells":
                     Assert.IsTrue(
                         tavern.Hand.Count > handBefore ||
-                        tavern.RecruitLog.Any(entry => entry.Message.Contains("cast") && entry.Message.Contains("Tavern spell")));
+                        tavern.RecruitLog.Any(entry => entry.Message.Contains("随机施放") && entry.Message.Contains("酒馆法术")));
                     break;
                 case "wheel_stats_transfer":
-                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("not enough friendly minions") || entry.Message.Contains("added") && entry.Message.Contains("stats")));
+                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("友方随从不足") || entry.Message.Contains("属性值")));
                     break;
                 case "wheel_devour_refresh":
-                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("refreshed") || entry.Message.Contains("devoured")));
+                    Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("刷新了酒馆") || entry.Message.Contains("吞食了")));
                     break;
                 default:
                     Assert.Fail("Unknown Yogg reward: " + selectedReward);
@@ -1674,6 +1718,11 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Pool = keys.ToDictionary(key => key, key => 0);
             tavern.Pool[definitionId] = count;
             tavern.PoolCapacities[definitionId] = System.Math.Max(count, tavern.PoolCapacities.TryGetValue(definitionId, out var capacity) ? capacity : 0);
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Any(character => character >= '\u3400' && character <= '\u9fff');
         }
 
         private static void ForceOnlyBuddyTarget(TavernState tavern, string cardId, int count)

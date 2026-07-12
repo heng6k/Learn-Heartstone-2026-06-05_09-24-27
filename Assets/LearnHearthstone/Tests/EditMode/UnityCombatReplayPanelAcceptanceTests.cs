@@ -120,7 +120,9 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var replay = CreateAcceptanceReplay();
             CaptureAndAssert(replay, 1920, 1080, "step5-combat-fullscreen-1920x1080.png");
+            CaptureAndAssert(replay, 1366, 768, "step5-combat-fullscreen-1366x768.png");
             CaptureAndAssert(replay, 1280, 720, "step5-combat-fullscreen-1280x720.png");
+            CaptureAndAssert(replay, 1000, 600, "step5-combat-fullscreen-1000x600.png");
             CaptureAndAssert(replay, 994, 384, "step5-combat-fullscreen-994x384.png");
         }
 

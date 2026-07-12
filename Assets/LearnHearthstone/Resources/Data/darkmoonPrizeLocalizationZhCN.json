@@ -1,0 +1,172 @@
+{
+  "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
+  "generatedAt": "2026-07-12",
+  "count": 33,
+  "cards": [
+    {
+      "cardId": "BGS_Treasures_001",
+      "name": "压袋零钱",
+      "text": "获取2张酒馆币。"
+    },
+    {
+      "cardId": "BGS_Treasures_004",
+      "name": "抽卡赠礼",
+      "text": "<b>发现</b>一个等级1的随从。"
+    },
+    {
+      "cardId": "BGS_Treasures_007",
+      "name": "暴风城之力",
+      "text": "使所有友方随从获得等同于你当前等级的攻击力。"
+    },
+    {
+      "cardId": "BGS_Treasures_013",
+      "name": "珍藏好酒",
+      "text": "使酒馆中的随从在本局对战中获得+1/+1。"
+    },
+    {
+      "cardId": "BGS_Treasures_029",
+      "name": "摇起来吧",
+      "text": "在本局对战的剩余时间内，在每个回合开始时获得1次免费的<b>刷新</b>。"
+    },
+    {
+      "cardId": "BGS_Treasures_033",
+      "name": "物色新人",
+      "text": "在本局对战中，酒馆额外提供一个具有+2/+2的随从。"
+    },
+    {
+      "cardId": "BGS_Treasures_040",
+      "name": "一串香蕉",
+      "text": "获取2张香蕉果盘。"
+    },
+    {
+      "cardId": "BGS_Treasures_100",
+      "name": "摊开的秘典",
+      "text": "随机获取一张消耗为（2）或以上的酒馆法术牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_110",
+      "name": "化作结晶",
+      "text": "在本局对战中，你的酒馆法术使随从额外获得+1/+1。"
+    },
+    {
+      "cardId": "BGS_Treasures_006",
+      "name": "酒馆异变",
+      "text": "将酒馆中的所有牌替换为高一级的牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_009",
+      "name": "格鲁尔的威力",
+      "text": "使一个友方随从获得“在你的回合结束时，获得+4/+4。”"
+    },
+    {
+      "cardId": "BGS_Treasures_010",
+      "name": "时光飞贼",
+      "text": "从你上一个对手的战队中<b>发现</b>一个随从。"
+    },
+    {
+      "cardId": "BGS_Treasures_012",
+      "name": "免费酬宾",
+      "text": "<b>发现</b>一张你当前等级的随从牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_014",
+      "name": "无穷铸币",
+      "text": "获得1枚铸币。在回合结束时，将本牌移回你的手牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_018",
+      "name": "笼中之鼠",
+      "text": "使一个随从获得+2攻击力，然后使其攻击力翻倍。"
+    },
+    {
+      "cardId": "BGS_Treasures_026",
+      "name": "护馆保镖",
+      "text": "使一个友方随从获得<b>嘲讽</b>，然后使其生命值翻倍。"
+    },
+    {
+      "cardId": "BGS_Treasures_030",
+      "name": "布莱恩的好戏",
+      "text": "在本回合中，你的<b>战吼</b>额外触发一次。"
+    },
+    {
+      "cardId": "BGS_Treasures_101",
+      "name": "魔皇草花枝",
+      "text": "<b>发现</b>一张\n你当前等级的酒馆法术牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_011",
+      "name": "重新训练",
+      "text": "<b>发现</b>一个新的英雄技能。"
+    },
+    {
+      "cardId": "BGS_Treasures_015",
+      "name": "圣光在售",
+      "text": "使一个友方随从获得+10攻击力和<b>圣盾</b>。"
+    },
+    {
+      "cardId": "BGS_Treasures_019",
+      "name": "香蕉满手",
+      "text": "用香蕉果盘填满你的手牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_020",
+      "name": "顶级优选",
+      "text": "<b>发现</b>一个高一级的随从<i>（最高等级7）</i>。"
+    },
+    {
+      "cardId": "BGS_Treasures_034",
+      "name": "回头客",
+      "text": "将一个非金色友方随从移回你的手牌，并使其获得+6/+6。"
+    },
+    {
+      "cardId": "BGS_Treasures_037",
+      "name": "金光闪闪",
+      "text": "随机使酒馆中的一个随从变为金色。"
+    },
+    {
+      "cardId": "BGS_Treasures_039",
+      "name": "夺心护目镜",
+      "text": "偷取酒馆中的所有卡牌，然后<b>刷新</b>酒馆。"
+    },
+    {
+      "cardId": "BGS_Treasures_104",
+      "name": "底价销售",
+      "text": "在本回合中，酒馆法术消耗的铸币减少（1）枚。"
+    },
+    {
+      "cardId": "BGS_Treasures_016",
+      "name": "提高身价",
+      "text": "使一个友方随从变为金色，并将其移回你的手牌。"
+    },
+    {
+      "cardId": "BGS_Treasures_022",
+      "name": "亲友折扣",
+      "text": "在本局对战中，酒馆中随从的铸币消耗为（2）枚。"
+    },
+    {
+      "cardId": "BGS_Treasures_023",
+      "name": "酒水免单",
+      "text": "获得5次免费的<b>刷新</b>。在每个回合开始时，再获得5次。"
+    },
+    {
+      "cardId": "BGS_Treasures_025",
+      "name": "再来一轮",
+      "text": "获得12枚铸币。"
+    },
+    {
+      "cardId": "BGS_Treasures_028",
+      "name": "爱宠福利",
+      "text": "使一个友方随从获得<b>圣盾</b>，<b>风怒</b>以及+15/+15。"
+    },
+    {
+      "cardId": "BGS_Treasures_032",
+      "name": "超级赢家",
+      "text": "从之前每个等级的奖励选项中<b>发现</b>一个暗月奖品。"
+    },
+    {
+      "cardId": "BGS_Treasures_106",
+      "name": "精美金杯",
+      "text": "用随机的\n酒馆法术填满你的手牌。"
+    }
+  ]
+}

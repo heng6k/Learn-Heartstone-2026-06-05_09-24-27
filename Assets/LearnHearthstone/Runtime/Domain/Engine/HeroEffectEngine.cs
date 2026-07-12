@@ -1168,9 +1168,10 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, EdwinPowerId))
             {
                 var board = context.State.Player.Board;
-                if (context.TargetIndex < 0 || context.TargetIndex >= board.Count)
+                if ((context.TargetZone != TargetZone.Unspecified && context.TargetZone != TargetZone.FriendlyBoard) ||
+                    context.TargetIndex < 0 || context.TargetIndex >= board.Count)
                 {
-                    throw new InvalidOperationException("Sharpen Blades needs a friendly minion target.");
+                    throw new InvalidOperationException("必须选择一个友方随从作为目标。");
                 }
 
                 var tavern = context.State.Player.Tavern;
@@ -1183,9 +1184,10 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, GeorgePowerId))
             {
                 var board = context.State.Player.Board;
-                if (context.TargetIndex < 0 || context.TargetIndex >= board.Count)
+                if ((context.TargetZone != TargetZone.Unspecified && context.TargetZone != TargetZone.FriendlyBoard) ||
+                    context.TargetIndex < 0 || context.TargetIndex >= board.Count)
                 {
-                    throw new InvalidOperationException("Boon of Light needs a friendly minion target.");
+                    throw new InvalidOperationException("必须选择一个友方随从作为目标。");
                 }
 
                 SpendGold(context.State.Player.Tavern, 1);

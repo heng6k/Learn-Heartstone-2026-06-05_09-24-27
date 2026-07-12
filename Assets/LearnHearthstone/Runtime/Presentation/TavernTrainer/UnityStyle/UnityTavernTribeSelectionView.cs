@@ -72,6 +72,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly HashSet<string> enabledLesserTrinketCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> enabledGreaterTrinketCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> enabledAnomalyCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> enabledTimewarpedCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Transform cardPoolListContent;
         private CardPoolVersionStore store;
         private string selectedVersionId;
@@ -105,6 +106,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool showHiddenEffectOnly;
         private bool showDisabled;
         private bool enablePlayerDirectedChoices = true;
+        private bool enableTimewarpedTavern = true;
         private TimewarpedPoolVersion timewarpedPoolVersion = TimewarpedPoolVersion.Current;
         private SetupLanguage setupLanguage = SetupLanguage.Chinese;
         private GameObject shell;
@@ -151,10 +153,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             this.minionCatalog = minionCatalog ?? MinionCatalogLoader.LoadFromResources();
             this.spellCatalog = spellCatalog ?? SpellCatalogLoader.LoadFromResources();
             this.heroCatalog = heroCatalog ?? HeroCatalogLoader.LoadFromResources();
-            this.anomalyCatalog = anomalyCatalog ?? AnomalyCatalogLoader.LoadFromResources();
-            this.questCatalog = questCatalog ?? QuestCatalogLoader.LoadFromResources();
-            this.trinketCatalog = trinketCatalog ?? TrinketCatalogLoader.LoadFromResources();
+            this.anomalyCatalog = anomalyCatalog ?? AnomalyCatalogLoader.LoadFromResources(useEnglish);
+            this.questCatalog = questCatalog ?? QuestCatalogLoader.LoadFromResources(useEnglish);
+            this.trinketCatalog = trinketCatalog ?? TrinketCatalogLoader.LoadFromResources(useEnglish);
             timewarpedTavernCatalog = TimewarpedTavernCatalogLoader.LoadFromResources();
+            foreach (var card in timewarpedTavernCatalog.All.Where(card => !string.IsNullOrEmpty(card.CardId)))
+            {
+                enabledTimewarpedCardIds.Add(card.CardId);
+            }
             setupLanguage = useEnglish ? SetupLanguage.English : SetupLanguage.Chinese;
             selectedHeroCardId = ResolveDefaultHero()?.HeroCardId;
             store = CardPoolVersionFactory.NormalizeStore(this.repository.Load());
@@ -798,7 +804,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         content,
                         "UnityAdvancedPoolTrinketToggle-" + SafeCardName(trinket.CardId),
                         CardImageProvider.LoadSprite(trinket.ImagePath, trinket.CardId, CardKind.Trinket),
-                        trinket.SlotKind + "  " + trinket.Name,
+                            T(trinket.SlotKind == TrinketSlotKind.Lesser ? "小型" : "大型", trinket.SlotKind.ToString()) + "  " + trinket.Name,
                         trinket.TriggerTemplate + " / " + trinket.OfferPoolStatus + "  " + trinket.CardId,
                         target.Contains(trinket.CardId),
                         true,
@@ -1210,15 +1216,38 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 20f : 22f);
 
-            var timewarped = ActionButton("UnityTimewarpedPoolVersionButton", strip.transform, TimewarpedPoolVersionButtonText(), true, () =>
+            if (enableTimewarpedTavern)
             {
-                AdvanceTimewarpedPoolVersion();
-                Build();
-            });
-            UnityTavernUiStyle.SetFixedSize(timewarped.gameObject, layout.IsCompact ? (UseEnglish ? 128f : 112f) : (UseEnglish ? 154f : 132f), layout.IsCompact ? 42f : 46f);
-            if (timewarpedPoolVersion != TimewarpedPoolVersion.Current)
+                var timewarped = ActionButton("UnityTimewarpedPoolVersionButton", strip.transform, TimewarpedPoolVersionButtonText(), true, () =>
+                {
+                    AdvanceTimewarpedPoolVersion();
+                    Build();
+                });
+                UnityTavernUiStyle.SetFixedSize(timewarped.gameObject, layout.IsCompact ? (UseEnglish ? 128f : 112f) : (UseEnglish ? 154f : 132f), layout.IsCompact ? 42f : 46f);
+                if (timewarpedPoolVersion != TimewarpedPoolVersion.Current)
+                {
+                    UnityTavernUiStyle.EnsureComponent<Image>(timewarped.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.24f);
+                }
+            }
+
+            var timewarpedToggle = ActionButton(
+                "UnityTimewarpedTavernToggleButton",
+                strip.transform,
+                enableTimewarpedTavern ? T("时空酒馆：开启", "Timewarp: On") : T("时空酒馆：关闭", "Timewarp: Off"),
+                true,
+                () =>
+                {
+                    enableTimewarpedTavern = !enableTimewarpedTavern;
+                    if (!enableTimewarpedTavern && activeTab == CardPoolTab.TimewarpedTavern)
+                    {
+                        activeTab = CardPoolTab.Minions;
+                    }
+                    Build();
+                });
+            UnityTavernUiStyle.SetFixedSize(timewarpedToggle.gameObject, layout.IsCompact ? 118f : 142f, layout.IsCompact ? 42f : 46f);
+            if (enableTimewarpedTavern)
             {
-                UnityTavernUiStyle.EnsureComponent<Image>(timewarped.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.24f);
+                UnityTavernUiStyle.EnsureComponent<Image>(timewarpedToggle.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.24f);
             }
 
             var anomalyPool = ActionButton("UnityAnomalyPoolVersionButton", strip.transform, AnomalyPoolVersionButtonText(), true, () =>
@@ -1445,11 +1474,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             });
             UnityTavernUiStyle.SetFixedSize(spellTab.gameObject, UseEnglish ? 112f : 72f, 42f);
 
-            var timewarpedTab = ActionButton("UnityCardPoolVersionTimewarpedTab", header.transform, T("时空", "Timewarp"), true, () =>
+            if (enableTimewarpedTavern)
             {
-                SwitchCardPoolTab(CardPoolTab.TimewarpedTavern);
-            });
-            UnityTavernUiStyle.SetFixedSize(timewarpedTab.gameObject, UseEnglish ? 96f : 72f, 42f);
+                var timewarpedTab = ActionButton("UnityCardPoolVersionTimewarpedTab", header.transform, T("时空", "Timewarp"), true, () =>
+                {
+                    SwitchCardPoolTab(CardPoolTab.TimewarpedTavern);
+                });
+                UnityTavernUiStyle.SetFixedSize(timewarpedTab.gameObject, UseEnglish ? 96f : 72f, 42f);
+            }
 
             var title = UiFactory.Label("UnityCardPoolVersionModalTitle", header.transform, T("卡池版本", "Card Pool"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
@@ -2080,9 +2112,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     CardImageProvider.LoadSprite(card.ImagePath, card.CardId, card.CardKind),
                     TimewarpedCardTitle(card),
                     TimewarpedCardDetail(card),
+                    enabledTimewarpedCardIds.Contains(card.CardId),
                     true,
-                    false,
-                    _ => { });
+                    value =>
+                    {
+                        if (SetEnabled(enabledTimewarpedCardIds, card.CardId, value))
+                        {
+                            Build();
+                        }
+                    });
             }
         }
 
@@ -2299,7 +2337,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             toggle.interactable = interactable;
             toggle.onValueChanged.AddListener(value => changed?.Invoke(value));
 
-            BuildCardThumbnail(row.transform, name, sprite);
+            BuildCardThumbnail(row.transform, name, sprite, titleText);
 
             var labelBlock = UiFactory.Panel(name + "LabelBlock", row.transform, Color.clear);
             UnityTavernUiStyle.SetFlexible(labelBlock, 1f, 0f);
@@ -2370,16 +2408,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 new Vector2(1f, -1f));
         }
 
-        private void BuildCardThumbnail(Transform parent, string name, Sprite sprite)
+        private void BuildCardThumbnail(Transform parent, string name, Sprite sprite, string displayName)
         {
             var frame = UiFactory.Panel(name + "ImageFrame", parent, UnityTavernUiStyle.PanelQuiet);
             UnityTavernUiStyle.SetFixedSize(frame, 46f, 64f);
 
             if (sprite == null)
             {
-                var empty = UiFactory.Label(name + "ImageMissing", frame.transform, T("无图", "No art"), 11, FontStyle.Bold);
+                var empty = UiFactory.Label(
+                    name + "ImageFallbackText",
+                    frame.transform,
+                    UnityTavernUiStyle.ArtFallbackText(displayName, T("无图", "NA")),
+                    20,
+                    FontStyle.Bold);
                 empty.alignment = TextAnchor.MiddleCenter;
-                empty.color = UnityTavernUiStyle.MutedText;
+                empty.color = UnityTavernUiStyle.Text;
+                empty.raycastTarget = false;
+                UnityTavernUiStyle.ConfigureOutline(empty.gameObject, new Color(0f, 0f, 0f, 0.78f), new Vector2(1f, -1f));
                 UnityTavernUiStyle.Stretch(empty.rectTransform);
                 return;
             }
@@ -2647,6 +2692,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             start?.Invoke(new MatchSetupOptions
             {
+                UseEnglish = UseEnglish,
                 ActiveTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList(),
                 SelectedHeroCardId = selectedHeroCardId,
                 CardPoolVersionId = selection.VersionId,
@@ -2664,8 +2710,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ShowHiddenEffectOnly = showHiddenEffectOnly,
                 ShowDisabled = showDebugOnly && showDisabled,
                 EnablePlayerDirectedChoices = enablePlayerDirectedChoices,
+                EnableTimewarpedTavern = enableTimewarpedTavern,
                 TimewarpedPoolVersion = timewarpedPoolVersion,
                 UseHistoricalTimewarpedPool = timewarpedPoolVersion != TimewarpedPoolVersion.Current,
+                UseExplicitTimewarpedPool = true,
+                EnabledTimewarpedCardIds = enabledTimewarpedCardIds.ToList(),
                 EnabledMinionCardIds = enabledMinionCardIds.Where(value => !IsDuoCardId(value)).ToList(),
                 EnabledTavernSpellCardNumbers = enabledTavernSpellCardNumbers.ToList(),
                 EnabledQuestCardIds = enabledQuestCardIds.ToList(),

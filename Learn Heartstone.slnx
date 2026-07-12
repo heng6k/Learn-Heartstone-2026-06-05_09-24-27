@@ -4,5 +4,6 @@
   <Project Path="MCPForUnity.Editor.csproj" />
   <Project Path="LearnHearthstone.Tests.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="LearnHearthstone.PlayModeTests.csproj" />
   <Project Path="LearnHearthstone.Editor.csproj" />
 </Solution>

@@ -6,6 +6,12 @@
 
 新接手时建议先按路线读，不要直接从最长的缺陷文档开始读。
 
+### 当前酒馆模拟器优化统一入口
+
+1. [TavernSimulatorGlobalRequirements.zh-CN.md](TavernSimulatorGlobalRequirements.zh-CN.md)：所有新功能和 UI 修改必须遵守的全局产品与质量基线。
+2. [TavernSimulatorOptimizationPlan.zh-CN.md](TavernSimulatorOptimizationPlan.zh-CN.md)：当前翻译、时空酒馆、UI 和关键词反馈优化的统一执行计划。
+3. [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md)：防止白盒假通过、以酒馆玩家旅程验证功能真实性的测试规范。
+
 ## 推荐阅读路线
 
 ### 准备修改项目或向代理提问
@@ -65,6 +71,9 @@
 | 分类 | 文档 | 主要用途 | 当前定位 |
 | --- | --- | --- | --- |
 | 索引 | [DocumentationIndex.md](DocumentationIndex.md) | 当前文档导航 | 入口文档 |
+| 全局要求 | [TavernSimulatorGlobalRequirements.zh-CN.md](TavernSimulatorGlobalRequirements.zh-CN.md) | 本地化、时空酒馆触发安全、UI、关键词反馈和测试基线 | 所有酒馆功能修改的强制要求 |
+| 当前计划 | [TavernSimulatorOptimizationPlan.zh-CN.md](TavernSimulatorOptimizationPlan.zh-CN.md) | 合并当前五项需求和全流程审核建议的分阶段实施方案 | 当前酒馆模拟器优化统一入口 |
+| 测试规范 | [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md) | 测试分层、玩家旅程、实现真实性证据和发布门槛 | 所有酒馆功能验收的统一测试基线 |
 | Skill/工作流 | [../AGENTS.md](../AGENTS.md) | 项目级代理路由规则，说明不同任务应该先用哪些 skill | 每次项目修改和提问前的入口规则 |
 | Skill/工作流 | [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md) | 本机 57 个本地 skills 的分类、适用场景和冲突处理 | 全量 skill 路由索引 |
 | Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |

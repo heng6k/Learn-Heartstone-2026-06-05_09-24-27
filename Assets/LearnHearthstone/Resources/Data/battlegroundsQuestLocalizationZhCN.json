@@ -1,0 +1,481 @@
+{
+  "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json; implementation-aligned overrides for dynamic, local, and proxy behavior",
+  "generatedAt": "2026-07-12",
+  "count": 79,
+  "cards": [
+    {
+      "cardId": "BG24_Quest_313",
+      "kind": "quest",
+      "name": "邀请宾客",
+      "text": "<b>任务：</b>购买4个随从。"
+    },
+    {
+      "cardId": "BG27_Quest_800",
+      "kind": "quest",
+      "name": "烧毁证据",
+      "text": "<b>任务：</b>出售3个随从。"
+    },
+    {
+      "cardId": "BG24_Quest_112",
+      "kind": "quest",
+      "name": "追踪脚印",
+      "text": "<b>任务：</b>使酒馆<b>刷新</b>4次。"
+    },
+    {
+      "cardId": "BG24_Quest_126",
+      "kind": "quest",
+      "name": "追查钱财",
+      "text": "<b>任务：</b>花费10枚铸币。"
+    },
+    {
+      "cardId": "BG24_Quest_311",
+      "kind": "quest",
+      "name": "呼吼求援",
+      "text": "<b>任务：</b>使用3张<b>战吼</b>随从牌。"
+    },
+    {
+      "cardId": "BG24_Quest_314",
+      "kind": "quest",
+      "name": "采集指纹",
+      "text": "<b>任务：</b>将5张牌置入你的手牌。"
+    },
+    {
+      "cardId": "BG24_Reward_306",
+      "kind": "reward",
+      "name": "煮熟的书",
+      "text": "在你购买一个随从后，使其获得+2/+2并提升此效果。"
+    },
+    {
+      "cardId": "BG24_Reward_361",
+      "kind": "reward",
+      "name": "秘密宝库",
+      "text": "在每个回合开始时，获得1枚铸币。<i>（每回合都会提升！）</i>"
+    },
+    {
+      "cardId": "BG24_Reward_128",
+      "kind": "reward",
+      "name": "镜盾",
+      "text": "在酒馆<b>刷新</b>后，随机使其中的一个随从获得+6/+6和<b>圣盾</b>。"
+    },
+    {
+      "cardId": "BG24_Reward_136",
+      "kind": "reward",
+      "name": "小小手下",
+      "text": "在你的回合结束时，使等级3或更低的3个友方随从获得+3/+3。"
+    },
+    {
+      "cardId": "BG33_Reward_012",
+      "kind": "reward",
+      "name": "隐秘之财",
+      "text": "获取一张\n内含5枚铸币的小袋钱币。你的铸币上限提高5枚。"
+    },
+    {
+      "cardId": "BG24_Reward_115",
+      "kind": "reward",
+      "name": "西塔尔的阳伞",
+      "text": "在你的回合结束时，使你最右边的随从直到下回合获得<b>潜行</b>，并使其获得+8生命值。"
+    },
+    {
+      "cardId": "BG24_Reward_123",
+      "kind": "reward",
+      "name": "精美的螺号",
+      "text": "每回合中你的第一个<b>战吼</b>额外触发2次。"
+    },
+    {
+      "cardId": "BG24_Reward_125",
+      "kind": "reward",
+      "name": "冒烟的枪",
+      "text": "你的随从拥有+4攻击力。"
+    },
+    {
+      "cardId": "BG24_Reward_131",
+      "kind": "reward",
+      "name": "血手",
+      "text": "在每个回合开始时，使你手牌中的一张随从牌获得+12/+12。"
+    },
+    {
+      "cardId": "BG24_Reward_312",
+      "kind": "reward",
+      "name": "源生法杖",
+      "text": "<b>战斗开始时：</b>使你的所有随从获得+12/+12。"
+    },
+    {
+      "cardId": "BG24_Reward_321",
+      "kind": "reward",
+      "name": "另我人格",
+      "text": "酒馆中偶数等级的随从拥有+7/+7。<i>（下回合切换为奇数！）</i>"
+    },
+    {
+      "cardId": "BG24_Reward_331",
+      "kind": "reward",
+      "name": "展馆之乱",
+      "text": "在你的回合结束时，每有一个不同的友方随从类型，使你的随从获得+1/+1。"
+    },
+    {
+      "cardId": "BG24_Reward_364",
+      "kind": "reward",
+      "name": "烈性毒药",
+      "text": "你的随从拥有+7/+7，在其攻击后便会死亡。死得很惨。"
+    },
+    {
+      "cardId": "BG24_Reward_708",
+      "kind": "reward",
+      "name": "血杯",
+      "text": "在你的回合结束时，使你最右边的随从获得等同于你缺失的生命值的攻击力。"
+    },
+    {
+      "cardId": "BG24_Reward_712",
+      "kind": "reward",
+      "name": "堕罪堡勋章",
+      "text": "在你使用一张随从牌后，使2个与其等级相同的其他友方随从获得+4/+4。"
+    },
+    {
+      "cardId": "BG24_Reward_715",
+      "kind": "reward",
+      "name": "增幅强化装置",
+      "text": "在每个回合开始时。获取一张可以使随从获得+5/+5和一项随机效果的强化零件。"
+    },
+    {
+      "cardId": "BG27_Reward_502",
+      "kind": "reward",
+      "name": "砰砰战队",
+      "text": "<b>复仇（3）：</b>对生命值最高的敌方随从造成10点伤害。"
+    },
+    {
+      "cardId": "BG27_Reward_804",
+      "kind": "reward",
+      "name": "强韧碎片",
+      "text": "在你的回合结束时，每有一个友方<b>嘲讽</b>随从，使你没有<b>嘲讽</b>的随从获得+1/+2。"
+    },
+    {
+      "cardId": "BG27_Reward_810",
+      "kind": "reward",
+      "name": "未知地图",
+      "text": "在你使用你尚未控制的类型的随从牌后，使你每个类型的各一个友方随从获得+2/+2。"
+    },
+    {
+      "cardId": "BG27_Reward_815",
+      "kind": "reward",
+      "name": "无尽血月",
+      "text": "你的<b>鲜血宝石</b>使随从额外获得+1/+1。在每个回合开始时，获取两张<b>鲜血宝石</b>。"
+    },
+    {
+      "cardId": "BG28_Reward_505",
+      "kind": "reward",
+      "name": "滚草成灾",
+      "text": "在战斗中，每当你召唤一个随从，使其获得+4/+4。<b>复仇（4）：</b>永久提升此效果。"
+    },
+    {
+      "cardId": "BG33_Reward_003",
+      "kind": "reward",
+      "name": "正义冲锋",
+      "text": "<b>战斗开始时：</b>你最左边的随从获得<b>圣盾</b>并立即发起攻击。"
+    },
+    {
+      "cardId": "BG33_Reward_004",
+      "kind": "reward",
+      "name": "幽影清新剂",
+      "text": "<b>复仇（2）：</b>\n获得一次免费的\n<b>刷新</b>。"
+    },
+    {
+      "cardId": "BG33_Reward_006",
+      "kind": "reward",
+      "name": "疾啸狂风",
+      "text": "<b>塑造法术：</b>使一个随从获得<b>风怒</b>和<b>圣盾</b>。"
+    },
+    {
+      "cardId": "LH_Reward_CoinPouch8",
+      "kind": "reward",
+      "name": "8枚铸币钱袋",
+      "text": "完成此任务时，获得8枚铸币。"
+    },
+    {
+      "cardId": "LH_Reward_CoinPouch16",
+      "kind": "reward",
+      "name": "16枚铸币钱袋",
+      "text": "完成此任务时，获得16枚铸币。"
+    },
+    {
+      "cardId": "BG24_Reward_107",
+      "kind": "reward",
+      "name": "尖啸零食",
+      "text": "在你的回合结束时，2个友方随从触发其<b>战吼</b>。"
+    },
+    {
+      "cardId": "BG24_Reward_138",
+      "kind": "reward",
+      "name": "受害者的怨灵",
+      "text": "在每场战斗后，获取上一个死亡的友方随从的一张原始版复制。"
+    },
+    {
+      "cardId": "BG24_Reward_308",
+      "kind": "reward",
+      "name": "青虎蓝宝石",
+      "text": "在本回合中每<b>刷新</b>一次，酒馆中的随从拥有+1/+1。"
+    },
+    {
+      "cardId": "BG24_Reward_309",
+      "kind": "reward",
+      "name": "细节中的恶魔",
+      "text": "在你的回合结束时，你最左边和最右边的随从各吞食一个酒馆中的随从，获得其属性值。"
+    },
+    {
+      "cardId": "BG28_Reward_508",
+      "kind": "reward",
+      "name": "黄金狗头人的礼物",
+      "text": "在你<b>刷新</b>5次后，使酒馆中等级最高的非金色随从变为金色。"
+    },
+    {
+      "cardId": "BG24_Reward_109",
+      "kind": "reward",
+      "name": "失窃的黄金",
+      "text": "<b>战斗开始时：</b>使你最左边和最右边的随从变为金色。"
+    },
+    {
+      "cardId": "BG24_Reward_111",
+      "kind": "reward",
+      "name": "邪恶双子",
+      "text": "<b>战斗开始时：</b>召唤你生命值最高的随从的一个复制。"
+    },
+    {
+      "cardId": "BG24_Reward_113",
+      "kind": "reward",
+      "name": "仪式匕首",
+      "text": "在一个友方<b>亡语</b>随从死亡后，使其永久获得+5/+5。"
+    },
+    {
+      "cardId": "BG28_Reward_504",
+      "kind": "reward",
+      "name": "能量循环",
+      "text": "<b>复仇（3）：</b>\n随机获取一张酒馆\n法术牌。"
+    },
+    {
+      "cardId": "BG28_Reward_518",
+      "kind": "reward",
+      "name": "马厩融合怪",
+      "text": "<b>复仇（7）：</b>当你有空位时，召唤一个50/50的融合怪。"
+    },
+    {
+      "cardId": "BG27_Reward_803",
+      "kind": "reward",
+      "name": "纷乱坟墓",
+      "text": "你的<b>亡语</b>额外触发一次。"
+    },
+    {
+      "cardId": "BG24_Reward_305",
+      "kind": "reward",
+      "name": "心能贿赂",
+      "text": "在你出售一个随从后，使酒馆中的一个随从获得其属性值。"
+    },
+    {
+      "cardId": "BG27_Reward_503",
+      "kind": "reward",
+      "name": "醒神螺号",
+      "text": "当你购买一个随从时，随机使一个友方随从获得其属性值。"
+    },
+    {
+      "cardId": "BG28_Reward_506",
+      "kind": "reward",
+      "name": "双头大奖",
+      "text": "每回合中，在你第一次购买卡牌时，获取一张额外复制。"
+    },
+    {
+      "cardId": "BG28_Reward_515",
+      "kind": "reward",
+      "name": "铭文珍藏",
+      "text": "在每个回合开始时，随机获取3张酒馆法术牌。"
+    },
+    {
+      "cardId": "BG28_Reward_500",
+      "kind": "reward",
+      "name": "突破幻象",
+      "text": "酒馆法术\n消耗的铸币减少（1）枚。"
+    },
+    {
+      "cardId": "BG27_Reward_811",
+      "kind": "reward",
+      "name": "浸血魔典",
+      "text": "酒馆中随从的消耗为2枚铸币。"
+    },
+    {
+      "cardId": "BG28_Reward_502",
+      "kind": "reward",
+      "name": "分裂卷轴",
+      "text": "每当你购买消耗（3）枚或以上铸币的酒馆法术时，获取一张额外复制。"
+    },
+    {
+      "cardId": "BG33_Reward_013",
+      "kind": "reward",
+      "name": "锻金工具",
+      "text": "在每个回合开始时，使酒馆中等级最高的随从变为金色。"
+    },
+    {
+      "cardId": "BG24_Reward_129",
+      "kind": "reward",
+      "name": "神秘罪碑",
+      "text": "在你<b>发现</b>一张卡牌后，额外获取一张复制。"
+    },
+    {
+      "cardId": "BG27_Reward_806",
+      "kind": "reward",
+      "name": "魅影匪徒的吊坠",
+      "text": "在每场战斗后，从你上一个对手的战队中<b>发现</b>一个非金色随从，保留其附加效果。"
+    },
+    {
+      "cardId": "BG24_Reward_310",
+      "kind": "reward",
+      "name": "共犯",
+      "text": "获取你的金色<b>伙伴</b>。"
+    },
+    {
+      "cardId": "BG28_Reward_513",
+      "kind": "reward",
+      "name": "公开试演",
+      "text": "在每个回合\n开始时，<b>发现</b>一个<b>伙伴</b>。"
+    },
+    {
+      "cardId": "BG33_Reward_014",
+      "kind": "reward",
+      "name": "奇巧珍宝",
+      "text": "在你的下个回合开始时，获得4枚铸币，选择一项小型<b>饰品</b>并购买。"
+    },
+    {
+      "cardId": "BG33_Reward_015",
+      "kind": "reward",
+      "name": "堂皇宝库",
+      "text": "在你的下个回合开始时，获得4枚铸币，选择一项大型<b>饰品</b>并购买。"
+    },
+    {
+      "cardId": "BG33_Reward_017",
+      "kind": "reward",
+      "name": "宇宙的奖励",
+      "text": "<b>发现</b>一项第二英雄技能。"
+    },
+    {
+      "cardId": "BG24_Reward_130",
+      "kind": "reward",
+      "name": "鬼魅面具",
+      "text": "你的回合结束效果额外触发一次。"
+    },
+    {
+      "cardId": "BG24_Reward_134",
+      "kind": "reward",
+      "name": "好友同行",
+      "text": "在你的回合开始时，随机获得2个当前酒馆等级的随从。"
+    },
+    {
+      "cardId": "BG24_Reward_135",
+      "kind": "reward",
+      "name": "美味尤物",
+      "text": "在每个回合开始时，转动尤格-萨隆的命运之轮。"
+    },
+    {
+      "cardId": "BG24_Reward_311",
+      "kind": "reward",
+      "name": "另一具藏匿遗体",
+      "text": "<b>发现</b>一个当前酒馆等级的随从。"
+    },
+    {
+      "cardId": "BG24_Reward_313",
+      "kind": "reward",
+      "name": "神奇的智慧之球",
+      "text": "每当你刷新酒馆3次，获得一次有利的刷新效果。"
+    },
+    {
+      "cardId": "BG24_Reward_350",
+      "kind": "reward",
+      "name": "偷来的神灯",
+      "text": "你只需2个复制即可将随从变为金色。"
+    },
+    {
+      "cardId": "BG24_Reward_362",
+      "kind": "reward",
+      "name": "泽鲁斯的精华",
+      "text": "在你的回合结束时，获得一张百变泽鲁斯；它会在每个回合开始时变形成随机随从。"
+    },
+    {
+      "cardId": "BG24_Reward_363",
+      "kind": "reward",
+      "name": "虚灵证物",
+      "text": "在每个回合开始时，从2个新奖励中选择一个。"
+    },
+    {
+      "cardId": "BG24_Reward_718",
+      "kind": "reward",
+      "name": "绑票麻袋",
+      "text": "在你的回合开始时，获得一张绑架麻袋。<b>塑造法术：</b>将酒馆中最左边的非金色卡牌移入你的手牌。"
+    },
+    {
+      "cardId": "BG24_Reward_719",
+      "kind": "reward",
+      "name": "金锤",
+      "text": "<b>塑造法术：</b>直到下回合，使一个友方随从变为金色。"
+    },
+    {
+      "cardId": "BG27_Reward_504",
+      "kind": "reward",
+      "name": "时间线加速",
+      "text": "在每个回合开始时，获取两张加速器。加速器可以将一个随从变形成为高一级的随从。"
+    },
+    {
+      "cardId": "BG27_Reward_802",
+      "kind": "reward",
+      "name": "吉尔尼斯军号",
+      "text": "你的<b>战吼</b>额外触发一次。"
+    },
+    {
+      "cardId": "BG27_Reward_812",
+      "kind": "reward",
+      "name": "指引之杖",
+      "text": "每当酒馆<b>刷新</b>时，用两个随机随从填充酒馆栏位。"
+    },
+    {
+      "cardId": "BG28_Reward_501",
+      "kind": "reward",
+      "name": "时空干扰",
+      "text": "你的酒馆法术会额外施放一次。"
+    },
+    {
+      "cardId": "BG28_Reward_509",
+      "kind": "reward",
+      "name": "熔铸室",
+      "text": "在每个回合开始时，使一个等级1的友方随从变为金色并提升此效果。"
+    },
+    {
+      "cardId": "BG28_Reward_510",
+      "kind": "reward",
+      "name": "神秘真凶",
+      "text": "获得一个随机等级7随从的复制；若没有可用的等级7随从，则获得最高可用等级的随从。"
+    },
+    {
+      "cardId": "BG28_Reward_514",
+      "kind": "reward",
+      "name": "野性巫术",
+      "text": "在每个回合开始时，随机施放5个酒馆法术。"
+    },
+    {
+      "cardId": "BG33_Reward_010",
+      "kind": "reward",
+      "name": "诺甘农的奖赏",
+      "text": "在本局对战中解锁等级7。仅在你的下个回合开始时，升级酒馆。"
+    },
+    {
+      "cardId": "BG33_Reward_011",
+      "kind": "reward",
+      "name": "魔鳍宝物",
+      "text": "在每个回合开始时，获取一张1/1的鱼人。<b>发现</b>一个酒馆法术并教会它。"
+    },
+    {
+      "cardId": "BG33_Reward_020",
+      "kind": "reward",
+      "name": "恒久之咒",
+      "text": "你的酒馆法术使随从额外获得+2/+1。每施放一个酒馆法术，此加成永久提高+1/+1。"
+    },
+    {
+      "cardId": "BG33_Reward_021",
+      "kind": "reward",
+      "name": "进击怒吼",
+      "text": "你的<b>进击</b>效果额外触发一次。"
+    }
+  ]
+}

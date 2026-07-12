@@ -174,37 +174,38 @@ namespace LearnHearthstone.Domain.Engine
 
         private static Tribe? MapFaction(string faction)
         {
-            switch (faction)
+            switch ((faction ?? string.Empty).Trim().ToUpperInvariant())
             {
                 case "野兽":
-                case "Beast":
+                case "BEAST":
                     return Tribe.Beast;
                 case "鱼人":
-                case "Murloc":
+                case "MURLOC":
                     return Tribe.Murloc;
                 case "机械":
-                case "Mech":
+                case "MECH":
+                case "MECHANICAL":
                     return Tribe.Mech;
                 case "恶魔":
-                case "Demon":
+                case "DEMON":
                     return Tribe.Demon;
                 case "龙":
-                case "Dragon":
+                case "DRAGON":
                     return Tribe.Dragon;
                 case "海盗":
-                case "Pirate":
+                case "PIRATE":
                     return Tribe.Pirate;
                 case "元素":
-                case "Elemental":
+                case "ELEMENTAL":
                     return Tribe.Elemental;
                 case "野猪人":
-                case "Quilboar":
+                case "QUILBOAR":
                     return Tribe.Quilboar;
                 case "亡灵":
-                case "Undead":
+                case "UNDEAD":
                     return Tribe.Undead;
                 case "纳迦":
-                case "Naga":
+                case "NAGA":
                     return Tribe.Naga;
                 default:
                     return null;

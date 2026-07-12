@@ -9,8 +9,9 @@ namespace LearnHearthstone.Adapters.Data
     public static class QuestCatalogLoader
     {
         private const string ResourcePath = "Data/battlegroundsQuests";
+        private const string LocalizationZhCnResourcePath = "Data/battlegroundsQuestLocalizationZhCN";
 
-        public static QuestCatalog LoadFromResources()
+        public static QuestCatalog LoadFromResources(bool useEnglish = true)
         {
             var asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
@@ -18,10 +19,26 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Missing Resources/" + ResourcePath + ".json");
             }
 
-            return LoadFromJson(asset.text);
+            if (useEnglish)
+            {
+                return LoadFromJson(asset.text);
+            }
+
+            var localizationAsset = Resources.Load<TextAsset>(LocalizationZhCnResourcePath);
+            if (localizationAsset == null)
+            {
+                throw new InvalidOperationException("Missing Resources/" + LocalizationZhCnResourcePath + ".json");
+            }
+
+            return LoadFromJson(asset.text, localizationAsset.text);
         }
 
         public static QuestCatalog LoadFromJson(string json)
+        {
+            return LoadFromJson(json, null);
+        }
+
+        public static QuestCatalog LoadFromJson(string json, string zhCnJson)
         {
             var payload = JsonUtility.FromJson<RawPayload>(json);
             if (payload == null || payload.quests == null || payload.rewards == null)
@@ -29,19 +46,85 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Invalid battlegrounds Quest payload.");
             }
 
+            var localizedCards = ParseLocalization(zhCnJson);
             var quests = new List<QuestDefinition>();
             foreach (var raw in payload.quests)
             {
-                quests.Add(ToQuest(raw));
+                var definition = ToQuest(raw);
+                ApplyLocalization(definition.CardId, localizedCards, out var name, out var text);
+                if (localizedCards != null)
+                {
+                    definition.Name = name;
+                    definition.Text = text;
+                }
+
+                quests.Add(definition);
             }
 
             var rewards = new List<QuestRewardDefinition>();
             foreach (var raw in payload.rewards)
             {
-                rewards.Add(ToReward(raw));
+                var definition = ToReward(raw);
+                ApplyLocalization(definition.CardId, localizedCards, out var name, out var text);
+                if (localizedCards != null)
+                {
+                    definition.Name = name;
+                    definition.Text = text;
+                }
+
+                rewards.Add(definition);
             }
 
             return new QuestCatalog(quests, rewards);
+        }
+
+        private static Dictionary<string, RawLocalizedCard> ParseLocalization(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            var payload = JsonUtility.FromJson<RawLocalizationPayload>(json);
+            if (payload == null || payload.cards == null)
+            {
+                throw new InvalidOperationException("Invalid zh-CN Quest/Reward localization payload.");
+            }
+
+            var cards = new Dictionary<string, RawLocalizedCard>(StringComparer.OrdinalIgnoreCase);
+            foreach (var card in payload.cards)
+            {
+                if (card != null && !string.IsNullOrWhiteSpace(card.cardId))
+                {
+                    cards[card.cardId] = card;
+                }
+            }
+
+            return cards;
+        }
+
+        private static void ApplyLocalization(
+            string cardId,
+            Dictionary<string, RawLocalizedCard> localizedCards,
+            out string name,
+            out string text)
+        {
+            name = null;
+            text = null;
+            if (localizedCards == null)
+            {
+                return;
+            }
+
+            if (!localizedCards.TryGetValue(cardId ?? string.Empty, out var localized) ||
+                string.IsNullOrWhiteSpace(localized.name) ||
+                string.IsNullOrWhiteSpace(localized.text))
+            {
+                throw new InvalidOperationException("Missing zh-CN Quest/Reward localization: " + cardId);
+            }
+
+            name = localized.name;
+            text = localized.text;
         }
 
         private static QuestDefinition ToQuest(RawQuest raw)
@@ -164,6 +247,23 @@ namespace LearnHearthstone.Adapters.Data
             public List<string> tags;
             public string implementationStatus;
             public string notes;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizationPayload
+        {
+            public string source;
+            public string generatedAt;
+            public int count;
+            public List<RawLocalizedCard> cards;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizedCard
+        {
+            public string cardId;
+            public string name;
+            public string text;
         }
     }
 }

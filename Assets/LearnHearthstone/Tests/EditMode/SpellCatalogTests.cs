@@ -29,6 +29,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(tierOneSpells.Contains(spell));
             Assert.AreEqual(8, tierOneSpells.Count);
             Assert.IsTrue(tierOneSpells.TrueForAll(candidate => candidate.InPool && candidate.Category == "TavernSpell" && candidate.TavernTier <= 1));
+            Assert.IsTrue(catalog.All.All(candidate => ContainsChinese(candidate.Name) && ContainsChinese(candidate.Text)));
             Assert.Contains("targeted_spell", spell.Tags);
             Assert.Contains("targeted_attack_buff", spell.Tags);
             Assert.Contains("economy_spell", catalog.GetBySourceId(34609).Tags);
@@ -40,6 +41,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNull(Resources.Load<Texture2D>("CardImages/TavernSpells/BG31_242"));
             Assert.IsNull(Resources.Load<Texture2D>("CardImages/TavernSpells/BG31_243"));
             Assert.IsNull(Resources.Load<Texture2D>("CardImages/TavernSpells/BG31_244"));
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) && value.Any(character => character >= '\u4e00' && character <= '\u9fff');
         }
     }
 }

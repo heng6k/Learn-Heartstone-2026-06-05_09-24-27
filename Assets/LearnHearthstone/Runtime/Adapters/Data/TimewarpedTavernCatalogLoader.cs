@@ -9,6 +9,48 @@ namespace LearnHearthstone.Adapters.Data
     public static class TimewarpedTavernCatalogLoader
     {
         private const string ResourcePath = "Data/timewarpedTavernCards";
+        private static readonly Dictionary<string, string[]> SupplementalZhCn = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "BG34_BlackMarket_Skip", new[] { "退出时空酒馆", "退出时空酒馆。剩余时空资源会保留到下一次时空穿梭。" } },
+            { "BG34_Treasure_900", new[] { "时空扭曲的进化酒馆", "获得一张“进化酒馆”。在每个回合开始时重复此效果。" } },
+            { "BG34_Treasure_902", new[] { "时空扭曲的大盗", "发现你上一局战队中的一个随从。它保留属性值和额外关键词。" } },
+            { "BG34_Treasure_903", new[] { "时空扭曲的免费招待", "发现3个你当前酒馆等级的随从。" } },
+            { "BG34_Treasure_905", new[] { "时空扭曲的笼中鼠", "使一个随从获得+2/+2，然后使其属性值翻倍。" } },
+            { "BG34_Treasure_912", new[] { "时空扭曲的香蕉盛宴", "用酒馆餐点香蕉填满你的手牌。本局对战中，你的酒馆法术额外使目标获得+3/+3。" } },
+            { "BG34_HeroPowerSpell_003", new[] { "奥拉基尔之力", "购买时施放。将“虫群拍打”作为你的第二个英雄技能。" } },
+            { "BG34_Treasure_917", new[] { "时空扭曲的新兵", "本局对战中，使酒馆中的随从获得+2/+2，且酒馆始终拥有7张牌。" } },
+            { "BG34_HeroPowerSpell_005", new[] { "伊莉斯之力", "购买时施放。将“领路探险者”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_006", new[] { "乔治之力", "购买时施放。将“圣光恩泽”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_008", new[] { "沙德沃克之力", "购买时施放。将“碎碎念”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_009", new[] { "特隆之力", "购买时施放。将“快速复生”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_010", new[] { "巫妖王之力", "购买时施放。将“复生仪式”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_012", new[] { "泽瑞斯之力", "购买时施放。将“三个愿望”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_015", new[] { "古夫之力", "购买时施放。将“自然平衡”作为你的第二个英雄技能。" } },
+            { "BG34_Treasure_932", new[] { "时空扭曲的攻击油", "你的铸币上限提高4点，并获得4枚铸币。" } },
+            { "BG34_Treasure_933", new[] { "时空扭曲的进化", "选择一个随从，发现一个六级随从并将其变形为该随从，然后将其属性值设为30/30。" } },
+            { "BG34_Treasure_934", new[] { "时空扭曲的护甲储藏", "购买时施放。获得10点护甲。" } },
+            { "BG34_Treasure_937", new[] { "时空扭曲的尸骸", "发现一个五级或更高等级的亡语随从，并使其获得复生。" } },
+            { "BG34_Treasure_940", new[] { "时空扭曲的厨师之选", "选择一个随从，分别获得一个与其类型相同的四级、五级和六级随机随从。" } },
+            { "BG34_Treasure_300", new[] { "时空扭曲的投资", "购买时施放。你下一次时空穿梭会额外获得1点时空资源。" } },
+            { "BG34_Treasure_301", new[] { "时空扭曲的豆茎", "从大型时空酒馆中发现一张消耗为1的牌，并将其在手牌中锁定1回合。" } },
+            { "BG34_HeroPowerSpell_016", new[] { "弗勒格尔之力", "购买时施放。将“出海捕鱼”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_017", new[] { "希尔瓦娜斯之力", "购买时施放。将“回收灵魂”作为你的第二个英雄技能。" } },
+            { "BG34_HeroPowerSpell_018", new[] { "塔维什之力", "购买时施放。将“锁定目标”作为你的第二个英雄技能。" } },
+            { "BG34_Treasure_302", new[] { "时空扭曲的克隆装置", "选择一个友方随从，召唤一个完全相同的复制。" } },
+            { "BG34_Treasure_950", new[] { "时空扭曲的特别惊喜", "用随机塑造法术填满你的手牌。" } },
+            { "BG34_Treasure_951", new[] { "时空扭曲的海螺", "选择一个友方鱼人，召唤一个完全相同的复制。" } },
+            { "BG34_Treasure_953", new[] { "时空扭曲的启示", "从小型时空酒馆中发现一个消耗为1的随从和一个消耗为2的随从。" } },
+            { "BG34_HeroPowerSpell_022", new[] { "拉卡尼休之力", "购买时施放。将“酒馆照明”作为你的第二个英雄技能。" } },
+            { "BG34_Treasure_919", new[] { "时空扭曲的仪式", "发现两个七级随从。" } },
+            { "BG34_Treasure_955", new[] { "时空扭曲的镀金器", "选择一个随从，将其变为金色。" } },
+            { "BG34_Treasure_606", new[] { "时空扭曲的大赢家！", "发现一张三级暗月奖品。以后每过三个回合，在回合开始时重复此效果。" } },
+            { "BG34_Treasure_607", new[] { "时空扭曲的见习生", "分别获得一个一级、二级和三级随机随从。" } },
+            { "BG34_Treasure_608", new[] { "时空扭曲的戒指", "获得一张“闪亮戒指”。在每个回合开始时重复此效果。" } },
+            { "BG34_Treasure_609", new[] { "时空扭曲的套索", "获得一张“附魔套索”。在每个回合开始时重复此效果。" } },
+            { "BG34_Treasure_966", new[] { "时空扭曲的小偷", "发现你上一局战队中的一个随从，并将其属性值设为20/20。" } },
+            { "BG34_Treasure_620", new[] { "时空扭曲的苹果", "本局对战中，每当酒馆刷新后，施放“这些苹果”。" } },
+            { "BG34_Treasure_625", new[] { "时空扭曲的秘密", "发现一个金色七级随从。" } }
+        };
 
         public static TimewarpedTavernCatalog LoadFromResources()
         {
@@ -106,9 +148,19 @@ namespace LearnHearthstone.Adapters.Data
                     continue;
                 }
 
+                ApplySupplementalLocalization(definition);
                 CompleteMechanicTemplates(definition);
                 definitions.Add(definition);
                 existing.Add(definition.CardId);
+            }
+        }
+
+        private static void ApplySupplementalLocalization(TimewarpedTavernCardDefinition definition)
+        {
+            if (definition != null && SupplementalZhCn.TryGetValue(definition.CardId ?? string.Empty, out var localized))
+            {
+                definition.ZhName = localized[0];
+                definition.ZhText = localized[1];
             }
         }
 

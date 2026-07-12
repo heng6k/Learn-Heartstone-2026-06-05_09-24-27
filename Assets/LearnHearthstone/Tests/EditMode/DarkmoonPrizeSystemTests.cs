@@ -31,6 +31,24 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DarkmoonPrizeCatalog_LocalizesEveryEntryAndPreservesEnglishMode()
+        {
+            var chinese = DarkmoonPrizeCatalogLoader.LoadFromResources(false);
+            var english = DarkmoonPrizeCatalogLoader.LoadFromResources(true);
+
+            Assert.AreEqual(33, chinese.All.Count);
+            Assert.IsTrue(chinese.All.All(prize => ContainsChinese(prize.Name) && ContainsChinese(prize.Text)));
+            Assert.AreEqual("Pocket Change", english.GetByCardId("BGS_Treasures_001").Name);
+            Assert.AreEqual("压袋零钱", chinese.GetByCardId("BGS_Treasures_001").Name);
+            StringAssert.Contains("2张酒馆币", chinese.GetByCardId("BGS_Treasures_001").Text);
+
+            var chineseService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = false });
+            var englishService = MatchService.CreateWithDefaultCatalog(setup: new MatchSetupOptions { UseEnglish = true });
+            Assert.AreEqual("提高身价", chineseService.DarkmoonPrizeCatalog.GetByCardId("BGS_Treasures_016").Name);
+            Assert.AreEqual("Raise the Stakes", englishService.DarkmoonPrizeCatalog.GetByCardId("BGS_Treasures_016").Name);
+        }
+
+        [Test]
         public void DarkmoonPrize_PocketChangeAddsTwoTavernCoins()
         {
             var catalog = DarkmoonPrizeCatalogLoader.LoadFromResources();
@@ -62,7 +80,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(1, tavern.Hand.Count);
             var prize = tavern.Hand[0];
-            Assert.AreEqual("Raise the Stakes", prize.Name);
+            Assert.AreEqual(service.DarkmoonPrizeCatalog.GetByCardId("BGS_Treasures_016").Name, prize.Name);
             Assert.AreEqual(4, prize.TavernTier);
             Assert.AreEqual("CardImages/BGS_Treasures_016", prize.ImagePath);
             Assert.IsTrue(prize.Tags.Contains("darkmoon_prize"));
@@ -474,6 +492,11 @@ namespace LearnHearthstone.Tests.EditMode
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0
             };
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Any(character => character >= '\u3400' && character <= '\u9fff');
         }
     }
 }

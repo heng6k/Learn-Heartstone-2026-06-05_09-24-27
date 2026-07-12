@@ -79,6 +79,7 @@ namespace LearnHearthstone.Domain.Models
         public string Id;
         public string CardId;
         public int DbfId;
+        public string SourceName;
         public string Name;
         public TrinketSlotKind SlotKind;
         public int Cost;

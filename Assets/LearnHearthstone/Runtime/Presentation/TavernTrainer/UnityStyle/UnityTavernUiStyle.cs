@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -87,6 +89,37 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             outline.effectDistance = distance;
             outline.useGraphicAlpha = false;
             return outline;
+        }
+
+        public static string ArtFallbackText(string displayName, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return fallback ?? string.Empty;
+            }
+
+            var trimmed = displayName.Trim();
+            var firstVisible = trimmed.FirstOrDefault(char.IsLetterOrDigit);
+            if (firstVisible >= '\u3400' && firstVisible <= '\u9fff')
+            {
+                return new string(trimmed.Where(char.IsLetterOrDigit).Take(2).ToArray());
+            }
+
+            var words = trimmed.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length > 1)
+            {
+                var initials = words
+                    .Select(word => word.FirstOrDefault(char.IsLetterOrDigit))
+                    .Where(character => character != default(char))
+                    .Take(2)
+                    .ToArray();
+                if (initials.Length > 1)
+                {
+                    return new string(initials).ToUpperInvariant();
+                }
+            }
+
+            return new string(trimmed.Where(char.IsLetterOrDigit).Take(2).ToArray()).ToUpperInvariant();
         }
 
         public static T EnsureComponent<T>(GameObject target) where T : Component

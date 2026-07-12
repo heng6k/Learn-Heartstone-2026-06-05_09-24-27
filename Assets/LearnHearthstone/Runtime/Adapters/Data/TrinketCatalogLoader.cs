@@ -9,8 +9,9 @@ namespace LearnHearthstone.Adapters.Data
     public static class TrinketCatalogLoader
     {
         private const string ResourcePath = "Data/battlegroundsTrinkets";
+        private const string LocalizationZhCnResourcePath = "Data/battlegroundsTrinketLocalizationZhCN";
 
-        public static TrinketCatalog LoadFromResources()
+        public static TrinketCatalog LoadFromResources(bool useEnglish = true)
         {
             var asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
@@ -18,10 +19,26 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Missing Resources/" + ResourcePath + ".json");
             }
 
-            return LoadFromJson(asset.text);
+            if (useEnglish)
+            {
+                return LoadFromJson(asset.text);
+            }
+
+            var localizationAsset = Resources.Load<TextAsset>(LocalizationZhCnResourcePath);
+            if (localizationAsset == null)
+            {
+                throw new InvalidOperationException("Missing Resources/" + LocalizationZhCnResourcePath + ".json");
+            }
+
+            return LoadFromJson(asset.text, localizationAsset.text);
         }
 
         public static TrinketCatalog LoadFromJson(string json)
+        {
+            return LoadFromJson(json, null);
+        }
+
+        public static TrinketCatalog LoadFromJson(string json, string zhCnJson)
         {
             var payload = JsonUtility.FromJson<RawPayload>(json);
             if (payload == null || payload.trinkets == null)
@@ -29,13 +46,61 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Invalid battlegrounds Trinket payload.");
             }
 
+            var localizedCards = ParseLocalization(zhCnJson);
             var definitions = new List<TrinketDefinition>();
             foreach (var raw in payload.trinkets)
             {
-                definitions.Add(ToDefinition(raw));
+                var definition = ToDefinition(raw);
+                ApplyLocalization(definition, localizedCards);
+                definitions.Add(definition);
             }
 
             return new TrinketCatalog(definitions);
+        }
+
+        private static Dictionary<string, RawLocalizedCard> ParseLocalization(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            var payload = JsonUtility.FromJson<RawLocalizationPayload>(json);
+            if (payload == null || payload.cards == null)
+            {
+                throw new InvalidOperationException("Invalid zh-CN Trinket localization payload.");
+            }
+
+            var cards = new Dictionary<string, RawLocalizedCard>(StringComparer.OrdinalIgnoreCase);
+            foreach (var card in payload.cards)
+            {
+                if (card != null && !string.IsNullOrWhiteSpace(card.cardId))
+                {
+                    cards[card.cardId] = card;
+                }
+            }
+
+            return cards;
+        }
+
+        private static void ApplyLocalization(
+            TrinketDefinition definition,
+            Dictionary<string, RawLocalizedCard> localizedCards)
+        {
+            if (localizedCards == null)
+            {
+                return;
+            }
+
+            if (!localizedCards.TryGetValue(definition.CardId ?? string.Empty, out var localized) ||
+                string.IsNullOrWhiteSpace(localized.name) ||
+                string.IsNullOrWhiteSpace(localized.text))
+            {
+                throw new InvalidOperationException("Missing zh-CN Trinket localization: " + definition.CardId);
+            }
+
+            definition.Name = localized.name;
+            definition.Text = localized.text;
         }
 
         private static TrinketDefinition ToDefinition(RawTrinket raw)
@@ -47,6 +112,7 @@ namespace LearnHearthstone.Adapters.Data
                 Id = raw.id,
                 CardId = string.IsNullOrEmpty(raw.cardId) ? raw.id : raw.cardId,
                 DbfId = raw.dbfId,
+                SourceName = raw.name,
                 Name = raw.name,
                 SlotKind = ParseEnum(raw.slotKind, TrinketSlotKind.Lesser),
                 Cost = Math.Max(0, raw.cost),
@@ -149,6 +215,23 @@ namespace LearnHearthstone.Adapters.Data
             public List<string> requires;
             public string proxyLevel;
             public string notes;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizationPayload
+        {
+            public string source;
+            public string generatedAt;
+            public int count;
+            public List<RawLocalizedCard> cards;
+        }
+
+        [Serializable]
+        private sealed class RawLocalizedCard
+        {
+            public string cardId;
+            public string name;
+            public string text;
         }
     }
 }

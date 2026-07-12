@@ -1,0 +1,673 @@
+{
+  "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json; implementation-aligned overrides for simulator-specific text",
+  "generatedAt": "2026-07-12",
+  "count": 111,
+  "cards": [
+    {
+      "cardId": "BG31_Anomaly_123",
+      "kind": "anomaly",
+      "name": "双重宇宙",
+      "text": "对战开始时，<b>发现</b>一项第二英雄技能。"
+    },
+    {
+      "cardId": "BG27_Anomaly_504",
+      "kind": "anomaly",
+      "name": "诺甘农的奥秘",
+      "text": "存在酒馆等级7。对战开始时额外拥有10点护甲值。"
+    },
+    {
+      "cardId": "BG35_Anomaly_005",
+      "kind": "anomaly",
+      "name": "畸变时间线",
+      "text": "“平行时间线”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG32_Anomaly_001",
+      "kind": "anomaly",
+      "name": "大型口袋",
+      "text": "“藏品增生”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG35_Anomaly_007",
+      "kind": "anomaly",
+      "name": "小型占卜",
+      "text": "“小型水晶球”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG34_Anomaly_805",
+      "kind": "anomaly",
+      "name": "誓言石的召唤",
+      "text": "小型<b>时空扭曲</b>随从会在第7回合加入酒馆随从池，大型时空扭曲随从会在第10回合加入。"
+    },
+    {
+      "cardId": "BG32_Anomaly_002",
+      "kind": "anomaly",
+      "name": "小型口袋",
+      "text": "“神奇宝藏”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG35_Anomaly_004",
+      "kind": "anomaly",
+      "name": "畸变流汇",
+      "text": "“扭曲的时光流汇”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG31_Anomaly_106",
+      "kind": "anomaly",
+      "name": "马林的宝藏匣",
+      "text": "所有英雄都是经理马林。“藏品增生”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG35_Anomaly_002",
+      "kind": "anomaly",
+      "name": "畸变魔方",
+      "text": "“神秘魔方”是你的第二英雄技能。该技能会在第5回合解锁。"
+    },
+    {
+      "cardId": "BG27_Anomaly_711",
+      "kind": "anomaly",
+      "name": "双头之战",
+      "text": "每回合中，在你第一次购买卡牌时，获得一张完全相同的额外复制。"
+    },
+    {
+      "cardId": "BG35_Anomaly_001",
+      "kind": "anomaly",
+      "name": "升起旗帜",
+      "text": "每3个回合，获取一张法术牌，可将一个目标随从的12张复制加入酒馆随从池。"
+    },
+    {
+      "cardId": "BG35_Anomaly_008",
+      "kind": "anomaly",
+      "name": "大型占卜",
+      "text": "“大型水晶球”是你的第二英雄技能。"
+    },
+    {
+      "cardId": "BG27_Anomaly_Prizes2",
+      "kind": "anomaly",
+      "name": "暗月奖品",
+      "text": "每4个回合，<b>发现</b>一个暗月奖品。"
+    },
+    {
+      "cardId": "BG27_Anomaly_303",
+      "kind": "anomaly",
+      "name": "泰坦诸神的钩爪",
+      "text": "每回合你购买的第一个随从免费。"
+    },
+    {
+      "cardId": "BG27_Anomaly_580",
+      "kind": "anomaly",
+      "name": "大众之选",
+      "text": "在你的回合开始时，从2张牌中选择1张；在回合结束时，获得所选牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_751",
+      "kind": "anomaly",
+      "name": "完美炼金术",
+      "text": "开局时拥有一张点金术。"
+    },
+    {
+      "cardId": "BG35_Anomaly_006",
+      "kind": "anomaly",
+      "name": "畸变远行",
+      "text": "对战开始时，分别<b>发现</b>一个等级6、等级4和等级2的随从；达到对应酒馆等级时获得它们。"
+    },
+    {
+      "cardId": "BG31_Anomaly_124",
+      "kind": "anomaly",
+      "name": "点金箭",
+      "text": "每3个回合，获取一张点金箭。"
+    },
+    {
+      "cardId": "BG27_Anomaly_301",
+      "kind": "anomaly",
+      "name": "虚妄神像",
+      "text": "三连只需2张相同随从，并且改为获得一枚酒馆币，而非三连奖励。"
+    },
+    {
+      "cardId": "BG27_Anomaly_716",
+      "kind": "anomaly",
+      "name": "奖励升级",
+      "text": "在你升级酒馆后，<b>发现</b>一个暗月奖品。奖品会随时间提升。"
+    },
+    {
+      "cardId": "BG27_Anomaly_810",
+      "kind": "anomaly",
+      "name": "呼朋引伴",
+      "text": "可被发现的<b>伙伴</b>会加入酒馆随从池，每种伙伴有6张复制。"
+    },
+    {
+      "cardId": "BG27_Anomaly_900",
+      "kind": "anomaly",
+      "name": "高戈奈斯的暴风",
+      "text": "随从消耗2枚铸币。你无法手动<b>刷新</b>酒馆；购买一张牌后，酒馆会自行<b>刷新</b>。"
+    },
+    {
+      "cardId": "BG31_Anomaly_120",
+      "kind": "anomaly",
+      "name": "侦查员的荣耀",
+      "text": "对战开始时，战场上有一个金色的耐心的侦查员。"
+    },
+    {
+      "cardId": "BG27_Anomaly_503",
+      "kind": "anomaly",
+      "name": "尤格专场",
+      "text": "在你的回合开始时，从2个尤格-萨隆奖励中选择1个；在回合结束时，获得所选奖励。"
+    },
+    {
+      "cardId": "BG27_Anomaly_572",
+      "kind": "anomaly",
+      "name": "财宝囤积",
+      "text": "在第5回合，<b>发现</b>一个等级3的金色随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_570",
+      "kind": "anomaly",
+      "name": "财宝囤积",
+      "text": "在第7回合，<b>发现</b>一个等级5的金色随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_571",
+      "kind": "anomaly",
+      "name": "财宝囤积",
+      "text": "在第8回合，<b>发现</b>一个等级6的金色随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_000",
+      "kind": "anomaly",
+      "name": "金钱大战",
+      "text": "对战开始时即有10枚铸币。"
+    },
+    {
+      "cardId": "BG27_Anomaly_001",
+      "kind": "anomaly",
+      "name": "娇贵的沙漏",
+      "text": "对战开始时酒馆等级为2。"
+    },
+    {
+      "cardId": "BG27_Anomaly_002",
+      "kind": "anomaly",
+      "name": "阿米图斯的审慎",
+      "text": "未花费的铸币可保留至下回合。如果你保留了至少5枚，额外获得1枚。"
+    },
+    {
+      "cardId": "BG27_Anomaly_005",
+      "kind": "anomaly",
+      "name": "米米尔隆的发条竞赛场",
+      "text": "无法用铸币升级酒馆。每2个回合，酒馆会自动升级。<i>（还剩2个回合！）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_006",
+      "kind": "anomaly",
+      "name": "阿格拉玛的诅咒",
+      "text": "对战开始时拥有5点生命值和5枚铸币。你的英雄每次只会受到1点伤害。"
+    },
+    {
+      "cardId": "BG27_Anomaly_100",
+      "kind": "anomaly",
+      "name": "猛悍盟军",
+      "text": "仅存在等级3，4，5，6。对战开始时额外拥有10点护甲值。"
+    },
+    {
+      "cardId": "BG27_Anomaly_101",
+      "kind": "anomaly",
+      "name": "奇妙无双",
+      "text": "仅存在等级1，3，5。三连奖励为<b>发现</b>一个你当前等级的随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_102",
+      "kind": "anomaly",
+      "name": "无独有偶",
+      "text": "仅存在等级2，4，6。三连奖励为<b>发现</b>一个你当前等级的随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_103",
+      "kind": "anomaly",
+      "name": "酒馆酬宾",
+      "text": "酒馆中会出现所有类型的随从。酒馆中始终会有7张牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t",
+      "kind": "anomaly",
+      "name": "全是野兽！",
+      "text": "酒馆中只有野兽。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t10",
+      "kind": "anomaly",
+      "name": "全是海盗！",
+      "text": "酒馆中只有海盗。霍格船长在随从池中。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t2",
+      "kind": "anomaly",
+      "name": "全是恶魔！",
+      "text": "酒馆中只有恶魔。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t3",
+      "kind": "anomaly",
+      "name": "全是龙！",
+      "text": "酒馆中只有龙。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t4",
+      "kind": "anomaly",
+      "name": "全是元素！",
+      "text": "酒馆中只有元素。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t5",
+      "kind": "anomaly",
+      "name": "全是机械！",
+      "text": "酒馆中只有机械。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t6",
+      "kind": "anomaly",
+      "name": "全是鱼人！",
+      "text": "酒馆中只有鱼人。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t7",
+      "kind": "anomaly",
+      "name": "全是纳迦！",
+      "text": "酒馆中只有纳迦。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t8",
+      "kind": "anomaly",
+      "name": "全是野猪人！",
+      "text": "酒馆中只有野猪人。"
+    },
+    {
+      "cardId": "BG27_Anomaly_104t9",
+      "kind": "anomaly",
+      "name": "全是亡灵！",
+      "text": "酒馆中只有亡灵。"
+    },
+    {
+      "cardId": "BG27_Anomaly_302",
+      "kind": "anomaly",
+      "name": "致富培根",
+      "text": "对战开始时拥有两张会不断升级的招财小猪。打破小猪可以获得铸币！"
+    },
+    {
+      "cardId": "BG27_Anomaly_307",
+      "kind": "anomaly",
+      "name": "全是反派！",
+      "text": "酒馆中只有邪恶随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_501",
+      "kind": "anomaly",
+      "name": "阿曼苏尔的节制",
+      "text": "对战开始时酒馆等级为3，铸币为9。你的商店里的初始卡牌均为等级3的牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_502",
+      "kind": "anomaly",
+      "name": "萨格拉斯的血",
+      "text": "在你的回合开始时，将你的英雄的生命值变为12。"
+    },
+    {
+      "cardId": "BG27_Anomaly_505",
+      "kind": "anomaly",
+      "name": "鲁莽强化",
+      "text": "酒馆中的每个随从随机获得<b>嘲讽</b>，<b>风怒</b>，<b>圣盾</b>或<b>复生</b>。"
+    },
+    {
+      "cardId": "BG27_Anomaly_555",
+      "kind": "anomaly",
+      "name": "顶级推理",
+      "text": "每个回合，检视2个随从。猜中来自你下一个对手上一场战斗的随从，即可获取一张铸币。"
+    },
+    {
+      "cardId": "BG27_Anomaly_556",
+      "kind": "anomaly",
+      "name": "身价通胀",
+      "text": "不存在等级1。随从消耗的铸币等同于其等级。"
+    },
+    {
+      "cardId": "BG27_Anomaly_558",
+      "kind": "anomaly",
+      "name": "猫猫秘宝",
+      "text": "在一个其他英雄死亡后，从其战队中<b>发现</b>一个随从。保留所有附加效果。"
+    },
+    {
+      "cardId": "BG27_Anomaly_559",
+      "kind": "anomaly",
+      "name": "财宝囤积",
+      "text": "在第6回合，<b>发现</b>一个等级4的金色随从。<i>（还剩5回合！）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_560",
+      "kind": "anomaly",
+      "name": "畸变双子",
+      "text": "<b>战斗开始时：</b>召唤你生命值最高的随从的一个复制。"
+    },
+    {
+      "cardId": "BG27_Anomaly_561",
+      "kind": "anomaly",
+      "name": "畸变贿赂",
+      "text": "在你出售一个随从后，使酒馆中的一个随从获得其属性值。"
+    },
+    {
+      "cardId": "BG27_Anomaly_562",
+      "kind": "anomaly",
+      "name": "畸变的智慧之球",
+      "text": "你偶尔会来一手有用的<b>刷新</b>！<i>（第5回合解锁。）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_573",
+      "kind": "anomaly",
+      "name": "财宝囤积",
+      "text": "在第9回合，<b>发现</b>一个等级7的金色随从。<i>（还剩8回合！）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_575",
+      "kind": "anomaly",
+      "name": "最后时机",
+      "text": "在战斗中，当你的英雄将要承受致命伤害时，防止这些伤害，并改为在下回合获得11枚铸币。"
+    },
+    {
+      "cardId": "BG27_Anomaly_577",
+      "kind": "anomaly",
+      "name": "无面无相",
+      "text": "每4个回合，获取一张无面操纵者。<i>（还剩4回合！）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_714",
+      "kind": "anomaly",
+      "name": "焚尽一切",
+      "text": "对战开始时，受到25点伤害。在一个其他英雄死亡后，重获5点生命值。"
+    },
+    {
+      "cardId": "BG27_Anomaly_715",
+      "kind": "anomaly",
+      "name": "角斗士的战利品",
+      "text": "在战斗后，如果你获胜，<b>发现</b>一张你当前等级的随从牌；否则随机获取一张低一级的随从牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_718",
+      "kind": "anomaly",
+      "name": "监视者宝珠",
+      "text": "在你升级酒馆后，<b>刷新</b>酒馆，使其中的随从变为你的多数随从的类型的随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_720",
+      "kind": "anomaly",
+      "name": "阮大师的变幻之碟",
+      "text": "所有英雄均为阮大师。"
+    },
+    {
+      "cardId": "BG27_Anomaly_721",
+      "kind": "anomaly",
+      "name": "穷乏之怒",
+      "text": "对战开始时只有1枚铸币。购买随从消耗（1）枚铸币，但出售获得（0）枚。升级酒馆所需的铸币减少（2）枚。"
+    },
+    {
+      "cardId": "BG27_Anomaly_723",
+      "kind": "anomaly",
+      "name": "勇士召唤",
+      "text": "对战开始时，所有玩家都会从相同的选项中<b>发现</b>一个等级6的随从。"
+    },
+    {
+      "cardId": "BG27_Anomaly_726",
+      "kind": "anomaly",
+      "name": "凋零圣恩",
+      "text": "<b>战斗开始时：</b>使你最左边的随从获得<b>圣盾</b>，使你最右边的随从获得<b>复生</b>。"
+    },
+    {
+      "cardId": "BG27_Anomaly_750",
+      "kind": "anomaly",
+      "name": "酒客爆满",
+      "text": "酒馆中始终会有7张牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_754",
+      "kind": "anomaly",
+      "name": "宝藏追寻者之路",
+      "text": "每当你<b>刷新</b>5次，找到<b>黄金</b>猿！<i>（还剩"
+    },
+    {
+      "cardId": "BG27_Anomaly_755",
+      "kind": "anomaly",
+      "name": "马戏奖品",
+      "text": "三连不会奖励随从，改为<b>发现</b>一个<b>等级1</b>的暗月奖品。<i>（4回合后提升！）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_800",
+      "kind": "anomaly",
+      "name": "迷你盟军",
+      "text": "仅存在等级1，2，3，4。"
+    },
+    {
+      "cardId": "BG27_Anomaly_801",
+      "kind": "anomaly",
+      "name": "金色竞技场",
+      "text": "所有随从均为金色，但你不会获取三连奖励。"
+    },
+    {
+      "cardId": "BG27_Anomaly_802",
+      "kind": "anomaly",
+      "name": "阿古斯的回响",
+      "text": "你的<b>战吼</b>和<b>亡语</b>额外触发一次。"
+    },
+    {
+      "cardId": "BG27_Anomaly_803",
+      "kind": "anomaly",
+      "name": "畸变证据",
+      "text": "在每个回合开始时，从2个新的任务奖励中选择一个。<i>（第4回合解锁。）</i>"
+    },
+    {
+      "cardId": "BG27_Anomaly_805",
+      "kind": "anomaly",
+      "name": "操纵比赛",
+      "text": "猜测在你下一场战斗中获胜的玩家。如果猜中，获取3张铸币牌。"
+    },
+    {
+      "cardId": "BG27_Anomaly_820",
+      "kind": "anomaly",
+      "name": "迅疾深沉蓝调",
+      "text": "在你的回合开始时，获取2张临时的深沉蓝调。每次使用深沉蓝调，随从获得的属性值都会提升！"
+    },
+    {
+      "cardId": "BG27_Anomaly_822",
+      "kind": "anomaly",
+      "name": "德纳修斯的心能储备",
+      "text": "对战开始时，将“悬案疑云”变为你的第二英雄技能"
+    },
+    {
+      "cardId": "BG27_Anomaly_Buddies",
+      "kind": "anomaly",
+      "name": "伙伴",
+      "text": "本局对战中有<b>伙伴</b>！"
+    },
+    {
+      "cardId": "BG27_Anomaly_Quests",
+      "kind": "anomaly",
+      "name": "任务",
+      "text": "本局对战中有任务和奖励！"
+    },
+    {
+      "cardId": "BG31_Anomaly_101",
+      "kind": "anomaly",
+      "name": "地势走向",
+      "text": "每当酒馆<b>刷新</b>时，总会额外提供一张酒馆法术牌。"
+    },
+    {
+      "cardId": "BG31_Anomaly_102",
+      "kind": "anomaly",
+      "name": "持续教育",
+      "text": "在每个回合开始时，获取一张演化卷轴。每个回合，演化卷轴都会变形成为高一级的酒馆法术牌。"
+    },
+    {
+      "cardId": "BG31_Anomaly_104",
+      "kind": "anomaly",
+      "name": "渐起浪潮",
+      "text": "在你升级酒馆后，<b>发现</b>一张<b>等级1</b>的酒馆法术牌。<i>（2回合后提升！）</i>"
+    },
+    {
+      "cardId": "BG31_Anomaly_105",
+      "kind": "anomaly",
+      "name": "辛多雷魔镜",
+      "text": "每回合中，在你购买第一张酒馆法术牌后，获取一张额外复制。<i>（第5回合解锁。）</i>"
+    },
+    {
+      "cardId": "BG31_Anomaly_109",
+      "kind": "anomaly",
+      "name": "神秘之花",
+      "text": "在每个回合开始时，<b>发现</b>一张\n酒馆法术牌。\n<i>（第3回合解锁。）</i>"
+    },
+    {
+      "cardId": "BG31_Anomaly_111",
+      "kind": "anomaly",
+      "name": "精灵精兵",
+      "text": "酒馆中\n只会提供你当前\n等级的牌。"
+    },
+    {
+      "cardId": "BG31_Anomaly_112",
+      "kind": "anomaly",
+      "name": "孵化变异",
+      "text": "没有随从类型的随从拥有全部随从类型。"
+    },
+    {
+      "cardId": "BG31_Anomaly_114",
+      "kind": "anomaly",
+      "name": "工厂产线",
+      "text": "每2个回合，在回合结束时，获取你最左边的随从的一张原始版复制。<i>（还剩2回合！）</i>"
+    },
+    {
+      "cardId": "BG31_Anomaly_115",
+      "kind": "anomaly",
+      "name": "魔法商店",
+      "text": "酒馆中加入了法术奖券！收集3张，<b>发现</b>一张你当前等级的酒馆法术牌。<i>（还剩"
+    },
+    {
+      "cardId": "BG31_Anomaly_116",
+      "kind": "anomaly",
+      "name": "照亮前路",
+      "text": "在你<b>刷新</b>两次后，在下回合获得1枚铸币。<i>（还剩"
+    },
+    {
+      "cardId": "BG31_Anomaly_117",
+      "kind": "anomaly",
+      "name": "紧急着陆",
+      "text": "每回合两次。你可以从你的池中永久移除酒馆中一个随从的所有复制。"
+    },
+    {
+      "cardId": "BG31_Anomaly_126",
+      "kind": "anomaly",
+      "name": "泛泛之盟",
+      "text": "在每个回合开始时，获取一张你的多数随从的类型的随从牌。<i>（第2回合解锁。）</i>"
+    },
+    {
+      "cardId": "BG31_Anomaly_127",
+      "kind": "anomaly",
+      "name": "速成战队",
+      "text": "对战开始时手牌中有3张不同的等级2的随从牌。"
+    },
+    {
+      "cardId": "BG32_Anomaly_003",
+      "kind": "anomaly",
+      "name": "惊人预见",
+      "text": "在第5回合购买小型<b>饰品</b>，在第8回合购买大型<b>饰品</b>。"
+    },
+    {
+      "cardId": "BG33_Anomaly_001",
+      "kind": "anomaly",
+      "name": "召唤契约",
+      "text": "在你升级酒馆后，使你下一个<b>伙伴</b>消耗的铸币减少（2）枚。"
+    },
+    {
+      "cardId": "BG33_Anomaly_002",
+      "kind": "anomaly",
+      "name": "友谊精神",
+      "text": "在你按动你的<b>伙伴</b><b>按钮</b>后，还会<b>发现</b>一个<b>伙伴</b>。"
+    },
+    {
+      "cardId": "BG33_Anomaly_003",
+      "kind": "anomaly",
+      "name": "三重天性",
+      "text": "你的<b>伙伴</b><b>按钮</b>可以按动第3次以获取一个金色<b>伙伴</b>。其消耗减半。"
+    },
+    {
+      "cardId": "BG33_Anomaly_005",
+      "kind": "anomaly",
+      "name": "多彩好友",
+      "text": "<b>伙伴</b>拥有全部随从类型。"
+    },
+    {
+      "cardId": "BG33_Anomaly_008",
+      "kind": "anomaly",
+      "name": "共犯",
+      "text": "你没有<b>伙伴按钮</b>。在第4回合，选择一项<b>任务</b>，完成任务即可获得你的金色<b>伙伴</b>。"
+    },
+    {
+      "cardId": "BG33_Anomaly_009",
+      "kind": "anomaly",
+      "name": "修补友谊",
+      "text": "你的<b><b>伙伴</b>按钮</b>的消耗提高50%，但你每购买一张牌后都会减少（1）枚。"
+    },
+    {
+      "cardId": "BG34_Anomaly_800",
+      "kind": "anomaly",
+      "name": "大型金棘草药水",
+      "text": "在本局对战中，大型<b>时空扭曲</b>会提供5个金色随从。使用这些随从不会获得三连奖励。"
+    },
+    {
+      "cardId": "BG34_Anomaly_800t",
+      "kind": "anomaly",
+      "name": "小型金棘草药水",
+      "text": "在本局对战中，小型<b>时空扭曲</b>会提供5个金色随从。使用这些随从不会获得三连奖励。"
+    },
+    {
+      "cardId": "BG34_Anomaly_801",
+      "kind": "anomaly",
+      "name": "时光标记赐福",
+      "text": "在每次<b>时空扭曲</b>中，你额外获得一枚时光标记。"
+    },
+    {
+      "cardId": "BG34_Anomaly_802",
+      "kind": "anomaly",
+      "name": "大型时空门",
+      "text": "在第8回合和第9回合各前往一次大型<b>时空扭曲</b>。本局对战中没有小型<b>时空扭曲</b>。"
+    },
+    {
+      "cardId": "BG34_Anomaly_804",
+      "kind": "anomaly",
+      "name": "扭曲沙漏",
+      "text": "本局对战中的全部4枚时光标记都可以在小型<b>时空扭曲</b>中使用，未消耗的时光标记会保留至大型<b>时空扭曲</b>。"
+    },
+    {
+      "cardId": "BG34_Anomaly_809",
+      "kind": "anomaly",
+      "name": "意外的传送门",
+      "text": "在本局对战中，在某个随机回合前往一次<b>时空扭曲</b>。"
+    },
+    {
+      "cardId": "BGDUO_Anomaly_003",
+      "kind": "anomaly",
+      "name": "情比金坚",
+      "text": "每局对战限一次，你可以将一个随从变为<b>金色</b>并<b>传递</b>。"
+    },
+    {
+      "cardId": "BGDUO_Anomaly_005",
+      "kind": "anomaly",
+      "name": "尽数装瓶",
+      "text": "在每个回合开始时，获取一张瓶中传送门。"
+    },
+    {
+      "cardId": "BGDUO_Anomaly_006",
+      "kind": "anomaly",
+      "name": "时沙如流",
+      "text": "对战开始时场上有一个流沙幻象。"
+    },
+    {
+      "cardId": "BGDUO_Anomaly_007",
+      "kind": "anomaly",
+      "name": "资源汇集",
+      "text": "每回合中，你可以向你的队友发送最多2枚铸币。"
+    }
+  ]
+}

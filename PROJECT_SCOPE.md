@@ -15,3 +15,13 @@ Do not implement Duos-only systems in this project:
 Cards whose ids start with `BGDUO` are intentionally out of scope. If they appear in source data, mark them as `OutOfScope` in implementation registries instead of adding gameplay behavior.
 
 The current design target is: single-player Tavern flow, recruit economy, single-player board state, combat simulation, replay visualization, tier 1/2/3/4 single-player minions, and all official single-player Tavern spells.
+
+## Product and Quality Requirements
+
+The detailed project-wide product, localization, Timewarped Tavern safety, UI, and keyword-feedback requirements are maintained in:
+
+- [Docs/TavernSimulatorGlobalRequirements.zh-CN.md](Docs/TavernSimulatorGlobalRequirements.zh-CN.md)
+
+All new Tavern features and UI changes must follow that document. The current implementation plan is:
+
+- [Docs/TavernSimulatorOptimizationPlan.zh-CN.md](Docs/TavernSimulatorOptimizationPlan.zh-CN.md)

@@ -54,6 +54,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.Greater(catalog.NonMinions.Count, 0);
             Assert.AreEqual(0, catalog.BlockedNonMinions.Count);
             Assert.IsTrue(catalog.Current.All(card => !string.IsNullOrWhiteSpace(card.ImagePath)));
+            Assert.IsTrue(catalog.NonMinions.All(card => ContainsChinese(card.ZhName)));
+            Assert.IsTrue(catalog.NonMinions.All(card => ContainsChinese(card.ZhText)));
 
             var exit = catalog.GetByCardId("BG34_BlackMarket_Skip");
             Assert.AreEqual(CardKind.Spell, exit.CardKind);
@@ -1023,6 +1025,56 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TimewarpedTavern_DisabledDoesNotScheduleVisit()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTimewarpedTavern = false,
+                    EnableTrinkets = false
+                });
+
+            for (var turn = 2; turn <= 6; turn += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.NextTurn));
+            }
+
+            Assert.IsFalse(service.State.TimewarpedTavernEnabled);
+            Assert.IsEmpty(service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor));
+            Assert.IsEmpty(service.GetTimewarpedCandidateDefinitions(TimewarpKind.Major));
+            Assert.IsFalse(service.State.Player.Tavern.Timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Idle, service.State.Player.Tavern.Timewarp.Phase);
+        }
+
+        [Test]
+        public void TimewarpedTavern_ExplicitPoolControlsCandidateCards()
+        {
+            var defaultService = CreateTimewarpOnlyService(12345);
+            var included = defaultService.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor).First();
+            var excluded = defaultService.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardId != included.CardId);
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions
+                {
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTrinkets = false,
+                    UseExplicitTimewarpedPool = true,
+                    EnabledTimewarpedCardIds = new List<string> { included.CardId }
+                });
+
+            var candidates = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor);
+            Assert.AreEqual(1, candidates.Count);
+            Assert.AreEqual(included.CardId, candidates[0].CardId);
+            Assert.IsFalse(candidates.Any(card => card.CardId == excluded.CardId));
+            CollectionAssert.AreEqual(new[] { included.CardId }, service.State.EnabledTimewarpedCardIds);
+        }
+
+        [Test]
         public void TimewarpedTavern_RoundSixOpensMinorAndPurchasesWithChronum()
         {
             var service = MatchService.CreateWithDefaultCatalog(
@@ -1041,7 +1093,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             var tavern = service.State.Player.Tavern;
             var timewarp = tavern.Timewarp;
-            var shopSnapshot = tavern.Shop.Select(card => card?.InstanceId).ToList();
+            var shopSnapshot = TavernShopStateFingerprint(tavern);
             var goldBefore = tavern.Gold;
             var handBefore = tavern.Hand.Count;
             var chronumBefore = timewarp.Chronum;
@@ -1066,7 +1118,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, offerIndex));
 
             Assert.AreEqual(goldBefore, tavern.Gold);
-            CollectionAssert.AreEqual(shopSnapshot, tavern.Shop.Select(card => card?.InstanceId).ToList());
+            Assert.AreEqual(shopSnapshot, TavernShopStateFingerprint(tavern));
             Assert.AreEqual(handBefore + 1, tavern.Hand.Count);
             Assert.AreEqual(chronumBefore - offer.Cost, timewarp.Chronum);
             Assert.IsTrue(timewarp.Offers[offerIndex].Purchased);
@@ -1077,6 +1129,71 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(timewarp.VisitOpen);
             Assert.AreEqual(TimewarpTavernPhase.Closed, timewarp.Phase);
             Assert.AreEqual(chronumBefore - offer.Cost, timewarp.Chronum);
+            Assert.AreEqual(shopSnapshot, TavernShopStateFingerprint(tavern));
+        }
+
+        [Test]
+        public void WhiteBox_TimewarpedTavern_OpenVisitBlocksNextTurnWithoutStateChanges()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var roundBefore = service.State.Round;
+            var goldBefore = tavern.Gold;
+            var chronumBefore = timewarp.Chronum;
+            var shopBefore = tavern.Shop.Select(card => card?.InstanceId).ToList();
+            var offersBefore = timewarp.Offers.Select(offer => offer?.CardId).ToList();
+
+            var exception = Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.NextTurn)));
+
+            Assert.AreEqual("请先退出当前时空酒馆。", exception.Message);
+            Assert.AreEqual(roundBefore, service.State.Round);
+            Assert.AreEqual(goldBefore, tavern.Gold);
+            Assert.AreEqual(chronumBefore, timewarp.Chronum);
+            Assert.IsTrue(timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
+            CollectionAssert.AreEqual(shopBefore, tavern.Shop.Select(card => card?.InstanceId).ToList());
+            CollectionAssert.AreEqual(offersBefore, timewarp.Offers.Select(offer => offer?.CardId).ToList());
+        }
+
+        [Test]
+        public void WhiteBox_TimewarpedPurchase_RepeatedCommandDeductsAndAddsOnlyOnce()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var definition = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardKind == CardKind.Minion);
+            timewarp.Chronum = 10;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot
+                {
+                    SlotId = "repeat-purchase",
+                    CardId = definition.CardId,
+                    CardKind = definition.CardKind,
+                    Cost = 1,
+                    Source = "test"
+                }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+            var handAfterFirst = tavern.Hand.Count;
+            var chronumAfterFirst = timewarp.Chronum;
+            var stateAfterFirst = TimewarpedFailureStateFingerprint(service);
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0)));
+
+            Assert.AreEqual(stateAfterFirst, TimewarpedFailureStateFingerprint(service));
+            Assert.AreEqual(9, chronumAfterFirst);
+            Assert.AreEqual(chronumAfterFirst, timewarp.Chronum);
+            Assert.AreEqual(handAfterFirst, tavern.Hand.Count);
+            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == definition.CardId));
+            Assert.IsTrue(timewarp.Offers[0].Purchased);
         }
 
         [Test]
@@ -1189,13 +1306,109 @@ namespace LearnHearthstone.Tests.EditMode
                 }
             };
             var offer = timewarp.Offers[0];
+            var stateBefore = TimewarpedFailureStateFingerprint(service);
 
             Assert.Throws<System.InvalidOperationException>(() =>
                 service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0)));
 
+            Assert.AreEqual(stateBefore, TimewarpedFailureStateFingerprint(service));
             Assert.AreEqual(chronumBefore, timewarp.Chronum);
             Assert.IsFalse(offer.Purchased);
             Assert.AreEqual(10, tavern.Hand.Count);
+        }
+
+        [Test]
+        public void WhiteBox_TimewarpedPurchase_InsufficientChronumPreservesStateAndForbiddenCounters()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var timewarp = tavern.Timewarp;
+            var definition = service.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardKind == CardKind.Minion);
+            timewarp.Chronum = 0;
+            timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot
+                {
+                    SlotId = "insufficient-chronum",
+                    CardId = definition.CardId,
+                    CardKind = definition.CardKind,
+                    Cost = 1,
+                    Source = "test"
+                }
+            };
+            var stateBefore = TimewarpedFailureStateFingerprint(service);
+
+            var exception = Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0)));
+
+            Assert.AreEqual("时空资源不足。", exception.Message);
+            Assert.AreEqual(stateBefore, TimewarpedFailureStateFingerprint(service));
+        }
+
+        [Test]
+        public void WhiteBox_TimewarpedPurchase_InvalidOfferIndexPreservesStateAndForbiddenCounters()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var stateBefore = TimewarpedFailureStateFingerprint(service);
+
+            var exception = Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, -1)));
+
+            Assert.AreEqual("时空酒馆选项不存在。", exception.Message);
+            Assert.AreEqual(stateBefore, TimewarpedFailureStateFingerprint(service));
+        }
+
+        [Test]
+        public void WhiteBox_TimewarpedPurchase_MissingDefinitionPreservesEquippedQuestAndTrinketState()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            AdvanceToRound(service, 6);
+            var tavern = service.State.Player.Tavern;
+            var advanced = tavern.AdvancedMechanics;
+            advanced.Quests.MainQuest = new ActiveQuestState
+            {
+                QuestId = "atomicity-quest",
+                RewardId = "atomicity-reward",
+                Progress = 3,
+                RequiredAmount = 7,
+                Completed = true,
+                RewardActive = true
+            };
+            advanced.Quests.RewardCounters["atomicity-counter"] = 5;
+            advanced.Quests.RewardFlags["atomicity-flag"] = true;
+            advanced.Trinkets.LesserTrinketId = "atomicity-trinket";
+            advanced.Trinkets.Equipped.Add(new EquippedTrinketState
+            {
+                TrinketId = "atomicity-trinket",
+                Name = "Atomicity Trinket",
+                SlotKind = TrinketSlotKind.Lesser,
+                EquippedRound = service.State.Round,
+                CostPaid = 2,
+                ImplementationStatus = TrinketImplementationStatus.Implemented
+            });
+            tavern.Timewarp.Offers = new List<TimewarpedOfferSlot>
+            {
+                new TimewarpedOfferSlot
+                {
+                    SlotId = "missing-definition",
+                    CardId = "MISSING_TIMEWARPED_DEFINITION",
+                    CardKind = CardKind.Minion,
+                    Cost = 1,
+                    Source = "test"
+                }
+            };
+            var stateBefore = TimewarpedFailureStateFingerprint(service);
+
+            var exception = Assert.Throws<System.InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0)));
+
+            Assert.AreEqual(
+                "时空酒馆卡牌数据缺失。",
+                exception.Message);
+            Assert.AreEqual(stateBefore, TimewarpedFailureStateFingerprint(service));
         }
 
         [Test]
@@ -1210,6 +1423,47 @@ namespace LearnHearthstone.Tests.EditMode
             CollectionAssert.AreEqual(
                 first.State.Player.Tavern.Timewarp.Offers.Select(offer => offer.CardId).ToList(),
                 second.State.Player.Tavern.Timewarp.Offers.Select(offer => offer.CardId).ToList());
+        }
+
+        [Test]
+        public void TimewarpedTavern_OfferCardsAndErrorsFollowSetupLanguage()
+        {
+            var chinese = CreateTimewarpOnlyService(24680);
+            var english = MatchService.CreateWithDefaultCatalog(
+                24680,
+                null,
+                new MatchSetupOptions
+                {
+                    UseEnglish = true,
+                    AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                    EnableTrinkets = false
+                });
+            AdvanceToRound(chinese, 6);
+            AdvanceToRound(english, 6);
+
+            var chineseCards = chinese.GetTimewarpedOfferCards();
+            var offerIndex = chineseCards.FindIndex(card => card != null && card.Cost > 0);
+            Assert.GreaterOrEqual(offerIndex, 0);
+            var chineseCard = chineseCards[offerIndex];
+            var englishCard = english.GetTimewarpedOfferCards().First(card => card != null && card.CardId == chineseCard.CardId);
+            var definition = chinese.GetTimewarpedCandidateDefinitions(TimewarpKind.Minor)
+                .First(card => card.CardId == chineseCard.CardId);
+
+            Assert.AreEqual(definition.ZhName, chineseCard.Name);
+            Assert.AreEqual(definition.ZhText, chineseCard.Text);
+            Assert.AreEqual(definition.Name, englishCard.Name);
+            Assert.AreEqual(definition.Text, englishCard.Text);
+
+            chinese.State.Player.Tavern.Timewarp.Chronum = 0;
+            english.State.Player.Tavern.Timewarp.Chronum = 0;
+            Assert.AreEqual(
+                "时空资源不足。",
+                Assert.Throws<System.InvalidOperationException>(() =>
+                    chinese.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, offerIndex))).Message);
+            Assert.AreEqual(
+                "Not enough Chronum.",
+                Assert.Throws<System.InvalidOperationException>(() =>
+                    english.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, offerIndex))).Message);
         }
 
         [Test]
@@ -3924,7 +4178,13 @@ namespace LearnHearthstone.Tests.EditMode
             };
 
             service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
-            return tavern.Hand.Last(card => card.CardId == cardId);
+            var bought = tavern.Hand.Last(card => card.CardId == cardId);
+            if (timewarp.VisitOpen)
+            {
+                service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
+            }
+
+            return bought;
         }
 
         private static void BuyFixedTimewarpedOffer(MatchService service, string cardId, CardKind cardKind, int cost, int chronum)
@@ -3941,6 +4201,10 @@ namespace LearnHearthstone.Tests.EditMode
             };
 
             service.Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, 0));
+            if (timewarp.VisitOpen)
+            {
+                service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
+            }
         }
 
         private static int PrepareTimewarpedSummonerSpell(MatchService service)
@@ -3966,6 +4230,47 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 service.Apply(new GameCommand(GameCommandType.NextTurn));
             }
+        }
+
+        private static string TimewarpedFailureStateFingerprint(MatchService service)
+        {
+            var state = service.State;
+            var player = state.Player;
+            var tavern = player.Tavern;
+            var advanced = tavern.AdvancedMechanics;
+            var quests = advanced?.Quests;
+            return string.Join("\n",
+                state.Round + ":" + state.Phase,
+                UnityEngine.JsonUtility.ToJson(player),
+                DictionaryFingerprint("pool", tavern.Pool),
+                DictionaryFingerprint("pool-capacities", tavern.PoolCapacities),
+                DictionaryFingerprint("buddy-pool", tavern.BuddyPool),
+                DictionaryFingerprint("buddy-capacities", tavern.BuddyPoolCapacities),
+                DictionaryFingerprint("hero-counters", tavern.HeroEffectCounters),
+                DictionaryFingerprint("advanced-counters", advanced?.Counters),
+                DictionaryFingerprint("advanced-selections", advanced?.Selections),
+                DictionaryFingerprint("quest-counters", quests?.RewardCounters),
+                DictionaryFingerprint("quest-flags", quests?.RewardFlags),
+                DictionaryFingerprint("hero-power-unlocks", player.ExtraHeroPowerUnlockRounds));
+        }
+
+        private static string TavernShopStateFingerprint(TavernState tavern)
+        {
+            return tavern.Frozen + "\n" +
+                string.Join("|", tavern.Shop.Select(card => UnityEngine.JsonUtility.ToJson(card))) + "\n" +
+                string.Join("|", tavern.ShopSlots.Select(slot => UnityEngine.JsonUtility.ToJson(slot)));
+        }
+
+        private static string DictionaryFingerprint<T>(string label, IDictionary<string, T> values)
+        {
+            return label + ":" + string.Join("|", (values ?? new Dictionary<string, T>())
+                .OrderBy(pair => pair.Key)
+                .Select(pair => pair.Key + "=" + pair.Value));
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) && value.Any(character => character >= '\u4e00' && character <= '\u9fff');
         }
 
         private static void AssertShopMatchesActiveTribes(MatchService service)

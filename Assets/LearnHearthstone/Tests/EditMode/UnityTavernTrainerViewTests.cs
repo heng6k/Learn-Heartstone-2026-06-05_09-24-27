@@ -417,6 +417,7 @@ namespace LearnHearthstone.Tests.EditMode
                 FindChild(rootObject.transform, "UnityAdvancedMechanicsStartButton").GetComponent<Button>().onClick.Invoke();
 
                 Assert.IsNotNull(startedWith);
+                Assert.IsTrue(startedWith.UseEnglish);
                 Assert.IsFalse(startedWith.EnableQuests);
                 Assert.IsFalse(startedWith.EnableTrinkets);
                 Assert.IsFalse(startedWith.EnableQuestRewards);
@@ -575,6 +576,7 @@ namespace LearnHearthstone.Tests.EditMode
 
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionPanel"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTimewarpedTavernToggleButton"));
 
                 foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
                 {
@@ -586,6 +588,24 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(startedWith);
                 Assert.AreEqual(TimewarpedPoolVersion.Current, startedWith.TimewarpedPoolVersion);
                 Assert.IsFalse(startedWith.UseHistoricalTimewarpedPool);
+                Assert.IsTrue(startedWith.EnableTimewarpedTavern);
+
+                FindChild(rootObject.transform, "UnityTimewarpedTavernToggleButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardPoolVersionTimewarpedTab"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionCloseButton").GetComponent<Button>().onClick.Invoke();
+                startedWith = null;
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsStartButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(startedWith);
+                Assert.IsFalse(startedWith.EnableTimewarpedTavern);
+
+                FindChild(rootObject.transform, "UnityTimewarpedTavernToggleButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionTimewarpedTab"));
+                FindChild(rootObject.transform, "UnityCardPoolVersionCloseButton").GetComponent<Button>().onClick.Invoke();
 
                 FindChild(rootObject.transform, "UnityTimewarpedPoolVersionButton").GetComponent<Button>().onClick.Invoke();
                 startedWith = null;
@@ -610,6 +630,54 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(startedWith);
                 Assert.AreEqual(TimewarpedPoolVersion.Current, startedWith.TimewarpedPoolVersion);
                 Assert.IsFalse(startedWith.UseHistoricalTimewarpedPool);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_TimewarpedCardTogglePassesExplicitPool()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-timewarped-card-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                MatchSetupOptions startedWith = null;
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                const string excludedCardId = "BG34_Giant_591";
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardPoolVersionTimewarpedTab").GetComponent<Button>().onClick.Invoke();
+                var cardToggle = FindChild(rootObject.transform, "UnityCardPoolTimewarpedToggle-" + excludedCardId).GetComponent<Toggle>();
+                Assert.IsTrue(cardToggle.interactable);
+                cardToggle.isOn = false;
+                FindChild(rootObject.transform, "UnityCardPoolVersionCloseButton").GetComponent<Button>().onClick.Invoke();
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    FindChild(rootObject.transform, "UnityTribeSelection" + tribe + "Button").GetComponent<Button>().onClick.Invoke();
+                }
+
+                FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedMechanicsStartButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(startedWith);
+                Assert.IsTrue(startedWith.UseExplicitTimewarpedPool);
+                Assert.IsFalse(startedWith.EnabledTimewarpedCardIds.Contains(excludedCardId));
+                Assert.Greater(startedWith.EnabledTimewarpedCardIds.Count, 0);
             }
             finally
             {
@@ -759,6 +827,13 @@ namespace LearnHearthstone.Tests.EditMode
                 FindChild(rootObject.transform, "UnityTribeSelectionEnterButton").GetComponent<Button>().onClick.Invoke();
                 FindChild(rootObject.transform, "UnityAdvancedAnomalyPoolCardEditButton").GetComponent<Button>().onClick.Invoke();
                 FindChild(rootObject.transform, "UnityAdvancedPoolSearchInput").GetComponent<InputField>().onEndEdit.Invoke("BG31_Anomaly_123");
+                Assert.AreEqual(
+                    "双重宇宙",
+                    FindChild(rootObject.transform, "UnityAdvancedPoolAnomalyToggle-BG31_Anomaly_123Label").GetComponent<Text>().text);
+                var imageFallback = FindChild(rootObject.transform, "UnityAdvancedPoolAnomalyToggle-BG31_Anomaly_123ImageFallbackText");
+                Assert.AreEqual("双重", imageFallback.GetComponent<Text>().text);
+                Assert.GreaterOrEqual(imageFallback.GetComponent<Text>().fontSize, 20);
+                Assert.IsTrue(imageFallback.GetComponent<Outline>().enabled);
                 FindChild(rootObject.transform, "UnityAdvancedPoolAnomalyToggle-BG31_Anomaly_123").GetComponent<Toggle>().isOn = true;
                 FindChild(rootObject.transform, "UnityAdvancedPoolEditorCloseButton").GetComponent<Button>().onClick.Invoke();
                 FindChild(rootObject.transform, "UnityAdvancedMechanicsStartButton").GetComponent<Button>().onClick.Invoke();
@@ -769,6 +844,96 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual("BG31_Anomaly_123", startedWith.SelectedAnomalyCardId);
                 CollectionAssert.AreEqual(new[] { "BG31_Anomaly_123" }, startedWith.EnabledAnomalyCardIds);
                 Assert.AreEqual(AnomalyPoolVersion.CurrentHsReplay, startedWith.AnomalyPoolVersion);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_AnomalyPoolPreservesEnglishMode()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-anomaly-english-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    (Action<MatchSetupOptions>)(_ => { }),
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources(),
+                    useEnglish: true).Build();
+
+                FindChild(rootObject.transform, "UnityTribeSelectionAllButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedAnomalyPoolCardEditButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedPoolSearchInput").GetComponent<InputField>().onEndEdit.Invoke("BG31_Anomaly_123");
+
+                var label = FindChild(rootObject.transform, "UnityAdvancedPoolAnomalyToggle-BG31_Anomaly_123Label");
+                Assert.IsTrue(label.gameObject.activeInHierarchy);
+                Assert.GreaterOrEqual(label.GetComponent<LayoutElement>().preferredHeight, 30f);
+                Assert.AreEqual("Cosmic Duality", label.GetComponent<Text>().text);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TribeSelectionView_AdvancedPoolsUseSelectedLanguage()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-quest-localization-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                BuildQuestPool(false);
+                Assert.AreEqual(
+                    "任务  追查钱财",
+                    FindChild(rootObject.transform, "UnityAdvancedPoolQuestToggle-BG24_Quest_126Label").GetComponent<Text>().text);
+                FindChild(rootObject.transform, "UnityAdvancedPoolTab-Trinkets").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedPoolSearchInput").GetComponent<InputField>().onEndEdit.Invoke("BG32_MagicItem_906");
+                Assert.AreEqual(
+                    "大型  阿塔尼斯标签",
+                    FindChild(rootObject.transform, "UnityAdvancedPoolTrinketToggle-BG32_MagicItem_906Label").GetComponent<Text>().text);
+
+                ClearChildren(rootObject.transform);
+                BuildQuestPool(true);
+                Assert.AreEqual(
+                    "Quest  Follow the Money",
+                    FindChild(rootObject.transform, "UnityAdvancedPoolQuestToggle-BG24_Quest_126Label").GetComponent<Text>().text);
+                FindChild(rootObject.transform, "UnityAdvancedPoolTab-Trinkets").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityAdvancedPoolSearchInput").GetComponent<InputField>().onEndEdit.Invoke("BG32_MagicItem_906");
+                Assert.AreEqual(
+                    "Greater  Artanis Sticker",
+                    FindChild(rootObject.transform, "UnityAdvancedPoolTrinketToggle-BG32_MagicItem_906Label").GetComponent<Text>().text);
+
+                void BuildQuestPool(bool useEnglish)
+                {
+                    new UnityTavernTribeSelectionView(
+                        rootObject.transform,
+                        (Action<MatchSetupOptions>)(_ => { }),
+                        () => { },
+                        UnityTavernLayoutContext.ForSize(1366f, 768f),
+                        new JsonCardPoolVersionRepository(directory, "versions.json"),
+                        MinionCatalogLoader.LoadFromResources(),
+                        SpellCatalogLoader.LoadFromResources(),
+                        useEnglish: useEnglish).Build();
+                    FindChild(rootObject.transform, "UnityTribeSelectionAllButton").GetComponent<Button>().onClick.Invoke();
+                    FindChild(rootObject.transform, "UnityAdvancedQuestRewardPoolCardEditButton").GetComponent<Button>().onClick.Invoke();
+                    FindChild(rootObject.transform, "UnityAdvancedPoolSearchInput").GetComponent<InputField>().onEndEdit.Invoke("BG24_Quest_126");
+                }
             }
             finally
             {
@@ -1355,6 +1520,9 @@ namespace LearnHearthstone.Tests.EditMode
         public void TavernTable_CapturesMainDeskAcceptanceAtTargetResolutions()
         {
             CaptureAndAssertTavernTable(1920, 1080, "batch0-main-tavern-1920x1080.png");
+            CaptureAndAssertTavernTable(1366, 768, "batch0-main-tavern-1366x768.png");
+            CaptureAndAssertTavernTable(1280, 720, "batch0-main-tavern-1280x720.png");
+            CaptureAndAssertTavernTable(1000, 600, "batch0-main-tavern-1000x600.png");
             CaptureAndAssertTavernTable(994, 384, "batch0-main-tavern-994x384.png");
         }
 
@@ -2143,6 +2311,54 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void ViewIntegration_TimewarpedOpenVisitDisablesNextTurnAndShowsReason()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(994f, 384f);
+                var service = MatchService.CreateWithDefaultCatalog(
+                    12345,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions
+                    {
+                        AdvancedMechanicMode = AdvancedMechanicMode.Timewarp,
+                        EnableTrinkets = false
+                    });
+                while (service.State.Round < 6)
+                {
+                    service.Apply(new GameCommand(GameCommandType.NextTurn));
+                }
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                Canvas.ForceUpdateCanvases();
+
+                var quickNextTurn = FindChild(rootObject.transform, "UnityQuickNextTurnButton");
+                Assert.IsTrue(quickNextTurn.gameObject.activeInHierarchy);
+                Assert.IsFalse(quickNextTurn.GetComponent<Button>().interactable);
+                Assert.AreEqual("先退出时空酒馆", FindChild(quickNextTurn, "UnityQuickNextTurnButtonText").GetComponent<Text>().text);
+                Assert.Greater(quickNextTurn.GetComponent<RectTransform>().rect.width, 0f);
+                Assert.Greater(quickNextTurn.GetComponent<RectTransform>().rect.height, 0f);
+
+                OpenRightPanelDrawer(rootObject.transform);
+                var drawerNextTurn = FindChild(rootObject.transform, "UnityNextTurnButton");
+                Assert.IsFalse(drawerNextTurn.GetComponent<Button>().interactable);
+                Assert.AreEqual("先退出时空酒馆", FindChild(drawerNextTurn, "UnityNextTurnButtonText").GetComponent<Text>().text);
+
+                FindChild(rootObject.transform, "UnityTimewarpedTavernExitButton").GetComponent<Button>().onClick.Invoke();
+
+                quickNextTurn = FindChild(rootObject.transform, "UnityQuickNextTurnButton");
+                Assert.IsTrue(quickNextTurn.GetComponent<Button>().interactable);
+                Assert.AreEqual("完整下一回合", FindChild(quickNextTurn, "UnityQuickNextTurnButtonText").GetComponent<Text>().text);
+                Assert.IsNull(service.GetNextTurnBlockedReason());
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void HeroPowerUi_TargetsFriendlyMinionAndAppliesGeorgeShield()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -2163,6 +2379,15 @@ namespace LearnHearthstone.Tests.EditMode
                 var heroPowerButton = FindChild(rootObject.transform, "UnityQuickHeroPowerButton").GetComponent<Button>();
                 Assert.IsTrue(heroPowerButton.interactable);
                 Assert.IsNotNull(heroPowerButton.GetComponent<UnityTavernCardDragBehaviour>());
+                var eventSystem = EnsureEventSystem(rootObject.transform);
+                ExecuteEvents.Execute(heroPowerButton.gameObject, new PointerEventData(eventSystem), ExecuteEvents.pointerEnterHandler);
+                var tooltipKind = FindChild(rootObject.transform, "UnityHeroEffectTooltipKind").GetComponent<Text>().text;
+                StringAssert.StartsWith("英雄技能", tooltipKind);
+                StringAssert.Contains("1", tooltipKind);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectTooltipDescription"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectTooltipSource"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectTooltipStatus"));
+                ExecuteEvents.Execute(heroPowerButton.gameObject, new PointerEventData(eventSystem), ExecuteEvents.pointerExitHandler);
 
                 heroPowerButton.onClick.Invoke();
                 FindChild(rootObject.transform, "UnityCard-" + target.InstanceId).GetComponent<Button>().onClick.Invoke();
@@ -5050,7 +5275,7 @@ namespace LearnHearthstone.Tests.EditMode
                 new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
 
                 Assert.IsNull(FindChild(rootObject.transform, "UnityTrinketTrackerPanel"));
-                Assert.AreEqual(trinkets.Last().Name, FindChild(rootObject.transform, "UnityHeroEffectTrinket-LesserTitle").GetComponent<Text>().text);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectTrinket-Lesser"));
                 Assert.IsNull(FindChild(rootObject.transform, "UnityTrinketReplaceButton-Lesser"));
 
                 OpenRightPanelDrawer(rootObject.transform);
