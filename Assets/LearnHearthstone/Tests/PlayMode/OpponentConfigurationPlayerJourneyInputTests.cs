@@ -50,6 +50,8 @@ namespace LearnHearthstone.Tests.PlayMode
                 yield return WaitForChild(scene.Root, "UnityOpponentEntryButton");
                 Click(scene, FindChild(scene.Root, "UnityOpponentEntryButton"));
                 yield return WaitForChild(scene.Root, "UnityOpponentHeroPowerSelectButton");
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityOpponentHeroPowerSelectButton").GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityOpponentHeroPowerSelectButton").GetComponentInChildren<Text>(true).fontSize, 14);
 
                 Click(scene, FindChild(scene.Root, "UnityOpponentHeroPowerSelectButton"));
                 yield return SelectLibraryCard(scene, AlAkirHeroPowerCardId);
@@ -57,18 +59,18 @@ namespace LearnHearthstone.Tests.PlayMode
                 AssertChinese(FindChild(scene.Root, "UnityOpponentHeroPowerName").GetComponent<Text>().text);
                 AssertChinese(FindChild(scene.Root, "UnityOpponentHeroPowerText").GetComponent<Text>().text);
 
-                Click(scene, FindChild(scene.Root, "UnityOpponentQuestRewardSelectButton"));
+                yield return ClickOpponentPanelControl(scene, "UnityOpponentQuestRewardSelectButton");
                 yield return SelectLibraryCard(scene, EvilTwinRewardId);
                 Assert.AreEqual(EvilTwinRewardId, service.State.Opponent.AdvancedMechanics.Quests.MainQuest.RewardCardId);
                 AssertChinese(FindChild(scene.Root, "UnityOpponentQuestRewardName").GetComponent<Text>().text);
                 AssertChinese(FindChild(scene.Root, "UnityOpponentQuestRewardText").GetComponent<Text>().text);
 
-                Click(scene, FindChild(scene.Root, "UnityOpponentTrinketSelectButton-Lesser"));
+                yield return ClickOpponentPanelControl(scene, "UnityOpponentTrinketSelectButton-Lesser");
                 yield return SelectLibraryCard(scene, LesserValorousMedallionCardId);
                 Assert.AreEqual(LesserValorousMedallionCardId, service.State.Opponent.AdvancedMechanics.Trinkets.LesserTrinketId);
                 AssertChinese(FindChild(scene.Root, "UnityOpponentTrinketName-Lesser").GetComponent<Text>().text);
 
-                Click(scene, FindChild(scene.Root, "UnityOpponentTrinketSelectButton-Greater"));
+                yield return ClickOpponentPanelControl(scene, "UnityOpponentTrinketSelectButton-Greater");
                 yield return SelectLibraryCard(scene, GreaterValorousMedallionCardId);
                 Assert.AreEqual(GreaterValorousMedallionCardId, service.State.Opponent.AdvancedMechanics.Trinkets.GreaterTrinketId);
                 AssertChinese(FindChild(scene.Root, "UnityOpponentTrinketName-Greater").GetComponent<Text>().text);
@@ -137,6 +139,34 @@ namespace LearnHearthstone.Tests.PlayMode
             }
 
             Assert.Fail("Could not scroll the opponent mechanic library selection button into view for " + cardId + ".");
+        }
+
+        private static IEnumerator ClickOpponentPanelControl(JourneyScene scene, string controlName)
+        {
+            yield return WaitForChild(scene.Root, "UnityOpponentPanelScroll");
+            var control = FindChild(scene.Root, controlName);
+            Assert.GreaterOrEqual(control.GetComponent<LayoutElement>().preferredHeight, 44f);
+            Assert.GreaterOrEqual(control.GetComponentInChildren<Text>(true).fontSize, 14);
+            var scroll = FindChild(scene.Root, "UnityOpponentPanelScroll").GetComponent<ScrollRect>();
+
+            for (var attempt = 0; attempt < 40; attempt += 1)
+            {
+                Canvas.ForceUpdateCanvases();
+                if (TryClick(scene, control))
+                {
+                    yield break;
+                }
+
+                var pointer = new PointerEventData(scene.EventSystem)
+                {
+                    position = RectTransformUtility.WorldToScreenPoint(null, scroll.viewport.TransformPoint(scroll.viewport.rect.center)),
+                    scrollDelta = new Vector2(0f, -6f)
+                };
+                ExecuteEvents.Execute(scroll.gameObject, pointer, ExecuteEvents.scrollHandler);
+                yield return null;
+            }
+
+            Assert.Fail("Could not scroll opponent control into view: " + controlName + ".");
         }
 
         private static IEnumerator AdvanceReplayToFrame(JourneyScene scene, int frameIndex)

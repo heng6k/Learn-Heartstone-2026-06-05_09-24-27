@@ -419,7 +419,10 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(3, service.State.Round);
             Assert.AreEqual(1, tavern.TavernSpellsCastThisGame);
             Assert.AreEqual("104436", tavern.LastTavernSpellCardId);
-            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Puzzle Box: randomly cast 1 Tavern spell")));
+            if (!tavern.RecruitLog.Any(entry => entry.Message.Contains("谜题盒：随机施放了1个酒馆法术")))
+            {
+                Assert.Fail(string.Join(" | ", tavern.RecruitLog.Select(entry => entry.Message)));
+            }
         }
 
         [Test]
@@ -450,7 +453,10 @@ namespace LearnHearthstone.Tests.EditMode
                     "wheel_devour_refresh"
                 },
                 reward);
-            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("Acolyte of Yogg-Saron:")));
+            if (!tavern.RecruitLog.Any(entry => entry.Message.Contains("尤格-萨隆的侍从：")))
+            {
+                Assert.Fail(string.Join(" | ", tavern.RecruitLog.Select(entry => entry.Message)));
+            }
         }
 
         [Test]
@@ -474,6 +480,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(3, choice.Options.Count);
             var westfallIndex = choice.Options.FindIndex(option => option.RewardId == "westfall");
             Assert.GreaterOrEqual(westfallIndex, 0);
+            Assert.AreEqual("西部荒野", choice.Options[westfallIndex].DisplayName);
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("丹加尔的狮鹫：选择一条航线")));
             var expectedDueRound = service.State.Round + 1;
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, westfallIndex));
@@ -490,6 +498,21 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
             Assert.IsFalse(tavern.AdvancedMechanics.PendingChoice.Options.Any(option => option.RewardId == "westfall"));
+        }
+
+        [Test]
+        public void HeroRuntimeChoices_PreserveEnglishMode()
+        {
+            var service = CreateHeroService(
+                "BG20_HERO_283",
+                new MatchSetupOptions { UseEnglish = true });
+
+            service.Apply(new GameCommand(GameCommandType.UseHeroPower));
+
+            var choice = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            Assert.AreEqual("Westfall", choice.Options.Single(option => option.RewardId == "westfall").DisplayName);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Dungar's Gryphon: choose a flightpath.")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("丹加尔的狮鹫")));
         }
 
         [Test]
@@ -632,6 +655,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(tavern.Discover);
             Assert.AreEqual("hero:faelin:tier:6", tavern.Discover.Source);
             Assert.AreEqual(6, tavern.Discover.RewardTier);
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("远征计划：发现一个6星随从")));
 
             var tierSixCardId = tavern.Discover.Options[0].CardId;
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
@@ -705,6 +729,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, tavern.Discover.RewardTier);
             Assert.Greater(tavern.Discover.Options.Count, 0);
             Assert.IsTrue(tavern.Discover.Options.All(card => card.TavernTier == 7));
+            Assert.IsTrue(tavern.RecruitLog.Any(entry => entry.Message.Contains("选择你的勇士：发现一个7星随从")));
             var pickedCardId = tavern.Discover.Options[0].CardId;
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
@@ -3843,6 +3868,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.NotNull(choice);
             Assert.AreEqual("hero:brukan", choice.Source);
             Assert.AreEqual(4, choice.Options.Count);
+            CollectionAssert.AreEquivalent(new[] { "火焰", "大地", "流水", "闪电" }, choice.Options.Select(option => option.DisplayName).ToArray());
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("元素之力：选择一种元素")));
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 1));
             Assert.AreEqual("earth", service.State.Player.Tavern.HeroBrukanElement);

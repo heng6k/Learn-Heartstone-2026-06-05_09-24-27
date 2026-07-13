@@ -1,10 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Adapters.Data;
+using LearnHearthstone.Adapters.Persistence;
+using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
@@ -63,6 +67,451 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.IsNotNull(FindChild(scene.Root, "UnityPlayerBoardZone"));
                 Assert.IsNotNull(FindChild(scene.Root, "UnityHandZone"));
                 Assert.IsNotNull(FindChild(scene.Root, "UnityShopZone"));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_SetupFilters_CustomFiveResetAndStartCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                MatchSetupOptions startedWith = null;
+                var selectedTribes = TribeAvailabilityRules.PlayableTribes.Take(5).ToList();
+                var excludedTribe = TribeAvailabilityRules.PlayableTribes.Skip(5).First();
+                new UnityTavernTribeSelectionView(
+                    scene.Root,
+                    setup => startedWith = setup,
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f)).Build();
+                yield return WaitForChild(scene.Root, "UnityTribeSelectionEnterButton");
+
+                foreach (var tribe in selectedTribes)
+                {
+                    var buttonName = "UnityTribeSelection" + tribe + "Button";
+                    Click(scene, FindChild(scene.Root, buttonName));
+                    yield return WaitForChild(scene.Root, buttonName);
+                }
+
+                StringAssert.Contains("5/5", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
+                StringAssert.Contains("\u5df2\u9009", FindChild(scene.Root, "UnityTribeSelection" + selectedTribes[0] + "Button").GetComponentInChildren<Text>(true).text);
+                var excludedButton = FindChild(scene.Root, "UnityTribeSelection" + excludedTribe + "Button");
+                StringAssert.Contains("\u6392\u9664", excludedButton.GetComponentInChildren<Text>(true).text);
+                Assert.IsFalse(excludedButton.GetComponent<Button>().interactable);
+                StringAssert.Contains("\u672c\u5c40\u6392\u9664", FindChild(scene.Root, "UnityTribeSelectionExclusionSummary").GetComponent<Text>().text);
+
+                Click(scene, FindChild(scene.Root, "UnityTribeSelectionEnterButton"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDebugOnly");
+
+                var disabledToggle = FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDisabled").GetComponent<Toggle>();
+                Assert.IsFalse(disabledToggle.interactable);
+                Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDebugOnly"));
+                yield return WaitForState(
+                    () => FindChildOrNull(scene.Root, "UnityAdvancedMechanicsToggle-ShowDisabled")?.GetComponent<Toggle>().interactable == true,
+                    "Disabled Pool dependency enable");
+                yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDisabled");
+
+                Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDisabled"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsSetupSummary");
+                var activeSummary = FindChild(scene.Root, "UnityAdvancedMechanicsSetupSummary").GetComponent<Text>().text;
+                StringAssert.Contains("\u8c03\u8bd5\u6c60", activeSummary);
+                StringAssert.Contains("\u542b\u7981\u7528\u9879", activeSummary);
+
+                Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsResetFiltersButton"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDebugOnly");
+                Assert.IsFalse(FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDebugOnly").GetComponent<Toggle>().isOn);
+                Assert.IsFalse(FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowDisabled").GetComponent<Toggle>().isOn);
+                Assert.IsTrue(FindChild(scene.Root, "UnityAdvancedMechanicsToggle-ShowProxySafe").GetComponent<Toggle>().isOn);
+                Assert.IsTrue(FindChild(scene.Root, "UnityAdvancedMechanicsToggle-EnablePlayerDirectedChoices").GetComponent<Toggle>().isOn);
+
+                Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsBackButton"));
+                yield return WaitForChild(scene.Root, "UnityTribeSelectionSummary");
+                StringAssert.Contains("5/5", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
+                foreach (var tribe in selectedTribes)
+                {
+                    StringAssert.Contains("\u5df2\u9009", FindChild(scene.Root, "UnityTribeSelection" + tribe + "Button").GetComponentInChildren<Text>(true).text);
+                }
+
+                Click(scene, FindChild(scene.Root, "UnityTribeSelectionEnterButton"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsStartButton");
+                Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsStartButton"));
+                yield return WaitForState(() => startedWith != null, "custom setup start");
+
+                CollectionAssert.AreEquivalent(selectedTribes, startedWith.ActiveTribes);
+                Assert.IsTrue(startedWith.ShowProxySafe);
+                Assert.IsFalse(startedWith.ShowDebugOnly);
+                Assert.IsFalse(startedWith.ShowHiddenEffectOnly);
+                Assert.IsFalse(startedWith.ShowDisabled);
+                Assert.IsTrue(startedWith.EnablePlayerDirectedChoices);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_CardLibrary_SearchDetailClearAndAddCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityQuickToolsButton");
+
+                Click(scene, FindChild(scene.Root, "UnityQuickToolsButton"));
+                yield return WaitForChild(scene.Root, "UnityToolsOpenCardLibraryButton");
+                Click(scene, FindChild(scene.Root, "UnityToolsOpenCardLibraryButton"));
+                yield return WaitForChild(scene.Root, "UnityCardLibrarySearchInput");
+
+                var targetCard = CardLibraryCards(scene.Root)
+                    .Where(component =>
+                        component.Card != null &&
+                        component.Card.TavernTier >= 1 &&
+                        component.Card.TavernTier <= 7 &&
+                        component.Card.Tribes != null &&
+                        component.Card.Tribes.Any(tribe => tribe != Tribe.None && tribe != Tribe.All) &&
+                        !string.IsNullOrWhiteSpace(component.Card.Name))
+                    .Select(component => component.Card)
+                    .FirstOrDefault();
+                Assert.IsNotNull(targetCard, "The visible library did not contain a tribal minion.");
+                var targetCardId = targetCard.CardId;
+                var targetCardName = targetCard.Name;
+                var targetTierButton = "UnityCardLibraryTier" + targetCard.TavernTier + "Button";
+                var targetTribe = targetCard.Tribes.First(tribe => tribe != Tribe.None && tribe != Tribe.All);
+                var targetTribeButton = "UnityCardLibraryTribe" + targetTribe + "Button";
+
+                Click(scene, FindChild(scene.Root, targetTierButton));
+                yield return WaitForChild(scene.Root, "UnityCardLibrarySearchInput");
+                Click(scene, FindChild(scene.Root, targetTribeButton));
+                yield return WaitForChild(scene.Root, "UnityCardLibrarySearchInput");
+                Assert.IsNotNull(FindCardLibraryCard(scene.Root, targetCardId));
+
+                yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityCardLibrarySearchInput"), targetCardName);
+                yield return WaitForState(
+                    () =>
+                    {
+                        var filtered = CardLibraryCards(scene.Root).Where(component => component.Card != null).ToList();
+                        return FindCardLibraryCard(scene.Root, targetCardId) != null &&
+                               filtered.Count > 0 &&
+                               filtered.Select(component => component.Card.Name).Distinct().SequenceEqual(new[] { targetCardName });
+                    },
+                    "card-library filtered result");
+                Assert.AreEqual(targetCardName, FindChild(scene.Root, "UnityCardLibrarySearchInput").GetComponent<InputField>().text);
+                Assert.IsTrue(FindChild(scene.Root, "UnityCardLibraryClearSearchButton").GetComponent<Button>().interactable);
+
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryDetailButton"));
+                yield return WaitForChild(scene.Root, "UnityCardLibraryDetailOverlay");
+                Assert.AreEqual(targetCardName, FindChild(scene.Root, "UnityCardDetailTitle").GetComponent<Text>().text);
+                Assert.IsFalse(FindChild(scene.Root, "UnityCardDetailInfo").GetComponentsInChildren<Text>(true).Any(label => label.text.Contains(targetCardId)));
+                Click(scene, FindChild(scene.Root, "UnityCardDetailCloseButton"));
+                yield return WaitForMissing(scene.Root, "UnityCardLibraryDetailOverlay");
+                yield return WaitForChild(scene.Root, "UnityCardLibrarySearchInput");
+
+                Assert.AreEqual(targetCardName, FindChild(scene.Root, "UnityCardLibrarySearchInput").GetComponent<InputField>().text);
+                Assert.IsTrue(FindChild(scene.Root, targetTierButton).GetComponent<Outline>().enabled);
+                Assert.IsTrue(FindChild(scene.Root, targetTribeButton).GetComponent<Outline>().enabled);
+
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryAddButton"));
+                yield return WaitForState(() => service.State.Player.Tavern.Hand.Any(card => card.CardId == targetCardId), "card-library add");
+                yield return WaitForChild(scene.Root, "UnityCardLibraryClearSearchButton");
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryClearSearchButton"));
+                yield return WaitForChild(scene.Root, "UnityCardLibrarySearchInput");
+
+                Assert.AreEqual(string.Empty, FindChild(scene.Root, "UnityCardLibrarySearchInput").GetComponent<InputField>().text);
+                Assert.IsFalse(FindChild(scene.Root, "UnityCardLibraryClearSearchButton").GetComponent<Button>().interactable);
+                Assert.IsTrue(FindChild(scene.Root, targetTierButton).GetComponent<Outline>().enabled);
+                Assert.IsTrue(FindChild(scene.Root, targetTribeButton).GetComponent<Outline>().enabled);
+
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryCloseButton"));
+                yield return WaitForMissing(scene.Root, "UnityCardLibraryOverlay");
+                Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == targetCardId));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_Tools_CommonAndAdvancedDisclosureCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityQuickToolsButton");
+
+                Click(scene, FindChild(scene.Root, "UnityQuickToolsButton"));
+                yield return WaitForChild(scene.Root, "UnityToolsOpenAdvancedButton");
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsEconomySection"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsOpenCardLibraryButton"));
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityToolsTrinketDebugSection"));
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityToolsEconomySectionGrid").GetComponent<GridLayoutGroup>().cellSize.y, 44f);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityToolsEconomySectionTitle").GetComponent<Text>().fontSize, 14);
+                Assert.AreEqual("先选己方随从", FindChild(scene.Root, "UnityToolsReturnSelectedButtonText").GetComponent<Text>().text);
+                Assert.AreEqual("对手战场为空", FindChild(scene.Root, "UnityToolsClearOpponentButtonText").GetComponent<Text>().text);
+                Assert.AreEqual("己方战场为空", FindChild(scene.Root, "UnityToolsCopyOpponentButtonText").GetComponent<Text>().text);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityToolsClearOpponentButtonText").GetComponent<Text>().fontSize, 14);
+
+                yield return ScrollToAndClick(scene, "UnityTrainerToolsScroll", "UnityToolsOpenAdvancedButton");
+                yield return WaitForChild(scene.Root, "UnityToolsBackToCommonButton");
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityToolsEconomySection"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsTrinketDebugSection"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsPlayerModifierSection"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsCombatSection"));
+                Assert.AreEqual("暂无战斗快照", FindChild(scene.Root, "UnityToolsResetCombatSnapshotButtonText").GetComponent<Text>().text);
+                Assert.AreEqual("当前已为 0", FindChild(scene.Root, "UnityToolsPlayerSpellsCastThisGameMinusButtonText").GetComponent<Text>().text);
+
+                Click(scene, FindChild(scene.Root, "UnityToolsBackToCommonButton"));
+                yield return WaitForChild(scene.Root, "UnityToolsOpenCardLibraryButton");
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityToolsCombatSection"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityToolsEconomySection"));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_HeroEffectRack_FocusAndClickDetailsCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                var trinket = service.GetDebugSelectableTrinkets(TrinketSlotKind.Lesser).First();
+                service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, trinket.CardId, CardKind.Trinket, 0));
+
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityHeroEffectTrinket-Lesser");
+
+                var effect = FindChild(scene.Root, "UnityHeroEffectTrinket-Lesser");
+                Assert.GreaterOrEqual(effect.GetComponent<RectTransform>().rect.height, 44f);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityHeroEffectType-Trinket-Lesser").GetComponent<Text>().fontSize, 14);
+
+                scene.EventSystem.SetSelectedGameObject(effect.gameObject);
+                yield return WaitForChild(scene.Root, "UnityHeroEffectTooltip");
+                Assert.IsTrue(new[]
+                {
+                    "UnityHeroEffectTooltipKind",
+                    "UnityHeroEffectTooltipTitle",
+                    "UnityHeroEffectTooltipDescription",
+                    "UnityHeroEffectTooltipSource",
+                    "UnityHeroEffectTooltipStatus"
+                }.All(name => FindChild(scene.Root, name).GetComponent<Text>().fontSize >= 14));
+
+                scene.EventSystem.SetSelectedGameObject(null);
+                yield return WaitForMissing(scene.Root, "UnityHeroEffectTooltip");
+                Click(scene, effect);
+                yield return WaitForChild(scene.Root, "UnityHeroEffectTooltip");
+                Assert.AreEqual(trinket.Name, FindChild(scene.Root, "UnityHeroEffectTooltipTitle").GetComponent<Text>().text);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_PlayerDirectedChoice_SearchCloseAndSelectCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+                var target = service.GetPlayerSelectableQuestPairs().First(option => option.IsSelectable);
+
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceButton-Quest");
+                Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceButton-Quest"));
+                yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput");
+
+                var searchTransform = FindChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput");
+                yield return WaitForState(
+                    () => scene.EventSystem.currentSelectedGameObject == searchTransform.gameObject,
+                    "player-directed initial search focus");
+                Assert.GreaterOrEqual(searchTransform.GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.GreaterOrEqual(searchTransform.GetComponent<InputField>().textComponent.fontSize, 14);
+
+                yield return EnterTextAndCommit(scene, searchTransform, target.CardId);
+                yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceSelectButton");
+                Assert.AreEqual("选择", FindChild(scene.Root, "UnityPlayerDirectedChoiceSelectButton").GetComponentInChildren<Text>(true).text);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityPlayerDirectedChoiceSelectButton").GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.GreaterOrEqual(FindChild(scene.Root, "UnityPlayerDirectedChoiceText").GetComponent<Text>().fontSize, 14);
+
+                Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceCloseButton"));
+                yield return WaitForMissing(scene.Root, "UnityPlayerDirectedChoiceOverlay");
+                Assert.IsNotNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+
+                Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceButton-Quest"));
+                yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput");
+                Assert.AreEqual(string.Empty, FindChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput").GetComponent<InputField>().text);
+                yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput"), target.CardId);
+                yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceSelectButton");
+                Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceSelectButton"));
+                yield return WaitForState(
+                    () => service.State.Player.Tavern.AdvancedMechanics.PendingChoice == null &&
+                          service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest?.QuestCardId == target.CardId,
+                    "player-directed quest pair selection");
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityPlayerDirectedChoiceOverlay"));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_MechanicLibraries_SearchDetailAndSelectCompleteThroughRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+                service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+                var opponentRewardIds = new HashSet<string>(service.GetOpponentSelectableQuestRewards().Select(reward => reward.CardId));
+                var rewards = service.GetDebugSelectableQuestRewards()
+                    .Where(reward => opponentRewardIds.Contains(reward.CardId))
+                    .OrderBy(reward => reward.PowerLevel + " / " + reward.Trigger + " / " + reward.OfferPoolStatus)
+                    .ThenBy(reward => reward.Name)
+                    .ToList();
+                Assert.Greater(rewards.Count, 1);
+                var targetReward = rewards.First();
+                var oldReward = rewards.Last();
+                service.Apply(new GameCommand(GameCommandType.DebugReplaceQuestReward, oldReward.CardId, CardKind.QuestReward, false, 0));
+
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityQuestReplaceRewardButton-Main");
+
+                Click(scene, FindChild(scene.Root, "UnityQuestReplaceRewardButton-Main"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedCardLibrarySearchInput");
+                yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityAdvancedCardLibrarySearchInput"), targetReward.CardId);
+                yield return WaitForChild(scene.Root, "UnityAdvancedCardLibraryDetailButton");
+                Assert.AreEqual(1, scene.Root.GetComponentsInChildren<Button>(true).Count(button => button.gameObject.name.StartsWith("UnityAdvancedCardLibrarySelectButton", StringComparison.Ordinal)));
+
+                Click(scene, FindChild(scene.Root, "UnityAdvancedCardLibraryDetailButton"));
+                yield return WaitForChild(scene.Root, "UnityMechanicLibraryDetailOverlay");
+                Assert.AreEqual(targetReward.Name, FindChild(scene.Root, "UnityMechanicLibraryDetailTitle").GetComponent<Text>().text);
+                Assert.AreEqual(targetReward.PowerLevel + " / " + targetReward.Trigger + " / " + targetReward.OfferPoolStatus, FindChild(scene.Root, "UnityMechanicLibraryDetailMeta").GetComponent<Text>().text);
+                Assert.AreEqual(targetReward.CardId, FindChild(scene.Root, "UnityMechanicLibraryDetailCardId").GetComponent<Text>().text);
+                Assert.IsTrue(new[] { "UnityMechanicLibraryDetailMeta", "UnityMechanicLibraryDetailText", "UnityMechanicLibraryDetailNotes", "UnityMechanicLibraryDetailCardId" }
+                    .All(name => FindChild(scene.Root, name).GetComponent<Text>().fontSize >= 14));
+
+                Click(scene, FindChild(scene.Root, "UnityMechanicLibraryDetailCloseButton"));
+                yield return WaitForMissing(scene.Root, "UnityMechanicLibraryDetailOverlay");
+                yield return WaitForChild(scene.Root, "UnityAdvancedCardLibrarySearchInput");
+                Assert.AreEqual(targetReward.CardId, FindChild(scene.Root, "UnityAdvancedCardLibrarySearchInput").GetComponent<InputField>().text);
+
+                Click(scene, FindChild(scene.Root, "UnityAdvancedCardLibraryClearSearchButton"));
+                yield return WaitForChild(scene.Root, "UnityAdvancedCardLibrarySearchInput");
+                Assert.AreEqual(string.Empty, FindChild(scene.Root, "UnityAdvancedCardLibrarySearchInput").GetComponent<InputField>().text);
+                yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityAdvancedCardLibrarySearchInput"), targetReward.CardId);
+                yield return WaitForChild(scene.Root, "UnityAdvancedCardLibrarySelectButton");
+                Click(scene, FindChild(scene.Root, "UnityAdvancedCardLibrarySelectButton"));
+                yield return WaitForState(
+                    () => service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest.RewardCardId == targetReward.CardId,
+                    "player quest reward replacement");
+
+                yield return WaitForChild(scene.Root, "UnityOpponentEntryButton");
+                Click(scene, FindChild(scene.Root, "UnityOpponentEntryButton"));
+                yield return WaitForChild(scene.Root, "UnityOpponentQuestRewardSelectButton");
+                Click(scene, FindChild(scene.Root, "UnityOpponentQuestRewardSelectButton"));
+                yield return WaitForChild(scene.Root, "UnityOpponentMechanicLibrarySearchInput");
+                yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityOpponentMechanicLibrarySearchInput"), targetReward.CardId);
+                yield return WaitForChild(scene.Root, "UnityOpponentMechanicLibraryDetailButton");
+
+                Click(scene, FindChild(scene.Root, "UnityOpponentMechanicLibraryDetailButton"));
+                yield return WaitForChild(scene.Root, "UnityMechanicLibraryDetailOverlay");
+                Assert.AreEqual(targetReward.CardId, FindChild(scene.Root, "UnityMechanicLibraryDetailCardId").GetComponent<Text>().text);
+                Click(scene, FindChild(scene.Root, "UnityMechanicLibraryDetailCloseButton"));
+                yield return WaitForMissing(scene.Root, "UnityMechanicLibraryDetailOverlay");
+                yield return WaitForChild(scene.Root, "UnityOpponentMechanicLibrarySearchInput");
+                Assert.AreEqual(targetReward.CardId, FindChild(scene.Root, "UnityOpponentMechanicLibrarySearchInput").GetComponent<InputField>().text);
+
+                Click(scene, FindChild(scene.Root, "UnityOpponentMechanicLibrarySelectButton"));
+                yield return WaitForState(
+                    () => service.State.Opponent.AdvancedMechanics.Quests.MainQuest.RewardId == targetReward.Id,
+                    "opponent quest reward selection");
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityOpponentMechanicLibraryOverlay"));
+                Assert.IsNotNull(FindChild(scene.Root, "UnityOpponentPanelOverlay"));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_CardPoolEditor_EmptyResetExcludeAndStartCompleteThroughRaycast()
+        {
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-card-pool-playmode-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                using (var scene = new JourneyScene())
+                {
+                    MatchSetupOptions startedWith = null;
+                    var repository = new JsonCardPoolVersionRepository(directory, "versions.json");
+                    var minionCatalog = MinionCatalogLoader.LoadFromResources();
+                    var targetMinion = minionCatalog.All
+                        .Where(card =>
+                            card.InPool &&
+                            !card.CardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase) &&
+                            card.Tribes != null &&
+                            card.Tribes.Any(tribe => tribe != Tribe.None && tribe != Tribe.All))
+                        .OrderBy(card => card.TavernTier)
+                        .ThenBy(card => card.Name)
+                        .First();
+                    var targetTribe = targetMinion.Tribes.First(tribe => tribe != Tribe.None && tribe != Tribe.All);
+                    new UnityTavernTribeSelectionView(
+                        scene.Root,
+                        setup => startedWith = setup,
+                        () => { },
+                        UnityTavernLayoutContext.ForSize(1366f, 768f),
+                        repository,
+                        minionCatalog,
+                        SpellCatalogLoader.LoadFromResources()).Build();
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionOpenButton");
+
+                    Click(scene, FindChild(scene.Root, "UnityCardPoolVersionOpenButton"));
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionCopyButton");
+                    Click(scene, FindChild(scene.Root, "UnityCardPoolVersionCopyButton"));
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
+                    Assert.IsTrue(FindChild(scene.Root, "UnityCardPoolVersionDeleteButton").GetComponent<Button>().interactable);
+
+                    yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityCardPoolVersionSearchInput"), "__missing_card__");
+                    yield return WaitForState(
+                        () => FindChildOrNull(scene.Root, "UnityCardPoolVersionLoadState")?.GetComponent<Text>().text.Contains("\u5f53\u524d\u7b5b\u9009\u65e0\u5361\u724c") == true,
+                        "card-pool empty search result");
+                    Assert.IsTrue(FindChild(scene.Root, "UnityCardPoolVersionResetFiltersButton").GetComponent<Button>().interactable);
+
+                    Click(scene, FindChild(scene.Root, "UnityCardPoolVersionResetFiltersButton"));
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
+                    Assert.AreEqual(string.Empty, FindChild(scene.Root, "UnityCardPoolVersionSearchInput").GetComponent<InputField>().text);
+                    Assert.IsFalse(FindChild(scene.Root, "UnityCardPoolVersionResetFiltersButton").GetComponent<Button>().interactable);
+
+                    var tierButton = "UnityCardPoolVersionTier" + targetMinion.TavernTier + "Button";
+                    var tribeButton = "UnityCardPoolVersionTribe" + targetTribe + "Button";
+                    Click(scene, FindChild(scene.Root, tierButton));
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
+                    Click(scene, FindChild(scene.Root, tribeButton));
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
+                    yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityCardPoolVersionSearchInput"), targetMinion.CardId);
+                    yield return WaitForChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId);
+
+                    var filterSummary = FindChild(scene.Root, "UnityCardPoolVersionFilterCount").GetComponent<Text>().text;
+                    StringAssert.Contains(targetMinion.TavernTier + "\u672c", filterSummary);
+                    StringAssert.Contains(FindChild(scene.Root, tribeButton).GetComponentInChildren<Text>(true).text, filterSummary);
+                    Click(scene, FindChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId));
+                    yield return WaitForState(
+                        () => FindChildOrNull(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId)?.GetComponent<Toggle>().isOn == false,
+                        "card-pool minion exclusion");
+
+                    Click(scene, FindChild(scene.Root, "UnityCardPoolVersionCloseButton"));
+                    yield return WaitForMissing(scene.Root, "UnityCardPoolVersionOverlay");
+                    foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                    {
+                        var buttonName = "UnityTribeSelection" + tribe + "Button";
+                        Click(scene, FindChild(scene.Root, buttonName));
+                        yield return WaitForChild(scene.Root, buttonName);
+                    }
+
+                    Click(scene, FindChild(scene.Root, "UnityTribeSelectionEnterButton"));
+                    yield return WaitForChild(scene.Root, "UnityAdvancedMechanicsStartButton");
+                    Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsStartButton"));
+                    yield return WaitForState(() => startedWith != null, "custom card-pool start");
+
+                    Assert.IsFalse(startedWith.IsDefaultCardPoolVersion);
+                    Assert.IsFalse(string.IsNullOrEmpty(startedWith.CardPoolVersionId));
+                    CollectionAssert.DoesNotContain(startedWith.EnabledMinionCardIds, targetMinion.CardId);
+                    CollectionAssert.AreEquivalent(TribeAvailabilityRules.PlayableTribes.Take(5), startedWith.ActiveTribes);
+                    var saved = repository.Load();
+                    Assert.AreEqual(1, saved.Versions.Count);
+                    CollectionAssert.DoesNotContain(saved.Versions[0].EnabledMinionCardIds, targetMinion.CardId);
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
             }
         }
 
@@ -237,7 +686,9 @@ namespace LearnHearthstone.Tests.PlayMode
 
                 Click(scene, FindChild(scene.Root, "UnityOpponentEntryButton"));
                 yield return WaitForChild(scene.Root, "UnityCard-" + enemy.InstanceId);
-                yield return Drag(scene, FindChild(scene.Root, "UnityQuickHeroPowerButton"), DropTarget(scene.Root, UnityTavernDropTarget.OpponentBoard, 0));
+                var opponentDropTarget = DropTarget(scene.Root, UnityTavernDropTarget.OpponentBoard, 0);
+                yield return ScrollUntilReachable(scene, "UnityOpponentPanelScroll", opponentDropTarget.transform);
+                yield return Drag(scene, FindChild(scene.Root, "UnityQuickHeroPowerButton"), opponentDropTarget);
                 yield return WaitForChild(scene.Root, "UnityErrorToast");
                 Assert.AreEqual(goldBefore, service.State.Player.Tavern.Gold);
                 Assert.IsFalse(enemy.Keywords.Contains(Keyword.DivineShield));
@@ -306,6 +757,95 @@ namespace LearnHearthstone.Tests.PlayMode
             ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerClickHandler);
         }
 
+        private static IEnumerator ScrollToAndClick(JourneyScene scene, string scrollName, string targetName)
+        {
+            var scroll = FindChild(scene.Root, scrollName).GetComponent<ScrollRect>();
+            var target = FindChild(scene.Root, targetName);
+            for (var attempt = 0; attempt < 40; attempt += 1)
+            {
+                Canvas.ForceUpdateCanvases();
+                if (TryClick(scene, target))
+                {
+                    yield break;
+                }
+
+                var pointer = new PointerEventData(scene.EventSystem)
+                {
+                    position = RectTransformUtility.WorldToScreenPoint(null, scroll.viewport.TransformPoint(scroll.viewport.rect.center)),
+                    scrollDelta = new Vector2(0f, -6f)
+                };
+                ExecuteEvents.Execute(scroll.gameObject, pointer, ExecuteEvents.scrollHandler);
+                yield return null;
+            }
+
+            Assert.Fail("Could not scroll " + targetName + " into view.");
+        }
+
+        private static IEnumerator ScrollUntilReachable(JourneyScene scene, string scrollName, Transform target)
+        {
+            var scroll = FindChild(scene.Root, scrollName).GetComponent<ScrollRect>();
+            for (var attempt = 0; attempt < 40; attempt += 1)
+            {
+                Canvas.ForceUpdateCanvases();
+                var pointer = PointerAt(scene, target.GetComponent<RectTransform>());
+                var hits = new List<RaycastResult>();
+                scene.Raycaster.Raycast(pointer, hits);
+                if (hits.Any(result => result.gameObject == target.gameObject || result.gameObject.transform.IsChildOf(target)))
+                {
+                    yield break;
+                }
+
+                pointer.position = RectTransformUtility.WorldToScreenPoint(null, scroll.viewport.TransformPoint(scroll.viewport.rect.center));
+                pointer.scrollDelta = new Vector2(0f, -6f);
+                ExecuteEvents.Execute(scroll.gameObject, pointer, ExecuteEvents.scrollHandler);
+                yield return null;
+            }
+
+            Assert.Fail("Could not scroll " + target.name + " into raycast reach.");
+        }
+
+        private static bool TryClick(JourneyScene scene, Transform target)
+        {
+            var pointer = PointerAt(scene, target.GetComponent<RectTransform>());
+            var hits = new List<RaycastResult>();
+            scene.Raycaster.Raycast(pointer, hits);
+            var hit = hits.FirstOrDefault(result => result.gameObject == target.gameObject || result.gameObject.transform.IsChildOf(target));
+            if (hit.gameObject == null)
+            {
+                return false;
+            }
+
+            ExecuteEvents.ExecuteHierarchy(hit.gameObject, pointer, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.ExecuteHierarchy(hit.gameObject, pointer, ExecuteEvents.pointerUpHandler);
+            ExecuteEvents.ExecuteHierarchy(hit.gameObject, pointer, ExecuteEvents.pointerClickHandler);
+            return true;
+        }
+
+        private static IEnumerator EnterTextAndCommit(JourneyScene scene, Transform target, string value)
+        {
+            Click(scene, target);
+            yield return null;
+
+            var input = target.GetComponent<InputField>();
+            Assert.IsNotNull(input, target.name + " is not an InputField.");
+            scene.EventSystem.SetSelectedGameObject(target.gameObject);
+            input.ActivateInputField();
+            yield return null;
+            Assert.IsTrue(input.isFocused, target.name + " did not enter focused input state.");
+
+            input.text = string.Empty;
+            foreach (var character in value ?? string.Empty)
+            {
+                input.text += character;
+                yield return null;
+            }
+
+            Assert.AreEqual(value ?? string.Empty, input.text);
+            input.DeactivateInputField();
+            scene.EventSystem.SetSelectedGameObject(null);
+            yield return null;
+        }
+
         private static void ClickAtNormalized(JourneyScene scene, Transform target, Vector2 normalized)
         {
             var rect = target.GetComponent<RectTransform>();
@@ -368,6 +908,23 @@ namespace LearnHearthstone.Tests.PlayMode
                 .FirstOrDefault(candidate => candidate.Target == target && candidate.TargetIndex == index);
             Assert.IsNotNull(result, "Missing drop target " + target + " at " + index + ".");
             return result;
+        }
+
+        private static IEnumerable<UnityTavernCardComponent> CardLibraryCards(Transform root)
+        {
+            return root.GetComponentsInChildren<Button>(true)
+                .Where(button =>
+                    button.gameObject.activeInHierarchy &&
+                    button.gameObject.name.StartsWith("UnityCardLibraryAddButton", StringComparison.Ordinal))
+                .Select(button => button.transform.parent == null || button.transform.parent.parent == null
+                    ? null
+                    : button.transform.parent.parent.GetComponentInChildren<UnityTavernCardComponent>(true))
+                .Where(component => component != null);
+        }
+
+        private static UnityTavernCardComponent FindCardLibraryCard(Transform root, string cardId)
+        {
+            return CardLibraryCards(root).FirstOrDefault(component => component.Card != null && component.Card.CardId == cardId);
         }
 
         private static Transform FindChild(Transform root, string name)

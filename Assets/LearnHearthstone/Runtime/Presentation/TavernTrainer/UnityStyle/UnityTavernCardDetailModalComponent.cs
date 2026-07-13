@@ -54,7 +54,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             closeButtonText = closeLabel;
         }
 
-        public void Build(MinionInstance card, Action close)
+        public void Build(MinionInstance card, Action close, bool showCardId = true)
         {
             ConfigureOverlay(gameObject);
             if (HasPrefabReferences())
@@ -62,11 +62,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SetText(titleText, card == null ? "卡牌详情" : card.Name);
                 ConfigureClose(close);
                 BuildCard(cardParent, card);
-                BuildInfo(infoParent, card);
+                BuildInfo(infoParent, card, showCardId);
                 return;
             }
 
-            BuildGenerated(card, close);
+            BuildGenerated(card, close, showCardId);
         }
 
         public static void ConfigureOverlay(GameObject target)
@@ -97,7 +97,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandHeight = false;
         }
 
-        private void BuildGenerated(MinionInstance card, Action close)
+        private void BuildGenerated(MinionInstance card, Action close, bool showCardId)
         {
             ClearChildren(transform);
 
@@ -119,7 +119,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.spacing = 8;
             headerLayout.childControlWidth = true;
             headerLayout.childControlHeight = true;
-            headerLayout.childForceExpandWidth = true;
+            headerLayout.childForceExpandWidth = false;
 
             titleText = UiFactory.Label("UnityCardDetailTitle", header.transform, card == null ? "卡牌详情" : card.Name, 20, FontStyle.Bold);
             titleText.color = UnityTavernUiStyle.Text;
@@ -146,7 +146,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureInfoLayout(infoParent.gameObject);
 
             BuildCard(cardParent, card);
-            BuildInfo(infoParent, card);
+            BuildInfo(infoParent, card, showCardId);
         }
 
         private void ConfigureClose(Action close)
@@ -156,9 +156,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
+            closeButtonText = closeButtonText != null ? closeButtonText : closeButton.GetComponentInChildren<Text>(true);
+            UnityTavernUiStyle.SetFixedSize(closeButton.gameObject, 84f, 32f);
+            if (titleText != null)
+            {
+                UnityTavernUiStyle.SetFlexible(titleText.gameObject, 1f, 0f);
+                titleText.fontSize = Math.Max(20, titleText.fontSize);
+                titleText.color = UnityTavernUiStyle.Gold;
+                UnityTavernUiStyle.ConfigureOutline(titleText.gameObject, new Color(0f, 0f, 0f, 0.72f), new Vector2(1f, -1f));
+            }
+
+            var headerLayout = closeButton.transform.parent == null
+                ? null
+                : closeButton.transform.parent.GetComponent<HorizontalLayoutGroup>();
+            if (headerLayout != null)
+            {
+                headerLayout.childForceExpandWidth = false;
+            }
+
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => close?.Invoke());
             SetText(closeButtonText, "关闭");
+            if (closeButtonText != null)
+            {
+                closeButtonText.fontSize = Math.Max(14, closeButtonText.fontSize);
+                closeButtonText.color = Color.white;
+                UnityTavernUiStyle.ConfigureOutline(closeButtonText.gameObject, new Color(0f, 0f, 0f, 0.72f), new Vector2(1f, -1f));
+            }
         }
 
         private static void BuildCard(Transform parent, MinionInstance card)
@@ -178,7 +202,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             cardObject.GetComponent<UnityTavernCardComponent>().Bind(card, UnityTavernCardMode.Detail, null, null, null);
         }
 
-        private static void BuildInfo(Transform parent, MinionInstance card)
+        private static void BuildInfo(Transform parent, MinionInstance card, bool showCardId)
         {
             if (parent == null)
             {
@@ -189,20 +213,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureInfoLayout(parent.gameObject);
             if (card == null)
             {
-                AddLine(parent, "暂未选择卡牌。", 13, FontStyle.Bold, UnityTavernUiStyle.MutedText, 30f);
+                AddLine(parent, "暂未选择卡牌。", 14, FontStyle.Bold, UnityTavernUiStyle.MutedText, 30f);
                 return;
             }
 
-            AddLine(parent, "酒馆等级 " + card.TavernTier + "  " + KindText(card), 13, FontStyle.Bold, UnityTavernUiStyle.Gold, 28f);
-            AddLine(parent, card.CardKind == CardKind.TavernSpell ? "消耗 " + Math.Max(0, card.Cost) : TavernNumberFormatter.FullStats(card.Attack, card.Health) + "（上限 " + TavernNumberFormatter.FullNumber(card.MaxHealth) + "）", 13, FontStyle.Bold, UnityTavernUiStyle.Text, 28f);
+            AddLine(parent, "酒馆等级 " + card.TavernTier + "  " + KindText(card), 14, FontStyle.Bold, UnityTavernUiStyle.Gold, 30f);
+            AddLine(parent, card.CardKind == CardKind.TavernSpell ? "消耗 " + Math.Max(0, card.Cost) : TavernNumberFormatter.FullStats(card.Attack, card.Health) + "（上限 " + TavernNumberFormatter.FullNumber(card.MaxHealth) + "）", 14, FontStyle.Bold, UnityTavernUiStyle.Text, 30f);
 
             var keywords = card.OfficialKeywords != null && card.OfficialKeywords.Count > 0
                 ? card.OfficialKeywords
                 : card.Keywords;
-            AddLine(parent, keywords == null || keywords.Count == 0 ? "关键词：无" : "关键词：" + string.Join("、", keywords.Select(KeywordName).ToArray()), 12, FontStyle.Normal, UnityTavernUiStyle.MutedText, 32f);
-            AddLine(parent, "卡牌ID：" + card.CardId, 11, FontStyle.Normal, UnityTavernUiStyle.MutedText, 24f);
+            AddLine(parent, keywords == null || keywords.Count == 0 ? "关键词：无" : "关键词：" + string.Join("、", keywords.Select(KeywordName).ToArray()), 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 36f);
+            if (showCardId)
+            {
+                AddLine(parent, "卡牌ID：" + card.CardId, 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 28f);
+            }
 
-            var body = AddLine(parent, string.IsNullOrWhiteSpace(card.Text) ? "暂无规则文本。" : card.Text, 12, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
+            var body = AddLine(parent, string.IsNullOrWhiteSpace(card.Text) ? "暂无规则文本。" : card.Text, 14, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
             body.alignment = TextAnchor.UpperLeft;
             body.verticalOverflow = VerticalWrapMode.Overflow;
         }
@@ -295,6 +322,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (label != null)
             {
+                UiFactory.EnsureFont(label);
                 label.text = value ?? string.Empty;
             }
         }
@@ -309,7 +337,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             button.targetGraphic = buttonObject.GetComponent<Image>();
             UnityTavernUiStyle.TintSelectable(button, Color.white, new Color(1f, 0.91f, 0.62f, 1f), new Color(0.72f, 0.62f, 0.42f, 1f));
 
-            label = UiFactory.Label("UnityCardDetailCloseText", buttonObject.transform, "关闭", 12, FontStyle.Bold);
+            label = UiFactory.Label("UnityCardDetailCloseText", buttonObject.transform, "关闭", 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.Stretch(label.rectTransform);

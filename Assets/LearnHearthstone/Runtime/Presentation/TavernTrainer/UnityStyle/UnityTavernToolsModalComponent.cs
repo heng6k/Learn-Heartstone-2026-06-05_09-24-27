@@ -123,8 +123,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 new Color(0f, 0f, 0f, 0.32f),
                 new Vector2(1f, -1f));
             var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(header.gameObject);
-            element.minHeight = 42f;
-            element.preferredHeight = 42f;
+            element.minHeight = 54f;
+            element.preferredHeight = 54f;
             element.flexibleHeight = 0f;
 
             var layout = UnityTavernUiStyle.EnsureComponent<HorizontalLayoutGroup>(header.gameObject);
@@ -151,7 +151,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static Image ConfigureCloseButtonChrome(GameObject buttonObject)
         {
-            UnityTavernUiStyle.SetFixedSize(buttonObject, 84f, 32f);
+            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, 44f);
             var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, UnityTavernUiStyle.PanelRaised, true);
             UnityTavernUiStyle.ConfigureOutline(
                 buttonObject,
@@ -196,6 +196,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => close?.Invoke());
             SetText(closeButtonText, "关闭");
+            if (closeButtonText != null)
+            {
+                closeButtonText.fontSize = Mathf.Max(14, closeButtonText.fontSize);
+            }
         }
 
         private void ConfigureChromeFromReferences()
@@ -244,13 +248,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var buttonObject = new GameObject("UnityTrainerToolsCloseButton", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(buttonObject, 84f, 32f);
+            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, 44f);
             var image = ConfigureCloseButtonChrome(buttonObject);
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
             UnityTavernUiStyle.TintSelectable(button, Color.white, new Color(1f, 0.91f, 0.62f, 1f), new Color(0.72f, 0.62f, 0.42f, 1f));
 
-            label = UiFactory.Label("UnityTrainerToolsCloseText", buttonObject.transform, "关闭", 12, FontStyle.Bold);
+            label = UiFactory.Label("UnityTrainerToolsCloseText", buttonObject.transform, "关闭", 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.Stretch(label.rectTransform);

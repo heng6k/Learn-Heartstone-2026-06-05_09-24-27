@@ -2087,7 +2087,7 @@ namespace LearnHearthstone.Application.Services
             });
             foreach (var message in startResult.Messages)
             {
-                AddRecruitLog(state, RecruitLogType.Play, message, state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                AddRecruitLog(state, RecruitLogType.Play, useEnglish ? message : NormalizeChineseRecruitLog(RecruitLogType.Play, message), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
             }
 
             StartOpeningHeroDiscovers();
@@ -3410,7 +3410,7 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: Discover a Tier " + tier + " minion for later.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("远征计划：发现一个" + tier + "星随从，稍后获得。", "Expedition Plans: Discover a Tier " + tier + " minion for later."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             return true;
         }
 
@@ -3433,7 +3433,7 @@ namespace LearnHearthstone.Application.Services
             DispatchDiscoverChosenEffect(discover, picked);
             var advanced = EnsureAdvancedMechanicState(State.Player.Tavern);
             advanced.Selections[FaelinChoiceKey(tier)] = EncodeDelayedDiscoverSelection(picked);
-            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: saved " + picked.Name + " for Tavern Tier " + tier + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("远征计划：已为酒馆等级" + tier + "保存" + picked.Name + "。", "Expedition Plans: saved " + picked.Name + " for Tavern Tier " + tier + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             State.Player.Tavern.ClearCurrentDiscover();
             StartNextFaelinDiscoverAfter(tier);
             State.Player.Tavern.PromoteQueuedDiscover();
@@ -3484,14 +3484,14 @@ namespace LearnHearthstone.Application.Services
 
             if (tavern.Hand.Count >= HandLimit)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: hand is full, Tier " + tier + " reward is still pending.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("远征计划：手牌已满，" + tier + "星随从奖励仍在等待领取。", "Expedition Plans: hand is full, Tier " + tier + " reward is still pending."), tavern.Gold, tavern.Gold);
                 return;
             }
 
             var reward = CreateDelayedSelectedMinion(stored, "faelin-" + tier + "-" + State.Round + "-" + tavern.Hand.Count);
             if (reward == null)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: saved Tier " + tier + " minion is unavailable.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("远征计划：已保存的" + tier + "星随从当前不可用。", "Expedition Plans: saved Tier " + tier + " minion is unavailable."), tavern.Gold, tavern.Gold);
                 advanced.Counters[grantedKey] = 1;
                 return;
             }
@@ -3500,7 +3500,7 @@ namespace LearnHearthstone.Application.Services
             tavern.Hand.Add(reward);
             advanced.Counters[grantedKey] = 1;
             HandleCardsAddedToHand(1, "Expedition Plans");
-            AddRecruitLog(RecruitLogType.Discover, "Expedition Plans: gained " + reward.Name + " for Tavern Tier " + tier + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("远征计划：酒馆等级" + tier + "奖励了" + reward.Name + "。", "Expedition Plans: gained " + reward.Name + " for Tavern Tier " + tier + "."), tavern.Gold, tavern.Gold);
         }
 
         private bool StartThorimDiscover()
@@ -3516,7 +3516,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: no legal Tier 7 minions are available.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：没有可用的7星随从。", "Choose Your Champion: no legal Tier 7 minions are available."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return false;
             }
 
@@ -3536,7 +3536,7 @@ namespace LearnHearthstone.Application.Services
                 RewardTier = TavernRules.MaxTavernTier,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: Discover a Tier 7 minion for later.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：发现一个7星随从，稍后获得。", "Choose Your Champion: Discover a Tier 7 minion for later."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             return true;
         }
 
@@ -3552,7 +3552,7 @@ namespace LearnHearthstone.Application.Services
             DispatchDiscoverChosenEffect(discover, picked);
             var advanced = EnsureAdvancedMechanicState(State.Player.Tavern);
             advanced.Selections[ThorimSelectionKey] = EncodeDelayedDiscoverSelection(picked);
-            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: saved " + picked.Name + " until 60 Gold is spent.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：已保存" + picked.Name + "，花费60枚铸币后获得。", "Choose Your Champion: saved " + picked.Name + " until 60 Gold is spent."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             State.Player.Tavern.CompleteDiscover();
             TryGrantThorimRewardIfReady();
             return true;
@@ -3604,7 +3604,7 @@ namespace LearnHearthstone.Application.Services
 
             if (tavern.Hand.Count >= HandLimit)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: hand is full, Tier 7 reward is still pending.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：手牌已满，7星随从奖励仍在等待领取。", "Choose Your Champion: hand is full, Tier 7 reward is still pending."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -3616,7 +3616,7 @@ namespace LearnHearthstone.Application.Services
                     string.Equals(minion.CardId, cardId, StringComparison.OrdinalIgnoreCase));
             if (definition == null)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: saved Tier 7 minion is unavailable.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：已保存的7星随从当前不可用。", "Choose Your Champion: saved Tier 7 minion is unavailable."), tavern.Gold, tavern.Gold);
                 advanced.Counters[ThorimGrantedCounter] = 1;
                 return;
             }
@@ -3632,7 +3632,7 @@ namespace LearnHearthstone.Application.Services
             tavern.Hand.Add(reward);
             advanced.Counters[ThorimGrantedCounter] = 1;
             HandleCardsAddedToHand(1, "Choose Your Champion");
-            AddRecruitLog(RecruitLogType.Discover, "Choose Your Champion: gained " + reward.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("选择你的勇士：获得了" + reward.Name + "。", "Choose Your Champion: gained " + reward.Name + "."), tavern.Gold, tavern.Gold);
         }
 
         private MinionInstance CreateDelayedSelectedMinion(string stored, string instanceId)
@@ -3741,7 +3741,9 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(
                 state,
                 RecruitLogType.Play,
-                $"Hero effect status: {heroName} / {heroPowerName}{FormatBuddySuffix(buddyName)} - {implementation.Status} ({implementation.Phase}) {note}",
+                Localized(
+                    "英雄机制尚未完整实现：" + heroName + " / " + heroPowerName + FormatBuddySuffix(buddyName) + "。",
+                    $"Hero effect status: {heroName} / {heroPowerName}{FormatBuddySuffix(buddyName)} - {implementation.Status} ({implementation.Phase}) {note}"),
                 state.Player.Tavern.Gold,
                 state.Player.Tavern.Gold);
         }
@@ -3755,7 +3757,8 @@ namespace LearnHearthstone.Application.Services
 
             try
             {
-                return heroCatalog.GetHeroPowerByCardId(heroPowerCardId).Name;
+                var power = heroCatalog.GetHeroPowerByCardId(heroPowerCardId);
+                return !useEnglish && !string.IsNullOrWhiteSpace(power.ZhName) ? power.ZhName : power.Name;
             }
             catch (InvalidOperationException)
             {
@@ -4449,7 +4452,7 @@ namespace LearnHearthstone.Application.Services
                 ChooseMechanicOption(0);
                 AddRecruitLog(
                     RecruitLogType.Discover,
-                    "Player directed Quest selection: " + quest.CardId + " + " + reward.CardId + ".",
+                    Localized("已定向选择任务：" + quest.Name + " → " + reward.Name + "。", "Player directed Quest selection: " + quest.Name + " + " + reward.Name + "."),
                     tavern.Gold,
                     tavern.Gold);
             }
@@ -4514,7 +4517,7 @@ namespace LearnHearthstone.Application.Services
                 ChooseMechanicOption(0);
                 AddRecruitLog(
                     RecruitLogType.Discover,
-                    "Player directed Trinket selection: " + targetSlotKind + " / " + definition.CardId + ".",
+                    Localized("已定向选择" + (targetSlotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品：" + definition.Name + "。", "Player directed Trinket selection: " + targetSlotKind + " / " + definition.Name + "."),
                     tavern.Gold,
                     tavern.Gold);
             }
@@ -4545,9 +4548,10 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             GrantSecondHeroPower(heroPowerCardId, "Player directed second Hero Power");
             tavern.CompleteDiscover();
+            var powerName = GetHeroPowerName(heroPowerCardId);
             AddRecruitLog(
                 RecruitLogType.Discover,
-                "Player directed second Hero Power selection: " + heroPowerCardId + ".",
+                Localized("已定向选择第二英雄技能：" + powerName + "。", "Player directed second Hero Power selection: " + powerName + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -4592,7 +4596,7 @@ namespace LearnHearthstone.Application.Services
         {
             AddRecruitLog(
                 RecruitLogType.Discover,
-                "Player directed " + kind + " selection failed: " + cardId + " - " + reason,
+                Localized("定向选择未成功，请检查当前选项和目标。", "Player directed " + kind + " selection failed: " + cardId + " - " + reason),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -4697,7 +4701,9 @@ namespace LearnHearthstone.Application.Services
             var poolLabel = poolSlotKind == targetSlotKind ? string.Empty : " from " + poolSlotKind + " pool";
             AddRecruitLog(
                 RecruitLogType.Discover,
-                targetSlotKind + " Trinket choices offered" + poolLabel + " (" + request.Options.Count + ").",
+                Localized(
+                    "已提供" + (targetSlotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品选项（" + request.Options.Count + "项）" + (poolSlotKind == targetSlotKind ? "。" : "，来自" + (poolSlotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品池。"),
+                    targetSlotKind + " Trinket choices offered" + poolLabel + " (" + request.Options.Count + ")."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -4897,7 +4903,7 @@ namespace LearnHearthstone.Application.Services
                 timewarp.Phase = TimewarpTavernPhase.BlockedByTrinketChoice;
                 timewarp.PendingKind = kind;
                 timewarp.PendingSource = source;
-                AddRecruitLog(RecruitLogType.Play, "Timewarped Tavern is waiting for the pending Trinket choice.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized("时空酒馆正在等待你完成饰品选择。", "Timewarped Tavern is waiting for the pending Trinket choice."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -4941,8 +4947,8 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(
                 RecruitLogType.Discover,
                 Localized(
-                    (kind == TimewarpKind.Major ? "大型" : "小型") + "时空酒馆已开启，时空资源规则尚待确认。",
-                    (kind == TimewarpKind.Major ? "Major" : "Minor") + " Timewarped Tavern opened. Chronum rule-unconfirmed."),
+                    (kind == TimewarpKind.Major ? "大型" : "小型") + "时空酒馆已开启，获得" + (timewarp.Chronum - before) + "点时空资源，当前共有" + timewarp.Chronum + "点。",
+                    (kind == TimewarpKind.Major ? "Major" : "Minor") + " Timewarped Tavern opened. Gained " + (timewarp.Chronum - before) + " Chronum; current Chronum: " + timewarp.Chronum + "."),
                 before,
                 timewarp.Chronum);
         }
@@ -5342,7 +5348,7 @@ namespace LearnHearthstone.Application.Services
             if (string.Equals(definition.CardId, TimewarpedArmorStashCardId, StringComparison.OrdinalIgnoreCase))
             {
                 State.Player.Armor = StatMath.SaturatingAdd(State.Player.Armor, 10, 0, StatMath.MaxStat);
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": gained 10 Armor.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedName(definition) + "：获得10点护甲。", definition.Name + ": gained 10 Armor."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -5350,13 +5356,13 @@ namespace LearnHearthstone.Application.Services
             {
                 var timewarp = EnsureTimewarpState(tavern);
                 timewarp.NextTimewarpBonusChronum = StatMath.SaturatingAdd(timewarp.NextTimewarpBonusChronum, 1, 0, StatMath.MaxStat);
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": next Timewarp grants 1 extra Chronum.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedName(definition) + "：下一次进入时空酒馆时额外获得1点时空资源。", definition.Name + ": next Timewarp grants 1 extra Chronum."), tavern.Gold, tavern.Gold);
                 return;
             }
 
             if (TimewarpedSecondHeroPowerBySpellCardId.TryGetValue(definition.CardId, out var heroPowerCardId))
             {
-                AddTimewarpedSecondHeroPower(heroPowerCardId, definition.Name);
+                AddTimewarpedSecondHeroPower(heroPowerCardId, TimewarpedName(definition));
                 return;
             }
 
@@ -5391,11 +5397,13 @@ namespace LearnHearthstone.Application.Services
             }
 
             var unlockSuffix = Math.Max(1, unlockRound) > State.Round
-                ? " (unlocks on turn " + Math.Max(1, unlockRound) + ")"
+                ? Localized("（第" + Math.Max(1, unlockRound) + "回合解锁）", " (unlocks on turn " + Math.Max(1, unlockRound) + ")")
                 : string.Empty;
             AddRecruitLog(
                 RecruitLogType.Discover,
-                (string.IsNullOrEmpty(source) ? "Second Hero Power" : source) + ": second Hero Power gained: " + heroPower.Name + unlockSuffix,
+                Localized(
+                    (string.IsNullOrEmpty(source) ? "第二英雄技能" : source) + "：获得第二英雄技能" + GetHeroPowerName(heroPower.CardId) + unlockSuffix + "。",
+                    (string.IsNullOrEmpty(source) ? "Second Hero Power" : source) + ": second Hero Power gained: " + heroPower.Name + unlockSuffix),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -5550,9 +5558,15 @@ namespace LearnHearthstone.Application.Services
 
         private string DisplayAnomalySource(string source)
         {
-            return string.Equals(source, "The Yogg-iseum", StringComparison.OrdinalIgnoreCase)
-                ? ActiveAnomalyName(source)
-                : source;
+            if (useEnglish)
+            {
+                return source;
+            }
+
+            if (string.Equals(source, "The Yogg-iseum", StringComparison.OrdinalIgnoreCase)) return ActiveAnomalyName(source);
+            if (string.Equals(source, "Puzzle Box", StringComparison.OrdinalIgnoreCase)) return "谜题盒";
+            if (string.Equals(source, "Acolyte of Yogg-Saron", StringComparison.OrdinalIgnoreCase)) return "尤格-萨隆的侍从";
+            return source;
         }
 
         private string TimewarpedName(TimewarpedTavernCardDefinition definition)
@@ -5565,6 +5579,13 @@ namespace LearnHearthstone.Application.Services
             return !string.IsNullOrEmpty(definition?.Name)
                 ? definition.Name
                 : useEnglish ? definition?.CardId ?? "Unknown Timewarped card" : "未知时空酒馆卡牌";
+        }
+
+        private string TimewarpedCardName(string cardId, string fallback)
+        {
+            return timewarpedCatalog != null && timewarpedCatalog.TryGetByCardId(cardId, out var definition)
+                ? TimewarpedName(definition)
+                : fallback;
         }
 
         private string TimewarpedText(TimewarpedTavernCardDefinition definition)
@@ -5776,14 +5797,14 @@ namespace LearnHearthstone.Application.Services
             var advanced = EnsureAdvancedMechanicState(state.Player.Tavern);
             if (advanced.PendingChoice != null)
             {
-                AddRecruitLog(state, RecruitLogType.Discover, "Sire Denathrius could not offer Quests because another advanced choice is pending.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                AddRecruitLog(state, RecruitLogType.Discover, Localized("德纳修斯大帝无法提供任务：还有其他进阶机制选择尚未完成。", "Sire Denathrius could not offer Quests because another advanced choice is pending."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
                 return;
             }
 
             var options = PickQuestOptions(2, state.Seed + 240100);
             if (options.Count == 0 || EligibleQuestRewards().Count == 0)
             {
-                AddRecruitLog(state, RecruitLogType.Discover, "Sire Denathrius could not offer Quests because the selected Quest pool is empty.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                AddRecruitLog(state, RecruitLogType.Discover, Localized("德纳修斯大帝无法提供任务：当前选择的任务池为空。", "Sire Denathrius could not offer Quests because the selected Quest pool is empty."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
                 return;
             }
 
@@ -5794,7 +5815,7 @@ namespace LearnHearthstone.Application.Services
                 null,
                 state.Round,
                 state.Player.Tavern.RecruitLog.Count);
-            AddRecruitLog(state, RecruitLogType.Discover, "Sire Denathrius offered 2 Quest choices.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+            AddRecruitLog(state, RecruitLogType.Discover, Localized("德纳修斯大帝提供了2个任务选项。", "Sire Denathrius offered 2 Quest choices."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
         }
 
         private void MaybeOfferOpeningQuestMode(MatchState state)
@@ -5809,14 +5830,14 @@ namespace LearnHearthstone.Application.Services
             var advanced = EnsureAdvancedMechanicState(state.Player.Tavern);
             if (advanced.PendingChoice != null)
             {
-                AddRecruitLog(state, RecruitLogType.Discover, "Quest mode could not offer Quests because another advanced choice is pending.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                AddRecruitLog(state, RecruitLogType.Discover, Localized("任务模式无法提供任务：还有其他进阶机制选择尚未完成。", "Quest mode could not offer Quests because another advanced choice is pending."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
                 return;
             }
 
             var options = PickQuestOptions(3, state.Seed + 330006);
             if (options.Count == 0 || EligibleQuestRewards().Count == 0)
             {
-                AddRecruitLog(state, RecruitLogType.Discover, "Quest mode could not offer Quests because the selected Quest pool is empty.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+                AddRecruitLog(state, RecruitLogType.Discover, Localized("任务模式无法提供任务：当前选择的任务池为空。", "Quest mode could not offer Quests because the selected Quest pool is empty."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
                 return;
             }
 
@@ -5827,7 +5848,7 @@ namespace LearnHearthstone.Application.Services
                 null,
                 state.Round,
                 state.Player.Tavern.RecruitLog.Count);
-            AddRecruitLog(state, RecruitLogType.Discover, "Quest mode offered 3 Quest choices.", state.Player.Tavern.Gold, state.Player.Tavern.Gold);
+            AddRecruitLog(state, RecruitLogType.Discover, Localized("任务模式提供了3个任务选项。", "Quest mode offered 3 Quest choices."), state.Player.Tavern.Gold, state.Player.Tavern.Gold);
         }
 
         private bool ModeIncludesQuests()
@@ -5869,7 +5890,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             advanced.PendingChoice = CreateQuestChoiceRequest(quests, source, slot, rewardOverrideId, State.Round, tavern.RecruitLog.Count);
-            AddRecruitLog(RecruitLogType.Discover, "Quest choices offered (" + advanced.PendingChoice.Options.Count + ").", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("已提供任务选项（" + advanced.PendingChoice.Options.Count + "项）。", "Quest choices offered (" + advanced.PendingChoice.Options.Count + ")."), tavern.Gold, tavern.Gold);
         }
 
         private void DebugCompleteQuest(int questIndex)
@@ -5916,7 +5937,7 @@ namespace LearnHearthstone.Application.Services
             ApplyQuestRewardReplacement(active, reward, !active.Completed);
             AddRecruitLog(
                 RecruitLogType.Discover,
-                "Quest reward replaced: " + active.QuestName + " -> " + reward.Name + ".",
+                Localized("已替换任务奖励：" + active.QuestName + " → " + reward.Name + "。", "Quest reward replaced: " + active.QuestName + " -> " + reward.Name + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
 
@@ -6382,7 +6403,7 @@ namespace LearnHearthstone.Application.Services
                 CostPaid = 0,
                 ImplementationStatus = quest.ImplementationStatus.ToString()
             });
-            AddRecruitLog(RecruitLogType.Discover, "Quest chosen: " + quest.Name + " -> " + reward.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("已选择任务：" + quest.Name + " → " + reward.Name + "。", "Quest chosen: " + quest.Name + " -> " + reward.Name + "."), tavern.Gold, tavern.Gold);
         }
 
         private void ActivateImmediateQuestReward(MechanicChoiceRequest request, QuestDefinition quest, QuestRewardDefinition reward, MechanicChoiceOption option)
@@ -6413,7 +6434,7 @@ namespace LearnHearthstone.Application.Services
                 ImplementationStatus = reward.ImplementationStatus.ToString()
             });
             DispatchQuestReward(active, QuestRewardTrigger.OnComplete, null, null);
-            AddRecruitLog(RecruitLogType.Discover, "Ethereal Evidence reward chosen: " + reward.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("“虚灵证据”已选择任务奖励：" + reward.Name + "。", "Ethereal Evidence reward chosen: " + reward.Name + "."), tavern.Gold, tavern.Gold);
         }
 
         private ActiveQuestState CreateActiveQuest(QuestDefinition quest, QuestRewardDefinition reward, string source, int requiredAmount, int difficultyTier)
@@ -6514,7 +6535,7 @@ namespace LearnHearthstone.Application.Services
             active.Progress = Math.Min(active.RequiredAmount, active.Progress + amount);
             if (active.Progress != before)
             {
-                AddRecruitLog(RecruitLogType.Play, "Quest progress: " + active.QuestName + " " + active.Progress + "/" + active.RequiredAmount + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized("任务进度：" + active.QuestName + " " + active.Progress + "/" + active.RequiredAmount + "。", "Quest progress: " + active.QuestName + " " + active.Progress + "/" + active.RequiredAmount + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
 
             if (active.Progress >= active.RequiredAmount)
@@ -6539,7 +6560,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             quests.Completed.Add(active);
-            AddRecruitLog(RecruitLogType.Play, "Quest complete: " + active.QuestName + ". Reward active: " + active.RewardName + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("任务完成：" + active.QuestName + "。任务奖励已生效：" + active.RewardName + "。", "Quest complete: " + active.QuestName + ". Reward active: " + active.RewardName + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             DispatchQuestReward(active, QuestRewardTrigger.OnComplete, null, null);
             if (string.Equals(active.RewardId, AlterEgoRewardId, StringComparison.OrdinalIgnoreCase) &&
                 questCatalog.TryGetRewardById(active.RewardId, out var alterEgoReward))
@@ -6695,7 +6716,7 @@ namespace LearnHearthstone.Application.Services
                     {
                         var questState = EnsureQuestState(tavern);
                         BuffMinion(bought, questState.CookedBookAttack, questState.CookedBookHealth, reward.Name);
-                        AddRecruitLog(RecruitLogType.Play, reward.Name + ": buffed " + bought.Name + " +" + questState.CookedBookAttack + "/+" + questState.CookedBookHealth + ".", tavern.Gold, tavern.Gold);
+                        AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：使" + bought.Name + "获得+" + questState.CookedBookAttack + "/+" + questState.CookedBookHealth + "。", reward.Name + ": buffed " + bought.Name + " +" + questState.CookedBookAttack + "/+" + questState.CookedBookHealth + "."), tavern.Gold, tavern.Gold);
                         if (reward.Improves)
                         {
                             questState.CookedBookAttack = Math.Min(StatMath.MaxStat, questState.CookedBookAttack + 1);
@@ -6715,7 +6736,7 @@ namespace LearnHearthstone.Application.Services
                             picked.Keywords.Add(Keyword.DivineShield);
                         }
 
-                        AddRecruitLog(RecruitLogType.Play, reward.Name + ": buffed Tavern minion " + picked.Name + " +" + reward.AttackBonus + "/+" + reward.HealthBonus + ".", tavern.Gold, tavern.Gold);
+                        AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：使酒馆中的" + picked.Name + "获得+" + reward.AttackBonus + "/+" + reward.HealthBonus + "。", reward.Name + ": buffed Tavern minion " + picked.Name + " +" + reward.AttackBonus + "/+" + reward.HealthBonus + "."), tavern.Gold, tavern.Gold);
                     }
                     break;
                 case QuestRewardEffectKind.BuffTierThreeOrLowerMinions:
@@ -6732,7 +6753,7 @@ namespace LearnHearthstone.Application.Services
 
                     if (candidates.Count > 0)
                     {
-                        AddRecruitLog(RecruitLogType.Play, reward.Name + ": buffed " + candidates.Count + " friendly minion(s).", tavern.Gold, tavern.Gold);
+                        AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：强化了" + candidates.Count + "个友方随从。", reward.Name + ": buffed " + candidates.Count + " friendly minion(s)."), tavern.Gold, tavern.Gold);
                     }
                     break;
                 case QuestRewardEffectKind.RightmostStealthAndHealth:
@@ -6934,7 +6955,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
             tavern.Gold = Math.Min(StatMath.MaxStat, tavern.Gold + amount);
-            AddRecruitLog(RecruitLogType.Play, source + ": gained " + amount + " Gold.", before, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得" + amount + "枚铸币。", source + ": gained " + amount + " Gold."), before, tavern.Gold);
             TryTriggerSplinterOfAurum();
         }
 
@@ -6955,7 +6976,7 @@ namespace LearnHearthstone.Application.Services
 
             var picked = new SeededRng(State.Seed + State.Round * 2441 + State.Player.Tavern.RecruitLog.Count).Pick(candidates);
             BuffMinion(picked, Math.Max(0, sold.Attack), Math.Max(0, sold.MaxHealth), reward.Name);
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": gave " + sold.Name + "'s stats to " + picked.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：将" + sold.Name + "的属性值赋予" + picked.Name + "。", reward.Name + ": gave " + sold.Name + "'s stats to " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyInvigoratingConch(MinionInstance bought, QuestRewardDefinition reward)
@@ -6973,7 +6994,7 @@ namespace LearnHearthstone.Application.Services
 
             var picked = new SeededRng(State.Seed + State.Round * 2459 + State.Player.Tavern.RecruitLog.Count).Pick(candidates);
             BuffMinion(picked, Math.Max(0, bought.Attack), Math.Max(0, bought.MaxHealth), reward.Name);
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": gave bought minion stats to " + picked.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：将所购随从的属性值赋予" + picked.Name + "。", reward.Name + ": gave bought minion stats to " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyDoubleHeadedReward(ActiveQuestState active, MinionInstance bought, QuestRewardDefinition reward)
@@ -7026,7 +7047,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             MakeGoldenInPlace(target);
-            AddRecruitLog(RecruitLogType.Play, sourceName + ": made " + target.Name + " Golden.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：使" + target.Name + "变为金色。", sourceName + ": made " + target.Name + " Golden."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             return true;
         }
 
@@ -7052,7 +7073,7 @@ namespace LearnHearthstone.Application.Services
                 triggered += 1;
             }
 
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": triggered " + triggered + " friendly Battlecry minion(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：触发了" + triggered + "个友方随从的战吼。", reward.Name + ": triggered " + triggered + " friendly Battlecry minion(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyTealTigerSapphire(List<MinionInstance> shop, QuestRewardDefinition reward)
@@ -7179,7 +7200,7 @@ namespace LearnHearthstone.Application.Services
             HandleTimewarpedMinionConsumed(picked.Card);
             HandleDevourForTierSixSevenMinions();
             ReleaseMinionToPool(picked.Card);
-            AddRecruitLog(RecruitLogType.Play, sourceName + ": " + eater.Name + " consumed " + picked.Card.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：" + eater.Name + "吞食了" + picked.Card.Name + "。", sourceName + ": " + eater.Name + " consumed " + picked.Card.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyGiftOfTheGoldenKobold(QuestRewardDefinition reward)
@@ -7217,7 +7238,7 @@ namespace LearnHearthstone.Application.Services
             copy.CanReturnToPoolAfterAttach = false;
             State.Player.Tavern.Hand.Add(copy);
             HandleCardsAddedToHand(1, reward.Name);
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": copied " + copy.Name + " to hand.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：将" + copy.Name + "的复制置入手牌。", reward.Name + ": copied " + copy.Name + " to hand."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyStolenGoldCombatStart(List<MinionInstance> combatBoard)
@@ -7234,7 +7255,7 @@ namespace LearnHearthstone.Application.Services
                 MakeGoldenInPlace(right);
             }
 
-            AddRecruitLog(RecruitLogType.Play, "Stolen Gold: edge minions are Golden for combat.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(QuestRewardDisplayName(StolenGoldRewardId, "失窃的黄金") + "：本场战斗中，最左边和最右边的随从变为金色。", "Stolen Gold: edge minions are Golden for combat."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyEvilTwinCombatStart(List<MinionInstance> combatBoard, BoardSide owner)
@@ -7262,7 +7283,7 @@ namespace LearnHearthstone.Application.Services
             copy.PoolCopiesHeld = 0;
             copy.CanAttack = true;
             combatBoard.Add(copy);
-            AddRecruitLog(RecruitLogType.Play, "Evil Twin: summoned a copy of " + target.Name + " for combat.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(QuestRewardDisplayName(EvilTwinRewardId, "邪恶双子") + "：为本场战斗召唤了" + target.Name + "的一个复制。", "Evil Twin: summoned a copy of " + target.Name + " for combat."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyRitualDaggerCombatReward(CombatReward reward)
@@ -7291,7 +7312,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             BuffMinion(target, attack, health, sourceName);
-            AddRecruitLog(RecruitLogType.Play, sourceName + ": permanently buffed " + target.Name + " +" + attack + "/+" + health + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：永久使" + target.Name + "获得+" + attack + "/+" + health + "。", sourceName + ": permanently buffed " + target.Name + " +" + attack + "/+" + health + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private bool CopyCardToHand(MinionInstance source, string sourceName)
@@ -7311,7 +7332,7 @@ namespace LearnHearthstone.Application.Services
             copy.CanReturnToPoolAfterAttach = false;
             tavern.Hand.Add(copy);
             HandleCardsAddedToHand(1, sourceName);
-            AddRecruitLog(RecruitLogType.Play, sourceName + ": copied " + source.Name + " to hand.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：将" + source.Name + "的复制置入手牌。", sourceName + ": copied " + source.Name + " to hand."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -7354,7 +7375,7 @@ namespace LearnHearthstone.Application.Services
 
             if (buddy == null || string.IsNullOrEmpty(buddy.CardId))
             {
-                AddRecruitLog(RecruitLogType.Play, reward.Name + ": no Buddy is available for this hero.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：当前英雄没有可用的伙伴。", reward.Name + ": no Buddy is available for this hero."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -7366,7 +7387,7 @@ namespace LearnHearthstone.Application.Services
             MakeGoldenInPlace(card);
             tavern.Hand.Add(card);
             HandleCardsAddedToHand(1, reward.Name);
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": gained Golden Buddy " + card.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：获得金色伙伴" + card.Name + "。", reward.Name + ": gained Golden Buddy " + card.Name + "."), tavern.Gold, tavern.Gold);
         }
 
         private void StartDoppelgangersLocketDiscover(QuestRewardDefinition reward)
@@ -7402,7 +7423,7 @@ namespace LearnHearthstone.Application.Services
                 RewardTier = State.Player.Tavern.Tier,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover an opponent warband minion.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(reward.Name + "：发现一个对手战队中的随从。", reward.Name + ": Discover an opponent warband minion."), tavern.Gold, tavern.Gold);
         }
 
         private void StartBuddyDiscover(QuestRewardDefinition reward)
@@ -7441,7 +7462,7 @@ namespace LearnHearthstone.Application.Services
                 RewardTier = 0,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover a Buddy.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(reward.Name + "：发现一个伙伴。", reward.Name + ": Discover a Buddy."), tavern.Gold, tavern.Gold);
         }
 
         private void StartSecondHeroPowerDiscover(QuestRewardDefinition reward)
@@ -7492,7 +7513,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 2,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, "King of Duality: Discover two Hero Powers to replace this.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("二元之王：发现两个英雄技能来替换此效果。", "King of Duality: Discover two Hero Powers to replace this."), tavern.Gold, tavern.Gold);
         }
 
         private List<MinionInstance> CreateGennHeroPowerOptions(string excludeCardId, int optionCount, string prefix)
@@ -7545,7 +7566,7 @@ namespace LearnHearthstone.Application.Services
             {
                 State.Player.HeroPowerCardId = picked.CardId;
                 State.Player.ExtraHeroPowerCardIds?.RemoveAll(cardId => string.Equals(cardId, picked.CardId, StringComparison.OrdinalIgnoreCase));
-                AddRecruitLog(RecruitLogType.Discover, "King of Duality: primary Hero Power replaced with " + picked.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("二元之王：主要英雄技能已替换为" + picked.Name + "。", "King of Duality: primary Hero Power replaced with " + picked.Name + "."), tavern.Gold, tavern.Gold);
                 tavern.ClearCurrentDiscover();
 
                 var options = CreateGennHeroPowerOptions(picked.CardId, 3, "genn-duality-second");
@@ -7653,7 +7674,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, "Power of the Storm: choose a temporary Hero Power.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("风暴之力：选择一个临时英雄技能。", "Power of the Storm: choose a temporary Hero Power."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -7697,7 +7718,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, sourceName + ": " + detail, tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：" + detail, sourceName + ": " + detail), tavern.Gold, tavern.Gold);
         }
 
         private void AddSecondHeroPower(MinionInstance picked, string source = "Second Hero Power")
@@ -7719,7 +7740,7 @@ namespace LearnHearthstone.Application.Services
 
             var quests = EnsureQuestState(State.Player.Tavern);
             quests.RewardCounters[QuestRewardCounterKey(reward.Id, "trinketRound")] = State.Round + 1;
-            AddRecruitLog(RecruitLogType.Discover, reward.Name + ": " + slotKind + " Trinket choice scheduled for next turn.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(reward.Name + "：已安排在下一回合选择" + (slotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品。", reward.Name + ": " + slotKind + " Trinket choice scheduled for next turn."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyGhastlyMask(QuestRewardDefinition reward)
@@ -7730,7 +7751,7 @@ namespace LearnHearthstone.Application.Services
             HandleTurnEndedForTierFourMinions();
             HandleTurnEndedForTierFiveMinions();
             HandleTurnEndedForTierSixSevenMinions();
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": friendly end-of-turn minion effects repeated once.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：友方随从的回合结束效果额外触发了一次。", reward.Name + ": friendly end-of-turn minion effects repeated once."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyFriendsAlongTheWay(QuestRewardDefinition reward)
@@ -7784,7 +7805,7 @@ namespace LearnHearthstone.Application.Services
                 });
             }
 
-            AddRecruitLog(RecruitLogType.Play, sourceName + ": spun the Wheel of Yogg-Saron " + spins + " time(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：转动了" + spins + "次尤格-萨隆的命运之轮。", sourceName + ": spun the Wheel of Yogg-Saron " + spins + " time(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void AddBuddyOfCurrentHeroPowerToHand(int count, string source)
@@ -7803,7 +7824,7 @@ namespace LearnHearthstone.Application.Services
             heroCatalog.TryGetHeroByHeroPowerCardId(heroPowerCardId, out var hero);
             if (hero?.Buddy == null || string.IsNullOrEmpty(hero.Buddy.CardId))
             {
-                AddRecruitLog(RecruitLogType.Play, source + ": current Hero Power has no Buddy mapping.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(source + "：当前英雄技能没有对应的伙伴。", source + ": current Hero Power has no Buddy mapping."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -7827,7 +7848,7 @@ namespace LearnHearthstone.Application.Services
             HandleCardsAddedToHand(added, source);
             if (added > 0)
             {
-                AddRecruitLog(RecruitLogType.Play, source + ": gained the Buddy of your Hero Power.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得了当前英雄技能对应的伙伴。", source + ": gained the Buddy of your Hero Power."), tavern.Gold, tavern.Gold);
             }
         }
 
@@ -7884,7 +7905,7 @@ namespace LearnHearthstone.Application.Services
                     null,
                     "trinket-putricide-first")
             });
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": craft a custom Undead.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：打造一个自定义亡灵。", definition.Name + ": craft a custom Undead."), tavern.Gold, tavern.Gold);
         }
 
         private void AddTriplePrizeToHand(string source)
@@ -7897,7 +7918,7 @@ namespace LearnHearthstone.Application.Services
 
             tavern.Hand.Add(CreateTriplePrizeCard(State.Round + "-" + tavern.RecruitLog.Count));
             HandleCardsAddedToHand(1, source);
-            AddRecruitLog(RecruitLogType.Triple, source + ": gained a Triple Prize.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Triple, Localized(source + "：获得了一张三连奖励。", source + ": gained a Triple Prize."), tavern.Gold, tavern.Gold);
         }
 
         private void AddMothershipToHand(string source)
@@ -7910,7 +7931,7 @@ namespace LearnHearthstone.Application.Services
 
             tavern.Hand.Add(CreateProtossRewardCard(MothershipCardId, source + "-" + State.Round + "-" + tavern.Hand.Count));
             HandleCardsAddedToHand(1, source);
-            AddRecruitLog(RecruitLogType.Play, source + ": gained Mothership.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得了母舰。", source + ": gained Mothership."), tavern.Gold, tavern.Gold);
         }
 
         private int CountLeiFlamepawTriggers()
@@ -7937,7 +7958,7 @@ namespace LearnHearthstone.Application.Services
 
             State.Player.HeroPowerCardId = picked.CardId;
             advanced.Selections[MasterNguyenSelectedHeroPowerKey] = picked.CardId;
-            AddRecruitLog(RecruitLogType.Discover, "Power of the Storm: temporary Hero Power changed to " + picked.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("风暴之力：临时英雄技能已变为" + picked.Name + "。", "Power of the Storm: temporary Hero Power changed to " + picked.Name + "."), tavern.Gold, tavern.Gold);
             State.Player.Tavern.CompleteDiscover();
             ResolvePendingLeiFlamepawBuddy(picked.CardId);
         }
@@ -7972,7 +7993,7 @@ namespace LearnHearthstone.Application.Services
                 string.Equals(State.Player.HeroPowerCardId, selectedHeroPower, StringComparison.OrdinalIgnoreCase))
             {
                 State.Player.HeroPowerCardId = originalHeroPower;
-                AddRecruitLog(RecruitLogType.Play, "Power of the Storm: restored Master Nguyen's Hero Power.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("风暴之力：已恢复阮大师的英雄技能。", "Power of the Storm: restored Master Nguyen's Hero Power."), tavern.Gold, tavern.Gold);
             }
 
             advanced.Selections.Remove(MasterNguyenOriginalHeroPowerKey);
@@ -7993,7 +8014,7 @@ namespace LearnHearthstone.Application.Services
                 refreshes = 0;
                 State.Player.Tavern.HelpfulRefreshes = StatMath.SaturatingAdd(State.Player.Tavern.HelpfulRefreshes, 1, 0, StatMath.MaxStat);
                 ApplyHelpfulRefresh(shop);
-                AddRecruitLog(RecruitLogType.Play, reward.Name + ": provided a helpful refresh.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：提供了一次有利的刷新。", reward.Name + ": provided a helpful refresh."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
 
             quests.RewardCounters[key] = refreshes;
@@ -8074,7 +8095,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             advanced.PendingChoice = request;
-            AddRecruitLog(RecruitLogType.Discover, reward.Name + ": choose a new Quest Reward.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(reward.Name + "：选择一个新的任务奖励。", reward.Name + ": choose a new Quest Reward."), tavern.Gold, tavern.Gold);
         }
 
         private void ApplyScepterOfGuidance(List<MinionInstance> shop, QuestRewardDefinition reward)
@@ -8131,7 +8152,7 @@ namespace LearnHearthstone.Application.Services
             if (target != null)
             {
                 MakeGoldenInPlace(target);
-                AddRecruitLog(RecruitLogType.Play, reward.Name + ": made a Tier " + tier + " friendly minion Golden.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：使一个" + tier + "星友方随从变为金色。", reward.Name + ": made a Tier " + tier + " friendly minion Golden."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
 
             quests.RewardCounters[key] = Math.Min(TavernRules.MaxTavernTier, tier + 1);
@@ -8214,7 +8235,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    source + ": automatic Tavern spell cast chain stopped at depth " + AutomaticTavernSpellCastMaxDepth + ".",
+                    Localized(source + "：自动施放酒馆法术的连锁已在第" + AutomaticTavernSpellCastMaxDepth + "层停止。", source + ": automatic Tavern spell cast chain stopped at depth " + AutomaticTavernSpellCastMaxDepth + "."),
                     State.Player.Tavern.Gold,
                     State.Player.Tavern.Gold);
                 return false;
@@ -8284,7 +8305,7 @@ namespace LearnHearthstone.Application.Services
             }
             catch (InvalidOperationException ex)
             {
-                AddRecruitLog(RecruitLogType.Play, source + ": skipped " + spell.Name + " - " + ex.Message, tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(source + "：未施放" + spell.Name + "，目标或施放条件不满足。", source + ": skipped " + spell.Name + " - " + ex.Message), tavern.Gold, tavern.Gold);
                 return false;
             }
 
@@ -8367,7 +8388,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             quests.RewardCounters[QuestRewardCounterKey(reward.Id, "pendingRound")] = State.Round + 1;
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": Tavern Tier 7 unlocked; one automatic upgrade scheduled.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：已解锁酒馆等级7，并安排一次自动升级。", reward.Name + ": Tavern Tier 7 unlocked; one automatic upgrade scheduled."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyNorgannonAutoUpgrade()
@@ -8392,7 +8413,7 @@ namespace LearnHearthstone.Application.Services
             {
                 tavern.Tier += 1;
                 tavern.UpgradeCost = tavern.Tier >= maxTier ? 0 : TavernRules.GetUpgradeCost(tavern.Tier);
-                AddRecruitLog(RecruitLogType.LevelUp, "Norgannon's Reward: upgraded Tavern to Tier " + tavern.Tier + ".", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.LevelUp, Localized(QuestRewardDisplayName(NorgannonsRewardId, "诺甘农的奖赏") + "：酒馆已升级至等级" + tavern.Tier + "。", "Norgannon's Reward: upgraded Tavern to Tier " + tavern.Tier + "."), tavern.Gold, tavern.Gold);
                 DispatchTrinketTavernTierReached();
             }
         }
@@ -8446,7 +8467,7 @@ namespace LearnHearthstone.Application.Services
                 RewardTier = tavern.Tier,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, reward.Name + ": Discover a Tavern spell for " + token.Name + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(reward.Name + "：为" + token.Name + "发现一张酒馆法术。", reward.Name + ": Discover a Tavern spell for " + token.Name + "."), tavern.Gold, tavern.Gold);
         }
 
         private void ResolveMagicfinRelicDiscover(DiscoverState discover, MinionInstance picked)
@@ -8462,11 +8483,12 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            var target = State.Player.Board[targetIndex];
             var result = CastTavernSpellEngineWithTimewarpedStatTracking(
                 picked,
                 new SeededRng(State.Seed + State.Round * 3319 + State.Player.Tavern.RecruitLog.Count),
                 targetIndex);
-            AddRecruitLog(RecruitLogType.Discover, "Magicfin Relic taught " + picked.Name + ": " + result, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(QuestRewardDisplayName(MagicfinRelicRewardId, "魔鳍宝物") + "：对" + target.Name + "施放了" + picked.Name + "。", "Magicfin Relic taught " + picked.Name + ": " + result), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private bool TryCastTimewarpedNonMinionSpell(MinionInstance spell, int targetIndex, out string result)
@@ -8703,7 +8725,7 @@ namespace LearnHearthstone.Application.Services
             var beforeGold = tavern.Gold;
             IncreasePlayerMaxGold(4);
             tavern.Gold = StatMath.SaturatingAdd(tavern.Gold, 4, 0, StatMath.MaxStat);
-            AddRecruitLog(RecruitLogType.Play, "Timewarped Strike Oil: gained 4 Gold and +4 maximum Gold.", beforeGold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedCardName(TimewarpedStrikeOilCardId, "时光突袭油") + "：获得4枚铸币，铸币上限提高4枚。", "Timewarped Strike Oil: gained 4 Gold and +4 maximum Gold."), beforeGold, tavern.Gold);
             TryTriggerSplinterOfAurum();
             return "gained 4 Gold and +4 maximum Gold";
         }
@@ -8897,12 +8919,12 @@ namespace LearnHearthstone.Application.Services
 
             if (!StartTimewarpedBigWinnerDiscover())
             {
-                AddRecruitLog(RecruitLogType.Discover, "Timewarped Big Winner delayed because another Discover is pending.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedBigWinnerCardId, "时光大赢家") + "：由于还有其他发现尚未完成，暗月奖品选择已延后。", "Timewarped Big Winner delayed because another Discover is pending."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return;
             }
 
             ScheduleTimewarpedBigWinner();
-            AddRecruitLog(RecruitLogType.Discover, "Timewarped Big Winner offered Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedBigWinnerCardId, "时光大赢家") + "：提供了暗月奖品。", "Timewarped Big Winner offered Darkmoon Prizes."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private bool StartTimewarpedBigWinnerDiscover()
@@ -8927,7 +8949,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             SetAdvancedMechanicCounter(TickatusPrizeWallTriggeredRoundCounter, State.Round);
-            AddRecruitLog(RecruitLogType.Discover, "Tickatus offered Tier " + tier + " Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("提克特斯提供了" + tier + "级暗月奖品。", "Tickatus offered Tier " + tier + " Darkmoon Prizes."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void TryStartTicketCollectorPrizeDiscover(MinionInstance sold)
@@ -8941,7 +8963,7 @@ namespace LearnHearthstone.Application.Services
             var tier = Math.Min(4, DarkmoonPrizeEngine.PrizeTierForDarkmoonFaireRound(State.Round) + 1);
             if (StartDarkmoonPrizeDiscover(tier, TicketCollectorSource, 2077))
             {
-                AddRecruitLog(RecruitLogType.Discover, "Ticket Collector offered Tier " + tier + " Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("奖券收集者提供了" + tier + "级暗月奖品。", "Ticket Collector offered Tier " + tier + " Darkmoon Prizes."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -8950,7 +8972,7 @@ namespace LearnHearthstone.Application.Services
             ScheduleTickatusStickerDiscover();
             if (StartTickatusStickerDiscover())
             {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + " offered Tier 3 Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：提供了3级暗月奖品。", definition.Name + " offered Tier 3 Darkmoon Prizes."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -8973,7 +8995,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             ScheduleTickatusStickerDiscover();
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + " repeated Tier 3 Darkmoon Prizes.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：再次提供了3级暗月奖品。", definition.Name + " repeated Tier 3 Darkmoon Prizes."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private bool StartTickatusStickerDiscover()
@@ -9438,7 +9460,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             target.Tags.Add("quest_temporary_stealth:" + reward.Id);
-            AddRecruitLog(RecruitLogType.Play, reward.Name + ": protected " + target.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(reward.Name + "：保护了" + target.Name + "。", reward.Name + ": protected " + target.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ClearQuestTemporaryStealth()
@@ -9903,6 +9925,13 @@ namespace LearnHearthstone.Application.Services
             return counters.TryGetValue(QuestRewardCounterKey(rewardId, name), out var value) ? value : fallback;
         }
 
+        private string QuestRewardDisplayName(string rewardId, string fallback)
+        {
+            return questCatalog != null && questCatalog.TryGetRewardById(rewardId, out var reward)
+                ? reward.Name
+                : fallback;
+        }
+
         private static string QuestRewardCounterKey(string rewardId, string name)
         {
             return rewardId + ":" + name;
@@ -10063,7 +10092,7 @@ namespace LearnHearthstone.Application.Services
 
             AddRecruitLog(
                 RecruitLogType.Discover,
-                "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " " + definition.Name + ".",
+                Localized("已配置对手" + OpponentTrinketSlotLabel(slotKind) + "：" + definition.Name + "。", "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " " + definition.Name + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -10078,7 +10107,7 @@ namespace LearnHearthstone.Application.Services
 
             AddRecruitLog(
                 RecruitLogType.Discover,
-                "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " cleared.",
+                Localized("已清除对手" + OpponentTrinketSlotLabel(slotKind) + "。", "Opponent configuration: " + OpponentTrinketSlotLabel(slotKind) + " cleared."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -10110,9 +10139,11 @@ namespace LearnHearthstone.Application.Services
                 : OpponentLesserTrinketActiveRound;
         }
 
-        private static string OpponentTrinketSlotLabel(TrinketSlotKind slotKind)
+        private string OpponentTrinketSlotLabel(TrinketSlotKind slotKind)
         {
-            return slotKind == TrinketSlotKind.Greater ? "Greater Trinket" : "Lesser Trinket";
+            return slotKind == TrinketSlotKind.Greater
+                ? Localized("大型饰品", "Greater Trinket")
+                : Localized("小型饰品", "Lesser Trinket");
         }
 
         private static TrinketSlotKind ResolveDebugTrinketSlot(int targetIndex, TrinketSlotKind fallback)
@@ -10196,7 +10227,7 @@ namespace LearnHearthstone.Application.Services
             ApplyTrinketEquippedEffects(definition);
             AddRecruitLog(
                 RecruitLogType.Play,
-                "Mystery Cube transformed into " + definition.Name + ".",
+                Localized("神秘魔方变形为" + definition.Name + "。", "Mystery Cube transformed into " + definition.Name + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -10282,7 +10313,7 @@ namespace LearnHearthstone.Application.Services
                 CostPaid = 0,
                 ImplementationStatus = greaterDefinition.ImplementationStatus.ToString()
             });
-            AddRecruitLog(RecruitLogType.Play, "Souvenir Stand: transformed into " + greaterDefinition.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("纪念品货架：变形为" + greaterDefinition.Name + "。", "Souvenir Stand: transformed into " + greaterDefinition.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void EquipTrinket(TrinketDefinition definition, TrinketSlotKind? targetSlotKind = null, int? costOverride = null, bool allowSlotOverride = false)
@@ -10365,7 +10396,7 @@ namespace LearnHearthstone.Application.Services
             }
             AddRecruitLog(
                 RecruitLogType.Play,
-                "Equipped " + slotKind + " Trinket: " + definition.Name + " - " + definition.ImplementationStatus,
+                Localized("已装备" + (slotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品：" + definition.Name + "。", "Equipped " + slotKind + " Trinket: " + definition.Name + "."),
                 before,
                 tavern.Gold);
 
@@ -10373,7 +10404,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    "Trinket status: " + definition.Name + " - " + definition.Notes,
+                    Localized(definition.Name + "：当前效果尚未完整实现。", "Trinket effect is not fully implemented: " + definition.Name + "."),
                     tavern.Gold,
                     tavern.Gold);
             }
@@ -10410,7 +10441,7 @@ namespace LearnHearthstone.Application.Services
             ApplyTrinketEquippedEffects(definition);
             AddRecruitLog(
                 RecruitLogType.Play,
-                "Lesser Crystal Ball transformed into a copy of " + definition.Name + ".",
+                Localized("小型水晶球变形为" + definition.Name + "的复制。", "Lesser Crystal Ball transformed into a copy of " + definition.Name + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -10446,7 +10477,7 @@ namespace LearnHearthstone.Application.Services
             ApplyTrinketEquippedEffects(definition);
             AddRecruitLog(
                 RecruitLogType.Play,
-                "Greater Crystal Ball transformed into a copy of " + definition.Name + ".",
+                Localized("大型水晶球变形为" + definition.Name + "的复制。", "Greater Crystal Ball transformed into a copy of " + definition.Name + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -10573,7 +10604,7 @@ namespace LearnHearthstone.Application.Services
                         break;
                     case SafetyPatchEffectId:
                         GrantTrinketGold(5, definition.Name);
-                        AddRecruitLog(RecruitLogType.Play, definition.Name + ": Ice Block is tracked as a proxy until Secrets are implemented.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                        AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：已获得一次可抵挡致命伤害的寒冰屏障效果。", definition.Name + ": gained an Ice Block effect that prevents lethal damage once."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                         break;
                     case ElectromagneticDeviceEffectId:
                         StartElectromagneticDeviceDiscover(definition);
@@ -10929,7 +10960,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.ExtraMaxGold += 4;
             tavern.MaxGold += 4;
             tavern.Gold += 4;
-            AddRecruitLog(RecruitLogType.Play, "Bob's Tip Jar: gained 4 Gold and +4 maximum Gold.", before, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("鲍勃的赏钱罐：获得4枚铸币，铸币上限提高4枚。", "Bob's Tip Jar: gained 4 Gold and +4 maximum Gold."), before, tavern.Gold);
         }
 
         private void ApplyOrnateClock(TrinketDefinition definition)
@@ -10939,7 +10970,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.OrnateClockGreaterOfferRound = State.Round + 1;
             AddRecruitLog(
                 RecruitLogType.Discover,
-                definition.Name + ": Greater Trinket choice scheduled for round " + trinkets.OrnateClockGreaterOfferRound + ".",
+                Localized(definition.Name + "：已安排在第" + trinkets.OrnateClockGreaterOfferRound + "回合选择大型饰品。", definition.Name + ": Greater Trinket choice scheduled for round " + trinkets.OrnateClockGreaterOfferRound + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -10955,7 +10986,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.WornTreasureMapDueRound = State.Round + 2;
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": 10 Gold will be gained on round " + trinkets.WornTreasureMapDueRound + ".",
+                Localized(definition.Name + "：将在第" + trinkets.WornTreasureMapDueRound + "回合获得10枚铸币。", definition.Name + ": 10 Gold will be gained on round " + trinkets.WornTreasureMapDueRound + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -10965,7 +10996,7 @@ namespace LearnHearthstone.Application.Services
             var removed = State.Player.Board.ToList();
             if (removed.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": no minions to remove.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：没有可移除的随从。", definition.Name + ": no minions to remove."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return;
             }
 
@@ -10989,7 +11020,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
             tavern.Gold = Math.Min(StatMath.MaxStat, tavern.Gold + amount);
-            AddRecruitLog(RecruitLogType.Play, source + ": gained " + amount + " Gold.", before, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得" + amount + "枚铸币。", source + ": gained " + amount + " Gold."), before, tavern.Gold);
             TryTriggerSplinterOfAurum();
         }
 
@@ -11000,7 +11031,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.MysteriousOrbNextTrinketIsLesser = true;
             AddRecruitLog(
                 RecruitLogType.Discover,
-                definition.Name + ": your next Trinket choice will use the Lesser Trinket pool.",
+                Localized(definition.Name + "：你的下一次饰品选择将使用小型饰品池。", definition.Name + ": your next Trinket choice will use the Lesser Trinket pool."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -11036,7 +11067,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, sourceName + ": no replacement Trinkets are available.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：没有可替换的饰品。", sourceName + ": no replacement Trinkets are available."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return;
             }
 
@@ -11044,7 +11075,7 @@ namespace LearnHearthstone.Application.Services
             var replacement = rng.Pick(candidates);
             ClearEquippedTrinketSlot(targetSlotKind);
             EquipTrinket(replacement, targetSlotKind, 0, true);
-            AddRecruitLog(RecruitLogType.Discover, sourceName + ": replaced itself with " + replacement.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：已将自身替换为" + replacement.Name + "。", sourceName + ": replaced itself with " + replacement.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyYoggTasticPastry(TrinketDefinition definition)
@@ -11055,7 +11086,7 @@ namespace LearnHearthstone.Application.Services
                 Name = definition.Name,
                 TargetCount = 1
             });
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": spun the Wheel of Yogg-Saron proxy.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：转动了尤格-萨隆的命运之轮。", definition.Name + ": spun the Wheel of Yogg-Saron."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyColorfulCompass(TrinketDefinition definition)
@@ -11073,13 +11104,13 @@ namespace LearnHearthstone.Application.Services
         {
             State.Player.Tavern.FreeRefreshes = StatMath.SaturatingAdd(State.Player.Tavern.FreeRefreshes, 5, 0, StatMath.MaxStat);
             SetAdvancedMechanicCounter(GoldPlatedCompassNextBuyCounter, 1);
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": gained 5 free Refreshes and the next bought minion will be Golden.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：获得5次免费刷新，且下一个购买的随从将变为金色。", definition.Name + ": gained 5 free Refreshes and the next bought minion will be Golden."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ScheduleTripVouchers(TrinketDefinition definition)
         {
             SetAdvancedMechanicCounter(TripVouchersDueRoundCounter, State.Round + 2);
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Greater Trinket replacement choice scheduled for round " + (State.Round + 2) + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：已安排在第" + (State.Round + 2) + "回合选择替换的大型饰品。", definition.Name + ": Greater Trinket replacement choice scheduled for round " + (State.Round + 2) + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void StartTimewornCandelabraDiscover(TrinketDefinition definition)
@@ -11109,7 +11140,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Timewarp proxy minion.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：发现一个时空随从。", definition.Name + ": Discover a Timewarp minion."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private static MinionInstance CreateTimewarpedProxy(string cardId, string suffix)
@@ -11151,7 +11182,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    definition.Name + ": no current-tier Tavern spells are available to cast.",
+                    Localized(definition.Name + "：没有可施放的当前等级酒馆法术。", definition.Name + ": no current-tier Tavern spells are available to cast."),
                     tavern.Gold,
                     tavern.Gold);
             }
@@ -11181,7 +11212,7 @@ namespace LearnHearthstone.Application.Services
                 : "no current-pool Tier 4 minions are available";
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": " + reason + ".",
+                Localized(definition.Name + "：效果未能触发。", definition.Name + ": " + reason + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -11200,7 +11231,7 @@ namespace LearnHearthstone.Application.Services
                 : "no current-pool Tier 7 minions are available";
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": " + reason + ".",
+                Localized(definition.Name + "：效果未能触发。", definition.Name + ": " + reason + "."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -11213,7 +11244,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, sourceName + ": no Tavern spells are available to Discover.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：没有可发现的酒馆法术。", sourceName + ": no Tavern spells are available to Discover."), tavern.Gold, tavern.Gold);
                 return false;
             }
 
@@ -11234,7 +11265,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = Math.Max(1, pickCount),
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, sourceName + ": Discover a Tavern spell.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：发现一张酒馆法术。", sourceName + ": Discover a Tavern spell."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -11326,7 +11357,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (remaining.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": no eligible minions are available to Discover.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：没有可发现的符合条件的随从。", definition.Name + ": no eligible minions are available to Discover."), tavern.Gold, tavern.Gold);
                 return false;
             }
 
@@ -11347,7 +11378,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = Math.Max(1, pickCount),
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a minion.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：发现一个随从。", definition.Name + ": Discover a minion."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -11382,11 +11413,11 @@ namespace LearnHearthstone.Application.Services
                 HandleCardsAddedToHand(1, definition.Name);
                 DispatchQuestRewardDiscoverChosen(card);
                 DispatchTrinketDiscoverChosen(card);
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": chose " + card.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：选择了" + card.Name + "。", definition.Name + ": chose " + card.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
             else
             {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": hand is full.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：手牌已满。", definition.Name + ": hand is full."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
 
             if (remaining > 0)
@@ -11496,7 +11527,7 @@ namespace LearnHearthstone.Application.Services
             var candidates = SelectSupplyMinionDefinitions(predicate: minion => minion.Keywords.Contains(Keyword.Deathrattle));
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": no Deathrattle minions are available to Discover.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：没有可发现的亡语随从。", definition.Name + ": no Deathrattle minions are available to Discover."), tavern.Gold, tavern.Gold);
                 return false;
             }
 
@@ -11517,7 +11548,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Deathrattle minion.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：发现一个亡语随从。", definition.Name + ": Discover a Deathrattle minion."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -11527,7 +11558,7 @@ namespace LearnHearthstone.Application.Services
             var candidates = SelectSupplyMinionDefinitions(predicate: minion => minion.Keywords.Contains(Keyword.Battlecry));
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, definition.Name + ": no Battlecry minions are available to Discover.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：没有可发现的战吼随从。", definition.Name + ": no Battlecry minions are available to Discover."), tavern.Gold, tavern.Gold);
                 return false;
             }
 
@@ -11548,7 +11579,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Discover a Battlecry minion.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：发现一个战吼随从。", definition.Name + ": Discover a Battlecry minion."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -11588,7 +11619,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.MarvelousMushroomBonusHealth = StatMath.SaturatingAdd(trinkets.MarvelousMushroomBonusHealth, 1, 0, StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                sourceName + ": Tavern spell bonus improved to +" + trinkets.MarvelousMushroomBonusAttack + "/+" + trinkets.MarvelousMushroomBonusHealth + ".",
+                Localized(sourceName + "：酒馆法术加成提高至+" + trinkets.MarvelousMushroomBonusAttack + "/+" + trinkets.MarvelousMushroomBonusHealth + "。", sourceName + ": Tavern spell bonus improved to +" + trinkets.MarvelousMushroomBonusAttack + "/+" + trinkets.MarvelousMushroomBonusHealth + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -11615,7 +11646,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.CharmingPanpipesHealth = StatMath.SaturatingAdd(trinkets.CharmingPanpipesHealth, 1, 0, StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": end-turn buff improved to +" + trinkets.CharmingPanpipesAttack + "/+" + trinkets.CharmingPanpipesHealth + ".",
+                Localized(definition.Name + "：回合结束强化提高至+" + trinkets.CharmingPanpipesAttack + "/+" + trinkets.CharmingPanpipesHealth + "。", definition.Name + ": end-turn buff improved to +" + trinkets.CharmingPanpipesAttack + "/+" + trinkets.CharmingPanpipesHealth + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -11760,7 +11791,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    definition.Name + ": magnetized Accord-o-Tron to " + magnetized + " edge Mech(s).",
+                    Localized(definition.Name + "：将和弦机器人磁力吸附到" + magnetized + "个最边缘的机械上。", definition.Name + ": magnetized Accord-o-Tron to " + magnetized + " edge Mech(s)."),
                     State.Player.Tavern.Gold,
                     State.Player.Tavern.Gold);
             }
@@ -12029,7 +12060,7 @@ namespace LearnHearthstone.Application.Services
                 StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                "Felburned Ledger: Tavern spells give an extra +" + trinkets.FelburnedLedgerBonusThisTurn + "/+" + trinkets.FelburnedLedgerBonusThisTurn + " this turn.",
+                Localized("邪能灼烧账簿：本回合酒馆法术额外提供+" + trinkets.FelburnedLedgerBonusThisTurn + "/+" + trinkets.FelburnedLedgerBonusThisTurn + "。", "Felburned Ledger: Tavern spells give an extra +" + trinkets.FelburnedLedgerBonusThisTurn + "/+" + trinkets.FelburnedLedgerBonusThisTurn + " this turn."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -12073,7 +12104,7 @@ namespace LearnHearthstone.Application.Services
             tavern.UpgradeCost = Math.Max(0, tavern.UpgradeCost - amount);
             if (tavern.UpgradeCost != before)
             {
-                AddRecruitLog(RecruitLogType.Play, source + ": Tavern upgrade cost reduced by " + amount + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：酒馆升级费用降低" + amount + "枚铸币。", source + ": Tavern upgrade cost reduced by " + amount + "."), tavern.Gold, tavern.Gold);
             }
         }
 
@@ -12081,7 +12112,7 @@ namespace LearnHearthstone.Application.Services
         {
             if (State.Player.Health <= 2)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": health is too low to take 2 damage.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：生命值过低，无法承受2点伤害。", definition.Name + ": health is too low to take 2 damage."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return;
             }
 
@@ -12212,7 +12243,7 @@ namespace LearnHearthstone.Application.Services
         private void ScheduleMysteryCubeReplacement(TrinketDefinition definition)
         {
             SetAdvancedMechanicCounter(MysteryCubePendingCounter, 1);
-            AddRecruitLog(RecruitLogType.Discover, definition.Name + ": Lesser Trinket replacement choice is pending.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(definition.Name + "：小型饰品替换选择将在稍后提供。", definition.Name + ": Lesser Trinket replacement choice is pending."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private bool MaybeOfferMysteryCubeChoice()
@@ -12270,7 +12301,7 @@ namespace LearnHearthstone.Application.Services
             if ((slotKind == TrinketSlotKind.Lesser && !string.IsNullOrEmpty(trinkets.LesserTrinketId)) ||
                 (slotKind == TrinketSlotKind.Greater && !string.IsNullOrEmpty(trinkets.GreaterTrinketId)))
             {
-                AddRecruitLog(RecruitLogType.Discover, rewardName + ": " + slotKind + " Trinket slot is already filled.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(rewardName + "：" + (slotKind == TrinketSlotKind.Lesser ? "小型" : "大型") + "饰品栏位已被占用。", rewardName + ": " + slotKind + " Trinket slot is already filled."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return false;
             }
 
@@ -12311,7 +12342,7 @@ namespace LearnHearthstone.Application.Services
                     var trinkets = EnsureTrinketState(tavern);
                     trinkets.ExtraMaxGold += 1;
                     tavern.MaxGold += 1;
-                    AddRecruitLog(RecruitLogType.Play, definition.Name + ": maximum Gold increased by 1.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：铸币上限提高1枚。", definition.Name + ": maximum Gold increased by 1."), tavern.Gold, tavern.Gold);
                 }
 
                 if (definition.EffectIds.Contains("aggem_sticker"))
@@ -12415,7 +12446,7 @@ namespace LearnHearthstone.Application.Services
             HandleTurnEndedForTierFourMinions();
             HandleTurnEndedForTierFiveMinions();
             HandleTurnEndedForTierSixSevenMinions();
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": friendly end-of-turn minion effects repeated once.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：友方随从的回合结束效果额外触发了一次。", definition.Name + ": friendly end-of-turn minion effects repeated once."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void TriggerEdgeBattlecries(string sourceName)
@@ -12442,7 +12473,7 @@ namespace LearnHearthstone.Application.Services
 
             if (edges.Count > 0)
             {
-                AddRecruitLog(RecruitLogType.Play, sourceName + ": triggered " + edges.Count + " edge Battlecry minion(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：触发了" + edges.Count + "个最边缘随从的战吼。", sourceName + ": triggered " + edges.Count + " edge Battlecry minion(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -12491,7 +12522,7 @@ namespace LearnHearthstone.Application.Services
 
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": played 7 Blood Gems on " + targets.Count + " friendly type minion(s).",
+                Localized(definition.Name + "：对" + targets.Count + "个符合类型的友方随从各使用了7张鲜血宝石。", definition.Name + ": played 7 Blood Gems on " + targets.Count + " friendly type minion(s)."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -12602,7 +12633,7 @@ namespace LearnHearthstone.Application.Services
             var rng = new SeededRng(State.Seed + State.Round * 4127 + State.Player.Tavern.RecruitLog.Count + definition.DbfId);
             var target = rng.Pick(candidates);
             MakeGoldenInPlace(target);
-            AddRecruitLog(RecruitLogType.Triple, definition.Name + ": made " + target.Name + " Golden.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Triple, Localized(definition.Name + "：使" + target.Name + "变为金色。", definition.Name + ": made " + target.Name + " Golden."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void StealHighestTierTavernCard(TrinketDefinition definition)
@@ -12663,7 +12694,7 @@ namespace LearnHearthstone.Application.Services
 
             tavern.Hand.Add(card);
             HandleCardsAddedToHand(1, source);
-            AddRecruitLog(RecruitLogType.Play, source + ": stole " + card.Name + " from the Tavern.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(source + "：从酒馆中偷取了" + card.Name + "。", source + ": stole " + card.Name + " from the Tavern."), tavern.Gold, tavern.Gold);
             return true;
         }
 
@@ -12685,7 +12716,7 @@ namespace LearnHearthstone.Application.Services
 
             if (added > 0)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": added " + added + " typed minion(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：添加了" + added + "个指定类型的随从。", definition.Name + ": added " + added + " typed minion(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -12852,7 +12883,7 @@ namespace LearnHearthstone.Application.Services
         {
             State.Player.Tavern.FreeRefreshes = StatMath.SaturatingAdd(State.Player.Tavern.FreeRefreshes, 1, 0, StatMath.MaxStat);
             SetAdvancedMechanicCounter(WarbandWhistlePendingCounter, 1);
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": gained a free warband Refresh.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：获得一次免费的战队刷新。", definition.Name + ": gained a free warband Refresh."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void AddBattlecruiserProxyToHand(string source)
@@ -13011,7 +13042,7 @@ namespace LearnHearthstone.Application.Services
             tavern.BuddyPool = drawn.BuddyPool;
             tavern.Shop.AddRange(drawn.Shop);
             TavernShopSlots.Ensure(tavern);
-            AddRecruitLog(RecruitLogType.Reroll, source + ": filled the Tavern to " + desiredCards + " cards.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized(source + "：将酒馆补充至" + desiredCards + "张牌。", source + ": filled the Tavern to " + desiredCards + " cards."), tavern.Gold, tavern.Gold);
         }
 
         private int GetTrinketMinimumShopCards()
@@ -13090,7 +13121,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (copies.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": no warband minions to copy.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：没有可复制的战队随从。", definition.Name + ": no warband minions to copy."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -13113,7 +13144,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             TavernShopSlots.Ensure(tavern);
-            AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": refreshed with " + copyIndex + " plain warband copie(s).", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：刷新时加入了" + copyIndex + "个普通战队随从复制。", definition.Name + ": refreshed with " + copyIndex + " plain warband copie(s)."), tavern.Gold, tavern.Gold);
         }
 
         private void AddRandomMagneticMechToShop(List<MinionInstance> shop, TrinketDefinition definition)
@@ -13185,7 +13216,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             TavernShopSlots.Ensure(tavern);
-            AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": added " + count + " placeholder-92 proxy minion(s) to the Tavern.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：向酒馆中加入了" + count + "个特殊随从。", definition.Name + ": added " + count + " special minion(s) to the Tavern."), tavern.Gold, tavern.Gold);
         }
 
         private void ApplyGuidingCandleRefresh(List<MinionInstance> shop, TrinketDefinition definition)
@@ -13276,7 +13307,7 @@ namespace LearnHearthstone.Application.Services
                 target.Tags.Add(DemonicTapestryHealthCostTag);
             }
 
-            AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": " + target.Name + " costs Health this refresh.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：本次刷新中，购买" + target.Name + "将消耗生命值。", definition.Name + ": " + target.Name + " costs Health this refresh."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyFinleysHelmetRefresh(List<MinionInstance> shop, TrinketDefinition definition)
@@ -13605,7 +13636,7 @@ namespace LearnHearthstone.Application.Services
                 .FirstOrDefault();
             if (target == null)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": no last opponent warband minion is available.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：没有可用的上一个对手战队随从。", definition.Name + ": no last opponent warband minion is available."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -13617,7 +13648,7 @@ namespace LearnHearthstone.Application.Services
             copy.CanReturnToPoolAfterAttach = false;
             tavern.Hand.Add(copy);
             HandleCardsAddedToHand(1, definition.Name);
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": copied " + copy.Name + " from the last opponent warband.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：复制了上一个对手战队中的" + copy.Name + "。", definition.Name + ": copied " + copy.Name + " from the last opponent warband."), tavern.Gold, tavern.Gold);
         }
 
         private void DispatchTrinketCardBought(MinionInstance bought)
@@ -13684,7 +13715,7 @@ namespace LearnHearthstone.Application.Services
 
             SetAdvancedMechanicCounter(GoldPlatedCompassNextBuyCounter, 0);
             MakeGoldenInPlace(bought);
-            AddRecruitLog(RecruitLogType.Triple, definition.Name + ": made the bought placeholder-92 proxy minion Golden.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Triple, Localized(definition.Name + "：使购买的特殊随从变为金色。", definition.Name + ": made the bought special minion Golden."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyShamanPrayerBeads(MinionInstance bought, TrinketDefinition definition)
@@ -13698,7 +13729,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.ShamanPrayerBeadsBattlecryBuys += 1;
             if (trinkets.ShamanPrayerBeadsBattlecryBuys < 2)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": 1 Battlecry minion left.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：还剩1个战吼随从。", definition.Name + ": 1 Battlecry minion left."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 return;
             }
 
@@ -13773,7 +13804,7 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.Hand.Add(copy);
             SetAdvancedMechanicCounter(key, Math.Max(0, remaining - 1));
             HandleCardsAddedToHand(1, definition.Name);
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": copied " + bought.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：复制了" + bought.Name + "。", definition.Name + ": copied " + bought.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void AddPortableFactoryCopy(TrinketDefinition definition)
@@ -13803,7 +13834,7 @@ namespace LearnHearthstone.Application.Services
                 PoolSource.Copy,
                 0));
             HandleCardsAddedToHand(1, definition.Name);
-            AddRecruitLog(RecruitLogType.Play, definition.Name + ": added a copy of " + stored.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：添加了" + stored.Name + "的一个复制。", definition.Name + ": added a copy of " + stored.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void RecordPeacebloomCandleBuy(string sourceName)
@@ -13823,7 +13854,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.PeacebloomCandleBuysThisRound += 1;
             AddRecruitLog(
                 RecruitLogType.Play,
-                sourceName + ": " + Math.Max(0, 3 - trinkets.PeacebloomCandleBuysThisRound) + " free Tavern spell buy(s) left this turn.",
+                Localized(sourceName + "：本回合还可免费购买" + Math.Max(0, 3 - trinkets.PeacebloomCandleBuysThisRound) + "张酒馆法术。", sourceName + ": " + Math.Max(0, 3 - trinkets.PeacebloomCandleBuysThisRound) + " free Tavern spell buy(s) left this turn."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -13844,7 +13875,7 @@ namespace LearnHearthstone.Application.Services
                 StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                sourceName + ": first Tavern spell discount used for this turn.",
+                Localized(sourceName + "：已使用本回合第一次酒馆法术折扣。", sourceName + ": first Tavern spell discount used for this turn."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -13878,7 +13909,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    definition.Name + ": played a Blood Gem on all friendly minions after a discard.",
+                    Localized(definition.Name + "：弃牌后，对所有友方随从各使用了一张鲜血宝石。", definition.Name + ": played a Blood Gem on all friendly minions after a discard."),
                     State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
             }
@@ -13909,7 +13940,7 @@ namespace LearnHearthstone.Application.Services
                     BuffMinion(target, bonus, bonus, definition.Name);
                     AddRecruitLog(
                         RecruitLogType.Play,
-                        definition.Name + ": magnetized target gained +" + bonus + "/+" + bonus + ".",
+                        Localized(definition.Name + "：磁力目标获得+" + bonus + "/+" + bonus + "。", definition.Name + ": magnetized target gained +" + bonus + "/+" + bonus + "."),
                         State.Player.Tavern.Gold,
                         State.Player.Tavern.Gold);
                 }
@@ -13946,7 +13977,7 @@ namespace LearnHearthstone.Application.Services
             SetAdvancedMechanicCounter(healthKey, StatMath.SaturatingAdd(health, baseHealth, 0, StatMath.MaxStat));
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": magnetized minion gained +" + attack + "/+" + health + ".",
+                Localized(definition.Name + "：磁力随从获得+" + attack + "/+" + health + "。", definition.Name + ": magnetized minion gained +" + attack + "/+" + health + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -14136,7 +14167,7 @@ namespace LearnHearthstone.Application.Services
             BuffMinion(target, attack, health, definition.Name);
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": gave " + target.Name + " +" + attack + "/+" + health + ".",
+                Localized(definition.Name + "：使" + target.Name + "获得+" + attack + "/+" + health + "。", definition.Name + ": gave " + target.Name + " +" + attack + "/+" + health + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -14209,7 +14240,7 @@ namespace LearnHearthstone.Application.Services
                 StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": next Tavern spell costs (1) less.",
+                Localized(definition.Name + "：下一张酒馆法术的铸币消耗减少（1）点。", definition.Name + ": next Tavern spell costs (1) less."),
                 tavern.Gold,
                 tavern.Gold);
         }
@@ -14370,7 +14401,7 @@ namespace LearnHearthstone.Application.Services
 
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": played " + gemsPerTrigger + " Blood Gem(s) on all friendly minions " + triggers + " time(s).",
+                Localized(definition.Name + "：对所有友方随从使用了" + gemsPerTrigger + "张鲜血宝石，共触发" + triggers + "次。", definition.Name + ": played " + gemsPerTrigger + " Blood Gem(s) on all friendly minions " + triggers + " time(s)."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -14483,7 +14514,7 @@ namespace LearnHearthstone.Application.Services
             trinkets.HeartOfForestBonusHealth = StatMath.SaturatingAdd(trinkets.HeartOfForestBonusHealth, 1, 0, StatMath.MaxStat);
             AddRecruitLog(
                 RecruitLogType.Play,
-                definition.Name + ": Tavern spell bonus improved to +" + trinkets.HeartOfForestBonusAttack + "/+" + trinkets.HeartOfForestBonusHealth + ".",
+                Localized(definition.Name + "：酒馆法术加成提高至+" + trinkets.HeartOfForestBonusAttack + "/+" + trinkets.HeartOfForestBonusHealth + "。", definition.Name + ": Tavern spell bonus improved to +" + trinkets.HeartOfForestBonusAttack + "/+" + trinkets.HeartOfForestBonusHealth + "."),
                 State.Player.Tavern.Gold,
                 State.Player.Tavern.Gold);
         }
@@ -14663,7 +14694,7 @@ namespace LearnHearthstone.Application.Services
                     var amount = definition.SlotKind == TrinketSlotKind.Greater ? 6 : 2;
                     tavern.NextCombatBoardAttack += amount;
                     tavern.NextCombatBoardHealth += amount;
-                    AddRecruitLog(RecruitLogType.Play, definition.Name + ": next combat board +" + amount + "/+" + amount + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：下一场战斗中，战队获得+" + amount + "/+" + amount + "。", definition.Name + ": next combat board +" + amount + "/+" + amount + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 }
 
                 if (definition.EffectIds.Contains("dazzling_dagger"))
@@ -15054,7 +15085,7 @@ namespace LearnHearthstone.Application.Services
                 }
 
                 context.CombatBoard.Add(summoned);
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": summoned and got " + summoned.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：召唤并获得了" + summoned.Name + "。", definition.Name + ": summoned and got " + summoned.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -15574,7 +15605,7 @@ namespace LearnHearthstone.Application.Services
         {
             if (affected > 0)
             {
-                AddRecruitLog(RecruitLogType.Play, definition.Name + ": applied start of combat effect to " + affected + " minion(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：对" + affected + "个随从施加了战斗开始效果。", definition.Name + ": applied start of combat effect to " + affected + " minion(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -15604,7 +15635,7 @@ namespace LearnHearthstone.Application.Services
             {
                 tavern.NextCombatBoardAttack += 12;
                 tavern.NextCombatBoardHealth += 12;
-                AddRecruitLog(RecruitLogType.Play, "Staff of Origination: next combat board +12/+12.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(QuestRewardDisplayName(StaffOfOriginationRewardId, "源生法杖") + "：下一场战斗中，战队获得+12/+12。", "Staff of Origination: next combat board +12/+12."), tavern.Gold, tavern.Gold);
             }
 
             if (HasActiveQuestReward(TumblingDisasterRewardId))
@@ -15758,7 +15789,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    "Dalaran Cheese Wheel improved to +" + trinkets.DalaranCheeseWheelBonusAttack + "/+" + trinkets.DalaranCheeseWheelBonusHealth + " in the Tavern.",
+                    Localized("达拉然奶酪轮盘：酒馆中的强化提高至+" + trinkets.DalaranCheeseWheelBonusAttack + "/+" + trinkets.DalaranCheeseWheelBonusHealth + "。", "Dalaran Cheese Wheel improved to +" + trinkets.DalaranCheeseWheelBonusAttack + "/+" + trinkets.DalaranCheeseWheelBonusHealth + " in the Tavern."),
                     tavern.Gold,
                     tavern.Gold);
             }
@@ -15819,13 +15850,13 @@ namespace LearnHearthstone.Application.Services
             var spell = DrawTavernSpell(Math.Max(1, tavern.Tier), rng);
             if (spell == null)
             {
-                AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": no Tavern spell is available for the extra offer.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：没有可加入额外栏位的酒馆法术。", definition.Name + ": no Tavern spell is available for the extra offer."), tavern.Gold, tavern.Gold);
                 return;
             }
 
             shop.Add(MinionFactory.Create(spell, BoardSide.Player, "trinket-lubber-sticker-" + State.Round + "-" + shop.Count));
             TavernShopSlots.Ensure(tavern);
-            AddRecruitLog(RecruitLogType.Reroll, definition.Name + ": added an extra Tavern spell to the Tavern.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized(definition.Name + "：向酒馆中加入了一张额外的酒馆法术。", definition.Name + ": added an extra Tavern spell to the Tavern."), tavern.Gold, tavern.Gold);
         }
 
         private void ApplyLubberStickerRefreshOffers(List<MinionInstance> shop)
@@ -17201,7 +17232,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = routes.Select(CreateGalewingFlightpathOption).ToList()
             };
-            AddRecruitLog(RecruitLogType.Discover, "Dungar's Gryphon: choose a flightpath.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("丹加尔的狮鹫：选择一条航线。", "Dungar's Gryphon: choose a flightpath."), tavern.Gold, tavern.Gold);
         }
 
         private void UseCarielHeroPower()
@@ -17237,7 +17268,7 @@ namespace LearnHearthstone.Application.Services
                 buffed += 1;
             }
 
-            AddRecruitLog(RecruitLogType.Play, "Conviction: gave " + buffed + " random friendly minion(s) +" + attack + "/+" + health + ".", before, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("定罪：使" + buffed + "个随机友方随从获得+" + attack + "/+" + health + "。", "Conviction: gave " + buffed + " random friendly minion(s) +" + attack + "/+" + health + "."), before, tavern.Gold);
         }
 
         private void ChooseHeroMechanicOption(MechanicChoiceRequest request, MechanicChoiceOption option)
@@ -17274,7 +17305,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             tavern.HeroTavishTargetInstanceId = target.InstanceId;
             tavern.HeroTavishTargetIndex = State.Opponent.Board.FindIndex(minion => string.Equals(minion.InstanceId, target.InstanceId, StringComparison.OrdinalIgnoreCase));
-            AddRecruitLog(RecruitLogType.Play, "Deadeye: aimed at " + target.Name + " for the next combat start.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("神射手：已瞄准" + target.Name + "，将在下场战斗开始时生效。", "Deadeye: aimed at " + target.Name + " for the next combat start."), tavern.Gold, tavern.Gold);
         }
 
         private MinionInstance ResolveOpponentBoardTarget(int targetIndex, TargetZone targetZone, string targetInstanceId)
@@ -17317,13 +17348,13 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = new System.Collections.Generic.List<MechanicChoiceOption>
                 {
-                    CreateBrukanElementOption(BrukanElementFire, "Fire", "Double your left-most minion's Attack."),
-                    CreateBrukanElementOption(BrukanElementEarth, "Earth", "Give minions Deathrattle: summon a 1/1 Elemental."),
-                    CreateBrukanElementOption(BrukanElementWater, "Water", "Give your right-most minion Health and Taunt."),
-                    CreateBrukanElementOption(BrukanElementLightning, "Lightning", "Deal damage to random enemy minions.")
+                    CreateBrukanElementOption(BrukanElementFire, Localized("火焰", "Fire"), Localized("使你最左边的随从的攻击力翻倍。", "Double your left-most minion's Attack.")),
+                    CreateBrukanElementOption(BrukanElementEarth, Localized("大地", "Earth"), Localized("使随从获得亡语：召唤一个1/1的元素。", "Give minions Deathrattle: summon a 1/1 Elemental.")),
+                    CreateBrukanElementOption(BrukanElementWater, Localized("流水", "Water"), Localized("使你最右边的随从获得生命值和嘲讽。", "Give your right-most minion Health and Taunt.")),
+                    CreateBrukanElementOption(BrukanElementLightning, Localized("闪电", "Lightning"), Localized("对随机敌方随从造成伤害。", "Deal damage to random enemy minions."))
                 }
             };
-            AddRecruitLog(RecruitLogType.Discover, "Embrace the Elements: choose an Element.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("元素之力：选择一种元素。", "Embrace the Elements: choose an Element."), tavern.Gold, tavern.Gold);
         }
 
         private void UseAkazamzarakHeroPower()
@@ -17378,7 +17409,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, "Reclaimed Souls: Discover a friendly minion that died last combat.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("收复灵魂：发现一个在上一场战斗中死亡的友方随从。", "Reclaimed Souls: Discover a friendly minion that died last combat."), tavern.Gold, tavern.Gold);
         }
 
         private int CountStreetMagicians()
@@ -17400,7 +17431,7 @@ namespace LearnHearthstone.Application.Services
             var availableSlots = AkazamzarakActiveSecretLimit - activeSecretIds.Count;
             if (availableSlots <= 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, sourceName + ": Secret limit reached.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：奥秘数量已达上限。", sourceName + ": Secret limit reached."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -17409,7 +17440,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (candidates.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Discover, sourceName + ": no new Secret is available.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：没有可用的新奥秘。", sourceName + ": no new Secret is available."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -17430,7 +17461,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = Math.Max(1, Math.Min(remainingPicks, availableSlots)),
                 Options = options
             });
-            AddRecruitLog(RecruitLogType.Discover, sourceName + ": choose a " + (better ? "Better " : string.Empty) + "Secret.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：选择一个" + (better ? "强化" : string.Empty) + "奥秘。", sourceName + ": choose a " + (better ? "Better " : string.Empty) + "Secret."), tavern.Gold, tavern.Gold);
         }
 
         private MinionInstance CreateSecretDiscoverOption(string cardId, string name, string text, bool better, int index)
@@ -17475,7 +17506,7 @@ namespace LearnHearthstone.Application.Services
                 .ToList();
             if (activeSecrets.Count >= AkazamzarakActiveSecretLimit)
             {
-                AddRecruitLog(RecruitLogType.Discover, "Prestidigitation: Secret limit reached.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("魔术戏法：奥秘数量已达上限。", "Prestidigitation: Secret limit reached."), tavern.Gold, tavern.Gold);
             }
             else if (!activeSecrets.Any(secret =>
                     secret != null &&
@@ -17491,7 +17522,7 @@ namespace LearnHearthstone.Application.Services
                     CreatedRound = State.Round,
                     Triggered = false
                 });
-                AddRecruitLog(RecruitLogType.Discover, "Prestidigitation: set " + picked.Name + ".", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("魔术戏法：挂上了" + picked.Name + "。", "Prestidigitation: set " + picked.Name + "."), tavern.Gold, tavern.Gold);
             }
 
             var remaining = Math.Max(0, discover.RemainingPicks - 1);
@@ -17532,7 +17563,7 @@ namespace LearnHearthstone.Application.Services
                         firstComponentId,
                         "hero-power-second")
                 });
-                AddRecruitLog(RecruitLogType.Discover, "Build-An-Undead: chose " + picked.Name + ".", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("打造亡灵：选择了" + picked.Name + "。", "Build-An-Undead: chose " + picked.Name + "."), tavern.Gold, tavern.Gold);
                 return true;
             }
 
@@ -17552,7 +17583,7 @@ namespace LearnHearthstone.Application.Services
 
                     tavern.Hand.Add(creation);
                     HandleCardsAddedToHand(1, "Build-An-Undead");
-                    AddRecruitLog(RecruitLogType.Discover, "Build-An-Undead: created " + creation.Name + ".", tavern.Gold, tavern.Gold);
+                    AddRecruitLog(RecruitLogType.Discover, Localized("打造亡灵：创造了" + creation.Name + "。", "Build-An-Undead: created " + creation.Name + "."), tavern.Gold, tavern.Gold);
                 }
 
                 tavern.CompleteDiscover();
@@ -17601,7 +17632,7 @@ namespace LearnHearthstone.Application.Services
 
             var tavern = State.Player.Tavern;
             tavern.HeroBrukanElement = element;
-            AddRecruitLog(RecruitLogType.Discover, "Embrace the Elements: selected " + option.RewardName + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("元素之力：选择了" + option.RewardName + "。", "Embrace the Elements: selected " + option.RewardName + "."), tavern.Gold, tavern.Gold);
         }
 
         private static bool IsBrukanElement(string element)
@@ -17635,7 +17666,7 @@ namespace LearnHearthstone.Application.Services
             advanced.Selections[GalewingRouteSelectionKey] = route;
             advanced.Selections[GalewingLastRouteKey] = route;
             advanced.Counters[GalewingDueRoundCounter] = dueRound;
-            AddRecruitLog(RecruitLogType.Discover, "Dungar's Gryphon: " + GalewingRouteName(route) + " completes on turn " + dueRound + ".", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("丹加尔的狮鹫：" + GalewingRouteName(route) + "将在第" + dueRound + "回合完成。", "Dungar's Gryphon: " + GalewingRouteName(route) + " completes on turn " + dueRound + "."), tavern.Gold, tavern.Gold);
         }
 
         private void TryResolveGalewingFlightpath()
@@ -17661,7 +17692,7 @@ namespace LearnHearthstone.Application.Services
 
             advanced.Selections.Remove(GalewingRouteSelectionKey);
             advanced.Counters.Remove(GalewingDueRoundCounter);
-            AddRecruitLog(RecruitLogType.Play, "Dungar's Gryphon: " + GalewingRouteName(route) + " triggered " + resolved + "/" + triggers + " reward(s).", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("丹加尔的狮鹫：" + GalewingRouteName(route) + "触发了" + resolved + "/" + triggers + "次奖励。", "Dungar's Gryphon: " + GalewingRouteName(route) + " triggered " + resolved + "/" + triggers + " reward(s)."), tavern.Gold, tavern.Gold);
         }
 
         private bool ApplyGalewingRouteReward(string route, int repeat)
@@ -17674,7 +17705,7 @@ namespace LearnHearthstone.Application.Services
                 case GalewingRouteIronforge:
                     var before = State.Player.Tavern.Gold;
                     State.Player.Tavern.Gold = Math.Min(StatMath.MaxStat, State.Player.Tavern.Gold + 2);
-                    AddRecruitLog(RecruitLogType.Play, "Dungar's Gryphon: Ironforge gained 2 Gold.", before, State.Player.Tavern.Gold);
+                    AddRecruitLog(RecruitLogType.Play, Localized("丹加尔的狮鹫：铁炉堡使你获得2枚铸币。", "Dungar's Gryphon: Ironforge gained 2 Gold."), before, State.Player.Tavern.Gold);
                     return true;
                 case GalewingRoutePlaguelands:
                     return StartTierDiscover(Math.Max(1, State.Player.Tavern.Tier), source, fromCurrentPool: true);
@@ -17719,7 +17750,7 @@ namespace LearnHearthstone.Application.Services
                 RemainingPicks = 1,
                 Options = CarielImprovementIds().Select(CreateCarielImprovementOption).ToList()
             };
-            AddRecruitLog(RecruitLogType.Discover, "Conviction: choose an improvement.", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("定罪：选择一项强化。", "Conviction: choose an improvement."), tavern.Gold, tavern.Gold);
         }
 
         private void TryImproveCarielFromCaptainFairmount()
@@ -17744,17 +17775,17 @@ namespace LearnHearthstone.Application.Services
                 case CarielImproveTargets:
                     var targets = GetAdvancedCounter(advanced, CarielTargetsCounter, 2) + 1;
                     advanced.Counters[CarielTargetsCounter] = targets;
-                    message = source + ": Conviction now targets " + targets + " minion(s).";
+                    message = Localized(source + "：定罪现在会以" + targets + "个随从为目标。", source + ": Conviction now targets " + targets + " minion(s).");
                     break;
                 case CarielImproveAttack:
                     var attack = GetAdvancedCounter(advanced, CarielAttackCounter, 1) + 1;
                     advanced.Counters[CarielAttackCounter] = attack;
-                    message = source + ": Conviction now gives +" + attack + " Attack.";
+                    message = Localized(source + "：定罪现在会提供+" + attack + "攻击力。", source + ": Conviction now gives +" + attack + " Attack.");
                     break;
                 case CarielImproveHealth:
                     var health = GetAdvancedCounter(advanced, CarielHealthCounter, 1) + 1;
                     advanced.Counters[CarielHealthCounter] = health;
-                    message = source + ": Conviction now gives +" + health + " Health.";
+                    message = Localized(source + "：定罪现在会提供+" + health + "生命值。", source + ": Conviction now gives +" + health + " Health.");
                     break;
                 default:
                     throw new InvalidOperationException("Unknown Conviction improvement.");
@@ -17763,7 +17794,7 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(RecruitLogType.Play, message, tavern.Gold, tavern.Gold);
         }
 
-        private static MechanicChoiceOption CreateGalewingFlightpathOption(string route)
+        private MechanicChoiceOption CreateGalewingFlightpathOption(string route)
         {
             return new MechanicChoiceOption
             {
@@ -17782,7 +17813,7 @@ namespace LearnHearthstone.Application.Services
             };
         }
 
-        private static MechanicChoiceOption CreateCarielImprovementOption(string improvementId)
+        private MechanicChoiceOption CreateCarielImprovementOption(string improvementId)
         {
             return new MechanicChoiceOption
             {
@@ -17834,63 +17865,63 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private static string GalewingRouteName(string route)
+        private string GalewingRouteName(string route)
         {
             switch (route)
             {
                 case GalewingRouteWestfall:
-                    return "Westfall";
+                    return Localized("西部荒野", "Westfall");
                 case GalewingRouteIronforge:
-                    return "Ironforge";
+                    return Localized("铁炉堡", "Ironforge");
                 case GalewingRoutePlaguelands:
-                    return "Plaguelands";
+                    return Localized("东瘟疫之地", "Plaguelands");
                 default:
-                    return "Flightpath";
+                    return Localized("航线", "Flightpath");
             }
         }
 
-        private static string GalewingRouteText(string route)
+        private string GalewingRouteText(string route)
         {
             switch (route)
             {
                 case GalewingRouteWestfall:
-                    return "Complete in 1 turn to get a random 1-Cost Tavern spell.";
+                    return Localized("1回合后，随机获得一张消耗为（1）的酒馆法术。", "Complete in 1 turn to get a random 1-Cost Tavern spell.");
                 case GalewingRouteIronforge:
-                    return "Complete in 2 turns to gain 2 Gold.";
+                    return Localized("2回合后，获得2枚铸币。", "Complete in 2 turns to gain 2 Gold.");
                 case GalewingRoutePlaguelands:
-                    return "Complete in 3 turns to Discover a minion from your Tavern Tier.";
+                    return Localized("3回合后，发现一个你当前酒馆等级的随从。", "Complete in 3 turns to Discover a minion from your Tavern Tier.");
                 default:
-                    return "Complete this flightpath to get a reward.";
+                    return Localized("完成这条航线以获得奖励。", "Complete this flightpath to get a reward.");
             }
         }
 
-        private static string CarielImprovementName(string improvementId)
+        private string CarielImprovementName(string improvementId)
         {
             switch (improvementId)
             {
                 case CarielImproveTargets:
-                    return "More Targets";
+                    return Localized("更多目标", "More Targets");
                 case CarielImproveAttack:
-                    return "More Attack";
+                    return Localized("更多攻击力", "More Attack");
                 case CarielImproveHealth:
-                    return "More Health";
+                    return Localized("更多生命值", "More Health");
                 default:
-                    return "Improve Conviction";
+                    return Localized("强化定罪", "Improve Conviction");
             }
         }
 
-        private static string CarielImprovementText(string improvementId)
+        private string CarielImprovementText(string improvementId)
         {
             switch (improvementId)
             {
                 case CarielImproveTargets:
-                    return "Conviction affects one more friendly minion.";
+                    return Localized("定罪额外影响一个友方随从。", "Conviction affects one more friendly minion.");
                 case CarielImproveAttack:
-                    return "Conviction gives +1 more Attack.";
+                    return Localized("定罪额外提供+1攻击力。", "Conviction gives +1 more Attack.");
                 case CarielImproveHealth:
-                    return "Conviction gives +1 more Health.";
+                    return Localized("定罪额外提供+1生命值。", "Conviction gives +1 more Health.");
                 default:
-                    return "Improve Conviction.";
+                    return Localized("强化定罪。", "Improve Conviction.");
             }
         }
 
@@ -17932,7 +17963,7 @@ namespace LearnHearthstone.Application.Services
                 EnsureTimewarpedNewRecruitShopMinimumCards();
             }
 
-            AddRecruitLog(RecruitLogType.Reroll, "Temporal Tavern: refreshed with two higher-tier minions.", before, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Reroll, Localized("时光酒馆：刷新并加入了两个更高等级的随从。", "Temporal Tavern: refreshed with two higher-tier minions."), before, tavern.Gold);
             DispatchHeroEffect(HeroEffectEventType.HeroPowerUsed, heroPowerCardId: heroPowerCardId);
         }
 
@@ -18272,7 +18303,12 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Health = hero.Health > 0 ? hero.Health : 30;
                 State.Player.MaxHealth = State.Player.Health;
                 State.Player.Armor = Math.Max(0, hero.Armor);
-                AddRecruitLog(RecruitLogType.Discover, "Hero set: " + hero.Name, tavern.Gold, tavern.Gold);
+                var heroName = !useEnglish && !string.IsNullOrWhiteSpace(hero.ZhName) ? hero.ZhName : hero.Name;
+                AddRecruitLog(
+                    RecruitLogType.Discover,
+                    Localized("英雄已设置：" + heroName + "。", "Hero set: " + hero.Name),
+                    tavern.Gold,
+                    tavern.Gold);
                 return;
             }
 
@@ -19132,12 +19168,118 @@ namespace LearnHearthstone.Application.Services
 
                 foreach (var message in result.Messages)
                 {
+                    var localizedMessage = LocalizeHeroEffectMessage(powerId, eventType, message);
                     AddRecruitLog(
                         RecruitLogType.Play,
-                        includePowerName ? GetHeroPowerName(powerId) + ": " + message : message,
+                        useEnglish && includePowerName ? GetHeroPowerName(powerId) + ": " + localizedMessage : localizedMessage,
                         State.Player.Tavern.Gold,
                         State.Player.Tavern.Gold);
                 }
+            }
+        }
+
+        private string LocalizeHeroEffectMessage(string heroPowerCardId, HeroEffectEventType eventType, string message)
+        {
+            if (useEnglish || string.IsNullOrWhiteSpace(message))
+            {
+                return message;
+            }
+
+            var source = GetHeroPowerName(heroPowerCardId);
+            var values = Regex.Matches(message, @"[+-]?\d+(?:/\+?\d+)?")
+                .Cast<Match>()
+                .Select(match => match.Value)
+                .Distinct()
+                .ToList();
+            var valueSuffix = values.Count == 0 ? string.Empty : "（数值：" + string.Join("、", values) + "）";
+            if (message.IndexOf("no ", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("unavailable", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("missed", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：没有可用的目标或奖励。";
+            }
+
+            if (message.IndexOf("Discover", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("guess", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已开始或结算发现选择" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("copied", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("copy", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已复制对应卡牌或效果" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("summon", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("started with", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已召唤对应随从" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("refresh", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已刷新酒馆或获得刷新效果" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("cost", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Gold", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Coin", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已结算铸币或费用效果" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("transform", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("morph", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("replaced", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已结算变形或替换效果" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("buff", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("gave", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("gained +", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("stats", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已强化对应随从" + valueSuffix + "。";
+            }
+
+            if (message.IndexOf("Deathrattle", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Battlecry", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Windfury", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Divine Shield", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("Reborn", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return source + "：已结算关键词或触发效果" + valueSuffix + "。";
+            }
+
+            return source + "：" + HeroEffectEventDisplayName(eventType) + "效果已触发" + valueSuffix + "。";
+        }
+
+        private string HeroEffectEventDisplayName(HeroEffectEventType eventType)
+        {
+            switch (eventType)
+            {
+                case HeroEffectEventType.MatchStarted:
+                    return "对局开始";
+                case HeroEffectEventType.TurnStarted:
+                    return "回合开始";
+                case HeroEffectEventType.TurnEnded:
+                    return "回合结束";
+                case HeroEffectEventType.CombatEnded:
+                    return "战斗结束";
+                case HeroEffectEventType.HeroPowerUsed:
+                    return "英雄技能";
+                case HeroEffectEventType.CardBought:
+                    return "购买";
+                case HeroEffectEventType.CardPlayed:
+                    return "打出";
+                case HeroEffectEventType.ShopRefreshed:
+                    return "刷新";
+                case HeroEffectEventType.DiscoverChosen:
+                    return "发现";
+                default:
+                    return "英雄机制";
             }
         }
 
@@ -20638,7 +20780,7 @@ namespace LearnHearthstone.Application.Services
             var cast = CastRandomTavernSpells(1, State.Player.Tavern.Tier, "Puzzle Box", "yogg-saron");
             if (cast <= 0)
             {
-                AddRecruitLog(RecruitLogType.Play, "Puzzle Box: no legal Tavern spell was available.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized("谜题盒：没有可施放的酒馆法术。", "Puzzle Box: no legal Tavern spell was available."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -20660,7 +20802,7 @@ namespace LearnHearthstone.Application.Services
             var rewards = YoggIseumRewardOptions().ToList();
             if (rewards.Count == 0)
             {
-                AddRecruitLog(RecruitLogType.Play, "Acolyte of Yogg-Saron: Wheel proxy has no available rewards.", tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized("尤格-萨隆的侍从：命运之轮没有可用的奖励。", "Acolyte of Yogg-Saron: Wheel has no available rewards."), tavern.Gold, tavern.Gold);
                 return;
             }
 
@@ -21282,7 +21424,7 @@ namespace LearnHearthstone.Application.Services
 
                 State.Player.Tavern.Hand.Add(copy);
                 HandleCardsAddedToHand(1, "Reclaimed Souls");
-                AddRecruitLog(RecruitLogType.Discover, "Reclaimed Souls: gained " + copy.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("收复灵魂：获得了" + copy.Name + "。", "Reclaimed Souls: gained " + copy.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21302,7 +21444,7 @@ namespace LearnHearthstone.Application.Services
             if (discover.Source == HeroEffectEngine.ArtanisProtossDiscoverSource)
             {
                 State.Player.Tavern.AdvancedMechanics.Selections[HeroEffectEngine.ArtanisSelectedRewardKey] = picked.CardId;
-                AddRecruitLog(RecruitLogType.Discover, "Warp Gate: selected " + picked.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("折跃门：选择了" + picked.Name + "。", "Warp Gate: selected " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21316,7 +21458,7 @@ namespace LearnHearthstone.Application.Services
             if (discover.Source == HeroEffectEngine.HolmesDiscoverSource)
             {
                 DispatchDiscoverChosenEffect(discover, picked);
-                AddRecruitLog(RecruitLogType.Discover, "Detective for Hire: guessed " + picked.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("雇佣侦探：猜测为" + picked.Name + "。", "Detective for Hire: guessed " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21341,7 +21483,7 @@ namespace LearnHearthstone.Application.Services
             if (discover.Source == "hero-power:unmasked-identity" || picked.CardKind == CardKind.HeroPower)
             {
                 State.Player.HeroPowerCardId = picked.CardId;
-                AddRecruitLog(RecruitLogType.Discover, "Hero Power changed: " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("英雄技能已变为：" + picked.Name + "。", "Hero Power changed: " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21373,7 +21515,7 @@ namespace LearnHearthstone.Application.Services
             if (!string.IsNullOrEmpty(discover.Source) && discover.Source.StartsWith("timewarped-lucky-egg:", StringComparison.Ordinal))
             {
                 TransformTimewarpedLuckyEgg(discover.Source.Substring("timewarped-lucky-egg:".Length), picked);
-                AddRecruitLog(RecruitLogType.Discover, "Timewarped Lucky Egg transformed into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedLuckyEggCardId, "时光幸运蛋") + "变形为" + picked.Name + "。", "Timewarped Lucky Egg transformed into " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21381,7 +21523,7 @@ namespace LearnHearthstone.Application.Services
             if (!string.IsNullOrEmpty(discover.Source) && discover.Source.StartsWith("timewarped-zerus:", StringComparison.Ordinal))
             {
                 TransformTimewarpedZerus(discover.Source.Substring("timewarped-zerus:".Length), picked);
-                AddRecruitLog(RecruitLogType.Discover, "Timewarped Zerus transformed into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedZerusCardId, "时光泽鲁斯") + "变形为" + picked.Name + "。", "Timewarped Zerus transformed into " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21389,7 +21531,7 @@ namespace LearnHearthstone.Application.Services
             if (!string.IsNullOrEmpty(discover.Source) && discover.Source.StartsWith(TimewarpedEvolutionSourcePrefix, StringComparison.Ordinal))
             {
                 TransformTimewarpedEvolution(discover.TargetInstanceId ?? discover.Source.Substring(TimewarpedEvolutionSourcePrefix.Length), picked);
-                AddRecruitLog(RecruitLogType.Discover, "Timewarped Evolution transformed a minion into " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedEvolutionCardId, "时光进化") + "：将一个随从变形为" + picked.Name + "。", "Timewarped Evolution transformed a minion into " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21415,7 +21557,7 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Tavern.Hand.Add(picked);
                 LockCardInHand(picked, 1);
                 HandleCardsAddedToHand(1, "Timewarped Beanstalk");
-                AddRecruitLog(RecruitLogType.Discover, "Timewarped Beanstalk discovered and locked " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedBeanstalkCardId, "时光豆茎") + "：发现并锁定了" + picked.Name + "。", "Timewarped Beanstalk discovered and locked " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21440,7 +21582,7 @@ namespace LearnHearthstone.Application.Services
             {
                 ResolveGalakrondChoice(discover, picked);
                 DispatchDiscoverChosenEffect(discover, picked);
-                AddRecruitLog(RecruitLogType.Discover, "Galakrond replacement " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Discover, Localized("迦拉克隆的贪婪：已替换为" + picked.Name + "。", "Galakrond replacement " + picked.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                 State.Player.Tavern.CompleteDiscover();
                 return;
             }
@@ -21459,7 +21601,7 @@ namespace LearnHearthstone.Application.Services
                 DamagePlayerHero(Math.Max(1, picked.TavernTier));
             }
 
-            AddRecruitLog(RecruitLogType.Discover, "鍙戠幇 " + picked.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("发现 " + picked.Name, "Discovered " + picked.Name), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             State.Player.Tavern.ClearCurrentDiscover();
             if (TryContinueTierDiscover(discover))
             {
@@ -21549,7 +21691,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             State.Player.Board[index] = replacement;
-            AddRecruitLog(RecruitLogType.Discover, "Kerrigan: morphed into " + replacement.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized("凯瑞甘：变形为" + replacement.Name + "。", "Kerrigan: morphed into " + replacement.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             State.Player.Tavern.CompleteDiscover();
         }
 
@@ -21568,7 +21710,11 @@ namespace LearnHearthstone.Application.Services
             });
             foreach (var message in result.Messages)
             {
-                AddRecruitLog(RecruitLogType.Discover, message, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(
+                    RecruitLogType.Discover,
+                    LocalizeHeroEffectMessage(State.Player.HeroPowerCardId, HeroEffectEventType.DiscoverChosen, message),
+                    State.Player.Tavern.Gold,
+                    State.Player.Tavern.Gold);
             }
         }
 
@@ -21686,7 +21832,7 @@ namespace LearnHearthstone.Application.Services
 
             var scenario = TestScenarioMapper.Capture(State, scenarioName.Trim());
             scenarioRepository.Save(scenario);
-            AddRecruitLog(RecruitLogType.Play, "淇濆瓨娴嬭瘯鍦烘櫙 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("已保存测试场景：" + scenario.Name + "。", "Saved test scenario: " + scenario.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void LoadTestScenario(string scenarioName)
@@ -21702,7 +21848,7 @@ namespace LearnHearthstone.Application.Services
             combatTestSnapshot = null;
             combatExplanation = null;
             State.LastReplay = null;
-            AddRecruitLog(RecruitLogType.Play, "鍔犺浇娴嬭瘯鍦烘櫙 " + scenario.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("已加载测试场景：" + scenario.Name + "。", "Loaded test scenario: " + scenario.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void RunCombatTest(CombatTestOptions options)
@@ -22534,7 +22680,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             AddGeneratedSpellsToHand(ShiftingTideSpellCardId, casts, "Tide Raiser Portrait");
-            AddRecruitLog(RecruitLogType.Play, "Tide Raiser Portrait: copied " + casts + " combat spell(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Play, Localized("潮汐使者肖像：复制了" + casts + "个战斗法术。", "Tide Raiser Portrait: copied " + casts + " combat spell(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void ApplyTimewarpedKillCombatReward(CombatReward reward, HashSet<string> pagleRewardedSources)
@@ -22855,7 +23001,7 @@ namespace LearnHearthstone.Application.Services
             {
                 AddRecruitLog(
                     RecruitLogType.Play,
-                    "Combat reward skipped: original minion not found for " + source + " target " + reward.TargetInstanceId + ".",
+                    Localized("战斗奖励未结算：找不到原随从。", "Combat reward skipped: original minion not found for " + source + " target " + reward.TargetInstanceId + "."),
                     State.Player.Tavern.Gold,
                     State.Player.Tavern.Gold);
                 return;
@@ -23326,7 +23472,7 @@ namespace LearnHearthstone.Application.Services
                 Options = options,
                 RemainingPicks = 1
             });
-            AddRecruitLog(RecruitLogType.Discover, "Timewarped Zerus offered " + options.Count + " transform option(s).", tavern.Gold, tavern.Gold);
+            AddRecruitLog(RecruitLogType.Discover, Localized(TimewarpedCardName(TimewarpedZerusCardId, "时光泽鲁斯") + "提供了" + options.Count + "个变形选项。", "Timewarped Zerus offered " + options.Count + " transform option(s)."), tavern.Gold, tavern.Gold);
         }
 
         private void TransformTimewarpedZerus(string zerusInstanceId, MinionInstance picked)
@@ -25430,7 +25576,7 @@ namespace LearnHearthstone.Application.Services
 
             if (triggered > 0)
             {
-                AddRecruitLog(RecruitLogType.Play, sourceName + ": triggered " + triggered + " friendly Battlecry minion(s).", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(sourceName + "：触发了" + triggered + "个友方随从的战吼。", sourceName + ": triggered " + triggered + " friendly Battlecry minion(s)."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
         }
 
@@ -25440,7 +25586,7 @@ namespace LearnHearthstone.Application.Services
             {
                 case TimewarpedBuskerCardId:
                     State.Player.Tavern.NextTurnBonusGold += multiplier;
-                    AddRecruitLog(RecruitLogType.Play, source.Name + ": gain " + multiplier + " Gold next turn.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                    AddRecruitLog(RecruitLogType.Play, Localized(source.Name + "：下回合获得" + multiplier + "枚铸币。", source.Name + ": gain " + multiplier + " Gold next turn."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                     break;
                 case TimewarpedNestSwarmerCardId:
                     State.Player.Tavern.BeetleAttackBonus = StatMath.SaturatingAdd(State.Player.Tavern.BeetleAttackBonus, 2 * multiplier, 0, StatMath.MaxStat);
@@ -25465,7 +25611,7 @@ namespace LearnHearthstone.Application.Services
             {
                 case TimewarpedBuskerCardId:
                     State.Player.Tavern.NextTurnBonusGold += multiplier;
-                    AddRecruitLog(RecruitLogType.Play, source.Name + ": deathrattle grants " + multiplier + " Gold next turn.", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                    AddRecruitLog(RecruitLogType.Play, Localized(source.Name + "：亡语使你下回合获得" + multiplier + "枚铸币。", source.Name + ": deathrattle grants " + multiplier + " Gold next turn."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
                     break;
                 case TimewarpedPillagerCardId:
                     AddTavernCoinsToHand(multiplier, "timewarped-pillager");
@@ -26158,7 +26304,7 @@ namespace LearnHearthstone.Application.Services
                     targetIndex);
                 ConvertCopiedSpellcraftToPermanent(lavaLurker, enchantmentCountBeforeCopy, tagsBeforeCopy);
                 HandleSpellCastOnTarget(copy, lavaLurker.InstanceId, fromHand: false, suppressImperialDefenderCopy: true);
-                AddRecruitLog(RecruitLogType.Play, "Timewarped Lava Lurker copied " + spell.Name + " - " + result, tavern.Gold, tavern.Gold);
+                AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedCardName(TimewarpedLavaLurkerCardId, "时光熔岩潜伏者") + "复制施放了" + spell.Name + "。", "Timewarped Lava Lurker copied " + spell.Name + " - " + result), tavern.Gold, tavern.Gold);
             }
         }
 
@@ -26880,7 +27026,7 @@ namespace LearnHearthstone.Application.Services
                     ApplyTrinketShopCostDisplays(State.Player.Tavern.Shop);
                     AddRecruitLog(
                         RecruitLogType.Play,
-                        "Timewarped Archimonde: next Tavern spell costs (" + rewinderBonus + ") less.",
+                        Localized(TimewarpedCardName(TimewarpedArchimondeCardId, "时光阿克蒙德") + "：下一张酒馆法术的铸币消耗减少（" + rewinderBonus + "）点。", "Timewarped Archimonde: next Tavern spell costs (" + rewinderBonus + ") less."),
                         State.Player.Tavern.Gold,
                         State.Player.Tavern.Gold);
                 }
@@ -30493,7 +30639,7 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Board.Add(result.Golden);
             }
 
-            AddRecruitLog(RecruitLogType.Triple, "涓夎繛鍚堟垚 " + result.Golden.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            AddRecruitLog(RecruitLogType.Triple, Localized("三连合成：" + result.Golden.Name + "。", "Triple created: " + result.Golden.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private string FindPlayerTripleCandidate(List<MinionInstance> all, out int requiredCopies)
@@ -31162,7 +31308,50 @@ namespace LearnHearthstone.Application.Services
 
         private void AddRecruitLog(RecruitLogType type, string message, int goldBefore, int goldAfter)
         {
-            AddRecruitLog(State, type, message, goldBefore, goldAfter);
+            AddRecruitLog(State, type, useEnglish ? message : NormalizeChineseRecruitLog(type, message), goldBefore, goldAfter);
+        }
+
+        private static string NormalizeChineseRecruitLog(RecruitLogType type, string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return message;
+            }
+
+            var hasChinese = message.Any(character => character >= '\u3400' && character <= '\u9fff');
+            var hasImplementationLeak = message.IndexOf("proxy", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("placeholder-", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("ImplementationStatus", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                message.IndexOf("rule-unconfirmed", StringComparison.OrdinalIgnoreCase) >= 0;
+            var hasMojibake = message.IndexOf("鍙戠幇", StringComparison.Ordinal) >= 0 ||
+                message.IndexOf("涓夎繛", StringComparison.Ordinal) >= 0 ||
+                message.IndexOf("淇濆瓨娴嬭瘯", StringComparison.Ordinal) >= 0 ||
+                message.IndexOf("鍔犺浇娴嬭瘯", StringComparison.Ordinal) >= 0;
+            if (hasChinese && !hasImplementationLeak && !hasMojibake)
+            {
+                return message;
+            }
+
+            switch (type)
+            {
+                case RecruitLogType.Buy:
+                    return "购买操作已完成。";
+                case RecruitLogType.Sell:
+                    return "出售操作已完成。";
+                case RecruitLogType.Reroll:
+                    return "酒馆已刷新。";
+                case RecruitLogType.LevelUp:
+                    return "酒馆升级效果已结算。";
+                case RecruitLogType.Discover:
+                    return "选择或发现效果已结算。";
+                case RecruitLogType.Triple:
+                    return "三连奖励效果已结算。";
+                case RecruitLogType.TurnStart:
+                    return "新回合已开始。";
+                default:
+                    return "游戏效果已结算。";
+            }
         }
 
         private static void AddRecruitLog(MatchState state, RecruitLogType type, string message, int goldBefore, int goldAfter)

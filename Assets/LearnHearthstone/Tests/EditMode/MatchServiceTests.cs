@@ -1453,6 +1453,18 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(definition.ZhText, chineseCard.Text);
             Assert.AreEqual(definition.Name, englishCard.Name);
             Assert.AreEqual(definition.Text, englishCard.Text);
+            Assert.IsTrue(chinese.State.Player.Tavern.RecruitLog.Any(entry =>
+                entry.Message.Contains("小型时空酒馆已开启") &&
+                entry.Message.Contains("获得") &&
+                entry.Message.Contains("当前共有")));
+            Assert.IsFalse(chinese.State.Player.Tavern.RecruitLog.Any(entry =>
+                entry.Message.Contains("尚待确认") ||
+                entry.Message.Contains("rule-unconfirmed") ||
+                entry.Message.Contains("Chronum")));
+            Assert.IsTrue(english.State.Player.Tavern.RecruitLog.Any(entry =>
+                entry.Message.Contains("Minor Timewarped Tavern opened. Gained") &&
+                entry.Message.Contains("current Chronum")));
+            Assert.IsFalse(english.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("时空酒馆已开启")));
 
             chinese.State.Player.Tavern.Timewarp.Chronum = 0;
             english.State.Player.Tavern.Timewarp.Chronum = 0;
@@ -3262,7 +3274,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog
                 .Skip(logBefore)
-                .Any(entry => entry.Message.Contains("Wheel of Yogg-Saron")));
+                .Any(entry => entry.Message.Contains("命运之轮")));
         }
 
         [Test]

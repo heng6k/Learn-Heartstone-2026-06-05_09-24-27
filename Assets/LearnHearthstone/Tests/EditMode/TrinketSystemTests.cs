@@ -1547,6 +1547,7 @@ namespace LearnHearthstone.Tests.EditMode
             }));
             var expected = service.TrinketCatalog.GetByCardId(request.Options[0].SourceId);
             Assert.AreEqual(expected.ImagePath, request.Options[0].ImagePath);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("已提供小型饰品选项")));
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
@@ -1571,6 +1572,24 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(expectedGold, service.State.Player.Tavern.Gold);
             Assert.AreEqual(1, service.State.Player.Tavern.AdvancedMechanics.Equipped.Count);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "已装备小型饰品：" + expected.Name + "。"));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains(expected.CardId) || entry.Message.Contains("ImplementationStatus") || entry.Message.Contains("proxy")));
+        }
+
+        [Test]
+        public void TrinketRuntimeLogs_PreserveEnglishMode()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions { UseEnglish = true });
+            service.State.Player.Tavern.Gold = 20;
+            QueueTrinketChoice(service, "BG30_MagicItem_973");
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "Equipped Lesser Trinket: Minion Bait."));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("已装备小型饰品")));
         }
 
         [Test]
@@ -1609,6 +1628,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
             Assert.AreEqual(7, service.State.Player.Tavern.MaxGold);
             Assert.AreEqual(4, trinkets.ExtraMaxGold);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("获得4枚铸币") && entry.Message.Contains("铸币上限提高4枚")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Bob's Tip Jar:")));
         }
 
         [Test]
@@ -7083,9 +7104,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(cublings.Any(card => card.Attack == 2 && card.MaxHealth == 3));
             Assert.AreEqual(1, manasaber.Attack);
             Assert.AreEqual(4, manasaber.MaxHealth);
-            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
-                entry.Message.Contains("original minion not found") &&
-                entry.Message.Contains("BG32_MagicItem_862")));
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("找不到原随从")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("BG32_MagicItem_862")));
         }
 
         [Test]

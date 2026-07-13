@@ -241,7 +241,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildHeader(Transform parent)
         {
             var header = UiFactory.Panel("UnityTribeSelectionHeader", parent, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 82f : 100f);
+            UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 108f : 126f);
             var headerLayout = header.AddComponent<VerticalLayoutGroup>();
             headerLayout.padding = new RectOffset(12, 12, 8, 8);
             headerLayout.spacing = 6;
@@ -257,10 +257,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var count = selected.Count + "/5";
             var names = selected.Count == 0 ? T("尚未选择", "None selected") : string.Join(" / ", TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).Select(TribeName).ToArray());
-            var summary = UiFactory.Label("UnityTribeSelectionSummary", header.transform, T("已选 ", "Selected ") + count + "  " + names, layout.IsCompact ? 13 : 15, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityTribeSelectionSummary", header.transform, T("已选 ", "Selected ") + count + "  " + names, layout.IsCompact ? 14 : 16, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleCenter;
             summary.color = selected.Count == 5 ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 28f : 34f);
+
+            var excluded = TribeAvailabilityRules.PlayableTribes.Where(tribe => !selected.Contains(tribe)).Select(TribeName).ToArray();
+            var exclusionText = selected.Count == 5
+                ? T("本局排除：", "Excluded: ") + string.Join(" / ", excluded)
+                : T("还需选择 " + (5 - selected.Count) + " 个；选满后其余种族将排除", "Choose " + (5 - selected.Count) + " more; remaining tribes will be excluded");
+            var exclusion = UiFactory.Label("UnityTribeSelectionExclusionSummary", header.transform, exclusionText, 14, FontStyle.Bold);
+            exclusion.alignment = TextAnchor.MiddleCenter;
+            exclusion.color = selected.Count == 5 ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Blue;
+            exclusion.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(exclusion.gameObject, layout.IsCompact ? 24f : 28f);
         }
 
         private void BuildTribeGrid(Transform parent)
@@ -304,7 +314,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 isSelected ? new Color(TribeAccent(tribe).r, TribeAccent(tribe).g, TribeAccent(tribe).b, 0.86f) : new Color(0f, 0f, 0f, 0.24f),
                 isSelected ? new Vector2(2f, -2f) : new Vector2(1f, -1f));
 
-            var label = UiFactory.Label(buttonObject.name + "Text", buttonObject.transform, TribeName(tribe), layout.IsCompact ? 15 : 17, FontStyle.Bold);
+            var stateText = isSelected
+                ? "\n" + T("已选", "Selected")
+                : selected.Count == 5
+                    ? "\n" + T("排除", "Excluded")
+                    : string.Empty;
+            var label = UiFactory.Label(buttonObject.name + "Text", buttonObject.transform, TribeName(tribe) + stateText, stateText.Length == 0 ? (layout.IsCompact ? 15 : 17) : 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.Stretch(label.rectTransform);
@@ -312,6 +327,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildQuickActions(Transform parent)
         {
+            var remainingSelections = Math.Max(0, 5 - selected.Count);
             var row = UiFactory.Panel("UnityTribeSelectionActions", parent, UnityTavernUiStyle.PanelRaised);
             UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 56f : 62f);
             var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
@@ -323,13 +339,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rowLayout.childForceExpandHeight = true;
 
             ActionButton("UnityTribeSelectionBackButton", row.transform, T("返回", "Back"), true, backToHub);
-            ActionButton("UnityTribeSelectionRandomButton", row.transform, T("随机5个", "Random 5"), true, () =>
+            ActionButton(
+                "UnityTribeSelectionRandomButton",
+                row.transform,
+                selected.Count == 0 ? T("随机选择5个", "Random 5") : T("重新随机5个", "Reroll 5"),
+                true,
+                () =>
             {
                 SelectRandomFive();
                 Build();
             });
-            ActionButton("UnityTribeSelectionAllButton", row.transform, T("全部10个种族", "All 10 Tribes"), true, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
-            ActionButton("UnityTribeSelectionEnterButton", row.transform, T("下一步", "Next"), selected.Count == 5, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList()));
+            ActionButton("UnityTribeSelectionAllButton", row.transform, T("快速配置：全部种族", "Quick Setup: All Tribes"), true, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
+            ActionButton(
+                "UnityTribeSelectionEnterButton",
+                row.transform,
+                selected.Count == 5
+                    ? T("自定义下一步", "Continue Custom Setup")
+                    : T("自定义：还需选择 " + remainingSelections + " 个", "Custom: choose " + remainingSelections + " more"),
+                selected.Count == 5,
+                () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList()));
         }
 
         private void BuildAdvancedMechanicsOverlay()
@@ -380,7 +408,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var tribeText = pendingStartTribes == null || pendingStartTribes.Count == 0
                 ? T("全部可用种族", "All available tribes")
                 : string.Join(" / ", pendingStartTribes.Select(TribeName).ToArray());
-            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupPageSummary", header.transform, tribeText + "  " + AdvancedMechanicsSummaryText(), layout.IsCompact ? 12 : 13, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupPageSummary", header.transform, tribeText + "  " + AdvancedMechanicsSummaryText(), 14, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleCenter;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 24f : 28f);
@@ -397,7 +425,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 advancedMechanicsOpen = false;
                 Build();
             });
+            ActionButton("UnityAdvancedMechanicsResetFiltersButton", row.transform, T("重置筛选", "Reset Filters"), true, () =>
+            {
+                ResetAdvancedFilters();
+                Build();
+            });
             ActionButton("UnityAdvancedMechanicsStartButton", row.transform, T("进入酒馆", "Enter Tavern"), true, () => StartTrainer(pendingStartTribes));
+        }
+
+        private void ResetAdvancedFilters()
+        {
+            showProxySafe = true;
+            showDebugOnly = false;
+            showHiddenEffectOnly = false;
+            showDisabled = false;
+            enablePlayerDirectedChoices = true;
         }
 
         private void OpenAdvancedMechanicsPage(List<Tribe> activeTribes)
@@ -437,7 +479,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 24f : 28f);
 
-            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupSummary", titleBlock.transform, AdvancedMechanicsSummaryText(), layout.IsCompact ? 10 : 11, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupSummary", titleBlock.transform, AdvancedMechanicsSummaryText(), 14, FontStyle.Bold);
             summary.color = UnityTavernUiStyle.MutedText;
             summary.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetFlexible(summary.gameObject, 1f, 0f);
@@ -661,11 +703,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.caretColor = UnityTavernUiStyle.Text;
             input.selectionColor = new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.35f);
             input.textComponent = UiFactory.Label("UnityAdvancedPoolSearchText", inputObject.transform, string.Empty, 14, FontStyle.Bold);
+            UnityTavernUiStyle.Stretch(input.textComponent.rectTransform);
             input.textComponent.alignment = TextAnchor.MiddleLeft;
             input.textComponent.color = UnityTavernUiStyle.Text;
             input.textComponent.rectTransform.offsetMin = new Vector2(12f, 0f);
             input.textComponent.rectTransform.offsetMax = new Vector2(-12f, 0f);
             input.placeholder = UiFactory.Label("UnityAdvancedPoolSearchPlaceholder", inputObject.transform, T("搜索名称、CardId、文本、标签", "Search name, CardId, text, tags"), 14);
+            UnityTavernUiStyle.Stretch(input.placeholder.rectTransform);
             input.placeholder.color = UnityTavernUiStyle.MutedText;
             input.placeholder.rectTransform.offsetMin = new Vector2(12f, 0f);
             input.placeholder.rectTransform.offsetMax = new Vector2(-12f, 0f);
@@ -1665,6 +1709,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.caretColor = UnityTavernUiStyle.Text;
             input.selectionColor = new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.35f);
             input.textComponent = UiFactory.Label("UnityCardPoolVersionNameText", inputObject.transform, string.Empty, 14, FontStyle.Bold);
+            UnityTavernUiStyle.Stretch(input.textComponent.rectTransform);
             input.textComponent.alignment = TextAnchor.MiddleLeft;
             input.textComponent.color = selection.IsDefault ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Text;
             input.textComponent.rectTransform.offsetMin = new Vector2(10f, 0f);
@@ -1674,6 +1719,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 inputObject.transform,
                 selection.IsDefault ? T("默认版本不可改名", "Default version cannot be renamed") : T("输入版本名称", "Enter version name"),
                 14);
+            UnityTavernUiStyle.Stretch(input.placeholder.rectTransform);
             input.placeholder.color = UnityTavernUiStyle.MutedText;
             input.placeholder.rectTransform.offsetMin = new Vector2(10f, 0f);
             input.placeholder.rectTransform.offsetMax = new Vector2(-10f, 0f);
@@ -1752,17 +1798,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildSearch(Transform parent)
         {
+            var row = UiFactory.Panel("UnityCardPoolVersionSearchRow", parent, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(row, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(row).flexibleHeight = 0f;
+            var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.spacing = 8;
+            rowLayout.childControlWidth = true;
+            rowLayout.childControlHeight = true;
+            rowLayout.childForceExpandWidth = false;
+            rowLayout.childForceExpandHeight = true;
+
             var inputObject = new GameObject("UnityCardPoolVersionSearchInput", typeof(RectTransform), typeof(Image), typeof(InputField));
-            inputObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetPreferredHeight(inputObject, 38f);
+            inputObject.transform.SetParent(row.transform, false);
+            var inputElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(inputObject);
+            inputElement.flexibleWidth = 1f;
+            inputElement.minHeight = 38f;
+            inputElement.preferredHeight = 38f;
             inputObject.GetComponent<Image>().color = UnityTavernUiStyle.PanelQuiet;
 
             var input = inputObject.GetComponent<InputField>();
             input.textComponent = UiFactory.Label("UnityCardPoolVersionSearchText", inputObject.transform, string.Empty, 14);
+            UnityTavernUiStyle.Stretch(input.textComponent.rectTransform);
             input.textComponent.alignment = TextAnchor.MiddleLeft;
             input.textComponent.rectTransform.offsetMin = new Vector2(10f, 0f);
             input.textComponent.rectTransform.offsetMax = new Vector2(-10f, 0f);
             input.placeholder = UiFactory.Label("UnityCardPoolVersionSearchPlaceholder", inputObject.transform, T("搜索名称或编号", "Search name or id"), 14);
+            UnityTavernUiStyle.Stretch(input.placeholder.rectTransform);
             input.placeholder.color = UnityTavernUiStyle.MutedText;
             input.placeholder.rectTransform.offsetMin = new Vector2(10f, 0f);
             input.placeholder.rectTransform.offsetMax = new Vector2(-10f, 0f);
@@ -1778,13 +1839,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 searchText = nextSearch;
                 Build();
             });
+
+            var hasActiveFilters = !string.IsNullOrWhiteSpace(searchText) || versionTierFilter != 0 || versionTribeFilter != Tribe.All;
+            var reset = ActionButton(
+                "UnityCardPoolVersionResetFiltersButton",
+                row.transform,
+                T("清空筛选", "Clear Filters"),
+                hasActiveFilters,
+                () =>
+                {
+                    searchText = string.Empty;
+                    versionTierFilter = 0;
+                    versionTribeFilter = Tribe.All;
+                    ResetVisibleCardPoolItems();
+                    Build();
+                });
+            var resetElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(reset.gameObject);
+            resetElement.minWidth = layout.IsCompact ? 96f : 112f;
+            resetElement.preferredWidth = layout.IsCompact ? 96f : 112f;
+            resetElement.flexibleWidth = 0f;
         }
 
         private void BuildVersionFilters(Transform parent, CardPoolVersionSelection selection)
         {
             var filteredCount = FilteredCardPoolCount();
             var panel = UiFactory.Panel("UnityCardPoolVersionFilters", parent, UnityTavernUiStyle.Panel);
-            UnityTavernUiStyle.SetPreferredHeight(panel, layout.IsCompact ? 138f : 146f);
+            UnityTavernUiStyle.SetPreferredHeight(panel, 158f);
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(panel).flexibleHeight = 0f;
             var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
             panelLayout.padding = new RectOffset(8, 8, 7, 7);
             panelLayout.spacing = 6;
@@ -1845,44 +1926,43 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 });
             }
 
+            var tierSummary = versionTierFilter == 0
+                ? T("全部星级", "All tiers")
+                : T(versionTierFilter + "本", "T" + versionTierFilter);
+            var tribeSummary = versionTribeFilter == Tribe.All
+                ? T("全部类型", "All types")
+                : activeTab == CardPoolTab.TavernSpells && versionTribeFilter == Tribe.None
+                    ? T("通用", "General")
+                    : TribeName(versionTribeFilter);
+            var query = (searchText ?? string.Empty).Trim();
+            var shortQuery = query.Length <= 12 ? query : query.Substring(0, 12) + "…";
+            var searchSummary = string.IsNullOrEmpty(shortQuery)
+                ? string.Empty
+                : T(" · 搜索“" + shortQuery + "”", " · Search \"" + shortQuery + "\"");
             var count = UiFactory.Label(
                 "UnityCardPoolVersionFilterCount",
                 panel.transform,
                 UseEnglish
-                    ? "Filtered " + filteredCount + " cards" + (selection.IsDefault ? "  Default version is read-only" : string.Empty)
-                    : "当前筛选 " + filteredCount + " 张" + (selection.IsDefault ? "  默认版本只读" : string.Empty),
-                12,
+                    ? "Results " + filteredCount + " cards · " + tierSummary + " · " + tribeSummary + searchSummary + (selection.IsDefault ? " · Read only" : string.Empty)
+                    : "结果 " + filteredCount + " 张 · " + tierSummary + " · " + tribeSummary + searchSummary + (selection.IsDefault ? " · 默认版本只读" : string.Empty),
+                14,
                 FontStyle.Bold);
-            count.alignment = TextAnchor.MiddleRight;
+            count.alignment = TextAnchor.MiddleLeft;
             count.color = selection.IsDefault ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Gold;
-            UnityTavernUiStyle.SetPreferredHeight(count.gameObject, 18f);
+            UnityTavernUiStyle.SetPreferredHeight(count.gameObject, 22f);
         }
 
         private void BuildVersionBulkActions(Transform parent, CardPoolVersionSelection selection)
         {
             var panel = UiFactory.Panel("UnityCardPoolVersionBulkActions", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(panel, 64f);
+            UnityTavernUiStyle.SetPreferredHeight(panel, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(panel).flexibleHeight = 0f;
             var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
             panelLayout.padding = new RectOffset(4, 4, 3, 4);
-            panelLayout.spacing = 3;
             panelLayout.childControlWidth = true;
             panelLayout.childControlHeight = true;
             panelLayout.childForceExpandWidth = true;
             panelLayout.childForceExpandHeight = false;
-
-            var filteredCount = FilteredCardPoolCount();
-            var visibleCount = Math.Min(visibleCardPoolItemCount, filteredCount);
-            var hint = UiFactory.Label(
-                "UnityCardPoolVersionBulkHint",
-                panel.transform,
-                UseEnglish
-                    ? "Bulk actions affect all " + filteredCount + " filtered cards; " + visibleCount + " are shown."
-                    : "批量操作会影响当前筛选的全部 " + filteredCount + " 张；列表已显示 " + visibleCount + " 张。",
-                11,
-                FontStyle.Bold);
-            hint.alignment = TextAnchor.MiddleLeft;
-            hint.color = UnityTavernUiStyle.MutedText;
-            UnityTavernUiStyle.SetPreferredHeight(hint.gameObject, 18f);
 
             var row = UiFactory.Panel("UnityCardPoolVersionBulkActionButtons", panel.transform, Color.clear);
             UnityTavernUiStyle.SetPreferredHeight(row, 36f);
@@ -1897,14 +1977,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton("UnityCardPoolVersionIncludeFilteredButton", row.transform, T("加入当前筛选", "Include Filtered"), canEditActiveTab, () =>
             {
                 SetFilteredEnabled(true);
-                Build();
-            });
-            ActionButton("UnityCardPoolVersionResetFiltersButton", row.transform, T("重置筛选", "Reset Filters"), true, () =>
-            {
-                searchText = string.Empty;
-                versionTierFilter = 0;
-                versionTribeFilter = Tribe.All;
-                ResetVisibleCardPoolItems();
                 Build();
             });
         }
@@ -1982,9 +2054,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         CardImageProvider.LoadSprite(card.ImagePath, card.CardId, card.CardKind),
                         TimewarpedCardTitle(card),
                         TimewarpedCardDetail(card),
-                        true,
-                        false,
-                        _ => { });
+                        enabledTimewarpedCardIds.Contains(card.CardId),
+                        !selection.IsDefault,
+                        value =>
+                        {
+                            if (SetEnabled(enabledTimewarpedCardIds, card.CardId, value))
+                            {
+                                Build();
+                            }
+                        });
                 }
             }
 
@@ -2113,7 +2191,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     TimewarpedCardTitle(card),
                     TimewarpedCardDetail(card),
                     enabledTimewarpedCardIds.Contains(card.CardId),
-                    true,
+                    !selection.IsDefault,
                     value =>
                     {
                         if (SetEnabled(enabledTimewarpedCardIds, card.CardId, value))
@@ -2382,7 +2460,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFixedSize(check, 16f, 16f);
             check.GetComponent<Image>().color = interactable ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
 
-            var label = UiFactory.Label(name + "Label", toggleObject.transform, text, layout.IsCompact ? 10 : 11, FontStyle.Bold);
+            var displayText = !interactable && name == "UnityAdvancedMechanicsToggle-ShowDisabled"
+                ? T("禁用池（需先开启调试池）", "Disabled Pool (enable Debug Pool first)")
+                : text;
+            var label = UiFactory.Label(name + "Label", toggleObject.transform, displayText, 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleLeft;
             label.color = interactable ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -3060,6 +3141,31 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private string AdvancedMechanicsSummaryText()
         {
             var enabled = new List<string>();
+            if (showDebugOnly)
+            {
+                enabled.Add(T("调试池", "Debug Pool"));
+            }
+
+            if (showHiddenEffectOnly)
+            {
+                enabled.Add(T("隐藏效果池", "Hidden Effects"));
+            }
+
+            if (showDisabled)
+            {
+                enabled.Add(T("含禁用项", "Disabled Included"));
+            }
+
+            if (!showProxySafe)
+            {
+                enabled.Add(T("代理实现关闭", "Proxy-safe Off"));
+            }
+
+            if (!enablePlayerDirectedChoices)
+            {
+                enabled.Add(T("自由选择关闭", "Free Choice Off"));
+            }
+
             if (QuestPoolsEnabled())
             {
                 enabled.Add(T("任务/奖励池", "Quest / Reward Pool"));

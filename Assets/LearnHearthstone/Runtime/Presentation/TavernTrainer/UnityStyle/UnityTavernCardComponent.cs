@@ -971,7 +971,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (hovered || selected)
             {
-                transform.SetAsLastSibling();
+                transform.parent.SetAsLastSibling();
             }
         }
 

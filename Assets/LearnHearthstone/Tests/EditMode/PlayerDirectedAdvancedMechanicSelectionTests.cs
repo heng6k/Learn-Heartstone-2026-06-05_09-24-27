@@ -37,7 +37,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(pair.SecondaryCardId, quest.RewardCardId);
             Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
-                entry.Message.Contains("Player directed Quest selection")));
+                entry.Message.Contains("已定向选择任务：")));
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(selected.CardId, trinkets.LesserTrinketId);
             Assert.IsTrue(trinkets.Equipped.Any(equipped => equipped.TrinketId == selected.CardId));
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
-                entry.Message.Contains("Player directed Trinket selection")));
+                entry.Message.Contains("已定向选择小型饰品：")));
         }
 
         [Test]
@@ -92,7 +92,8 @@ namespace LearnHearthstone.Tests.EditMode
                 1)));
             Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.Trinkets.GreaterTrinketId);
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
-                entry.Message.Contains("Player directed Trinket selection failed")));
+                entry.Message.Contains("定向选择未成功")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains(greater.CardId)));
         }
 
         [Test]
@@ -121,7 +122,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNull(service.State.Player.Tavern.Discover);
             Assert.IsFalse(service.GetPlayerSelectableSecondHeroPowers().First(option => option.CardId == selected.CardId).IsSelectable);
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
-                entry.Message.Contains("Player directed second Hero Power selection")));
+                entry.Message.Contains("已定向选择第二英雄技能：")));
         }
 
         [Test]
@@ -145,6 +146,26 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterCostFree"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterTagAll"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSelectButton"));
+                Assert.AreEqual("关闭", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponentInChildren<Text>(true).text);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponentInChildren<Text>(true).fontSize, 14);
+
+                var search = FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSearchInput").GetComponent<InputField>();
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSearchInput").GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.AreEqual(Vector2.zero, search.textComponent.rectTransform.anchorMin);
+                Assert.AreEqual(Vector2.one, search.textComponent.rectTransform.anchorMax);
+                Assert.GreaterOrEqual(search.textComponent.fontSize, 14);
+                Assert.GreaterOrEqual(((Text)search.placeholder).fontSize, 14);
+
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterStatusSelectable").GetComponent<LayoutElement>().preferredHeight, 44f);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterStatusSelectable").GetComponentInChildren<Text>(true).fontSize, 14);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceName").GetComponent<Text>().fontSize, 14);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceMeta").GetComponent<Text>().fontSize, 14);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceText").GetComponent<Text>().fontSize, 14);
+                Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSelectButton").GetComponent<LayoutElement>().preferredHeight, 44f);
+                CollectionAssert.Contains(
+                    new[] { "选择", "不可选择" },
+                    FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSelectButton").GetComponentInChildren<Text>(true).text);
             }
             finally
             {

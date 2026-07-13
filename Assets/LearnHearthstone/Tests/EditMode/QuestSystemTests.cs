@@ -212,6 +212,7 @@ namespace LearnHearthstone.Tests.EditMode
             QueueQuestChoice(service, "BG24_Quest_126", "BG33_Reward_012");
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
             var active = service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest;
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("已选择任务：")));
             service.State.Player.Tavern.Gold = 100;
             service.State.Player.Tavern.MaxGold = 100;
 
@@ -222,12 +223,33 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(active.RequiredAmount - 1, active.Progress);
             Assert.IsFalse(active.Completed);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("任务进度：") && entry.Message.Contains(active.QuestName)));
 
             service.Apply(new GameCommand(GameCommandType.RerollShop));
 
             Assert.AreEqual(active.RequiredAmount, active.Progress);
             Assert.IsTrue(active.Completed);
             Assert.IsTrue(active.RewardActive);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("任务完成：") && entry.Message.Contains(active.RewardName)));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Quest chosen:") || entry.Message.Contains("Quest progress:") || entry.Message.Contains("Quest complete:")));
+        }
+
+        [Test]
+        public void QuestRuntimeLogs_PreserveEnglishMode()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions { UseEnglish = true });
+            QueueQuestChoice(service, "BG24_Quest_126", "BG33_Reward_012");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            service.State.Player.Tavern.Gold = 100;
+            service.State.Player.Tavern.MaxGold = 100;
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Quest chosen:")));
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Quest progress:")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("已选择任务：") || entry.Message.Contains("任务进度：")));
         }
 
         [Test]
@@ -598,6 +620,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(snapshot.First(minion => minion.InstanceId == "stolen-right").Golden);
             Assert.IsFalse(left.Golden);
             Assert.IsFalse(right.Golden);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("失窃的黄金") && entry.Message.Contains("变为金色")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Stolen Gold:")));
         }
 
         [Test]
@@ -620,6 +644,8 @@ namespace LearnHearthstone.Tests.EditMode
             var snapshot = service.State.LastReplay.InitialSnapshot.Player.Minions;
             Assert.AreEqual(3, snapshot.Count);
             Assert.AreEqual(2, snapshot.Count(minion => minion.CardId == "evil-high"));
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("邪恶双子") && entry.Message.Contains("召唤")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Evil Twin:")));
         }
 
         [Test]
@@ -1076,6 +1102,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
             Assert.AreEqual(startingTier + 1, service.State.Player.Tavern.Tier);
+            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("诺甘农") && entry.Message.Contains("酒馆已升级")));
+            Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Norgannon's Reward:")));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
