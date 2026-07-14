@@ -66,6 +66,11 @@
 3. [HeroPowerNonReplaceableList.md](HeroPowerNonReplaceableList.md)
 4. [TribeDistributionSystemDesign.md](TribeDistributionSystemDesign.md)
 
+### 想查看、定位或运行测试
+
+1. [testing/test-suite-overview.zh-CN.md](testing/test-suite-overview.zh-CN.md)：全部 EditMode/PlayMode 测试的分类目录、测试类索引、覆盖范围、运行命令和最近验证基线。
+2. [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md)：玩家视角验收标准、测试分层和发布门槛。
+
 ## 文档地图
 
 | 分类 | 文档 | 主要用途 | 当前定位 |
@@ -74,6 +79,7 @@
 | 全局要求 | [TavernSimulatorGlobalRequirements.zh-CN.md](TavernSimulatorGlobalRequirements.zh-CN.md) | 本地化、时空酒馆触发安全、UI、关键词反馈和测试基线 | 所有酒馆功能修改的强制要求 |
 | 当前计划 | [TavernSimulatorOptimizationPlan.zh-CN.md](TavernSimulatorOptimizationPlan.zh-CN.md) | 合并当前五项需求和全流程审核建议的分阶段实施方案 | 当前酒馆模拟器优化统一入口 |
 | 测试规范 | [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md) | 测试分层、玩家旅程、实现真实性证据和发布门槛 | 所有酒馆功能验收的统一测试基线 |
+| 测试索引 | [testing/test-suite-overview.zh-CN.md](testing/test-suite-overview.zh-CN.md) | 全部测试目录、测试类、覆盖范围、运行方式和验证结果 | 后续定位与运行测试的统一入口 |
 | Skill/工作流 | [../AGENTS.md](../AGENTS.md) | 项目级代理路由规则，说明不同任务应该先用哪些 skill | 每次项目修改和提问前的入口规则 |
 | Skill/工作流 | [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md) | 本机 57 个本地 skills 的分类、适用场景和冲突处理 | 全量 skill 路由索引 |
 | Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |

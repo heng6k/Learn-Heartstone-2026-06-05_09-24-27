@@ -18,6 +18,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
     {
         Hand,
         PlayerBoard,
+        TavernShop,
         OpponentBoard,
         SellZone
     }
@@ -125,6 +126,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
                     return RealisticTavernTrainerView.ColorFromHex(0x2D6C7D);
                 case RealisticDropTarget.PlayerBoard:
                     return RealisticTavernTrainerView.ColorFromHex(0x436B31);
+                case RealisticDropTarget.TavernShop:
+                    return RealisticTavernTrainerView.ColorFromHex(0xD9A63A);
                 case RealisticDropTarget.OpponentBoard:
                     return RealisticTavernTrainerView.ColorFromHex(0x455D83);
                 case RealisticDropTarget.SellZone:

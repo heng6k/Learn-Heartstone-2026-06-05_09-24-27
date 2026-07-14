@@ -157,6 +157,7 @@ namespace LearnHearthstone.Domain.Models
         TavernSpellCostReduction,
         AddGeneratedSpellToHand,
         EternalKnightDied,
+        AncestralAutomatonSummoned,
         FriendlyMinionDied,
         FriendlyDeathrattleTriggered,
         FriendlyAvengeTriggered,

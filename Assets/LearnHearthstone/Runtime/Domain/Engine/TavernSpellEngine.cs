@@ -190,7 +190,17 @@ namespace LearnHearthstone.Domain.Engine
             tavern.NextCombatTavernSpellCardIds?.Clear();
         }
 
-        public static string Cast(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, int targetIndex = -1, HeroCatalog heroes = null, DarkmoonPrizeCatalog darkmoonPrizes = null)
+        public static string Cast(
+            MinionInstance spell,
+            MatchState state,
+            MinionCatalog minions,
+            SpellCatalog spells,
+            SeededRng rng,
+            int targetIndex = -1,
+            HeroCatalog heroes = null,
+            DarkmoonPrizeCatalog darkmoonPrizes = null,
+            TargetZone targetZone = TargetZone.Unspecified,
+            string targetInstanceId = null)
         {
             if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
@@ -198,7 +208,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var previousTarget = explicitTarget;
-            explicitTarget = ResolveExplicitTarget(state, targetIndex);
+            explicitTarget = ResolveExplicitTarget(state, targetIndex, targetZone, targetInstanceId);
             try
             {
                 return CastInternal(spell, state, minions, spells, rng, heroes, darkmoonPrizes);
@@ -221,11 +231,11 @@ namespace LearnHearthstone.Domain.Engine
             switch (cardNumber)
             {
                 case BloodGemCardId:
-                    Buff(state, FirstFriendlyBoard(state), 1, 1, "Blood Gem", applyTavernSpellBonus);
+                    ApplyBloodGem(state, FirstAnyMinion(state), "Blood Gem", applyTavernSpellBonus);
                     return "Blood Gem: target gains +1/+1";
                 case BristlebackBloodGemCardId:
-                    var gemTarget = FirstFriendlyBoard(state);
-                    Buff(state, gemTarget, 1, 1, "Bristleback Blood Gem", applyTavernSpellBonus);
+                    var gemTarget = FirstAnyMinion(state);
+                    ApplyBloodGem(state, gemTarget, "Bristleback Blood Gem", applyTavernSpellBonus);
                     if (gemTarget != null && gemTarget.Tribes.Contains(Tribe.Quilboar))
                     {
                         AddKeyword(gemTarget, Keyword.Taunt);
@@ -233,8 +243,8 @@ namespace LearnHearthstone.Domain.Engine
 
                     return "Bristleback Blood Gem: target gains +1/+1 and Quilboar gain Taunt";
                 case RebornBloodGemCardId:
-                    var rebornGemTarget = FirstFriendlyBoard(state);
-                    Buff(state, rebornGemTarget, 1 + state.Player.Tavern.BloodGemBonusAttack, 1 + state.Player.Tavern.BloodGemBonusHealth, "Blood Gem", false);
+                    var rebornGemTarget = FirstAnyMinion(state);
+                    ApplyBloodGem(state, rebornGemTarget, "Reborn Blood Gem", applyTavernSpellBonus);
                     if (rebornGemTarget != null && rebornGemTarget.Tribes.Contains(Tribe.Quilboar))
                     {
                         AddKeyword(rebornGemTarget, Keyword.Reborn);
@@ -602,7 +612,19 @@ namespace LearnHearthstone.Domain.Engine
                     AddKeyword(FirstAnyMinion(state), Keyword.DivineShield);
                     return "Divine Gift: target gains Divine Shield";
                 case "104601":
-                    SetStats(FirstAnyMinion(state), 20, 20);
+                    SetStats(
+                        FirstAnyMinion(state),
+                        StatMath.SaturatingAdd(
+                            StatMath.SaturatingAdd(20, state.Player.Tavern.SpellPower, 0, StatMath.MaxStat),
+                            state.Player.Tavern.TavernSpellBonusAttack,
+                            0,
+                            StatMath.MaxStat),
+                        StatMath.SaturatingAdd(
+                            StatMath.SaturatingAdd(20, state.Player.Tavern.SpellPower, 1, StatMath.MaxStat),
+                            state.Player.Tavern.TavernSpellBonusHealth,
+                            1,
+                            StatMath.MaxStat),
+                        "Perfect Vision");
                     return "闁诲海鎳撻惉鑲╂閵娿劊浜归柕蹇ョ秬閺変粙鏌ㄥ☉娆愮殤婵炶弓鍗冲浠嬪炊椤掍緡鍚傛繛瀵稿Т妤犳瓕銇愭径瀣枖?0/20";
                 case "104445":
                     Buff(state, FirstFriendlyBoard(state), 6, 6, "Defender Rites", applyTavernSpellBonus);
@@ -785,13 +807,21 @@ namespace LearnHearthstone.Domain.Engine
                     return "Undead Discover: discover an Undead that dies later";
                 case "126676":
                     var barrageAttack = StatMath.SaturatingAdd(
-                        StatMath.SaturatingAdd(1, state.Player.Tavern.TavernSpellBonusAttack, 0, StatMath.MaxStat),
-                        state.Player.Tavern.BloodGemBonusAttack,
+                        StatMath.SaturatingAdd(
+                            1,
+                            state.Player.Tavern.SpellPower,
+                            0,
+                            StatMath.MaxStat),
+                        state.Player.Tavern.TavernSpellBonusAttack,
                         0,
                         StatMath.MaxStat);
                     var barrageHealth = StatMath.SaturatingAdd(
-                        StatMath.SaturatingAdd(1, state.Player.Tavern.TavernSpellBonusHealth, 0, StatMath.MaxStat),
-                        state.Player.Tavern.BloodGemBonusHealth,
+                        StatMath.SaturatingAdd(
+                            1,
+                            state.Player.Tavern.SpellPower,
+                            0,
+                            StatMath.MaxStat),
+                        state.Player.Tavern.TavernSpellBonusHealth,
                         0,
                         StatMath.MaxStat);
                     state.Player.Tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier
@@ -800,9 +830,10 @@ namespace LearnHearthstone.Domain.Engine
                         Tribe = Tribe.All,
                         Attack = barrageAttack,
                         Health = barrageHealth,
+                        EnchantmentKind = EnchantmentKind.BloodGem,
                         SourceId = "Blood Gem Barrage"
                     });
-                    return "Blood Gem Barrage: create a Blood Gem spell using Tavern spell bonuses";
+                    return "Blood Gem Barrage: future refreshes attach Blood Gems using cast-time spell scaling and current Blood Gem quality";
                 case "100601":
                     MakeGolden(FirstFriendlyBoard(state)?.TavernTier <= 4
                         ? FirstFriendlyBoard(state)
@@ -849,14 +880,39 @@ namespace LearnHearthstone.Domain.Engine
             return ExplicitFriendlyBoardTarget(state) ?? state.Player.Board.FirstOrDefault();
         }
 
-        private static MinionInstance ResolveExplicitTarget(MatchState state, int targetIndex)
+        private static MinionInstance ResolveExplicitTarget(MatchState state, int targetIndex, TargetZone targetZone, string targetInstanceId)
         {
-            if (state == null || targetIndex < 0 || targetIndex >= state.Player.Board.Count)
+            if (state == null)
             {
                 return null;
             }
 
-            return state.Player.Board[targetIndex];
+            if (!string.IsNullOrEmpty(targetInstanceId))
+            {
+                if (targetZone == TargetZone.TavernShop)
+                {
+                    return state.Player.Tavern.Shop.FirstOrDefault(card => card != null && card.InstanceId == targetInstanceId);
+                }
+
+                if (targetZone == TargetZone.FriendlyBoard)
+                {
+                    return state.Player.Board.FirstOrDefault(minion => minion.InstanceId == targetInstanceId);
+                }
+
+                return state.Player.Board.FirstOrDefault(minion => minion.InstanceId == targetInstanceId)
+                    ?? state.Player.Tavern.Shop.FirstOrDefault(card => card != null && card.InstanceId == targetInstanceId);
+            }
+
+            if (targetZone == TargetZone.TavernShop)
+            {
+                return targetIndex >= 0 && targetIndex < state.Player.Tavern.Shop.Count
+                    ? state.Player.Tavern.Shop[targetIndex]
+                    : null;
+            }
+
+            return targetIndex >= 0 && targetIndex < state.Player.Board.Count
+                ? state.Player.Board[targetIndex]
+                : null;
         }
 
         private static MinionInstance ExplicitAnyTarget(MatchState state)
@@ -1001,7 +1057,14 @@ namespace LearnHearthstone.Domain.Engine
             return int.TryParse(digits, out var parsed) ? Math.Max(1, parsed) : 1;
         }
 
-        private static void Buff(MatchState state, MinionInstance target, int attack, int health, string sourceId, bool applyTavernSpellBonus)
+        private static void Buff(
+            MatchState state,
+            MinionInstance target,
+            int attack,
+            int health,
+            string sourceId,
+            bool applyTavernSpellBonus,
+            EnchantmentKind enchantmentKind = EnchantmentKind.Unspecified)
         {
             if (target == null)
             {
@@ -1014,11 +1077,11 @@ namespace LearnHearthstone.Domain.Engine
                 health = StatMath.SaturatingAdd(health, state.Player.Tavern.TavernSpellBonusHealth);
             }
 
-            StatMath.ApplyStatDelta(target, attack, health);
-            target.Enchantments.Add(new Enchantment
+            StatMath.ApplyEnchantment(target, new Enchantment
             {
                 Id = sourceId,
                 SourceId = sourceId,
+                Kind = enchantmentKind,
                 AttackBonus = attack,
                 HealthBonus = health
             });
@@ -1058,16 +1121,14 @@ namespace LearnHearthstone.Domain.Engine
                 applyTavernSpellBonus);
         }
 
-        private static void SetStats(MinionInstance target, int attack, int health)
+        private static void SetStats(MinionInstance target, int attack, int health, string sourceId)
         {
             if (target == null)
             {
                 return;
             }
 
-            target.Attack = attack;
-            target.MaxHealth = health;
-            target.Health = health;
+            StatMath.SetStats(target, attack, health, sourceId);
             RefreshScarletSurvivor(target);
         }
 
@@ -2045,7 +2106,7 @@ namespace LearnHearthstone.Domain.Engine
 
             var bestAttack = state.Player.Board.Max(minion => minion.Attack);
             var bestHealth = state.Player.Board.Max(minion => minion.MaxHealth);
-            SetStats(target, bestAttack, bestHealth);
+            SetStats(target, bestAttack, bestHealth, "Blade of Ambition");
         }
 
         private static void ResolveArcaneConsumption(MatchState state)
@@ -2095,34 +2156,31 @@ namespace LearnHearthstone.Domain.Engine
 
                 var adjacent = board[adjacentIndex];
                 var gems = adjacent.Enchantments
-                    .Where(enchantment => enchantment.SourceId == "Blood Gem" || enchantment.SourceId == "Blood Gem Growth")
+                    .Where(StatMath.IsBloodGemEnchantment)
                     .ToList();
                 foreach (var gem in gems)
                 {
-                    StatMath.ApplyStatDeltaPreservingDamage(
-                        adjacent,
-                        StatMath.SaturatingSubtract(0, gem.AttackBonus),
-                        StatMath.SaturatingSubtract(0, gem.HealthBonus));
-                    StatMath.ApplyStatDelta(target, gem.AttackBonus, gem.HealthBonus);
-                    target.Enchantments.Add(new Enchantment
-                    {
-                        Id = "Stolen Blood Gem",
-                        SourceId = "Stolen Blood Gem",
-                        AttackBonus = gem.AttackBonus,
-                        HealthBonus = gem.HealthBonus
-                    });
                     adjacent.Enchantments.Remove(gem);
+                }
+
+                StatMath.RecalculateStatsPreservingCurrentHealth(adjacent);
+                foreach (var gem in gems)
+                {
+                    StatMath.ApplyEnchantment(target, gem);
                 }
             }
         }
 
-        private static void ApplyBloodGem(MatchState state, MinionInstance target, string sourceId)
+        private static void ApplyBloodGem(MatchState state, MinionInstance target, string sourceId, bool applyTavernSpellBonus = false)
         {
-            Buff(state, target, 1 + state.Player.Tavern.BloodGemBonusAttack, 1 + state.Player.Tavern.BloodGemBonusHealth, sourceId, false);
-            if (target.Enchantments.Count > 0)
-            {
-                target.Enchantments[target.Enchantments.Count - 1].SourceId = "Blood Gem";
-            }
+            Buff(
+                state,
+                target,
+                1 + state.Player.Tavern.BloodGemBonusAttack,
+                1 + state.Player.Tavern.BloodGemBonusHealth,
+                sourceId,
+                applyTavernSpellBonus,
+                EnchantmentKind.BloodGem);
         }
 
         private static void SellMinionAndBuffLeftmostElemental(MatchState state)

@@ -68,6 +68,7 @@ namespace LearnHearthstone.Domain.Models
         public int Health;
         public Keyword Keyword;
         public Tribe Tribe = Tribe.None;
+        public EnchantmentKind EnchantmentKind = EnchantmentKind.Unspecified;
         public string SourceId;
         public int Gold;
         public string TokenDefinitionId;
@@ -81,6 +82,7 @@ namespace LearnHearthstone.Domain.Models
         public int TierCap;
         public int Attack;
         public int Health;
+        public EnchantmentKind EnchantmentKind = EnchantmentKind.Unspecified;
         public string SourceId;
     }
 

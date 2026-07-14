@@ -268,7 +268,6 @@ namespace LearnHearthstone.Domain.Engine
         private const string AllPurposeKibbleCardId = "BG32_MagicItem_200";
         private const string STharaStickerCardId = "BG32_MagicItem_907";
         private const string BloodGolemTokenId = "blood-golem";
-        private const string BloodGemSourceId = "Blood Gem";
         private const string FishOfNzothCardId = "FISH_OF_NZOTH";
         private const string HeroFishOfNzothCardId = "NZOTH_FISH";
         private const string SneedDeathrattleTierTagPrefix = "sneed_deathrattle_tier:";
@@ -451,8 +450,7 @@ namespace LearnHearthstone.Domain.Engine
             ResolveZergStartOfCombat(context, context.Opponent);
             ResolveProtossStartOfCombat(context, context.Player);
             ResolveProtossStartOfCombat(context, context.Opponent);
-            ResolveDeaths(context, BoardSide.Opponent);
-            ResolveDeaths(context, BoardSide.Player);
+            ResolveAllDeaths(context, BoardSide.Opponent);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
         }
 
@@ -759,9 +757,17 @@ namespace LearnHearthstone.Domain.Engine
                 side.TemporaryAvengeBeastRewards = side.Tavern.TemporaryAvengeBeastRewards;
             }
 
-            side.BeastAttackAura = side.Board
-                .Where(minion => IsAlive(minion) && minion.CardId == HummingBirdCardId)
-                .Sum(minion => minion.Golden ? 2 : 1);
+            foreach (var hummingBird in side.Board.Where(minion => IsAlive(minion) && minion.CardId == HummingBirdCardId).ToList())
+            {
+                GrantPersistentCombatTribeBonus(
+                    side,
+                    Tribe.Beast,
+                    hummingBird.Golden ? 2 : 1,
+                    0,
+                    "Humming Bird",
+                    hummingBird.InstanceId);
+            }
+
             foreach (var guardian in side.Board.Where(minion => IsAlive(minion) && minion.CardId == AmberGuardianCardId).ToList())
             {
                 var target = side.Board.FirstOrDefault(minion => minion.InstanceId != guardian.InstanceId && IsAlive(minion) && minion.Tribes.Contains(Tribe.Dragon));
@@ -777,15 +783,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (side.BeastAttackAura <= 0)
-            {
-                return;
-            }
-
-            foreach (var beast in side.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast)))
-            {
-                BuffMinion(beast, side.BeastAttackAura, 0, "Humming Bird");
-            }
+            RefreshDynamicCombatStats(side);
         }
 
         private static void ApplySideCombatHistoryBonuses(CombatContext context, CombatSideState side)
@@ -1119,7 +1117,7 @@ namespace LearnHearthstone.Domain.Engine
             if (tavern.NextCombatTriggerMixedMechanics)
             {
                 AddReward(context.Log, side, CombatRewardType.AddGeneratedSpellToHand, "127642", ArcaneConsumptionCardId, 1);
-                AddReward(context.Log, side, CombatRewardType.ImproveUndeadAttack, "127642", null, 2);
+                ImproveUndeadAttackForCombatAndGame(context, side, 2, "127642", null, "Arcane Consumption");
                 AddReward(context.Log, side, CombatRewardType.AddRandomMagneticMechToHand, "127642", null, 1);
             }
         }
@@ -1177,7 +1175,7 @@ namespace LearnHearthstone.Domain.Engine
 
             for (var index = 0; index < count; index += 1)
             {
-                AddToken(context, side, source, side.Board.Count, "boon-beetle", "Beetle", 1, 1, Tribe.Beast, Keyword.Taunt);
+                AddToken(context, side, source, side.Board.Count, "boon-beetle", "Beetle", 2, 2, Tribe.Beast, Keyword.Taunt);
             }
         }
 
@@ -1188,10 +1186,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            if (side.BeastAttackAura > 0 && HasCountedTribe(minion, Tribe.Beast))
-            {
-                BuffMinion(minion, side.BeastAttackAura, 0, "Humming Bird");
-            }
+            ApplyMissingUndeadAttackBonus(side, minion);
+            ApplyPersistentCombatTribeBonuses(side, minion);
+            ApplyBeetleStats(side, minion);
+            RefreshDynamicCombatStats(side, minion);
 
             foreach (var kodo in side.Board.Where(source => IsAlive(source) && source.CardId == TenaciousKodoCardId).ToList())
             {
@@ -1205,6 +1203,258 @@ namespace LearnHearthstone.Domain.Engine
                 BuffMinion(minion, amount, amount, "Tenacious Kodo");
                 side.SummonAuraUses[kodo.InstanceId] = uses + 1;
             }
+        }
+
+        private static void GrantPersistentCombatTribeBonus(
+            CombatSideState side,
+            Tribe tribe,
+            int attack,
+            int health,
+            string sourceId,
+            string sourceInstanceId)
+        {
+            if (side == null || (attack == 0 && health == 0))
+            {
+                return;
+            }
+
+            var bonus = new PersistentCombatTribeBonus
+            {
+                Id = "combat-tribe-bonus-" + side.Side + "-" + side.PersistentTribeBonuses.Count + "-" + (sourceInstanceId ?? sourceId),
+                SourceId = sourceId,
+                Tribe = tribe,
+                Attack = attack,
+                Health = health
+            };
+            side.PersistentTribeBonuses.Add(bonus);
+            foreach (var target in side.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, tribe)).ToList())
+            {
+                ApplyPersistentCombatTribeBonus(target, bonus);
+            }
+        }
+
+        private static void ApplyPersistentCombatTribeBonuses(CombatSideState side, MinionInstance minion)
+        {
+            foreach (var bonus in side.PersistentTribeBonuses.Where(bonus => HasCountedTribe(minion, bonus.Tribe)))
+            {
+                ApplyPersistentCombatTribeBonus(minion, bonus);
+            }
+        }
+
+        private static void ApplyPersistentCombatTribeBonus(MinionInstance minion, PersistentCombatTribeBonus bonus)
+        {
+            if (minion.Enchantments.Any(enchantment => string.Equals(enchantment?.Id, bonus.Id, StringComparison.Ordinal)))
+            {
+                return;
+            }
+
+            BuffMinion(minion, bonus.Attack, bonus.Health, bonus.SourceId, bonus.Id);
+        }
+
+        private static void ImproveUndeadAttackForCombatAndGame(
+            CombatContext context,
+            CombatSideState side,
+            int amount,
+            string sourceCardId,
+            string sourceInstanceId,
+            string sourceName)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            GrantPersistentCombatTribeBonus(
+                side,
+                Tribe.Undead,
+                amount,
+                0,
+                sourceName,
+                sourceInstanceId ?? sourceCardId);
+            AddReward(
+                context.Log,
+                side,
+                CombatRewardType.ImproveUndeadAttack,
+                sourceCardId,
+                null,
+                amount,
+                sourceInstanceId);
+        }
+
+        private static void ApplyMissingUndeadAttackBonus(CombatSideState side, MinionInstance minion)
+        {
+            if (!HasCountedTribe(minion, Tribe.Undead))
+            {
+                return;
+            }
+
+            SetTrackedCombatStatBonus(
+                minion,
+                "Undead Attack Bonus",
+                "Undead Attack Bonus",
+                Math.Max(0, side.Tavern?.UndeadAttackBonus ?? 0),
+                0);
+        }
+
+        private static void ImproveBeetleStatsForCombatAndGame(
+            CombatContext context,
+            CombatSideState side,
+            int attack,
+            int health,
+            string sourceCardId,
+            string sourceInstanceId)
+        {
+            if (attack == 0 && health == 0)
+            {
+                return;
+            }
+
+            side.BeetleAttackBonus = StatMath.SaturatingAdd(side.BeetleAttackBonus, attack, 2, StatMath.MaxStat);
+            side.BeetleHealthBonus = StatMath.SaturatingAdd(side.BeetleHealthBonus, health, 2, StatMath.MaxStat);
+            foreach (var beetle in side.Board.Where(minion => IsAlive(minion) && IsBeetle(minion)).ToList())
+            {
+                ApplyBeetleStats(side, beetle);
+            }
+
+            AddReward(
+                context.Log,
+                side,
+                CombatRewardType.ImproveBeetleStats,
+                sourceCardId,
+                null,
+                1,
+                attack,
+                health,
+                sourceInstanceId);
+        }
+
+        private static void ApplyBeetleStats(CombatSideState side, MinionInstance minion)
+        {
+            if (!IsBeetle(minion))
+            {
+                return;
+            }
+
+            SetTrackedCombatStatBonus(
+                minion,
+                "Beetle Growth",
+                "Beetle Growth",
+                Math.Max(0, side.BeetleAttackBonus - 2),
+                Math.Max(0, side.BeetleHealthBonus - 2));
+        }
+
+        private static bool IsBeetle(MinionInstance minion)
+        {
+            return minion != null &&
+                (string.Equals(minion.DefinitionId, "beetle", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(minion.Name, "Beetle", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void RefreshDynamicCombatStats(CombatSideState side)
+        {
+            foreach (var minion in side.Board.Where(IsAlive).ToList())
+            {
+                RefreshDynamicCombatStats(side, minion);
+            }
+        }
+
+        private static void RefreshDynamicCombatStats(CombatSideState side, MinionInstance minion)
+        {
+            if (side == null || minion == null)
+            {
+                return;
+            }
+
+            if (minion.CardId == RotHideGnollCardId)
+            {
+                SetTrackedCombatStatBonus(
+                    minion,
+                    "combat:rot-hide-gnoll",
+                    "Rot Hide Gnoll",
+                    StatMath.SaturatingMultiply(side.FriendlyDeathsThisCombat, minion.Golden ? 2 : 1, 0, StatMath.MaxStat),
+                    0);
+            }
+
+            if (minion.CardId == EternalKnightCardId)
+            {
+                var multiplier = minion.Golden ? 2 : 1;
+                SetTrackedCombatStatBonus(
+                    minion,
+                    "Eternal Knight",
+                    "Eternal Knight",
+                    StatMath.SaturatingMultiply(side.EternalKnightDeaths, 4 * multiplier, 0, StatMath.MaxStat),
+                    StatMath.SaturatingMultiply(side.EternalKnightDeaths, 2 * multiplier, 0, StatMath.MaxStat));
+            }
+
+            if (IsAncestralAutomaton(minion))
+            {
+                var otherSummons = Math.Max(0, side.AncestralAutomatonSummons - 1);
+                var multiplier = minion.Golden ? 2 : 1;
+                SetTrackedCombatStatBonus(
+                    minion,
+                    "Ancestral Automaton",
+                    "Ancestral Automaton",
+                    StatMath.SaturatingMultiply(otherSummons, 3 * multiplier, 0, StatMath.MaxStat),
+                    StatMath.SaturatingMultiply(otherSummons, 2 * multiplier, 0, StatMath.MaxStat));
+            }
+
+            if (minion.CardId == FallenSkyGolemCardId)
+            {
+                var multiplier = minion.Golden ? 2 : 1;
+                SetTrackedCombatStatBonus(
+                    minion,
+                    "Fallen Sky Golem",
+                    "Fallen Sky Golem",
+                    StatMath.SaturatingMultiply(side.DeathrattlesTriggeredThisGame, 4 * multiplier, 0, StatMath.MaxStat),
+                    StatMath.SaturatingMultiply(side.DeathrattlesTriggeredThisGame, 2 * multiplier, 0, StatMath.MaxStat));
+            }
+        }
+
+        private static bool IsAncestralAutomaton(MinionInstance minion)
+        {
+            return minion != null &&
+                (string.Equals(minion.CardId, AncestralAutomatonCardId, StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(minion.DefinitionId, "ancestral-automaton", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void SetTrackedCombatStatBonus(
+            MinionInstance minion,
+            string enchantmentId,
+            string sourceId,
+            int attack,
+            int health)
+        {
+            var existing = minion.Enchantments.FirstOrDefault(enchantment =>
+                string.Equals(enchantment?.Id, enchantmentId, StringComparison.Ordinal));
+            var previousAttack = existing?.AttackBonus ?? 0;
+            var previousHealth = existing?.HealthBonus ?? 0;
+            StatMath.ApplyStatDelta(minion, attack - previousAttack, health - previousHealth);
+            if (existing == null)
+            {
+                if (attack == 0 && health == 0)
+                {
+                    return;
+                }
+
+                minion.Enchantments.Add(new Enchantment
+                {
+                    Id = enchantmentId,
+                    SourceId = sourceId,
+                    AttackBonus = attack,
+                    HealthBonus = health
+                });
+                return;
+            }
+
+            if (attack == 0 && health == 0)
+            {
+                minion.Enchantments.Remove(existing);
+                return;
+            }
+
+            existing.SourceId = sourceId;
+            existing.AttackBonus = attack;
+            existing.HealthBonus = health;
         }
 
         private static void ResolveExtraAttacks(CombatContext context, AttackResult attackResult, ref int steps, int safetyLimit)
@@ -1482,8 +1732,7 @@ namespace LearnHearthstone.Domain.Engine
                     deadIds);
             }
 
-            ResolveDeaths(context, attackers.Side);
-            ResolveDeaths(context, defenders.Side);
+            ResolveAllDeaths(context, attackers.Side);
             ResolveRally(context, attackers.Side, attacker.InstanceId, triggeredAttack);
 
             var attackerSurvived = attackers.Board.Any(minion => minion.InstanceId == attacker.InstanceId && IsAlive(minion));
@@ -1498,6 +1747,17 @@ namespace LearnHearthstone.Domain.Engine
         private static bool IsAlive(MinionInstance minion)
         {
             return minion.Health > 0;
+        }
+
+        private static void ResolveAllDeaths(CombatContext context, BoardSide firstSide)
+        {
+            var secondSide = firstSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
+            while (context.Get(firstSide).Board.Any(minion => minion.Health <= 0) ||
+                   context.Get(secondSide).Board.Any(minion => minion.Health <= 0))
+            {
+                ResolveDeaths(context, firstSide);
+                ResolveDeaths(context, secondSide);
+            }
         }
 
         private static void ResolveDeaths(CombatContext context, BoardSide side)
@@ -1519,6 +1779,13 @@ namespace LearnHearthstone.Domain.Engine
                 TrackDeadMech(owner, minion);
                 TrackSTharaDemonDeath(owner, minion);
                 owner.Board.RemoveAt(index);
+                owner.FriendlyDeathsThisCombat = StatMath.SaturatingAdd(owner.FriendlyDeathsThisCombat, 1, 0, StatMath.MaxStat);
+                if (minion.CardId == EternalKnightCardId)
+                {
+                    owner.EternalKnightDeaths = StatMath.SaturatingAdd(owner.EternalKnightDeaths, 1, 0, StatMath.MaxStat);
+                }
+
+                RefreshDynamicCombatStats(owner);
                 var inserted = 0;
                 var newEntityCountBeforeDeathEffects = newEntityIds.Count;
                 inserted += ResolveRedemptionSecret(context, owner, minion, index + inserted, newEntityIds);
@@ -1538,7 +1805,6 @@ namespace LearnHearthstone.Domain.Engine
                 inserted += ResolveBoomControllerDeath(context, owner, minion, index + inserted, newEntityIds);
                 inserted += ResolveBloodGolemStickerDeath(context, owner, minion, index + inserted, newEntityIds);
                 ResolveAllianceKeychain(context, owner, minion);
-                ResolveRotHideGnollDeathAura(owner);
                 if (minion.Keywords.Contains(Keyword.Taunt))
                 {
                     QueueTauntDeathRewards(context, owner, minion);
@@ -2016,8 +2282,7 @@ namespace LearnHearthstone.Domain.Engine
             var source = owner.Board[sourceIndex];
             var newEntityIds = new List<string>();
             ResolveDeathrattleEffect(context, owner, source, Math.Min(sourceIndex + 1, owner.Board.Count), newEntityIds, false, sourceName);
-            ResolveDeaths(context, owner.Side);
-            ResolveDeaths(context, owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+            ResolveAllDeaths(context, owner.Side);
         }
 
         private static int ResolveDeathrattleEffect(
@@ -2060,6 +2325,12 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             AddReward(context.Log, owner, CombatRewardType.FriendlyDeathrattleTriggered, minion.CardId, null, deathrattleRepeats, minion.InstanceId);
+            owner.DeathrattlesTriggeredThisGame = StatMath.SaturatingAdd(
+                owner.DeathrattlesTriggeredThisGame,
+                deathrattleRepeats,
+                0,
+                StatMath.MaxStat);
+            RefreshDynamicCombatStats(owner);
             var thornedTrailblazerBonus = owner.Board
                 .Where(candidate => IsAlive(candidate) && candidate.CardId == ThornedTrailblazerCardId)
                 .Sum(candidate => candidate.Golden ? 2 : 1);
@@ -2391,7 +2662,7 @@ namespace LearnHearthstone.Domain.Engine
                 {
                     var target = rng.Pick(candidates);
                     candidates.Remove(target);
-                    ApplyBloodGem(target, tavern);
+                    ApplyBloodGem(target, tavern, BloodAmuletCardId);
                     AddTargetedReward(
                         context.Log,
                         owner,
@@ -2473,10 +2744,10 @@ namespace LearnHearthstone.Domain.Engine
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "cubling", "Cubling", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
                     break;
                 case BuzzingVerminCardId:
-                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2 + (owner.Tavern?.BeetleAttackBonus ?? 0), 2 + (owner.Tavern?.BeetleHealthBonus ?? 0), Tribe.Beast);
+                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
                     if (minion.Golden)
                     {
-                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2 + (owner.Tavern?.BeetleAttackBonus ?? 0), 2 + (owner.Tavern?.BeetleHealthBonus ?? 0), Tribe.Beast);
+                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
                     }
 
                     break;
@@ -2497,8 +2768,8 @@ namespace LearnHearthstone.Domain.Engine
                         newEntityIds,
                         "beetle",
                         "Beetle",
-                        (minion.Golden ? 4 : 2) + (owner.Tavern?.BeetleAttackBonus ?? 0),
-                        (minion.Golden ? 4 : 2) + (owner.Tavern?.BeetleHealthBonus ?? 0),
+                        minion.Golden ? 4 : 2,
+                        minion.Golden ? 4 : 2,
                         Tribe.Beast);
                     break;
                 case SkyPirateFlagbearerCardId:
@@ -2600,7 +2871,13 @@ namespace LearnHearthstone.Domain.Engine
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "ancestral-automaton", "Ancestral Automaton", minion.Golden ? 6 : 3, minion.Golden ? 8 : 4, Tribe.Mech);
                     break;
                 case PlaguedGhoulCardId:
-                    AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, minion.CardId, null, minion.Golden ? 4 : 2);
+                    ImproveUndeadAttackForCombatAndGame(
+                        context,
+                        owner,
+                        minion.Golden ? 4 : 2,
+                        minion.CardId,
+                        minion.InstanceId,
+                        string.IsNullOrEmpty(minion.Name) ? "Plaguerunner" : minion.Name);
                     break;
                 case FriendlyFelboarCardId:
                     AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellAttack, minion.CardId, null, minion.Golden ? 2 : 1);
@@ -2636,7 +2913,13 @@ namespace LearnHearthstone.Domain.Engine
                     AddReward(context.Log, owner, CombatRewardType.AddRandomMagneticMechToHand, minion.CardId, null, minion.Golden ? 2 : 1);
                     break;
                 case ClunkerJunkerCardId:
-                    BuffAll(owner.Board.Where(candidate => candidate.Tribes.Contains(Tribe.Mech)), minion.Golden ? 4 : 2, 0, "Clunker Junker");
+                    GrantPersistentCombatTribeBonus(
+                        owner,
+                        Tribe.Mech,
+                        minion.Golden ? 4 : 2,
+                        0,
+                        string.IsNullOrEmpty(minion.Name) ? "Ingenious Inventor" : minion.Name,
+                        minion.InstanceId);
                     break;
                 case HolyMecherelCardId:
                     AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, minion.CardId, SacredGiftCardNumber, minion.Golden ? 2 : 1);
@@ -2657,13 +2940,14 @@ namespace LearnHearthstone.Domain.Engine
                     DealAreaDamage(context, owner, minion, 1, candidate => candidate.Owner == owner.Side);
                     break;
                 case TurquoiseSkittererCardId:
-                    if (owner.Tavern != null)
-                    {
-                        owner.Tavern.BeetleAttackBonus += minion.Golden ? 10 : 5;
-                        owner.Tavern.BeetleHealthBonus += minion.Golden ? 10 : 5;
-                    }
-
-                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2 + (owner.Tavern?.BeetleAttackBonus ?? 0), 2 + (owner.Tavern?.BeetleHealthBonus ?? 0), Tribe.Beast);
+                    ImproveBeetleStatsForCombatAndGame(
+                        context,
+                        owner,
+                        minion.Golden ? 10 : 5,
+                        minion.Golden ? 10 : 5,
+                        minion.CardId,
+                        minion.InstanceId);
+                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
                     break;
                 case ThreeLilQuilboarCardId:
                     foreach (var quilboar in owner.Board.Where(candidate => candidate.Tribes.Contains(Tribe.Quilboar)).ToList())
@@ -2679,13 +2963,7 @@ namespace LearnHearthstone.Domain.Engine
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "eternal-knight", "Eternal Knight", minion.Golden ? 8 : 4, minion.Golden ? 2 : 1, Tribe.Undead, Keyword.Taunt);
                     break;
                 case SilkyShimmermothCardId:
-                    if (owner.Tavern != null)
-                    {
-                        owner.Tavern.BeetleAttackBonus += minion.Golden ? 4 : 2;
-                        owner.Tavern.BeetleHealthBonus += minion.Golden ? 2 : 1;
-                    }
-
-                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2 + (owner.Tavern?.BeetleAttackBonus ?? 0), 2 + (owner.Tavern?.BeetleHealthBonus ?? 0), Tribe.Beast);
+                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
                     break;
                 case DeadlySporebatCardId:
                     inserted += SummonLeftmostHandMinionForCombat(context, owner, minion, insertIndex + inserted, newEntityIds);
@@ -2782,7 +3060,13 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveTimewarpedBristlerDeathrattle(context, owner, minion);
                     break;
                 case TimewarpedGoldrinnCardId:
-                    BuffAll(owner.Board.Where(candidate => IsAlive(candidate) && HasCountedTribe(candidate, Tribe.Beast)), minion.Golden ? 8 : 4, minion.Golden ? 8 : 4, "Timewarped Goldrinn");
+                    GrantPersistentCombatTribeBonus(
+                        owner,
+                        Tribe.Beast,
+                        minion.Golden ? 8 : 4,
+                        minion.Golden ? 8 : 4,
+                        "Timewarped Goldrinn",
+                        minion.InstanceId);
                     break;
                 case TimewarpedMagnanimooseCardId:
                     inserted += ResolveTimewarpedMagnanimooseDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
@@ -2811,7 +3095,13 @@ namespace LearnHearthstone.Domain.Engine
                     AddReward(context.Log, owner, CombatRewardType.AddRandomTierSixMinionToHand, minion.CardId, null, minion.Golden ? 2 : 1);
                     break;
                 case GoldrinnCardId:
-                    BuffAll(owner.Board.Where(candidate => candidate.Tribes.Contains(Tribe.Beast)), minion.Golden ? 16 : 8, minion.Golden ? 16 : 8, "Goldrinn");
+                    GrantPersistentCombatTribeBonus(
+                        owner,
+                        Tribe.Beast,
+                        minion.Golden ? 16 : 8,
+                        minion.Golden ? 16 : 8,
+                        "Goldrinn",
+                        minion.InstanceId);
                     break;
                 case StitchedReclaimerCardId:
                     foreach (var stored in owner.StitchedCopies.Where(pair => pair.Key.StartsWith(minion.InstanceId + ":", StringComparison.Ordinal)).Select(pair => pair.Value).ToList())
@@ -3596,14 +3886,6 @@ namespace LearnHearthstone.Domain.Engine
                 new[] { STharaStickerCardId, owner.STharaStoredDemon.InstanceId });
         }
 
-        private static void ResolveRotHideGnollDeathAura(CombatSideState owner)
-        {
-            foreach (var gnoll in owner.Board.Where(candidate => candidate.CardId == RotHideGnollCardId && IsAlive(candidate)).ToList())
-            {
-                BuffMinion(gnoll, gnoll.Golden ? 2 : 1, 0, "Rot Hide Gnoll");
-            }
-        }
-
         private static void ResolveTideRaiser(CombatContext context, CombatSideState owner, int deadIndex, bool golden)
         {
             var candidates = new List<MinionInstance>();
@@ -3802,8 +4084,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 var newEntityIds = new List<string>();
                 ResolveDeathrattleEffect(context, owner, deathrattleTarget, Math.Min(targetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId);
-                ResolveDeaths(context, owner.Side);
-                ResolveDeaths(context, owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                ResolveAllDeaths(context, owner.Side);
                 AddLog(context.Log, "RallyResolved", source.InstanceId + " triggered " + deathrattleTarget.InstanceId + " deathrattle", source.InstanceId, deathrattleTarget.InstanceId, LogSeverity.Good);
             }
         }
@@ -3835,15 +4116,22 @@ namespace LearnHearthstone.Domain.Engine
                     AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellAttack, target.CardId, null, multiplier, target.InstanceId);
                     break;
                 case ForestRoverCardId:
-                    AddReward(context.Log, owner, CombatRewardType.ImproveBeetleStats, target.CardId, null, 1, 2 * multiplier, multiplier, target.InstanceId);
+                    ImproveBeetleStatsForCombatAndGame(
+                        context,
+                        owner,
+                        2 * multiplier,
+                        multiplier,
+                        target.CardId,
+                        target.InstanceId);
                     break;
                 case NerubianDeathswarmerCardId:
-                    foreach (var undead in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead)).ToList())
-                    {
-                        BuffMinion(undead, multiplier, 0, "Nerubian Deathswarmer");
-                    }
-
-                    AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, target.CardId, null, multiplier, target.InstanceId);
+                    ImproveUndeadAttackForCombatAndGame(
+                        context,
+                        owner,
+                        multiplier,
+                        target.CardId,
+                        target.InstanceId,
+                        "Nerubian Deathswarmer");
                     break;
                 case FeedingTigerSharkCardId:
                     AddReward(context.Log, owner, CombatRewardType.AddRandomBeastToHand, target.CardId, null, multiplier, target.InstanceId);
@@ -4419,21 +4707,19 @@ namespace LearnHearthstone.Domain.Engine
         private static void ResolveDustboneDestroyerRally(CombatContext context, CombatSideState owner, MinionInstance attacker, bool triggeredAttack)
         {
             var amount = attacker.Golden ? 2 : 1;
-            AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, attacker.CardId, null, amount, attacker.InstanceId);
-            var targets = owner.Board
-                .Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Undead))
-                .ToList();
-            if (targets.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var target in targets)
-            {
-                BuffMinion(target, amount, 0, "Dustbone Destroyer");
-            }
+            ImproveUndeadAttackForCombatAndGame(
+                context,
+                owner,
+                amount,
+                attacker.CardId,
+                attacker.InstanceId,
+                "Dustbone Destroyer");
 
             AddLog(context.Log, "AttackTriggered", attacker.InstanceId + " rallied undead attack +" + amount, attacker.InstanceId, null, LogSeverity.Good);
+            var relatedIds = owner.Board
+                .Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead))
+                .Select(minion => minion.InstanceId)
+                .Concat(new[] { attacker.InstanceId });
             RecordFrame(
                 context,
                 CombatEventType.AttackTriggered,
@@ -4442,7 +4728,7 @@ namespace LearnHearthstone.Domain.Engine
                 attacker.InstanceId,
                 owner.Side,
                 null,
-                targets.Select(target => target.InstanceId).Concat(new[] { attacker.InstanceId }),
+                relatedIds,
                 null,
                 null,
                 null,
@@ -5019,12 +5305,13 @@ namespace LearnHearthstone.Domain.Engine
             if (source.CardId == TimewarpedDeathswarmerCardId)
             {
                 var amount = source.Golden ? 2 : 1;
-                foreach (var undead in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead)).ToList())
-                {
-                    BuffMinion(undead, amount, 0, "Timewarped Deathswarmer");
-                }
-
-                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, amount, source.InstanceId);
+                ImproveUndeadAttackForCombatAndGame(
+                    context,
+                    owner,
+                    amount,
+                    source.CardId,
+                    source.InstanceId,
+                    "Timewarped Deathswarmer");
                 AddLog(context.Log, "DamageTriggered", source.InstanceId + " improved friendly Undead Attack", source.InstanceId, null, LogSeverity.Good);
             }
             else if (source.CardId == TimewarpedPiperCardId)
@@ -5287,7 +5574,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveSilkyShimmermothDamageTrigger(CombatContext context, CombatSideState owner, string damagedId, bool tookDamage)
         {
-            if (!tookDamage || owner.Tavern == null)
+            if (!tookDamage)
             {
                 return;
             }
@@ -5298,8 +5585,13 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            owner.Tavern.BeetleAttackBonus += source.Golden ? 4 : 2;
-            owner.Tavern.BeetleHealthBonus += source.Golden ? 2 : 1;
+            ImproveBeetleStatsForCombatAndGame(
+                context,
+                owner,
+                source.Golden ? 4 : 2,
+                source.Golden ? 2 : 1,
+                source.CardId,
+                source.InstanceId);
             AddLog(context.Log, "DamageTriggered", source.InstanceId + " improved Beetles", source.InstanceId, null, LogSeverity.Good);
         }
 
@@ -6761,13 +7053,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static bool IsBloodGemEnchantment(Enchantment enchantment)
         {
-            return ContainsBloodGemText(enchantment?.SourceId) || ContainsBloodGemText(enchantment?.Id);
-        }
-
-        private static bool ContainsBloodGemText(string value)
-        {
-            return !string.IsNullOrWhiteSpace(value) &&
-                   value.IndexOf(BloodGemSourceId, StringComparison.OrdinalIgnoreCase) >= 0;
+            return StatMath.IsBloodGemEnchantment(enchantment);
         }
 
         private static void RemoveKillTags(MinionInstance minion)
@@ -7278,7 +7564,13 @@ namespace LearnHearthstone.Domain.Engine
 
             if (overflowed > 0)
             {
-                AddReward(context.Log, owner, CombatRewardType.ImproveUndeadAttack, source.CardId, null, overflowed);
+                ImproveUndeadAttackForCombatAndGame(
+                    context,
+                    owner,
+                    overflowed,
+                    source.CardId,
+                    source.InstanceId,
+                    string.IsNullOrEmpty(source.Name) ? "Timewarped Caretaker" : source.Name);
             }
 
             return inserted;
@@ -7287,12 +7579,13 @@ namespace LearnHearthstone.Domain.Engine
         private static int ResolveTimewarpedNestSwarmer(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
         {
             var multiplier = source.Golden ? 2 : 1;
-            AddReward(context.Log, owner, CombatRewardType.ImproveBeetleStats, source.CardId, null, multiplier, 2, 3, source.InstanceId);
-            if (owner.Tavern != null)
-            {
-                owner.Tavern.BeetleAttackBonus += 2 * multiplier;
-                owner.Tavern.BeetleHealthBonus += 3 * multiplier;
-            }
+            ImproveBeetleStatsForCombatAndGame(
+                context,
+                owner,
+                2 * multiplier,
+                2 * multiplier,
+                source.CardId,
+                source.InstanceId);
 
             return AddTokenAndTrack(
                 context,
@@ -7302,8 +7595,8 @@ namespace LearnHearthstone.Domain.Engine
                 newEntityIds,
                 "beetle",
                 "Beetle",
-                2 + (owner.Tavern?.BeetleAttackBonus ?? 0),
-                2 + (owner.Tavern?.BeetleHealthBonus ?? 0),
+                2,
+                2,
                 Tribe.Beast);
         }
 
@@ -7634,6 +7927,19 @@ namespace LearnHearthstone.Domain.Engine
             ApplyHeroCombatSummonModifiers(owner, summoned);
             ApplyTrinketCombatSummonModifiers(context, owner, summoned, source);
             ResolveTimewarpedKarathressSummon(context, owner, summoned);
+            if (IsAncestralAutomaton(summoned))
+            {
+                owner.AncestralAutomatonSummons = StatMath.SaturatingAdd(owner.AncestralAutomatonSummons, 1, 0, StatMath.MaxStat);
+                RefreshDynamicCombatStats(owner);
+                AddReward(
+                    context.Log,
+                    owner,
+                    CombatRewardType.AncestralAutomatonSummoned,
+                    AncestralAutomatonCardId,
+                    null,
+                    1,
+                    summoned.InstanceId);
+            }
 
             if (HasCountedTribe(summoned, Tribe.Beast))
             {
@@ -8036,14 +8342,19 @@ namespace LearnHearthstone.Domain.Engine
                 0);
         }
 
-        private static void ApplyBloodGem(MinionInstance target, TavernState tavern = null)
+        private static void ApplyBloodGem(MinionInstance target, TavernState tavern = null, string sourceId = "Blood Gem")
         {
             if (target == null)
             {
                 return;
             }
 
-            BuffMinion(target, 1 + (tavern?.BloodGemBonusAttack ?? 0), 1 + (tavern?.BloodGemBonusHealth ?? 0), "Blood Gem");
+            BuffMinion(
+                target,
+                1 + (tavern?.BloodGemBonusAttack ?? 0),
+                1 + (tavern?.BloodGemBonusHealth ?? 0),
+                sourceId,
+                enchantmentKind: EnchantmentKind.BloodGem);
         }
 
         private static void AddKeyword(MinionInstance target, Keyword keyword)
@@ -8082,18 +8393,24 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void BuffMinion(MinionInstance target, int attack, int health, string sourceId)
+        private static void BuffMinion(
+            MinionInstance target,
+            int attack,
+            int health,
+            string sourceId,
+            string enchantmentId = null,
+            EnchantmentKind enchantmentKind = EnchantmentKind.Unspecified)
         {
             if (target == null)
             {
                 return;
             }
 
-            StatMath.ApplyStatDelta(target, attack, health);
-            target.Enchantments.Add(new Enchantment
+            StatMath.ApplyEnchantment(target, new Enchantment
             {
-                Id = sourceId,
+                Id = enchantmentId ?? sourceId,
                 SourceId = sourceId,
+                Kind = enchantmentKind,
                 AttackBonus = attack,
                 HealthBonus = health
             });
@@ -8393,6 +8710,13 @@ namespace LearnHearthstone.Domain.Engine
                 Tavern = tavern;
                 Hand = hand;
                 CombatSummonPool = combatSummonPool ?? new List<MinionInstance>();
+                EternalKnightDeaths = Math.Max(0, tavern?.EternalKnightDeaths ?? 0);
+                AncestralAutomatonSummons = Math.Max(
+                    Math.Max(0, tavern?.AncestralAutomatonSummons ?? 0),
+                    board.Count(IsAncestralAutomaton));
+                DeathrattlesTriggeredThisGame = Math.Max(0, tavern?.DeathrattlesTriggeredThisGame ?? 0);
+                BeetleAttackBonus = Math.Max(2, tavern?.BeetleAttackBonus ?? 2);
+                BeetleHealthBonus = Math.Max(2, tavern?.BeetleHealthBonus ?? 2);
             }
 
             public BoardSide Side { get; }
@@ -8403,7 +8727,12 @@ namespace LearnHearthstone.Domain.Engine
             public List<CombatReward> Rewards { get; } = new List<CombatReward>();
             public int AttackIndex { get; set; }
             public int? PendingAttackIndexOverride { get; set; }
-            public int BeastAttackAura { get; set; }
+            public int FriendlyDeathsThisCombat { get; set; }
+            public int EternalKnightDeaths { get; set; }
+            public int AncestralAutomatonSummons { get; set; }
+            public int DeathrattlesTriggeredThisGame { get; set; }
+            public int BeetleAttackBonus { get; set; }
+            public int BeetleHealthBonus { get; set; }
             public int TemporaryAvengeBeastRewards { get; set; }
             public bool TwinSkyLanternTriggered { get; set; }
             public Dictionary<string, int> AvengeCounters { get; } = new Dictionary<string, int>();
@@ -8412,12 +8741,22 @@ namespace LearnHearthstone.Domain.Engine
             public Dictionary<string, MinionInstance> StitchedCopies { get; } = new Dictionary<string, MinionInstance>();
             public Dictionary<string, List<MinionInstance>> CopiedDeathrattlesBySource { get; } = new Dictionary<string, List<MinionInstance>>();
             public Dictionary<string, int> SummonAuraUses { get; } = new Dictionary<string, int>();
+            public List<PersistentCombatTribeBonus> PersistentTribeBonuses { get; } = new List<PersistentCombatTribeBonus>();
             public List<MinionInstance> FishyStickerCopiedDeathrattles { get; } = new List<MinionInstance>();
             public List<MinionInstance> SoulFermenterStoredMinions { get; } = new List<MinionInstance>();
             public bool SoulFermenterTriggered { get; set; }
             public bool BoomControllerTriggered { get; set; }
             public MinionInstance STharaStoredDemon { get; set; }
             public bool STharaTriggered { get; set; }
+        }
+
+        private sealed class PersistentCombatTribeBonus
+        {
+            public string Id;
+            public string SourceId;
+            public Tribe Tribe;
+            public int Attack;
+            public int Health;
         }
 
         private readonly struct ImmediateAttackRequest

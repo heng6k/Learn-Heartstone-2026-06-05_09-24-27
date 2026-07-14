@@ -185,6 +185,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
                 {
                     var cardObject = TavernCardView.Create(slot.transform, card, TavernCardVisualMode.Shop, SelectCard);
                     AddDrag(cardObject, card, RealisticDragSource.Shop, index);
+                    AddDropTarget(cardObject, RealisticDropTarget.TavernShop, index);
                 }
             }
         }
@@ -1064,7 +1065,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
             if (drag.Source == RealisticDragSource.Hand && target == RealisticDropTarget.PlayerBoard)
             {
-                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                command = IsTargetedSpell(drag.Card)
+                    ? new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex, TargetZone.FriendlyBoard, -1, TargetZone.Unspecified)
+                    : new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                return true;
+            }
+
+            if (drag.Source == RealisticDragSource.Hand && target == RealisticDropTarget.TavernShop && targetIndex >= 0 && IsBloodGemSpell(drag.Card))
+            {
+                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex, TargetZone.TavernShop, -1, TargetZone.Unspecified);
                 return true;
             }
 
@@ -1093,6 +1102,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             }
 
             return false;
+        }
+
+        private static bool IsTargetedSpell(MinionInstance card)
+        {
+            return card != null &&
+                   (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell) &&
+                   card.Tags != null &&
+                   card.Tags.Any(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsBloodGemSpell(MinionInstance card)
+        {
+            return card != null &&
+                   ((card.Keywords != null && card.Keywords.Contains(Keyword.BloodGem)) ||
+                    (card.Tags != null && card.Tags.Any(tag => string.Equals(tag, "blood_gem", StringComparison.OrdinalIgnoreCase))));
         }
 
         private void CreateDragGhost(MinionInstance card, PointerEventData eventData)

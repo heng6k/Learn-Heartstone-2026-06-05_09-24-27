@@ -129,7 +129,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private UnityTavernDragContext activeDrag;
         private GameObject dragGhost;
         private string confirmedTargetInstanceId;
+        private string confirmedSecondaryTargetInstanceId;
         private float confirmedTargetUntil;
+        private int pendingPrimaryTargetIndex = -1;
+        private TargetZone pendingPrimaryTargetZone = TargetZone.Unspecified;
+        private string pendingPrimaryTargetInstanceId;
         private RectTransform targetingHoverAnchor;
         private GameObject targetingConnector;
         private bool rightPanelOpen;
@@ -204,9 +208,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             TickReplayPlayback(UnityEngine.Time.unscaledDeltaTime);
 
-            if (!string.IsNullOrEmpty(confirmedTargetInstanceId) && UnityEngine.Time.unscaledTime >= confirmedTargetUntil)
+            if ((!string.IsNullOrEmpty(confirmedTargetInstanceId) || !string.IsNullOrEmpty(confirmedSecondaryTargetInstanceId)) &&
+                UnityEngine.Time.unscaledTime >= confirmedTargetUntil)
             {
                 confirmedTargetInstanceId = null;
+                confirmedSecondaryTargetInstanceId = null;
                 RefreshTargetingClarity();
             }
 
@@ -317,6 +323,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (returnConfirmOpen)
             {
                 BuildReturnConfirmOverlay();
+            }
+
+            if (service.State.Player.Tavern.Timewarp?.VisitOpen == true)
+            {
+                BuildTimewarpedTavernModal();
             }
 
             if (!string.IsNullOrEmpty(lastError))
@@ -561,8 +572,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var layout = LayoutContext();
             var horizontalInset = layout.IsCompact ? UnityTavernUiStyle.SpacingSm : UnityTavernUiStyle.SpacingLg;
-            var bottomInset = layout.IsCompact ? 76f : 84f;
-            var topInset = layout.IsCompact ? 84f : 92f;
+            var bottomInset = layout.IsCompact ? 76f : 62f;
+            var topInset = layout.IsCompact ? 84f : 64f;
 
             var surface = Panel("UnityPlaySurface", transform, Color.clear);
             var rect = surface.GetComponent<RectTransform>();
@@ -658,7 +669,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton("UnityQuickFreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, true, UnityTavernActionButtonRole.Economy, CanExecute(GameCommandType.FreezeShop));
             ActionButton("UnityQuickUpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, true, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
             var advanceFromResult = service.State.Phase == MatchPhase.Result;
-            var turnCommand = advanceFromResult ? GameCommandType.DebugSkipToNextTurn : GameCommandType.NextTurn;
+            var turnCommand = advanceFromResult ? GameCommandType.DebugSkipToNextTurn : GameCommandType.BeginNextTurnTransition;
             ActionButton("UnityQuickNextTurnButton", parent, NextTurnActionLabel(advanceFromResult, "完整下一回合"), () =>
             {
                 if (advanceFromResult) Apply(new GameCommand(turnCommand));
@@ -1732,31 +1743,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildShop(Transform parent, UnityTavernLayoutContext layout)
         {
-            var timewarp = service.State.Player.Tavern.Timewarp;
-            if (timewarp?.VisitOpen == true)
-            {
-                var timewarpedZone = Zone("UnityTimewarpedTavernZone", parent, layout, UnityTavernZoneKind.Shop, UnityTavernCardMode.Shop);
-                timewarpedZone.Build(
-                    TimewarpedTavernTitle(timewarp.PendingKind),
-                    (service.UseEnglish ? "Chronum " : "时空资源 ") + timewarp.Chronum,
-                    service.GetTimewarpedOfferCards(),
-                    0,
-                    UnityTavernCardMode.Shop,
-                    TimewarpedOfferActionLabelForCurrentPhase,
-                    SelectCard,
-                    BuyTimewarpedOffer,
-                    configureCard: (cardObject, card, index) => ConfigureCardHoverTooltip(cardObject, card),
-                    layoutContext: layout);
-                ActionButton(
-                    "UnityTimewarpedTavernExitButton",
-                    timewarpedZone.transform,
-                    service.UseEnglish ? "Exit Timewarped Tavern" : "退出时空酒馆",
-                    () => Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern)),
-                    role: UnityTavernActionButtonRole.Utility,
-                    interactable: CanExecute(GameCommandType.ExitTimewarpedTavern));
-                return;
-            }
-
             var zone = Zone("UnityShopZone", parent, layout, UnityTavernZoneKind.Shop, UnityTavernCardMode.Shop);
             zone.Build(
                 "鲍勃的酒馆",
@@ -1771,9 +1757,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 {
                     ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.Shop, index);
                     ConfigureCardHoverTooltip(cardObject, card);
+                    AddDropTarget(cardObject, UnityTavernDropTarget.TavernShop, index);
                 },
                 layoutContext: layout);
             BuildShopSellDropZone(zone.transform);
+        }
+
+        private void BuildTimewarpedTavernModal()
+        {
+            var timewarp = service.State.Player.Tavern.Timewarp;
+            if (timewarp?.VisitOpen != true)
+            {
+                return;
+            }
+
+            var modalObject = UnityTimewarpedTavernModalComponent.CreateModalHost(transform);
+            modalObject.GetComponent<UnityTimewarpedTavernModalComponent>().Build(
+                TimewarpedTavernTitle(timewarp.PendingKind),
+                timewarp.Chronum,
+                service.GetTimewarpedOfferCards(),
+                timewarp.Offers,
+                service.UseEnglish,
+                index => Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, index)),
+                () => Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern)));
         }
 
         private void BuildOpponentHand(Transform parent, UnityTavernLayoutContext layout)
@@ -1801,34 +1807,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return kind == TimewarpKind.Major ? "大型时空酒馆" : "小型时空酒馆";
-        }
-
-        private string TimewarpedOfferActionLabel(MinionInstance card)
-        {
-            if (card == null)
-            {
-                return null;
-            }
-
-            if (TimewarpedCardBehavior.IsExitCardInstance(card))
-            {
-                return service.UseEnglish ? "Exit" : "退出";
-            }
-
-            return (service.UseEnglish ? "Buy " : "购买 ") + card.Cost;
-        }
-
-        private string TimewarpedOfferActionLabelForCurrentPhase(MinionInstance card)
-        {
-            if (card == null)
-            {
-                return null;
-            }
-
-            var commandType = TimewarpedCardBehavior.IsExitCardInstance(card)
-                ? GameCommandType.ExitTimewarpedTavern
-                : GameCommandType.BuyTimewarpedTavernCard;
-            return CanExecute(commandType) ? TimewarpedOfferActionLabel(card) : null;
         }
 
         private void BuildPlayerBoard(Transform parent, UnityTavernLayoutContext layout)
@@ -2018,7 +1996,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton(namePrefix + "FreezeButton", parent, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanExecute(GameCommandType.FreezeShop));
             ActionButton(namePrefix + "UpgradeButton", parent, UpgradeActionLabel(), () => Apply(new GameCommand(GameCommandType.UpgradeTavern)), minWidth, height, flexibleWidth, UnityTavernActionButtonRole.Economy, CanUpgradeTavern());
             var advanceFromResult = service.State.Phase == MatchPhase.Result;
-            var turnCommand = advanceFromResult ? GameCommandType.DebugSkipToNextTurn : GameCommandType.NextTurn;
+            var turnCommand = advanceFromResult ? GameCommandType.DebugSkipToNextTurn : GameCommandType.BeginNextTurnTransition;
             var turnLabel = NextTurnActionLabel(advanceFromResult, "完整下一回合");
             ActionButton(
                 namePrefix + "NextTurnButton",
@@ -2079,12 +2057,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private bool CanExecute(GameCommandType commandType)
         {
-            if (service?.State == null || !MatchService.IsCommandAllowedInPhase(commandType, service.State.Phase))
+            if (service?.State == null || !service.CanApply(commandType))
             {
                 return false;
             }
 
-            return commandType != GameCommandType.NextTurn || string.IsNullOrEmpty(service.GetNextTurnBlockedReason());
+            return (commandType != GameCommandType.NextTurn && commandType != GameCommandType.BeginNextTurnTransition) ||
+                string.IsNullOrEmpty(service.GetNextTurnBlockedReason());
         }
 
         private string NextTurnActionLabel(bool advanceFromResult, string defaultLabel)
@@ -2449,6 +2428,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             replayPlaying = false;
             combatTimelineOpen = false;
             replayPlaybackElapsed = 0f;
+            if (service.State.PendingTurnStartRound > 0)
+            {
+                Apply(new GameCommand(GameCommandType.ContinueNextTurnTransition));
+                return;
+            }
+
             Rebuild();
         }
 
@@ -3068,8 +3053,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 BuildPlayerUndeadAttackStatusCard(parent);
             }
 
-            BuildToolsSection(parent, sectionName, title, 10, grid =>
+            BuildToolsSection(parent, sectionName, title, 12, grid =>
             {
+                SideModifierStepper(grid, side, SideCombatModifierKind.BeetleAttackBonus, "Beetle Attack");
+                SideModifierStepper(grid, side, SideCombatModifierKind.BeetleHealthBonus, "Beetle Health");
                 SideModifierStepper(grid, side, SideCombatModifierKind.SpellsCastThisGame, "法术");
                 SideModifierStepper(grid, side, SideCombatModifierKind.SpellPower, "法强");
                 SideModifierStepper(grid, side, SideCombatModifierKind.TavernSpellBonusAttack, "酒法攻");
@@ -3133,19 +3120,55 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             label = SideModifierSemanticLabel(kind);
             var value = SideModifierValue(side, kind);
             var prefix = side == BoardSide.Player ? "Player" : "Opponent";
+            var row = Panel("UnityTools" + prefix + kind + "Editor", grid, UnityTavernUiStyle.PanelQuiet);
+            var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.padding = new RectOffset(6, 6, 4, 4);
+            rowLayout.spacing = 4;
+            rowLayout.childControlWidth = true;
+            rowLayout.childControlHeight = true;
+            rowLayout.childForceExpandWidth = false;
+            rowLayout.childForceExpandHeight = true;
+
+            var title = UiFactory.Label("UnityTools" + prefix + kind + "Label", row.transform, label, 11, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
+
+            var inputObject = new GameObject("UnityTools" + prefix + kind + "Input", typeof(RectTransform), typeof(Image), typeof(InputField));
+            inputObject.transform.SetParent(row.transform, false);
+            UnityTavernUiStyle.SetFixedSize(inputObject, 54f, 32f);
+            UnityTavernUiStyle.ConfigureSurface(inputObject, UnityTavernUiStyle.PanelRaised, true);
+            var input = inputObject.GetComponent<InputField>();
+            input.contentType = InputField.ContentType.IntegerNumber;
+            input.caretColor = UnityTavernUiStyle.Text;
+            input.textComponent = UiFactory.Label("UnityTools" + prefix + kind + "InputText", inputObject.transform, value.ToString(), 13, FontStyle.Bold);
+            UnityTavernUiStyle.Stretch(input.textComponent.rectTransform);
+            input.textComponent.alignment = TextAnchor.MiddleCenter;
+            input.text = value.ToString();
+            input.onEndEdit.AddListener(raw =>
+            {
+                if (int.TryParse(raw, out var parsed))
+                {
+                    Apply(new GameCommand(GameCommandType.SetSideCombatModifier, side, kind, parsed));
+                }
+                else
+                {
+                    Rebuild();
+                }
+            });
             ToolButton(
                 "UnityTools" + prefix + kind + "PlusButton",
-                grid,
-                label + " " + value + " +",
+                row.transform,
+                "+",
                 true,
                 () => Apply(new GameCommand(GameCommandType.AdjustSideCombatModifier, side, kind, 1)));
             ToolButton(
                 "UnityTools" + prefix + kind + "MinusButton",
-                grid,
-                label + " " + value + " -",
-                value > 0,
+                row.transform,
+                "-",
+                value > SideModifierService.MinimumValue(kind),
                 () => Apply(new GameCommand(GameCommandType.AdjustSideCombatModifier, side, kind, -1)),
-                "当前已为 0");
+                "已到最低值");
         }
 
         private static string SideModifierSemanticLabel(SideCombatModifierKind kind)
@@ -3164,6 +3187,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "\u5b9d\u77f3\u653b(\u6253\u51fa\u65f6)";
                 case SideCombatModifierKind.BloodGemHealthBonus:
                     return "\u5b9d\u77f3\u8840(\u6253\u51fa\u65f6)";
+                case SideCombatModifierKind.BeetleAttackBonus:
+                    return "\u7532\u866b\u8d28\u91cf\u653b";
+                case SideCombatModifierKind.BeetleHealthBonus:
+                    return "\u7532\u866b\u8d28\u91cf\u8840";
                 case SideCombatModifierKind.UndeadAttackBonus:
                     return "\u4ea1\u7075\u653b\u51fb\u6210\u957f";
                 case SideCombatModifierKind.EternalKnightDeaths:
@@ -3204,6 +3231,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return modifiers.BloodGemAttackBonus;
                 case SideCombatModifierKind.BloodGemHealthBonus:
                     return modifiers.BloodGemHealthBonus;
+                case SideCombatModifierKind.BeetleAttackBonus:
+                    return Math.Max(2, modifiers.BeetleAttackBonus);
+                case SideCombatModifierKind.BeetleHealthBonus:
+                    return Math.Max(2, modifiers.BeetleHealthBonus);
                 case SideCombatModifierKind.UndeadAttackBonus:
                     return modifiers.UndeadAttackBonus;
                 case SideCombatModifierKind.EternalKnightDeaths:
@@ -5607,16 +5638,39 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var definitions = MinionCatalogLoader.LoadFromResources().All
                 .Where(card => service.IsMinionAllowedByCardPool(card) && !card.CardId.StartsWith("BGDUO"));
+            var timewarped = service.GetTimewarpedDebugMinionCards().AsEnumerable();
             if (!toolsShowAllCards)
             {
                 var active = ActiveLibraryTribes();
                 definitions = definitions.Where(card => TribeAvailabilityRules.IsMinionAvailable(card, active));
+                timewarped = timewarped.Where(card => MatchesToolsAcquisitionTribeAvailability(card, active));
             }
 
             foreach (var definition in definitions)
             {
                 yield return MinionFactory.Create(definition, BoardSide.Player, "unity-tools-library", false, PoolSource.Debug, 0);
             }
+
+            foreach (var card in timewarped)
+            {
+                yield return card;
+            }
+        }
+
+        private static bool MatchesToolsAcquisitionTribeAvailability(MinionInstance card, IReadOnlyCollection<Tribe> activeTribes)
+        {
+            if (card == null)
+            {
+                return false;
+            }
+
+            if (card.Tribes == null || card.Tribes.Count == 0 || card.Tribes.All(tribe => tribe == Tribe.None) || card.Tribes.Contains(Tribe.All))
+            {
+                return true;
+            }
+
+            var active = TribeAvailabilityRules.Normalize(activeTribes);
+            return card.Tribes.Any(active.Contains);
         }
 
         private IEnumerable<MinionInstance> BuildToolsAcquisitionSpellChoices()
@@ -7665,6 +7719,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             activeDrag = new UnityTavernDragContext(card, source, index);
+            ClearPendingPrimaryTarget();
+            confirmedTargetInstanceId = null;
+            confirmedSecondaryTargetInstanceId = null;
             selectedInstanceId = card.InstanceId;
             SetDiscoverBackdropRaycastBlocking(source != UnityTavernDragSource.Discover);
             if (eventData != null)
@@ -7700,8 +7757,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private bool CanDropInCurrentPhase(UnityTavernDragContext drag, UnityTavernDropTarget target, int targetIndex)
         {
-            return UnityTavernDragController.TryBuildDropCommand(drag, target, targetIndex, out var command) &&
-                   CanExecute(command.Type);
+            if (!UnityTavernDragController.TryBuildDropCommand(drag, target, targetIndex, out var command))
+            {
+                return false;
+            }
+
+            if (!CanExecute(command.Type))
+            {
+                return false;
+            }
+
+            if (UnityTavernDragController.RequiresTwoTargets(drag?.Card))
+            {
+                if (target != UnityTavernDropTarget.PlayerBoard && target != UnityTavernDropTarget.TavernShop)
+                {
+                    return false;
+                }
+
+                var instanceId = ResolveDropTargetInstanceId(target, targetIndex);
+                if (!string.IsNullOrEmpty(pendingPrimaryTargetInstanceId) &&
+                    string.Equals(pendingPrimaryTargetInstanceId, instanceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return (!IsTargetedSpell(drag?.Card) && !UnityTavernDragController.RequiresBattlecryTarget(drag?.Card)) ||
+                   TryValidatePlayerCardDrop(drag.Card, target, targetIndex, out _);
         }
 
         public void MoveDrag(PointerEventData eventData)
@@ -7720,6 +7802,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             SetDiscoverBackdropRaycastBlocking(true);
             ClearDropTargetCues();
             activeDrag = null;
+            ClearPendingPrimaryTarget();
             DestroyDragGhost();
             ClearTargetingHover();
             RefreshTargetingClarity();
@@ -7733,26 +7816,105 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             var drag = activeDrag;
-            if (!UnityTavernDragController.TryBuildDropCommand(drag, target, targetIndex, out var command))
+            if (!UnityTavernDragController.TryBuildDropCommand(drag, target, targetIndex, out var command, out var failureReason))
             {
-                lastError = "拖放目标无效。";
+                lastError = failureReason == UnityTavernTargetingFailureReason.MissingTarget
+                    ? "请选择一个目标。"
+                    : "该目标不可选。";
                 lastFeedback = null;
-                EndDrag();
-                Rebuild();
+                BuildErrorToast(lastError);
+                RefreshDropTargetCues();
+                RefreshTargetingClarity();
+                return;
+            }
+
+            if (IsTargetedSpell(drag.Card) &&
+                !TryValidatePlayerCardDrop(drag.Card, target, targetIndex, out var targetFailureReason))
+            {
+                lastError = targetFailureReason;
+                lastFeedback = null;
+                BuildErrorToast(lastError);
+                RefreshDropTargetCues();
+                RefreshTargetingClarity();
+                return;
+            }
+
+            if (UnityTavernDragController.RequiresBattlecryTarget(drag.Card) &&
+                !TryValidatePlayerCardDrop(drag.Card, target, targetIndex, out var battlecryTargetFailureReason))
+            {
+                lastError = battlecryTargetFailureReason;
+                lastFeedback = null;
+                BuildErrorToast(lastError);
+                RefreshDropTargetCues();
+                RefreshTargetingClarity();
+                return;
+            }
+
+            if (UnityTavernDragController.RequiresTwoTargets(drag.Card) &&
+                target != UnityTavernDropTarget.PlayerBoard &&
+                target != UnityTavernDropTarget.TavernShop)
+            {
+                lastError = "该英雄技能只能选择己方战场或酒馆中的随从。";
+                lastFeedback = null;
+                BuildErrorToast(lastError);
+                RefreshDropTargetCues();
+                RefreshTargetingClarity();
                 return;
             }
 
             var resolvedTargetInstanceId = ResolveDropTargetInstanceId(target, targetIndex);
+            if (UnityTavernDragController.RequiresTwoTargets(drag.Card))
+            {
+                var resolvedTargetZone = ToTargetZone(target);
+                if (string.IsNullOrEmpty(pendingPrimaryTargetInstanceId))
+                {
+                    pendingPrimaryTargetIndex = targetIndex;
+                    pendingPrimaryTargetZone = resolvedTargetZone;
+                    pendingPrimaryTargetInstanceId = resolvedTargetInstanceId;
+                    selectedInstanceId = resolvedTargetInstanceId;
+                    BuildFeedbackToast("已选择目标 1/2，请选择另一个目标。");
+                    RefreshDropTargetCues();
+                    RefreshTargetingClarity();
+                    return;
+                }
+
+                if (string.Equals(pendingPrimaryTargetInstanceId, resolvedTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    lastError = "第二个目标必须与第一个目标不同。";
+                    lastFeedback = null;
+                    BuildErrorToast(lastError);
+                    RefreshDropTargetCues();
+                    RefreshTargetingClarity();
+                    return;
+                }
+
+                command = new GameCommand(
+                    GameCommandType.UseHeroPower,
+                    pendingPrimaryTargetIndex,
+                    pendingPrimaryTargetZone,
+                    targetIndex,
+                    resolvedTargetZone,
+                    pendingPrimaryTargetInstanceId,
+                    resolvedTargetInstanceId,
+                    heroPowerCardId: drag.Card.CardId);
+                confirmedTargetInstanceId = pendingPrimaryTargetInstanceId;
+                confirmedSecondaryTargetInstanceId = resolvedTargetInstanceId;
+            }
+
             selectedInstanceId = target == UnityTavernDropTarget.SellZone ? null : resolvedTargetInstanceId ?? drag.Card.InstanceId;
             if ((drag.Source == UnityTavernDragSource.HeroPower || IsTargetedSpell(drag.Card)) &&
                 !string.IsNullOrEmpty(resolvedTargetInstanceId))
             {
-                confirmedTargetInstanceId = resolvedTargetInstanceId;
+                if (string.IsNullOrEmpty(confirmedTargetInstanceId))
+                {
+                    confirmedTargetInstanceId = resolvedTargetInstanceId;
+                }
                 confirmedTargetUntil = UnityEngine.Time.unscaledTime + 1.25f;
             }
 
             ClearDropTargetCues();
             activeDrag = null;
+            ClearPendingPrimaryTarget();
             SetDiscoverBackdropRaycastBlocking(true);
             DestroyDragGhost();
             ClearTargetingHover();
@@ -7769,6 +7931,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (target == UnityTavernDropTarget.OpponentBoard && targetIndex >= 0 && targetIndex < service.State.Opponent.Board.Count)
             {
                 return service.State.Opponent.Board[targetIndex]?.InstanceId;
+            }
+
+            if (target == UnityTavernDropTarget.TavernShop && targetIndex >= 0 && targetIndex < service.State.Player.Tavern.Shop.Count)
+            {
+                return service.State.Player.Tavern.Shop[targetIndex]?.InstanceId;
             }
 
             return null;
@@ -7896,6 +8063,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return true;
             }
 
+            targetIndex = service.State.Player.Tavern.Shop.FindIndex(item => item != null && string.Equals(item.InstanceId, card.InstanceId, StringComparison.OrdinalIgnoreCase));
+            if (targetIndex >= 0)
+            {
+                target = UnityTavernDropTarget.TavernShop;
+                return true;
+            }
+
             return false;
         }
 
@@ -7913,32 +8087,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private void BuyTimewarpedOffer(MinionInstance card)
-        {
-            if (card == null)
-            {
-                return;
-            }
-
-            var offers = service.State.Player.Tavern.Timewarp?.Offers;
-            if (offers == null)
-            {
-                return;
-            }
-
-            var index = offers.FindIndex(offer => offer != null && !offer.Purchased && offer.CardId == card.CardId);
-            if (index >= 0)
-            {
-                Apply(new GameCommand(GameCommandType.BuyTimewarpedTavernCard, index));
-            }
-        }
-
         private void PlayCard(MinionInstance card)
         {
             var index = service.State.Player.Tavern.Hand.FindIndex(item => item.InstanceId == card.InstanceId);
             if (index >= 0)
             {
-                if (IsTargetedSpell(card))
+                if (IsTargetedSpell(card) || UnityTavernDragController.RequiresBattlecryTarget(card))
                 {
                     BeginDrag(card, UnityTavernDragSource.Hand, index);
                     return;
@@ -8096,8 +8250,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return "已清除对手英雄技能目标";
                 case GameCommandType.SetOpponentStartOfCombatSpell:
                     return "已配置敌方战斗开始法术";
-                case GameCommandType.NextTurn:
-                    return "进入下一回合";
+            case GameCommandType.NextTurn:
+                return "进入下一回合";
+            case GameCommandType.BeginNextTurnTransition:
+                return "进入战斗";
+            case GameCommandType.ContinueNextTurnTransition:
+                return "已离开战斗界面";
                 case GameCommandType.DebugAddGold:
                     return "已增加金币";
                 case GameCommandType.SimulateCombat:
@@ -8199,6 +8357,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var zoneObject = UnityTavernZoneComponent.CreateZoneHost(kind, parent, name);
             UnityTavernUiStyle.SetPreferredHeight(zoneObject, layout.ZoneMetrics(kind, cardMode).Height);
+            UnityTavernUiStyle.SetFlexible(
+                zoneObject,
+                1f,
+                kind == UnityTavernZoneKind.PlayerBoard ? 1f : kind == UnityTavernZoneKind.Shop ? 0.45f : 0f);
             return zoneObject.GetComponent<UnityTavernZoneComponent>();
         }
 
@@ -8520,12 +8682,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     {
                         state = UnityTavernTargetingState.Source;
                     }
+                    else if (string.Equals(card.InstanceId, pendingPrimaryTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        state = UnityTavernTargetingState.ConfirmedTarget;
+                    }
                     else if (IsActiveTarget(card))
                     {
                         state = UnityTavernTargetingState.Candidate;
                     }
+                    else if (IsTargetingCandidateSurface(card))
+                    {
+                        state = UnityTavernTargetingState.InvalidTarget;
+                    }
                 }
-                else if (card != null && string.Equals(card.InstanceId, confirmedTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+                else if (card != null &&
+                         (string.Equals(card.InstanceId, confirmedTargetInstanceId, StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(card.InstanceId, confirmedSecondaryTargetInstanceId, StringComparison.OrdinalIgnoreCase)))
                 {
                     state = UnityTavernTargetingState.ConfirmedTarget;
                 }
@@ -8534,7 +8706,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     state = UnityTavernTargetingState.OpponentTarget;
                 }
 
-                component.SetTargetingState(state);
+                var labelOverride = state == UnityTavernTargetingState.ConfirmedTarget &&
+                                    string.Equals(card?.InstanceId, pendingPrimaryTargetInstanceId, StringComparison.OrdinalIgnoreCase)
+                    ? "目标 1/2"
+                    : null;
+                component.SetTargetingState(state, labelOverride);
             }
 
             RefreshHeroPowerSourceMarkers();
@@ -8599,7 +8775,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return false;
             }
 
-            if (IsTargetedSpell(activeDrag.Card) && target != UnityTavernDropTarget.PlayerBoard)
+            if (!string.IsNullOrEmpty(pendingPrimaryTargetInstanceId) &&
+                string.Equals(card.InstanceId, pendingPrimaryTargetInstanceId, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if ((IsTargetedSpell(activeDrag.Card) || UnityTavernDragController.RequiresBattlecryTarget(activeDrag.Card)) &&
+                !TryValidatePlayerCardDrop(activeDrag.Card, target, targetIndex, out _))
             {
                 return false;
             }
@@ -8607,11 +8790,68 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return CanDropInCurrentPhase(activeDrag, target, targetIndex);
         }
 
+        private bool TryValidatePlayerCardDrop(
+            MinionInstance card,
+            UnityTavernDropTarget target,
+            int targetIndex,
+            out string reason)
+        {
+            reason = null;
+            if (card == null || targetIndex < 0)
+            {
+                reason = "请选择一个目标。";
+                return false;
+            }
+
+            if (target != UnityTavernDropTarget.PlayerBoard && target != UnityTavernDropTarget.TavernShop)
+            {
+                reason = "该效果不能选择此区域。";
+                return false;
+            }
+
+            var targetZone = target == UnityTavernDropTarget.PlayerBoard ? TargetZone.FriendlyBoard : TargetZone.TavernShop;
+            var instanceId = ResolveDropTargetInstanceId(target, targetIndex);
+            return service.TryValidatePlayerTarget(card, targetIndex, targetZone, instanceId, out reason);
+        }
+
+        private bool IsTargetingCandidateSurface(MinionInstance card)
+        {
+            return IsExplicitTargetingDrag() &&
+                   card != null &&
+                   !string.Equals(card.InstanceId, activeDrag.Card.InstanceId, StringComparison.OrdinalIgnoreCase) &&
+                   TryResolveBoardDropTarget(card, out _, out _);
+        }
+
         private bool IsExplicitTargetingDrag()
         {
             return activeDrag != null &&
                    (activeDrag.Source == UnityTavernDragSource.HeroPower ||
-                    activeDrag.Source == UnityTavernDragSource.Hand && IsTargetedSpell(activeDrag.Card));
+                    activeDrag.Source == UnityTavernDragSource.Hand &&
+                    (IsTargetedSpell(activeDrag.Card) || UnityTavernDragController.RequiresBattlecryTarget(activeDrag.Card)));
+        }
+
+        private static TargetZone ToTargetZone(UnityTavernDropTarget target)
+        {
+            switch (target)
+            {
+                case UnityTavernDropTarget.PlayerBoard:
+                    return TargetZone.FriendlyBoard;
+                case UnityTavernDropTarget.OpponentBoard:
+                    return TargetZone.OpponentBoard;
+                case UnityTavernDropTarget.TavernShop:
+                    return TargetZone.TavernShop;
+                case UnityTavernDropTarget.Hand:
+                    return TargetZone.Hand;
+                default:
+                    return TargetZone.Unspecified;
+            }
+        }
+
+        private void ClearPendingPrimaryTarget()
+        {
+            pendingPrimaryTargetIndex = -1;
+            pendingPrimaryTargetZone = TargetZone.Unspecified;
+            pendingPrimaryTargetInstanceId = null;
         }
 
         private static bool IsTargetedSpell(MinionInstance card)

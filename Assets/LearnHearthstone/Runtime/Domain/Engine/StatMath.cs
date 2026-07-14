@@ -98,6 +98,84 @@ namespace LearnHearthstone.Domain.Engine
             ClampCurrentHealthToMax(target);
         }
 
+        public static void ApplyEnchantment(MinionInstance target, Enchantment enchantment)
+        {
+            if (target == null || enchantment == null)
+            {
+                return;
+            }
+
+            if (target.Enchantments == null)
+            {
+                target.Enchantments = new List<Enchantment>();
+            }
+
+            target.Enchantments.Add(enchantment);
+            if (enchantment.Kind == EnchantmentKind.SetStats)
+            {
+                target.Attack = ClampAttack(enchantment.AttackBonus);
+                target.MaxHealth = ClampMaxHealth(enchantment.HealthBonus);
+                target.Health = target.MaxHealth;
+                return;
+            }
+
+            ApplyStatDelta(target, enchantment.AttackBonus, enchantment.HealthBonus);
+        }
+
+        public static void SetStats(MinionInstance target, int attack, int health, string sourceId)
+        {
+            ApplyEnchantment(target, new Enchantment
+            {
+                Id = sourceId,
+                SourceId = sourceId,
+                Kind = EnchantmentKind.SetStats,
+                AttackBonus = ClampAttack(attack),
+                HealthBonus = ClampMaxHealth(health)
+            });
+        }
+
+        public static void RecalculateStatsPreservingDamage(MinionInstance target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var damage = (long)target.MaxHealth - target.Health;
+            RecalculateAttackAndMaxHealth(target);
+            target.Health = ClampHealth((long)target.MaxHealth - damage);
+            ClampCurrentHealthToMax(target);
+        }
+
+        public static void RecalculateStatsPreservingCurrentHealth(MinionInstance target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var currentHealth = target.Health;
+            RecalculateAttackAndMaxHealth(target);
+            target.Health = ClampHealth(currentHealth);
+            ClampCurrentHealthToMax(target);
+        }
+
+        public static bool IsBloodGemEnchantment(Enchantment enchantment)
+        {
+            if (enchantment == null)
+            {
+                return false;
+            }
+
+            if (enchantment.Kind == EnchantmentKind.BloodGem)
+            {
+                return true;
+            }
+
+            return enchantment.Kind == EnchantmentKind.Unspecified &&
+                   (ContainsBloodGemText(enchantment.SourceId) || ContainsBloodGemText(enchantment.Id));
+        }
+
         public static void DoubleCurrentStats(MinionInstance target, bool healToMaxHealth)
         {
             if (target == null)
@@ -119,6 +197,38 @@ namespace LearnHearthstone.Domain.Engine
             {
                 target.Health = target.MaxHealth;
             }
+        }
+
+        private static void RecalculateAttackAndMaxHealth(MinionInstance target)
+        {
+            var attack = ClampAttack(target.BaseAttack);
+            var maxHealth = ClampMaxHealth(target.BaseHealth);
+            foreach (var enchantment in target.Enchantments ?? new List<Enchantment>())
+            {
+                if (enchantment == null)
+                {
+                    continue;
+                }
+
+                if (enchantment.Kind == EnchantmentKind.SetStats)
+                {
+                    attack = ClampAttack(enchantment.AttackBonus);
+                    maxHealth = ClampMaxHealth(enchantment.HealthBonus);
+                    continue;
+                }
+
+                attack = ClampAttack((long)attack + enchantment.AttackBonus);
+                maxHealth = ClampMaxHealth((long)maxHealth + enchantment.HealthBonus);
+            }
+
+            target.Attack = attack;
+            target.MaxHealth = maxHealth;
+        }
+
+        private static bool ContainsBloodGemText(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                   value.IndexOf("Blood Gem", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static int ClampToInt(long value, int minValue, int maxValue)

@@ -53,21 +53,17 @@ function Invoke-UnityMcpCommand {
         $stream.ReadTimeout = $CommandTimeoutMs
         $stream.WriteTimeout = $CommandTimeoutMs
 
-        $quietReads = 0
-        while ($quietReads -lt 6) {
-            Start-Sleep -Milliseconds 75
-            if ($client.Available -le 0) {
-                $quietReads += 1
-                continue
+        $handshakeBytes = [System.Collections.Generic.List[byte]]::new()
+        do {
+            $handshakeBytes.Add((Read-Exact -Stream $stream -Length 1)[0])
+            if ($handshakeBytes.Count -gt 128) {
+                throw "Unity MCP handshake exceeded 128 bytes."
             }
+        } while ($handshakeBytes[$handshakeBytes.Count - 1] -ne 10)
 
-            while ($client.Available -gt 0) {
-                $banner = New-Object byte[] ([Math]::Min($client.Available, 1024))
-                [void]$stream.Read($banner, 0, $banner.Length)
-                Start-Sleep -Milliseconds 25
-            }
-
-            $quietReads = 0
+        $handshake = [System.Text.Encoding]::ASCII.GetString($handshakeBytes.ToArray()).TrimEnd()
+        if (-not $handshake.StartsWith("WELCOME UNITY-MCP ")) {
+            throw "Unexpected Unity MCP handshake: $handshake"
         }
 
         $json = $Payload | ConvertTo-Json -Depth 32 -Compress

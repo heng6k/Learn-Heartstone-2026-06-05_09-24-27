@@ -71,6 +71,7 @@ namespace LearnHearthstone.Presentation
         private void StartUnityTrainer(MatchSetupOptions setup)
         {
             matchService = MatchService.CreateWithDefaultCatalog(
+                CreateMatchSeed(),
                 setup: setup ?? new MatchSetupOptions());
             ClearCanvas();
             new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
@@ -79,7 +80,7 @@ namespace LearnHearthstone.Presentation
 
         private void ShowRealisticTrainer()
         {
-            matchService = MatchService.CreateWithDefaultCatalog();
+            matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
             ClearCanvas();
             new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
             AddDebugAspectRatioOverlay();
@@ -87,10 +88,15 @@ namespace LearnHearthstone.Presentation
 
         private void ShowLegacyTrainer()
         {
-            matchService = MatchService.CreateWithDefaultCatalog();
+            matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
             AddDebugAspectRatioOverlay();
+        }
+
+        private static int CreateMatchSeed()
+        {
+            return System.Guid.NewGuid().GetHashCode();
         }
 
         private Canvas CreateCanvas()

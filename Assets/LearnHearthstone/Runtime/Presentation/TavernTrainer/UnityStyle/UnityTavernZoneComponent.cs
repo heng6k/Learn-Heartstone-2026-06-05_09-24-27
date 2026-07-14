@@ -17,9 +17,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
     public sealed class UnityTavernZoneComponent : MonoBehaviour
     {
-        private const int HandCompressionThreshold = 6;
-        private const float HandCompressionSpacingRatio = 0.58f;
-        private const float HandCompressionMinimumSpacing = 56f;
+        private const float HandMinimumSpacingRatio = 0.48f;
+        private const float HandMaximumSpacingRatio = 0.82f;
+        private const float HandArcHeight = 12f;
+        private const float HandMaximumRotation = 6f;
 
         public const string ShopZonePrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Zones/ShopZone.prefab";
         public const string HandZonePrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Zones/HandZone.prefab";
@@ -187,6 +188,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var metrics = layoutContext.ZoneMetrics(zoneKind, cardMode);
             var layout = rowObject.AddComponent<HorizontalLayoutGroup>();
             layout.spacing = metrics.SlotSpacing;
+            layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = false;
             layout.childControlHeight = false;
             layout.childForceExpandWidth = false;
@@ -209,11 +211,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var metrics = layout.ZoneMetrics(zoneKind, cardMode);
             var handCardCount = cards != null ? cards.Count : 0;
-            var compressHand = ShouldCompressHand(cardMode, handCardCount);
-            ConfigureSlotParent(parent, metrics, compressHand);
+            var layoutHand = cardMode == UnityTavernCardMode.Hand;
+            ConfigureSlotParent(parent, metrics, layoutHand);
             ConfigureRowVisuals(parent);
 
-            var totalSlots = compressHand
+            var totalSlots = layoutHand
                 ? handCardCount
                 : stableSlotCount > 0 ? stableSlotCount : handCardCount;
             for (var index = 0; index < totalSlots; index += 1)
@@ -221,9 +223,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var card = index < handCardCount ? cards[index] : null;
                 var slot = CreateSlot(parent, gameObject.name + "Slot-" + index, cardMode, card == null);
                 UnityTavernUiStyle.SetFixedSize(slot, metrics.SlotSize.x, metrics.SlotSize.y);
-                if (compressHand)
+                if (layoutHand)
                 {
-                    ConfigureCompressedHandSlot(slot, index, totalSlots, metrics);
+                    ConfigureHandSlot(slot, index, totalSlots, metrics);
                 }
 
                 configureSlot?.Invoke(slot, index);
@@ -291,12 +293,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.spacing = 8;
         }
 
-        private static bool ShouldCompressHand(UnityTavernCardMode cardMode, int cardCount)
-        {
-            return cardMode == UnityTavernCardMode.Hand && cardCount >= HandCompressionThreshold;
-        }
-
-        private static void ConfigureCompressedHandSlot(GameObject slot, int index, int totalSlots, UnityTavernZoneMetrics metrics)
+        private static void ConfigureHandSlot(GameObject slot, int index, int totalSlots, UnityTavernZoneMetrics metrics)
         {
             var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(slot);
             element.ignoreLayout = true;
@@ -306,12 +303,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
 
-            var spacing = Mathf.Max(HandCompressionMinimumSpacing, metrics.SlotSize.x * HandCompressionSpacingRatio);
             var center = (totalSlots - 1) * 0.5f;
-            rect.anchoredPosition = new Vector2((index - center) * spacing, 0f);
+            var density = totalSlots <= 1 ? 0f : Mathf.Clamp01((totalSlots - 1f) / 9f);
+            var spacingRatio = Mathf.Lerp(HandMaximumSpacingRatio, HandMinimumSpacingRatio, density);
+            var normalized = center <= 0f ? 0f : (index - center) / center;
+            rect.anchoredPosition = new Vector2(
+                (index - center) * metrics.SlotSize.x * spacingRatio,
+                (1f - normalized * normalized) * HandArcHeight);
+            rect.localRotation = Quaternion.Euler(0f, 0f, -normalized * HandMaximumRotation);
         }
 
-        private static void ConfigureSlotParent(Transform parent, UnityTavernZoneMetrics metrics, bool compressHand)
+        private static void ConfigureSlotParent(Transform parent, UnityTavernZoneMetrics metrics, bool layoutHand)
         {
             var layout = parent.GetComponent<HorizontalLayoutGroup>();
             if (layout == null)
@@ -319,13 +321,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            layout.enabled = !compressHand;
-            if (compressHand)
+            layout.enabled = !layoutHand;
+            if (layoutHand)
             {
                 return;
             }
 
             layout.spacing = metrics.SlotSpacing;
+            layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = false;
             layout.childControlHeight = false;
             layout.childForceExpandWidth = false;

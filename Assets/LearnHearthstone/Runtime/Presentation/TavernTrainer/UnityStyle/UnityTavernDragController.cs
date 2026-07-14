@@ -20,8 +20,30 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
     {
         Hand,
         PlayerBoard,
+        TavernShop,
         OpponentBoard,
         SellZone
+    }
+
+    public enum UnityTavernTargetingFailureReason
+    {
+        None,
+        MissingSource,
+        MissingTarget,
+        UnsupportedTarget,
+        InvalidTarget
+    }
+
+    public readonly struct UnityTavernTargetingEvaluation
+    {
+        public UnityTavernTargetingEvaluation(bool allowed, UnityTavernTargetingFailureReason reason)
+        {
+            Allowed = allowed;
+            Reason = reason;
+        }
+
+        public bool Allowed { get; }
+        public UnityTavernTargetingFailureReason Reason { get; }
     }
 
     public sealed class UnityTavernDragContext
@@ -51,9 +73,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             int targetIndex,
             out GameCommand command)
         {
+            return TryBuildDropCommand(drag, target, targetIndex, out command, out _);
+        }
+
+        public static bool TryBuildDropCommand(
+            UnityTavernDragContext drag,
+            UnityTavernDropTarget target,
+            int targetIndex,
+            out GameCommand command,
+            out UnityTavernTargetingFailureReason failureReason)
+        {
             command = null;
+            failureReason = UnityTavernTargetingFailureReason.None;
             if (drag == null || drag.Card == null)
             {
+                failureReason = UnityTavernTargetingFailureReason.MissingSource;
                 return false;
             }
 
@@ -73,6 +107,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 if (targetIndex < 0)
                 {
+                    failureReason = UnityTavernTargetingFailureReason.MissingTarget;
+                    return false;
+                }
+
+                if (TargetsTavernOnly(drag.Card))
+                {
+                    failureReason = UnityTavernTargetingFailureReason.UnsupportedTarget;
                     return false;
                 }
 
@@ -84,6 +125,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 if (targetIndex < 0)
                 {
+                    failureReason = UnityTavernTargetingFailureReason.MissingTarget;
+                    return false;
+                }
+
+                if (RequiresTwoTargets(drag.Card))
+                {
+                    failureReason = UnityTavernTargetingFailureReason.UnsupportedTarget;
+                    return false;
+                }
+
+                if (TargetsTavernOnly(drag.Card))
+                {
+                    failureReason = UnityTavernTargetingFailureReason.UnsupportedTarget;
                     return false;
                 }
 
@@ -91,9 +145,53 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return true;
             }
 
+            if (drag.Source == UnityTavernDragSource.HeroPower &&
+                target == UnityTavernDropTarget.TavernShop &&
+                CanHeroPowerTargetTavern(drag.Card))
+            {
+                if (targetIndex < 0)
+                {
+                    failureReason = UnityTavernTargetingFailureReason.MissingTarget;
+                    return false;
+                }
+
+                command = new GameCommand(GameCommandType.UseHeroPower, targetIndex, TargetZone.TavernShop, heroPowerCardId: drag.Card.CardId);
+                return true;
+            }
+
             if (drag.Source == UnityTavernDragSource.Hand && target == UnityTavernDropTarget.PlayerBoard)
             {
-                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                var targetedSpell = IsTargetedSpell(drag.Card);
+                if (targetedSpell && targetIndex < 0)
+                {
+                    failureReason = UnityTavernTargetingFailureReason.MissingTarget;
+                    return false;
+                }
+
+                command = targetedSpell
+                    ? new GameCommand(
+                        GameCommandType.PlayMinion,
+                        drag.Index,
+                        targetIndex,
+                        TargetZone.FriendlyBoard,
+                        -1,
+                        TargetZone.Unspecified)
+                    : new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                return true;
+            }
+
+            if (drag.Source == UnityTavernDragSource.Hand &&
+                target == UnityTavernDropTarget.TavernShop &&
+                targetIndex >= 0 &&
+                IsTargetedSpell(drag.Card))
+            {
+                command = new GameCommand(
+                    GameCommandType.PlayMinion,
+                    drag.Index,
+                    targetIndex,
+                    TargetZone.TavernShop,
+                    -1,
+                    TargetZone.Unspecified);
                 return true;
             }
 
@@ -115,7 +213,85 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return true;
             }
 
+            failureReason = targetIndex < 0
+                ? UnityTavernTargetingFailureReason.MissingTarget
+                : UnityTavernTargetingFailureReason.UnsupportedTarget;
             return false;
+        }
+
+        public static UnityTavernTargetingEvaluation Evaluate(
+            UnityTavernDragContext drag,
+            UnityTavernDropTarget target,
+            int targetIndex)
+        {
+            var allowed = TryBuildDropCommand(drag, target, targetIndex, out _, out var reason);
+            return new UnityTavernTargetingEvaluation(allowed, reason);
+        }
+
+        private static bool IsTargetedSpell(MinionInstance card)
+        {
+            return card != null &&
+                   (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell) &&
+                   card.Tags != null &&
+                   card.Tags.Exists(tag => string.Equals(tag, "targeted_spell", System.StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsBloodGemSpell(MinionInstance card)
+        {
+            return card != null &&
+                   ((card.Keywords != null && card.Keywords.Contains(Keyword.BloodGem)) ||
+                    (card.Tags != null && card.Tags.Exists(tag => string.Equals(tag, "blood_gem", System.StringComparison.OrdinalIgnoreCase))));
+        }
+
+        private static bool CanHeroPowerTargetTavern(MinionInstance card)
+        {
+            if (card == null || card.CardKind != CardKind.HeroPower)
+            {
+                return false;
+            }
+
+            if (string.Equals(card.CardId, "BG20_HERO_201p", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var text = card.Text ?? string.Empty;
+            var chooses = text.IndexOf("Choose", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                          text.IndexOf("选择", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            var tavern = text.IndexOf("Tavern", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         text.IndexOf("酒馆", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return chooses && tavern;
+        }
+
+        public static bool RequiresTwoTargets(MinionInstance card)
+        {
+            if (card == null || card.CardKind != CardKind.HeroPower)
+            {
+                return false;
+            }
+
+            if (string.Equals(card.CardId, "BG20_HERO_201p", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var text = card.Text ?? string.Empty;
+            return text.IndexOf("Choose 2 minions", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   text.IndexOf("选择2个随从", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   text.IndexOf("选择两个随从", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public static bool TargetsTavernOnly(MinionInstance card)
+        {
+            return CanHeroPowerTargetTavern(card) && !RequiresTwoTargets(card);
+        }
+
+        public static bool RequiresBattlecryTarget(MinionInstance card)
+        {
+            return card != null &&
+                   card.CardKind == CardKind.Minion &&
+                   (string.Equals(card.CardId, "BG29_503", System.StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(card.CardId, "BG28_303", System.StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -343,6 +519,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     return UnityTavernUiStyle.Blue;
                 case UnityTavernDropTarget.PlayerBoard:
                     return UnityTavernUiStyle.Green;
+                case UnityTavernDropTarget.TavernShop:
+                    return UnityTavernUiStyle.Gold;
                 case UnityTavernDropTarget.OpponentBoard:
                     return UnityTavernUiStyle.ColorFromHex(0x455D83);
                 case UnityTavernDropTarget.SellZone:

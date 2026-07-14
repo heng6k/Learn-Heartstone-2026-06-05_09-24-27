@@ -31,6 +31,14 @@ namespace LearnHearthstone.Domain.Models
         Bounty
     }
 
+    public enum EnchantmentKind
+    {
+        Unspecified,
+        StatBuff,
+        BloodGem,
+        SetStats
+    }
+
     public enum Tribe
     {
         Beast,

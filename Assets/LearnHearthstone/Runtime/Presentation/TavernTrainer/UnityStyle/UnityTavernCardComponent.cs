@@ -22,6 +22,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         None,
         Source,
         Candidate,
+        InvalidTarget,
         ConfirmedTarget,
         OpponentTarget
     }
@@ -66,18 +67,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private Color baseFrameColor;
         private bool selected;
         private bool hovered;
+        private int handSlotSiblingIndex = -1;
         private bool pressed;
         private UnityTavernCardMode boundMode;
         private float layoutScale = 1f;
         private bool handFocusLiftEnabled;
         private UnityTavernTargetingState targetingState;
+        private string targetingLabelOverride;
         private GameObject targetingLabel;
         private Text targetingLabelText;
+
+        private void Update()
+        {
+            if (targetingState != UnityTavernTargetingState.None)
+            {
+                ApplyFeedbackVisuals();
+            }
+        }
 
         public MinionInstance Card => card;
         public bool IsSelected => selected;
         public bool IsHovered => hovered;
         public UnityTavernTargetingState TargetingState => targetingState;
+        public static bool ReduceTargetingMotion { get; set; }
 
         public static GameObject CreateCardHost(UnityTavernCardMode mode, Transform parent, string fallbackName, GameObject prefabOverride = null)
         {
@@ -168,6 +180,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             hovered = false;
             pressed = false;
             targetingState = UnityTavernTargetingState.None;
+            targetingLabelOverride = null;
             targetingLabel = null;
             targetingLabelText = null;
 
@@ -190,9 +203,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ApplyFeedbackVisuals();
         }
 
-        public void SetTargetingState(UnityTavernTargetingState state)
+        public void SetTargetingState(UnityTavernTargetingState state, string labelOverride = null)
         {
             targetingState = card == null ? UnityTavernTargetingState.None : state;
+            targetingLabelOverride = targetingState == UnityTavernTargetingState.None ? null : labelOverride;
             ApplyFeedbackVisuals();
         }
 
@@ -205,6 +219,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public void SetHandFocusLiftEnabled(bool value)
         {
             handFocusLiftEnabled = value;
+            handSlotSiblingIndex = value && transform.parent != null
+                ? transform.parent.GetSiblingIndex()
+                : -1;
             ApplyFeedbackVisuals();
         }
 
@@ -814,13 +831,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var previewTarget = targetingState == UnityTavernTargetingState.Candidate && hovered;
             var source = targetingState == UnityTavernTargetingState.Source;
+            var invalid = targetingState == UnityTavernTargetingState.InvalidTarget;
             var target = previewTarget ||
                          targetingState == UnityTavernTargetingState.ConfirmedTarget ||
                          targetingState == UnityTavernTargetingState.OpponentTarget;
             var candidate = targetingState == UnityTavernTargetingState.Candidate && !previewTarget;
-            var targeting = source || target || candidate;
+            var targeting = source || target || candidate || invalid;
 
+            var pulse = ReduceTargetingMotion
+                ? 1f
+                : invalid
+                    ? 1f + Mathf.Sin(UnityEngine.Time.unscaledTime * 14f) * 0.018f
+                    : target || source || candidate
+                        ? 1f + Mathf.Sin(UnityEngine.Time.unscaledTime * 5f) * 0.008f
+                        : 1f;
             var feedbackScale = pressed ? 0.985f : hovered || target ? 1.035f : selected || source ? 1.015f : 1f;
+            feedbackScale *= pulse;
             var scale = layoutScale * feedbackScale;
             transform.localScale = new Vector3(scale, scale, 1f);
 
@@ -830,7 +856,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (frame != null)
             {
                 var targetColor = baseFrameColor;
-                if (target)
+                if (invalid)
+                {
+                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.Red, 0.64f);
+                }
+                else if (target)
                 {
                     targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.Red, 0.58f);
                 }
@@ -854,7 +884,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (feedbackOutline != null)
             {
                 feedbackOutline.enabled = targeting || selected || hovered;
-                var outlineColor = target
+                var outlineColor = invalid || target
                     ? UnityTavernUiStyle.Red
                     : source || candidate || selected
                         ? UnityTavernUiStyle.Gold
@@ -863,7 +893,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     outlineColor.r,
                     outlineColor.g,
                     outlineColor.b,
-                    target || source ? 1f : candidate ? 0.68f : hovered ? 0.72f : 0.82f);
+                    invalid ? 0.92f : target || source ? 1f : candidate ? 0.68f : hovered ? 0.72f : 0.82f);
                 feedbackOutline.effectDistance = target || source ? new Vector2(3f, -3f) : new Vector2(2f, -2f);
                 feedbackOutline.useGraphicAlpha = false;
             }
@@ -898,6 +928,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             targetingLabelText.text = label;
 
             var target = previewTarget ||
+                         targetingState == UnityTavernTargetingState.InvalidTarget ||
                          targetingState == UnityTavernTargetingState.ConfirmedTarget ||
                          targetingState == UnityTavernTargetingState.OpponentTarget;
             var color = target ? UnityTavernUiStyle.Red : UnityTavernUiStyle.Gold;
@@ -906,6 +937,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private string TargetingLabel(bool previewTarget)
         {
+            if (!string.IsNullOrEmpty(targetingLabelOverride))
+            {
+                return targetingLabelOverride;
+            }
+
             switch (targetingState)
             {
                 case UnityTavernTargetingState.Source:
@@ -916,9 +952,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
                     return card != null && (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell)
                         ? "法术"
-                        : "来源";
+                        : card != null && card.CardKind == CardKind.Minion
+                            ? "随从效果"
+                            : "来源";
                 case UnityTavernTargetingState.Candidate:
                     return previewTarget ? "目标" : "可选";
+                case UnityTavernTargetingState.InvalidTarget:
+                    return "不可选";
                 case UnityTavernTargetingState.ConfirmedTarget:
                     return "目标";
                 case UnityTavernTargetingState.OpponentTarget:
@@ -969,9 +1009,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, lift);
             }
 
+            if (transform.parent == null)
+            {
+                return;
+            }
+
             if (hovered || selected)
             {
                 transform.parent.SetAsLastSibling();
+            }
+            else if (handSlotSiblingIndex >= 0 && transform.parent.parent != null)
+            {
+                transform.parent.SetSiblingIndex(Mathf.Min(handSlotSiblingIndex, transform.parent.parent.childCount - 1));
             }
         }
 

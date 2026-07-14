@@ -2371,15 +2371,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"
@@ -2396,15 +2396,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"
@@ -2421,15 +2421,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"
@@ -2446,15 +2446,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"
@@ -2471,15 +2471,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"
@@ -2496,15 +2496,15 @@
       "sourcePools": [
         "AllKnown"
       ],
-      "effectFamily": "Unknown",
-      "implementationStatus": "Unsupported",
+      "effectFamily": "Timewarp",
+      "implementationStatus": "Implemented",
       "availabilityReasons": [
-        "RequiresOfficialDataReview"
+        "RequiresTimewarpPool"
       ],
       "tags": [
         "historical",
         "all_known",
-        "data_only"
+        "implemented"
       ],
       "sourceUrls": [
         "https://api.hearthstonejson.com/v1/latest/enUS/cards.json"

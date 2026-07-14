@@ -43,10 +43,25 @@ namespace LearnHearthstone.Domain.Models
     {
         public string Id;
         public string SourceId;
+        public EnchantmentKind Kind = EnchantmentKind.Unspecified;
         public int AttackBonus;
         public int HealthBonus;
         public List<Keyword> AddedKeywords = new List<Keyword>();
         public string Duration = "PERMANENT";
+
+        public Enchantment Clone()
+        {
+            return new Enchantment
+            {
+                Id = Id,
+                SourceId = SourceId,
+                Kind = Kind,
+                AttackBonus = AttackBonus,
+                HealthBonus = HealthBonus,
+                AddedKeywords = AddedKeywords == null ? new List<Keyword>() : new List<Keyword>(AddedKeywords),
+                Duration = Duration
+            };
+        }
     }
 
     [Serializable]
@@ -104,7 +119,9 @@ namespace LearnHearthstone.Domain.Models
                 Text = Text,
                 Golden = Golden,
                 Owner = Owner,
-                Enchantments = new List<Enchantment>(Enchantments),
+                Enchantments = Enchantments == null
+                    ? new List<Enchantment>()
+                    : Enchantments.ConvertAll(enchantment => enchantment?.Clone()),
                 Counters = new Dictionary<string, int>(Counters),
                 CanAttack = CanAttack,
                 AttacksThisCombat = AttacksThisCombat,

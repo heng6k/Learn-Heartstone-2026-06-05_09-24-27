@@ -80,7 +80,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return CompactZoneMetrics(kind, cardMode);
             }
 
-            return new UnityTavernZoneMetrics(StandardZoneHeight(kind), StandardSlotSize(cardMode), 8f, 1f);
+            return IsWide ? WideZoneMetrics(kind, cardMode) : StandardZoneMetrics(kind, cardMode);
         }
 
         private static UnityTavernLayoutMode ResolveMode(float width, float height)
@@ -113,25 +113,33 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private static float StandardZoneHeight(UnityTavernZoneKind kind)
+        private static UnityTavernZoneMetrics StandardZoneMetrics(UnityTavernZoneKind kind, UnityTavernCardMode cardMode)
         {
             switch (kind)
             {
                 case UnityTavernZoneKind.Hand:
-                    return 208f;
+                    return new UnityTavernZoneMetrics(176f, new Vector2(104f, 144f), 0f, 0.9f);
                 case UnityTavernZoneKind.PlayerBoard:
+                    return new UnityTavernZoneMetrics(158f, new Vector2(108f, 120f), 10f, 0.9f);
                 case UnityTavernZoneKind.OpponentBoard:
-                    return 168f;
+                    return new UnityTavernZoneMetrics(150f, new Vector2(102f, 114f), 8f, 0.86f);
                 default:
-                    return 236f;
+                    return new UnityTavernZoneMetrics(212f, new Vector2(118f, 164f), 12f, 0.88f);
             }
         }
 
-        private static Vector2 StandardSlotSize(UnityTavernCardMode cardMode)
+        private static UnityTavernZoneMetrics WideZoneMetrics(UnityTavernZoneKind kind, UnityTavernCardMode cardMode)
         {
-            return cardMode == UnityTavernCardMode.Board
-                ? new Vector2(118f, 132f)
-                : new Vector2(136f, 190f);
+            switch (kind)
+            {
+                case UnityTavernZoneKind.Hand:
+                    return new UnityTavernZoneMetrics(196f, new Vector2(118f, 164f), 0f, 1f);
+                case UnityTavernZoneKind.PlayerBoard:
+                case UnityTavernZoneKind.OpponentBoard:
+                    return new UnityTavernZoneMetrics(172f, new Vector2(118f, 132f), 12f, 1f);
+                default:
+                    return new UnityTavernZoneMetrics(232f, new Vector2(136f, 190f), 14f, 1f);
+            }
         }
     }
 

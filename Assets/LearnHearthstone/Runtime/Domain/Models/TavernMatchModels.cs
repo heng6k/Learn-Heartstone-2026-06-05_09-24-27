@@ -498,10 +498,12 @@ namespace LearnHearthstone.Domain.Models
     [Serializable]
     public sealed class TimewarpedOfferSlot
     {
+        public int SlotIndex;
         public string SlotId;
         public string CardId;
         public CardKind CardKind;
         public int Cost;
+        public bool Golden;
         public bool Purchased;
         public string Source;
     }
@@ -515,6 +517,7 @@ namespace LearnHearthstone.Domain.Models
         public TimewarpKind PendingKind = TimewarpKind.None;
         public TimewarpTavernPhase Phase = TimewarpTavernPhase.Idle;
         public bool VisitOpen;
+        public bool HasTemporaryHandExpansion;
         public string PendingSource;
         public List<TimewarpedOfferSlot> Offers = new List<TimewarpedOfferSlot>();
     }
@@ -522,11 +525,17 @@ namespace LearnHearthstone.Domain.Models
     [Serializable]
     public sealed class TimewarpTavernRules
     {
+        public const int OfficialOfferCount = 5;
+
         public int MinorVisitRound = 6;
         public int MajorVisitRound = 9;
-        public int MinorInitialChronum = 3;
-        public int MajorChronumGrant = 3;
-        public int OfferCount = 4;
+        public int MinorInitialChronum = 2;
+        public int MajorChronumGrant = 2;
+        public int OfferCount = OfficialOfferCount;
+        public int RequiredMinionOffers = 3;
+        public int RequiredNonMinionOffers = 2;
+        public int RequiredOneCostOffers = 3;
+        public bool ExpireChronumOnExit = true;
         public bool IncludeExitCard = false;
         public bool RespectActiveTribes = true;
     }
@@ -918,8 +927,8 @@ namespace LearnHearthstone.Domain.Models
         public int HelpfulRefreshes;
         public bool LostLastCombat;
         public int ElementalHealthBonus;
-        public int BeetleAttackBonus;
-        public int BeetleHealthBonus;
+        public int BeetleAttackBonus = 2;
+        public int BeetleHealthBonus = 2;
         public int FutureBallerAttackBonus;
         public int FutureBallerHealthBonus;
         public int UndeadAttackBonus;
@@ -1019,6 +1028,8 @@ namespace LearnHearthstone.Domain.Models
         TavernSpellBonusHealth,
         BloodGemAttackBonus,
         BloodGemHealthBonus,
+        BeetleAttackBonus,
+        BeetleHealthBonus,
         UndeadAttackBonus,
         EternalKnightDeaths,
         AstralAutomatonSummons,
@@ -1034,6 +1045,8 @@ namespace LearnHearthstone.Domain.Models
         public int TavernSpellBonusHealth;
         public int BloodGemAttackBonus;
         public int BloodGemHealthBonus;
+        public int BeetleAttackBonus = 2;
+        public int BeetleHealthBonus = 2;
         public int UndeadAttackBonus;
         public int EternalKnightDeaths;
         public int AstralAutomatonSummons;
@@ -1115,6 +1128,8 @@ namespace LearnHearthstone.Domain.Models
         public MatchMode Mode;
         public MatchPhase Phase;
         public int Round;
+        public int PendingTurnStartRound;
+        public bool PendingTurnResolvedCombat;
         public int Seed;
         public List<Tribe> ActiveTribes = new List<Tribe>();
         public string CardPoolVersionId;

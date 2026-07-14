@@ -69,6 +69,7 @@ namespace LearnHearthstone.Domain.Engine
             AddVariable(explanation, side, "Spells cast", modifiers.SpellsCastThisGame, "spell-count effects can read this side history.");
             AddVariable(explanation, side, "Tavern spell stats", modifiers.TavernSpellBonusAttack + modifiers.TavernSpellBonusHealth, "configured quality is available to explicit Tavern-spell effects; it is not a combat aura.");
             AddVariable(explanation, side, "Blood gem quality", modifiers.BloodGemAttackBonus + modifiers.BloodGemHealthBonus, "configured quality applies only when an effect actually plays a Blood Gem.");
+            AddVariable(explanation, side, "Beetle quality", modifiers.BeetleAttackBonus + modifiers.BeetleHealthBonus, "new Beetles snapshot this side's configured final stats.");
             AddVariable(explanation, side, "Undead attack", modifiers.UndeadAttackBonus, "undead minions can receive the side attack history.");
             AddVariable(explanation, side, "Eternal Knight deaths", modifiers.EternalKnightDeaths, "Eternal Knights can receive history stats.");
             AddVariable(explanation, side, "Astral Automaton summons", modifiers.AstralAutomatonSummons, "Astral Automatons can receive history stats.");

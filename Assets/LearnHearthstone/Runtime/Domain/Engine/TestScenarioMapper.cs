@@ -116,8 +116,8 @@ namespace LearnHearthstone.Domain.Engine
             tavern.DemonFodderRefreshes = Math.Max(0, scenario.Tavern?.DemonFodderRefreshes ?? tavern.DemonFodderRefreshes);
             tavern.TavernSpellBonusAttack = Math.Max(0, scenario.Tavern?.TavernSpellBonusAttack ?? tavern.TavernSpellBonusAttack);
             tavern.TavernSpellBonusHealth = Math.Max(0, scenario.Tavern?.TavernSpellBonusHealth ?? tavern.TavernSpellBonusHealth);
-            tavern.BeetleAttackBonus = Math.Max(0, scenario.Tavern?.BeetleAttackBonus ?? tavern.BeetleAttackBonus);
-            tavern.BeetleHealthBonus = Math.Max(0, scenario.Tavern?.BeetleHealthBonus ?? tavern.BeetleHealthBonus);
+            tavern.BeetleAttackBonus = Math.Max(2, scenario.Tavern?.BeetleAttackBonus ?? tavern.BeetleAttackBonus);
+            tavern.BeetleHealthBonus = Math.Max(2, scenario.Tavern?.BeetleHealthBonus ?? tavern.BeetleHealthBonus);
             tavern.FutureBallerAttackBonus = Math.Max(0, scenario.Tavern?.FutureBallerAttackBonus ?? tavern.FutureBallerAttackBonus);
             tavern.FutureBallerHealthBonus = Math.Max(0, scenario.Tavern?.FutureBallerHealthBonus ?? tavern.FutureBallerHealthBonus);
             tavern.UndeadAttackBonus = Math.Max(0, scenario.Tavern?.UndeadAttackBonus ?? tavern.UndeadAttackBonus);
@@ -152,6 +152,8 @@ namespace LearnHearthstone.Domain.Engine
             snapshot.TavernSpellBonusHealth = Math.Max(0, tavern.TavernSpellBonusHealth);
             snapshot.BloodGemAttackBonus = Math.Max(0, tavern.BloodGemBonusAttack);
             snapshot.BloodGemHealthBonus = Math.Max(0, tavern.BloodGemBonusHealth);
+            snapshot.BeetleAttackBonus = Math.Max(2, tavern.BeetleAttackBonus);
+            snapshot.BeetleHealthBonus = Math.Max(2, tavern.BeetleHealthBonus);
             snapshot.UndeadAttackBonus = Math.Max(0, tavern.UndeadAttackBonus);
             snapshot.EternalKnightDeaths = Math.Max(0, tavern.EternalKnightDeaths);
             snapshot.AstralAutomatonSummons = Math.Max(0, tavern.AncestralAutomatonSummons);
@@ -174,6 +176,8 @@ namespace LearnHearthstone.Domain.Engine
                 TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth),
                 BloodGemAttackBonus = Math.Max(0, modifiers.BloodGemAttackBonus),
                 BloodGemHealthBonus = Math.Max(0, modifiers.BloodGemHealthBonus),
+                BeetleAttackBonus = Math.Max(2, modifiers.BeetleAttackBonus),
+                BeetleHealthBonus = Math.Max(2, modifiers.BeetleHealthBonus),
                 UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus),
                 EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths),
                 AstralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons),
@@ -194,6 +198,8 @@ namespace LearnHearthstone.Domain.Engine
             tavern.TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth);
             tavern.BloodGemBonusAttack = Math.Max(0, modifiers.BloodGemAttackBonus);
             tavern.BloodGemBonusHealth = Math.Max(0, modifiers.BloodGemHealthBonus);
+            tavern.BeetleAttackBonus = Math.Max(2, modifiers.BeetleAttackBonus);
+            tavern.BeetleHealthBonus = Math.Max(2, modifiers.BeetleHealthBonus);
             tavern.UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus);
             tavern.EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths);
             tavern.AncestralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons);

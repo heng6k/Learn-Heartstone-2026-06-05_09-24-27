@@ -69,10 +69,38 @@ namespace LearnHearthstone.Adapters.Data
                 Notes = raw.notes
             };
 
+            ApplyTargetingCorrections(definition);
             definition.CardTemplate = SpellBehaviorTemplate.ResolveCardTemplate(definition);
             definition.TargetTemplate = SpellBehaviorTemplate.ResolveTargetTemplate(definition);
             definition.EffectTemplate = SpellBehaviorTemplate.ResolveEffectTemplate(definition);
             return definition;
+        }
+
+        private static void ApplyTargetingCorrections(TavernSpellDefinition definition)
+        {
+            if (definition == null)
+            {
+                return;
+            }
+
+            if (definition.Tags == null)
+            {
+                definition.Tags = new List<string>();
+            }
+
+            switch (definition.CardNumber)
+            {
+                case "122184":
+                    definition.Tags.RemoveAll(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase));
+                    definition.TargetTemplate = SpellTargetTemplate.None;
+                    break;
+                case "130311":
+                case "130312":
+                case "131218":
+                    Add(definition.Tags, "targeted_spell");
+                    definition.TargetTemplate = SpellTargetTemplate.FriendlyMinion;
+                    break;
+            }
         }
 
         private static TEnum ParseEnum<TEnum>(string value, TEnum fallback) where TEnum : struct

@@ -19,6 +19,9 @@ namespace LearnHearthstone.Domain.Engine
                 case MechanicActionType.BuffStats:
                     ApplyStatBuff(minion, action);
                     break;
+                case MechanicActionType.SetStats:
+                    StatMath.SetStats(minion, action.Attack, action.Health, action.SourceId);
+                    break;
                 case MechanicActionType.AddKeyword:
                     if (!minion.Keywords.Contains(action.Keyword))
                     {
@@ -50,6 +53,7 @@ namespace LearnHearthstone.Domain.Engine
                         Tribe = action.Tribe,
                         Attack = action.Attack,
                         Health = action.Health,
+                        EnchantmentKind = action.EnchantmentKind,
                         SourceId = action.SourceId
                     });
                     break;
@@ -58,11 +62,11 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ApplyStatBuff(MinionInstance minion, MechanicAction action)
         {
-            StatMath.ApplyStatDelta(minion, action.Attack, action.Health);
-            minion.Enchantments.Add(new Enchantment
+            StatMath.ApplyEnchantment(minion, new Enchantment
             {
                 Id = action.SourceId,
                 SourceId = action.SourceId,
+                Kind = action.EnchantmentKind,
                 AttackBonus = action.Attack,
                 HealthBonus = action.Health
             });

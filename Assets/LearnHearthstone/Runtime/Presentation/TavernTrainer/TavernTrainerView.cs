@@ -886,7 +886,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             BuildSellDropZone(stage.transform);
             BuildTavernControls(stage.transform);
             BuildCardRow(stage.transform, "ShopRow", service.State.Player.Tavern.Shop, 172, (minion, index) =>
-                CardWithDrag(minion, DragSource.Shop, index, null));
+                CardWithDrag(minion, DragSource.Shop, index, DropTarget.TavernShop, index));
 
             if (service.State.Player.Tavern.Discover != null)
             {
@@ -1460,7 +1460,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
             if (drag.Source == DragSource.Hand && target == DropTarget.PlayerBoard)
             {
-                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                command = IsTargetedSpell(drag.Minion)
+                    ? new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex, TargetZone.FriendlyBoard, -1, TargetZone.Unspecified)
+                    : new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex);
+                return true;
+            }
+
+            if (drag.Source == DragSource.Hand && target == DropTarget.TavernShop && targetIndex >= 0 && IsBloodGemSpell(drag.Minion))
+            {
+                command = new GameCommand(GameCommandType.PlayMinion, drag.Index, targetIndex, TargetZone.TavernShop, -1, TargetZone.Unspecified);
                 return true;
             }
 
@@ -1489,6 +1497,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             }
 
             return false;
+        }
+
+        private static bool IsTargetedSpell(MinionInstance card)
+        {
+            return card != null &&
+                   (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell) &&
+                   card.Tags != null &&
+                   card.Tags.Any(tag => string.Equals(tag, "targeted_spell", System.StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsBloodGemSpell(MinionInstance card)
+        {
+            return card != null &&
+                   ((card.Keywords != null && card.Keywords.Contains(Keyword.BloodGem)) ||
+                    (card.Tags != null && card.Tags.Any(tag => string.Equals(tag, "blood_gem", System.StringComparison.OrdinalIgnoreCase))));
         }
 
         private void CreateDragGhost(MinionInstance minion, PointerEventData eventData)
@@ -1783,6 +1806,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
     {
         Hand,
         PlayerBoard,
+        TavernShop,
         OpponentBoard,
         SellZone
     }
@@ -1916,6 +1940,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x2F5F6F), 0.65f);
                 case DropTarget.PlayerBoard:
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x3D5B38), 0.65f);
+                case DropTarget.TavernShop:
+                    return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0xD9A63A), 0.55f);
                 case DropTarget.OpponentBoard:
                     return Color.Lerp(baseColor, TavernTrainerView.ColorFromHex(0x3D445B), 0.65f);
                 case DropTarget.SellZone:

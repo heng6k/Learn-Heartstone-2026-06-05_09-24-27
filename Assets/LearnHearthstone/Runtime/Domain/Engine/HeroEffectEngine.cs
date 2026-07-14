@@ -1498,7 +1498,7 @@ namespace LearnHearthstone.Domain.Engine
                 target.PoolSource = PoolSource.Copy;
                 target.OriginPoolSource = PoolSource.Copy;
                 target.PoolCopiesHeld = 0;
-                SetStats(target, 2, 2);
+                SetStats(target, 2, 2, "See the Light");
                 tavern.Hand.Add(target);
                 result.Messages.Add("See the Light: set a Tavern minion to 2/2 and added it to hand.");
             }
@@ -4953,14 +4953,9 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void SetStats(MinionInstance target, int attack, int health)
+        private static void SetStats(MinionInstance target, int attack, int health, string sourceId)
         {
-            target.Attack = attack;
-            target.BaseAttack = attack;
-            target.MaxHealth = health;
-            target.Health = health;
-            target.BaseHealth = health;
-            target.Enchantments.Clear();
+            StatMath.SetStats(target, attack, health, sourceId);
         }
 
         private static void NotifyTitanicGuardian(MatchState state, int healthGain, string changedInstanceId, HeroEffectResult result)

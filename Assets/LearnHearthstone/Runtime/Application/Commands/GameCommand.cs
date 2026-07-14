@@ -24,6 +24,8 @@ namespace LearnHearthstone.Application.Commands
         ChoosePlayerDirectedTrinket,
         ChoosePlayerDirectedSecondHeroPower,
         NextTurn,
+        BeginNextTurnTransition,
+        ContinueNextTurnTransition,
         DebugAddGold,
         DebugOfferLesserTrinkets,
         DebugOfferGreaterTrinkets,

@@ -30,6 +30,8 @@ namespace LearnHearthstone.Application.Services
                 case SideCombatModifierKind.TavernSpellBonusHealth: return modifiers.TavernSpellBonusHealth;
                 case SideCombatModifierKind.BloodGemAttackBonus: return modifiers.BloodGemAttackBonus;
                 case SideCombatModifierKind.BloodGemHealthBonus: return modifiers.BloodGemHealthBonus;
+                case SideCombatModifierKind.BeetleAttackBonus: return modifiers.BeetleAttackBonus;
+                case SideCombatModifierKind.BeetleHealthBonus: return modifiers.BeetleHealthBonus;
                 case SideCombatModifierKind.UndeadAttackBonus: return modifiers.UndeadAttackBonus;
                 case SideCombatModifierKind.EternalKnightDeaths: return modifiers.EternalKnightDeaths;
                 case SideCombatModifierKind.AstralAutomatonSummons: return modifiers.AstralAutomatonSummons;
@@ -45,7 +47,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            value = Math.Max(0, value);
+            value = Math.Max(MinimumValue(kind), value);
             switch (kind)
             {
                 case SideCombatModifierKind.SpellsCastThisGame: modifiers.SpellsCastThisGame = value; break;
@@ -54,6 +56,8 @@ namespace LearnHearthstone.Application.Services
                 case SideCombatModifierKind.TavernSpellBonusHealth: modifiers.TavernSpellBonusHealth = value; break;
                 case SideCombatModifierKind.BloodGemAttackBonus: modifiers.BloodGemAttackBonus = value; break;
                 case SideCombatModifierKind.BloodGemHealthBonus: modifiers.BloodGemHealthBonus = value; break;
+                case SideCombatModifierKind.BeetleAttackBonus: modifiers.BeetleAttackBonus = value; break;
+                case SideCombatModifierKind.BeetleHealthBonus: modifiers.BeetleHealthBonus = value; break;
                 case SideCombatModifierKind.UndeadAttackBonus: modifiers.UndeadAttackBonus = value; break;
                 case SideCombatModifierKind.EternalKnightDeaths: modifiers.EternalKnightDeaths = value; break;
                 case SideCombatModifierKind.AstralAutomatonSummons: modifiers.AstralAutomatonSummons = value; break;
@@ -74,6 +78,8 @@ namespace LearnHearthstone.Application.Services
             modifiers.TavernSpellBonusHealth = Math.Max(0, tavern.TavernSpellBonusHealth);
             modifiers.BloodGemAttackBonus = Math.Max(0, tavern.BloodGemBonusAttack);
             modifiers.BloodGemHealthBonus = Math.Max(0, tavern.BloodGemBonusHealth);
+            modifiers.BeetleAttackBonus = Math.Max(2, tavern.BeetleAttackBonus);
+            modifiers.BeetleHealthBonus = Math.Max(2, tavern.BeetleHealthBonus);
             modifiers.UndeadAttackBonus = Math.Max(0, tavern.UndeadAttackBonus);
             modifiers.EternalKnightDeaths = Math.Max(0, tavern.EternalKnightDeaths);
             modifiers.AstralAutomatonSummons = Math.Max(0, tavern.AncestralAutomatonSummons);
@@ -93,6 +99,8 @@ namespace LearnHearthstone.Application.Services
             tavern.TavernSpellBonusHealth = Math.Max(0, modifiers.TavernSpellBonusHealth);
             tavern.BloodGemBonusAttack = Math.Max(0, modifiers.BloodGemAttackBonus);
             tavern.BloodGemBonusHealth = Math.Max(0, modifiers.BloodGemHealthBonus);
+            tavern.BeetleAttackBonus = Math.Max(2, modifiers.BeetleAttackBonus);
+            tavern.BeetleHealthBonus = Math.Max(2, modifiers.BeetleHealthBonus);
             tavern.UndeadAttackBonus = Math.Max(0, modifiers.UndeadAttackBonus);
             tavern.EternalKnightDeaths = Math.Max(0, modifiers.EternalKnightDeaths);
             tavern.AncestralAutomatonSummons = Math.Max(0, modifiers.AstralAutomatonSummons);
@@ -129,6 +137,10 @@ namespace LearnHearthstone.Application.Services
                         modifiers.EternalKnightDeaths = StatMath.SaturatingAdd(modifiers.EternalKnightDeaths, amount, 0, StatMath.MaxStat);
                         changed = true;
                         break;
+                    case CombatRewardType.AncestralAutomatonSummoned:
+                        modifiers.AstralAutomatonSummons = StatMath.SaturatingAdd(modifiers.AstralAutomatonSummons, amount, 0, StatMath.MaxStat);
+                        changed = true;
+                        break;
                     case CombatRewardType.FriendlyMinionDied:
                         modifiers.FriendlyMinionDeathsThisGame = StatMath.SaturatingAdd(modifiers.FriendlyMinionDeathsThisGame, amount, 0, StatMath.MaxStat);
                         changed = true;
@@ -151,6 +163,11 @@ namespace LearnHearthstone.Application.Services
                         modifiers.TavernSpellBonusHealth = StatMath.SaturatingAdd(modifiers.TavernSpellBonusHealth, StatMath.SaturatingMultiply(reward.Health, amount, 0, StatMath.MaxStat), 0, StatMath.MaxStat);
                         changed = true;
                         break;
+                    case CombatRewardType.ImproveBeetleStats:
+                        modifiers.BeetleAttackBonus = StatMath.SaturatingAdd(Math.Max(2, modifiers.BeetleAttackBonus), StatMath.SaturatingMultiply(reward.Attack, amount, 0, StatMath.MaxStat), 2, StatMath.MaxStat);
+                        modifiers.BeetleHealthBonus = StatMath.SaturatingAdd(Math.Max(2, modifiers.BeetleHealthBonus), StatMath.SaturatingMultiply(reward.Health, amount, 0, StatMath.MaxStat), 2, StatMath.MaxStat);
+                        changed = true;
+                        break;
                     case CombatRewardType.ImproveUndeadAttack:
                         modifiers.UndeadAttackBonus = StatMath.SaturatingAdd(modifiers.UndeadAttackBonus, amount, 0, StatMath.MaxStat);
                         changed = true;
@@ -163,6 +180,11 @@ namespace LearnHearthstone.Application.Services
             }
 
             return changed;
+        }
+
+        public static int MinimumValue(SideCombatModifierKind kind)
+        {
+            return kind == SideCombatModifierKind.BeetleAttackBonus || kind == SideCombatModifierKind.BeetleHealthBonus ? 2 : 0;
         }
 
         private static void ApplyToRetainedCard(MinionInstance minion, SideCombatModifierState modifiers)
