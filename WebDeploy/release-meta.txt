@@ -1,0 +1,4 @@
+unityVersion=6000.4.10f1
+buildUtc=2026-07-16T04:46:41.4984339Z
+sourceBranch=codex/wip-current-state
+artifact=LearnHeartstone_20260716
