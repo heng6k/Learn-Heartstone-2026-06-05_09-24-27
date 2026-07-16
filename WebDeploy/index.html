@@ -11,7 +11,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=1280 height=720 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -24,9 +24,12 @@
         <div id="unity-fullscreen-button"></div>
         <div id="unity-build-title">Learn Heartstone</div>
       </div>
+      <div id="unity-rotate-prompt">请旋转设备</div>
     </div>
     <script>
       var canvas = document.querySelector("#unity-canvas");
+      var container = document.querySelector("#unity-container");
+      var mobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=='error'.
@@ -54,12 +57,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/LearnHeartstone_20260716.loader.js";
+      var loaderUrl = buildUrl + "/WebGLResponsiveFontBuild.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/LearnHeartstone_20260716.data.br",
-        frameworkUrl: buildUrl + "/LearnHeartstone_20260716.framework.js.br",
-        codeUrl: buildUrl + "/LearnHeartstone_20260716.wasm.br",
+        dataUrl: buildUrl + "/WebGLResponsiveFontBuild.data.br",
+        frameworkUrl: buildUrl + "/WebGLResponsiveFontBuild.framework.js.br",
+        codeUrl: buildUrl + "/WebGLResponsiveFontBuild.wasm.br",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "heng6k",
         productName: "Learn Heartstone",
@@ -72,6 +75,10 @@
         //    return true;
         // },
       };
+
+      if (mobileDevice) {
+        config.devicePixelRatio = 1;
+      }
 
       // By default, Unity keeps WebGL canvas render target size matched with
       // the DOM size of the canvas element (scaled by window.devicePixelRatio)
@@ -89,25 +96,25 @@
       // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
       // expected to change.
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+      function resizeUnityCanvas() {
+        var portraitMobile = mobileDevice && window.innerHeight > window.innerWidth;
+        container.classList.toggle("requires-landscape", portraitMobile);
+        if (portraitMobile) return;
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+        var availableWidth = document.documentElement.clientWidth;
+        var availableHeight = document.documentElement.clientHeight;
+        var width = Math.min(availableWidth, availableHeight * (16 / 9));
+        var height = width * (9 / 16);
+        canvas.style.width = Math.floor(width) + "px";
+        canvas.style.height = Math.floor(height) + "px";
+      }
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+      resizeUnityCanvas();
+      window.addEventListener("resize", resizeUnityCanvas);
+      window.addEventListener("orientationchange", resizeUnityCanvas);
+      document.addEventListener("fullscreenchange", resizeUnityCanvas);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", resizeUnityCanvas);
       }
 
       document.querySelector("#unity-loading-bar").style.display = "block";
