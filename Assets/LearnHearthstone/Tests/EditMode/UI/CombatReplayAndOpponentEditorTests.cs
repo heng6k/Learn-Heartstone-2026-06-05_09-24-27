@@ -92,7 +92,9 @@ namespace LearnHearthstone.Tests.EditMode
             var reborn = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.RebornResolved);
 
             Assert.AreEqual(BoardSide.Opponent, reborn.ActorSide);
-            Assert.AreEqual(1, reborn.OpponentBoardSnapshot.Minions.Single(minion => minion.InstanceId == "o1").Health);
+            var returned = reborn.OpponentBoardSnapshot.Minions.Single(minion => minion.CardId == "O1");
+            Assert.AreEqual(1, returned.Health);
+            Assert.AreNotEqual("o1", returned.InstanceId);
         }
 
         [Test]

@@ -1845,6 +1845,12 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 service.State.Player.Board.Add(MinionFactory.Create(minions[index], BoardSide.Player, "altar-test-" + index));
             }
+            service.State.Player.Board[0].CardId = "BG28_300";
+            service.State.Player.Board[0].Name = "Harmless Bonehead";
+            if (!service.State.Player.Board[0].Keywords.Contains(Keyword.Deathrattle))
+            {
+                service.State.Player.Board[0].Keywords.Add(Keyword.Deathrattle);
+            }
             service.State.Player.Tavern.Gold = 2;
 
             QueueTrinketChoice(service, "BG32_MagicItem_844");
@@ -7235,6 +7241,9 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var jailer = CreateServiceWithSingleRewardTribeMinion(12345, Tribe.Undead, out _);
             var undead = TestTribeMinion("jailer-undead", 2, 2, Tribe.Undead);
+            undead.CardId = "BG28_300";
+            undead.Name = "Harmless Bonehead";
+            undead.Keywords.Add(Keyword.Deathrattle);
             jailer.State.Player.Board.Add(undead);
             jailer.State.Player.Tavern.Gold = 20;
 
@@ -7245,6 +7254,7 @@ namespace LearnHearthstone.Tests.EditMode
             jailer.Apply(new GameCommand(GameCommandType.PlayMinion, jailerSpellIndex, 0));
 
             Assert.IsFalse(jailer.State.Player.Board.Contains(undead));
+            Assert.AreEqual(2, jailer.State.Player.Board.Count(minion => minion.Name == "Skeleton"));
             Assert.AreEqual(
                 2,
                 jailer.State.Player.Tavern.Hand.Count(card =>

@@ -432,6 +432,72 @@ namespace LearnHearthstone.Domain.Engine
             };
         }
 
+        public static List<CombatReward> ResolveRecruitPhaseDeath(
+            List<MinionInstance> board,
+            MinionInstance target,
+            TavernState tavern,
+            List<MinionInstance> hand,
+            int seed,
+            string sourceName)
+        {
+            if (board == null || target == null || !board.Any(minion => minion.InstanceId == target.InstanceId))
+            {
+                return new List<CombatReward>();
+            }
+
+            var context = new CombatContext(
+                board,
+                new List<MinionInstance>(),
+                tavern,
+                null,
+                hand ?? new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                seed,
+                true);
+            ResolveRecruitPhaseDeadMinion(context, context.Player, target, sourceName ?? target.InstanceId);
+            ResolveRecruitPhaseDeaths(context, BoardSide.Player);
+            return context.Player.Rewards;
+        }
+
+        public static List<CombatReward> ResolveRecruitPhaseSummon(
+            List<MinionInstance> board,
+            MinionInstance summoned,
+            int insertIndex,
+            TavernState tavern,
+            List<MinionInstance> hand,
+            int seed,
+            string sourceName)
+        {
+            if (board == null || summoned == null || board.Count >= BoardLimit)
+            {
+                return new List<CombatReward>();
+            }
+
+            var context = new CombatContext(
+                board,
+                new List<MinionInstance>(),
+                tavern,
+                null,
+                hand ?? new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                seed,
+                true);
+            ApplySummonAuras(context.Player, summoned);
+            board.Insert(Math.Min(Math.Max(0, insertIndex), board.Count), summoned);
+            ResolveFriendlySummonTriggers(context, context.Player, summoned, new MinionInstance
+            {
+                InstanceId = sourceName ?? "recruit-phase-summon",
+                CardId = sourceName ?? "recruit-phase-summon",
+                Owner = BoardSide.Player
+            });
+            ResolveRecruitPhaseDeaths(context, BoardSide.Player);
+            return context.Player.Rewards;
+        }
+
         private static IEnumerable<CombatSideState> StartOfCombatSides(CombatContext context, BoardSide firstSide)
         {
             var first = context.Get(firstSide);
@@ -1187,9 +1253,15 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             ApplyMissingUndeadAttackBonus(side, minion);
-            ApplyPersistentCombatTribeBonuses(side, minion);
             ApplyBeetleStats(side, minion);
             RefreshDynamicCombatStats(side, minion);
+
+            if (side.IsRecruitPhase)
+            {
+                return;
+            }
+
+            ApplyPersistentCombatTribeBonuses(side, minion);
 
             foreach (var kodo in side.Board.Where(source => IsAlive(source) && source.CardId == TenaciousKodoCardId).ToList())
             {
@@ -1264,6 +1336,22 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
+            if (side.IsRecruitPhase && side.Tavern != null)
+            {
+                side.Tavern.UndeadAttackBonus = StatMath.SaturatingAdd(
+                    Math.Max(0, side.Tavern.UndeadAttackBonus),
+                    amount,
+                    0,
+                    StatMath.MaxStat);
+                foreach (var undead in side.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead)).ToList())
+                {
+                    ApplyMissingUndeadAttackBonus(side, undead);
+                }
+
+                AddReward(context.Log, side, CombatRewardType.ImproveUndeadAttack, sourceCardId, null, amount, sourceInstanceId);
+                return;
+            }
+
             GrantPersistentCombatTribeBonus(
                 side,
                 Tribe.Undead,
@@ -1311,6 +1399,12 @@ namespace LearnHearthstone.Domain.Engine
 
             side.BeetleAttackBonus = StatMath.SaturatingAdd(side.BeetleAttackBonus, attack, 2, StatMath.MaxStat);
             side.BeetleHealthBonus = StatMath.SaturatingAdd(side.BeetleHealthBonus, health, 2, StatMath.MaxStat);
+            if (side.IsRecruitPhase && side.Tavern != null)
+            {
+                side.Tavern.BeetleAttackBonus = side.BeetleAttackBonus;
+                side.Tavern.BeetleHealthBonus = side.BeetleHealthBonus;
+            }
+
             foreach (var beetle in side.Board.Where(minion => IsAlive(minion) && IsBeetle(minion)).ToList())
             {
                 ApplyBeetleStats(side, beetle);
@@ -1762,6 +1856,12 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveDeaths(CombatContext context, BoardSide side)
         {
+            if (context.IsRecruitPhase)
+            {
+                ResolveRecruitPhaseDeaths(context, side);
+                return;
+            }
+
             var owner = context.Get(side);
             var index = 0;
             var newEntityIds = new List<string>();
@@ -1824,12 +1924,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
                 {
-                    var reborn = minion.Clone();
-                    reborn.Health = minion.Tags.Contains("battlecruiser_full_health_reborn")
-                        ? Math.Max(1, reborn.MaxHealth)
-                        : 1;
-                    reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
-                    reborn.Keywords.Remove(Keyword.Reborn);
+                    var reborn = CreateRebornInstance(context, minion);
                     if (owner.Board.Count >= BoardLimit)
                     {
                         RecordRebornOverflow(context, owner, minion);
@@ -1871,6 +1966,85 @@ namespace LearnHearthstone.Domain.Engine
             ResolveSoulFermenterResummon(context, owner, newEntityIds);
             ResolveSTharaStickerResummon(context, owner, newEntityIds);
             RetargetAttackPointerToNewUnits(context, owner, newEntityIds, retargetSourceIds);
+        }
+
+        private static void ResolveRecruitPhaseDeaths(CombatContext context, BoardSide side)
+        {
+            var owner = context.Get(side);
+            while (context.RecruitDeathSteps < 200)
+            {
+                var dead = owner.Board.FirstOrDefault(minion => minion.Health <= 0);
+                if (dead == null)
+                {
+                    return;
+                }
+
+                ResolveRecruitPhaseDeadMinion(context, owner, dead, dead.InstanceId);
+            }
+        }
+
+        private static void ResolveRecruitPhaseDeadMinion(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance minion,
+            string sourceName)
+        {
+            var index = owner.Board.FindIndex(candidate => candidate.InstanceId == minion.InstanceId);
+            if (index < 0 || context.RecruitDeathSteps >= 200)
+            {
+                return;
+            }
+
+            context.RecruitDeathSteps += 1;
+            owner.Board.RemoveAt(index);
+            AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
+            var inserted = 0;
+            var newEntityIds = new List<string>();
+            if (minion.Keywords.Contains(Keyword.Deathrattle))
+            {
+                AddReward(context.Log, owner, CombatRewardType.FriendlyDeathrattleMinionDied, minion.CardId, null, 1, minion.InstanceId);
+                inserted += ResolveDeathrattleEffect(
+                    context,
+                    owner,
+                    minion,
+                    index,
+                    newEntityIds,
+                    true,
+                    sourceName ?? minion.InstanceId);
+                ResolveRecruitPhaseDeaths(context, owner.Side);
+            }
+
+            if (!minion.Keywords.Contains(Keyword.Reborn) || owner.Board.Count >= BoardLimit)
+            {
+                return;
+            }
+
+            var reborn = CreateRebornInstance(context, minion);
+            ApplySummonAuras(owner, reborn);
+            owner.Board.Insert(Math.Min(index + inserted, owner.Board.Count), reborn);
+            ResolveFriendlySummonTriggers(context, owner, reborn, minion);
+            ResolveRecruitPhaseDeaths(context, owner.Side);
+        }
+
+        private static MinionInstance CreateRebornInstance(CombatContext context, MinionInstance dead)
+        {
+            var reborn = dead.Clone();
+            reborn.InstanceId = dead.InstanceId + "-reborn-" + context.RecruitSummonSequence;
+            context.RecruitSummonSequence += 1;
+            reborn.Health = dead.Tags != null && dead.Tags.Contains("battlecruiser_full_health_reborn")
+                ? Math.Max(1, reborn.MaxHealth)
+                : 1;
+            reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
+            reborn.AttacksThisCombat = 0;
+            reborn.CanAttack = true;
+            reborn.Keywords?.Remove(Keyword.Reborn);
+            reborn.OfficialKeywords?.Remove(Keyword.Reborn);
+            RemoveKillTags(reborn);
+            reborn.OriginPoolSource = PoolSource.Summon;
+            reborn.CanReturnToPoolAfterAttach = false;
+            reborn.PoolSource = PoolSource.Summon;
+            reborn.PoolCopiesHeld = 0;
+            return reborn;
         }
 
         private static void ResolveTimewarpedJellyBellyReborn(CombatContext context, CombatSideState owner, MinionInstance reborn)
@@ -2311,7 +2485,9 @@ namespace LearnHearthstone.Domain.Engine
                 sourceRemoved ? new[] { minion.InstanceId } : null,
                 null,
                 new[] { minion.InstanceId });
-            var phylacteryExtra = Math.Max(0, owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0);
+            var phylacteryExtra = context.IsRecruitPhase
+                ? 0
+                : Math.Max(0, owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0);
             var deathrattleRepeats = GetDeathrattleRepeats(owner);
             if (phylacteryExtra > 0)
             {
@@ -2354,12 +2530,15 @@ namespace LearnHearthstone.Domain.Engine
             for (var repeat = 0; repeat < deathrattleRepeats; repeat += 1)
             {
                 inserted += ResolveDeathrattleSummons(context, owner, minion, insertIndex + inserted, newEntityIds, sourceRemoved);
-                ResolveTamsinPhylacteryDeathrattle(context, owner, minion);
-                inserted += ResolveBrukanEarthDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
-                inserted += ResolveBrannsEpicEggDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
-                ResolveBattlecruiserCaduceusDeathrattle(context, owner, minion);
-                ResolveBanelingDeathrattle(context, owner, minion);
-                ResolveSpiritRaptorDeathrattle(context, owner, minion);
+                if (!context.IsRecruitPhase)
+                {
+                    ResolveTamsinPhylacteryDeathrattle(context, owner, minion);
+                    inserted += ResolveBrukanEarthDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    inserted += ResolveBrannsEpicEggDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+                    ResolveBattlecruiserCaduceusDeathrattle(context, owner, minion);
+                    ResolveBanelingDeathrattle(context, owner, minion);
+                    ResolveSpiritRaptorDeathrattle(context, owner, minion);
+                }
             }
 
             ResolveTrinketDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
@@ -2712,8 +2891,17 @@ namespace LearnHearthstone.Domain.Engine
         private static int ResolveDeathrattleSummons(CombatContext context, CombatSideState owner, MinionInstance minion, int insertIndex, List<string> newEntityIds, bool sourceRemoved = true)
         {
             var inserted = 0;
-            inserted += ResolveTrinketCounterDeathrattles(context, owner, minion, insertIndex, newEntityIds);
-            inserted += ResolveSneedSummonDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+            if (!context.IsRecruitPhase)
+            {
+                inserted += ResolveTrinketCounterDeathrattles(context, owner, minion, insertIndex, newEntityIds);
+                inserted += ResolveSneedSummonDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
+            }
+
+            if (context.IsRecruitPhase && IsCombatOnlyDeathrattle(minion.CardId))
+            {
+                return inserted;
+            }
+
             switch (minion.CardId)
             {
                 case ImpulsiveTricksterCardId:
@@ -2874,7 +3062,7 @@ namespace LearnHearthstone.Domain.Engine
                     ImproveUndeadAttackForCombatAndGame(
                         context,
                         owner,
-                        minion.Golden ? 4 : 2,
+                        context.IsRecruitPhase ? (minion.Golden ? 8 : 4) : (minion.Golden ? 4 : 2),
                         minion.CardId,
                         minion.InstanceId,
                         string.IsNullOrEmpty(minion.Name) ? "Plaguerunner" : minion.Name);
@@ -3131,6 +3319,30 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return inserted;
+        }
+
+        private static bool IsCombatOnlyDeathrattle(string cardId)
+        {
+            switch (cardId)
+            {
+                case KaboomBotCardId:
+                case TimewarpedWhirlOTronCardId:
+                case TwilightHatchlingCardId:
+                case SkyPirateFlagbearerCardId:
+                case KangorsApprenticeCardId:
+                case LeeroyTheRecklessCardId:
+                case ClunkerJunkerCardId:
+                case DeadlySporebatCardId:
+                case BassgillCardId:
+                case TimewarpedBassgillCardId:
+                case TimewarpedGoldrinnCardId:
+                case TimewarpedMagnanimooseCardId:
+                case GoldrinnCardId:
+                case StitchedReclaimerCardId:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private static void ResolveImpulsivePortraitDeathrattle(CombatContext context, CombatSideState owner, MinionInstance minion, int insertIndex)
@@ -6724,7 +6936,7 @@ namespace LearnHearthstone.Domain.Engine
                 .Sum(minion => minion.Golden ? 2 : 1);
             extra += GetTimewarpedDeiosExtraTriggers(owner);
             extra += Math.Max(0, owner.Tavern?.QuestDeathrattleExtraTriggers ?? 0);
-            if ((owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0) > 0)
+            if (!owner.IsRecruitPhase && (owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0) > 0)
             {
                 extra += owner.Tavern.TrinketDeathlyPhylacteryExtraDeathrattles;
                 owner.Tavern.TrinketDeathlyPhylacteryExtraDeathrattles = 0;
@@ -7867,7 +8079,7 @@ namespace LearnHearthstone.Domain.Engine
         {
             var sourceInstanceId = source?.InstanceId ?? "quest";
             var overflowId = "overflow-" + sourceInstanceId + "-" + tokenId + "-" + context.Replay.Frames.Count;
-            if (owner?.Tavern != null && owner.Tavern.TrinketMugOfTheSireActive)
+            if (!context.IsRecruitPhase && owner?.Tavern != null && owner.Tavern.TrinketMugOfTheSireActive)
             {
                 var targets = owner.Board.Where(IsAlive).ToList();
                 foreach (var target in targets)
@@ -7924,9 +8136,13 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            ApplyHeroCombatSummonModifiers(owner, summoned);
-            ApplyTrinketCombatSummonModifiers(context, owner, summoned, source);
-            ResolveTimewarpedKarathressSummon(context, owner, summoned);
+            if (!context.IsRecruitPhase)
+            {
+                ApplyHeroCombatSummonModifiers(owner, summoned);
+                ApplyTrinketCombatSummonModifiers(context, owner, summoned, source);
+                ResolveTimewarpedKarathressSummon(context, owner, summoned);
+            }
+
             if (IsAncestralAutomaton(summoned))
             {
                 owner.AncestralAutomatonSummons = StatMath.SaturatingAdd(owner.AncestralAutomatonSummons, 1, 0, StatMath.MaxStat);
@@ -7939,6 +8155,11 @@ namespace LearnHearthstone.Domain.Engine
                     null,
                     1,
                     summoned.InstanceId);
+            }
+
+            if (context.IsRecruitPhase)
+            {
+                return;
             }
 
             if (HasCountedTribe(summoned, Tribe.Beast))
@@ -8679,18 +8900,22 @@ namespace LearnHearthstone.Domain.Engine
 
         private sealed class CombatContext
         {
-            public CombatContext(List<MinionInstance> player, List<MinionInstance> opponent, TavernState playerTavern, TavernState opponentTavern, List<MinionInstance> playerHand, List<MinionInstance> opponentHand, List<MinionInstance> playerCombatSummonPool, List<MinionInstance> opponentCombatSummonPool, int seed)
+            public CombatContext(List<MinionInstance> player, List<MinionInstance> opponent, TavernState playerTavern, TavernState opponentTavern, List<MinionInstance> playerHand, List<MinionInstance> opponentHand, List<MinionInstance> playerCombatSummonPool, List<MinionInstance> opponentCombatSummonPool, int seed, bool isRecruitPhase = false)
             {
-                Player = new CombatSideState(BoardSide.Player, player, playerTavern, playerHand, playerCombatSummonPool);
-                Opponent = new CombatSideState(BoardSide.Opponent, opponent, opponentTavern, opponentHand, opponentCombatSummonPool);
+                Player = new CombatSideState(BoardSide.Player, player, playerTavern, playerHand, playerCombatSummonPool, isRecruitPhase);
+                Opponent = new CombatSideState(BoardSide.Opponent, opponent, opponentTavern, opponentHand, opponentCombatSummonPool, isRecruitPhase);
                 Seed = seed;
+                IsRecruitPhase = isRecruitPhase;
                 Replay = new CombatReplay { Seed = seed };
             }
 
             public CombatSideState Player { get; }
             public CombatSideState Opponent { get; }
             public int Seed { get; }
+            public bool IsRecruitPhase { get; }
             public int AttackSequence { get; set; }
+            public int RecruitDeathSteps { get; set; }
+            public int RecruitSummonSequence { get; set; }
             public List<CombatLogEntry> Log { get; } = new List<CombatLogEntry>();
             public CombatReplay Replay { get; }
             public Queue<ImmediateAttackRequest> ImmediateAttacks { get; } = new Queue<ImmediateAttackRequest>();
@@ -8703,13 +8928,14 @@ namespace LearnHearthstone.Domain.Engine
 
         private sealed class CombatSideState
         {
-            public CombatSideState(BoardSide side, List<MinionInstance> board, TavernState tavern, List<MinionInstance> hand, List<MinionInstance> combatSummonPool)
+            public CombatSideState(BoardSide side, List<MinionInstance> board, TavernState tavern, List<MinionInstance> hand, List<MinionInstance> combatSummonPool, bool isRecruitPhase)
             {
                 Side = side;
                 Board = board;
                 Tavern = tavern;
                 Hand = hand;
                 CombatSummonPool = combatSummonPool ?? new List<MinionInstance>();
+                IsRecruitPhase = isRecruitPhase;
                 EternalKnightDeaths = Math.Max(0, tavern?.EternalKnightDeaths ?? 0);
                 AncestralAutomatonSummons = Math.Max(
                     Math.Max(0, tavern?.AncestralAutomatonSummons ?? 0),
@@ -8724,6 +8950,7 @@ namespace LearnHearthstone.Domain.Engine
             public List<MinionInstance> Hand { get; }
             public List<MinionInstance> CombatSummonPool { get; }
             public TavernState Tavern { get; }
+            public bool IsRecruitPhase { get; }
             public List<CombatReward> Rewards { get; } = new List<CombatReward>();
             public int AttackIndex { get; set; }
             public int? PendingAttackIndexOverride { get; set; }

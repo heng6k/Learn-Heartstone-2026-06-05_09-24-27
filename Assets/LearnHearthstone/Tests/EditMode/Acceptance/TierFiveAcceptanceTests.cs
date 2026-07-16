@@ -145,7 +145,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void TierFiveKelThuzad_ResummonsPlainCopyOfLeftUndead()
+        public void TierFiveKelThuzad_ResummonsExactCopyOfLeftUndead()
         {
             var service = MatchService.CreateWithDefaultCatalog(9515, new InMemoryTestScenarioRepository());
             service.State.Player.Board.Clear();
@@ -159,9 +159,60 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            Assert.AreEqual("BG25_008", service.State.Player.Board[0].CardId);
-            Assert.Less(service.State.Player.Board[0].Attack, undead.Attack);
-            Assert.IsFalse(service.State.Player.Board[0].Enchantments.Any(enchantment => enchantment.SourceId == "test-buff"));
+            var copy = service.State.Player.Board[0];
+            Assert.AreEqual("BG25_008", copy.CardId);
+            Assert.AreEqual(undead.Attack, copy.Attack);
+            Assert.AreEqual(undead.MaxHealth, copy.MaxHealth);
+            Assert.IsTrue(copy.Enchantments.Any(enchantment => enchantment.SourceId == "test-buff"));
+        }
+
+        [Test]
+        public void TierFiveKelThuzad_DeathrattleThenRebornThenExactCopy()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(95151, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            AddAndPlay(service, "BG28_300");
+            var bonehead = service.State.Player.Board[0];
+            bonehead.Keywords.Add(Keyword.Reborn);
+            bonehead.Attack += 7;
+            bonehead.MaxHealth += 7;
+            bonehead.Health = bonehead.MaxHealth;
+            bonehead.Enchantments.Add(new Enchantment { Id = "bonehead-buff", SourceId = "bonehead-buff", AttackBonus = 7, HealthBonus = 7 });
+            AddAndPlay(service, "BG28_308");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count(minion => minion.Name == "Skeleton"));
+            var copies = service.State.Player.Board.Where(minion => minion.CardId == "BG28_300").ToList();
+            Assert.AreEqual(2, copies.Count);
+            var reborn = copies.Single(minion => !minion.Keywords.Contains(Keyword.Reborn));
+            var exactCopy = copies.Single(minion => minion.Keywords.Contains(Keyword.Reborn));
+            Assert.AreEqual(1, reborn.Health);
+            Assert.That(reborn.InstanceId, Does.Contain("-reborn-"));
+            Assert.IsTrue(reborn.Enchantments.Any(enchantment => enchantment.Id == "bonehead-buff"));
+            Assert.IsTrue(exactCopy.InstanceId.StartsWith("kel-thuzad-"));
+            Assert.IsTrue(exactCopy.Enchantments.Any(enchantment => enchantment.Id == "bonehead-buff"));
+        }
+
+        [Test]
+        public void TierFiveKelThuzad_RebornFillsBoardBeforeExactCopy()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(95152, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            for (var index = 0; index < 5; index += 1)
+            {
+                service.State.Player.Board.Add(Card("kel-filler-" + index, BoardSide.Player, "KEL_FILLER_" + index, 1, 1, Tribe.None));
+            }
+            AddAndPlay(service, "BG25_008");
+            var undead = service.State.Player.Board.Single(minion => minion.CardId == "BG25_008");
+            undead.Keywords.Add(Keyword.Reborn);
+            AddAndPlay(service, "BG28_308");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(7, service.State.Player.Board.Count);
+            Assert.AreEqual(1, service.State.Player.Board.Count(minion => minion.CardId == "BG25_008"));
+            Assert.IsFalse(service.State.Player.Board.Any(minion => minion.InstanceId.StartsWith("kel-thuzad-")));
         }
 
         [Test]

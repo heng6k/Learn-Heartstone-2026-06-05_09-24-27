@@ -200,7 +200,8 @@ namespace LearnHearthstone.Domain.Engine
             HeroCatalog heroes = null,
             DarkmoonPrizeCatalog darkmoonPrizes = null,
             TargetZone targetZone = TargetZone.Unspecified,
-            string targetInstanceId = null)
+            string targetInstanceId = null,
+            Action<MinionInstance> destroyFriendlyMinion = null)
         {
             if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
@@ -211,7 +212,7 @@ namespace LearnHearthstone.Domain.Engine
             explicitTarget = ResolveExplicitTarget(state, targetIndex, targetZone, targetInstanceId);
             try
             {
-                return CastInternal(spell, state, minions, spells, rng, heroes, darkmoonPrizes);
+                return CastInternal(spell, state, minions, spells, rng, heroes, darkmoonPrizes, destroyFriendlyMinion);
             }
             finally
             {
@@ -219,7 +220,7 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes, DarkmoonPrizeCatalog darkmoonPrizes)
+        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes, DarkmoonPrizeCatalog darkmoonPrizes, Action<MinionInstance> destroyFriendlyMinion)
         {
             var cardNumber = spell.CardId;
             var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
@@ -717,7 +718,7 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveBackToBack(state, applyTavernSpellBonus);
                     return "Back to Back: target minion gains scaling stats";
                 case "110412":
-                    ResolveButchering(state);
+                    ResolveButchering(state, destroyFriendlyMinion);
                     return "Butchering: destroy a friendly Undead and improve your Undead attack";
                 case "130713":
                     ResolveQueensCommand(state, applyTavernSpellBonus);
@@ -1930,7 +1931,7 @@ namespace LearnHearthstone.Domain.Engine
             AddKeyword(target, Keyword.DivineShield);
         }
 
-        private static void ResolveButchering(MatchState state)
+        private static void ResolveButchering(MatchState state, Action<MinionInstance> destroyFriendlyMinion)
         {
             var target = ExplicitFriendlyBoardTarget(state);
             if (target == null || !target.Tribes.Contains(Tribe.Undead))
@@ -1940,7 +1941,14 @@ namespace LearnHearthstone.Domain.Engine
 
             if (target != null)
             {
-                state.Player.Board.Remove(target);
+                if (destroyFriendlyMinion != null)
+                {
+                    destroyFriendlyMinion(target);
+                }
+                else
+                {
+                    state.Player.Board.Remove(target);
+                }
             }
 
             state.Player.Tavern.UndeadAttackBonus += 4;

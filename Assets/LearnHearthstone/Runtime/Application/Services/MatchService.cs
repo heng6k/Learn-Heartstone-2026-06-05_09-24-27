@@ -8536,7 +8536,8 @@ namespace LearnHearthstone.Application.Services
                 heroCatalog,
                 darkmoonPrizeCatalog,
                 targetZone,
-                targetInstanceId);
+                targetInstanceId,
+                target => DestroyRecruitPhaseMinion(target, "Butchering"));
             HandleTimewarpedStatsGainedFromSnapshot(before, "TavernSpellEngine:" + (spell?.CardId ?? "unknown"));
             return result;
         }
@@ -11309,7 +11310,6 @@ namespace LearnHearthstone.Application.Services
             {
                 State.Player.Board.Remove(minion);
                 ReleaseMinionToPool(minion);
-                RecordOutsideCombatMinionDestroyed(definition.Name);
             }
 
             GrantTrinketGold(removed.Count * 3, definition.Name);
@@ -13278,6 +13278,71 @@ namespace LearnHearthstone.Application.Services
                 "coin_pouch",
                 "trinket_proxy"));
             HandleCardsAddedToHand(1, source ?? definition.Name);
+        }
+
+        private bool DestroyRecruitPhaseMinion(MinionInstance target, string source)
+        {
+            if (target == null || !State.Player.Board.Any(minion => minion.InstanceId == target.InstanceId))
+            {
+                return false;
+            }
+
+            var rewards = CombatEngine.ResolveRecruitPhaseDeath(
+                State.Player.Board,
+                target,
+                State.Player.Tavern,
+                State.Player.Tavern.Hand,
+                State.Seed + State.Round * 7919 + State.Player.Tavern.RecruitLog.Count,
+                source);
+            ApplyRecruitPhaseRewards(rewards, source);
+            return true;
+        }
+
+        private void ApplyRecruitPhaseRewards(IEnumerable<CombatReward> rewards, string source)
+        {
+            foreach (var reward in rewards ?? Enumerable.Empty<CombatReward>())
+            {
+                switch (reward.Type)
+                {
+                    case CombatRewardType.FriendlyMinionDied:
+                        State.Player.Tavern.FriendlyMinionDeathsThisGame = StatMath.SaturatingAdd(
+                            State.Player.Tavern.FriendlyMinionDeathsThisGame,
+                            reward.Amount,
+                            0,
+                            StatMath.MaxStat);
+                        for (var index = 0; index < Math.Max(1, reward.Amount); index += 1)
+                        {
+                            RecordOutsideCombatMinionDestroyed(source ?? reward.SourceCardId);
+                        }
+
+                        break;
+                    case CombatRewardType.FriendlyDeathrattleTriggered:
+                        State.Player.Tavern.DeathrattlesTriggeredThisGame = StatMath.SaturatingAdd(
+                            State.Player.Tavern.DeathrattlesTriggeredThisGame,
+                            reward.Amount,
+                            0,
+                            StatMath.MaxStat);
+                        ApplyFallenSkyGolemBonuses();
+                        break;
+                    case CombatRewardType.ImproveUndeadAttack:
+                        AddShopGrowth(Tribe.Undead, reward.Amount, 0, reward.SourceCardId);
+                        break;
+                    case CombatRewardType.ImproveBeetleStats:
+                    case CombatRewardType.FriendlyDeathrattleMinionDied:
+                    case CombatRewardType.FriendlyAvengeTriggered:
+                    case CombatRewardType.FriendlyRallyTriggered:
+                    case CombatRewardType.FriendlyMinionKilledEnemy:
+                    case CombatRewardType.FriendlyMinionAttacked:
+                    case CombatRewardType.FriendlyMinionSummoned:
+                    case CombatRewardType.BuffOriginalFriendlyMinion:
+                    case CombatRewardType.AddKeywordToOriginalFriendlyMinion:
+                    case CombatRewardType.BuffFriendlyBoard:
+                        break;
+                    default:
+                        ApplyCombatRewards(new[] { reward });
+                        break;
+                }
+            }
         }
 
         private static MinionInstance CreateProxyMinion(
@@ -20633,7 +20698,6 @@ namespace LearnHearthstone.Application.Services
             tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + sellValue);
             DispatchSourceEvent(MechanicEventType.MinionSold, target);
             ResolveTierOneSellEffect(target);
-            ResolveTierFourSellEffect(target);
             ResolveTierSixSevenSellEffect(target);
             DispatchHeroEffect(HeroEffectEventType.MinionSold, target);
             if (HasActiveHeroPower(KraggHeroPowerCardId) &&
@@ -24945,22 +25009,6 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private void ResolveTierFourSellEffect(MinionInstance target)
-        {
-            if (target == null)
-            {
-                return;
-            }
-
-            if (target.CardId == PlaguedGhoulCardId)
-            {
-                var amount = target.Golden ? 8 : 4;
-                State.Player.Tavern.UndeadAttackBonus += amount;
-                AddShopGrowth(Tribe.Undead, amount, 0, "Plagued Ghoul out of combat");
-                BuffAllMinions(State.Player.Board.Concat(State.Player.Tavern.Hand).Concat(State.Player.Tavern.Shop.Where(card => card != null)).Where(minion => minion.Tribes.Contains(Tribe.Undead)), amount, 0, "Plagued Ghoul out of combat");
-            }
-        }
-
         private void ResolveTierSixSevenSellEffect(MinionInstance target)
         {
             if (target == null)
@@ -24984,10 +25032,12 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            State.Player.Board.Remove(target);
-            ResolveTierFourSellEffect(target);
+            if (!DestroyRecruitPhaseMinion(target, "Disturbed Grave"))
+            {
+                return;
+            }
+
             ReleaseMinionToPool(target);
-            RecordOutsideCombatMinionDestroyed("Disturbed Grave");
             AddRecruitLog(RecruitLogType.Play, "Disturbed Grave destroyed " + target.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
@@ -27049,13 +27099,12 @@ namespace LearnHearthstone.Application.Services
 
         private void ResolveJailerStickerSpell(MinionInstance target)
         {
-            if (target == null || !State.Player.Board.Remove(target))
+            if (!DestroyRecruitPhaseMinion(target, "Jailer Sticker"))
             {
                 return;
             }
 
             ReleaseMinionToPool(target);
-            RecordOutsideCombatMinionDestroyed("Jailer Sticker");
             var count = EquippedTrinketDefinitions()
                 .Where(definition => definition.EffectIds != null && definition.EffectIds.Contains(JailerStickerEffectId))
                 .Select(definition => definition.SlotKind == TrinketSlotKind.Greater ? 2 : 1)
@@ -27574,8 +27623,11 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            State.Player.Board.Remove(target);
-            RecordOutsideCombatMinionDestroyed("Disguised Graverobber");
+            if (!DestroyRecruitPhaseMinion(target, "Disguised Graverobber"))
+            {
+                return;
+            }
+
             var added = 0;
             var copies = Math.Max(1, count);
             for (var index = 0; index < copies && State.Player.Tavern.Hand.Count < HandLimit; index += 1)
@@ -29582,12 +29634,29 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var definition = catalog.All.FirstOrDefault(minion => minion.CardId == target.CardId);
-            var copy = definition != null
-                ? MinionFactory.Create(definition, BoardSide.Player, sourceName + "-" + State.Round + "-" + index, false, PoolSource.Summon, 0)
-                : CreatePlainCopy(target, sourceName + "-" + State.Round + "-" + index);
-            State.Player.Board.RemoveAt(index - 1);
-            State.Player.Board.Insert(index - 1, copy);
+            var targetIndex = index - 1;
+            var copy = target.Clone();
+            copy.InstanceId = sourceName + "-" + State.Round + "-" + target.InstanceId;
+            copy.Owner = BoardSide.Player;
+            if (!DestroyRecruitPhaseMinion(target, sourceName))
+            {
+                return;
+            }
+
+            if (State.Player.Board.Count >= BoardLimit)
+            {
+                return;
+            }
+
+            var rewards = CombatEngine.ResolveRecruitPhaseSummon(
+                State.Player.Board,
+                copy,
+                targetIndex,
+                State.Player.Tavern,
+                State.Player.Tavern.Hand,
+                State.Seed + State.Round * 7927 + State.Player.Tavern.RecruitLog.Count,
+                sourceName);
+            ApplyRecruitPhaseRewards(rewards, sourceName);
         }
 
         private static MinionInstance CreatePlainCopy(MinionInstance source, string instanceId)

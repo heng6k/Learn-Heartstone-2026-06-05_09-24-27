@@ -179,6 +179,22 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TierThreeTavernPhase_DisguisedGraverobberResolvesDestroyedMinionDeathrattle()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(88161, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var bonehead = CardMinion("graverobber-bonehead", BoardSide.Player, "BG28_300", 1, 1, Tribe.Undead);
+            bonehead.Keywords.Add(Keyword.Deathrattle);
+            service.State.Player.Board.Add(bonehead);
+
+            AddAndPlay(service, "BG28_303", 0);
+
+            Assert.AreEqual(2, service.State.Player.Board.Count(minion => minion.Name == "Skeleton"));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BG28_300"));
+        }
+
+        [Test]
         public void TierThreeTavernPhase_GoldenGraverobberDoesNotOverflowFullHand()
         {
             var service = MatchService.CreateWithDefaultCatalog(8817, new InMemoryTestScenarioRepository());

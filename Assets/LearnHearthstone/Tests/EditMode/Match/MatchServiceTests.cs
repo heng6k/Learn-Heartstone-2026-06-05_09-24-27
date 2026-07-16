@@ -3048,6 +3048,38 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Butchering_ResolvesRecruitPhaseDeathrattleBeforeUndeadGrowth()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG28_300", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "110412", CardKind.TavernSpell));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            Assert.AreEqual(2, service.State.Player.Board.Count(minion => minion.Name == "Skeleton"));
+            Assert.IsTrue(service.State.Player.Board.Where(minion => minion.Name == "Skeleton").All(minion => minion.Attack == 5));
+            Assert.AreEqual(4, service.State.Player.Tavern.UndeadAttackBonus);
+        }
+
+        [Test]
+        public void SellingPlaguerunner_DoesNotTriggerOutsideCombatDeathrattle()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12346, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            var plaguerunner = TestBoardMinion("sell-plaguerunner", "Plaguerunner", "BG34_690", 1, 3, Tribe.Undead, 1);
+            plaguerunner.Keywords.Add(Keyword.Deathrattle);
+            service.State.Player.Board.Add(plaguerunner);
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, plaguerunner.InstanceId));
+
+            Assert.AreEqual(0, service.State.Player.Tavern.UndeadAttackBonus);
+            Assert.IsFalse(service.State.Player.Board.Any(minion => minion.Name == "Skeleton"));
+        }
+
+        [Test]
         public void TimewarpedCopyTransform_ZerusDiscoversMinorTransformAndKeepsStats()
         {
             var service = CreateTimewarpOnlyService(12345);

@@ -945,6 +945,99 @@ namespace LearnHearthstone.Tests.EditMode
             };
         }
 
+        [Test]
+        public void RecruitPhaseDeath_ResolvesDeathrattleSummonsBeforeReborn()
+        {
+            var target = TestInstance("bonehead", "bonehead", 1);
+            target.CardId = "BG28_300";
+            target.Tribes = new List<Tribe> { Tribe.Undead };
+            target.Keywords.Add(Keyword.Deathrattle);
+            target.Keywords.Add(Keyword.Reborn);
+            target.OfficialKeywords.Add(Keyword.Reborn);
+            target.Attack = 13;
+            target.MaxHealth = 14;
+            target.Enchantments.Add(new Enchantment { Id = "recruit-permanent-buff", AttackBonus = 7, HealthBonus = 12 });
+            target.Enchantments.Add(new Enchantment { Id = "Undead Attack Bonus", SourceId = "Undead Attack Bonus", AttackBonus = 4 });
+            target.Counters["recruit-permanent-counter"] = 3;
+            var board = new List<MinionInstance> { target };
+            board.AddRange(Enumerable.Range(0, 4).Select(index => TestInstance("filler-" + index, "filler", 0)));
+            var tavern = new TavernState { UndeadAttackBonus = 4 };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, target, tavern, new List<MinionInstance>(), 601, "test");
+
+            Assert.AreEqual(7, board.Count);
+            Assert.AreEqual(2, board.Count(minion => minion.Name == "Skeleton"));
+            var reborn = board.Single(minion => minion.InstanceId.StartsWith("bonehead-reborn-"));
+            Assert.AreEqual(1, reborn.Health);
+            Assert.AreEqual(13, reborn.Attack);
+            Assert.AreEqual(14, reborn.MaxHealth);
+            Assert.IsTrue(reborn.Enchantments.Any(enchantment => enchantment.Id == "recruit-permanent-buff"));
+            Assert.AreEqual(1, reborn.Enchantments.Count(enchantment => enchantment.Id == "Undead Attack Bonus"));
+            Assert.AreEqual(3, reborn.Counters["recruit-permanent-counter"]);
+            Assert.IsFalse(reborn.Keywords.Contains(Keyword.Reborn));
+            Assert.IsFalse(reborn.OfficialKeywords.Contains(Keyword.Reborn));
+            Assert.AreEqual(PoolSource.Summon, reborn.PoolSource);
+            Assert.AreEqual(PoolSource.Summon, reborn.OriginPoolSource);
+            Assert.AreEqual(0, reborn.PoolCopiesHeld);
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_DeathrattleCanFillBoardAndPreventReborn()
+        {
+            var target = TestInstance("full-bonehead", "bonehead", 1);
+            target.CardId = "BG28_300";
+            target.Tribes = new List<Tribe> { Tribe.Undead };
+            target.Keywords.Add(Keyword.Deathrattle);
+            target.Keywords.Add(Keyword.Reborn);
+            var board = new List<MinionInstance> { target };
+            board.AddRange(Enumerable.Range(0, 6).Select(index => TestInstance("full-filler-" + index, "filler", 0)));
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, target, new TavernState(), new List<MinionInstance>(), 602, "test");
+
+            Assert.AreEqual(7, board.Count);
+            Assert.AreEqual(1, board.Count(minion => minion.Name == "Skeleton"));
+            Assert.IsFalse(board.Any(minion => minion.InstanceId.StartsWith("full-bonehead-reborn-")));
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_WarghoulTriggersOneAdjacentDeathrattle()
+        {
+            var bonehead = TestInstance("adjacent-bonehead", "bonehead", 0);
+            bonehead.CardId = "BG28_300";
+            bonehead.Tribes = new List<Tribe> { Tribe.Undead };
+            bonehead.Keywords.Add(Keyword.Deathrattle);
+            var warghoul = TestInstance("warghoul", "warghoul", 0);
+            warghoul.CardId = "BG34_Giant_331";
+            warghoul.Tribes = new List<Tribe> { Tribe.Undead };
+            warghoul.Keywords.Add(Keyword.Deathrattle);
+            var board = new List<MinionInstance> { bonehead, warghoul };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, warghoul, new TavernState(), new List<MinionInstance>(), 603, "test");
+
+            Assert.IsTrue(board.Contains(bonehead));
+            Assert.AreEqual(2, board.Count(minion => minion.Name == "Skeleton"));
+        }
+
+        [TestCase(false, 4)]
+        [TestCase(true, 8)]
+        public void RecruitPhaseDeath_PlaguerunnerUsesOutsideCombatAmount(bool golden, int expected)
+        {
+            var plaguerunner = TestInstance("plaguerunner", "plaguerunner", 0);
+            plaguerunner.CardId = "BG34_690";
+            plaguerunner.Golden = golden;
+            plaguerunner.Tribes = new List<Tribe> { Tribe.Undead };
+            plaguerunner.Keywords.Add(Keyword.Deathrattle);
+            var survivor = TestInstance("undead-survivor", "survivor", 0);
+            survivor.Tribes = new List<Tribe> { Tribe.Undead };
+            var tavern = new TavernState();
+            var board = new List<MinionInstance> { plaguerunner, survivor };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, plaguerunner, tavern, new List<MinionInstance>(), 604, "test");
+
+            Assert.AreEqual(expected, tavern.UndeadAttackBonus);
+            Assert.AreEqual(2 + expected, survivor.Attack);
+        }
+
         private static MinionInstance TestInstance(string instanceId, string definitionId, int poolCopiesHeld)
         {
             return new MinionInstance
@@ -959,6 +1052,7 @@ namespace LearnHearthstone.Tests.EditMode
                 TavernTier = 1,
                 Tribes = new List<Tribe> { Tribe.None },
                 Keywords = new List<Keyword>(),
+                OfficialKeywords = new List<Keyword>(),
                 Golden = false,
                 Owner = BoardSide.Player,
                 Enchantments = new List<Enchantment>(),

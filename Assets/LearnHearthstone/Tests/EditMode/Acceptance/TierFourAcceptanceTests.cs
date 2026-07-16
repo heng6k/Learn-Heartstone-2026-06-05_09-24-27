@@ -99,6 +99,30 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TierFourTombTurning_DiesThroughRecruitDeathPipelineWithoutSellEffect()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(94111, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "126957", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+            var doomed = service.State.Player.Tavern.Hand.Single(card => card.Tags.Contains("discover_then_death"));
+            doomed.CardId = "BG34_690";
+            doomed.Name = "Plaguerunner";
+            doomed.Tribes = new List<Tribe> { Tribe.Undead };
+            if (!doomed.Keywords.Contains(Keyword.Deathrattle))
+            {
+                doomed.Keywords.Add(Keyword.Deathrattle);
+            }
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.IndexOf(doomed)));
+
+            Assert.IsFalse(service.State.Player.Board.Any(minion => minion.InstanceId == doomed.InstanceId));
+            Assert.AreEqual(4, service.State.Player.Tavern.UndeadAttackBonus);
+        }
+
+        [Test]
         public void TierFourFearlessFoodie_ChoiceCanImproveGemsOrAddGems()
         {
             var growth = MatchService.CreateWithDefaultCatalog(9412, new InMemoryTestScenarioRepository());
