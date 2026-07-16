@@ -8,6 +8,7 @@ using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
+using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -48,7 +49,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
         public void Build()
         {
             DestroyShell();
-            shell = Panel("RealisticTavernTrainer", root, ColorFromHex(0x17100B));
+            shell = Panel("RealisticTavernTrainer", root, UnityTavernUiStyle.BackWall);
             UiFactory.Stretch(shell.GetComponent<RectTransform>());
 
             BuildBackground(shell.transform);
@@ -119,15 +120,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildBackground(Transform parent)
         {
-            Panel("TavernBackWall", parent, ColorFromHex(0x241611), new Vector2(0f, 0.48f), Vector2.one, new Vector2(0f, 0f), Vector2.zero);
-            Panel("TavernTableWood", parent, ColorFromHex(0x3A2417), Vector2.zero, new Vector2(1f, 0.76f), Vector2.zero, Vector2.zero);
-            Panel("TavernTableInnerGlow", parent, new Color(0.75f, 0.42f, 0.18f, 0.16f), new Vector2(0.08f, 0.18f), new Vector2(0.82f, 0.68f), Vector2.zero, Vector2.zero);
+            Panel("TavernBackWall", parent, UnityTavernUiStyle.BackWall, new Vector2(0f, 0.48f), Vector2.one, new Vector2(0f, 0f), Vector2.zero);
+            Panel("TavernTableWood", parent, UnityTavernUiStyle.TableDark, Vector2.zero, new Vector2(1f, 0.76f), Vector2.zero, Vector2.zero);
+            Panel("TavernTableInnerGlow", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.16f), new Vector2(0.08f, 0.18f), new Vector2(0.82f, 0.68f), Vector2.zero, Vector2.zero);
             Panel("TavernBottomShadow", parent, new Color(0.02f, 0.012f, 0.008f, 0.42f), Vector2.zero, new Vector2(1f, 0.24f), Vector2.zero, Vector2.zero);
         }
 
         private void BuildTopStatusBar(Transform parent)
         {
-            var bar = Panel("RealisticTopStatusBar", parent, new Color(0.07f, 0.055f, 0.045f, 0.96f), new Vector2(0f, 1f), Vector2.one, new Vector2(0f, -86f), Vector2.zero);
+            var bar = Panel("RealisticTopStatusBar", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.98f), new Vector2(0f, 1f), Vector2.one, new Vector2(0f, -86f), Vector2.zero);
+            UnityTavernUiStyle.ConfigureOutline(bar, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.AddStarLanternRail(bar.transform, "RealisticTopStarLantern", UnityTavernUiStyle.ArcaneBlue);
             UiFactory.Horizontal(bar, 18, 10);
 
             var title = StackPanel("TavernTitleBlock", bar.transform, 240f);
@@ -162,7 +165,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildShopStage(Transform parent)
         {
-            var stage = Panel("RealisticShopStage", parent, new Color(0.18f, 0.10f, 0.055f, 0.86f), new Vector2(0f, 0.48f), new Vector2(1f, 0.78f), Vector2.zero, Vector2.zero);
+            var stage = Panel("RealisticShopStage", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.TableDark, 0.92f), new Vector2(0f, 0.48f), new Vector2(1f, 0.78f), Vector2.zero, Vector2.zero);
+            UnityTavernUiStyle.ConfigureOutline(stage, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.28f), new Vector2(1f, -1f));
             UiFactory.Vertical(stage, 12, 8);
 
             var header = UiFactory.Panel("RealisticShopHeader", stage.transform, Color.clear);
@@ -192,7 +196,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildPlayerBoard(Transform parent)
         {
-            var board = Panel("RealisticPlayerBoard", parent, new Color(0.12f, 0.075f, 0.045f, 0.84f), new Vector2(0f, 0.09f), new Vector2(1f, 0.43f), Vector2.zero, Vector2.zero);
+            var board = Panel("RealisticPlayerBoard", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.TableDark, 0.88f), new Vector2(0f, 0.09f), new Vector2(1f, 0.43f), Vector2.zero, Vector2.zero);
             UiFactory.Vertical(board, 12, 8);
 
             var header = UiFactory.Panel("RealisticBoardHeader", board.transform, Color.clear);
@@ -224,7 +228,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildHandDock(Transform parent)
         {
-            var dock = Panel("RealisticHandDock", parent, new Color(0.07f, 0.045f, 0.032f, 0.98f), Vector2.zero, new Vector2(1f, 0.22f), new Vector2(18f, 12f), new Vector2(-18f, 0f));
+            var dock = Panel("RealisticHandDock", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.98f), Vector2.zero, new Vector2(1f, 0.22f), new Vector2(18f, 12f), new Vector2(-18f, 0f));
+            UnityTavernUiStyle.ConfigureOutline(dock, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.32f), new Vector2(1f, -1f));
             UiFactory.Horizontal(dock, 12, 8);
             AddDropTarget(dock, RealisticDropTarget.Hand, -1);
 
@@ -249,7 +254,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildRightRail(Transform parent)
         {
-            var rail = Panel("RealisticRightRail", parent, new Color(0.08f, 0.06f, 0.05f, 0.96f), new Vector2(1f, 0.22f), new Vector2(1f, 1f), new Vector2(-386f, 0f), new Vector2(-16f, -96f));
+            var rail = Panel("RealisticRightRail", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.98f), new Vector2(1f, 0.22f), new Vector2(1f, 1f), new Vector2(-386f, 0f), new Vector2(-16f, -96f));
+            UnityTavernUiStyle.ConfigureOutline(rail, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1.5f, -1.5f));
             UiFactory.Vertical(rail, 12, 10);
 
             BuildActionPanel(rail.transform);
@@ -259,32 +265,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildActionPanel(Transform parent)
         {
-            var panel = UiFactory.Panel("RealisticActionPanel", parent, ColorFromHex(0x2D2117));
-            UiFactory.SetHeight(panel, 194f);
+            var panel = UiFactory.Panel("RealisticActionPanel", parent, UnityTavernUiStyle.SurfaceRaised);
+            UiFactory.SetHeight(panel, 232f);
             UiFactory.Vertical(panel, 10, 8);
             Label(panel.transform, "主要操作", 15, FontStyle.Bold, ColorFromHex(0xF2D598), TextAnchor.MiddleLeft);
 
             var firstRow = UiFactory.Panel("RealisticActionRowA", panel.transform, Color.clear);
-            UiFactory.SetHeight(firstRow, 38f);
+            UiFactory.SetHeight(firstRow, 56f);
             UiFactory.Horizontal(firstRow, 0, 6);
             SmallButton("RealisticRefreshButton", firstRow.transform, "刷新 1", service.State.Player.Tavern.Gold >= 1, () => Apply(new GameCommand(GameCommandType.RerollShop)));
             SmallButton("RealisticFreezeButton", firstRow.transform, service.State.Player.Tavern.Frozen ? "解冻" : "冻结", true, () => Apply(new GameCommand(GameCommandType.FreezeShop, !service.State.Player.Tavern.Frozen)));
 
             var secondRow = UiFactory.Panel("RealisticActionRowB", panel.transform, Color.clear);
-            UiFactory.SetHeight(secondRow, 38f);
+            UiFactory.SetHeight(secondRow, 56f);
             UiFactory.Horizontal(secondRow, 0, 6);
             SmallButton("RealisticUpgradeButton", secondRow.transform, "升级 " + service.State.Player.Tavern.UpgradeCost, service.State.Player.Tavern.UpgradeCost > 0 && service.State.Player.Tavern.Gold >= service.State.Player.Tavern.UpgradeCost, () => Apply(new GameCommand(GameCommandType.UpgradeTavern)));
             SmallButton("RealisticNextTurnButton", secondRow.transform, "完整下一回合", true, () => Apply(new GameCommand(GameCommandType.NextTurn)), 148f);
 
             var sellZone = UiFactory.Panel("RealisticSellZone", panel.transform, ColorFromHex(0x4C1D1B));
-            UiFactory.SetHeight(sellZone, 44f);
+            UiFactory.SetHeight(sellZone, UnityTavernUiStyle.TouchHeight);
             AddDropTarget(sellZone, RealisticDropTarget.SellZone, -1);
             Label(sellZone.transform, "拖到这里出售 +1 金币", 13, FontStyle.Bold, ColorFromHex(0xF0C6C6), TextAnchor.MiddleCenter);
         }
 
         private void BuildSelectedPanel(Transform parent)
         {
-            var panel = UiFactory.Panel("RealisticSelectedPanel", parent, ColorFromHex(0x211A14));
+            var panel = UiFactory.Panel("RealisticSelectedPanel", parent, UnityTavernUiStyle.SurfaceDark);
             UiFactory.SetHeight(panel, 218f);
             UiFactory.Vertical(panel, 10, 7);
             Label(panel.transform, "卡牌详情", 15, FontStyle.Bold, ColorFromHex(0xF2D598), TextAnchor.MiddleLeft);
@@ -310,12 +316,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildTrainerDrawer(Transform parent)
         {
-            var drawer = UiFactory.Panel("RealisticTrainerDrawer", parent, ColorFromHex(0x1C1713));
+            var drawer = UiFactory.Panel("RealisticTrainerDrawer", parent, UnityTavernUiStyle.SurfaceDark);
             UiFactory.SetFlexible(drawer, 1f, 1f);
             UiFactory.Vertical(drawer, 10, 8);
 
             var header = UiFactory.Panel("RealisticDrawerHeader", drawer.transform, Color.clear);
-            UiFactory.SetHeight(header, 30f);
+            UiFactory.SetHeight(header, 56f);
             UiFactory.Horizontal(header, 0, 8);
             Label(header.transform, "训练器抽屉", 15, FontStyle.Bold, ColorFromHex(0xF2D598), TextAnchor.MiddleLeft);
             SmallButton("RealisticLegacyTrainerButton", header.transform, "旧工具", openLegacyTools != null, () => openLegacyTools?.Invoke(), 82f);
@@ -346,8 +352,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildDrawerTabs(Transform parent)
         {
-            var tabs = UiFactory.Panel("RealisticDrawerTabs", parent, ColorFromHex(0x120E0B));
-            UiFactory.SetHeight(tabs, 38f);
+            var tabs = UiFactory.Panel("RealisticDrawerTabs", parent, UnityTavernUiStyle.TableDark);
+            UiFactory.SetHeight(tabs, 56f);
             UiFactory.Horizontal(tabs, 3, 4);
             DrawerTabButton(tabs.transform, "RealisticDrawerTabInfo", "信息", RealisticDrawerTab.Info);
             DrawerTabButton(tabs.transform, "RealisticDrawerTabOpponent", "对手", RealisticDrawerTab.Opponent);
@@ -364,7 +370,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
                 Build();
             }, 64f);
             UiFactory.SetFlexible(button.gameObject, 1f, 1f);
-            UiFactory.SetImageColor(button.gameObject, activeDrawerTab == tab ? ColorFromHex(0x5A3C22) : ColorFromHex(0x2B2118));
+            var active = activeDrawerTab == tab;
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: active);
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.text = (active ? "✓ " : string.Empty) + text;
+            }
         }
 
         private void BuildInfoDrawer(Transform parent)
@@ -945,10 +957,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildDiscoverOverlay(Transform parent)
         {
-            var overlay = Panel("RealisticDiscoverOverlay", parent, new Color(0f, 0f, 0f, 0.62f));
+            var overlay = Panel("RealisticDiscoverOverlay", parent, new Color(0f, 0f, 0f, 0.68f));
             UiFactory.Stretch(overlay.GetComponent<RectTransform>());
+            overlay.GetComponent<Image>().raycastTarget = true;
 
-            var modal = Panel("RealisticDiscoverModal", overlay.transform, ColorFromHex(0x2B2118), new Vector2(0.18f, 0.24f), new Vector2(0.82f, 0.78f), Vector2.zero, Vector2.zero);
+            var modal = Panel("RealisticDiscoverModal", overlay.transform, UnityTavernUiStyle.SurfaceDark, new Vector2(0.18f, 0.24f), new Vector2(0.82f, 0.78f), Vector2.zero, Vector2.zero);
+            UnityTavernUiStyle.ConfigureOutline(modal, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(1.5f, -1.5f));
+            UnityTavernUiStyle.AddStarLanternRail(modal.transform, "RealisticDiscoverStarLantern", UnityTavernUiStyle.ArcaneBlue);
             UiFactory.Vertical(modal, 18, 12);
             Label(modal.transform, "发现奖励", 24, FontStyle.Bold, ColorFromHex(0xF2D598), TextAnchor.MiddleCenter);
 
@@ -968,8 +983,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private void BuildToast(Transform parent, string message)
         {
-            var toast = Panel("RealisticErrorToast", parent, new Color(0.50f, 0.12f, 0.10f, 0.94f), new Vector2(0.28f, 0.90f), new Vector2(0.72f, 0.965f), Vector2.zero, Vector2.zero);
-            Label(toast.transform, message, 14, FontStyle.Bold, ColorFromHex(0xFFE4D2), TextAnchor.MiddleCenter);
+            var toast = Panel("RealisticErrorToast", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.DangerRed, 0.96f), new Vector2(0.28f, 0.90f), new Vector2(0.72f, 0.965f), Vector2.zero, Vector2.zero);
+            UnityTavernUiStyle.ConfigureOutline(toast, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(1f, -1f));
+            Label(toast.transform, message, 14, FontStyle.Bold, UnityTavernUiStyle.TextLight, TextAnchor.MiddleCenter);
         }
 
         private void SelectCard(MinionInstance card)
@@ -1234,11 +1250,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private static Text Label(Transform parent, string text, int size, FontStyle style, Color color, TextAnchor anchor)
         {
-            var label = UiFactory.Label("RealisticLabel", parent, text, size, style);
+            var label = UiFactory.Label("RealisticLabel", parent, text, Mathf.Max(14, size), style);
             label.alignment = anchor;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
-            UiFactory.SetTextColor(label, color);
+            UnityTavernUiStyle.ConfigureLabel(label, color, 14);
             if (parent.GetComponent<LayoutGroup>() == null)
             {
                 UiFactory.Stretch(label.rectTransform);
@@ -1253,10 +1269,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private static void ResourcePill(Transform parent, string label, string value, Color color)
         {
-            var pill = UiFactory.Panel("ResourcePill-" + label, parent, color);
+            var pill = UiFactory.Panel("ResourcePill-" + label, parent, UnityTavernUiStyle.SurfaceRaised);
+            UnityTavernUiStyle.ConfigureOutline(pill, UnityTavernUiStyle.WithAlpha(color, 0.58f), new Vector2(1f, -1f));
             UiFactory.SetWidth(pill, 98f);
             UiFactory.Vertical(pill, 4, 0);
-            Label(pill.transform, label, 10, FontStyle.Bold, ColorFromHex(0xE6D3A8), TextAnchor.MiddleCenter);
+            Label(pill.transform, label, 14, FontStyle.Bold, UnityTavernUiStyle.TextMuted, TextAnchor.MiddleCenter);
             Label(pill.transform, value, 17, FontStyle.Bold, ColorFromHex(0xFFF2C5), TextAnchor.MiddleCenter);
         }
 
@@ -1265,8 +1282,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke());
             button.interactable = enabled;
             UiFactory.SetWidth(button.gameObject, width);
-            UiFactory.SetHeight(button.gameObject, 34f);
-            UiFactory.SetImageColor(button.gameObject, enabled ? ColorFromHex(0x4C3320) : ColorFromHex(0x24201C));
+            UiFactory.SetHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
             return button;
         }
 

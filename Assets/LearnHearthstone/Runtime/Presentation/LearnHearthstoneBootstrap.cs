@@ -17,13 +17,30 @@ namespace LearnHearthstone.Presentation
 {
     public sealed class LearnHearthstoneBootstrap : MonoBehaviour
     {
+        private enum ViewRoute
+        {
+            Hub,
+            Setup,
+            UnityTrainer,
+            RealisticTrainer,
+            LegacyTrainer
+        }
+
+        private const string UiFontResourcePath = "Fonts/NotoSansSC-Regular";
+
         private Canvas canvas;
         private MatchService matchService;
         private IAdvisorService advisor;
         private bool useEnglish;
+        private ViewRoute currentRoute;
+        private UnityTavernTribeSelectionView tribeSelectionView;
+        private int lastScreenWidth;
+        private int lastScreenHeight;
+        private UnityTavernLayoutMode lastLayoutMode;
 
         private void Awake()
         {
+            ConfigureUiFont();
             EnsureEventSystem();
             canvas = GetComponentInChildren<Canvas>();
             if (canvas == null)
@@ -32,13 +49,36 @@ namespace LearnHearthstone.Presentation
             }
 
             ConfigureCanvas(canvas);
+            RememberScreenLayout();
 
             advisor = new LocalAdvisorService();
             ShowHub();
         }
 
+        private void Update()
+        {
+            if (Screen.width == lastScreenWidth && Screen.height == lastScreenHeight)
+            {
+                return;
+            }
+
+            var layout = UnityTavernLayoutContext.Current();
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
+            if (layout.Mode == lastLayoutMode)
+            {
+                return;
+            }
+
+            lastLayoutMode = layout.Mode;
+            ConfigureCanvas(canvas, layout);
+            RebuildCurrentRoute(layout);
+        }
+
         private void ShowHub()
         {
+            currentRoute = ViewRoute.Hub;
+            tribeSelectionView = null;
             ClearCanvas();
             new MainHubView(
                 canvas.transform,
@@ -52,8 +92,10 @@ namespace LearnHearthstone.Presentation
 
         private void ShowUnityTrainer()
         {
+            currentRoute = ViewRoute.Setup;
             ClearCanvas();
-            new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish).Build();
+            tribeSelectionView = new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish);
+            tribeSelectionView.Build();
             AddDebugAspectRatioOverlay();
         }
 
@@ -70,6 +112,8 @@ namespace LearnHearthstone.Presentation
 
         private void StartUnityTrainer(MatchSetupOptions setup)
         {
+            currentRoute = ViewRoute.UnityTrainer;
+            tribeSelectionView = null;
             matchService = MatchService.CreateWithDefaultCatalog(
                 CreateMatchSeed(),
                 setup: setup ?? new MatchSetupOptions());
@@ -80,6 +124,8 @@ namespace LearnHearthstone.Presentation
 
         private void ShowRealisticTrainer()
         {
+            currentRoute = ViewRoute.RealisticTrainer;
+            tribeSelectionView = null;
             matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
             ClearCanvas();
             new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
@@ -88,10 +134,48 @@ namespace LearnHearthstone.Presentation
 
         private void ShowLegacyTrainer()
         {
+            currentRoute = ViewRoute.LegacyTrainer;
+            tribeSelectionView = null;
             matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
             AddDebugAspectRatioOverlay();
+        }
+
+        private void RebuildCurrentRoute(UnityTavernLayoutContext layout)
+        {
+            switch (currentRoute)
+            {
+                case ViewRoute.Hub:
+                    ShowHub();
+                    break;
+                case ViewRoute.Setup:
+                    tribeSelectionView?.RebuildForLayout(layout);
+                    break;
+                case ViewRoute.UnityTrainer:
+                    canvas.GetComponentInChildren<UnityTavernTrainerController>(true)?.Rebuild();
+                    break;
+            }
+        }
+
+        private void RememberScreenLayout()
+        {
+            var layout = UnityTavernLayoutContext.Current();
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
+            lastLayoutMode = layout.Mode;
+        }
+
+        private static void ConfigureUiFont()
+        {
+            var font = Resources.Load<Font>(UiFontResourcePath);
+            if (font == null)
+            {
+                Debug.LogError("Bundled UI font is missing at Resources/" + UiFontResourcePath + ".");
+                return;
+            }
+
+            UiFactory.SetFontOverride(font);
         }
 
         private static int CreateMatchSeed()
@@ -140,7 +224,9 @@ namespace LearnHearthstone.Presentation
 
         private void AddDebugAspectRatioOverlay()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             DebugAspectRatioOverlay.Build(canvas.transform);
+#endif
         }
 
         private static void EnsureEventSystem()

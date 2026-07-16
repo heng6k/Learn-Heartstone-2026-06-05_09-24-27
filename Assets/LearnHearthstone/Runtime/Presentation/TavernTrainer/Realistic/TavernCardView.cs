@@ -3,6 +3,7 @@ using System.Linq;
 using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
+using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,6 +45,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             var frame = root.GetComponent<Image>();
             frame.color = sprite == null ? FrameColor(card, mode) : Color.clear;
             frame.raycastTarget = true;
+            UnityTavernUiStyle.ConfigureOutline(root, UnityTavernUiStyle.WithAlpha(CardAccent(card), 0.56f), new Vector2(1.2f, -1.2f));
 
             var button = root.GetComponent<Button>();
             button.transition = Selectable.Transition.ColorTint;
@@ -247,9 +249,27 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private static Text Label(string name, Transform parent, string text, int size, FontStyle style)
         {
-            var label = UiFactory.Label(name, parent, text, size, style);
+            var label = UiFactory.Label(name, parent, text, Math.Max(14, size), style);
+            UnityTavernUiStyle.ConfigureLabel(label, label.color, 14);
             label.raycastTarget = false;
             return label;
+        }
+
+        private static Color CardAccent(MinionInstance card)
+        {
+            if (card == null)
+            {
+                return UnityTavernUiStyle.Disabled;
+            }
+
+            if (card.Golden)
+            {
+                return UnityTavernUiStyle.Gold;
+            }
+
+            return card.CardKind == CardKind.TavernSpell
+                ? UnityTavernUiStyle.ArcaneBlue
+                : UnityTavernUiStyle.Brass;
         }
 
         private static Vector2 SizeFor(TavernCardVisualMode mode)

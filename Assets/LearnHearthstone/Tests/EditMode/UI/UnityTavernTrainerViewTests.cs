@@ -1338,7 +1338,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.GreaterOrEqual(filterSummary.fontSize, 14);
                 StringAssert.Contains("结果", filterSummary.text);
                 StringAssert.Contains(filteredMinion.TavernTier + "本", filterSummary.text);
-                StringAssert.Contains(selectedTribeText, filterSummary.text);
+                StringAssert.Contains(selectedTribeText.Replace("✓ ", string.Empty), filterSummary.text);
                 Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionResetFiltersButton").GetComponent<Button>().interactable);
 
                 FindChild(rootObject.transform, "UnityCardPoolVersionExcludeFilteredButton").GetComponent<Button>().onClick.Invoke();
@@ -1487,13 +1487,13 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsFalse(topBarLayout.childForceExpandHeight);
                 Assert.AreEqual("返回", FindChild(rootObject.transform, "UnityBackButtonText").GetComponent<Text>().text);
                 Assert.AreEqual(48f, FindChild(rootObject.transform, "UnityBackButton").GetComponent<LayoutElement>().preferredWidth, 0.001f);
-                Assert.AreEqual(30f, FindChild(rootObject.transform, "UnityBackButton").GetComponent<LayoutElement>().preferredHeight, 0.001f);
+                Assert.AreEqual(UnityTavernUiStyle.TouchHeight, FindChild(rootObject.transform, "UnityBackButton").GetComponent<LayoutElement>().preferredHeight, 0.001f);
                 Assert.AreEqual(0f, FindChild(rootObject.transform, "UnityTopBarSpacer").GetComponent<LayoutElement>().flexibleHeight, 0.001f);
                 Assert.IsNull(FindChild(rootObject.transform, "UnityLegacyButton"));
                 var shopZone = FindChild(rootObject.transform, "UnityShopZone");
                 var playerBoardZone = FindChild(rootObject.transform, "UnityPlayerBoardZone");
                 var handZone = FindChild(rootObject.transform, "UnityHandZone");
-                Assert.AreEqual(0f, FindChild(playerBoardZone, "UnityZoneCardRow").GetComponent<Image>().color.a, 0.001f);
+                Assert.AreEqual(0.28f, FindChild(playerBoardZone, "UnityZoneCardRow").GetComponent<Image>().color.a, 0.001f);
                 Assert.IsNotNull(shopZone.GetComponent<UnityTavernZoneComponent>());
                 Assert.IsNotNull(playerBoardZone.GetComponent<UnityTavernZoneComponent>());
                 Assert.IsNotNull(handZone.GetComponent<UnityTavernZoneComponent>());
@@ -1518,7 +1518,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityQuickToolsButton"));
                 FindChild(rootObject.transform, "UnityQuickFreezeButton").GetComponent<Button>().onClick.Invoke();
                 playerBoardZone = FindChild(rootObject.transform, "UnityPlayerBoardZone");
-                Assert.AreEqual(0f, FindChild(playerBoardZone, "UnityZoneCardRow").GetComponent<Image>().color.a, 0.001f);
+                Assert.AreEqual(0.28f, FindChild(playerBoardZone, "UnityZoneCardRow").GetComponent<Image>().color.a, 0.001f);
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadge"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadgeName"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroBadgePower"));
@@ -1574,6 +1574,71 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TavernTable_StarLanternThemeUsesSharedTokensAndReadableHud()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(1920f, 1080f);
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                Canvas.ForceUpdateCanvases();
+
+                var topBar = FindChild(rootObject.transform, "UnityTopBar");
+                Assert.AreEqual(
+                    new Color(UnityTavernUiStyle.SurfaceDark.r, UnityTavernUiStyle.SurfaceDark.g, UnityTavernUiStyle.SurfaceDark.b, 0.98f),
+                    topBar.GetComponent<Image>().color);
+                Assert.IsTrue(topBar.GetComponentsInChildren<Text>(true).All(label => label.fontSize >= 14));
+
+                var rail = FindChild(topBar, "UnityStarLanternRail");
+                var facet = FindChild(topBar, "UnityStarLanternFacet");
+                Assert.IsFalse(rail.GetComponent<Image>().raycastTarget);
+                Assert.IsFalse(facet.GetComponent<Image>().raycastTarget);
+                Assert.AreEqual(0f, Mathf.DeltaAngle(45f, facet.localEulerAngles.z), 0.001f);
+
+                var goldPill = FindChild(topBar, "UnityResourcePill-金币");
+                Assert.AreEqual(UnityTavernUiStyle.SurfaceRaised, goldPill.GetComponent<Image>().color);
+                var goldValue = FindChild(goldPill, "UnityResourceValue");
+                Assert.AreEqual(UnityTavernUiStyle.Gold, goldValue.GetComponent<Text>().color);
+                Assert.GreaterOrEqual(goldValue.GetComponent<LayoutElement>().preferredHeight, 24f);
+                Assert.IsFalse(FindChild(goldPill, "UnityResourceAccent").GetComponent<Image>().raycastTarget);
+
+                Assert.GreaterOrEqual(
+                    FindChild(topBar, "UnityBackButton").GetComponent<LayoutElement>().preferredHeight,
+                    UnityTavernUiStyle.TouchHeight);
+
+                var shop = FindChild(rootObject.transform, "UnityShopZone");
+                var board = FindChild(rootObject.transform, "UnityPlayerBoardZone");
+                var hand = FindChild(rootObject.transform, "UnityHandZone");
+                Assert.AreEqual(Color.Lerp(UnityTavernUiStyle.TableDark, UnityTavernUiStyle.TableLit, 0.18f), shop.GetComponent<Image>().color);
+                Assert.AreEqual(Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.ArcaneBlue, 0.08f), board.GetComponent<Image>().color);
+                Assert.AreEqual(Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.ArcaneBlue, 0.16f), hand.GetComponent<Image>().color);
+
+                foreach (var zone in new[] { shop, board, hand })
+                {
+                    var zoneTitle = FindChild(zone, "UnityZoneTitle").GetComponent<Text>();
+                    var zoneSubtitle = FindChild(zone, "UnityZoneSubtitle").GetComponent<Text>();
+                    Assert.IsNotNull(zoneTitle.font);
+                    Assert.IsNotNull(zoneSubtitle.font);
+                    Assert.GreaterOrEqual(zoneTitle.fontSize, 16);
+                    Assert.GreaterOrEqual(zoneSubtitle.fontSize, 14);
+                    var marker = FindChild(zone, "UnityZoneAccentMark");
+                    Assert.AreEqual(0f, Mathf.DeltaAngle(45f, marker.localEulerAngles.z), 0.001f);
+                    Assert.IsFalse(marker.GetComponent<Image>().raycastTarget);
+                }
+
+                Assert.GreaterOrEqual(
+                    FindChild(rootObject.transform, "UnityQuickRefreshButtonText").GetComponent<Text>().fontSize,
+                    14);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void TavernTable_CapturesMainDeskAcceptanceAtTargetResolutions()
         {
             CaptureAndAssertTavernTable(1920, 1080, "batch0-main-tavern-1920x1080.png");
@@ -1600,7 +1665,9 @@ namespace LearnHearthstone.Tests.EditMode
                 var quickBar = FindChild(rootObject.transform, "UnityTavernActionBar").GetComponent<RectTransform>();
                 Assert.GreaterOrEqual(quickBar.anchorMin.x, 0.34f);
                 Assert.AreEqual(1f, quickBar.anchorMax.x, 0.001f);
-                Assert.GreaterOrEqual(quickBar.offsetMax.y - quickBar.offsetMin.y, UnityTavernUiStyle.CompactTouchHeight);
+                Assert.AreEqual(UnityTavernUiStyle.CompactTouchHeight, quickBar.offsetMax.y - quickBar.offsetMin.y, 0.001f);
+                Assert.AreEqual(0, quickBar.GetComponent<HorizontalLayoutGroup>().padding.top);
+                Assert.AreEqual(0, quickBar.GetComponent<HorizontalLayoutGroup>().padding.bottom);
 
                 var quickNextTurn = FindChild(rootObject.transform, "UnityQuickNextTurnButton").GetComponent<LayoutElement>();
                 Assert.GreaterOrEqual(quickNextTurn.preferredHeight, UnityTavernUiStyle.CompactTouchHeight);
@@ -3527,7 +3594,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(new Vector2(0.22f, 0f), artActionRect.anchorMin);
                 Assert.AreEqual(new Vector2(0.78f, 0f), artActionRect.anchorMax);
                 Assert.AreEqual(new Vector2(0f, 4f), artActionRect.offsetMin);
-                Assert.AreEqual(new Vector2(0f, 28f), artActionRect.offsetMax);
+                Assert.AreEqual(new Vector2(0f, 52f), artActionRect.offsetMax);
 
                 missingArtObject.GetComponent<UnityTavernCardComponent>().Bind(
                     new MinionInstance
@@ -3561,7 +3628,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(new Vector2(0.14f, 0f), missingActionRect.anchorMin);
                 Assert.AreEqual(new Vector2(0.86f, 0f), missingActionRect.anchorMax);
                 Assert.AreEqual(new Vector2(0f, 4f), missingActionRect.offsetMin);
-                Assert.AreEqual(new Vector2(0f, 28f), missingActionRect.offsetMax);
+                Assert.AreEqual(new Vector2(0f, 52f), missingActionRect.offsetMax);
             }
             finally
             {
@@ -4296,8 +4363,8 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(new Vector2(0.22f, 0f), actionRect.anchorMin);
                 Assert.AreEqual(new Vector2(0.78f, 0f), actionRect.anchorMax);
                 Assert.AreEqual(new Vector2(0f, 4f), actionRect.offsetMin);
-                Assert.AreEqual(new Vector2(0f, 28f), actionRect.offsetMax);
-                Assert.AreEqual(12, actionText.fontSize);
+                Assert.AreEqual(new Vector2(0f, 52f), actionRect.offsetMax);
+                Assert.AreEqual(14, actionText.fontSize);
                 Assert.IsNotNull(action.GetComponent<Outline>());
             }
             finally
@@ -4494,7 +4561,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(FindChild(rightPanel.transform, "UnityRightPanelActionHost"));
             var detailHost = FindChild(rightPanel.transform, "UnityRightPanelDetailHost");
             Assert.IsNotNull(detailHost);
-            Assert.AreEqual(236f, detailHost.GetComponent<LayoutElement>().preferredHeight, 0.001f);
+            Assert.AreEqual(354f, detailHost.GetComponent<LayoutElement>().preferredHeight, 0.001f);
             Assert.IsNotNull(FindChild(rightPanel.transform, "UnityRightPanelAdvisorHost"));
             Assert.IsNotNull(FindChild(rightPanel.transform, "UnityRightPanelLogHost"));
 
@@ -4545,15 +4612,15 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(FindChild(tools.transform, "UnityTrainerToolsTitle"));
             Assert.IsNotNull(FindChild(tools.transform, "UnityTrainerToolsScrollContent"));
             var toolsPanelRect = FindChild(tools.transform, "UnityTrainerToolsPanel").GetComponent<RectTransform>();
-            Assert.AreEqual(new Vector2(0.22f, 0.16f), toolsPanelRect.anchorMin);
-            Assert.AreEqual(new Vector2(0.78f, 0.84f), toolsPanelRect.anchorMax);
-            Assert.AreEqual(Vector2.zero, toolsPanelRect.sizeDelta);
+            Assert.AreEqual(new Vector2(0.5f, 0.5f), toolsPanelRect.anchorMin);
+            Assert.AreEqual(new Vector2(0.5f, 0.5f), toolsPanelRect.anchorMax);
+            Assert.AreEqual(new Vector2(920f, 688f), toolsPanelRect.sizeDelta);
             Assert.IsFalse(FindChild(tools.transform, "UnityTrainerToolsPanel").GetComponent<VerticalLayoutGroup>().childForceExpandHeight);
-            Assert.AreEqual(42f, FindChild(tools.transform, "UnityTrainerToolsHeader").GetComponent<LayoutElement>().preferredHeight, 0.001f);
+            Assert.AreEqual(54f, FindChild(tools.transform, "UnityTrainerToolsHeader").GetComponent<LayoutElement>().preferredHeight, 0.001f);
             Assert.IsFalse(FindChild(tools.transform, "UnityTrainerToolsHeader").GetComponent<HorizontalLayoutGroup>().childForceExpandWidth);
             Assert.IsFalse(FindChild(tools.transform, "UnityTrainerToolsHeader").GetComponent<HorizontalLayoutGroup>().childForceExpandHeight);
-            Assert.AreEqual(84f, FindChild(tools.transform, "UnityTrainerToolsCloseButton").GetComponent<LayoutElement>().preferredWidth, 0.001f);
-            Assert.AreEqual(32f, FindChild(tools.transform, "UnityTrainerToolsCloseButton").GetComponent<LayoutElement>().preferredHeight, 0.001f);
+            Assert.AreEqual(92f, FindChild(tools.transform, "UnityTrainerToolsCloseButton").GetComponent<LayoutElement>().preferredWidth, 0.001f);
+            Assert.AreEqual(48f, FindChild(tools.transform, "UnityTrainerToolsCloseButton").GetComponent<LayoutElement>().preferredHeight, 0.001f);
 
             var replay = AssetDatabase.LoadAssetAtPath<GameObject>(UnityTavernCombatReplayPanelComponent.CombatReplayPanelPrefabAssetPath);
             Assert.IsNotNull(replay);
@@ -4566,8 +4633,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(FindChild(replay.transform, "UnityCombatReplayTimelineContent"));
             var replayPanelRect = FindChild(replay.transform, "UnityCombatReplayPanelSurface").GetComponent<RectTransform>();
             Assert.IsNotNull(replayPanelRect.GetComponent<Outline>());
-            Assert.AreEqual(new Vector2(0.06f, 0.04f), replayPanelRect.anchorMin);
-            Assert.AreEqual(new Vector2(0.94f, 0.96f), replayPanelRect.anchorMax);
+            Assert.AreEqual(Vector2.zero, replayPanelRect.anchorMin);
+            Assert.AreEqual(Vector2.one, replayPanelRect.anchorMax);
             Assert.AreEqual(Vector2.zero, replayPanelRect.sizeDelta);
             Assert.IsNotNull(FindChild(replay.transform, "UnityCombatReplayHeader").GetComponent<Outline>());
             Assert.IsNotNull(FindChild(replay.transform, "UnityCombatReplayHeaderAccent"));
@@ -5153,7 +5220,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(tabRow);
                 Assert.IsNotNull(tabRow.GetComponent<Image>());
                 Assert.IsNotNull(tabRow.GetComponent<Outline>());
-                Assert.AreEqual("操作", FindChild(rootObject.transform, "UnityRightPanelTab-ActionsText").GetComponent<Text>().text);
+            Assert.AreEqual("✓ 操作", FindChild(rootObject.transform, "UnityRightPanelTab-ActionsText").GetComponent<Text>().text);
                 Assert.AreEqual("详情", FindChild(rootObject.transform, "UnityRightPanelTab-DetailsText").GetComponent<Text>().text);
                 Assert.AreEqual("建议", FindChild(rootObject.transform, "UnityRightPanelTab-AdviceText").GetComponent<Text>().text);
                 Assert.AreEqual("日志", FindChild(rootObject.transform, "UnityRightPanelTab-LogsText").GetComponent<Text>().text);
@@ -5282,7 +5349,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual("法术不可修改", FindChild(rootObject.transform, "UnityToolsSelectedAttackPlusButtonText").GetComponent<Text>().text);
                 Assert.AreEqual("暂无战斗快照", FindChild(rootObject.transform, "UnityToolsResetCombatSnapshotButtonText").GetComponent<Text>().text);
                 Assert.AreEqual("暂无已保存场景", FindChild(rootObject.transform, "UnityToolsLoadScenarioButtonText").GetComponent<Text>().text);
-                Assert.AreEqual("当前已为 0", FindChild(rootObject.transform, "UnityToolsPlayerSpellsCastThisGameMinusButtonText").GetComponent<Text>().text);
+                Assert.AreEqual("已到最低值", FindChild(rootObject.transform, "UnityToolsPlayerSpellsCastThisGameMinusButtonText").GetComponent<Text>().text);
                 Assert.IsFalse(FindChild(rootObject.transform, "UnityToolsSelectedAttackPlusButton").GetComponent<Button>().interactable);
                 Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityToolsSelectedAttackPlusButtonText").GetComponent<Text>().fontSize, 14);
             }
@@ -6138,8 +6205,8 @@ namespace LearnHearthstone.Tests.EditMode
                 FindChild(rootObject.transform, "UnityRightPanelTab-Details").GetComponent<Button>().onClick.Invoke();
                 var selectedPanel = FindChild(rootObject.transform, "UnitySelectedCardPanel");
                 Assert.IsNotNull(selectedPanel.GetComponent<UnityTavernSelectedCardPanelComponent>());
-                Assert.AreEqual(236f, selectedPanel.GetComponent<LayoutElement>().preferredHeight, 0.001f);
-                Assert.AreEqual(202f, FindChild(selectedPanel, "UnitySelectedCardDetailLayout").GetComponent<LayoutElement>().preferredHeight, 0.001f);
+                Assert.AreEqual(250f, selectedPanel.GetComponent<LayoutElement>().preferredHeight, 0.001f);
+                Assert.AreEqual(216f, FindChild(selectedPanel, "UnitySelectedCardDetailLayout").GetComponent<LayoutElement>().preferredHeight, 0.001f);
 
                 FindChild(rootObject.transform, "UnityRightPanelTab-Advice").GetComponent<Button>().onClick.Invoke();
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvisorPanel").GetComponent<UnityTavernAdvisorPanelComponent>());

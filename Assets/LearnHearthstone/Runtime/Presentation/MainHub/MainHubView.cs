@@ -37,7 +37,7 @@ namespace LearnHearthstone.Presentation.MainHub
 
         public void Build()
         {
-            var shell = UiFactory.Panel("MainHub", root, new Color(0.08f, 0.10f, 0.12f));
+            var shell = UiFactory.Panel("MainHub", root, UnityTavernUiStyle.BackWall);
             UiFactory.Stretch(shell.GetComponent<RectTransform>());
             UiFactory.Vertical(shell, layout.IsCompact ? 14 : 22, layout.IsCompact ? 10 : 16);
 
@@ -54,7 +54,8 @@ namespace LearnHearthstone.Presentation.MainHub
                 true,
                 layout);
 
-            var grid = UiFactory.Panel("ModuleGrid", shell.transform, new Color(0.10f, 0.13f, 0.16f));
+            var grid = UiFactory.Panel("ModuleGrid", shell.transform, UnityTavernUiStyle.TableDark);
+            UnityTavernUiStyle.ConfigureOutline(grid, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.32f), new Vector2(1f, -1f));
             UiFactory.SetFlexible(grid, 1, 1);
             var gridLayout = grid.AddComponent<GridLayoutGroup>();
             ConfigureModuleGrid(gridLayout, layout);
@@ -72,8 +73,10 @@ namespace LearnHearthstone.Presentation.MainHub
 
         private void BuildHeader(Transform parent)
         {
-            var header = UiFactory.Panel("MainHubHeader", parent, Color.clear);
+            var header = UiFactory.Panel("MainHubHeader", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.96f));
             UiFactory.SetHeight(header, layout.IsCompact ? 74f : 92f);
+            UnityTavernUiStyle.ConfigureOutline(header, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "MainHubStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
             headerLayout.padding = new RectOffset(0, 0, 0, 0);
             headerLayout.spacing = layout.IsCompact ? 10 : 16;
@@ -94,9 +97,11 @@ namespace LearnHearthstone.Presentation.MainHub
             titleLayout.childForceExpandHeight = false;
 
             var title = UiFactory.Label("Title", titleStack.transform, "Learn Heartstone", layout.IsCompact ? 28 : 34, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.TextLight;
             UiFactory.SetHeight(title.gameObject, layout.IsCompact ? 40 : 52);
 
             var subtitle = UiFactory.Label("Subtitle", titleStack.transform, T("训练功能大厅", "Training Hub"), layout.IsCompact ? 16 : 20);
+            subtitle.color = UnityTavernUiStyle.TextMuted;
             UiFactory.SetHeight(subtitle.gameObject, layout.IsCompact ? 24 : 30);
 
             BuildLanguageSwitch(header.transform);
@@ -104,9 +109,9 @@ namespace LearnHearthstone.Presentation.MainHub
 
         private void BuildLanguageSwitch(Transform parent)
         {
-            var row = UiFactory.Panel("MainHubLanguageSwitch", parent, new Color(0.10f, 0.13f, 0.16f, 0.92f));
+            var row = UiFactory.Panel("MainHubLanguageSwitch", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.96f));
             UnityTavernUiStyle.SetFixedSize(row, layout.IsCompact ? 230f : 260f, 52f);
-            UnityTavernUiStyle.ConfigureOutline(row, new Color(0f, 0f, 0f, 0.24f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.ConfigureOutline(row, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
 
             var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
             rowLayout.padding = new RectOffset(6, 6, 3, 3);
@@ -117,7 +122,7 @@ namespace LearnHearthstone.Presentation.MainHub
             rowLayout.childForceExpandWidth = false;
             rowLayout.childForceExpandHeight = false;
 
-            var label = UiFactory.Label("MainHubLanguageLabel", row.transform, T("语言", "Language"), layout.IsCompact ? 11 : 12, FontStyle.Bold);
+            var label = UiFactory.Label("MainHubLanguageLabel", row.transform, T("语言", "Language"), 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleRight;
             label.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetFixedSize(label.gameObject, layout.IsCompact ? 48f : 68f, UnityTavernUiStyle.TouchHeight);
@@ -142,28 +147,16 @@ namespace LearnHearthstone.Presentation.MainHub
         private static Button LanguageButton(string name, Transform parent, string text, bool active, Color accentColor, Action onClick)
         {
             var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke());
-            var normal = active
-                ? Color.Lerp(UnityTavernUiStyle.PanelRaised, accentColor, 0.45f)
-                : UnityTavernUiStyle.Panel;
-            var image = UnityTavernUiStyle.EnsureComponent<Image>(button.gameObject);
-            image.color = normal;
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                normal,
-                Color.Lerp(normal, accentColor, 0.28f),
-                Color.Lerp(normal, Color.black, 0.16f));
-            UnityTavernUiStyle.ConfigureOutline(
-                button.gameObject,
-                active ? new Color(accentColor.r, accentColor.g, accentColor.b, 0.82f) : new Color(0f, 0f, 0f, 0.18f),
-                active ? new Vector2(2f, -2f) : new Vector2(1f, -1f));
+            UnityTavernUiStyle.ConfigureButton(button, accentColor, active, active);
 
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
             {
-                label.fontSize = 12;
+                label.fontSize = 14;
                 label.fontStyle = FontStyle.Bold;
                 label.color = active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
                 label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.text = active ? "✓ " + text : text;
             }
 
             return button;
@@ -202,7 +195,20 @@ namespace LearnHearthstone.Presentation.MainHub
             bool primary,
             UnityTavernLayoutContext context)
         {
-            var tile = UiFactory.Panel(objectName, parent, enabled ? new Color(0.16f, 0.24f, 0.31f) : new Color(0.14f, 0.14f, 0.14f));
+            var tile = UiFactory.Panel(
+                objectName,
+                parent,
+                enabled
+                    ? Color.Lerp(UnityTavernUiStyle.TableDark, UnityTavernUiStyle.TableLit, primary ? 0.36f : 0.16f)
+                    : Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.Disabled, 0.18f));
+            UnityTavernUiStyle.ConfigureOutline(
+                tile,
+                UnityTavernUiStyle.WithAlpha(primary ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ParchmentDark, primary ? 0.68f : 0.32f),
+                new Vector2(1f, -1f));
+            if (primary)
+            {
+                UnityTavernUiStyle.AddStarLanternRail(tile.transform, "MainHubPrimaryStarLantern", UnityTavernUiStyle.Gold);
+            }
             var padding = primary ? (context.IsCompact ? 14 : 18) : 12;
             UiFactory.Vertical(tile, padding, context.IsCompact ? 6 : 8);
             if (primary)
@@ -211,11 +217,14 @@ namespace LearnHearthstone.Presentation.MainHub
             }
 
             var heading = UiFactory.Label(objectName + "Title", tile.transform, title, primary ? (context.IsCompact ? 22 : 26) : 18, FontStyle.Bold);
+            heading.color = enabled ? UnityTavernUiStyle.TextLight : UnityTavernUiStyle.TextMuted;
             UiFactory.SetHeight(heading.gameObject, primary ? (context.IsCompact ? 32 : 38) : 28);
-            var desc = UiFactory.Label(objectName + "Body", tile.transform, body, primary ? 15 : 13);
+            var desc = UiFactory.Label(objectName + "Body", tile.transform, body, primary ? 16 : 14);
+            desc.color = enabled ? UnityTavernUiStyle.TextMuted : UnityTavernUiStyle.Disabled;
             UiFactory.SetHeight(desc.gameObject, primary ? (context.IsCompact ? 42 : 48) : 32);
             var button = UiFactory.Button(objectName + "Button", tile.transform, enabled ? T("进入", "Enter") : T("预留", "Reserved"), () => action?.Invoke());
             button.interactable = enabled;
+            UnityTavernUiStyle.ConfigureButton(button, primary ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ParchmentDark, primary, false);
             UiFactory.SetHeight(button.gameObject, primary || context.IsCompact ? UnityTavernUiStyle.CompactTouchHeight : UnityTavernUiStyle.TouchHeight);
         }
     }

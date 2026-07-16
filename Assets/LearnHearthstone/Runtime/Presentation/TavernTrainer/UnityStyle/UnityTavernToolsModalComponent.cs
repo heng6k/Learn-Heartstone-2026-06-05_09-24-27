@@ -51,6 +51,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (HasPrefabReferences())
             {
                 SetText(titleText, title);
+                UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
                 ConfigureChromeFromReferences();
                 ConfigureClose(close);
                 BuildSection(contentParent, buildContent);
@@ -64,19 +65,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
             var image = UnityTavernUiStyle.EnsureComponent<Image>(target);
-            image.color = new Color(0f, 0f, 0f, 0.50f);
+            image.color = new Color(0f, 0f, 0f, 0.68f);
             image.raycastTarget = true;
         }
 
         public static void ConfigurePanel(RectTransform rect)
         {
-            rect.anchorMin = new Vector2(0.22f, 0.16f);
-            rect.anchorMax = new Vector2(0.78f, 0.84f);
+            var parentRect = rect.parent as RectTransform;
+            var parentWidth = parentRect != null && parentRect.rect.width > 0f ? parentRect.rect.width : 1280f;
+            var parentHeight = parentRect != null && parentRect.rect.height > 0f ? parentRect.rect.height : 720f;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = Vector2.zero;
+            rect.sizeDelta = new Vector2(
+                Mathf.Clamp(parentWidth - 32f, 680f, 920f),
+                Mathf.Clamp(parentHeight - 32f, 320f, 720f));
             rect.anchoredPosition = Vector2.zero;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
         }
 
         public static void ConfigurePanelLayout(GameObject target)
@@ -103,11 +107,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static void ConfigurePanelChrome(GameObject target)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.SurfaceDark);
             UnityTavernUiStyle.ConfigureOutline(
                 target,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.26f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.58f),
                 new Vector2(1.5f, -1.5f));
+            UnityTavernUiStyle.AddStarLanternRail(target.transform, "UnityTrainerToolsStarLantern", UnityTavernUiStyle.ArcaneBlue);
         }
 
         public static void ConfigureHeader(Transform header)
@@ -117,10 +122,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            UnityTavernUiStyle.ConfigureSurface(header.gameObject, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureSurface(header.gameObject, UnityTavernUiStyle.SurfaceRaised);
             UnityTavernUiStyle.ConfigureOutline(
                 header.gameObject,
-                new Color(0f, 0f, 0f, 0.32f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.34f),
                 new Vector2(1f, -1f));
             var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(header.gameObject);
             element.minHeight = 54f;
@@ -146,16 +151,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             accent.SetAsFirstSibling();
             UnityTavernUiStyle.SetFixedSize(accent.gameObject, 4f, 28f);
-            UnityTavernUiStyle.ConfigureSurface(accent.gameObject, UnityTavernUiStyle.Blue);
+            UnityTavernUiStyle.ConfigureSurface(accent.gameObject, UnityTavernUiStyle.ArcaneBlue);
         }
 
         public static Image ConfigureCloseButtonChrome(GameObject buttonObject)
         {
-            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, 44f);
-            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, UnityTavernUiStyle.PanelRaised, true);
+            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, UnityTavernUiStyle.TouchHeight);
+            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, UnityTavernUiStyle.SurfaceRaised, true);
             UnityTavernUiStyle.ConfigureOutline(
                 buttonObject,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.22f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f),
                 new Vector2(1f, -1f));
             return image;
         }
@@ -175,12 +180,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureHeader(header.transform);
 
             titleText = UiFactory.Label("UnityTrainerToolsTitle", header.transform, title, 20, FontStyle.Bold);
-            titleText.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
             UnityTavernUiStyle.SetFlexible(titleText.gameObject, 1f, 0f);
             closeButton = CreateCloseButton(header.transform, out closeButtonText);
             ConfigureClose(close);
 
-            contentParent = UiFactory.ScrollView("UnityTrainerToolsScroll", panel.transform, UnityTavernUiStyle.Panel, out _);
+            contentParent = UiFactory.ScrollView("UnityTrainerToolsScroll", panel.transform, UnityTavernUiStyle.SurfaceRaised, out _);
             ConfigureContentLayout(contentParent.gameObject);
             BuildSection(contentParent, buildContent);
         }
@@ -193,6 +198,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             closeButton.targetGraphic = ConfigureCloseButtonChrome(closeButton.gameObject);
+            UnityTavernUiStyle.ConfigureButton(closeButton, UnityTavernUiStyle.Brass);
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => close?.Invoke());
             SetText(closeButtonText, "关闭");
@@ -252,7 +258,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var image = ConfigureCloseButtonChrome(buttonObject);
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
-            UnityTavernUiStyle.TintSelectable(button, Color.white, new Color(1f, 0.91f, 0.62f, 1f), new Color(0.72f, 0.62f, 0.42f, 1f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
 
             label = UiFactory.Label("UnityTrainerToolsCloseText", buttonObject.transform, "关闭", 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;

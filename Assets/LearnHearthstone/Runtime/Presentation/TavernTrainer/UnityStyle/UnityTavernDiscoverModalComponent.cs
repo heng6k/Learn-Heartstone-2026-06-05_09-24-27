@@ -50,13 +50,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public void Build(string title, Action<Transform> buildOptions)
         {
             var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
-            image.color = new Color(0f, 0f, 0f, 0.56f);
+            image.color = new Color(0f, 0f, 0f, 0.68f);
             image.raycastTarget = true;
             UnityTavernUiStyle.Stretch(gameObject.GetComponent<RectTransform>());
 
             if (HasPrefabReferences())
             {
                 SetText(titleText, title);
+                UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
+                var panel = titleText != null ? titleText.transform.parent : optionParent != null ? optionParent.parent : null;
+                ConfigurePanelChrome(panel == null ? null : panel.gameObject);
                 if (optionParent != null)
                 {
                     ClearChildren(optionParent);
@@ -75,7 +78,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var panel = new GameObject("UnityDiscoverPanel", typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(transform, false);
-            panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+            ConfigurePanelChrome(panel);
             var rect = panel.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -90,7 +93,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childControlHeight = true;
 
             var titleLabel = UiFactory.Label("UnityDiscoverTitle", panel.transform, title, 20, FontStyle.Bold);
-            titleLabel.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.ConfigureLabel(titleLabel, UnityTavernUiStyle.TextLight, 14);
             titleLabel.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.SetPreferredHeight(titleLabel.gameObject, 34f);
 
@@ -103,6 +106,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rowLayout.childControlHeight = false;
 
             buildOptions?.Invoke(options.transform);
+        }
+
+        private static void ConfigurePanelChrome(GameObject panel)
+        {
+            if (panel == null)
+            {
+                return;
+            }
+
+            UnityTavernUiStyle.ConfigureSurface(panel, UnityTavernUiStyle.SurfaceRaised);
+            UnityTavernUiStyle.ConfigureOutline(
+                panel,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f),
+                new Vector2(1.5f, -1.5f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityDiscoverStarLantern", UnityTavernUiStyle.ArcaneBlue);
         }
 
         private bool HasPrefabReferences()

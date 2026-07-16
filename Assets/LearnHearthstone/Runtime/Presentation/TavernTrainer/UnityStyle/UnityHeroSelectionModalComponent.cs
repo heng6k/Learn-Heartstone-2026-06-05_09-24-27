@@ -78,7 +78,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var layout = UnityTavernLayoutContext.FromRoot(transform.parent);
             var panel = UiFactory.Panel("UnityHeroSelectionPanel", transform, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.50f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.56f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityHeroSelectionStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var rect = panel.GetComponent<RectTransform>();
             rect.anchorMin = layout.IsCompact ? new Vector2(0.035f, 0.045f) : new Vector2(0.08f, 0.10f);
             rect.anchorMax = layout.IsCompact ? new Vector2(0.965f, 0.955f) : new Vector2(0.92f, 0.90f);
@@ -101,7 +102,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildHeader(Transform parent, UnityTavernLayoutContext layout)
         {
             var header = UiFactory.Panel("UnityHeroSelectionHeader", parent, UnityTavernUiStyle.Panel);
-            UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 42f : 48f);
+            UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 104f : 56f);
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "UnityHeroSelectionHeaderStarLantern", UnityTavernUiStyle.Gold);
             var row = header.AddComponent<HorizontalLayoutGroup>();
             row.padding = new RectOffset(9, 7, 6, 6);
             row.spacing = 8;
@@ -118,7 +120,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 "UnityHeroSelectionResultCount",
                 header.transform,
                 useEnglish ? FilteredHeroes().Count() + " heroes" : FilteredHeroes().Count() + " 个英雄",
-                layout.IsCompact ? 11 : 12,
+                14,
                 FontStyle.Bold);
             count.alignment = TextAnchor.MiddleRight;
             count.color = UnityTavernUiStyle.MutedText;
@@ -131,28 +133,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 searchText = string.Empty;
                 ResetPreviewToFiltered();
             });
-            UnityTavernUiStyle.SetFixedSize(clearSearch.gameObject, 52f, 32f);
+            UnityTavernUiStyle.SetFixedSize(clearSearch.gameObject, 62f, UnityTavernUiStyle.TouchHeight);
 
             var close = ModalButton("UnityHeroSelectionCloseButton", header.transform, T("关闭", "Close"), true, () => onClose?.Invoke());
-            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, 32f);
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, UnityTavernUiStyle.TouchHeight);
         }
 
         private void BuildSearchInput(Transform parent, UnityTavernLayoutContext layout)
         {
             var inputObject = new GameObject("UnityHeroSelectionSearchInput", typeof(RectTransform), typeof(Image), typeof(InputField));
             inputObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(inputObject, layout.IsCompact ? 150f : 230f, 32f);
-            UnityTavernUiStyle.ConfigureSurface(inputObject, UnityTavernUiStyle.PanelQuiet, true);
-            UnityTavernUiStyle.ConfigureOutline(inputObject, new Color(0f, 0f, 0f, 0.24f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetFixedSize(inputObject, layout.IsCompact ? 150f : 230f, UnityTavernUiStyle.TouchHeight);
 
-            var placeholder = UiFactory.Label("UnityHeroSelectionSearchPlaceholder", inputObject.transform, T("搜索英雄...", "Search heroes..."), 12);
+            var placeholder = UiFactory.Label("UnityHeroSelectionSearchPlaceholder", inputObject.transform, T("搜索英雄...", "Search heroes..."), 14);
             placeholder.color = UnityTavernUiStyle.MutedText;
             placeholder.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.Stretch(placeholder.rectTransform);
             placeholder.rectTransform.offsetMin = new Vector2(9f, 0f);
             placeholder.rectTransform.offsetMax = new Vector2(-9f, 0f);
 
-            var text = UiFactory.Label("UnityHeroSelectionSearchText", inputObject.transform, searchText, 12);
+            var text = UiFactory.Label("UnityHeroSelectionSearchText", inputObject.transform, searchText, 14);
             text.color = UnityTavernUiStyle.Text;
             text.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.Stretch(text.rectTransform);
@@ -164,6 +164,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.placeholder = placeholder;
             input.text = searchText;
             input.lineType = InputField.LineType.SingleLine;
+            UnityTavernUiStyle.ConfigureInputField(input, UnityTavernUiStyle.ArcaneBlue);
             input.onEndEdit.AddListener(value =>
             {
                 searchText = value ?? string.Empty;
@@ -175,13 +176,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildFilters(Transform parent, UnityTavernLayoutContext layout)
         {
             var row = UiFactory.Panel("UnityHeroSelectionFilters", parent, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 82f : 38f);
+            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 104f : UnityTavernUiStyle.TouchHeight);
             if (layout.IsCompact)
             {
                 var grid = row.AddComponent<GridLayoutGroup>();
                 grid.padding = new RectOffset(0, 0, 0, 0);
                 grid.spacing = new Vector2(7f, 6f);
-                grid.cellSize = new Vector2(78f, 34f);
+                grid.cellSize = new Vector2(86f, UnityTavernUiStyle.TouchHeight);
                 grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
                 grid.constraintCount = 6;
             }
@@ -301,7 +302,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             name.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(name.gameObject, compact ? 20f : 24f);
 
-            var stats = UiFactory.Label("UnityHeroSelectionPreviewStats", textStack.transform, hero == null ? T("由对局兜底", "Match fallback") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 12, FontStyle.Bold);
+            var stats = UiFactory.Label("UnityHeroSelectionPreviewStats", textStack.transform, hero == null ? T("由对局兜底", "Match fallback") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 14, FontStyle.Bold);
             stats.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 18f);
 
@@ -408,7 +409,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetPreferredHeight(name.gameObject, layout.IsCompact ? 20f : 24f);
 
             var detailText = (hero.HeroPower == null ? T("无技能", "No power") : DisplayHeroPowerName(hero.HeroPower) + T(" · 费用 ", " · Cost ") + hero.HeroPower.Cost) + " · " + (current ? T("当前英雄", "Current hero") : ShortStatusLabel(hero));
-            var detail = UiFactory.Label("UnityHeroSelectionHeroDetail-" + SafeName(hero.HeroCardId), textStack.transform, detailText, 11, FontStyle.Bold);
+            var detail = UiFactory.Label("UnityHeroSelectionHeroDetail-" + SafeName(hero.HeroCardId), textStack.transform, detailText, 14, FontStyle.Bold);
             detail.color = current ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, layout.IsCompact ? 18f : 20f);
 
@@ -441,7 +442,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var sprite = hero == null ? null : CardImageProvider.LoadSprite(hero.ImagePath, hero.HeroCardId, CardKind.Hero);
             if (sprite == null)
             {
-                var missing = UiFactory.Label(name + "Missing", frame.transform, T("无图", "No art"), 10, FontStyle.Bold);
+                var missing = UiFactory.Label(name + "Missing", frame.transform, T("无图", "No art"), 14, FontStyle.Bold);
                 missing.alignment = TextAnchor.MiddleCenter;
                 missing.color = UnityTavernUiStyle.MutedText;
                 UnityTavernUiStyle.Stretch(missing.rectTransform);
@@ -616,24 +617,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 }
             });
             button.interactable = interactable;
-            var normal = interactable ? UnityTavernUiStyle.PanelRaised : UnityTavernUiStyle.PanelQuiet;
-            UnityTavernUiStyle.ConfigureSurface(button.gameObject, normal, true);
-            UnityTavernUiStyle.TintSelectable(button, normal, Color.Lerp(normal, UnityTavernUiStyle.Gold, 0.22f), Color.Lerp(normal, Color.black, 0.18f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
             return button;
         }
 
         private void FilterButton(string name, Transform parent, string text, bool active, Action onClick)
         {
             var button = ModalButton(name, parent, text, true, onClick);
-            UnityTavernUiStyle.SetFixedSize(button.gameObject, 78f, 32f);
-            var color = active ? Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.34f) : UnityTavernUiStyle.Panel;
-            UnityTavernUiStyle.ConfigureSurface(button.gameObject, color, true);
-            UnityTavernUiStyle.ConfigureOutline(button.gameObject, active ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.72f) : new Color(0f, 0f, 0f, 0.20f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetFixedSize(button.gameObject, 86f, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Gold, active, active);
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
             {
-                label.fontSize = 11;
+                label.fontSize = 14;
                 label.color = active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
+                label.text = active ? "✓ " + text : text;
             }
         }
 
@@ -709,7 +707,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             target.name = "UnityHeroSelectionOverlay";
             UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
             var image = UnityTavernUiStyle.EnsureComponent<Image>(target);
-            image.color = new Color(0f, 0f, 0f, 0.60f);
+            image.color = UnityTavernUiStyle.WithAlpha(Color.black, 0.68f);
             image.raycastTarget = true;
         }
 

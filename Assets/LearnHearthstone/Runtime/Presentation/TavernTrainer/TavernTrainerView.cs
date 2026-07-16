@@ -8,6 +8,7 @@ using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.TavernTrainer.Realistic;
+using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -34,15 +35,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private int acquisitionTierFilter;
         private Tribe acquisitionTypeFilter = Tribe.All;
 
-        private static readonly Color LegacyBackground = ColorFromHex(0x101418);
-        private static readonly Color LegacySurface = ColorFromHex(0x181E24);
-        private static readonly Color LegacySurfaceRaised = ColorFromHex(0x202832);
-        private static readonly Color LegacySurfaceInset = ColorFromHex(0x141B22);
-        private static readonly Color LegacyInk = ColorFromHex(0xEDF2F7);
-        private static readonly Color LegacyMutedInk = ColorFromHex(0xAEB8C4);
-        private static readonly Color LegacyGold = ColorFromHex(0xF1C968);
-        private static readonly Color LegacyBlue = ColorFromHex(0x2F5F7A);
-        private static readonly Color LegacyDanger = ColorFromHex(0x7A2C32);
+        private static readonly Color LegacyBackground = UnityTavernUiStyle.BackWall;
+        private static readonly Color LegacySurface = UnityTavernUiStyle.SurfaceDark;
+        private static readonly Color LegacySurfaceRaised = UnityTavernUiStyle.SurfaceRaised;
+        private static readonly Color LegacySurfaceInset = UnityTavernUiStyle.PanelQuiet;
+        private static readonly Color LegacyInk = UnityTavernUiStyle.TextLight;
+        private static readonly Color LegacyMutedInk = UnityTavernUiStyle.TextMuted;
+        private static readonly Color LegacyGold = UnityTavernUiStyle.Gold;
+        private static readonly Color LegacyBlue = UnityTavernUiStyle.ArcaneBlue;
+        private static readonly Color LegacyDanger = UnityTavernUiStyle.DangerRed;
 
         public TavernTrainerView(Transform root, MatchService service, IAdvisorService advisor, System.Action backToHub)
         {
@@ -85,15 +86,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildTopToolbar(Transform parent)
         {
-            var bar = UiFactory.Panel("TopToolbar", parent, ColorFromHex(0x15110D));
-            UiFactory.SetHeight(bar, 116);
+            var bar = UiFactory.Panel("TopToolbar", parent, UnityTavernUiStyle.SurfaceDark);
+            UiFactory.SetHeight(bar, 136);
+            UnityTavernUiStyle.ConfigureOutline(bar, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.AddStarLanternRail(bar.transform, "LegacyTopStarLantern", UnityTavernUiStyle.ArcaneBlue);
             UiFactory.Vertical(bar, 12, 8);
 
             var accent = UiFactory.Panel("TopToolbarAccent", bar.transform, LegacyGold);
             UiFactory.SetHeight(accent, 4);
 
             var statusRow = UiFactory.Panel("TopStatusRow", bar.transform, Color.clear);
-            UiFactory.SetHeight(statusRow, 42);
+            UiFactory.SetHeight(statusRow, 56);
             UiFactory.Horizontal(statusRow, 0, 12);
 
             var brand = UiFactory.Panel("BrandBlock", statusRow.transform, Color.clear);
@@ -102,7 +105,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             var title = UiFactory.Label("BrandTitle", brand.transform, "酒馆战棋训练器", 15, FontStyle.Bold);
             UiFactory.SetTextColor(title, ColorFromHex(0xFFF2C5));
             UiFactory.SetHeight(title.gameObject, 22);
-            var subtitle = UiFactory.Label("BrandSubtitle", brand.transform, "本地单人教学 / Unity 版", 12);
+            var subtitle = UiFactory.Label("BrandSubtitle", brand.transform, "本地单人教学 / Unity 版", 14);
             UiFactory.SetTextColor(subtitle, ColorFromHex(0xC8B38B));
             UiFactory.SetHeight(subtitle.gameObject, 18);
 
@@ -118,10 +121,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             ToolbarButton(statusRow.transform, "返回", false, true, () => backToHub());
 
             var actionRow = UiFactory.Panel("TopActionRow", bar.transform, Color.clear);
-            UiFactory.SetHeight(actionRow, 44);
+            UiFactory.SetHeight(actionRow, 56);
             UiFactory.Horizontal(actionRow, 0, 8);
 
-            var modes = UiFactory.Panel("ModeTabs", actionRow.transform, ColorFromHex(0x211A14));
+            var modes = UiFactory.Panel("ModeTabs", actionRow.transform, UnityTavernUiStyle.TableDark);
             UiFactory.SetWidth(modes, 276);
             UiFactory.Horizontal(modes, 3, 4);
             ToolbarButton(modes.transform, "酒馆练习", true, true, () => { });
@@ -189,8 +192,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void BuildRightInspectorTabs(Transform parent)
         {
-            var tabs = UiFactory.Panel("RightInspectorTabs", parent, ColorFromHex(0x120E0B));
-            UiFactory.SetHeight(tabs, 44);
+            var tabs = UiFactory.Panel("RightInspectorTabs", parent, UnityTavernUiStyle.TableDark);
+            UiFactory.SetHeight(tabs, 56);
             UiFactory.Horizontal(tabs, 4, 4);
             InspectorTabButton(tabs.transform, "Tab-Info", "对局", RightInspectorTab.Info);
             InspectorTabButton(tabs.transform, "Tab-CardAcquisition", "获取", RightInspectorTab.CardAcquisition);
@@ -216,12 +219,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             });
             UiFactory.SetFlexible(button.gameObject, 1, 1);
             var active = activeRightTab == tab || (tab == RightInspectorTab.CardAcquisition && showCardAcquisitionModal);
-            ApplyButtonColors(
-                button,
-                active ? ColorFromHex(0x5A3C22) : ColorFromHex(0x2B2118),
-                active ? ColorFromHex(0x75522F) : ColorFromHex(0x3A2C21),
-                active ? ColorFromHex(0x3F2A18) : ColorFromHex(0x211A14),
-                ColorFromHex(0x18130F));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: active);
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.text = (active ? "✓ " : string.Empty) + text;
+            }
         }
 
         private void BuildCardAcquisitionLauncherPanel(Transform parent)
@@ -241,26 +244,28 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 showCardAcquisitionModal = true;
                 Rebuild();
             });
-            UiFactory.SetHeight(button.gameObject, 34);
+            UiFactory.SetHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
         }
 
         private void BuildCardAcquisitionModal(Transform parent)
         {
-            var overlay = UiFactory.Panel("CardAcquisitionModalOverlay", parent, new Color(0f, 0f, 0f, 0.66f));
+            var overlay = UiFactory.Panel("CardAcquisitionModalOverlay", parent, new Color(0f, 0f, 0f, 0.68f));
             overlay.GetComponent<Image>().raycastTarget = true;
             var overlayLayout = overlay.AddComponent<LayoutElement>();
             overlayLayout.ignoreLayout = true;
             ApplyRect(overlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
-            var modal = UiFactory.Panel("CardAcquisitionModal", overlay.transform, ColorFromHex(0x1C130E));
+            var modal = UiFactory.Panel("CardAcquisitionModal", overlay.transform, UnityTavernUiStyle.SurfaceDark);
+            UnityTavernUiStyle.ConfigureOutline(modal, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(1.5f, -1.5f));
+            UnityTavernUiStyle.AddStarLanternRail(modal.transform, "LegacyAcquisitionStarLantern", UnityTavernUiStyle.ArcaneBlue);
             ApplyRect(modal.GetComponent<RectTransform>(), new Vector2(0.045f, 0.06f), new Vector2(0.955f, 0.94f), Vector2.zero, Vector2.zero);
             UiFactory.Vertical(modal, 14, 12);
 
-            var header = UiFactory.Panel("CardAcquisitionModalHeader", modal.transform, ColorFromHex(0x2D2117));
-            UiFactory.SetHeight(header, 54);
+            var header = UiFactory.Panel("CardAcquisitionModalHeader", modal.transform, UnityTavernUiStyle.SurfaceRaised);
+            UiFactory.SetHeight(header, 64);
             UiFactory.Horizontal(header, 8, 8);
 
-            var modeTabs = UiFactory.Panel("AcquisitionModeTabs", header.transform, ColorFromHex(0x120E0B));
+            var modeTabs = UiFactory.Panel("AcquisitionModeTabs", header.transform, UnityTavernUiStyle.TableDark);
             UiFactory.SetWidth(modeTabs, 268);
             UiFactory.Horizontal(modeTabs, 4, 4);
             AcquisitionFilterButton(modeTabs.transform, "AcquisitionSpellModeButton", "酒馆法术", acquisitionKind == CardKind.TavernSpell, () =>
@@ -282,7 +287,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             var title = UiFactory.Label("AcquisitionTitle", titleBlock.transform, acquisitionKind == CardKind.TavernSpell ? "酒馆法术" : "随从", 22, FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
             UiFactory.SetHeight(title.gameObject, 28);
-            var subtitle = UiFactory.Label("AcquisitionSubtitle", titleBlock.transform, AcquisitionSubtitle(), 12, FontStyle.Bold);
+            var subtitle = UiFactory.Label("AcquisitionSubtitle", titleBlock.transform, AcquisitionSubtitle(), 14, FontStyle.Bold);
             subtitle.alignment = TextAnchor.MiddleCenter;
             UiFactory.SetTextColor(subtitle, ColorFromHex(0xC8B38B));
             UiFactory.SetHeight(subtitle.gameObject, 18);
@@ -395,7 +400,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             preview.name = "AcquisitionCardPreview-" + card.CardId;
             UiFactory.SetHeight(preview, 176);
 
-            var name = UiFactory.Label("AcquisitionCardName", cell.transform, card.Name, 11, FontStyle.Bold);
+            var name = UiFactory.Label("AcquisitionCardName", cell.transform, card.Name, 14, FontStyle.Bold);
             name.alignment = TextAnchor.MiddleCenter;
             UiFactory.SetTextColor(name, ColorFromHex(0xF4E4BC));
             UiFactory.SetHeight(name.gameObject, 24);
@@ -407,21 +412,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 Apply(new GameCommand(GameCommandType.AddCardToHand, card.CardId, card.CardKind));
             });
             add.interactable = service.State.Player.Tavern.Hand.Count < 10;
-            UiFactory.SetHeight(add.gameObject, 36);
-            UiFactory.SetMinSize(add.gameObject, 44, 36);
-            ApplyButtonColors(add, ColorFromHex(0x5A3C22), ColorFromHex(0x75522F), ColorFromHex(0x3F2A18), ColorFromHex(0x18130F));
+            UiFactory.SetHeight(add.gameObject, UnityTavernUiStyle.TouchHeight);
+            UiFactory.SetMinSize(add.gameObject, 48, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(add, UnityTavernUiStyle.Brass, emphasized: true);
         }
 
         private Button AcquisitionFilterButton(Transform parent, string name, string text, bool active, UnityAction onClick)
         {
             var button = UiFactory.Button(name, parent, text, onClick);
-            UiFactory.SetHeight(button.gameObject, 34);
-            ApplyButtonColors(
-                button,
-                active ? ColorFromHex(0x6A3E1E) : ColorFromHex(0x3A2618),
-                active ? ColorFromHex(0x85622B) : ColorFromHex(0x4A3524),
-                active ? ColorFromHex(0x4A3216) : ColorFromHex(0x211A14),
-                ColorFromHex(0x18130F));
+            UiFactory.SetHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: active);
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.text = (active ? "✓ " : string.Empty) + text;
+            }
             return button;
         }
 
@@ -1268,9 +1273,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         private void Stepper(Transform parent, string label, int value, System.Action<int> onChange)
         {
             var row = UiFactory.Panel(label + "Stepper", parent, Color.clear);
-            UiFactory.SetHeight(row, 32);
+            UiFactory.SetHeight(row, 56);
             UiFactory.Horizontal(row, 0, 6);
-            var text = UiFactory.Label(label + "Label", row.transform, label + "  " + value, 13);
+            var text = UiFactory.Label(label + "Label", row.transform, label + "  " + value, 14);
             UiFactory.SetFlexible(text.gameObject, 1, 1);
             ToolbarButton(row.transform, "-", false, true, () => onChange(value - 1), 40);
             ToolbarButton(row.transform, "+", false, true, () => onChange(value + 1), 40);
@@ -1297,11 +1302,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void ResourcePill(Transform parent, string text)
         {
-            var pill = UiFactory.Panel("ResourcePill", parent, ColorFromHex(0x2B2118));
+            var pill = UiFactory.Panel("ResourcePill", parent, UnityTavernUiStyle.SurfaceRaised);
+            UnityTavernUiStyle.ConfigureOutline(pill, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
             UiFactory.SetWidth(pill, 132);
-            UiFactory.SetMinSize(pill, 44, 34);
+            UiFactory.SetMinSize(pill, 48, UnityTavernUiStyle.TouchHeight);
             UiFactory.Horizontal(pill, 8, 0);
-            var label = UiFactory.Label("ResourceText", pill.transform, text, 13, FontStyle.Bold);
+            var label = UiFactory.Label("ResourceText", pill.transform, text, 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             UiFactory.SetTextColor(label, ColorFromHex(0xFFF2C5));
         }
@@ -1310,21 +1316,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer
         {
             var button = UiFactory.Button(text + "Button", parent, text, onClick);
             button.interactable = enabled;
-            UiFactory.SetHeight(button.gameObject, 40);
-            UiFactory.SetMinSize(button.gameObject, 44, 40);
+            UiFactory.SetHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
+            UiFactory.SetMinSize(button.gameObject, 48, UnityTavernUiStyle.TouchHeight);
             UiFactory.SetWidth(button.gameObject, width);
-            var normal = active ? ColorFromHex(0x5A3C22) : ColorFromHex(0x26313C);
-            ApplyButtonColors(
-                button,
-                normal,
-                active ? ColorFromHex(0x75522F) : ColorFromHex(0x34475A),
-                active ? ColorFromHex(0x3F2A18) : ColorFromHex(0x1A242E),
-                ColorFromHex(0x18130F));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: active);
 
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
             {
-                UiFactory.SetTextColor(label, enabled ? ColorFromHex(0xFFF2C5) : ColorFromHex(0x6F7780));
+                label.text = (active ? "✓ " : string.Empty) + text;
+                UiFactory.SetTextColor(label, enabled ? UnityTavernUiStyle.TextLight : UnityTavernUiStyle.Disabled);
             }
 
             return button;
@@ -1363,7 +1364,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private Text SmallLabel(Transform parent, string text, Color color, int size, FontStyle style = FontStyle.Normal)
         {
-            var label = UiFactory.Label("CardLabel", parent, text, size, style);
+            var label = UiFactory.Label("CardLabel", parent, text, Mathf.Max(14, size), style);
             UiFactory.SetTextColor(label, color);
             UiFactory.SetHeight(label.gameObject, size + 6);
             return label;
@@ -1371,7 +1372,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void EmptyText(Transform parent, string text)
         {
-            var label = UiFactory.Label("EmptyText", parent, text, 13);
+            var label = UiFactory.Label("EmptyText", parent, text, 14);
             label.alignment = TextAnchor.MiddleCenter;
             UiFactory.SetTextColor(label, ColorFromHex(0x9AA7B4));
             UiFactory.SetFlexible(label.gameObject, 1, 1);
@@ -1379,7 +1380,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private void LogLine(Transform parent, string text)
         {
-            var label = UiFactory.Label("LogLine", parent, text, 12);
+            var label = UiFactory.Label("LogLine", parent, text, 14);
             UiFactory.SetTextColor(label, ColorFromHex(0xD6DEE6));
             UiFactory.SetHeight(label.gameObject, 22);
         }

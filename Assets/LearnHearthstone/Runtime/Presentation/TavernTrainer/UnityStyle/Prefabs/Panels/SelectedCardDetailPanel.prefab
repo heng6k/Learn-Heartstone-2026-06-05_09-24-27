@@ -57,10 +57,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1254902, g: 0.16862746, b: 0.17254902, a: 1}
+  m_Color: {r: 0.09803922, g: 0.13725491, b: 0.13333334, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -87,7 +87,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad9be1822360a3d4cbed40912ca64911, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: LearnHearthstone.Runtime::LearnHearthstone.Presentation.TavernTrainer.UnityStyle.UnityTavernSelectedCardPanelComponent
   contentParent: {fileID: 3372334728796574947}
 --- !u!1 &5234496810225402873
@@ -136,15 +136,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
     m_Left: 12
     m_Right: 12
-    m_Top: 12
-    m_Bottom: 12
+    m_Top: 14
+    m_Bottom: 14
   m_ChildAlignment: 1
-  m_Spacing: 8
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0

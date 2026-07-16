@@ -53,17 +53,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var layout = UnityTavernUiStyle.EnsureComponent<GridLayoutGroup>(target.gameObject);
             layout.padding = new RectOffset(10, 10, 10, 10);
             layout.spacing = new Vector2(8, 8);
-            layout.cellSize = new Vector2(142f, 40f);
+            layout.cellSize = new Vector2(142f, UnityTavernUiStyle.TouchHeight);
             layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             layout.constraintCount = 2;
         }
 
         private static void ConfigurePanelSurface(GameObject target)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.SurfaceDark);
             UnityTavernUiStyle.ConfigureOutline(
                 target,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.18f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.34f),
                 new Vector2(1f, -1f));
         }
 

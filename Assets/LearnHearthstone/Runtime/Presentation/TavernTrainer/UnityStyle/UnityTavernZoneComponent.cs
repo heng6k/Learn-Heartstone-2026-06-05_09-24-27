@@ -151,7 +151,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var header = new GameObject("UnityZoneHeader", typeof(RectTransform));
             header.transform.SetParent(transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(header, 28f);
+            UnityTavernUiStyle.SetPreferredHeight(header, 32f);
             var layout = header.AddComponent<HorizontalLayoutGroup>();
             layout.spacing = 8;
             layout.childControlWidth = true;
@@ -159,11 +159,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = true;
 
-            var titleLabel = UiFactory.Label("UnityZoneTitle", header.transform, title, 15, FontStyle.Bold);
+            var titleLabel = UiFactory.Label("UnityZoneTitle", header.transform, title, 16, FontStyle.Bold);
             titleLabel.color = UnityTavernUiStyle.Text;
             titleLabel.alignment = TextAnchor.MiddleLeft;
 
-            var subtitleLabel = UiFactory.Label("UnityZoneSubtitle", header.transform, subtitle, 11, FontStyle.Bold);
+            var subtitleLabel = UiFactory.Label("UnityZoneSubtitle", header.transform, subtitle, 14, FontStyle.Bold);
             subtitleLabel.color = UnityTavernUiStyle.MutedText;
             subtitleLabel.alignment = TextAnchor.MiddleRight;
             ConfigureHeaderVisuals(header.transform, titleLabel, subtitleLabel);
@@ -340,8 +340,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var outline = UnityTavernUiStyle.EnsureComponent<Outline>(gameObject);
             var accent = ZoneAccentColor(zoneKind);
             outline.enabled = true;
-            outline.effectColor = new Color(accent.r, accent.g, accent.b, 0.48f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            outline.effectColor = new Color(accent.r, accent.g, accent.b, 0.62f);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
             outline.useGraphicAlpha = false;
         }
 
@@ -355,11 +355,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var headerImage = UnityTavernUiStyle.EnsureComponent<Image>(header.gameObject);
             headerImage.color = ZoneHeaderColor(zoneKind);
             headerImage.raycastTarget = false;
+            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, 32f);
 
             var layout = header.GetComponent<HorizontalLayoutGroup>();
             if (layout != null)
             {
-                layout.padding = new RectOffset(10, 0, 0, 0);
+                layout.padding = new RectOffset(24, 8, 0, 0);
             }
 
             var mark = header.Find("UnityZoneAccentMark") as RectTransform;
@@ -371,25 +372,30 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             mark.SetSiblingIndex(0);
-            UnityTavernUiStyle.SetFixedSize(mark.gameObject, 5f, 20f);
+            UnityTavernUiStyle.SetFixedSize(mark.gameObject, 10f, 10f);
             var markElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(mark.gameObject);
             markElement.ignoreLayout = true;
             mark.anchorMin = new Vector2(0f, 0.5f);
             mark.anchorMax = new Vector2(0f, 0.5f);
-            mark.pivot = new Vector2(0f, 0.5f);
-            mark.sizeDelta = new Vector2(5f, 20f);
-            mark.anchoredPosition = new Vector2(0f, 0f);
+            mark.pivot = new Vector2(0.5f, 0.5f);
+            mark.sizeDelta = new Vector2(10f, 10f);
+            mark.anchoredPosition = new Vector2(10f, 0f);
+            mark.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var markImage = UnityTavernUiStyle.EnsureComponent<Image>(mark.gameObject);
             markImage.color = ZoneAccentColor(zoneKind);
             markImage.raycastTarget = false;
 
             if (title != null)
             {
+                UiFactory.EnsureFont(title);
+                title.fontSize = Mathf.Max(16, title.fontSize);
                 title.color = UnityTavernUiStyle.Text;
             }
 
             if (subtitle != null)
             {
+                UiFactory.EnsureFont(subtitle);
+                subtitle.fontSize = Mathf.Max(14, subtitle.fontSize);
                 var accent = ZoneAccentColor(zoneKind);
                 subtitle.color = new Color(accent.r, accent.g, accent.b, 0.95f);
             }
@@ -422,13 +428,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (kind)
             {
                 case UnityTavernZoneKind.Shop:
-                    return UnityTavernUiStyle.ColorFromHex(0x2E2619);
+                    return Color.Lerp(UnityTavernUiStyle.TableDark, UnityTavernUiStyle.TableLit, 0.18f);
                 case UnityTavernZoneKind.PlayerBoard:
-                    return new Color(0.08f, 0.10f, 0.10f, 0.42f);
+                    return Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.ArcaneBlue, 0.08f);
                 case UnityTavernZoneKind.OpponentBoard:
-                    return UnityTavernUiStyle.ColorFromHex(0x232A38);
+                    return Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.CombatRed, 0.12f);
                 case UnityTavernZoneKind.Hand:
-                    return UnityTavernUiStyle.ColorFromHex(0x182A34);
+                    return Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.ArcaneBlue, 0.16f);
                 default:
                     return UnityTavernUiStyle.Panel;
             }
@@ -439,11 +445,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (kind)
             {
                 case UnityTavernZoneKind.Shop:
-                    return UnityTavernUiStyle.Gold;
+                    return UnityTavernUiStyle.Brass;
                 case UnityTavernZoneKind.PlayerBoard:
-                    return UnityTavernUiStyle.Green;
+                    return UnityTavernUiStyle.ArcaneBlue;
                 case UnityTavernZoneKind.OpponentBoard:
-                    return UnityTavernUiStyle.ColorFromHex(0x6D7FA8);
+                    return UnityTavernUiStyle.CombatRed;
                 case UnityTavernZoneKind.Hand:
                     return UnityTavernUiStyle.Blue;
                 default:
@@ -460,20 +466,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Color ZoneRowColor(UnityTavernZoneKind kind)
         {
-            if (kind == UnityTavernZoneKind.PlayerBoard)
-            {
-                return Color.clear;
-            }
-
             var color = Color.Lerp(ZoneSurfaceColor(kind), Color.black, 0.18f);
-            color.a = 0.38f;
+            color.a = kind == UnityTavernZoneKind.PlayerBoard ? 0.28f : 0.42f;
             return color;
         }
 
         private static Color SlotColor(UnityTavernZoneKind kind, bool empty)
         {
-            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), empty ? 0.07f : 0.1f);
-            color.a = empty ? 0.26f : 0.3f;
+            var color = Color.Lerp(ZoneSurfaceColor(kind), ZoneAccentColor(kind), empty ? 0.08f : 0.14f);
+            color.a = empty ? 0.38f : 0.46f;
             return color;
         }
 

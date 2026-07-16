@@ -40,26 +40,29 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public void Build(string message)
         {
-            Build(message, new Color(0.42f, 0.10f, 0.09f, 0.94f));
+            Build(message, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.DangerRed, 0.96f));
         }
 
         public void Build(string message, Color backgroundColor)
         {
-            var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
-            image.color = backgroundColor;
-            image.raycastTarget = false;
+            var image = UnityTavernUiStyle.ConfigureSurface(gameObject, backgroundColor);
+            UnityTavernUiStyle.ConfigureOutline(
+                gameObject,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.72f),
+                new Vector2(1.5f, -1.5f));
             ConfigureRect(gameObject.GetComponent<RectTransform>());
 
             if (messageText != null)
             {
                 messageText.text = message ?? string.Empty;
+                UnityTavernUiStyle.ConfigureLabel(messageText, UnityTavernUiStyle.TextLight, 14);
                 return;
             }
 
             ClearChildren(transform);
-            var label = UiFactory.Label("UnityErrorToastText", transform, message, 13, FontStyle.Bold);
+            var label = UiFactory.Label("UnityErrorToastText", transform, message, 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
-            label.color = Color.white;
+            UnityTavernUiStyle.ConfigureLabel(label, UnityTavernUiStyle.TextLight, 14);
             UnityTavernUiStyle.Stretch(label.rectTransform);
         }
 
@@ -73,8 +76,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.anchorMin = new Vector2(0.5f, 0f);
             rect.anchorMax = new Vector2(0.5f, 0f);
             rect.pivot = new Vector2(0.5f, 0f);
-            rect.sizeDelta = new Vector2(520f, 42f);
-            rect.anchoredPosition = new Vector2(0f, 24f);
+            rect.sizeDelta = new Vector2(520f, UnityTavernUiStyle.TouchHeight);
+            rect.anchoredPosition = new Vector2(0f, 32f);
         }
 
         private static GameObject ResolvePrefab()

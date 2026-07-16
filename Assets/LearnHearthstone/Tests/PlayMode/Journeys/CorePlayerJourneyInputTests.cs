@@ -252,7 +252,7 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.IsNotNull(FindChild(scene.Root, "UnityToolsPlayerModifierSection"));
                 Assert.IsNotNull(FindChild(scene.Root, "UnityToolsCombatSection"));
                 Assert.AreEqual("暂无战斗快照", FindChild(scene.Root, "UnityToolsResetCombatSnapshotButtonText").GetComponent<Text>().text);
-                Assert.AreEqual("当前已为 0", FindChild(scene.Root, "UnityToolsPlayerSpellsCastThisGameMinusButtonText").GetComponent<Text>().text);
+            Assert.AreEqual("已到最低值", FindChild(scene.Root, "UnityToolsPlayerSpellsCastThisGameMinusButtonText").GetComponent<Text>().text);
 
                 Click(scene, FindChild(scene.Root, "UnityToolsBackToCommonButton"));
                 yield return WaitForChild(scene.Root, "UnityToolsOpenCardLibraryButton");
@@ -477,7 +477,9 @@ namespace LearnHearthstone.Tests.PlayMode
 
                     var filterSummary = FindChild(scene.Root, "UnityCardPoolVersionFilterCount").GetComponent<Text>().text;
                     StringAssert.Contains(targetMinion.TavernTier + "\u672c", filterSummary);
-                    StringAssert.Contains(FindChild(scene.Root, tribeButton).GetComponentInChildren<Text>(true).text, filterSummary);
+                    StringAssert.Contains(
+                        FindChild(scene.Root, tribeButton).GetComponentInChildren<Text>(true).text.Replace("\u2713 ", string.Empty),
+                        filterSummary);
                     Click(scene, FindChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId));
                     yield return WaitForState(
                         () => FindChildOrNull(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId)?.GetComponent<Toggle>().isOn == false,

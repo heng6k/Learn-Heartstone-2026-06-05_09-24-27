@@ -218,8 +218,9 @@ namespace LearnHearthstone.Editor
             try
             {
                 var image = root.GetComponent<Image>();
-                image.color = UnityTavernUiStyle.PanelQuiet;
+                image.color = UnityTavernUiStyle.SurfaceDark;
                 image.raycastTarget = false;
+                UnityTavernUiStyle.AddStarLanternRail(root.transform, "UnityRightPanelStarLantern", UnityTavernUiStyle.ArcaneBlue);
 
                 var layout = root.AddComponent<VerticalLayoutGroup>();
                 layout.padding = new RectOffset(14, 14, 14, 14);
@@ -231,7 +232,7 @@ namespace LearnHearthstone.Editor
 
                 var header = new GameObject("UnityRightPanelHeader", typeof(RectTransform));
                 header.transform.SetParent(root.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(header, 30f);
+                UnityTavernUiStyle.SetPreferredHeight(header, 56f);
                 var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
                 headerLayout.spacing = 8;
                 headerLayout.childControlWidth = true;
@@ -415,12 +416,14 @@ namespace LearnHearthstone.Editor
             {
                 UnityTavernUiStyle.Stretch(root.GetComponent<RectTransform>());
                 var overlay = root.GetComponent<Image>();
-                overlay.color = new Color(0f, 0f, 0f, 0.56f);
+                overlay.color = new Color(0f, 0f, 0f, 0.68f);
                 overlay.raycastTarget = true;
 
                 var panel = new GameObject("UnityDiscoverPanel", typeof(RectTransform), typeof(Image));
                 panel.transform.SetParent(root.transform, false);
-                panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+                UnityTavernUiStyle.ConfigureSurface(panel, UnityTavernUiStyle.SurfaceRaised);
+                UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(1.5f, -1.5f));
+                UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityDiscoverStarLantern", UnityTavernUiStyle.ArcaneBlue);
                 var panelRect = panel.GetComponent<RectTransform>();
                 panelRect.anchorMin = new Vector2(0.5f, 0.5f);
                 panelRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -475,7 +478,9 @@ namespace LearnHearthstone.Editor
                 var panel = new GameObject("UnityCardDetailPanel", typeof(RectTransform), typeof(Image));
                 panel.transform.SetParent(root.transform, false);
                 UnityTavernCardDetailModalComponent.ConfigurePanel(panel.GetComponent<RectTransform>());
-                panel.GetComponent<Image>().color = UnityTavernUiStyle.PanelRaised;
+                UnityTavernUiStyle.ConfigureSurface(panel, UnityTavernUiStyle.SurfaceDark);
+                UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(1.5f, -1.5f));
+                UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityCardDetailStarLantern", UnityTavernUiStyle.ArcaneBlue);
 
                 var layout = panel.AddComponent<VerticalLayoutGroup>();
                 layout.padding = new RectOffset(18, 18, 16, 18);
@@ -485,7 +490,7 @@ namespace LearnHearthstone.Editor
 
                 var header = new GameObject("UnityCardDetailHeader", typeof(RectTransform));
                 header.transform.SetParent(panel.transform, false);
-                UnityTavernUiStyle.SetPreferredHeight(header, 34f);
+                UnityTavernUiStyle.SetPreferredHeight(header, 56f);
                 var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
                 headerLayout.spacing = 8;
                 headerLayout.childControlWidth = true;
@@ -591,10 +596,11 @@ namespace LearnHearthstone.Editor
             {
                 UnityTavernToastComponent.ConfigureRect(root.GetComponent<RectTransform>());
                 var image = root.GetComponent<Image>();
-                image.color = new Color(0.42f, 0.10f, 0.09f, 0.94f);
+                image.color = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.DangerRed, 0.96f);
                 image.raycastTarget = false;
+                UnityTavernUiStyle.ConfigureOutline(root, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.72f), new Vector2(1.5f, -1.5f));
 
-                var message = CreateText("UnityErrorToastText", root.transform, "错误", 13, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+                var message = CreateText("UnityErrorToastText", root.transform, "错误", 14, FontStyle.Bold, TextAnchor.MiddleCenter, UnityTavernUiStyle.TextLight);
                 UnityTavernUiStyle.Stretch(message.rectTransform);
                 root.GetComponent<UnityTavernToastComponent>().ConfigureReferences(message);
 
@@ -853,20 +859,12 @@ namespace LearnHearthstone.Editor
         {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(buttonObject, width, 32f);
-
-            var image = buttonObject.GetComponent<Image>();
-            image.color = UnityTavernUiStyle.Panel;
+            UnityTavernUiStyle.SetFixedSize(buttonObject, width, UnityTavernUiStyle.TouchHeight);
 
             var button = buttonObject.GetComponent<Button>();
-            button.targetGraphic = image;
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                Color.white,
-                new Color(1f, 0.91f, 0.62f, 1f),
-                new Color(0.72f, 0.62f, 0.42f, 1f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
 
-            label = CreateText(name + "Text", buttonObject.transform, value, 12, FontStyle.Bold, TextAnchor.MiddleCenter, UnityTavernUiStyle.Text);
+            label = CreateText(name + "Text", buttonObject.transform, value, 14, FontStyle.Bold, TextAnchor.MiddleCenter, UnityTavernUiStyle.Text);
             UnityTavernUiStyle.Stretch(label.rectTransform);
             return button;
         }
@@ -883,24 +881,16 @@ namespace LearnHearthstone.Editor
         {
             var buttonObject = new GameObject("UnityRightPanelFloatToggle", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(buttonObject, 76f, 30f);
-
-            var image = buttonObject.GetComponent<Image>();
-            image.color = UnityTavernUiStyle.PanelRaised;
+            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, UnityTavernUiStyle.TouchHeight);
 
             var button = buttonObject.GetComponent<Button>();
-            button.targetGraphic = image;
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                Color.white,
-                new Color(1f, 0.91f, 0.62f, 1f),
-                new Color(0.72f, 0.62f, 0.42f, 1f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
 
             label = CreateText(
                 "UnityRightPanelFloatToggleText",
                 buttonObject.transform,
                 "展开",
-                12,
+                14,
                 FontStyle.Bold,
                 TextAnchor.MiddleCenter,
                 UnityTavernUiStyle.Text);

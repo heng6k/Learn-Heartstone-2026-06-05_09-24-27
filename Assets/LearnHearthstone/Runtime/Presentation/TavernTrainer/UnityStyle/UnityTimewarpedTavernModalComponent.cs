@@ -22,7 +22,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             modal.transform.SetParent(parent, false);
             UnityTavernUiStyle.Stretch(modal.GetComponent<RectTransform>());
             var blocker = modal.GetComponent<Image>();
-            blocker.color = new Color(0.015f, 0.02f, 0.03f, 0.94f);
+            blocker.color = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.BackWall, 0.96f);
             blocker.raycastTarget = true;
             return modal;
         }
@@ -39,8 +39,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var panel = new GameObject("UnityTimewarpedTavernPanel", typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(transform, false);
             ConfigureSafePanel(panel.GetComponent<RectTransform>());
-            UnityTavernUiStyle.ConfigureSurface(panel, new Color(0.075f, 0.085f, 0.105f, 0.98f), true);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(0.86f, 0.66f, 0.24f, 0.72f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureSurface(panel, UnityTavernUiStyle.SurfaceDark, true);
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.72f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityTimewarpedStarLantern", UnityTavernUiStyle.ArcaneBlue);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(12, 12, 12, 12);
@@ -69,8 +70,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var header = new GameObject("UnityTimewarpedTavernHeader", typeof(RectTransform), typeof(Image));
             header.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(header, 0f, 48f);
-            UnityTavernUiStyle.ConfigureSurface(header, new Color(0.11f, 0.13f, 0.17f, 1f));
+            UnityTavernUiStyle.SetFixedSize(header, 0f, 56f);
+            UnityTavernUiStyle.ConfigureSurface(header, UnityTavernUiStyle.SurfaceRaised);
+            UnityTavernUiStyle.ConfigureOutline(header, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.34f), new Vector2(1f, -1f));
             var layout = header.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(14, 14, 6, 6);
             layout.spacing = 12f;
@@ -92,7 +94,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 (useEnglish ? "Chronum: " : "时空资源：") + Math.Max(0, chronum),
                 20,
                 FontStyle.Bold);
-            chronumText.color = new Color(0.42f, 0.9f, 0.92f, 1f);
+            chronumText.color = UnityTavernUiStyle.FocusRing;
             chronumText.alignment = TextAnchor.MiddleRight;
             UnityTavernUiStyle.SetFixedSize(chronumText.gameObject, 190f, 42f);
         }
@@ -123,8 +125,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var slot = new GameObject("UnityTimewarpedOfferSlot" + index, typeof(RectTransform), typeof(Image));
                 slot.transform.SetParent(row.transform, false);
                 UnityTavernUiStyle.SetFixedSize(slot, 144f, 192f);
-                UnityTavernUiStyle.ConfigureSurface(slot, new Color(0.045f, 0.055f, 0.075f, 0.98f));
-                UnityTavernUiStyle.ConfigureOutline(slot, new Color(0.34f, 0.66f, 0.72f, 0.34f), new Vector2(1f, -1f));
+                UnityTavernUiStyle.ConfigureSurface(slot, UnityTavernUiStyle.TableDark);
+                UnityTavernUiStyle.ConfigureOutline(slot, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.ArcaneBlue, 0.44f), new Vector2(1f, -1f));
 
                 var card = cards != null && index < cards.Count ? cards[index] : null;
                 var offer = offers != null && index < offers.Count ? offers[index] : null;
@@ -173,7 +175,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         14,
                         FontStyle.Bold);
                     reason.alignment = TextAnchor.LowerCenter;
-                    reason.color = new Color(1f, 0.72f, 0.46f, 1f);
+                    reason.color = UnityTavernUiStyle.DangerRed;
                     reason.rectTransform.anchorMin = new Vector2(0f, 0f);
                     reason.rectTransform.anchorMax = new Vector2(1f, 0f);
                     reason.rectTransform.pivot = new Vector2(0.5f, 0f);
@@ -189,7 +191,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var footer = new GameObject("UnityTimewarpedTavernFooter", typeof(RectTransform));
             footer.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(footer, 0f, 48f);
+            UnityTavernUiStyle.SetFixedSize(footer, 0f, 56f);
             var layout = footer.AddComponent<HorizontalLayoutGroup>();
             layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = false;
@@ -202,13 +204,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 footer.transform,
                 useEnglish ? "Exit Timewarped Tavern" : "退出时空酒馆",
                 () => exit?.Invoke());
-            UnityTavernUiStyle.SetFixedSize(button.gameObject, 220f, 44f);
-            UnityTavernUiStyle.ConfigureSurface(button.gameObject, new Color(0.23f, 0.16f, 0.11f, 1f), true);
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                Color.white,
-                new Color(1f, 0.9f, 0.66f, 1f),
-                new Color(0.82f, 0.68f, 0.42f, 1f));
+            UnityTavernUiStyle.SetFixedSize(button.gameObject, 220f, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
             return button;
         }
 

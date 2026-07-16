@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 
 namespace LearnHearthstone.Presentation.Common
 {
     public static class UiFactory
     {
-        public const float MinimumButtonHeight = 44f;
+        public const float MinimumButtonHeight = 48f;
 
         private static Font uiFont;
         private static Font fontOverride;
@@ -26,11 +27,12 @@ namespace LearnHearthstone.Presentation.Common
             var label = new GameObject(name, typeof(RectTransform), typeof(Text));
             label.transform.SetParent(parent, false);
             var textComponent = label.GetComponent<Text>();
+            var resolvedSize = Mathf.Max(14, size);
             textComponent.text = text;
-            textComponent.font = GetUiFont(size);
-            textComponent.fontSize = size;
+            textComponent.font = GetUiFont(resolvedSize);
+            textComponent.fontSize = resolvedSize;
             textComponent.fontStyle = style;
-            textComponent.color = new Color(0.94f, 0.92f, 0.86f);
+            textComponent.color = UnityTavernUiStyle.TextLight;
             textComponent.alignment = TextAnchor.MiddleLeft;
             textComponent.horizontalOverflow = HorizontalWrapMode.Wrap;
             textComponent.verticalOverflow = VerticalWrapMode.Truncate;
@@ -43,19 +45,24 @@ namespace LearnHearthstone.Presentation.Common
         {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            buttonObject.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f);
+            buttonObject.GetComponent<Image>().color = UnityTavernUiStyle.SurfaceRaised;
             SetMinSize(buttonObject, 0f, MinimumButtonHeight);
             var button = buttonObject.GetComponent<Button>();
             button.onClick.AddListener(onClick);
             var colors = button.colors;
-            colors.highlightedColor = new Color(0.22f, 0.30f, 0.36f, 1f);
-            colors.pressedColor = new Color(0.10f, 0.14f, 0.18f, 1f);
-            colors.disabledColor = new Color(0.18f, 0.18f, 0.18f, 0.48f);
+            colors.normalColor = UnityTavernUiStyle.SurfaceRaised;
+            colors.highlightedColor = Color.Lerp(UnityTavernUiStyle.SurfaceRaised, UnityTavernUiStyle.ArcaneBlue, 0.28f);
+            colors.pressedColor = Color.Lerp(UnityTavernUiStyle.SurfaceRaised, Color.black, 0.18f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Disabled, 0.48f);
             colors.fadeDuration = 0.08f;
             button.colors = colors;
 
             var label = Label(name + "Label", buttonObject.transform, text, 16, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 12;
+            label.resizeTextMaxSize = label.fontSize;
             Stretch(label.rectTransform);
             return button;
         }
@@ -100,7 +107,7 @@ namespace LearnHearthstone.Presentation.Common
             scrollbarRect.pivot = new Vector2(1f, 0.5f);
             scrollbarRect.sizeDelta = new Vector2(8f, 0f);
             scrollbarRect.anchoredPosition = Vector2.zero;
-            scrollbarObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.08f);
+            scrollbarObject.GetComponent<Image>().color = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.12f);
 
             var slidingArea = new GameObject(name + "ScrollbarSlidingArea", typeof(RectTransform));
             slidingArea.transform.SetParent(scrollbarObject.transform, false);
@@ -108,7 +115,7 @@ namespace LearnHearthstone.Presentation.Common
 
             var handle = new GameObject(name + "ScrollbarHandle", typeof(RectTransform), typeof(Image));
             handle.transform.SetParent(slidingArea.transform, false);
-            handle.GetComponent<Image>().color = new Color(0.74f, 0.8f, 0.86f, 0.42f);
+            handle.GetComponent<Image>().color = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.ArcaneBlue, 0.62f);
             Stretch(handle.GetComponent<RectTransform>());
 
             var scrollbar = scrollbarObject.GetComponent<Scrollbar>();

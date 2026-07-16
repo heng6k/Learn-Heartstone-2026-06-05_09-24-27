@@ -55,7 +55,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly Transform root;
         private readonly Action<MatchSetupOptions> start;
         private readonly Action backToHub;
-        private readonly UnityTavernLayoutContext layout;
+        private UnityTavernLayoutContext layout;
         private readonly ICardPoolVersionRepository repository;
         private readonly MinionCatalog minionCatalog;
         private readonly SpellCatalog spellCatalog;
@@ -192,7 +192,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             pageRect.anchorMax = new Vector2(0.96f, 0.94f);
             pageRect.offsetMin = Vector2.zero;
             pageRect.offsetMax = Vector2.zero;
-            UnityTavernUiStyle.ConfigureOutline(page, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.42f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureOutline(page, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.52f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(page.transform, "UnitySetupStarLantern", UnityTavernUiStyle.ArcaneBlue);
 
             var pageLayout = page.AddComponent<VerticalLayoutGroup>();
             pageLayout.padding = new RectOffset(layout.IsCompact ? 12 : 18, layout.IsCompact ? 12 : 18, layout.IsCompact ? 12 : 18, layout.IsCompact ? 12 : 18);
@@ -238,10 +239,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        public void RebuildForLayout(UnityTavernLayoutContext nextLayout)
+        {
+            layout = nextLayout;
+            Build();
+        }
+
         private void BuildHeader(Transform parent)
         {
             var header = UiFactory.Panel("UnityTribeSelectionHeader", parent, UnityTavernUiStyle.PanelRaised);
             UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 108f : 126f);
+            UnityTavernUiStyle.ConfigureOutline(header, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "UnitySetupHeaderStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var headerLayout = header.AddComponent<VerticalLayoutGroup>();
             headerLayout.padding = new RectOffset(12, 12, 8, 8);
             headerLayout.spacing = 6;
@@ -296,11 +305,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var canSelect = isSelected || selected.Count < 5;
             var buttonObject = new GameObject("UnityTribeSelection" + tribe + "Button", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            var image = buttonObject.GetComponent<Image>();
-            image.color = isSelected
-                ? Color.Lerp(UnityTavernUiStyle.PanelRaised, TribeAccent(tribe), 0.55f)
-                : UnityTavernUiStyle.Panel;
-
             var button = buttonObject.GetComponent<Button>();
             button.interactable = canSelect;
             button.onClick.AddListener(() =>
@@ -308,11 +312,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ToggleTribe(tribe);
                 Build();
             });
-            UnityTavernUiStyle.TintSelectable(button, image.color, Color.Lerp(image.color, Color.white, 0.16f), Color.Lerp(image.color, Color.black, 0.16f));
-            UnityTavernUiStyle.ConfigureOutline(
-                buttonObject,
-                isSelected ? new Color(TribeAccent(tribe).r, TribeAccent(tribe).g, TribeAccent(tribe).b, 0.86f) : new Color(0f, 0f, 0f, 0.24f),
-                isSelected ? new Vector2(2f, -2f) : new Vector2(1f, -1f));
+            UnityTavernUiStyle.ConfigureButton(button, TribeAccent(tribe), isSelected, isSelected);
 
             var stateText = isSelected
                 ? "\n" + T("已选", "Selected")
@@ -338,8 +338,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rowLayout.childForceExpandWidth = true;
             rowLayout.childForceExpandHeight = true;
 
-            ActionButton("UnityTribeSelectionBackButton", row.transform, T("返回", "Back"), true, backToHub);
-            ActionButton(
+            var back = ActionButton("UnityTribeSelectionBackButton", row.transform, T("返回", "Back"), true, backToHub);
+            UnityTavernUiStyle.ConfigureButton(back, UnityTavernUiStyle.Brass);
+            var random = ActionButton(
                 "UnityTribeSelectionRandomButton",
                 row.transform,
                 selected.Count == 0 ? T("随机选择5个", "Random 5") : T("重新随机5个", "Reroll 5"),
@@ -349,8 +350,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SelectRandomFive();
                 Build();
             });
-            ActionButton("UnityTribeSelectionAllButton", row.transform, T("快速配置：全部种族", "Quick Setup: All Tribes"), true, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
-            ActionButton(
+            UnityTavernUiStyle.ConfigureButton(random, UnityTavernUiStyle.ArcaneBlue);
+            var all = ActionButton("UnityTribeSelectionAllButton", row.transform, T("快速配置：全部种族", "Quick Setup: All Tribes"), true, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
+            UnityTavernUiStyle.ConfigureButton(all, UnityTavernUiStyle.Brass);
+            var enter = ActionButton(
                 "UnityTribeSelectionEnterButton",
                 row.transform,
                 selected.Count == 5
@@ -358,17 +361,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     : T("自定义：还需选择 " + remainingSelections + " 个", "Custom: choose " + remainingSelections + " more"),
                 selected.Count == 5,
                 () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList()));
+            UnityTavernUiStyle.ConfigureButton(enter, UnityTavernUiStyle.Gold, true);
         }
 
         private void BuildAdvancedMechanicsOverlay()
         {
-            var overlay = UiFactory.Panel("UnityAdvancedMechanicsSetupOverlay", shell.transform, new Color(0f, 0f, 0f, 0.62f));
+            var overlay = UiFactory.Panel("UnityAdvancedMechanicsSetupOverlay", shell.transform, UnityTavernUiStyle.WithAlpha(Color.black, 0.68f));
             overlay.transform.SetAsLastSibling();
             UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
             UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
 
             var panel = UiFactory.Panel("UnityAdvancedMechanicsSetupPage", overlay.transform, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.50f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.56f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityAdvancedMechanicsStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var rect = panel.GetComponent<RectTransform>();
             rect.anchorMin = layout.IsCompact ? new Vector2(0.05f, 0.08f) : new Vector2(0.10f, 0.12f);
             rect.anchorMax = layout.IsCompact ? new Vector2(0.95f, 0.92f) : new Vector2(0.90f, 0.88f);
@@ -392,6 +397,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var header = UiFactory.Panel("UnityAdvancedMechanicsSetupHeader", parent, UnityTavernUiStyle.Panel);
             UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 76f : 86f);
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "UnityAdvancedMechanicsHeaderStarLantern", UnityTavernUiStyle.Gold);
             var headerLayout = header.AddComponent<VerticalLayoutGroup>();
             headerLayout.padding = new RectOffset(12, 12, 8, 8);
             headerLayout.spacing = 5;
@@ -420,17 +426,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 52f : 58f);
             ConfigureButtonRow(row, 8, 8);
 
-            ActionButton("UnityAdvancedMechanicsBackButton", row.transform, T("返回上一步", "Back"), true, () =>
+            var back = ActionButton("UnityAdvancedMechanicsBackButton", row.transform, T("返回上一步", "Back"), true, () =>
             {
                 advancedMechanicsOpen = false;
                 Build();
             });
-            ActionButton("UnityAdvancedMechanicsResetFiltersButton", row.transform, T("重置筛选", "Reset Filters"), true, () =>
+            UnityTavernUiStyle.ConfigureButton(back, UnityTavernUiStyle.Brass);
+            var reset = ActionButton("UnityAdvancedMechanicsResetFiltersButton", row.transform, T("重置筛选", "Reset Filters"), true, () =>
             {
                 ResetAdvancedFilters();
                 Build();
             });
-            ActionButton("UnityAdvancedMechanicsStartButton", row.transform, T("进入酒馆", "Enter Tavern"), true, () => StartTrainer(pendingStartTribes));
+            UnityTavernUiStyle.ConfigureButton(reset, UnityTavernUiStyle.ArcaneBlue);
+            var start = ActionButton("UnityAdvancedMechanicsStartButton", row.transform, T("进入酒馆", "Enter Tavern"), true, () => StartTrainer(pendingStartTribes));
+            UnityTavernUiStyle.ConfigureButton(start, UnityTavernUiStyle.Gold, true);
         }
 
         private void ResetAdvancedFilters()
@@ -455,7 +464,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildAdvancedMechanicsStrip(Transform parent)
         {
             var strip = UiFactory.Panel("UnityAdvancedMechanicsSetupPanel", parent, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 300f : 330f);
+            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 500f : 330f);
             UnityTavernUiStyle.SetFlexible(strip, 1f, 1f);
             UnityTavernUiStyle.ConfigureOutline(strip, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.28f), new Vector2(1f, -1f));
             var stripLayout = strip.AddComponent<HorizontalLayoutGroup>();
@@ -491,7 +500,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             grid.spacing = layout.IsCompact ? new Vector2(7f, 7f) : new Vector2(8f, 8f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = layout.IsCompact ? 2 : 4;
-            grid.cellSize = layout.IsCompact ? new Vector2(150f, 62f) : new Vector2(176f, 72f);
+            grid.cellSize = layout.IsCompact ? new Vector2(150f, 112f) : new Vector2(176f, 112f);
 
             BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedQuestRewardPoolCard", T("任务/奖励池", "Quest / Reward Pool"), QuestRewardPoolSummaryText(), QuestPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.QuestRewards), () => OpenAdvancedPoolEditor(AdvancedPoolTab.QuestRewards));
             BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedTrinketPoolCard", T("饰品池", "Trinket Pool"), TrinketPoolSummaryText(), TrinketPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.Trinkets), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Trinkets));
@@ -557,7 +566,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFlexible(detail.gameObject, 1f, 0f);
 
             var actions = UiFactory.Panel(name + "Actions", card.transform, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(actions, layout.IsCompact ? 22f : 26f);
+            UnityTavernUiStyle.SetPreferredHeight(actions, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(actions, 0, 4);
             ActionButton(name + "EnableButton", actions.transform, active ? T("已开启", "On") : T("一键开启", "Enable"), !active, quickEnable);
             ActionButton(name + "EditButton", actions.transform, T("编辑", "Edit"), true, edit);
@@ -586,14 +595,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildAdvancedPoolEditorOverlay()
         {
-            var overlay = UiFactory.Panel("UnityAdvancedPoolEditorOverlay", shell.transform, new Color(0f, 0f, 0f, 0.62f));
+            var overlay = UiFactory.Panel("UnityAdvancedPoolEditorOverlay", shell.transform, UnityTavernUiStyle.WithAlpha(Color.black, 0.68f));
             advancedPoolEditorOverlay = overlay;
             overlay.transform.SetAsLastSibling();
             UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
             UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
 
             var panel = UiFactory.Panel("UnityAdvancedPoolEditorPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.50f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.56f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityAdvancedPoolStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var rect = panel.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.045f, 0.06f);
             rect.anchorMax = new Vector2(0.955f, 0.93f);
@@ -645,6 +655,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var header = UiFactory.Panel("UnityAdvancedPoolEditorHeader", parent, UnityTavernUiStyle.Panel);
             UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 58f : 64f);
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "UnityAdvancedPoolHeaderStarLantern", UnityTavernUiStyle.Gold);
             var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
             headerLayout.padding = new RectOffset(10, 10, 8, 8);
             headerLayout.spacing = 8;
@@ -662,7 +673,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
 
-            var summary = UiFactory.Label("UnityAdvancedPoolEditorSummary", header.transform, ActiveAdvancedPoolSummaryText(), 12, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityAdvancedPoolEditorSummary", header.transform, ActiveAdvancedPoolSummaryText(), 14, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleRight;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetFixedSize(summary.gameObject, layout.IsCompact ? 190f : 260f, 34f);
@@ -672,7 +683,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 advancedPoolEditorOpen = false;
                 Build();
             });
-            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, 36f);
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, UnityTavernUiStyle.TouchHeight);
         }
 
         private void BuildAdvancedPoolTabButton(Transform parent, AdvancedPoolTab tab, string label)
@@ -684,11 +695,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 advancedPoolStatusFilter = AdvancedPoolStatusFilter.All;
                 RebuildAdvancedPoolEditorOverlay();
             });
-            UnityTavernUiStyle.SetFixedSize(button.gameObject, layout.IsCompact ? 92f : 112f, 42f);
-            if (activeAdvancedPoolTab == tab)
-            {
-                UnityTavernUiStyle.EnsureComponent<Image>(button.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.28f);
-            }
+            UnityTavernUiStyle.SetFixedSize(button.gameObject, layout.IsCompact ? 92f : 112f, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Gold, activeAdvancedPoolTab == tab, activeAdvancedPoolTab == tab);
         }
 
         private void BuildAdvancedPoolSearch(Transform parent)
@@ -724,10 +732,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildAdvancedPoolFilters(Transform parent)
         {
             var row = UiFactory.Panel("UnityAdvancedPoolFilters", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 72f : 38f);
+            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 102f : UnityTavernUiStyle.TouchHeight);
             var grid = row.AddComponent<GridLayoutGroup>();
             grid.spacing = new Vector2(6f, 6f);
-            grid.cellSize = new Vector2(layout.IsCompact ? 112f : 128f, 30f);
+            grid.cellSize = new Vector2(layout.IsCompact ? 112f : 128f, UnityTavernUiStyle.TouchHeight);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = layout.IsCompact ? 3 : 6;
 
@@ -762,12 +770,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildAdvancedPoolBulkActions(Transform parent)
         {
             var row = UiFactory.Panel("UnityAdvancedPoolBulkActions", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 78f : 42f);
+            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 102f : UnityTavernUiStyle.TouchHeight);
             if (layout.IsCompact)
             {
                 var grid = row.AddComponent<GridLayoutGroup>();
                 grid.spacing = new Vector2(6f, 6f);
-                grid.cellSize = new Vector2(116f, 32f);
+                grid.cellSize = new Vector2(116f, UnityTavernUiStyle.TouchHeight);
                 grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
                 grid.constraintCount = 3;
             }
@@ -872,7 +880,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 }
             }
 
-            var state = UiFactory.Label("UnityAdvancedPoolLoadState", content, count == 0 ? T("当前筛选无条目", "No entries match the current filters.") : T("已显示 ", "Showing ") + count, 11, FontStyle.Bold);
+            var state = UiFactory.Label("UnityAdvancedPoolLoadState", content, count == 0 ? T("当前筛选无条目", "No entries match the current filters.") : T("已显示 ", "Showing ") + count, 14, FontStyle.Bold);
             state.alignment = TextAnchor.MiddleCenter;
             state.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(state.gameObject, 24f);
@@ -1414,7 +1422,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (!layout.IsCompact)
             {
-                var stats = UiFactory.Label("UnityTribeSelectionHeroStats", textBlock.transform, hero == null ? T("进入酒馆时由对局兜底", "Match will use fallback hero") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 11, FontStyle.Normal);
+                var stats = UiFactory.Label("UnityTribeSelectionHeroStats", textBlock.transform, hero == null ? T("进入酒馆时由对局兜底", "Match will use fallback hero") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 14, FontStyle.Normal);
                 stats.color = UnityTavernUiStyle.MutedText;
                 UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 18f);
             }
@@ -1453,13 +1461,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildVersionEditorOverlay()
         {
-            var overlay = UiFactory.Panel("UnityCardPoolVersionOverlay", shell.transform, new Color(0f, 0f, 0f, 0.62f));
+            var overlay = UiFactory.Panel("UnityCardPoolVersionOverlay", shell.transform, UnityTavernUiStyle.WithAlpha(Color.black, 0.68f));
             overlay.transform.SetAsLastSibling();
             UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
             UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
 
             var panel = UiFactory.Panel("UnityCardPoolVersionModalPanel", overlay.transform, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.50f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.56f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityVersionEditorStarLantern", UnityTavernUiStyle.ArcaneBlue);
             var rect = panel.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.035f, 0.055f);
             rect.anchorMax = new Vector2(0.965f, 0.94f);
@@ -1498,6 +1507,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var header = UiFactory.Panel("UnityCardPoolVersionModalHeader", parent, UnityTavernUiStyle.Panel);
             UnityTavernUiStyle.SetPreferredHeight(header, layout.IsCompact ? 58f : 64f);
+            UnityTavernUiStyle.AddStarLanternRail(header.transform, "UnityVersionHeaderStarLantern", UnityTavernUiStyle.Gold);
             var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
             headerLayout.padding = new RectOffset(10, 10, 8, 8);
             headerLayout.spacing = 8;
@@ -1510,13 +1520,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 SwitchCardPoolTab(CardPoolTab.Minions);
             });
-            UnityTavernUiStyle.SetFixedSize(minionTab.gameObject, UseEnglish ? 86f : 72f, 42f);
+            UnityTavernUiStyle.SetFixedSize(minionTab.gameObject, UseEnglish ? 86f : 72f, UnityTavernUiStyle.TouchHeight);
 
             var spellTab = ActionButton("UnityCardPoolVersionSpellTab", header.transform, T("酒馆法术", "Tavern Spells"), true, () =>
             {
                 SwitchCardPoolTab(CardPoolTab.TavernSpells);
             });
-            UnityTavernUiStyle.SetFixedSize(spellTab.gameObject, UseEnglish ? 112f : 72f, 42f);
+            UnityTavernUiStyle.SetFixedSize(spellTab.gameObject, UseEnglish ? 112f : 72f, UnityTavernUiStyle.TouchHeight);
 
             if (enableTimewarpedTavern)
             {
@@ -1524,7 +1534,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 {
                     SwitchCardPoolTab(CardPoolTab.TimewarpedTavern);
                 });
-                UnityTavernUiStyle.SetFixedSize(timewarpedTab.gameObject, UseEnglish ? 96f : 72f, 42f);
+                UnityTavernUiStyle.SetFixedSize(timewarpedTab.gameObject, UseEnglish ? 96f : 72f, UnityTavernUiStyle.TouchHeight);
             }
 
             var title = UiFactory.Label("UnityCardPoolVersionModalTitle", header.transform, T("卡池版本", "Card Pool"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
@@ -1532,7 +1542,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
 
-            var summary = UiFactory.Label("UnityCardPoolVersionModalSummary", header.transform, VersionSummaryText(selection), 12, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityCardPoolVersionModalSummary", header.transform, VersionSummaryText(selection), 14, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleRight;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetFixedSize(summary.gameObject, layout.IsCompact ? 220f : 280f, 32f);
@@ -1542,7 +1552,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 versionModalOpen = false;
                 Build();
             });
-            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, 36f);
+            UnityTavernUiStyle.SetFixedSize(close.gameObject, 72f, UnityTavernUiStyle.TouchHeight);
         }
 
         private void BuildVersionSwitchConfirmDialog(Transform parent)
@@ -1587,7 +1597,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetPreferredHeight(body.gameObject, 52f);
 
             var row = UiFactory.Panel("UnityCardPoolVersionUnsavedActions", dialog.transform, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(row, 42f);
+            UnityTavernUiStyle.SetPreferredHeight(row, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(row, 0, 8);
             ActionButton("UnityCardPoolVersionConfirmSaveAndSwitchButton", row.transform, T("保存并切换", "Save and Switch"), true, SaveAndSwitchVersion);
             ActionButton("UnityCardPoolVersionConfirmDiscardButton", row.transform, T("放弃修改", "Discard"), true, DiscardAndSwitchVersion);
@@ -1674,7 +1684,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.childForceExpandWidth = false;
             headerLayout.childForceExpandHeight = true;
 
-            var label = UiFactory.Label("UnityCardPoolVersionNameLabel", header.transform, T("版本名称", "Version Name"), 12, FontStyle.Bold);
+            var label = UiFactory.Label("UnityCardPoolVersionNameLabel", header.transform, T("版本名称", "Version Name"), 14, FontStyle.Bold);
             label.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.EnsureComponent<LayoutElement>(label.gameObject).flexibleWidth = 1f;
 
@@ -1682,7 +1692,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 "UnityCardPoolVersionNameHint",
                 header.transform,
                 selection.IsDefault ? T("默认只读", "Read only") : T("点击改名", "Rename"),
-                11,
+                14,
                 FontStyle.Bold);
             hint.alignment = TextAnchor.MiddleRight;
             hint.color = selection.IsDefault ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Gold;
@@ -1734,7 +1744,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildVersionPicker(Transform parent)
         {
             var row = UiFactory.Panel("UnityCardPoolVersionPicker", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 86f : 92f);
+            UnityTavernUiStyle.SetPreferredHeight(row, store.Versions.Count > 4 ? 118f : 64f);
             var rowLayout = row.AddComponent<VerticalLayoutGroup>();
             rowLayout.padding = new RectOffset(6, 6, 6, 6);
             rowLayout.spacing = 5;
@@ -1777,7 +1787,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildVersionActions(Transform parent, CardPoolVersionSelection selection)
         {
             var row = UiFactory.Panel("UnityCardPoolVersionActions", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(row, 46f);
+            UnityTavernUiStyle.SetPreferredHeight(row, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(row, 6, 6);
 
             var canCreate = store.Versions.Count < CardPoolVersionFactory.MaxCustomVersions;
@@ -1812,8 +1822,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             inputObject.transform.SetParent(row.transform, false);
             var inputElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(inputObject);
             inputElement.flexibleWidth = 1f;
-            inputElement.minHeight = 38f;
-            inputElement.preferredHeight = 38f;
+            inputElement.minHeight = UnityTavernUiStyle.TouchHeight;
+            inputElement.preferredHeight = UnityTavernUiStyle.TouchHeight;
             inputObject.GetComponent<Image>().color = UnityTavernUiStyle.PanelQuiet;
 
             var input = inputObject.GetComponent<InputField>();
@@ -1863,8 +1873,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildVersionFilters(Transform parent, CardPoolVersionSelection selection)
         {
             var filteredCount = FilteredCardPoolCount();
+            var typeFilterColumns = layout.IsCompact ? 5 : 6;
+            var typeFilterCount = 2 + TribeAvailabilityRules.PlayableTribes.Count();
+            var typeFilterRows = Mathf.CeilToInt(typeFilterCount / (float)typeFilterColumns);
+            var typeFilterHeight = typeFilterRows * UnityTavernUiStyle.TouchHeight + Mathf.Max(0, typeFilterRows - 1) * 5f;
             var panel = UiFactory.Panel("UnityCardPoolVersionFilters", parent, UnityTavernUiStyle.Panel);
-            UnityTavernUiStyle.SetPreferredHeight(panel, 158f);
+            UnityTavernUiStyle.SetPreferredHeight(panel, 96f + typeFilterHeight);
             UnityTavernUiStyle.EnsureComponent<LayoutElement>(panel).flexibleHeight = 0f;
             var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
             panelLayout.padding = new RectOffset(8, 8, 7, 7);
@@ -1875,7 +1889,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panelLayout.childForceExpandHeight = false;
 
             var tierRow = UiFactory.Panel("UnityCardPoolVersionTierFilters", panel.transform, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(tierRow, 34f);
+            UnityTavernUiStyle.SetPreferredHeight(tierRow, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(tierRow, 0, 5);
             FilterButton("UnityCardPoolVersionTierAllButton", tierRow.transform, T("全部", "All"), versionTierFilter == 0, UnityTavernUiStyle.Gold, () =>
             {
@@ -1895,13 +1909,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             var typeRow = UiFactory.Panel("UnityCardPoolVersionTypeFilters", panel.transform, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(typeRow, 64f);
+            UnityTavernUiStyle.SetPreferredHeight(typeRow, typeFilterHeight);
             var grid = typeRow.AddComponent<GridLayoutGroup>();
             grid.padding = new RectOffset(0, 0, 0, 0);
             grid.spacing = new Vector2(5f, 5f);
-            grid.cellSize = new Vector2(layout.IsCompact ? 62f : 70f, 28f);
+            grid.cellSize = new Vector2(layout.IsCompact ? 62f : 70f, UnityTavernUiStyle.TouchHeight);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = layout.IsCompact ? 5 : 6;
+            grid.constraintCount = typeFilterColumns;
 
             FilterButton("UnityCardPoolVersionTribeAllButton", typeRow.transform, T("全部", "All"), versionTribeFilter == Tribe.All, UnityTavernUiStyle.Green, () =>
             {
@@ -1955,7 +1969,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildVersionBulkActions(Transform parent, CardPoolVersionSelection selection)
         {
             var panel = UiFactory.Panel("UnityCardPoolVersionBulkActions", parent, UnityTavernUiStyle.PanelQuiet);
-            UnityTavernUiStyle.SetPreferredHeight(panel, UnityTavernUiStyle.TouchHeight);
+            UnityTavernUiStyle.SetPreferredHeight(panel, 55f);
             UnityTavernUiStyle.EnsureComponent<LayoutElement>(panel).flexibleHeight = 0f;
             var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
             panelLayout.padding = new RectOffset(4, 4, 3, 4);
@@ -1965,7 +1979,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panelLayout.childForceExpandHeight = false;
 
             var row = UiFactory.Panel("UnityCardPoolVersionBulkActionButtons", panel.transform, Color.clear);
-            UnityTavernUiStyle.SetPreferredHeight(row, 36f);
+            UnityTavernUiStyle.SetPreferredHeight(row, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(row, 4, 8);
 
             var canEditActiveTab = !selection.IsDefault && activeTab != CardPoolTab.TimewarpedTavern;
@@ -2079,7 +2093,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 totalCount == 0
                     ? T("当前筛选无卡牌", "No cards match the current filters.")
                     : T("已显示 ", "Showing ") + visibleCount + " / " + totalCount,
-                11,
+                14,
                 FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.MutedText;
@@ -2397,15 +2411,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var toggleObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Toggle));
             toggleObject.transform.SetParent(row.transform, false);
-            UnityTavernUiStyle.SetFixedSize(toggleObject, 24f, 24f);
+            UnityTavernUiStyle.SetFixedSize(toggleObject, UnityTavernUiStyle.TouchHeight, UnityTavernUiStyle.TouchHeight);
             var background = toggleObject.GetComponent<Image>();
             background.color = UnityTavernUiStyle.PanelQuiet;
+            UnityTavernUiStyle.ConfigureOutline(toggleObject, UnityTavernUiStyle.WithAlpha(isOn ? UnityTavernUiStyle.FocusRing : UnityTavernUiStyle.Brass, isOn ? 0.78f : 0.34f), new Vector2(1f, -1f));
 
             var check = new GameObject(name + "Checkmark", typeof(RectTransform), typeof(Image));
             check.transform.SetParent(toggleObject.transform, false);
             UnityTavernUiStyle.Stretch(check.GetComponent<RectTransform>());
-            check.GetComponent<RectTransform>().offsetMin = new Vector2(5f, 5f);
-            check.GetComponent<RectTransform>().offsetMax = new Vector2(-5f, -5f);
+            check.GetComponent<RectTransform>().offsetMin = new Vector2(14f, 14f);
+            check.GetComponent<RectTransform>().offsetMax = new Vector2(-14f, -14f);
             check.GetComponent<Image>().color = UnityTavernUiStyle.Gold;
 
             var toggle = toggleObject.GetComponent<Toggle>();
@@ -2432,7 +2447,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = interactable ? UnityTavernUiStyle.Text : UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 30f);
 
-            var detail = UiFactory.Label(name + "Detail", labelBlock.transform, detailText, 12);
+            var detail = UiFactory.Label(name + "Detail", labelBlock.transform, detailText, 14);
             detail.alignment = TextAnchor.MiddleLeft;
             detail.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, 22f);
@@ -2442,6 +2457,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var toggleObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Toggle));
             toggleObject.transform.SetParent(parent, false);
+            UnityTavernUiStyle.SetPreferredHeight(toggleObject, UnityTavernUiStyle.TouchHeight);
             var surface = toggleObject.GetComponent<Image>();
             surface.color = isOn
                 ? Color.Lerp(UnityTavernUiStyle.Panel, UnityTavernUiStyle.Blue, 0.28f)
@@ -2895,7 +2911,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var sprite = hero == null ? null : CardImageProvider.LoadSprite(hero.ImagePath, hero.HeroCardId, CardKind.Hero);
             if (sprite == null)
             {
-                var missing = UiFactory.Label(name + "Missing", frame.transform, T("无图", "No art"), 10, FontStyle.Bold);
+                var missing = UiFactory.Label(name + "Missing", frame.transform, T("无图", "No art"), 14, FontStyle.Bold);
                 missing.alignment = TextAnchor.MiddleCenter;
                 missing.color = UnityTavernUiStyle.MutedText;
                 UnityTavernUiStyle.Stretch(missing.rectTransform);
@@ -3040,27 +3056,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private static Button FilterButton(string name, Transform parent, string text, bool active, Color accentColor, Action onClick)
         {
             var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke());
-            var normal = active
-                ? Color.Lerp(UnityTavernUiStyle.PanelRaised, accentColor, 0.45f)
-                : UnityTavernUiStyle.Panel;
-            var image = UnityTavernUiStyle.EnsureComponent<Image>(button.gameObject);
-            image.color = normal;
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                normal,
-                Color.Lerp(normal, accentColor, 0.28f),
-                Color.Lerp(normal, Color.black, 0.16f));
-            UnityTavernUiStyle.ConfigureOutline(
-                button.gameObject,
-                active ? new Color(accentColor.r, accentColor.g, accentColor.b, 0.82f) : new Color(0f, 0f, 0f, 0.18f),
-                active ? new Vector2(2f, -2f) : new Vector2(1f, -1f));
+            UnityTavernUiStyle.ConfigureButton(button, accentColor, active, active);
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
             {
-                label.fontSize = 12;
+                label.fontSize = 14;
                 label.fontStyle = FontStyle.Bold;
                 label.color = active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
                 label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.text = active ? "✓ " + text : text;
             }
 
             return button;
@@ -3071,9 +3075,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke());
             button.interactable = interactable;
             UnityTavernUiStyle.SetPreferredHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
-            var normal = interactable ? UnityTavernUiStyle.Panel : UnityTavernUiStyle.PanelQuiet;
-            UnityTavernUiStyle.EnsureComponent<Image>(button.gameObject).color = normal;
-            UnityTavernUiStyle.TintSelectable(button, normal, Color.Lerp(normal, UnityTavernUiStyle.Gold, 0.20f), Color.Lerp(normal, Color.black, 0.16f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
             return button;
         }
 

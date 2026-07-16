@@ -79,10 +79,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigurePanelSurface(GameObject target)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.SurfaceRaised);
             UnityTavernUiStyle.ConfigureOutline(
                 target,
-                new Color(UnityTavernUiStyle.Green.r, UnityTavernUiStyle.Green.g, UnityTavernUiStyle.Green.b, 0.34f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SuccessGreen, 0.52f),
                 new Vector2(1f, -1f));
         }
 
@@ -91,7 +91,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ClearChildren(transform);
 
             var heading = UiFactory.Label("UnityAdvisorTitle", transform, title, 14, FontStyle.Bold);
-            heading.color = UnityTavernUiStyle.Gold;
+            UnityTavernUiStyle.ConfigureLabel(heading, UnityTavernUiStyle.Gold, 14);
             UnityTavernUiStyle.SetPreferredHeight(heading.gameObject, 22f);
 
             buildLines?.Invoke(transform);

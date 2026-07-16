@@ -84,10 +84,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigurePanelSurface(GameObject target)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.Panel);
+            UnityTavernUiStyle.ConfigureSurface(target, UnityTavernUiStyle.SurfaceRaised);
             UnityTavernUiStyle.ConfigureOutline(
                 target,
-                new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.34f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.ArcaneBlue, 0.52f),
                 new Vector2(1f, -1f));
         }
 
@@ -95,11 +95,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             ClearChildren(transform);
 
-            var heading = UiFactory.Label("UnityLogTitle", transform, title, 13, FontStyle.Bold);
-            heading.color = UnityTavernUiStyle.Gold;
+            var heading = UiFactory.Label("UnityLogTitle", transform, title, 14, FontStyle.Bold);
+            UnityTavernUiStyle.ConfigureLabel(heading, UnityTavernUiStyle.Gold, 14);
             UnityTavernUiStyle.SetPreferredHeight(heading.gameObject, 22f);
 
-            var content = UiFactory.ScrollView("UnityLogScrollView", transform, UnityTavernUiStyle.Panel, out scrollRect);
+            var content = UiFactory.ScrollView("UnityLogScrollView", transform, UnityTavernUiStyle.SurfaceDark, out scrollRect);
             ConfigureContentLayout(content.gameObject);
             buildLines?.Invoke(content);
         }

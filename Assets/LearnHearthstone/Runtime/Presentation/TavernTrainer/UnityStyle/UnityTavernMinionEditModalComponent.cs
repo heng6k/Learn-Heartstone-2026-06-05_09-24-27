@@ -32,7 +32,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             host.transform.SetParent(parent, false);
             UnityTavernUiStyle.Stretch(host.GetComponent<RectTransform>());
             var image = host.GetComponent<Image>();
-            image.color = new Color(0f, 0f, 0f, 0.46f);
+            image.color = new Color(0f, 0f, 0f, 0.68f);
             image.raycastTarget = true;
             return host;
         }
@@ -54,10 +54,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(430f, 456f);
+            panelRect.sizeDelta = new Vector2(500f, 560f);
             panelRect.anchoredPosition = Vector2.zero;
-            UnityTavernUiStyle.ConfigureSurface(panel, new Color(0.08f, 0.11f, 0.11f, 0.98f), true);
-            UnityTavernUiStyle.ConfigureOutline(panel, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.42f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.ConfigureSurface(panel, UnityTavernUiStyle.SurfaceDark, true);
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityMinionEditStarLantern", UnityTavernUiStyle.ArcaneBlue);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(16, 16, 14, 14);
@@ -83,7 +84,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var targetName = target == null ? "未选择" : target.Name;
             var sideText = side == BoardSide.Opponent ? "敌方" : "己方";
-            var summary = UiFactory.Label("UnityMinionEditTargetText", parent, "目标：" + targetName + "（" + sideText + "）", 12, FontStyle.Bold);
+            var summary = UiFactory.Label("UnityMinionEditTargetText", parent, "目标：" + targetName + "（" + sideText + "）", 14, FontStyle.Bold);
             summary.color = UnityTavernUiStyle.MutedText;
             summary.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, 24f);
@@ -93,7 +94,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var row = new GameObject("UnityMinionEditStatsRow", typeof(RectTransform));
             row.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetPreferredHeight(row, 58f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 72f);
 
             var layout = row.AddComponent<HorizontalLayoutGroup>();
             layout.spacing = 12;
@@ -117,17 +118,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             groupLayout.childForceExpandWidth = true;
             groupLayout.childForceExpandHeight = false;
 
-            var caption = UiFactory.Label(name + "Label", group.transform, label, 12, FontStyle.Bold);
+            var caption = UiFactory.Label(name + "Label", group.transform, label, 14, FontStyle.Bold);
             caption.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(caption.gameObject, 18f);
 
             var inputObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(InputField));
             inputObject.transform.SetParent(group.transform, false);
-            UnityTavernUiStyle.SetPreferredHeight(inputObject, 34f);
-            UnityTavernUiStyle.ConfigureSurface(inputObject, UnityTavernUiStyle.PanelRaised, true);
-            UnityTavernUiStyle.ConfigureOutline(inputObject, new Color(1f, 1f, 1f, 0.16f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetPreferredHeight(inputObject, UnityTavernUiStyle.TouchHeight);
 
             var input = inputObject.GetComponent<InputField>();
+            UnityTavernUiStyle.ConfigureInputField(input, UnityTavernUiStyle.ArcaneBlue);
             input.contentType = InputField.ContentType.IntegerNumber;
             input.text = value.ToString();
             input.caretColor = UnityTavernUiStyle.Text;
@@ -144,21 +144,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildKeywordGrid(Transform parent, MinionInstance target)
         {
-            var label = UiFactory.Label("UnityMinionEditKeywordTitle", parent, "关键词", 13, FontStyle.Bold);
+            var label = UiFactory.Label("UnityMinionEditKeywordTitle", parent, "关键词", 14, FontStyle.Bold);
             label.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(label.gameObject, 22f);
 
             var grid = new GameObject("UnityMinionEditKeywordGrid", typeof(RectTransform), typeof(Image));
             grid.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetPreferredHeight(grid, 120f);
-            UnityTavernUiStyle.ConfigureSurface(grid, new Color(0.04f, 0.055f, 0.055f, 0.62f), false);
+            UnityTavernUiStyle.SetPreferredHeight(grid, 176f);
+            UnityTavernUiStyle.ConfigureSurface(grid, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.TableDark, 0.76f), false);
 
             var layout = grid.AddComponent<GridLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 8, 8);
             layout.spacing = new Vector2(8f, 8f);
             layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             layout.constraintCount = 3;
-            layout.cellSize = new Vector2(124f, 30f);
+            layout.cellSize = new Vector2(142f, UnityTavernUiStyle.TouchHeight);
 
             foreach (var keyword in EditableKeywords)
             {
@@ -190,22 +190,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             checkRect.anchoredPosition = new Vector2(8f, 0f);
             toggle.graphic = checkmarkImage;
 
-            var text = UiFactory.Label("UnityMinionEditKeywordText-" + keyword, toggleObject.transform, KeywordName(keyword), 11, FontStyle.Bold);
+            var text = UiFactory.Label("UnityMinionEditKeywordText-" + keyword, toggleObject.transform, (toggle.isOn ? "✓ " : string.Empty) + KeywordName(keyword), 14, FontStyle.Bold);
             text.color = UnityTavernUiStyle.Text;
             text.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.Stretch(text.rectTransform);
 
             toggle.onValueChanged.AddListener(isOn =>
             {
-                image.color = isOn ? new Color(0.24f, 0.30f, 0.20f, 0.96f) : UnityTavernUiStyle.Panel;
+                image.color = isOn ? UnityTavernUiStyle.SuccessGreen : UnityTavernUiStyle.SurfaceRaised;
+                text.text = (isOn ? "✓ " : string.Empty) + KeywordName(keyword);
             });
-            image.color = toggle.isOn ? new Color(0.24f, 0.30f, 0.20f, 0.96f) : UnityTavernUiStyle.Panel;
+            image.color = toggle.isOn ? UnityTavernUiStyle.SuccessGreen : UnityTavernUiStyle.SurfaceRaised;
             keywordToggles[keyword] = toggle;
         }
 
         private Text BuildValidation(Transform parent)
         {
-            var text = UiFactory.Label("UnityMinionEditValidationText", parent, string.Empty, 11, FontStyle.Bold);
+            var text = UiFactory.Label("UnityMinionEditValidationText", parent, string.Empty, 14, FontStyle.Bold);
             text.color = UnityTavernUiStyle.Red;
             text.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.SetPreferredHeight(text.gameObject, 18f);
@@ -234,11 +235,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var row = new GameObject(name, typeof(RectTransform));
             row.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetPreferredHeight(row, 42f);
+            UnityTavernUiStyle.SetPreferredHeight(row, 56f);
             var layout = row.AddComponent<GridLayoutGroup>();
             layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             layout.constraintCount = columns;
-            layout.cellSize = columns == 3 ? new Vector2(124f, 34f) : new Vector2(190f, 34f);
+            layout.cellSize = columns == 3 ? new Vector2(144f, UnityTavernUiStyle.TouchHeight) : new Vector2(220f, UnityTavernUiStyle.TouchHeight);
             layout.spacing = new Vector2(10f, 0f);
             return row;
         }
@@ -247,23 +248,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, new Color(accent.r, accent.g, accent.b, 0.72f), true);
-            UnityTavernUiStyle.ConfigureOutline(buttonObject, new Color(accent.r, accent.g, accent.b, 0.34f), new Vector2(1f, -1f));
-
             var button = buttonObject.GetComponent<Button>();
-            button.targetGraphic = image;
             if (action != null)
             {
                 button.onClick.AddListener(() => action());
             }
 
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                image.color,
-                new Color(Mathf.Min(1f, accent.r + 0.18f), Mathf.Min(1f, accent.g + 0.18f), Mathf.Min(1f, accent.b + 0.18f), 0.92f),
-                new Color(Mathf.Max(0.05f, accent.r * 0.62f), Mathf.Max(0.05f, accent.g * 0.62f), Mathf.Max(0.05f, accent.b * 0.62f), 0.98f));
+            UnityTavernUiStyle.ConfigureButton(button, accent, emphasized: accent == UnityTavernUiStyle.Gold || accent == UnityTavernUiStyle.Green);
 
-            var text = UiFactory.Label(name + "Text", buttonObject.transform, label, 12, FontStyle.Bold);
+            var text = UiFactory.Label(name + "Text", buttonObject.transform, label, 14, FontStyle.Bold);
             text.color = UnityTavernUiStyle.Text;
             text.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.Stretch(text.rectTransform);

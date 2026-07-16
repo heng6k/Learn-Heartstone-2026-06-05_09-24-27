@@ -91,6 +91,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 RemoveTabRow();
                 SetText(titleText, title);
+                UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
                 ConfigureHeader(ResolveHeaderTransform());
                 ConfigureFloatingToggle(floating, toggleFloating);
                 BuildSection(actionParent, buildActions);
@@ -119,6 +120,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (HasPrefabReferences())
             {
                 SetText(titleText, title);
+                UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
                 ConfigureHeader(ResolveHeaderTransform());
                 ConfigureFloatingToggle(floating, toggleFloating);
                 BuildTabRow(activeTab, changeTab);
@@ -238,6 +240,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             floatingToggleButton.interactable = toggleFloating != null;
+            UnityTavernUiStyle.ConfigureLabel(floatingToggleText, UnityTavernUiStyle.TextLight, 14);
             SetText(floatingToggleText, floating ? "收起" : "展开");
         }
 
@@ -282,7 +285,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 tabRow.transform.SetSiblingIndex(header.GetSiblingIndex() + 1);
             }
 
-            UnityTavernUiStyle.SetPreferredHeight(tabRow, 42f);
+            UnityTavernUiStyle.SetPreferredHeight(tabRow, UnityTavernUiStyle.TouchHeight + 8f);
             ConfigureTabRow(tabRow);
             var layout = tabRow.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(4, 4, 4, 4);
@@ -331,38 +334,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var selected = tab == activeTab;
             var image = buttonObject.GetComponent<Image>();
-            image.color = selected ? UnityTavernUiStyle.TableLit : UnityTavernUiStyle.PanelRaised;
-            image.raycastTarget = true;
-
-            var outline = UnityTavernUiStyle.ConfigureOutline(
-                buttonObject,
-                selected ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.72f) : new Color(0f, 0f, 0f, 0.24f),
-                new Vector2(1.2f, -1.2f));
-            outline.enabled = selected;
-
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(() => changeTab?.Invoke(tab));
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                selected ? new Color(1f, 0.91f, 0.62f, 1f) : Color.white,
-                new Color(1f, 0.91f, 0.62f, 1f),
-                new Color(0.72f, 0.62f, 0.42f, 1f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: selected);
 
-            var label = UiFactory.Label(name + "Text", buttonObject.transform, text, 12, FontStyle.Bold);
+            var label = UiFactory.Label(name + "Text", buttonObject.transform, selected ? "✓ " + text : text, 14, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
-            label.color = selected ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
+            label.color = selected ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.TextLight;
             UnityTavernUiStyle.Stretch(label.rectTransform);
             return button;
         }
 
         private void ConfigurePanelChrome()
         {
-            UnityTavernUiStyle.ConfigureSurface(gameObject, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.ConfigureSurface(gameObject, UnityTavernUiStyle.SurfaceDark);
             UnityTavernUiStyle.ConfigureOutline(
                 gameObject,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.28f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.56f),
                 new Vector2(1.5f, -1.5f));
+            UnityTavernUiStyle.AddStarLanternRail(transform, "UnityRightPanelStarLantern", UnityTavernUiStyle.ArcaneBlue);
         }
 
         private Transform ResolveHeaderTransform()
@@ -382,13 +373,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            var image = UnityTavernUiStyle.ConfigureSurface(header.gameObject, UnityTavernUiStyle.PanelRaised);
+            var image = UnityTavernUiStyle.ConfigureSurface(header.gameObject, UnityTavernUiStyle.SurfaceRaised);
             image.enabled = true;
             UnityTavernUiStyle.ConfigureOutline(
                 header.gameObject,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.18f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.36f),
                 new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, 40f);
+            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, 56f);
 
             var layout = UnityTavernUiStyle.EnsureComponent<HorizontalLayoutGroup>(header.gameObject);
             layout.padding = new RectOffset(8, 6, 4, 4);
@@ -413,11 +404,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureTabRow(GameObject tabRow)
         {
-            var image = UnityTavernUiStyle.ConfigureSurface(tabRow, UnityTavernUiStyle.Panel);
+            var image = UnityTavernUiStyle.ConfigureSurface(tabRow, UnityTavernUiStyle.TableDark);
             image.enabled = true;
             UnityTavernUiStyle.ConfigureOutline(
                 tabRow,
-                new Color(0f, 0f, 0f, 0.36f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.28f),
                 new Vector2(1f, -1f));
         }
 
@@ -428,12 +419,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var image = UnityTavernUiStyle.EnsureComponent<Image>(parent.gameObject);
             image.enabled = active;
-            image.color = new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.54f);
+            image.color = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.54f);
             image.raycastTarget = false;
 
             var outline = UnityTavernUiStyle.EnsureComponent<Outline>(parent.gameObject);
             outline.enabled = active;
-            outline.effectColor = new Color(0f, 0f, 0f, 0.28f);
+            outline.effectColor = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.24f);
             outline.effectDistance = new Vector2(1f, -1f);
             outline.useGraphicAlpha = false;
 
@@ -487,17 +478,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var buttonObject = new GameObject("UnityRightPanelFloatToggle", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
-            UnityTavernUiStyle.SetFixedSize(buttonObject, 78f, 32f);
+            UnityTavernUiStyle.SetFixedSize(buttonObject, 92f, UnityTavernUiStyle.TouchHeight);
 
             var image = ConfigureFloatingToggleChrome(buttonObject);
 
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
-            UnityTavernUiStyle.TintSelectable(
-                button,
-                Color.white,
-                new Color(1f, 0.91f, 0.62f, 1f),
-                new Color(0.72f, 0.62f, 0.42f, 1f));
+            UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.Brass);
 
             label = UiFactory.Label("UnityRightPanelFloatToggleText", buttonObject.transform, "展开", 12, FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
@@ -508,10 +495,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static Image ConfigureFloatingToggleChrome(GameObject buttonObject)
         {
-            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, UnityTavernUiStyle.PanelRaised, true);
+            var image = UnityTavernUiStyle.ConfigureSurface(buttonObject, UnityTavernUiStyle.SurfaceRaised, true);
             UnityTavernUiStyle.ConfigureOutline(
                 buttonObject,
-                new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.26f),
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f),
                 new Vector2(1f, -1f));
             return image;
         }
