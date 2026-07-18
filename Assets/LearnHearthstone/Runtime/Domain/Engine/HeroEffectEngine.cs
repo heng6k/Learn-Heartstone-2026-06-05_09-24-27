@@ -1020,7 +1020,7 @@ namespace LearnHearthstone.Domain.Engine
             {
                 if (context.TargetCard != null)
                 {
-                    AddPlainCopyToHand(context.State, context.TargetCard, "rafaam-kill-" + killCount);
+                    AddPlainCopyToHand(context.State, context.TargetCard, "rafaam-kill-" + killCount, context.Minions);
                     context.State.Player.Tavern.HeroEffectCounters[RafaamArmedCounter] = 0;
                     result.Messages.Add("I'll Take That!: gained a plain copy of the first enemy killed.");
                 }
@@ -1354,7 +1354,7 @@ namespace LearnHearthstone.Domain.Engine
                     throw new InvalidOperationException("Gonna Be Rich! has already been used this game.");
                 }
 
-                MakeGoldenInPlace(board[context.TargetIndex]);
+                MakeGoldenInPlace(board[context.TargetIndex], context.Minions);
                 tavern.HeroEffectCounters[RenoUsedCounter] = 1;
                 result.Messages.Add("Gonna Be Rich!: made a friendly minion Golden.");
             }
@@ -1756,7 +1756,7 @@ namespace LearnHearthstone.Domain.Engine
                 var target = PickTargetedOrFirstOtherBoardMinion(context, card => IsDeathrattleMinion(card));
                 if (target != null)
                 {
-                    MakeGoldenInPlace(target);
+                    MakeGoldenInPlace(target, context.Minions);
                     result.Messages.Add("Baby N'Zoth: made a friendly Deathrattle minion Golden.");
                 }
             }
@@ -1951,7 +1951,7 @@ namespace LearnHearthstone.Domain.Engine
                     AddTavernCoinToHand(context, "murloc-holmes");
                     if (HasBuddy(context.State, WatfinCardId))
                     {
-                        AddPlainCopyToHand(context.State, context.Card, "watfin");
+                        AddPlainCopyToHand(context.State, context.Card, "watfin", context.Minions);
                     }
 
                     result.Messages.Add("Detective for Hire: correct guess rewarded a Tavern Coin.");
@@ -2048,7 +2048,7 @@ namespace LearnHearthstone.Domain.Engine
                 if (turns >= 3)
                 {
                     context.State.Player.Tavern.HeroEffectCounters[VooneHeroCounter] = 0;
-                    CopyLeftmostHandCard(context.State, "voone");
+                    CopyLeftmostHandCard(context.State, "voone", context.Minions);
                     result.Messages.Add("Upbeat Harmony: copied the left-most card in your hand.");
                 }
             }
@@ -2098,7 +2098,7 @@ namespace LearnHearthstone.Domain.Engine
                         .ToList();
                     if (frozen.Count > 0)
                     {
-                        MakeGoldenInPlace(frozen[context.Rng.NextInt(frozen.Count)]);
+                        MakeGoldenInPlace(frozen[context.Rng.NextInt(frozen.Count)], context.Minions);
                         result.Messages.Add("Thawed Champion: made a Frozen Tavern minion Golden.");
                     }
                 }
@@ -2435,7 +2435,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var target = context.State.Player.Board[context.TargetIndex];
-            MakeGoldenInPlace(target);
+            MakeGoldenInPlace(target, context.Minions);
             result.Messages.Add("Probius: made the Mech it Magnetized to Golden.");
         }
 
@@ -2575,7 +2575,7 @@ namespace LearnHearthstone.Domain.Engine
                 var rightmost = context.State.Player.Board.LastOrDefault(card => card != null && card.CardKind == CardKind.Minion);
                 if (rightmost != null)
                 {
-                    MakeGoldenInPlace(rightmost);
+                    MakeGoldenInPlace(rightmost, context.Minions);
                     result.Messages.Add("Sr. Tomb Diver: made your right-most minion Golden.");
                 }
             }
@@ -2693,7 +2693,7 @@ namespace LearnHearthstone.Domain.Engine
                     !IsSameInstance(card, context.Card));
                 if (rightmost != null)
                 {
-                    MakeGoldenInPlace(rightmost);
+                    MakeGoldenInPlace(rightmost, context.Minions);
                     result.Messages.Add("Sr. Tomb Diver: made your right-most minion Golden from a combat Deathrattle.");
                 }
             }
@@ -2769,7 +2769,7 @@ namespace LearnHearthstone.Domain.Engine
             {
                 if (context.TargetCard != null)
                 {
-                    AddPlainCopyToHand(context.State, context.TargetCard, "loyal-henchman-kill");
+                    AddPlainCopyToHand(context.State, context.TargetCard, "loyal-henchman-kill", context.Minions);
                     result.Messages.Add("Loyal Henchman: gained a plain copy of the second enemy killed this combat.");
                 }
                 else
@@ -2872,7 +2872,7 @@ namespace LearnHearthstone.Domain.Engine
                 if (turns >= 2)
                 {
                     context.State.Player.Tavern.HeroEffectCounters[VooneBuddyCounter] = 0;
-                    CopyLeftmostHandCard(context.State, "akali");
+                    CopyLeftmostHandCard(context.State, "akali", context.Minions);
                     result.Messages.Add("Akali, Rock Rhino: copied the left-most card in your hand.");
                 }
             }
@@ -3159,7 +3159,7 @@ namespace LearnHearthstone.Domain.Engine
             AddTag(target, "locked_in_hand");
             if (GetCounterOrDefault(tavern, MaievNextGoldenCounter, 0) > 0)
             {
-                MakeGoldenInPlace(target);
+                MakeGoldenInPlace(target, context.Minions);
                 tavern.HeroEffectCounters[MaievNextGoldenCounter] = 0;
             }
 
@@ -3279,7 +3279,7 @@ namespace LearnHearthstone.Domain.Engine
             tavern.Shop.Clear();
             foreach (var source in warband.Take(BoardLimit))
             {
-                var copy = CreatePlainCopy(source, "player-tess-" + context.State.Round + "-" + tavern.Shop.Count, BoardSide.Player, PoolSource.Copy);
+                var copy = CreatePlainCopy(source, "player-tess-" + context.State.Round + "-" + tavern.Shop.Count, BoardSide.Player, PoolSource.Copy, context.Minions);
                 AddTag(copy, "last_opponent_warband_copy");
                 tavern.Shop.Add(copy);
             }
@@ -3631,7 +3631,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            MakeGoldenInPlace(target);
+            MakeGoldenInPlace(target, context.Minions);
             result.Messages.Add("Talent Scout: made a Buddy Golden.");
         }
 
@@ -4598,14 +4598,14 @@ namespace LearnHearthstone.Domain.Engine
                 : state.Opponent.HeroId;
         }
 
-        private static void CopyLeftmostHandCard(MatchState state, string source)
+        private static void CopyLeftmostHandCard(MatchState state, string source, MinionCatalog catalog)
         {
             if (state.Player.Tavern.Hand.Count == 0 || state.Player.Tavern.Hand.Count >= HandLimit)
             {
                 return;
             }
 
-            AddPlainCopyToHand(state, state.Player.Tavern.Hand[0], source);
+            AddPlainCopyToHand(state, state.Player.Tavern.Hand[0], source, catalog);
         }
 
         private static void BuffLeftAndRightMostMinions(MatchState state, int attack, int health, string source)
@@ -4638,6 +4638,7 @@ namespace LearnHearthstone.Domain.Engine
                 var copy = card.Clone();
                 copy.InstanceId = "player-phyresz-discover-" + context.State.Round + "-" + card.CardId;
                 copy.Golden = false;
+                context.Minions?.TrySyncGoldenText(copy);
                 copy.Attack = card.BaseAttack;
                 copy.Health = card.BaseHealth;
                 copy.MaxHealth = card.BaseHealth;
@@ -4851,7 +4852,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var target = candidates[context.Rng.NextInt(candidates.Count)];
-            return AddPlainCopyToHand(context.State, target, source);
+            return AddPlainCopyToHand(context.State, target, source, context.Minions);
         }
 
         private static void StartBigglesworthEliminatedWarbandDiscover(HeroEffectContext context, HeroEffectResult result)
@@ -4906,7 +4907,7 @@ namespace LearnHearthstone.Domain.Engine
                 var candidate = candidates[index];
                 candidates.RemoveAt(index);
                 var copy = plainCopies
-                    ? CreatePlainCopy(candidate, "hero-discover-" + source + "-" + options.Count, BoardSide.Player, PoolSource.Discover)
+                    ? CreatePlainCopy(candidate, "hero-discover-" + source + "-" + options.Count, BoardSide.Player, PoolSource.Discover, context.Minions)
                     : candidate.Clone();
                 copy.InstanceId = "hero-discover-" + source + "-" + options.Count;
                 copy.Owner = BoardSide.Player;
@@ -5246,7 +5247,7 @@ namespace LearnHearthstone.Domain.Engine
             var correct = opponentCandidates[context.Rng.NextInt(opponentCandidates.Count)];
             var options = new List<MinionInstance>
             {
-                CreateHolmesGuessOption(correct, "holmes-correct", true)
+                CreateHolmesGuessOption(correct, "holmes-correct", true, context.Minions)
             };
             var tier = Math.Max(1, context.State.Player.Tavern.Tier);
             var distractors = context.Minions.All
@@ -5274,9 +5275,9 @@ namespace LearnHearthstone.Domain.Engine
             result.Messages.Add("Detective for Hire: started an opponent snapshot guess.");
         }
 
-        private static MinionInstance CreateHolmesGuessOption(MinionInstance source, string suffix, bool correct)
+        private static MinionInstance CreateHolmesGuessOption(MinionInstance source, string suffix, bool correct, MinionCatalog catalog)
         {
-            var option = CreatePlainCopy(source, suffix, BoardSide.Player, PoolSource.Discover);
+            var option = CreatePlainCopy(source, suffix, BoardSide.Player, PoolSource.Discover, catalog);
             if (correct)
             {
                 AddTag(option, HolmesCorrectGuessTag);
@@ -5643,16 +5644,21 @@ namespace LearnHearthstone.Domain.Engine
             };
         }
 
-        private static void MakeGoldenInPlace(MinionInstance target)
+        private static void MakeGoldenInPlace(MinionInstance target, MinionCatalog catalog)
         {
-            if (target == null || target.Golden)
+            if (target == null)
             {
                 return;
             }
 
-            target.Golden = true;
-            StatMath.DoubleCurrentStats(target, false);
-            target.Counters["triple-reward-granted"] = 1;
+            if (!target.Golden)
+            {
+                target.Golden = true;
+                StatMath.DoubleCurrentStats(target, false);
+                target.Counters["triple-reward-granted"] = 1;
+            }
+
+            catalog?.TrySyncGoldenText(target);
         }
 
         private static void AddTavernCoinToHand(HeroEffectContext context, string source)
@@ -5750,7 +5756,7 @@ namespace LearnHearthstone.Domain.Engine
             state.Player.Tavern.Hand.Add(copy);
         }
 
-        private static bool AddPlainCopyToHand(MatchState state, MinionInstance source, string copySource)
+        private static bool AddPlainCopyToHand(MatchState state, MinionInstance source, string copySource, MinionCatalog catalog)
         {
             if (state.Player.Tavern.Hand.Count >= HandLimit || source == null)
             {
@@ -5761,7 +5767,8 @@ namespace LearnHearthstone.Domain.Engine
                 source,
                 "player-" + source.DefinitionId + "-" + copySource + "-" + state.Round + "-" + state.Player.Tavern.Hand.Count,
                 BoardSide.Player,
-                PoolSource.Copy);
+                PoolSource.Copy,
+                catalog);
             AddTag(copy, "generated_copy");
             AddTag(copy, "plain_copy");
             state.Player.Tavern.Hand.Add(copy);
@@ -5816,7 +5823,7 @@ namespace LearnHearthstone.Domain.Engine
             return true;
         }
 
-        private static MinionInstance CreatePlainCopy(MinionInstance source, string instanceId, BoardSide owner, PoolSource poolSource)
+        private static MinionInstance CreatePlainCopy(MinionInstance source, string instanceId, BoardSide owner, PoolSource poolSource, MinionCatalog catalog)
         {
             var copy = source.Clone();
             var baseHealth = source.BaseHealth > 0 ? source.BaseHealth : Math.Max(1, source.MaxHealth);
@@ -5835,6 +5842,7 @@ namespace LearnHearthstone.Domain.Engine
             copy.PoolSource = poolSource;
             copy.OriginPoolSource = poolSource;
             copy.PoolCopiesHeld = 0;
+            catalog?.TrySyncGoldenText(copy);
             return copy;
         }
 
@@ -6398,7 +6406,7 @@ namespace LearnHearthstone.Domain.Engine
             if (bought >= 3 && triggeredRound != context.State.Round)
             {
                 tavern.HeroEffectCounters[KurtrusTriggeredRoundCounter] = context.State.Round;
-                AddPlainCopyToHand(context.State, card, "kurtrus");
+                AddPlainCopyToHand(context.State, card, "kurtrus", context.Minions);
                 result.Messages.Add("Glaive Ricochet: gained a plain copy of a bought minion.");
             }
         }

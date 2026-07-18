@@ -9714,6 +9714,7 @@ namespace LearnHearthstone.Application.Services
                 }
 
                 minion.Golden = false;
+                SyncGoldenText(minion);
                 minion.Tags.Remove("quest_temporary_golden_hammer");
             }
         }
@@ -13293,7 +13294,8 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Tavern,
                 State.Player.Tavern.Hand,
                 State.Seed + State.Round * 7919 + State.Player.Tavern.RecruitLog.Count,
-                source);
+                source,
+                ResolvePlayerTriples);
             ApplyRecruitPhaseRewards(rewards, source);
             return true;
         }
@@ -15960,16 +15962,21 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private static void MakeGoldenForCombat(MinionInstance target)
+        private void MakeGoldenForCombat(MinionInstance target)
         {
-            if (target == null || target.Golden)
+            if (target == null)
             {
                 return;
             }
 
-            target.Golden = true;
-            StatMath.DoubleCurrentStats(target, false);
-            RefreshScarletSurvivor(target);
+            if (!target.Golden)
+            {
+                target.Golden = true;
+                StatMath.DoubleCurrentStats(target, false);
+                RefreshScarletSurvivor(target);
+            }
+
+            SyncGoldenText(target);
         }
 
         private void LogTrinketCombatStart(TrinketDefinition definition, int affected)
@@ -21790,6 +21797,7 @@ namespace LearnHearthstone.Application.Services
             card.Tags.Remove("surf_n_surf_crab");
             card.Counters.Remove("surf_crab_attack");
             card.Counters.Remove("surf_crab_health");
+            card.Counters.Remove("surf_crab_golden");
             if (card.Tags.Remove("temporary_spellcraft_added_deathrattle"))
             {
                 card.Keywords.Remove(Keyword.Deathrattle);
@@ -21924,6 +21932,7 @@ namespace LearnHearthstone.Application.Services
                     {
                         added.Counters["crab_attack"] = source.Golden ? 6 : 3;
                         added.Counters["crab_health"] = source.Golden ? 4 : 2;
+                        added.Counters["crab_golden"] = source.Golden ? 1 : 0;
                     }
 
                     break;
@@ -22347,6 +22356,7 @@ namespace LearnHearthstone.Application.Services
             replacement.InstanceId = target.InstanceId;
             replacement.Owner = target.Owner;
             replacement.Golden = target.Golden;
+            SyncGoldenText(replacement);
             replacement.Attack = target.Attack;
             replacement.Health = target.Health;
             replacement.MaxHealth = target.MaxHealth;
@@ -22445,7 +22455,7 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private static bool UpdateMinionInList(List<MinionInstance> minions, string instanceId, MinionPatch patch)
+        private bool UpdateMinionInList(List<MinionInstance> minions, string instanceId, MinionPatch patch)
         {
             var updated = false;
             foreach (var minion in minions)
@@ -22475,6 +22485,7 @@ namespace LearnHearthstone.Application.Services
                 if (patch.Golden.HasValue)
                 {
                     minion.Golden = patch.Golden.Value;
+                    SyncGoldenText(minion);
                 }
 
                 if (patch.Keywords != null)
@@ -29655,7 +29666,8 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Tavern,
                 State.Player.Tavern.Hand,
                 State.Seed + State.Round * 7927 + State.Player.Tavern.RecruitLog.Count,
-                sourceName);
+                sourceName,
+                ResolvePlayerTriples);
             ApplyRecruitPhaseRewards(rewards, sourceName);
         }
 
@@ -31324,17 +31336,27 @@ namespace LearnHearthstone.Application.Services
             RefreshScarletSurvivor(target);
         }
 
-        private static void MakeGoldenInPlace(MinionInstance target)
+        private void MakeGoldenInPlace(MinionInstance target)
         {
-            if (target == null || target.Golden)
+            if (target == null)
             {
                 return;
             }
 
-            target.Golden = true;
-            StatMath.DoubleCurrentStats(target, false);
-            MarkTripleRewardGranted(target);
-            RefreshScarletSurvivor(target);
+            if (!target.Golden)
+            {
+                target.Golden = true;
+                StatMath.DoubleCurrentStats(target, false);
+                MarkTripleRewardGranted(target);
+                RefreshScarletSurvivor(target);
+            }
+
+            SyncGoldenText(target);
+        }
+
+        private void SyncGoldenText(MinionInstance target)
+        {
+            catalog?.TrySyncGoldenText(target);
         }
 
         private static void RefreshScarletSurvivor(MinionInstance target)
@@ -31347,37 +31369,54 @@ namespace LearnHearthstone.Application.Services
 
         private void ResolvePlayerTriples()
         {
-            var all = State.Player.Tavern.Hand.Concat(State.Player.Board).ToList();
-            var candidate = FindPlayerTripleCandidate(all, out var requiredCopies);
-            if (string.IsNullOrEmpty(candidate) && IsActiveImplementedAnomaly(FalseIdolsAnomalyCardId))
+            const int safetyLimit = 64;
+            for (var pass = 0; pass < safetyLimit; pass += 1)
             {
-                requiredCopies = 2;
+                var all = State.Player.Tavern.Hand.Concat(State.Player.Board).ToList();
+                var candidate = FindPlayerTripleCandidate(all, out var requiredCopies);
+                if (string.IsNullOrEmpty(candidate) && IsActiveImplementedAnomaly(FalseIdolsAnomalyCardId))
+                {
+                    requiredCopies = 2;
+                }
+
+                if (string.IsNullOrEmpty(candidate))
+                {
+                    if (TryResolveSurpriseElementalTriple(all, requiredCopies))
+                    {
+                        continue;
+                    }
+
+                    return;
+                }
+
+                var result = TripleEngine.ResolveTriple(all, candidate, BoardSide.Player, State.Round + "-" + State.Player.Tavern.RecruitLog.Count, requiredCopies);
+                ApplyPlayerTripleResult(result.Remaining, result.Golden);
+                AddRecruitLog(RecruitLogType.Triple, Localized("三连合成：" + result.Golden.Name + "。", "Triple created: " + result.Golden.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             }
 
-            if (string.IsNullOrEmpty(candidate) && TryResolveSurpriseElementalTriple(all, requiredCopies))
-            {
-                return;
-            }
+            throw new InvalidOperationException("Player triple resolution exceeded the safety limit.");
+        }
 
-            if (string.IsNullOrEmpty(candidate))
-            {
-                return;
-            }
-
-            var result = TripleEngine.ResolveTriple(all, candidate, BoardSide.Player, State.Round + "-" + State.Player.Tavern.RecruitLog.Count, requiredCopies);
-            State.Player.Tavern.Hand = result.Remaining.Where(minion => State.Player.Tavern.Hand.Any(hand => hand.InstanceId == minion.InstanceId)).ToList();
-            State.Player.Board = result.Remaining.Where(minion => State.Player.Board.Any(board => board.InstanceId == minion.InstanceId)).ToList();
+        private void ApplyPlayerTripleResult(IEnumerable<MinionInstance> remaining, MinionInstance golden)
+        {
+            SyncGoldenText(golden);
+            var remainingIds = new HashSet<string>((remaining ?? Enumerable.Empty<MinionInstance>()).Select(minion => minion.InstanceId));
+            State.Player.Tavern.Hand.RemoveAll(minion => !remainingIds.Contains(minion.InstanceId));
+            State.Player.Board.RemoveAll(minion => !remainingIds.Contains(minion.InstanceId));
 
             if (State.Player.Tavern.Hand.Count < HandLimit)
             {
-                State.Player.Tavern.Hand.Add(result.Golden);
-            }
-            else if (State.Player.Board.Count < BoardLimit)
-            {
-                State.Player.Board.Add(result.Golden);
+                State.Player.Tavern.Hand.Add(golden);
+                return;
             }
 
-            AddRecruitLog(RecruitLogType.Triple, Localized("三连合成：" + result.Golden.Name + "。", "Triple created: " + result.Golden.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+            if (State.Player.Board.Count < BoardLimit)
+            {
+                State.Player.Board.Add(golden);
+                return;
+            }
+
+            throw new InvalidOperationException("No destination is available for the golden triple card.");
         }
 
         private string FindPlayerTripleCandidate(List<MinionInstance> all, out int requiredCopies)
@@ -31471,27 +31510,13 @@ namespace LearnHearthstone.Application.Services
 
             var baseItem = elementalGroup.First();
             var remaining = all.Where(card => !materials.Any(material => material.InstanceId == card.InstanceId)).ToList();
-            var golden = baseItem.Clone();
-            golden.InstanceId = "player-" + baseItem.DefinitionId + "-golden-surprise-" + State.Round + "-" + State.Player.Tavern.RecruitLog.Count;
-            golden.Owner = BoardSide.Player;
-            golden.Golden = true;
-            golden.Attack = StatMath.SaturatingMultiply(baseItem.Attack, 2, 0, StatMath.MaxStat);
-            golden.Health = StatMath.SaturatingMultiply(baseItem.Health, 2, int.MinValue, StatMath.MaxStat);
-            golden.MaxHealth = StatMath.SaturatingMultiply(baseItem.MaxHealth, 2, 1, StatMath.MaxStat);
-            StatMath.ClampCurrentHealthToMax(golden);
-            golden.PoolSource = materials.Sum(item => item.PoolCopiesHeld) > 0 ? PoolSource.Pool : PoolSource.Copy;
-            golden.PoolCopiesHeld = materials.Sum(item => item.PoolCopiesHeld);
+            var golden = TripleEngine.CreateGoldenFromMaterials(
+                materials,
+                baseItem.DefinitionId,
+                BoardSide.Player,
+                "surprise-" + State.Round + "-" + State.Player.Tavern.RecruitLog.Count);
 
-            State.Player.Tavern.Hand = remaining.Where(minion => State.Player.Tavern.Hand.Any(hand => hand.InstanceId == minion.InstanceId)).ToList();
-            State.Player.Board = remaining.Where(minion => State.Player.Board.Any(board => board.InstanceId == minion.InstanceId)).ToList();
-            if (State.Player.Tavern.Hand.Count < HandLimit)
-            {
-                State.Player.Tavern.Hand.Add(golden);
-            }
-            else if (State.Player.Board.Count < BoardLimit)
-            {
-                State.Player.Board.Add(golden);
-            }
+            ApplyPlayerTripleResult(remaining, golden);
 
             AddRecruitLog(RecruitLogType.Triple, "Surprise Elemental triple " + golden.Name, State.Player.Tavern.Gold, State.Player.Tavern.Gold);
             return true;

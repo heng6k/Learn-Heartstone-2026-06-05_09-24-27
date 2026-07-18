@@ -13,6 +13,37 @@ namespace LearnHearthstone.Tests.EditMode
     public sealed class TavernSpellEngineTests
     {
         [Test]
+        public void Cast_GoldenTouchSynchronizesGoldenDescription()
+        {
+            var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
+            var minions = MinionCatalogLoader.LoadFromResources();
+            var definition = minions.GetByCardId("BG28_300");
+            state.Player.Tavern.Shop.Clear();
+            state.Player.Tavern.Shop.Add(new MinionInstance
+            {
+                DefinitionId = definition.Id,
+                CardId = definition.CardId,
+                Text = definition.Text,
+                BaseAttack = definition.BaseAttack,
+                BaseHealth = definition.BaseHealth,
+                Attack = definition.BaseAttack,
+                Health = definition.BaseHealth,
+                MaxHealth = definition.BaseHealth,
+                CardKind = CardKind.Minion
+            });
+
+            TavernSpellEngine.Cast(
+                new MinionInstance { CardKind = CardKind.TavernSpell, CardId = "104448", Name = "Golden Touch" },
+                state,
+                minions,
+                SpellCatalogLoader.LoadFromResources(),
+                new SeededRng(1));
+
+            Assert.IsTrue(state.Player.Tavern.Shop[0].Golden);
+            Assert.AreEqual(definition.Golden.Text, state.Player.Tavern.Shop[0].Text);
+        }
+
+        [Test]
         public void Cast_BloodGemBarrageSnapshotsSpellScalingAndDefersBloodGemQuality()
         {
             var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;

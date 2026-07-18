@@ -47,22 +47,53 @@ namespace LearnHearthstone.Domain.Engine
                 throw new InvalidOperationException("Not enough minions to resolve triple.");
             }
 
+            var golden = CreateGoldenFromMaterials(materials, definitionId, owner, suffix);
+
+            return new TripleResult { Remaining = remaining, Golden = golden };
+        }
+
+        public static MinionInstance CreateGoldenFromMaterials(IReadOnlyList<MinionInstance> materials, string definitionId, BoardSide owner, string suffix = "triple")
+        {
+            if (materials == null || materials.Count == 0)
+            {
+                throw new InvalidOperationException("At least one triple material is required.");
+            }
+
             var baseItem = materials[0];
+            var hasNormalBaseStats = baseItem.BaseHealth > 0;
+            var normalBaseAttack = hasNormalBaseStats ? baseItem.BaseAttack : baseItem.Attack;
+            var normalBaseHealth = hasNormalBaseStats ? baseItem.BaseHealth : baseItem.MaxHealth;
             var poolCopiesHeld = materials.Sum(item => item.PoolCopiesHeld);
             var golden = baseItem.Clone();
             golden.InstanceId = owner.ToString().ToLowerInvariant() + "-" + definitionId + "-golden-" + suffix;
             golden.Owner = owner;
             golden.Golden = true;
-            golden.Attack = StatMath.SaturatingMultiply(baseItem.Attack, 2, 0, StatMath.MaxStat);
-            golden.Health = StatMath.SaturatingMultiply(baseItem.Health, 2, int.MinValue, StatMath.MaxStat);
-            golden.MaxHealth = StatMath.SaturatingMultiply(baseItem.MaxHealth, 2, 1, StatMath.MaxStat);
+            golden.BaseAttack = StatMath.SaturatingMultiply(normalBaseAttack, 2, 0, StatMath.MaxStat);
+            golden.BaseHealth = StatMath.SaturatingMultiply(normalBaseHealth, 2, 1, StatMath.MaxStat);
+            golden.Attack = golden.BaseAttack;
+            golden.Health = golden.BaseHealth;
+            golden.MaxHealth = golden.BaseHealth;
+            golden.Enchantments = new List<Enchantment>();
+            golden.Keywords = materials
+                .Where(item => item.Keywords != null)
+                .SelectMany(item => item.Keywords)
+                .Distinct()
+                .ToList();
+
+            foreach (var material in materials)
+            {
+                foreach (var enchantment in material.Enchantments ?? Enumerable.Empty<Enchantment>())
+                {
+                    StatMath.ApplyEnchantment(golden, enchantment?.Clone());
+                }
+            }
+
             StatMath.ClampCurrentHealthToMax(golden);
             golden.PoolSource = materials.Any(item => item.PoolSource == PoolSource.Buddy) && poolCopiesHeld > 0
                 ? PoolSource.Buddy
                 : poolCopiesHeld > 0 ? PoolSource.Pool : PoolSource.Copy;
             golden.PoolCopiesHeld = poolCopiesHeld;
-
-            return new TripleResult { Remaining = remaining, Golden = golden };
+            return golden;
         }
 
         private static bool IsTripleMaterial(MinionInstance item)

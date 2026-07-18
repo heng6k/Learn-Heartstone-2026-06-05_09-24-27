@@ -8,6 +8,9 @@ namespace LearnHearthstone.Adapters.Images
     public sealed class CardImageProvider
     {
         private const float FullTexturePixelsPerUnit = 100f;
+        private const float FullCardAspectThreshold = 1.2f;
+        private const string ArtDisplayContainTag = "art_display:contain";
+        private const string ArtDisplayCropTag = "art_display:crop";
         private static readonly Dictionary<string, Sprite> fullTextureSpriteCache = new Dictionary<string, Sprite>();
         private readonly Sprite fallback;
 
@@ -73,6 +76,23 @@ namespace LearnHearthstone.Adapters.Images
             }
 
             return fallback;
+        }
+
+        public static bool ShouldCropToPortrait(Sprite sprite, IEnumerable<string> tags = null)
+        {
+            if (tags != null && tags.Any(tag => string.Equals(tag, ArtDisplayContainTag, System.StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            if (tags != null && tags.Any(tag => string.Equals(tag, ArtDisplayCropTag, System.StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            return sprite != null &&
+                   sprite.rect.width > 0.01f &&
+                   sprite.rect.height / sprite.rect.width >= FullCardAspectThreshold;
         }
 
         private static Sprite LoadFullTextureSprite(string path)

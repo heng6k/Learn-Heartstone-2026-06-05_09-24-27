@@ -4063,6 +4063,7 @@ namespace LearnHearthstone.Tests.EditMode
             var spell = tavern.Hand.Single(card => card.CardId == "SURF_N_SURF_SPELL");
             Assert.AreEqual(6, spell.Counters["crab_attack"]);
             Assert.AreEqual(4, spell.Counters["crab_health"]);
+            Assert.AreEqual(1, spell.Counters["crab_golden"]);
             Assert.Contains("temporary_spellcraft_card", spell.Tags);
         }
 
@@ -4153,6 +4154,23 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Apply_UpdateMinionGoldenPatchSynchronizesCatalogDescriptionBothWays()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            var definition = catalog.GetByCardId("BG28_300");
+            service.State.Player.Tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, definition.CardId, CardKind.Minion));
+            var target = service.State.Player.Tavern.Hand.Single();
+
+            service.Apply(new GameCommand(GameCommandType.UpdateMinion, target.InstanceId, new MinionPatch { Golden = true }));
+            Assert.AreEqual(definition.Golden.Text, target.Text);
+
+            service.Apply(new GameCommand(GameCommandType.UpdateMinion, target.InstanceId, new MinionPatch { Golden = false }));
+            Assert.AreEqual(definition.Text, target.Text);
+        }
+
+        [Test]
         public void Apply_PlayingGoldenMinionGrantsRewardCardThatDiscoversNextAvailableTier()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -4172,6 +4190,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNull(service.State.Player.Tavern.Discover, "Triples should not discover until the reward card is played.");
             var goldenIndex = service.State.Player.Tavern.Hand.FindIndex(minion => minion.Golden);
             Assert.GreaterOrEqual(goldenIndex, 0, "Expected triple to create a golden minion in hand.");
+            var definition = MinionCatalogLoader.LoadFromResources().GetByCardId(source.CardId);
+            Assert.AreEqual(definition.Golden.Text, service.State.Player.Tavern.Hand[goldenIndex].Text);
 
             service.Apply(new GameCommand(GameCommandType.PlayMinion, goldenIndex));
 

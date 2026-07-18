@@ -1276,7 +1276,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             artImage.color = artImage.sprite == null
                 ? CombatCardFallbackColor(minion, defeated)
                 : new Color(1f, 1f, 1f, defeated ? 0.42f : 0.92f);
-            SetAnchored(artImage.rectTransform, new Vector2(0f, -1f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+            var cropArt = CardImageProvider.ShouldCropToPortrait(artImage.sprite);
+            SetAnchored(
+                artImage.rectTransform,
+                cropArt ? new Vector2(0f, -1f) : Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero);
             artImage.rectTransform.pivot = new Vector2(0.5f, 1f);
 
             if (artImage.sprite == null)

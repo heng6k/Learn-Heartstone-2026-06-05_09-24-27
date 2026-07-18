@@ -1362,6 +1362,57 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TribeSelectionView_CardPoolTogglePreservesScrollPosition()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            var directory = Path.Combine(Path.GetTempPath(), "learn-hearthstone-card-pool-scroll-ui-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var rootRect = rootObject.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(1366f, 768f);
+                new UnityTavernTribeSelectionView(
+                    rootObject.transform,
+                    setup => { },
+                    () => { },
+                    UnityTavernLayoutContext.ForSize(1366f, 768f),
+                    new JsonCardPoolVersionRepository(directory, "versions.json"),
+                    MinionCatalogLoader.LoadFromResources(),
+                    SpellCatalogLoader.LoadFromResources()).Build();
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionOpenButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardPoolVersionCopyButton").GetComponent<Button>().onClick.Invoke();
+
+                const float expectedPosition = 0.37f;
+                var overlay = FindChild(rootObject.transform, "UnityCardPoolVersionOverlay");
+                var scroll = FindChild(rootObject.transform, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>();
+                scroll.verticalNormalizedPosition = expectedPosition;
+                scroll.onValueChanged.Invoke(new Vector2(0f, expectedPosition));
+
+                var toggle = FindChildren(rootObject.transform, "UnityCardPoolMinionToggle-")
+                    .Select(child => child.GetComponent<Toggle>())
+                    .First(item => item != null && item.interactable);
+                toggle.isOn = !toggle.isOn;
+
+                Assert.AreSame(overlay, FindChild(rootObject.transform, "UnityCardPoolVersionOverlay"));
+                Assert.AreSame(scroll, FindChild(rootObject.transform, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>());
+                Assert.AreEqual(expectedPosition, scroll.verticalNormalizedPosition, 0.01f);
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionModalSummary").GetComponent<Text>().text.Contains("未保存"));
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardPoolVersionSaveButton").GetComponent<Button>().interactable);
+
+                FindChild(rootObject.transform, "UnityCardPoolVersionSpellTab").GetComponent<Button>().onClick.Invoke();
+                Assert.AreEqual(1f, FindChild(rootObject.transform, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>().verticalNormalizedPosition, 0.01f);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
         public void TribeSelectionView_CardPoolModalShowsTimewarpedTab()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -3699,6 +3750,64 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void CardImageProvider_CropsTallFullCardsButContainsSquareArtwork()
+        {
+            var squareTexture = new Texture2D(256, 256);
+            var tallTexture = new Texture2D(256, 388);
+            var square = Sprite.Create(squareTexture, new Rect(0f, 0f, 256f, 256f), new Vector2(0.5f, 0.5f));
+            var tall = Sprite.Create(tallTexture, new Rect(0f, 0f, 256f, 388f), new Vector2(0.5f, 0.5f));
+            try
+            {
+                Assert.IsFalse(CardImageProvider.ShouldCropToPortrait(square));
+                Assert.IsTrue(CardImageProvider.ShouldCropToPortrait(tall));
+                Assert.IsFalse(CardImageProvider.ShouldCropToPortrait(tall, new[] { "ART_DISPLAY:CONTAIN" }));
+                Assert.IsTrue(CardImageProvider.ShouldCropToPortrait(square, new[] { "ART_DISPLAY:CROP" }));
+            }
+            finally
+            {
+                Object.DestroyImmediate(square);
+                Object.DestroyImmediate(tall);
+                Object.DestroyImmediate(squareTexture);
+                Object.DestroyImmediate(tallTexture);
+            }
+        }
+
+        [Test]
+        public void CardComponent_SquareArtworkUsesFullImageWithoutHalfCropViewport()
+        {
+            var cardObject = new GameObject("SquareCardArt", typeof(RectTransform), typeof(Image), typeof(Button), typeof(UnityTavernCardComponent));
+            try
+            {
+                cardObject.GetComponent<UnityTavernCardComponent>().Bind(
+                    new MinionInstance
+                    {
+                        CardKind = CardKind.Minion,
+                        InstanceId = "square-card-art",
+                        CardId = "BG34_Giant_001",
+                        Name = "Square Card Art",
+                        Attack = 1,
+                        Health = 1
+                    },
+                    UnityTavernCardMode.Shop,
+                    "Buy",
+                    null,
+                    null);
+
+                var art = FindChild(cardObject.transform, "UnityCardArt").GetComponent<Image>();
+                Assert.IsNotNull(art.sprite);
+                Assert.AreEqual(art.sprite.rect.width, art.sprite.rect.height, 0.001f);
+                Assert.IsNull(FindChild(cardObject.transform, "UnityCardArtViewport"));
+                Assert.AreSame(cardObject.transform, art.transform.parent);
+                Assert.AreEqual(Vector2.zero, art.rectTransform.anchorMin);
+                Assert.AreEqual(Vector2.one, art.rectTransform.anchorMax);
+            }
+            finally
+            {
+                Object.DestroyImmediate(cardObject);
+            }
+        }
+
+        [Test]
         public void CardComponent_MissingArtUsesStableNameAbbreviationAndOnlyTavernSpellCost()
         {
             var firstObject = new GameObject("MissingCjkArt", typeof(RectTransform), typeof(Image), typeof(Button), typeof(UnityTavernCardComponent));
@@ -5776,6 +5885,84 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Tools_CardLibraryAddPreservesModalAndScrollPosition()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(1366f, 768f);
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                OpenRightPanelDrawer(rootObject.transform);
+                FindChild(rootObject.transform, "UnityToolsButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityToolsOpenCardLibraryButton").GetComponent<Button>().onClick.Invoke();
+
+                const float expectedPosition = 0.41f;
+                var overlay = FindChild(rootObject.transform, "UnityCardLibraryOverlay");
+                var playSurface = FindChild(rootObject.transform, "UnityPlaySurface");
+                var handZone = FindChild(rootObject.transform, "UnityHandZone");
+                var scroll = FindChild(rootObject.transform, "UnityCardLibraryScroll").GetComponent<ScrollRect>();
+                scroll.verticalNormalizedPosition = expectedPosition;
+                scroll.onValueChanged.Invoke(new Vector2(0f, expectedPosition));
+
+                var handBefore = service.State.Player.Tavern.Hand.Count;
+                FindChild(rootObject.transform, "UnityCardLibraryAddButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(handBefore + 1, service.State.Player.Tavern.Hand.Count);
+                Assert.AreSame(overlay, FindChild(rootObject.transform, "UnityCardLibraryOverlay"));
+                Assert.AreSame(playSurface, FindChild(rootObject.transform, "UnityPlaySurface"));
+                Assert.AreSame(handZone, FindChild(rootObject.transform, "UnityHandZone"));
+                Assert.AreSame(scroll, FindChild(rootObject.transform, "UnityCardLibraryScroll").GetComponent<ScrollRect>());
+                Assert.AreEqual(expectedPosition, scroll.verticalNormalizedPosition, 0.01f);
+
+                FindChild(rootObject.transform, "UnityCardLibrarySpellTab").GetComponent<Button>().onClick.Invoke();
+                Assert.AreEqual(1f, FindChild(rootObject.transform, "UnityCardLibraryScroll").GetComponent<ScrollRect>().verticalNormalizedPosition, 0.01f);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Tools_OpponentCardLibraryAddPreservesScrollAndGoldenToggle()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(1366f, 768f);
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                OpenRightPanelDrawer(rootObject.transform);
+                FindChild(rootObject.transform, "UnityToolsButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityToolsAddOpponentButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardLibraryOpponentGoldenToggle").GetComponent<Button>().onClick.Invoke();
+
+                const float expectedPosition = 0.29f;
+                var overlay = FindChild(rootObject.transform, "UnityCardLibraryOverlay");
+                var playSurface = FindChild(rootObject.transform, "UnityPlaySurface");
+                var scroll = FindChild(rootObject.transform, "UnityCardLibraryScroll").GetComponent<ScrollRect>();
+                scroll.verticalNormalizedPosition = expectedPosition;
+                scroll.onValueChanged.Invoke(new Vector2(0f, expectedPosition));
+
+                var boardBefore = service.State.Opponent.Board.Count;
+                FindChild(rootObject.transform, "UnityCardLibraryAddButton").GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual(boardBefore + 1, service.State.Opponent.Board.Count);
+                Assert.IsTrue(service.State.Opponent.Board.Last().Golden);
+                Assert.AreSame(overlay, FindChild(rootObject.transform, "UnityCardLibraryOverlay"));
+                Assert.AreSame(playSurface, FindChild(rootObject.transform, "UnityPlaySurface"));
+                Assert.AreSame(scroll, FindChild(rootObject.transform, "UnityCardLibraryScroll").GetComponent<ScrollRect>());
+                Assert.AreEqual(expectedPosition, scroll.verticalNormalizedPosition, 0.01f);
+                Assert.AreEqual("金色", FindChild(rootObject.transform, "UnityCardLibraryOpponentGoldenToggleText").GetComponent<Text>().text);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void Tools_CardLibrarySyncsWithActiveTribesAndShowAllToggle()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -5810,6 +5997,54 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardLibrarySpellTribePirateButton"));
                 FindChild(rootObject.transform, "UnityCardLibrarySpellTribePirateButton").GetComponent<Button>().onClick.Invoke();
                 Assert.IsNotNull(FindCardLibraryCard(rootObject.transform, "122182"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Tools_CardLibraryReopenResetsFiltersAndLoadsBeyondFirstPage()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                OpenRightPanelDrawer(rootObject.transform);
+                FindChild(rootObject.transform, "UnityToolsButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityToolsOpenCardLibraryButton").GetComponent<Button>().onClick.Invoke();
+
+                FindChild(rootObject.transform, "UnityCardLibraryTribeBeastButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardLibraryBackButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityToolsOpenCardLibraryButton").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "UnityCardLibraryTier5Button").GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsTrue(FindChild(rootObject.transform, "UnityCardLibraryTribeAllButton").GetComponent<Outline>().enabled);
+                Assert.IsNotNull(FindCardLibraryCard(rootObject.transform, "BG_LOE_077"));
+
+                FindChild(rootObject.transform, "UnityCardLibraryTierAllButton").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNull(FindCardLibraryCard(rootObject.transform, "BG_LOE_077"));
+                var loadMoreTransform = FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton");
+                Assert.IsNotNull(loadMoreTransform);
+                while (FindCardLibraryCard(rootObject.transform, "BG_LOE_077") == null && loadMoreTransform != null)
+                {
+                    loadMoreTransform.GetComponent<Button>().onClick.Invoke();
+                    loadMoreTransform = FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton");
+                }
+
+                Assert.IsNotNull(FindCardLibraryCard(rootObject.transform, "BG_LOE_077"));
+
+                FindChild(rootObject.transform, "UnityCardLibraryHeroPowerTab").GetComponent<Button>().onClick.Invoke();
+                var loadMore = FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton").GetComponent<Button>();
+                loadMore.onClick.Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton"));
+
+                FindChild(rootObject.transform, "UnityCardLibraryHeroBuddyTab").GetComponent<Button>().onClick.Invoke();
+                loadMore = FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton").GetComponent<Button>();
+                loadMore.onClick.Invoke();
+                Assert.IsNull(FindChild(rootObject.transform, "UnityCardLibraryLoadMoreButton"));
             }
             finally
             {

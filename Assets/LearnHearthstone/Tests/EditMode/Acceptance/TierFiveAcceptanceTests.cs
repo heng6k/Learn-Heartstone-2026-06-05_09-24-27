@@ -195,6 +195,30 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TierFiveKelThuzad_SixRecruitSkeletonsCreateTwoGoldenTriplesAndFreeBoardSpace()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(95153, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            for (var index = 0; index < 5; index += 1)
+            {
+                var skeleton = Card("pre-skeleton-" + index, BoardSide.Player, "SKELETON", 1, 1, Tribe.Undead);
+                skeleton.DefinitionId = "skeleton";
+                skeleton.Name = "Skeleton";
+                service.State.Player.Board.Add(skeleton);
+            }
+
+            AddAndPlay(service, "BG28_300");
+            AddAndPlay(service, "BG28_308");
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(minion => minion.DefinitionId == "skeleton" && minion.Golden));
+            Assert.AreEqual(1, service.State.Player.Board.Count(minion => minion.DefinitionId == "skeleton" && !minion.Golden));
+            Assert.IsTrue(service.State.Player.Board.Any(minion => minion.InstanceId.StartsWith("kel-thuzad-")));
+        }
+
+        [Test]
         public void TierFiveKelThuzad_RebornFillsBoardBeforeExactCopy()
         {
             var service = MatchService.CreateWithDefaultCatalog(95152, new InMemoryTestScenarioRepository());

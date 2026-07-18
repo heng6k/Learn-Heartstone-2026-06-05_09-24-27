@@ -447,7 +447,7 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveBuyTheHolyLight(state);
                     return "Buy the Holy Light: friendly minion gains +10 Attack and Divine Shield";
                 case DarkmoonPrizeRaiseTheStakesCardId:
-                    ReturnGoldenFriendlyMinionToHand(state);
+                    ReturnGoldenFriendlyMinionToHand(state, minions);
                     return "Raise the Stakes: make a friendly minion Golden and return it";
                 case DarkmoonPrizeRatInACageCardId:
                     DoubleAttackAfterBuff(state, FirstAnyMinion(state), 2, "I'm Still Just a Rat in a Cage");
@@ -492,7 +492,7 @@ namespace LearnHearthstone.Domain.Engine
                     ReturnFriendlyNonGoldenMinionToHand(state);
                     return "Repeat Customer: return a friendly non-Golden minion with +6/+6";
                 case DarkmoonPrizeAllThatGlittersCardId:
-                    MakeGolden(RandomShopMinion(state, rng));
+                    MakeGolden(RandomShopMinion(state, rng), minions);
                     return "All That Glitters: random Tavern minion becomes Golden";
                 case DarkmoonPrizeMindflayerGogglesCardId:
                     StealShopAndRefresh(state, minions, rng);
@@ -585,6 +585,7 @@ namespace LearnHearthstone.Domain.Engine
                     {
                         surfTarget.Counters["surf_crab_attack"] = spell.Counters != null && spell.Counters.TryGetValue("crab_attack", out var crabAttack) ? crabAttack : 3;
                         surfTarget.Counters["surf_crab_health"] = spell.Counters != null && spell.Counters.TryGetValue("crab_health", out var crabHealth) ? crabHealth : 2;
+                        surfTarget.Counters["surf_crab_golden"] = spell.Counters != null && spell.Counters.TryGetValue("crab_golden", out var crabGolden) ? crabGolden : 0;
                         AddTag(surfTarget, permanentSurf ? "permanent_spellcraft" : "temporary_spellcraft");
                         if (!hadDeathrattle && !permanentSurf)
                         {
@@ -774,7 +775,7 @@ namespace LearnHearthstone.Domain.Engine
                     BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "Plenty Staff", applyTavernSpellBonus);
                     return "Plenty Staff: Tavern minions gain +2/+2 this game";
                 case "104448":
-                    MakeGolden(RandomShopMinion(state, rng));
+                    MakeGolden(RandomShopMinion(state, rng), minions);
                     return "Golden Touch: random Tavern minion becomes Golden";
                 case "104502":
                     StealRandomShopMinion(state, rng);
@@ -838,7 +839,7 @@ namespace LearnHearthstone.Domain.Engine
                 case "100601":
                     MakeGolden(FirstFriendlyBoard(state)?.TavernTier <= 4
                         ? FirstFriendlyBoard(state)
-                        : state.Player.Board.FirstOrDefault(minion => minion.TavernTier <= 4));
+                        : state.Player.Board.FirstOrDefault(minion => minion.TavernTier <= 4), minions);
                     return "Eyes of the Earth Mother: golden the first Tier 4 or lower friendly minion";
                 case "100911":
                     RefreshShopToTargetTribe(state, minions, rng);
@@ -1475,7 +1476,7 @@ namespace LearnHearthstone.Domain.Engine
             state.Player.Tavern.Hand.Add(target);
         }
 
-        private static void ReturnGoldenFriendlyMinionToHand(MatchState state)
+        private static void ReturnGoldenFriendlyMinionToHand(MatchState state, MinionCatalog catalog)
         {
             if (state.Player.Tavern.Hand.Count >= HandLimit)
             {
@@ -1488,7 +1489,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            MakeGolden(target);
+            MakeGolden(target, catalog);
             state.Player.Board.Remove(target);
             target.Owner = BoardSide.Player;
             target.PoolSource = PoolSource.Copy;
@@ -2261,16 +2262,21 @@ namespace LearnHearthstone.Domain.Engine
             state.Player.Tavern.Hand.Add(MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spell-" + source + "-" + state.Round, false, PoolSource.Copy, 0));
         }
 
-        private static void MakeGolden(MinionInstance target)
+        private static void MakeGolden(MinionInstance target, MinionCatalog catalog)
         {
-            if (target == null || target.Golden)
+            if (target == null)
             {
                 return;
             }
 
-            target.Golden = true;
-            StatMath.DoubleCurrentStats(target, false);
-            RefreshScarletSurvivor(target);
+            if (!target.Golden)
+            {
+                target.Golden = true;
+                StatMath.DoubleCurrentStats(target, false);
+                RefreshScarletSurvivor(target);
+            }
+
+            catalog?.TrySyncGoldenText(target);
         }
 
         private static void RefreshScarletSurvivor(MinionInstance target)

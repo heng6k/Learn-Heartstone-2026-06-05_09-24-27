@@ -22,6 +22,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
     {
         private const int BoardLimit = 7;
         private const int HandLimit = 10;
+        private const int CardLibraryPageSize = 80;
         private const string HeroPowerDragInstanceId = "unity-current-hero-power";
         private const int CombatStatsSampleCount = 100;
         private static readonly float[] ReplayFrameDurations = { 0.65f, 0.36f, 0.18f };
@@ -160,9 +161,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private int toolsAcquisitionTierFilter;
         private Tribe toolsAcquisitionTribeFilter = Tribe.All;
         private string toolsAcquisitionSearchText = string.Empty;
+        private ScrollRect cardLibraryScrollRect;
+        private readonly Dictionary<Button, MinionInstance> cardLibraryAddButtons = new Dictionary<Button, MinionInstance>();
+        private float cardLibraryScrollPosition = 1f;
+        private bool restoreCardLibraryScrollPosition;
         private UnityCardLibraryDestination cardLibraryDestination = UnityCardLibraryDestination.PlayerHand;
         private bool opponentCardLibraryGolden;
         private bool toolsShowAllCards;
+        private int cardLibraryVisibleLimit = CardLibraryPageSize;
         private HeroPowerCategory? toolsHeroPowerCategoryFilter;
         private HeroPowerReplacementEligibility? toolsHeroPowerEligibilityFilter;
         private bool advancedCardLibraryOpen;
@@ -233,6 +239,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             rebuildQueued = false;
+            cardLibraryScrollRect = null;
             ClearChildren();
             keywordTooltip = null;
             targetingHoverAnchor = null;
@@ -340,6 +347,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             RefreshTargetingClarity();
+            RestoreCardLibraryScrollPosition();
         }
 
         private UnityTavernLayoutContext LayoutContext()
@@ -1750,22 +1758,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildOpponentBoard(Transform parent, UnityTavernLayoutContext layout)
         {
             var zone = Zone("UnityOpponentBoardZone", parent, layout, UnityTavernZoneKind.OpponentBoard, UnityTavernCardMode.Board);
-            zone.Build(
-                "对手战场",
-                service.State.Opponent.Board.Count + "/7",
-                service.State.Opponent.Board,
-                BoardLimit,
-                UnityTavernCardMode.Board,
-                card => null,
-                SelectCard,
-                null,
-                configureCard: (cardObject, card, index) =>
-                {
-                    ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.OpponentBoard, index);
-                    ConfigureBoardCardInteractions(cardObject, card);
-                },
-                configureSlot: (slot, index) => AddDropTarget(slot, UnityTavernDropTarget.OpponentBoard, index),
-                layoutContext: layout);
+            BindOpponentBoardZone(zone, layout);
             BuildBoardReorderDropZone(
                 zone.transform,
                 "UnityOpponentBoardReorderDropZone",
@@ -1783,6 +1776,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 44f,
                 false,
                 UnityTavernActionButtonRole.Utility);
+        }
+
+        private void BindOpponentBoardZone(UnityTavernZoneComponent zone, UnityTavernLayoutContext layout)
+        {
+            zone.Build(
+                "对手战场",
+                service.State.Opponent.Board.Count + "/7",
+                service.State.Opponent.Board,
+                BoardLimit,
+                UnityTavernCardMode.Board,
+                card => null,
+                SelectCard,
+                null,
+                configureCard: (cardObject, card, index) =>
+                {
+                    ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.OpponentBoard, index);
+                    ConfigureBoardCardInteractions(cardObject, card);
+                },
+                configureSlot: (slot, index) => AddDropTarget(slot, UnityTavernDropTarget.OpponentBoard, index),
+                layoutContext: layout);
         }
 
         private void BuildShop(Transform parent, UnityTavernLayoutContext layout)
@@ -1828,8 +1841,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildOpponentHand(Transform parent, UnityTavernLayoutContext layout)
         {
-            var hand = service.State.Opponent.Hand ?? new List<MinionInstance>();
             var zone = Zone("UnityOpponentHandZone", parent, layout, UnityTavernZoneKind.Hand, UnityTavernCardMode.Hand);
+            BindOpponentHandZone(zone, layout);
+        }
+
+        private void BindOpponentHandZone(UnityTavernZoneComponent zone, UnityTavernLayoutContext layout)
+        {
+            var hand = service.State.Opponent.Hand ?? new List<MinionInstance>();
             zone.Build(
                 "对手手牌",
                 hand.Count + "/10",
@@ -1881,6 +1899,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildHand(Transform parent, UnityTavernLayoutContext layout)
         {
             var zone = Zone("UnityHandZone", parent, layout, UnityTavernZoneKind.Hand, UnityTavernCardMode.Hand);
+            BindPlayerHandZone(zone, layout);
+            BuildHandBuyDropZone(zone.transform);
+        }
+
+        private void BindPlayerHandZone(UnityTavernZoneComponent zone, UnityTavernLayoutContext layout)
+        {
             zone.Build(
                 "手牌",
                 service.State.Player.Tavern.Hand.Count + "/10",
@@ -1897,7 +1921,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 },
                 configureSlot: (slot, index) => AddDropTarget(slot, UnityTavernDropTarget.Hand, index),
                 layoutContext: layout);
-            BuildHandBuyDropZone(zone.transform);
         }
 
         private void BuildRightPanelDrawerToggle()
@@ -2770,6 +2793,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             cardLibraryDetailCard = null;
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.PlayerHand;
+            ResetCardLibraryFilters(CardKind.Minion);
             Rebuild();
         }
 
@@ -2783,6 +2807,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentBoard;
             opponentCardLibraryGolden = false;
+            ResetCardLibraryFilters(CardKind.Minion);
             Rebuild();
         }
 
@@ -2796,6 +2821,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentHand;
             opponentCardLibraryGolden = false;
+            ResetCardLibraryFilters(CardKind.Minion);
             Rebuild();
         }
 
@@ -2808,7 +2834,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             cardLibraryDetailCard = null;
             heroSelectionOpen = false;
             cardLibraryDestination = UnityCardLibraryDestination.OpponentStartOfCombatSpell;
-            SelectToolsAcquisitionKind(CardKind.TavernSpell);
+            ResetCardLibraryFilters(CardKind.TavernSpell);
             Rebuild();
         }
 
@@ -3365,6 +3391,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildCardLibraryOverlay()
         {
+            cardLibraryAddButtons.Clear();
             var overlay = Panel("UnityCardLibraryOverlay", transform, new Color(0f, 0f, 0f, 0.68f));
             overlay.transform.SetAsLastSibling();
             UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
@@ -3408,9 +3435,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             toolsAcquisitionKind = kind;
             toolsAcquisitionTierFilter = 0;
             toolsAcquisitionTribeFilter = Tribe.All;
+            toolsAcquisitionSearchText = string.Empty;
             toolsHeroPowerCategoryFilter = null;
             toolsHeroPowerEligibilityFilter = null;
             opponentCardLibraryGolden = false;
+            cardLibraryVisibleLimit = CardLibraryPageSize;
+        }
+
+        private void ResetCardLibraryFilters(CardKind kind)
+        {
+            SelectToolsAcquisitionKind(kind);
+            toolsShowAllCards = false;
+            cardLibraryScrollPosition = 1f;
+            restoreCardLibraryScrollPosition = false;
         }
 
         private string CardLibraryKindTitle()
@@ -3661,7 +3698,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildCardLibraryCenterPanel(Transform parent)
         {
-            var choices = FilteredToolsAcquisitionChoices().ToList();
+            var allChoices = FilteredToolsAcquisitionChoices().ToList();
+            var choices = allChoices.Take(cardLibraryVisibleLimit).ToList();
             var center = Panel("UnityCardLibraryCenterPanel", parent, UnityTavernUiStyle.Panel);
             ConfigureToolsSurface(center, CardLibraryAccent(), 0.20f);
             UnityTavernUiStyle.SetFlexible(center, 1f, 1f);
@@ -3675,7 +3713,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             BuildCardLibrarySearch(center.transform);
 
-            var content = UiFactory.ScrollView("UnityCardLibraryScroll", center.transform, UnityTavernUiStyle.PanelQuiet, out _);
+            var content = UiFactory.ScrollView("UnityCardLibraryScroll", center.transform, UnityTavernUiStyle.PanelQuiet, out var scrollRect);
+            cardLibraryScrollRect = scrollRect;
+            if (!restoreCardLibraryScrollPosition)
+            {
+                cardLibraryScrollPosition = 1f;
+            }
+            scrollRect.onValueChanged.AddListener(position => cardLibraryScrollPosition = position.y);
             UnityTavernUiStyle.SetFlexible(content.gameObject, 1f, 1f);
 
             if (choices.Count == 0)
@@ -3700,6 +3744,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 BuildCardLibraryCard(content, choices[index], index);
             }
+
+            if (choices.Count < allChoices.Count)
+            {
+                var loadMore = ToolButton(
+                    "UnityCardLibraryLoadMoreButton",
+                    content,
+                    "加载更多（" + choices.Count + "/" + allChoices.Count + "）",
+                    true,
+                    LoadMoreCardLibraryChoices);
+                UnityTavernUiStyle.SetFixedSize(loadMore.gameObject, 148f, UnityTavernUiStyle.TouchHeight);
+            }
+        }
+
+        private void LoadMoreCardLibraryChoices()
+        {
+            PreserveCardLibraryScrollForNextRebuild();
+            cardLibraryVisibleLimit += CardLibraryPageSize;
+            Rebuild();
         }
 
         private void BuildCardLibrarySearch(Transform parent)
@@ -3953,6 +4015,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var addButtonName = index == 0 ? "UnityCardLibraryAddButton" : "UnityCardLibraryAddButton-" + SafeObjectName(card.CardId);
             var add = ToolButton(addButtonName, actions.transform, CardLibraryActionText(card), CanApplyCardLibraryChoice(card), () => ApplyCardLibraryChoice(card));
+            cardLibraryAddButtons[add] = card;
             UnityTavernUiStyle.SetFixedSize(add.gameObject, 74f, UnityTavernUiStyle.TouchHeight);
             add.GetComponentInChildren<Text>(true).fontSize = 14;
         }
@@ -3989,9 +4052,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
+            PreserveCardLibraryScrollForNextRebuild();
+
             if (cardLibraryDestination == UnityCardLibraryDestination.OpponentStartOfCombatSpell)
             {
-                Apply(new GameCommand(GameCommandType.SetOpponentStartOfCombatSpell, card.CardId, CardKind.TavernSpell));
+                ApplyCardLibraryCommand(new GameCommand(GameCommandType.SetOpponentStartOfCombatSpell, card.CardId, CardKind.TavernSpell));
                 return;
             }
 
@@ -3999,15 +4064,113 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 if (card.CardKind == CardKind.Minion)
                 {
-                    Apply(new GameCommand(GameCommandType.AddOpponentMinion, card.CardId, opponentCardLibraryGolden));
+                    ApplyCardLibraryCommand(new GameCommand(GameCommandType.AddOpponentMinion, card.CardId, opponentCardLibraryGolden));
                     return;
                 }
 
-                Apply(new GameCommand(GameCommandType.DebugCastCard, card.CardId, card.CardKind, -1));
+                ApplyCardLibraryCommand(new GameCommand(GameCommandType.DebugCastCard, card.CardId, card.CardKind, -1));
                 return;
             }
 
             AddLibraryCardToHand(card, cardLibraryDestination == UnityCardLibraryDestination.OpponentHand ? BoardSide.Opponent : BoardSide.Player);
+        }
+
+        private void PreserveCardLibraryScrollForNextRebuild()
+        {
+            if (!cardLibraryOpen || cardLibraryScrollRect == null)
+            {
+                return;
+            }
+
+            cardLibraryScrollPosition = cardLibraryScrollRect.verticalNormalizedPosition;
+            restoreCardLibraryScrollPosition = true;
+        }
+
+        private void RestoreCardLibraryScrollPosition()
+        {
+            if (cardLibraryScrollRect == null)
+            {
+                restoreCardLibraryScrollPosition = false;
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            cardLibraryScrollRect.verticalNormalizedPosition = Mathf.Clamp01(cardLibraryScrollPosition);
+            restoreCardLibraryScrollPosition = false;
+        }
+
+        private void ApplyCardLibraryCommand(GameCommand command)
+        {
+            if (!cardLibraryOpen)
+            {
+                Apply(command);
+                return;
+            }
+
+            if (!TryApply(command))
+            {
+                Rebuild();
+                return;
+            }
+
+            restoreCardLibraryScrollPosition = false;
+            RefreshCardLibraryDestinationZone();
+            RefreshCardLibraryAddButtons();
+        }
+
+        private void RefreshCardLibraryDestinationZone()
+        {
+            var zoneName = cardLibraryDestination == UnityCardLibraryDestination.PlayerHand
+                ? "UnityHandZone"
+                : cardLibraryDestination == UnityCardLibraryDestination.OpponentHand
+                    ? "UnityOpponentHandZone"
+                    : cardLibraryDestination == UnityCardLibraryDestination.OpponentBoard
+                        ? "UnityOpponentBoardZone"
+                        : null;
+            if (string.IsNullOrEmpty(zoneName))
+            {
+                return;
+            }
+
+            var zone = GetComponentsInChildren<UnityTavernZoneComponent>(true)
+                .FirstOrDefault(candidate => candidate != null && candidate.gameObject.name == zoneName);
+            if (zone == null)
+            {
+                return;
+            }
+
+            var layout = LayoutContext();
+            if (cardLibraryDestination == UnityCardLibraryDestination.PlayerHand)
+            {
+                BindPlayerHandZone(zone, layout);
+            }
+            else if (cardLibraryDestination == UnityCardLibraryDestination.OpponentHand)
+            {
+                BindOpponentHandZone(zone, layout);
+            }
+            else
+            {
+                BindOpponentBoardZone(zone, layout);
+            }
+        }
+
+        private void RefreshCardLibraryAddButtons()
+        {
+            foreach (var pair in cardLibraryAddButtons)
+            {
+                var button = pair.Key;
+                if (button == null)
+                {
+                    continue;
+                }
+
+                button.interactable = CanApplyCardLibraryChoice(pair.Value);
+                var label = button.GetComponentInChildren<Text>(true);
+                if (label != null)
+                {
+                    label.text = CardLibraryActionText(pair.Value);
+                }
+            }
         }
 
         private bool CanApplyCardLibraryChoice(MinionInstance card)
@@ -4120,7 +4283,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            Apply(new GameCommand(GameCommandType.AddCardToHand, side, card.CardId, card.CardKind));
+            ApplyCardLibraryCommand(new GameCommand(GameCommandType.AddCardToHand, side, card.CardId, card.CardKind));
         }
 
         private void OpenQuestRewardLibrary(int questIndex)
@@ -4932,7 +5095,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildToolsCardLibrarySection(Transform parent)
         {
-            var choices = FilteredToolsAcquisitionChoices().ToList();
+            var allChoices = FilteredToolsAcquisitionChoices().ToList();
+            var choices = allChoices.Take(cardLibraryVisibleLimit).ToList();
             var tribeHeight = 120f;
             var listHeight = Mathf.Max(56f, choices.Count * 50f + 14f);
 
@@ -4989,6 +5153,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             for (var index = 0; index < choices.Count; index += 1)
             {
                 BuildToolsAcquisitionChoiceRow(list.transform, choices[index], index);
+            }
+
+            if (choices.Count < allChoices.Count)
+            {
+                var loadMore = ToolButton(
+                    "UnityToolsCardLibraryLoadMoreButton",
+                    list.transform,
+                    "加载更多（" + choices.Count + "/" + allChoices.Count + "）",
+                    true,
+                    LoadMoreCardLibraryChoices);
+                UnityTavernUiStyle.SetPreferredHeight(loadMore.gameObject, UnityTavernUiStyle.TouchHeight);
             }
         }
 
@@ -5625,7 +5800,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return choices
                 .OrderBy(card => card.TavernTier)
                 .ThenBy(card => card.Name)
-                .Take(toolsAcquisitionKind == CardKind.Hero ? 160 : 80)
                 .ToList();
         }
 
@@ -8163,20 +8337,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void Apply(GameCommand command)
         {
+            TryApply(command);
+            Rebuild();
+        }
+
+        private bool TryApply(GameCommand command)
+        {
             try
             {
                 lastError = null;
                 service.Apply(command);
                 lastFeedback = FeedbackForCommand(command);
                 selectedInstanceId = FindSelectedCard()?.InstanceId ?? service.State.Player.Tavern.Shop.FirstOrDefault(card => card != null)?.InstanceId;
+                return true;
             }
             catch (Exception ex)
             {
                 lastError = ex.Message;
                 lastFeedback = null;
+                return false;
             }
-
-            Rebuild();
         }
 
         private void ApplyHeroSelection(HeroDefinition hero)

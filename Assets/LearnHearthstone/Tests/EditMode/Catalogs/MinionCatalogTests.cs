@@ -89,5 +89,42 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(catalog.All.Any(definition => definition.Tags != null && definition.Tags.Contains("duos_pass")));
             Assert.IsFalse(catalog.All.Any(definition => definition.Keywords != null && definition.Keywords.Contains(Keyword.Pass)));
         }
+
+        [Test]
+        public void TrySyncGoldenText_UsesGoldenAndNormalCatalogDescriptions()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            var definition = catalog.GetByCardId("BG28_300");
+            var card = new MinionInstance
+            {
+                DefinitionId = definition.Id,
+                CardId = definition.CardId,
+                Text = definition.Text
+            };
+
+            card.Golden = true;
+            Assert.IsTrue(catalog.TrySyncGoldenText(card));
+            Assert.AreEqual(definition.Golden.Text, card.Text);
+
+            card.Golden = false;
+            Assert.IsTrue(catalog.TrySyncGoldenText(card));
+            Assert.AreEqual(definition.Text, card.Text);
+        }
+
+        [Test]
+        public void TrySyncGoldenText_UnknownProxyPreservesExistingDescription()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            var card = new MinionInstance
+            {
+                DefinitionId = "unknown-proxy",
+                CardId = "UNKNOWN_PROXY",
+                Text = "proxy text",
+                Golden = true
+            };
+
+            Assert.IsFalse(catalog.TrySyncGoldenText(card));
+            Assert.AreEqual("proxy text", card.Text);
+        }
     }
 }

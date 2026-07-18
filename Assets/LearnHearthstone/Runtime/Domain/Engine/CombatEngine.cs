@@ -438,7 +438,8 @@ namespace LearnHearthstone.Domain.Engine
             TavernState tavern,
             List<MinionInstance> hand,
             int seed,
-            string sourceName)
+            string sourceName,
+            Action recruitMutationCheckpoint = null)
         {
             if (board == null || target == null || !board.Any(minion => minion.InstanceId == target.InstanceId))
             {
@@ -455,7 +456,8 @@ namespace LearnHearthstone.Domain.Engine
                 new List<MinionInstance>(),
                 new List<MinionInstance>(),
                 seed,
-                true);
+                true,
+                recruitMutationCheckpoint);
             ResolveRecruitPhaseDeadMinion(context, context.Player, target, sourceName ?? target.InstanceId);
             ResolveRecruitPhaseDeaths(context, BoardSide.Player);
             return context.Player.Rewards;
@@ -468,7 +470,8 @@ namespace LearnHearthstone.Domain.Engine
             TavernState tavern,
             List<MinionInstance> hand,
             int seed,
-            string sourceName)
+            string sourceName,
+            Action recruitMutationCheckpoint = null)
         {
             if (board == null || summoned == null || board.Count >= BoardLimit)
             {
@@ -485,7 +488,8 @@ namespace LearnHearthstone.Domain.Engine
                 new List<MinionInstance>(),
                 new List<MinionInstance>(),
                 seed,
-                true);
+                true,
+                recruitMutationCheckpoint);
             ApplySummonAuras(context.Player, summoned);
             board.Insert(Math.Min(Math.Max(0, insertIndex), board.Count), summoned);
             ResolveFriendlySummonTriggers(context, context.Player, summoned, new MinionInstance
@@ -2466,7 +2470,8 @@ namespace LearnHearthstone.Domain.Engine
             int insertIndex,
             List<string> newEntityIds,
             bool sourceRemoved,
-            string sourceName)
+            string sourceName,
+            bool allowAdditionalRepeats = true)
         {
             var detail = sourceName == minion.InstanceId
                 ? minion.InstanceId + " deathrattle"
@@ -2488,7 +2493,7 @@ namespace LearnHearthstone.Domain.Engine
             var phylacteryExtra = context.IsRecruitPhase
                 ? 0
                 : Math.Max(0, owner.Tavern?.TrinketDeathlyPhylacteryExtraDeathrattles ?? 0);
-            var deathrattleRepeats = GetDeathrattleRepeats(owner);
+            var deathrattleRepeats = allowAdditionalRepeats ? GetDeathrattleRepeats(owner) : 1;
             if (phylacteryExtra > 0)
             {
                 AddLog(
@@ -2897,13 +2902,10 @@ namespace LearnHearthstone.Domain.Engine
                 inserted += ResolveSneedSummonDeathrattle(context, owner, minion, insertIndex + inserted, newEntityIds);
             }
 
-            if (context.IsRecruitPhase && IsCombatOnlyDeathrattle(minion.CardId))
+            if (!context.IsRecruitPhase || !IsCombatOnlyDeathrattle(minion.CardId))
             {
-                return inserted;
-            }
-
-            switch (minion.CardId)
-            {
+                switch (minion.CardId)
+                {
                 case ImpulsiveTricksterCardId:
                     ResolveImpulsivePortraitDeathrattle(context, owner, minion, insertIndex);
                     break;
@@ -2924,8 +2926,12 @@ namespace LearnHearthstone.Domain.Engine
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "microbot", "Microbot", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Mech);
                     break;
                 case HarmlessBoneheadCardId:
-                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "skeleton", "Skeleton", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
-                    inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "skeleton", "Skeleton", minion.Golden ? 2 : 1, minion.Golden ? 2 : 1, Tribe.Undead);
+                    var boneheadSkeletonCount = minion.Golden ? 4 : 2;
+                    for (var summonIndex = 0; summonIndex < boneheadSkeletonCount; summonIndex += 1)
+                    {
+                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "skeleton", "Skeleton", 1, 1, Tribe.Undead);
+                    }
+
                     break;
                 case ManasaberCardId:
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "cubling", "Cubling", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
@@ -3309,13 +3315,28 @@ namespace LearnHearthstone.Domain.Engine
                     }
 
                     break;
+                }
             }
 
             if (minion.Tags.Contains("surf_n_surf_crab"))
             {
                 var attack = minion.Counters.TryGetValue("surf_crab_attack", out var storedAttack) ? storedAttack : 3;
                 var health = minion.Counters.TryGetValue("surf_crab_health", out var storedHealth) ? storedHealth : 2;
-                inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "crab", "Crab", attack, health, Tribe.Beast);
+                var golden = minion.Counters.TryGetValue("surf_crab_golden", out var storedGolden) && storedGolden > 0;
+                inserted += AddTokenAndTrack(
+                    context,
+                    owner,
+                    minion,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    "crab",
+                    "Crab",
+                    attack,
+                    health,
+                    Tribe.Beast,
+                    null,
+                    golden,
+                    golden ? "BG27_004_Gt2" : null);
             }
 
             return inserted;
@@ -4532,6 +4553,24 @@ namespace LearnHearthstone.Domain.Engine
                 return 0;
             }
 
+            if (source.Golden)
+            {
+                var inserted = 0;
+                foreach (var adjacentTarget in targets)
+                {
+                    var adjacentTargetIndex = owner.Board.FindIndex(minion => minion.InstanceId == adjacentTarget.InstanceId && IsAlive(minion));
+                    if (adjacentTargetIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    AddLog(context.Log, "DeathrattleResolved", source.InstanceId + " triggered adjacent " + adjacentTarget.InstanceId + " deathrattle", source.InstanceId, adjacentTarget.InstanceId, LogSeverity.Good);
+                    inserted += ResolveDeathrattleEffect(context, owner, adjacentTarget, Math.Min(adjacentTargetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId, false);
+                }
+
+                return inserted;
+            }
+
             var target = targets.Count == 1
                 ? targets[0]
                 : new SeededRng(context.Seed + context.AttackSequence + sourceIndex + context.Log.Count).Pick(targets);
@@ -4542,7 +4581,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             AddLog(context.Log, "DeathrattleResolved", source.InstanceId + " triggered adjacent " + target.InstanceId + " deathrattle", source.InstanceId, target.InstanceId, LogSeverity.Good);
-            return ResolveDeathrattleEffect(context, owner, target, Math.Min(targetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId);
+            return ResolveDeathrattleEffect(context, owner, target, Math.Min(targetIndex + 1, owner.Board.Count), newEntityIds, false, source.InstanceId, false);
         }
 
         private static void MagnetizeRandomMechOntoFriendlyMech(CombatContext context, CombatSideState owner, MinionInstance source, int count)
@@ -7577,26 +7616,32 @@ namespace LearnHearthstone.Domain.Engine
 
         private static int AddBloodGemToken(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds = null)
         {
+            var boardCountBefore = owner.Board.Count;
             var token = AddToken(context, owner, source, insertIndex, "quilboar", "Quilboar", 1, 1, Tribe.Quilboar, Keyword.Taunt);
             ApplyBloodGem(token, owner.Tavern);
-            if (token != null)
+            if (token != null && owner.Board.Any(minion => minion.InstanceId == token.InstanceId))
             {
                 newEntityIds?.Add(token.InstanceId);
             }
 
-            return token == null ? 0 : 1;
+            return token == null ? 0 : owner.Board.Count - boardCountBefore;
         }
 
-        private static int AddTokenAndTrack(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
+        private static int AddTokenAndTrack(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null, bool golden = false, string cardId = null)
         {
-            var token = AddToken(context, owner, source, insertIndex, tokenId, name, attack, health, tribe, keyword);
+            var boardCountBefore = owner.Board.Count;
+            var token = AddToken(context, owner, source, insertIndex, tokenId, name, attack, health, tribe, keyword, golden, cardId);
             if (token == null)
             {
                 return 0;
             }
 
-            newEntityIds?.Add(token.InstanceId);
-            return 1;
+            if (owner.Board.Any(minion => minion.InstanceId == token.InstanceId))
+            {
+                newEntityIds?.Add(token.InstanceId);
+            }
+
+            return owner.Board.Count - boardCountBefore;
         }
 
         private static void SummonHighestAttackMurlocFromHand(CombatContext context, CombatSideState owner, MinionInstance source)
@@ -8014,7 +8059,7 @@ namespace LearnHearthstone.Domain.Engine
             return 1;
         }
 
-        private static MinionInstance AddToken(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null)
+        private static MinionInstance AddToken(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, string tokenId, string name, int attack, int health, Tribe tribe, Keyword? keyword = null, bool golden = false, string cardId = null)
         {
             var sourceInstanceId = source?.InstanceId ?? "quest";
             if (owner.Board.Count >= BoardLimit)
@@ -8039,7 +8084,7 @@ namespace LearnHearthstone.Domain.Engine
                 CardKind = CardKind.Minion,
                 InstanceId = "token-" + sourceInstanceId + "-" + tokenId + "-" + owner.Board.Count,
                 DefinitionId = tokenId,
-                CardId = tokenId.ToUpperInvariant(),
+                CardId = string.IsNullOrEmpty(cardId) ? tokenId.ToUpperInvariant() : cardId,
                 Name = name,
                 BaseAttack = attack,
                 BaseHealth = health,
@@ -8048,6 +8093,7 @@ namespace LearnHearthstone.Domain.Engine
                 MaxHealth = health,
                 Tribes = new List<Tribe> { tribe },
                 Keywords = keywords,
+                Golden = golden,
                 Enchantments = new List<Enchantment>(),
                 Counters = new Dictionary<string, int>(),
                 Owner = owner.Side,
@@ -8134,6 +8180,11 @@ namespace LearnHearthstone.Domain.Engine
             if (summoned == null)
             {
                 return;
+            }
+
+            if (context.IsRecruitPhase)
+            {
+                context.RecruitMutationCheckpoint?.Invoke();
             }
 
             if (!context.IsRecruitPhase)
@@ -8900,12 +8951,13 @@ namespace LearnHearthstone.Domain.Engine
 
         private sealed class CombatContext
         {
-            public CombatContext(List<MinionInstance> player, List<MinionInstance> opponent, TavernState playerTavern, TavernState opponentTavern, List<MinionInstance> playerHand, List<MinionInstance> opponentHand, List<MinionInstance> playerCombatSummonPool, List<MinionInstance> opponentCombatSummonPool, int seed, bool isRecruitPhase = false)
+            public CombatContext(List<MinionInstance> player, List<MinionInstance> opponent, TavernState playerTavern, TavernState opponentTavern, List<MinionInstance> playerHand, List<MinionInstance> opponentHand, List<MinionInstance> playerCombatSummonPool, List<MinionInstance> opponentCombatSummonPool, int seed, bool isRecruitPhase = false, Action recruitMutationCheckpoint = null)
             {
                 Player = new CombatSideState(BoardSide.Player, player, playerTavern, playerHand, playerCombatSummonPool, isRecruitPhase);
                 Opponent = new CombatSideState(BoardSide.Opponent, opponent, opponentTavern, opponentHand, opponentCombatSummonPool, isRecruitPhase);
                 Seed = seed;
                 IsRecruitPhase = isRecruitPhase;
+                RecruitMutationCheckpoint = recruitMutationCheckpoint;
                 Replay = new CombatReplay { Seed = seed };
             }
 
@@ -8913,6 +8965,7 @@ namespace LearnHearthstone.Domain.Engine
             public CombatSideState Opponent { get; }
             public int Seed { get; }
             public bool IsRecruitPhase { get; }
+            public Action RecruitMutationCheckpoint { get; }
             public int AttackSequence { get; set; }
             public int RecruitDeathSteps { get; set; }
             public int RecruitSummonSequence { get; set; }

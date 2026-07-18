@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
@@ -66,6 +70,115 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsNull(TripleEngine.FindTripleCandidate(items));
             Assert.Throws<System.InvalidOperationException>(() => TripleEngine.ResolveTriple(items, "m1", BoardSide.Player, "spell-ignored"));
+        }
+
+        [Test]
+        public void TripleEngine_PreservesEnchantmentsAndGrantedKeywordsFromAllMaterials()
+        {
+            var items = new List<MinionInstance>
+            {
+                TestInstance("buffed-a", "buffed", 1),
+                TestInstance("buffed-b", "buffed", 1),
+                TestInstance("buffed-c", "buffed", 1)
+            };
+            for (var index = 0; index < items.Count; index += 1)
+            {
+                items[index].BaseAttack = 2;
+                items[index].BaseHealth = 2;
+                var keyword = index == 0 ? Keyword.Taunt : index == 1 ? Keyword.DivineShield : Keyword.Reborn;
+                items[index].Keywords.Add(keyword);
+                StatMath.ApplyEnchantment(items[index], new Enchantment
+                {
+                    Id = "shared-buff",
+                    SourceId = "shared-buff",
+                    AttackBonus = index + 1,
+                    HealthBonus = index + 1,
+                    AddedKeywords = new List<Keyword> { keyword }
+                });
+            }
+
+            var result = TripleEngine.ResolveTriple(items, "buffed", BoardSide.Player, "all-buffs");
+
+            Assert.AreEqual(10, result.Golden.Attack);
+            Assert.AreEqual(10, result.Golden.MaxHealth);
+            Assert.AreEqual(3, result.Golden.Enchantments.Count(enchantment => enchantment.Id == "shared-buff"));
+            Assert.Contains(Keyword.Taunt, result.Golden.Keywords);
+            Assert.Contains(Keyword.DivineShield, result.Golden.Keywords);
+            Assert.Contains(Keyword.Reborn, result.Golden.Keywords);
+        }
+
+        [Test]
+        public void MatchServiceRecruitCheckpoint_SixSkeletonsCreateTwoGoldenTriplesAndFreeBoardSpace()
+        {
+            var service = (MatchService)FormatterServices.GetUninitializedObject(typeof(MatchService));
+            var board = new List<MinionInstance>();
+            var hand = new List<MinionInstance>();
+            for (var index = 0; index < 5; index += 1)
+            {
+                var skeleton = TestInstance("pre-skeleton-" + index, "skeleton", 0);
+                skeleton.CardId = "SKELETON";
+                skeleton.Name = "Skeleton";
+                skeleton.Tribes = new List<Tribe> { Tribe.Undead };
+                board.Add(skeleton);
+            }
+
+            var bonehead = DeathrattleRewardSource("checkpoint-bonehead", "BG28_300");
+            bonehead.Tribes = new List<Tribe> { Tribe.Undead };
+            board.Add(bonehead);
+            var state = new MatchState
+            {
+                Round = 1,
+                Seed = 12345,
+                Player = new LocalPlayerState
+                {
+                    Board = board,
+                    Tavern = new TavernState
+                    {
+                        Hand = hand,
+                        RecruitLog = new List<RecruitLogEntry>()
+                    }
+                }
+            };
+            typeof(MatchService).GetProperty(nameof(MatchService.State)).SetValue(service, state);
+            var resolveTriples = typeof(MatchService).GetMethod("ResolvePlayerTriples", BindingFlags.Instance | BindingFlags.NonPublic);
+            var checkpoint = (Action)Delegate.CreateDelegate(typeof(Action), service, resolveTriples);
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, bonehead, state.Player.Tavern, hand, 611, "test", checkpoint);
+
+            Assert.AreEqual(2, hand.Count(minion => minion.DefinitionId == "skeleton" && minion.Golden));
+            Assert.AreEqual(1, board.Count(minion => minion.DefinitionId == "skeleton" && !minion.Golden));
+        }
+
+        [Test]
+        public void MatchService_GoldenSurfSpellcraftMetadataPreservesGoldenCrabIdentity()
+        {
+            var service = (MatchService)FormatterServices.GetUninitializedObject(typeof(MatchService));
+            var state = new MatchState
+            {
+                Round = 1,
+                Seed = 12345,
+                Player = new LocalPlayerState
+                {
+                    Board = new List<MinionInstance>(),
+                    Tavern = new TavernState
+                    {
+                        Hand = new List<MinionInstance>(),
+                        RecruitLog = new List<RecruitLogEntry>()
+                    }
+                }
+            };
+            typeof(MatchService).GetProperty(nameof(MatchService.State)).SetValue(service, state);
+            var source = TestInstance("golden-surf-source", "surf", 0);
+            source.CardId = "BG27_004";
+            source.Golden = true;
+            var addSpellcraft = typeof(MatchService).GetMethod("AddSpellcraftFromSource", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            addSpellcraft.Invoke(service, new object[] { source, "test-surf", 1, true });
+
+            var spell = state.Player.Tavern.Hand.Single(card => card.CardId == "SURF_N_SURF_SPELL");
+            Assert.AreEqual(6, spell.Counters["crab_attack"]);
+            Assert.AreEqual(4, spell.Counters["crab_health"]);
+            Assert.AreEqual(1, spell.Counters["crab_golden"]);
         }
 
         [Test]
@@ -1016,6 +1129,119 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsTrue(board.Contains(bonehead));
             Assert.AreEqual(2, board.Count(minion => minion.Name == "Skeleton"));
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldenWarghoulTriggersBothAdjacentDeathrattles()
+        {
+            var left = TestInstance("left-bonehead", "left-bonehead", 0);
+            left.CardId = "BG28_300";
+            left.Tribes = new List<Tribe> { Tribe.Undead };
+            left.Keywords.Add(Keyword.Deathrattle);
+            var warghoul = TestInstance("golden-warghoul", "warghoul", 0);
+            warghoul.CardId = "BG34_Giant_331";
+            warghoul.Golden = true;
+            warghoul.Tribes = new List<Tribe> { Tribe.Undead };
+            warghoul.Keywords.Add(Keyword.Deathrattle);
+            var right = TestInstance("right-bonehead", "right-bonehead", 0);
+            right.CardId = "BG28_300";
+            right.Tribes = new List<Tribe> { Tribe.Undead };
+            right.Keywords.Add(Keyword.Deathrattle);
+            var board = new List<MinionInstance> { left, warghoul, right };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, warghoul, new TavernState(), new List<MinionInstance>(), 605, "test");
+
+            Assert.AreEqual(4, board.Count(minion => minion.Name == "Skeleton"));
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldenWarghoulWithTitusTriggersBothSidesTwice()
+        {
+            var left = DeathrattleRewardSource("left-plaguerunner", "BG34_690");
+            left.Tribes = new List<Tribe> { Tribe.Undead };
+            var warghoul = DeathrattleRewardSource("golden-warghoul-titus", "BG34_Giant_331");
+            warghoul.Golden = true;
+            warghoul.Tribes = new List<Tribe> { Tribe.Undead };
+            var right = DeathrattleRewardSource("right-plaguerunner", "BG34_690");
+            right.Tribes = new List<Tribe> { Tribe.Undead };
+            var titus = TestInstance("titus", "titus", 0);
+            titus.CardId = "BG25_354";
+            var tavern = new TavernState();
+            var board = new List<MinionInstance> { left, warghoul, right, titus };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, warghoul, tavern, new List<MinionInstance>(), 606, "test");
+
+            Assert.AreEqual(16, tavern.UndeadAttackBonus);
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldrinnDoesNotPermanentlyBuffBeasts()
+        {
+            var goldrinn = DeathrattleRewardSource("recruit-goldrinn", "BGS_018");
+            goldrinn.Tribes = new List<Tribe> { Tribe.Beast };
+            goldrinn.Attack = 3;
+            goldrinn.Health = 3;
+            goldrinn.MaxHealth = 3;
+            var warghoul = DeathrattleRewardSource("goldrinn-warghoul", "BG34_Giant_331");
+            var board = new List<MinionInstance> { goldrinn, warghoul };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, warghoul, new TavernState(), new List<MinionInstance>(), 607, "test");
+
+            Assert.AreEqual(3, goldrinn.Attack);
+            Assert.AreEqual(3, goldrinn.MaxHealth);
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldrinnStillResolvesAttachedSurfNSurfDeathrattle()
+        {
+            var goldrinn = DeathrattleRewardSource("surf-goldrinn", "BGS_018");
+            goldrinn.Tribes = new List<Tribe> { Tribe.Beast };
+            goldrinn.Tags.Add("surf_n_surf_crab");
+            goldrinn.Counters["surf_crab_attack"] = 3;
+            goldrinn.Counters["surf_crab_health"] = 2;
+            var warghoul = DeathrattleRewardSource("surf-warghoul", "BG34_Giant_331");
+            var board = new List<MinionInstance> { goldrinn, warghoul };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, warghoul, new TavernState(), new List<MinionInstance>(), 608, "test");
+
+            var crab = board.Single(minion => minion.DefinitionId == "crab");
+            Assert.AreEqual(3, crab.Attack);
+            Assert.AreEqual(2, crab.MaxHealth);
+            Assert.IsFalse(crab.Golden);
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldenBoneheadSummonsFourOneOneSkeletons()
+        {
+            var bonehead = DeathrattleRewardSource("golden-bonehead", "BG28_300");
+            bonehead.Golden = true;
+            bonehead.Tribes = new List<Tribe> { Tribe.Undead };
+            var board = new List<MinionInstance> { bonehead };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, bonehead, new TavernState(), new List<MinionInstance>(), 609, "test");
+
+            var skeletons = board.Where(minion => minion.DefinitionId == "skeleton").ToList();
+            Assert.AreEqual(4, skeletons.Count);
+            Assert.IsTrue(skeletons.All(minion => minion.Attack == 1 && minion.MaxHealth == 1));
+        }
+
+        [Test]
+        public void RecruitPhaseDeath_GoldenSurfNSurfSummonsGoldenCrab()
+        {
+            var target = DeathrattleRewardSource("golden-surf-target", "TEST_SURF_TARGET");
+            target.Tags.Add("surf_n_surf_crab");
+            target.Counters["surf_crab_attack"] = 6;
+            target.Counters["surf_crab_health"] = 4;
+            target.Counters["surf_crab_golden"] = 1;
+            var board = new List<MinionInstance> { target };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, target, new TavernState(), new List<MinionInstance>(), 610, "test");
+
+            var crab = board.Single(minion => minion.DefinitionId == "crab");
+            Assert.IsTrue(crab.Golden);
+            Assert.AreEqual("BG27_004_Gt2", crab.CardId);
+            Assert.AreEqual(6, crab.Attack);
+            Assert.AreEqual(4, crab.MaxHealth);
         }
 
         [TestCase(false, 4)]

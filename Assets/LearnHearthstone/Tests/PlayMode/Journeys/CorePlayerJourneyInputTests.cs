@@ -218,6 +218,30 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.IsTrue(FindChild(scene.Root, targetTierButton).GetComponent<Outline>().enabled);
                 Assert.IsTrue(FindChild(scene.Root, targetTribeButton).GetComponent<Outline>().enabled);
 
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryTierAllButton"));
+                yield return WaitForChild(scene.Root, "UnityCardLibraryScroll");
+                Click(scene, FindChild(scene.Root, "UnityCardLibraryTribeAllButton"));
+                yield return WaitForChild(scene.Root, "UnityCardLibraryScroll");
+                const float cardLibraryScrollPosition = 0.41f;
+                var cardLibraryScroll = FindChild(scene.Root, "UnityCardLibraryScroll").GetComponent<ScrollRect>();
+                cardLibraryScroll.verticalNormalizedPosition = cardLibraryScrollPosition;
+                yield return null;
+                var expectedScrollPosition = cardLibraryScroll.verticalNormalizedPosition;
+                Assert.That(expectedScrollPosition, Is.InRange(0.1f, 0.9f));
+                var cardLibraryOverlay = FindChild(scene.Root, "UnityCardLibraryOverlay");
+                var playSurface = FindChild(scene.Root, "UnityPlaySurface");
+                var handBeforeRepeatedAdd = service.State.Player.Tavern.Hand.Count;
+                CardLibraryCards(scene.Root).First(component => component.Card != null).GetComponent<Button>().onClick.Invoke();
+                yield return WaitForState(() => service.State.Player.Tavern.Hand.Count == handBeforeRepeatedAdd + 1, "card-library repeated add");
+                yield return null;
+                Assert.AreSame(cardLibraryOverlay, FindChild(scene.Root, "UnityCardLibraryOverlay"));
+                Assert.AreSame(playSurface, FindChild(scene.Root, "UnityPlaySurface"));
+                Assert.AreSame(cardLibraryScroll, FindChild(scene.Root, "UnityCardLibraryScroll").GetComponent<ScrollRect>());
+                Assert.AreEqual(
+                    expectedScrollPosition,
+                    FindChild(scene.Root, "UnityCardLibraryScroll").GetComponent<ScrollRect>().verticalNormalizedPosition,
+                    0.02f);
+
                 Click(scene, FindChild(scene.Root, "UnityCardLibraryCloseButton"));
                 yield return WaitForMissing(scene.Root, "UnityCardLibraryOverlay");
                 Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == targetCardId));
@@ -455,6 +479,23 @@ namespace LearnHearthstone.Tests.PlayMode
                     yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
                     Assert.IsTrue(FindChild(scene.Root, "UnityCardPoolVersionDeleteButton").GetComponent<Button>().interactable);
 
+                    const float cardPoolScrollPosition = 0.42f;
+                    var cardPoolScroll = FindChild(scene.Root, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>();
+                    cardPoolScroll.verticalNormalizedPosition = cardPoolScrollPosition;
+                    yield return null;
+                    var preservedToggle = scene.Root.GetComponentsInChildren<Toggle>(true)
+                        .First(toggle =>
+                            toggle.interactable &&
+                            toggle.gameObject.name.StartsWith("UnityCardPoolMinionToggle-", StringComparison.Ordinal) &&
+                            !toggle.gameObject.name.EndsWith(targetMinion.CardId, StringComparison.Ordinal));
+                    preservedToggle.isOn = !preservedToggle.isOn;
+                    yield return WaitForChild(scene.Root, "UnityCardPoolVersionSearchInput");
+                    yield return null;
+                    Assert.AreEqual(
+                        cardPoolScrollPosition,
+                        FindChild(scene.Root, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>().verticalNormalizedPosition,
+                        0.02f);
+
                     yield return EnterTextAndCommit(scene, FindChild(scene.Root, "UnityCardPoolVersionSearchInput"), "__missing_card__");
                     yield return WaitForState(
                         () => FindChildOrNull(scene.Root, "UnityCardPoolVersionLoadState")?.GetComponent<Text>().text.Contains("\u5f53\u524d\u7b5b\u9009\u65e0\u5361\u724c") == true,
@@ -480,10 +521,16 @@ namespace LearnHearthstone.Tests.PlayMode
                     StringAssert.Contains(
                         FindChild(scene.Root, tribeButton).GetComponentInChildren<Text>(true).text.Replace("\u2713 ", string.Empty),
                         filterSummary);
-                    Click(scene, FindChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId));
+                    var cardPoolOverlay = FindChild(scene.Root, "UnityCardPoolVersionOverlay");
+                    var filteredCardPoolScroll = FindChild(scene.Root, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>();
+                    var targetToggle = FindChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId);
+                    Click(scene, targetToggle);
                     yield return WaitForState(
                         () => FindChildOrNull(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId)?.GetComponent<Toggle>().isOn == false,
                         "card-pool minion exclusion");
+                    Assert.AreSame(cardPoolOverlay, FindChild(scene.Root, "UnityCardPoolVersionOverlay"));
+                    Assert.AreSame(filteredCardPoolScroll, FindChild(scene.Root, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>());
+                    Assert.AreSame(targetToggle, FindChild(scene.Root, "UnityCardPoolMinionToggle-" + targetMinion.CardId));
 
                     Click(scene, FindChild(scene.Root, "UnityCardPoolVersionCloseButton"));
                     yield return WaitForMissing(scene.Root, "UnityCardPoolVersionOverlay");

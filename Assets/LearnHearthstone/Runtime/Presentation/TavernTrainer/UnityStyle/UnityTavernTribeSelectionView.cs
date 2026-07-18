@@ -74,6 +74,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly HashSet<string> enabledAnomalyCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> enabledTimewarpedCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Transform cardPoolListContent;
+        private ScrollRect cardPoolScrollRect;
+        private Text versionSummaryText;
+        private Text versionModalSummaryText;
+        private Button versionSaveButton;
+        private float cardPoolScrollPosition = 1f;
+        private bool restoreCardPoolScrollPosition;
         private CardPoolVersionStore store;
         private string selectedVersionId;
         private CardPoolTab activeTab = CardPoolTab.Minions;
@@ -176,6 +182,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public void Build()
         {
+            cardPoolScrollRect = null;
+            versionSummaryText = null;
+            versionModalSummaryText = null;
+            versionSaveButton = null;
             if (shell == null)
             {
                 shell = UiFactory.Panel("UnityTavernTribeSelection", root, UnityTavernUiStyle.BackWall);
@@ -237,6 +247,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 BuildAdvancedPoolEditorOverlay();
             }
+
+            RestoreCardPoolScrollPosition();
         }
 
         public void RebuildForLayout(UnityTavernLayoutContext nextLayout)
@@ -1265,6 +1277,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 24f : 28f);
 
             var summary = UiFactory.Label("UnityCardPoolVersionSummary", titleBlock.transform, VersionSummaryText(selection), layout.IsCompact ? 12 : 13, FontStyle.Bold);
+            versionSummaryText = summary;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 20f : 22f);
 
@@ -1543,6 +1556,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
 
             var summary = UiFactory.Label("UnityCardPoolVersionModalSummary", header.transform, VersionSummaryText(selection), 14, FontStyle.Bold);
+            versionModalSummaryText = summary;
             summary.alignment = TextAnchor.MiddleRight;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetFixedSize(summary.gameObject, layout.IsCompact ? 220f : 280f, 32f);
@@ -1798,6 +1812,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SaveCurrentVersion();
                 Build();
             });
+            versionSaveButton = save;
             if (hasUnsavedCardPoolChanges && !selection.IsDefault)
             {
                 UnityTavernUiStyle.EnsureComponent<Image>(save.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.35f);
@@ -1986,12 +2001,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton("UnityCardPoolVersionExcludeFilteredButton", row.transform, T("剔除当前筛选", "Exclude Filtered"), canEditActiveTab, () =>
             {
                 SetFilteredEnabled(false);
-                Build();
+                RebuildPreservingCardPoolScroll();
             });
             ActionButton("UnityCardPoolVersionIncludeFilteredButton", row.transform, T("加入当前筛选", "Include Filtered"), canEditActiveTab, () =>
             {
                 SetFilteredEnabled(true);
-                Build();
+                RebuildPreservingCardPoolScroll();
             });
         }
 
@@ -1999,6 +2014,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var content = UiFactory.ScrollView("UnityCardPoolVersionScroll", parent, UnityTavernUiStyle.PanelQuiet, out var scrollRect);
             cardPoolListContent = content;
+            cardPoolScrollRect = scrollRect;
+            if (!restoreCardPoolScrollPosition)
+            {
+                cardPoolScrollPosition = 1f;
+            }
             var listLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
             listLayout.padding = new RectOffset(6, 10, 6, 6);
             listLayout.spacing = 5;
@@ -2027,7 +2047,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             if (SetEnabled(enabledMinionCardIds, minion.CardId, value))
                             {
                                 MarkCardPoolDirty();
-                                Build();
+                                RefreshCardPoolEditStatus();
                             }
                         });
                 }
@@ -2051,7 +2071,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             if (SetEnabled(enabledTavernSpellCardNumbers, spell.CardNumber, value))
                             {
                                 MarkCardPoolDirty();
-                                Build();
+                                RefreshCardPoolEditStatus();
                             }
                         });
                 }
@@ -2074,7 +2094,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         {
                             if (SetEnabled(enabledTimewarpedCardIds, card.CardId, value))
                             {
-                                Build();
+                                RefreshCardPoolEditStatus();
                             }
                         });
                 }
@@ -2111,11 +2131,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             keepVersionListAtBottom = false;
             if (anchorAtBottom)
             {
-                scrollRect.verticalNormalizedPosition = 0f;
+                cardPoolScrollPosition = 0f;
+                restoreCardPoolScrollPosition = true;
             }
 
             scrollRect.onValueChanged.AddListener(position =>
             {
+                cardPoolScrollPosition = position.y;
                 if (position.y <= CardPoolLoadMoreThreshold)
                 {
                     LoadMoreVisibleCardPoolItems(totalCount);
@@ -2161,7 +2183,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             if (SetEnabled(enabledMinionCardIds, minion.CardId, value))
                             {
                                 MarkCardPoolDirty();
-                                Build();
+                                RefreshCardPoolEditStatus();
                             }
                         });
                 }
@@ -2187,7 +2209,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             if (SetEnabled(enabledTavernSpellCardNumbers, spell.CardNumber, value))
                             {
                                 MarkCardPoolDirty();
-                                Build();
+                                RefreshCardPoolEditStatus();
                             }
                         });
                 }
@@ -2210,10 +2232,34 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     {
                         if (SetEnabled(enabledTimewarpedCardIds, card.CardId, value))
                         {
-                            Build();
+                            RefreshCardPoolEditStatus();
                         }
                     });
             }
+        }
+
+        private void RebuildPreservingCardPoolScroll()
+        {
+            if (cardPoolScrollRect != null)
+            {
+                cardPoolScrollPosition = cardPoolScrollRect.verticalNormalizedPosition;
+                restoreCardPoolScrollPosition = true;
+            }
+
+            Build();
+        }
+
+        private void RestoreCardPoolScrollPosition()
+        {
+            if (cardPoolScrollRect == null)
+            {
+                restoreCardPoolScrollPosition = false;
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            cardPoolScrollRect.verticalNormalizedPosition = Mathf.Clamp01(cardPoolScrollPosition);
+            restoreCardPoolScrollPosition = false;
         }
 
         private static Transform FindDirectChild(Transform parent, string name)
@@ -2428,7 +2474,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             toggle.graphic = check.GetComponent<Image>();
             toggle.SetIsOnWithoutNotify(isOn);
             toggle.interactable = interactable;
-            toggle.onValueChanged.AddListener(value => changed?.Invoke(value));
+            toggle.onValueChanged.AddListener(value =>
+            {
+                UnityTavernUiStyle.ConfigureOutline(
+                    toggleObject,
+                    UnityTavernUiStyle.WithAlpha(value ? UnityTavernUiStyle.FocusRing : UnityTavernUiStyle.Brass, value ? 0.78f : 0.34f),
+                    new Vector2(1f, -1f));
+                changed?.Invoke(value);
+            });
 
             BuildCardThumbnail(row.transform, name, sprite, titleText);
 
@@ -2973,6 +3026,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             visibleCardPoolItemCount = CardPoolLoadStep;
             keepVersionListAtBottom = false;
+            cardPoolScrollPosition = 1f;
+            restoreCardPoolScrollPosition = false;
         }
 
         private void MarkCardPoolDirty()
@@ -2981,6 +3036,38 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (!selection.IsDefault)
             {
                 hasUnsavedCardPoolChanges = true;
+            }
+        }
+
+        private void RefreshCardPoolEditStatus()
+        {
+            var selection = CurrentSelection();
+            var summary = VersionSummaryText(selection);
+            if (versionSummaryText != null)
+            {
+                versionSummaryText.text = summary;
+            }
+
+            if (versionModalSummaryText != null)
+            {
+                versionModalSummaryText.text = summary;
+            }
+
+            if (versionSaveButton == null)
+            {
+                return;
+            }
+
+            versionSaveButton.interactable = !selection.IsDefault && hasUnsavedCardPoolChanges;
+            var label = versionSaveButton.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.text = hasUnsavedCardPoolChanges ? T("保存*", "Save*") : T("保存", "Save");
+            }
+
+            if (hasUnsavedCardPoolChanges && !selection.IsDefault)
+            {
+                UnityTavernUiStyle.EnsureComponent<Image>(versionSaveButton.gameObject).color = Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.35f);
             }
         }
 

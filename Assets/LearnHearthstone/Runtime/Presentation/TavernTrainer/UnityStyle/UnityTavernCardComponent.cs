@@ -29,8 +29,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
     public sealed class UnityTavernCardComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
-        private const string ArtDisplayContainTag = "art_display:contain";
-        private const string ArtDisplayCropTag = "art_display:crop";
         private const string ContainedArtViewportName = "UnityCardArtViewport";
         public const string TavernCardPrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Card/TavernCard.prefab";
         public const string BoardMinionPrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Card/BoardMinion.prefab";
@@ -1220,7 +1218,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureArtImage(Image image, Sprite sprite, MinionInstance minion, UnityTavernCardMode mode, int fallbackFontSize)
         {
-            if (sprite != null && UsesCroppedArtViewport(minion, mode))
+            if (sprite != null && UsesCroppedArtViewport(sprite, minion, mode))
             {
                 ConfigureContainedArtViewport(image, sprite, mode);
             }
@@ -1331,25 +1329,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return mode != UnityTavernCardMode.Detail && !IsSpellLike(minion);
         }
 
-        private static bool UsesCroppedArtViewport(MinionInstance minion, UnityTavernCardMode mode)
+        private static bool UsesCroppedArtViewport(Sprite sprite, MinionInstance minion, UnityTavernCardMode mode)
         {
             if (mode == UnityTavernCardMode.Detail || minion == null)
             {
                 return false;
             }
 
-            var tags = minion.Tags;
-            if (tags != null && tags.Any(tag => string.Equals(tag, ArtDisplayContainTag, StringComparison.OrdinalIgnoreCase)))
-            {
-                return false;
-            }
-
-            if (tags != null && tags.Any(tag => string.Equals(tag, ArtDisplayCropTag, StringComparison.OrdinalIgnoreCase)))
-            {
-                return true;
-            }
-
-            return UsesContainedFullArtHud(minion, mode);
+            return UsesContainedFullArtHud(minion, mode) && CardImageProvider.ShouldCropToPortrait(sprite, minion.Tags);
         }
 
         private static void BuildArtFallbackLabel(Transform parent, MinionInstance minion, int fontSize)
