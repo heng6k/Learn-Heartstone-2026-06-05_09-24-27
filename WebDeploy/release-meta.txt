@@ -1,3 +1,3 @@
 unityVersion=6000.4.10f1
-buildUtc=2026-07-16T13:51:15.6867718Z
+buildUtc=2026-07-18T07:24:56.0861572Z
 output=D:\unity project\Learn Heartstone\WebDeploy
