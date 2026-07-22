@@ -44,7 +44,7 @@ namespace LearnHearthstone.Domain.Engine
             switch (action.Type)
             {
                 case MechanicActionType.GainGold:
-                    tavern.Gold += action.Gold;
+                    TavernRules.GainGold(tavern, action.Gold);
                     break;
                 case MechanicActionType.ModifyShopGrowth:
                     tavern.Growth.ShopModifiers.Add(new TavernGrowthModifier

@@ -10,7 +10,7 @@ namespace LearnHearthstone.Adapters.Data
     {
         private const string ResourcePath = "Data/battlegroundsMinions";
 
-        public static MinionCatalog LoadFromResources()
+        public static MinionCatalog LoadFromResources(bool useEnglish = false)
         {
             var asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
@@ -18,10 +18,10 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Missing Resources/" + ResourcePath + ".json");
             }
 
-            return LoadFromJson(asset.text);
+            return LoadFromJson(asset.text, useEnglish);
         }
 
-        public static MinionCatalog LoadFromJson(string json)
+        public static MinionCatalog LoadFromJson(string json, bool useEnglish = false)
         {
             var payload = JsonUtility.FromJson<RawPayload>(json);
             if (payload == null || payload.minions == null)
@@ -32,27 +32,27 @@ namespace LearnHearthstone.Adapters.Data
             var definitions = new List<MinionDefinition>();
             foreach (var raw in payload.minions)
             {
-                definitions.Add(ToDefinition(raw));
+                definitions.Add(ToDefinition(raw, useEnglish));
             }
 
             return new MinionCatalog(definitions);
         }
 
-        private static MinionDefinition ToDefinition(RawMinion raw)
+        private static MinionDefinition ToDefinition(RawMinion raw, bool useEnglish)
         {
             var definition = new MinionDefinition
             {
                 Id = raw.id,
                 CardId = raw.cardId,
                 DbfId = raw.dbfId,
-                Name = raw.name,
+                Name = Localized(raw.name, raw.englishName, useEnglish, raw.cardId + ".name"),
                 TavernTier = raw.tavernTier,
                 BaseAttack = raw.attack,
                 BaseHealth = raw.health,
                 Tribes = MapTribes(raw.tribes),
                 Keywords = MapKeywords(raw.keywords),
                 OfficialKeywords = MapKeywords(raw.officialKeywords ?? raw.keywords),
-                Text = raw.text,
+                Text = Localized(raw.text, raw.englishText, useEnglish, raw.cardId + ".text"),
                 InPool = raw.inPool == 1,
                 PoolCount = raw.poolCount,
                 ImagePath = "CardImages/" + raw.cardId,
@@ -68,13 +68,23 @@ namespace LearnHearthstone.Adapters.Data
                     DbfId = raw.golden.dbfId,
                     BaseAttack = raw.golden.attack,
                     BaseHealth = raw.golden.health,
-                    Text = raw.golden.text,
+                    Text = Localized(raw.golden.text, raw.golden.englishText, useEnglish, raw.golden.cardId + ".text"),
                     Keywords = MapKeywords(raw.golden.keywords),
                     OfficialKeywords = MapKeywords(raw.golden.officialKeywords ?? raw.officialKeywords ?? raw.golden.keywords ?? raw.keywords)
                 };
             }
 
             return definition;
+        }
+
+        private static string Localized(string chinese, string english, bool useEnglish, string key)
+        {
+            if (!useEnglish)
+            {
+                return chinese;
+            }
+
+            return string.IsNullOrWhiteSpace(english) ? "[Missing en-US: " + key + "]" : english;
         }
 
         private static List<Tribe> MapTribes(List<string> raw)
@@ -399,6 +409,7 @@ namespace LearnHearthstone.Adapters.Data
             public string cardId;
             public int dbfId;
             public string name;
+            public string englishName;
             public int tavernTier;
             public int attack;
             public int health;
@@ -406,6 +417,7 @@ namespace LearnHearthstone.Adapters.Data
             public List<string> keywords;
             public List<string> officialKeywords;
             public string text;
+            public string englishText;
             public int inPool;
             public int poolCount;
             public List<string> effectIds;
@@ -421,6 +433,7 @@ namespace LearnHearthstone.Adapters.Data
             public int attack;
             public int health;
             public string text;
+            public string englishText;
             public List<string> keywords;
             public List<string> officialKeywords;
         }

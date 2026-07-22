@@ -95,7 +95,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion\n+4 Attack."
     },
     {
       "id": "iyingdi-34598",
@@ -184,7 +185,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a friendly minion from Tier 4 or below. Make it Golden."
     },
     {
       "id": "iyingdi-34599",
@@ -273,7 +275,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Sell a friendly minion.\nGive its stats to a random friendly minion."
     },
     {
       "id": "iyingdi-34600",
@@ -364,7 +367,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a new\nHero Power."
     },
     {
       "id": "iyingdi-34601",
@@ -455,7 +459,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a minion.\n<b>Refresh</b> the Tavern\nwith minions of its type."
     },
     {
       "id": "iyingdi-34602",
@@ -544,7 +549,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Gain 2 Gold next turn."
     },
     {
       "id": "iyingdi-34603",
@@ -633,7 +639,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Set your Armor to 5."
     },
     {
       "id": "iyingdi-34604",
@@ -724,7 +731,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion\n+3 Health and <b>Taunt</b>."
     },
     {
       "id": "iyingdi-34605",
@@ -813,7 +821,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Get a random\nTier 1 minion."
     },
     {
       "id": "iyingdi-34606",
@@ -904,7 +913,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion\n<b>Divine Shield</b>."
     },
     {
       "id": "iyingdi-34608",
@@ -993,7 +1003,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Increase your maximum Gold by 1."
     },
     {
       "id": "iyingdi-34609",
@@ -1082,7 +1093,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Gain 1 Gold."
     },
     {
       "id": "iyingdi-34612",
@@ -1179,7 +1191,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a friendly minion +6/+6 and <b>Taunt</b>."
     },
     {
       "id": "iyingdi-34613",
@@ -1270,7 +1283,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Gain 2 free <b>Refreshes</b>."
     },
     {
       "id": "iyingdi-34614",
@@ -1359,7 +1373,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Make a random minion in the Tavern Golden."
     },
     {
       "id": "iyingdi-34617",
@@ -1454,7 +1469,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a minion. Give all minions that share a type with it +3/+3."
     },
     {
       "id": "iyingdi-34618",
@@ -1545,7 +1561,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Refresh</b> the Tavern\nwith Tavern spells."
     },
     {
       "id": "iyingdi-34619",
@@ -1634,7 +1651,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Steal a random minion from the Tavern."
     },
     {
       "id": "iyingdi-34622",
@@ -1723,7 +1741,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Gain 1 Gold.\nThis costs Health to\nbuy instead of Gold."
     },
     {
       "id": "iyingdi-34623",
@@ -1814,7 +1833,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Start of Combat:</b> Set\na random enemy minion's Health to 1."
     },
     {
       "id": "iyingdi-34624",
@@ -1903,7 +1923,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Set a minion's stats to 20/20."
     },
     {
       "id": "iyingdi-34626",
@@ -1995,7 +2016,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a\n<b>Battlecry</b> minion."
     },
     {
       "id": "iyingdi-34627",
@@ -2087,7 +2109,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a\n<b>Deathrattle</b> minion."
     },
     {
       "id": "iyingdi-34629",
@@ -2176,7 +2199,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "If you win your next combat, gain 3 Gold.\nIf you tie, gain 1."
     },
     {
       "id": "iyingdi-34631",
@@ -2271,7 +2295,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a friendly minion of each type +2/+2."
     },
     {
       "id": "iyingdi-34632",
@@ -2365,7 +2390,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give minions in the Tavern +2/+2\nthis game."
     },
     {
       "id": "iyingdi-34634",
@@ -2454,7 +2480,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a minion.\nGet a different minion of the same type."
     },
     {
       "id": "iyingdi-34635",
@@ -2545,7 +2572,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Start of Combat:</b> Give your minions +2/+1."
     },
     {
       "id": "iyingdi-34636",
@@ -2636,7 +2664,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +1/+2 and <b>Taunt</b>. If it already has <b>Taunt</b>, remove it."
     },
     {
       "id": "iyingdi-34637",
@@ -2727,7 +2756,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a minion of\nyour most common type."
     },
     {
       "id": "iyingdi-34638",
@@ -2816,7 +2846,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +2/+2."
     },
     {
       "id": "iyingdi-34639",
@@ -2905,7 +2936,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give minions in the Tavern +1/+2."
     },
     {
       "id": "iyingdi-34643",
@@ -2994,7 +3026,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions +1/+1."
     },
     {
       "id": "iyingdi-34644",
@@ -3083,7 +3116,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions +2/+2 twice."
     },
     {
       "id": "iyingdi-34646",
@@ -3178,7 +3212,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Get a random Murloc and a copy of it."
     },
     {
       "id": "iyingdi-34648",
@@ -3274,7 +3309,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Get 3 random <b>Spellcraft</b> spells."
     },
     {
       "id": "iyingdi-34649",
@@ -3363,7 +3399,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a friendly Demon. It consumes 3 random minions in the Tavern to gain their stats."
     },
     {
       "id": "iyingdi-34655",
@@ -3461,7 +3498,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "This plays 2 <b>Blood\nGems</b> on a minion.\nIt steals all <b>Blood Gems</b>\nfrom its neighbors."
     },
     {
       "id": "iyingdi-34658",
@@ -3550,7 +3588,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a minion. Transform it into a random minion of a higher Tier. It keeps its stats."
     },
     {
       "id": "iyingdi-38644",
@@ -3641,7 +3680,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Choose One -</b> Give your\nminions +2/+2; or At the\nstart of your next turn, give\nyour minions +2/+2 twice."
     },
     {
       "id": "iyingdi-38646",
@@ -3735,7 +3775,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Get a Fire Baller and a Snow Baller."
     },
     {
       "id": "iyingdi-41824",
@@ -3826,7 +3867,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Start of Combat:</b> Your left-most minion gains stats equal to the nearest enemy minion's."
     },
     {
       "id": "iyingdi-41825",
@@ -3915,7 +3957,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a friendly minion. Set its Attack and Health to match the highest in your warband."
     },
     {
       "id": "iyingdi-41826",
@@ -4006,7 +4049,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a Tier 7 minion."
     },
     {
       "id": "iyingdi-42838",
@@ -4101,7 +4145,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +1/+1\ntwice. If it's a Naga,\nrepeat this."
     },
     {
       "id": "iyingdi-48234",
@@ -4190,7 +4235,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Your minions have +3/+1 until next turn."
     },
     {
       "id": "iyingdi-48235",
@@ -4279,7 +4325,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Sell a friendly minion.\n Give its stats to your\nleft-most Elemental."
     },
     {
       "id": "iyingdi-48236",
@@ -4370,7 +4417,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a Tier 1 minion."
     },
     {
       "id": "iyingdi-48237",
@@ -4461,7 +4509,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions\nwith <b>Divine Shield</b>\n+6 Attack."
     },
     {
       "id": "iyingdi-48238",
@@ -4558,7 +4607,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Avenge (4):</b> Get a\nrandom Beast.\nLasts 1 turn."
     },
     {
       "id": "iyingdi-53132",
@@ -4650,7 +4700,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "After the Tavern is\n <b>Refreshed</b> this game, give its minions +1/+1 worth of <b>Blood Gems</b>."
     },
     {
       "id": "iyingdi-53133",
@@ -4747,7 +4798,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "After the Tavern\nis <b>Refreshed</b> this game,\ngive a random minion\nin it +6/+6."
     },
     {
       "id": "iyingdi-53134",
@@ -4844,7 +4896,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> an Undead.\nIt dies if you play it\nthis turn."
     },
     {
       "id": "iyingdi-53135",
@@ -4935,7 +4988,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Discover</b> a minion of your Tier. Lock it in your hand for 1 turn."
     },
     {
       "id": "iyingdi-53136",
@@ -5026,7 +5080,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Start of Combat:</b> Double your left-most minion's Attack."
     },
     {
       "id": "iyingdi-53137",
@@ -5115,7 +5170,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions +3/+2. Give Golden ones another +3/+2."
     },
     {
       "id": "iyingdi-53138",
@@ -5209,7 +5265,8 @@
         "series_cn_abbr": "",
         "price": 0
       },
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "<b>Start of Combat:</b> Trigger a random friendly <b>Battlecry</b>, <b>Deathrattle</b>, and <b>Rally</b>."
     },
     {
       "id": "official-131152",
@@ -5221,7 +5278,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 2,
       "keywords": [],
@@ -5230,10 +5289,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/131152",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_2", "board_buff", "buff_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_2",
+        "board_buff",
+        "buff_spell"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: queues two Taunt Beetles for next combat.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give four random friendly minions +1/+2."
     },
     {
       "id": "official-122182",
@@ -5245,7 +5310,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 3,
       "keywords": [],
@@ -5254,10 +5321,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/122182",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_3", "bounty", "board_health_buff", "buff_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_3",
+        "bounty",
+        "board_health_buff",
+        "buff_spell"
+      ],
       "implementationStatus": "official-data",
       "notes": "Official current Bounty id; legacy local id remains for compatibility.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give four friendly minions +4 Health."
     },
     {
       "id": "official-122183",
@@ -5269,7 +5343,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 3,
       "keywords": [],
@@ -5278,10 +5354,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/122183",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_3", "bounty", "board_attack_buff", "buff_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_3",
+        "bounty",
+        "board_attack_buff",
+        "buff_spell"
+      ],
       "implementationStatus": "official-data",
       "notes": "Official current Bounty id; legacy local id remains for compatibility.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give four friendly minions +4 Attack."
     },
     {
       "id": "official-122184",
@@ -5293,7 +5376,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 3,
       "keywords": [],
@@ -5302,10 +5387,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/122184",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_3", "bounty", "targeted_spell", "buff_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_3",
+        "bounty",
+        "targeted_spell",
+        "buff_spell"
+      ],
       "implementationStatus": "official-data",
       "notes": "Official current Bounty id; legacy local id remains for compatibility.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your left-most minion +6/+6."
     },
     {
       "id": "official-122185",
@@ -5317,7 +5409,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 3,
       "keywords": [],
@@ -5326,10 +5420,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/122185",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_3", "bounty", "card_generator", "tribe_generator" ],
+      "tags": [
+        "tavern_spell",
+        "tier_3",
+        "bounty",
+        "card_generator",
+        "tribe_generator"
+      ],
       "implementationStatus": "official-data",
       "notes": "Official current Bounty id; legacy local id remains for compatibility.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Get a random minion of your most common type."
     },
     {
       "id": "official-122186",
@@ -5341,7 +5442,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 3,
       "keywords": [],
@@ -5350,10 +5453,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/122186",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_3", "bounty", "economy_spell", "gain_gold" ],
+      "tags": [
+        "tavern_spell",
+        "tier_3",
+        "bounty",
+        "economy_spell",
+        "gain_gold"
+      ],
       "implementationStatus": "official-data",
       "notes": "Official current Bounty id; legacy local id remains for compatibility.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Gain 2 Gold."
     },
     {
       "id": "official-110401",
@@ -5365,7 +5475,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 1,
       "tavernTier": 4,
       "keywords": [],
@@ -5374,10 +5486,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/110401",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "next_combat", "summon_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "next_combat",
+        "summon_spell"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: targeted +2/+2 scaling with Elementals played this turn.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "When you have space\nin combat, summon two\n2/2 Beetles and give\nthem <b>Taunt</b>. <i>(2 left!)</i>"
     },
     {
       "id": "official-130310",
@@ -5389,7 +5507,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 4,
       "keywords": [],
@@ -5398,10 +5518,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/130310",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "targeted_spell", "buff_spell", "elemental_scaling" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "targeted_spell",
+        "buff_spell",
+        "elemental_scaling"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: targeted +2/+2 scaling with Elementals played this turn.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +4/+4. <i>(Improved by each Elemental you played this turn!)</i>"
     },
     {
       "id": "official-130311",
@@ -5413,7 +5540,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 1,
       "tavernTier": 4,
       "keywords": [],
@@ -5422,10 +5551,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/130311",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "generated_spell", "arcane_consumption", "elemental_buff" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "generated_spell",
+        "arcane_consumption",
+        "elemental_buff"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: buffs a friendly Elemental by half the highest-Health Tavern minion stats.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a friendly Elemental half the stats of the highest-Health minion in the Tavern."
     },
     {
       "id": "official-130312",
@@ -5437,7 +5573,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 4,
       "keywords": [],
@@ -5446,10 +5584,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/130312",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "shop_growth", "tribe_buff" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "shop_growth",
+        "tribe_buff"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: selected minion types receive persistent Tavern growth.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Choose a minion. Give minions of its type in the Tavern +3/+3 this game."
     },
     {
       "id": "official-131153",
@@ -5461,7 +5605,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 1,
       "tavernTier": 4,
       "keywords": [],
@@ -5470,10 +5616,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/131153",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "targeted_spell", "buff_spell", "self_scaling" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "targeted_spell",
+        "buff_spell",
+        "self_scaling"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: targeted scaling buff and future Back to Back growth.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +4/+4.\nYour future Back to Backs\ngive an extra +4/+4."
     },
     {
       "id": "official-131218",
@@ -5485,7 +5638,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 4,
       "keywords": [],
@@ -5494,10 +5649,17 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/131218",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_4", "generated_spell", "deepwater_school", "murloc_buff" ],
+      "tags": [
+        "tavern_spell",
+        "tier_4",
+        "generated_spell",
+        "deepwater_school",
+        "murloc_buff"
+      ],
       "implementationStatus": "implemented",
       "notes": "Implemented in TavernSpellEngine: buffs a target and friendly Murlocs.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give a minion +2/+2. Give your Murlocs +2/+2."
     },
     {
       "id": "official-110412",
@@ -5509,7 +5671,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 5,
       "keywords": [],
@@ -5518,10 +5682,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/110412",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_5", "undead_growth", "destroy_friendly" ],
+      "tags": [
+        "tavern_spell",
+        "tier_5",
+        "undead_growth",
+        "destroy_friendly"
+      ],
       "implementationStatus": "official-data",
       "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Destroy a friendly Undead. Your Undead have +5 Attack this game <i>(wherever they are).</i>"
     },
     {
       "id": "official-130713",
@@ -5533,7 +5703,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 2,
       "tavernTier": 5,
       "keywords": [],
@@ -5542,10 +5714,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/130713",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_5", "board_buff", "naga_buff" ],
+      "tags": [
+        "tavern_spell",
+        "tier_5",
+        "board_buff",
+        "naga_buff"
+      ],
       "implementationStatus": "official-data",
       "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions +2/+2. Give all your Naga another +2/+2."
     },
     {
       "id": "official-113902",
@@ -5557,7 +5735,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 4,
       "tavernTier": 6,
       "keywords": [],
@@ -5566,10 +5746,15 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/113902",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_6", "refresh_spell" ],
+      "tags": [
+        "tavern_spell",
+        "tier_6",
+        "refresh_spell"
+      ],
       "implementationStatus": "official-data",
       "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Your next 2 <b>Refreshes</b> are helpful! <i>(2 left!)</i>"
     },
     {
       "id": "official-130527",
@@ -5581,7 +5766,9 @@
       "specialType": "酒馆",
       "category": "TavernSpell",
       "faction": "中立",
-      "availableModes": [ "通用" ],
+      "availableModes": [
+        "通用"
+      ],
       "cost": 4,
       "tavernTier": 7,
       "keywords": [],
@@ -5590,10 +5777,16 @@
       "imageUrl": "",
       "imagePath": "CardImages/TavernSpells/130527",
       "effectIds": [],
-      "tags": [ "tavern_spell", "tier_7", "board_buff", "menagerie" ],
+      "tags": [
+        "tavern_spell",
+        "tier_7",
+        "board_buff",
+        "menagerie"
+      ],
       "implementationStatus": "official-data",
       "notes": "Added from official Hearthstone Battlegrounds API on 2026-06-10.",
-      "inPool": 1
+      "inPool": 1,
+      "englishText": "Give your minions +3/+3. Repeat for each different friendly minion type."
     }
   ]
 }

@@ -1,0 +1,6 @@
+.venv-hyperframes/
+node_modules/
+.hyperframes/
+dist/
+*.mp4
+*.webm

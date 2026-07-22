@@ -73,6 +73,10 @@
 1. [testing/test-suite-overview.zh-CN.md](testing/test-suite-overview.zh-CN.md)：全部 EditMode/PlayMode 测试的分类目录、测试类索引、覆盖范围、运行命令和最近验证基线。
 2. [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md)：玩家视角验收标准、测试分层和发布门槛。
 
+### 想制作宣传或玩法演示视频
+
+1. [HyperframesAuditedVideoProductionSOP.zh-CN.md](HyperframesAuditedVideoProductionSOP.zh-CN.md)：从立项、真实素材、脚本、分镜和配音，到 HyperFrames 实现、G0–G12 审计、Draft/High 渲染及归档的完整标准流程。
+
 ## 文档地图
 
 | 分类 | 文档 | 主要用途 | 当前定位 |
@@ -85,6 +89,7 @@
 | Skill/工作流 | [../AGENTS.md](../AGENTS.md) | 项目级代理路由规则，说明不同任务应该先用哪些 skill | 每次项目修改和提问前的入口规则 |
 | Skill/工作流 | [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md) | 本机 57 个本地 skills 的分类、适用场景和冲突处理 | 全量 skill 路由索引 |
 | Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |
+| 视频制作/审计 | [HyperframesAuditedVideoProductionSOP.zh-CN.md](HyperframesAuditedVideoProductionSOP.zh-CN.md) | 宣传视频从策划、录制、脚本、分镜、声音和素材冻结，到 HyperFrames 制作、G0–G12 审计、渲染及归档的完整流程 | 后续视频生成与质量审计的默认执行规范 |
 | 发行上线 | [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md) | Alpha 到 1.0 的版本节奏、渠道、发包检查和运营动作 | 当前上线主路线 |
 | 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、WebGL 构建、WebDeploy 同步、GitHub main 与 Vercel 上线的可重复操作流程 | 网页版 UI 日常同步与发布手册 |
 | 发行上线 | [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md) | WebGL 构建、托管、浏览器验收、玩法回归和回滚门槛 | 网页版发布审计与准入规范 |

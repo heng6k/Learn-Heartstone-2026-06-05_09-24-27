@@ -276,17 +276,35 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void TierFiveExtraTavernSpellAuras_ObsidianAndMaelstromRecast()
+        public void TierFiveExtraTavernSpellAuras_ProudPrivateerRecastsButMaelstromDoesNotTriggerInRecruit()
         {
             var bounty = MatchService.CreateWithDefaultCatalog(9518, new InMemoryTestScenarioRepository());
             bounty.State.Player.Board.Clear();
             var bountyTarget = Card("target", BoardSide.Player, "TARGET", 1, 1, Tribe.None);
             bounty.State.Player.Board.Add(bountyTarget);
-            bounty.State.Player.Board.Add(Card("obsidian", BoardSide.Player, "BG33_825", 4, 4, Tribe.Pirate));
+            bounty.State.Player.Board.Add(Card("privateer", BoardSide.Player, "BG33_825", 4, 4, Tribe.Pirate));
             bounty.Apply(new GameCommand(GameCommandType.AddCardToHand, "122184", CardKind.TavernSpell));
             bounty.Apply(new GameCommand(GameCommandType.PlayMinion, bounty.State.Player.Tavern.Hand.Count - 1));
 
             Assert.AreEqual(13, bountyTarget.Attack);
+
+            var goldenBounty = MatchService.CreateWithDefaultCatalog(9520, new InMemoryTestScenarioRepository());
+            goldenBounty.State.Player.Board.Clear();
+            var goldenBountyTarget = Card("golden-target", BoardSide.Player, "TARGET", 1, 1, Tribe.None);
+            var goldenPrivateer = Card("golden-privateer", BoardSide.Player, "BG33_825", 8, 8, Tribe.Pirate);
+            goldenPrivateer.Golden = true;
+            goldenBounty.State.Player.Board.Add(goldenBountyTarget);
+            goldenBounty.State.Player.Board.Add(goldenPrivateer);
+            goldenBounty.Apply(new GameCommand(GameCommandType.AddCardToHand, "122184", CardKind.TavernSpell));
+            goldenBounty.Apply(new GameCommand(GameCommandType.PlayMinion, goldenBounty.State.Player.Tavern.Hand.Count - 1));
+
+            Assert.AreEqual(19, goldenBountyTarget.Attack);
+
+            goldenBounty.State.Player.Board.Add(Card("normal-privateer", BoardSide.Player, "BG33_825", 4, 4, Tribe.Pirate));
+            goldenBounty.Apply(new GameCommand(GameCommandType.AddCardToHand, "122184", CardKind.TavernSpell));
+            goldenBounty.Apply(new GameCommand(GameCommandType.PlayMinion, goldenBounty.State.Player.Tavern.Hand.Count - 1));
+
+            Assert.AreEqual(43, goldenBountyTarget.Attack);
 
             var maelstrom = MatchService.CreateWithDefaultCatalog(9519, new InMemoryTestScenarioRepository());
             maelstrom.State.Player.Board.Clear();
@@ -296,7 +314,14 @@ namespace LearnHearthstone.Tests.EditMode
             maelstrom.Apply(new GameCommand(GameCommandType.AddCardToHand, "109230", CardKind.TavernSpell));
             maelstrom.Apply(new GameCommand(GameCommandType.PlayMinion, maelstrom.State.Player.Tavern.Hand.Count - 1));
 
-            Assert.AreEqual(3, boardTarget.Attack);
+            Assert.AreEqual(2, boardTarget.Attack);
+        }
+
+        [Test]
+        public void TierFiveMaelstromEmergent_NormalAndGoldenRepeatStartOfCombatTavernSpells()
+        {
+            AssertMaelstromCombatSpellStats(false, 5, 22);
+            AssertMaelstromCombatSpellStats(true, 7, 23);
         }
 
         [Test]
@@ -355,6 +380,27 @@ namespace LearnHearthstone.Tests.EditMode
         {
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+        }
+
+        private static void AssertMaelstromCombatSpellStats(bool golden, int expectedAttack, int expectedHealth)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(golden ? 9523 : 9522, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var target = Card("maelstrom-target", BoardSide.Player, "TARGET", 1, 20, Tribe.None);
+            var maelstrom = Card("maelstrom-source", BoardSide.Player, "BG34_922", 0, 20, Tribe.Naga);
+            maelstrom.Golden = golden;
+            service.State.Player.Board.Add(target);
+            service.State.Player.Board.Add(maelstrom);
+            service.State.Opponent.Board.Add(Card("maelstrom-wall", BoardSide.Opponent, "WALL", 0, 100, Tribe.None));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "105665", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = golden ? 9523 : 9522, SafetyLimit = 1 }));
+
+            var finalTarget = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == target.InstanceId);
+            Assert.AreEqual(expectedAttack, finalTarget.Attack);
+            Assert.AreEqual(expectedHealth, finalTarget.MaxHealth);
         }
 
         private static MinionInstance Card(string id, BoardSide owner, string cardId, int attack, int health, Tribe tribe, params Keyword[] keywords)

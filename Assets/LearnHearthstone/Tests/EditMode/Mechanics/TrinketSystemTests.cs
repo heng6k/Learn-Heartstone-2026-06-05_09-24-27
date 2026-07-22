@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Data;
@@ -1504,6 +1505,49 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void PaidReplacement_InsufficientGoldPreservesOldTrinketAndPendingChoice()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG30_MagicItem_880");
+            QueueTrinketReplacementChoice(service, "BG32_MagicItem_858");
+            service.State.Player.Tavern.Gold = 0;
+
+            Assert.Throws<InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0)));
+
+            var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
+            Assert.AreEqual("BG30_MagicItem_880", trinkets.LesserTrinketId);
+            Assert.IsNotNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.AreEqual("BG32_MagicItem_858", service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options[0].SourceId);
+        }
+
+        [Test]
+        public void DebugReplaceTrinket_RemovesOldBoardAndShopAurasImmediately()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var boardMinion = TestShopMinion("replacement-board-aura", 3, 4);
+            var shopMinion = TestShopMinion("replacement-shop-aura", 5, 6);
+            service.State.Player.Board.Add(boardMinion);
+            service.State.Player.Tavern.Shop.Clear();
+            service.State.Player.Tavern.Shop.Add(shopMinion);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_880", CardKind.Trinket, 0));
+            Assert.AreEqual(5, boardMinion.Attack);
+            Assert.AreEqual(5, boardMinion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_879", CardKind.Trinket, 0));
+            Assert.AreEqual(3, boardMinion.Attack);
+            Assert.AreEqual(4, boardMinion.MaxHealth);
+            Assert.AreEqual(6, shopMinion.Attack);
+            Assert.AreEqual(7, shopMinion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_858", CardKind.Trinket, 0));
+            Assert.AreEqual(5, shopMinion.Attack);
+            Assert.AreEqual(6, shopMinion.MaxHealth);
+        }
+
+        [Test]
         public void TickatusSticker_DiscoversTierThreeDarkmoonPrizeOnEquipAndRepeatsEveryThreeTurns()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -1698,6 +1742,32 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DalaranCheeseWheel_ReplacingLastCopyResetsGrowthProgress()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_879", CardKind.Trinket, 0));
+            for (var index = 0; index < 3; index += 1)
+            {
+                service.Apply(new GameCommand(GameCommandType.RerollShop));
+            }
+
+            var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
+            Assert.AreEqual(3, trinkets.DalaranCheeseWheelRefreshes);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_858", CardKind.Trinket, 0));
+            Assert.AreEqual(0, trinkets.DalaranCheeseWheelRefreshes);
+            Assert.AreEqual(0, trinkets.DalaranCheeseWheelBonusAttack);
+            Assert.AreEqual(0, trinkets.DalaranCheeseWheelBonusHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_879", CardKind.Trinket, 0));
+            Assert.AreEqual(0, trinkets.DalaranCheeseWheelRefreshes);
+            Assert.AreEqual(1, trinkets.DalaranCheeseWheelBonusAttack);
+            Assert.AreEqual(1, trinkets.DalaranCheeseWheelBonusHealth);
+        }
+
+        [Test]
         public void OrnateClock_OnEquipGrantsGoldAndOffersGreaterNextTurn()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -1743,6 +1813,27 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(trinkets.WornTreasureMapClaimed);
             Assert.AreEqual(0, trinkets.WornTreasureMapDueRound);
             Assert.AreEqual(service.State.Player.Tavern.MaxGold + 10, service.State.Player.Tavern.Gold);
+        }
+
+        [Test]
+        public void WornTreasureMap_ReplacingBeforeClaimClearsScheduleAndReequipStartsFresh()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Round = 4;
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_428", CardKind.Trinket, 0));
+            var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
+            Assert.AreEqual(6, trinkets.WornTreasureMapDueRound);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_858", CardKind.Trinket, 0));
+            Assert.AreEqual(0, trinkets.WornTreasureMapDueRound);
+            Assert.IsFalse(trinkets.WornTreasureMapClaimed);
+
+            service.State.Round = 7;
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_428", CardKind.Trinket, 0));
+
+            Assert.AreEqual(9, trinkets.WornTreasureMapDueRound);
+            Assert.IsFalse(trinkets.WornTreasureMapClaimed);
         }
 
         [Test]
@@ -4403,6 +4494,26 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(5, FinalCombatMinion(service, existing).Attack);
             Assert.AreEqual(7, FinalCombatMinion(service, played).Attack);
+        }
+
+        [Test]
+        public void DebugReplaceTrinket_RemovesDazzlingDaggerAndHordeKeychainAuras()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var minion = TestShopMinion("replacement-tracked-aura", 3, 4);
+            service.State.Player.Board.Add(minion);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_934", CardKind.Trinket, 1));
+            Assert.AreEqual(4, minion.Attack);
+            Assert.AreEqual(4, minion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_843t", CardKind.Trinket, 1));
+            Assert.AreEqual(10, minion.Attack);
+            Assert.AreEqual(9, minion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_426t", CardKind.Trinket, 1));
+            Assert.AreEqual(3, minion.Attack);
+            Assert.AreEqual(4, minion.MaxHealth);
         }
 
         [Test]
@@ -7769,6 +7880,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(2, request.Options.Count);
             Assert.IsTrue(request.Source.StartsWith("trinket-replace-free:"));
+            Assert.IsTrue(request.Options.All(option => option.Cost == 0));
             Assert.IsFalse(request.Options.Any(option => option.SourceId == "BG30_MagicItem_703"));
             Assert.IsTrue(request.Options.All(option =>
                 service.TrinketCatalog.GetByCardId(option.SourceId).SlotKind == TrinketSlotKind.Lesser));
@@ -7826,13 +7938,35 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(7205);
             service.State.Player.Tavern.Gold = 20;
+            var minion = TestShopMinion("souvenir-stand-double-aura", 3, 4);
+            service.State.Player.Board.Add(minion);
 
             EquipTrinket(service, "BG30_MagicItem_888");
-            EquipTrinket(service, "BG30_MagicItem_426t");
+            EquipTrinket(service, "BG30_MagicItem_880t");
 
             var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
-            Assert.AreEqual("BG30_MagicItem_426t", trinkets.GreaterTrinketId);
-            Assert.AreEqual("BG30_MagicItem_426t", trinkets.LesserTrinketId);
+            Assert.AreEqual("BG30_MagicItem_880t", trinkets.GreaterTrinketId);
+            Assert.AreEqual("BG30_MagicItem_880t", trinkets.LesserTrinketId);
+            Assert.AreEqual(19, minion.Attack);
+            Assert.AreEqual(14, minion.MaxHealth);
+            Assert.IsTrue(minion.Enchantments.Any(enchantment =>
+                enchantment.SourceId == FeralTalismanAuraSourceId &&
+                enchantment.AttackBonus == 16 &&
+                enchantment.HealthBonus == 10));
+        }
+
+        [Test]
+        public void SouvenirStand_CopyRepeatsGreaterOnAcquireEffect()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(7206);
+            service.State.Player.Tavern.Gold = 20;
+            var startingMaxGold = service.State.Player.Tavern.MaxGold;
+
+            EquipTrinket(service, "BG30_MagicItem_888");
+            EquipTrinket(service, "BG30_MagicItem_996");
+
+            Assert.AreEqual(8, service.State.Player.Tavern.AdvancedMechanics.Trinkets.ExtraMaxGold);
+            Assert.AreEqual(startingMaxGold + 8, service.State.Player.Tavern.MaxGold);
         }
 
         [Test]
@@ -8053,6 +8187,12 @@ namespace LearnHearthstone.Tests.EditMode
                     }
                 }
             };
+        }
+
+        private static void QueueTrinketReplacementChoice(MatchService service, string cardId)
+        {
+            QueueTrinketChoice(service, cardId);
+            service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Source = "trinket-replace:test";
         }
 
         private static void EquipTrinket(MatchService service, string cardId)

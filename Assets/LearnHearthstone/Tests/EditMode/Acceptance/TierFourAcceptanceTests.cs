@@ -345,6 +345,38 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.Replay.Frames.Any(frame => frame.EventType == CombatEventType.SummonOverflowed || frame.EventType == CombatEventType.DeathrattleResolved));
         }
 
+        [Test]
+        public void TierFourGoldenEconomyAndRazorfenFlapper_UseOfficialGoldenValues()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9423, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Gold = 0;
+            service.State.Player.Tavern.MaxGold = 20;
+            service.State.Player.Tavern.LostLastCombat = true;
+            var turtle = Card("golden-turtle", BoardSide.Player, "BG24_018", 8, 8, Tribe.Beast);
+            turtle.Golden = true;
+            service.State.Player.Board.Add(turtle);
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, turtle.InstanceId));
+
+            Assert.AreEqual(10, service.State.Player.Tavern.Gold);
+
+            var flapper = Card("golden-flapper", BoardSide.Player, "BG34_682", 0, 1, Tribe.Quilboar, Keyword.Taunt, Keyword.Deathrattle);
+            flapper.Golden = true;
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { flapper },
+                new[] { Card("flapper-wall", BoardSide.Opponent, "WALL", 1, 20, Tribe.None) },
+                9424,
+                20,
+                new TavernState());
+
+            Assert.AreEqual(
+                2,
+                result.PlayerRewards
+                    .Where(reward => reward.Type == CombatRewardType.AddTavernSpellToHand && reward.CardId == "126676")
+                    .Sum(reward => reward.Amount));
+        }
+
         private static void AddAndPlay(MatchService service, string cardId, int targetIndex = -1)
         {
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));

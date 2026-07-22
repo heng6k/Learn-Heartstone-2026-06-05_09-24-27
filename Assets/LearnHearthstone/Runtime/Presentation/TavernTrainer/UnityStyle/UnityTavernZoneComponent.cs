@@ -92,7 +92,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard = null,
             Action<GameObject, int> configureSlot = null,
-            UnityTavernLayoutContext? layoutContext = null)
+            UnityTavernLayoutContext? layoutContext = null,
+            bool useEnglish = false)
         {
             var resolvedLayout = layoutContext ?? UnityTavernLayoutContext.Current();
             var image = UnityTavernUiStyle.EnsureComponent<Image>(gameObject);
@@ -108,7 +109,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     ConfigureRootLayout(rootLayout, resolvedLayout);
                 }
 
-                BuildPrefabZone(title, subtitle, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout);
+                BuildPrefabZone(title, subtitle, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout, useEnglish);
                 return;
             }
 
@@ -122,7 +123,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             vertical.childForceExpandHeight = false;
 
             BuildHeader(title, subtitle);
-            BuildGeneratedRow(cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout);
+            BuildGeneratedRow(cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout, useEnglish);
         }
 
         private void BuildPrefabZone(
@@ -136,7 +137,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
             Action<GameObject, int> configureSlot,
-            UnityTavernLayoutContext layout)
+            UnityTavernLayoutContext layout,
+            bool useEnglish)
         {
             SetText(titleText, title);
             SetText(subtitleText, subtitle);
@@ -144,7 +146,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var parent = slotParent != null ? slotParent : transform;
             ClearChildren(parent);
-            BuildSlots(parent, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layout);
+            BuildSlots(parent, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layout, useEnglish);
         }
 
         private void BuildHeader(string title, string subtitle)
@@ -178,7 +180,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
             Action<GameObject, int> configureSlot,
-            UnityTavernLayoutContext layoutContext)
+            UnityTavernLayoutContext layoutContext,
+            bool useEnglish)
         {
             var rowObject = new GameObject("UnityZoneCardRow", typeof(RectTransform));
             rowObject.transform.SetParent(transform, false);
@@ -194,7 +197,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            BuildSlots(row, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layoutContext);
+            BuildSlots(row, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layoutContext, useEnglish);
         }
 
         private void BuildSlots(
@@ -207,7 +210,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<MinionInstance> onPrimaryAction,
             Action<GameObject, MinionInstance, int> configureCard,
             Action<GameObject, int> configureSlot,
-            UnityTavernLayoutContext layout)
+            UnityTavernLayoutContext layout,
+            bool useEnglish)
         {
             var metrics = layout.ZoneMetrics(zoneKind, cardMode);
             var handCardCount = cards != null ? cards.Count : 0;
@@ -244,7 +248,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     cardMode,
                     card == null ? null : actionLabel?.Invoke(card),
                     onSelect,
-                    onPrimaryAction);
+                    onPrimaryAction,
+                    useEnglish: useEnglish);
                 cardComponent.SetLayoutScale(metrics.CardScale);
                 if (zoneKind == UnityTavernZoneKind.Hand && cardMode == UnityTavernCardMode.Hand && card != null)
                 {

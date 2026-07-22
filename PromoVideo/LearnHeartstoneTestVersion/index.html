@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="zh-CN" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "SimHei"; src: local("SimHei"); font-weight: 400 900; }
+      @font-face { font-family: "Microsoft YaHei"; src: local("Microsoft YaHei"); font-weight: 400 900; }
+
+      :root {
+        --ink: #120e0b;
+        --tavern: #2a1b13;
+        --gold: #e5b94b;
+        --gold-soft: #f6d889;
+        --paper: #f4ebdd;
+        --red: #7d2f2a;
+        --teal: #17353b;
+      }
+
+      * { box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--ink);
+      }
+      body {
+        color: var(--paper);
+        font-family: "SimHei", "Microsoft YaHei", sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 80% 12%, rgba(229,185,75,.17), transparent 30%),
+          radial-gradient(circle at 15% 74%, rgba(125,47,42,.22), transparent 38%),
+          linear-gradient(160deg, #21150f 0%, #120e0b 52%, #0b1111 100%);
+      }
+
+      #root::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: .15;
+        background-image:
+          linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        padding: 150px 64px 150px;
+        opacity: 0;
+        overflow: hidden;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+      }
+
+      .eyebrow {
+        color: var(--gold);
+        font-size: 30px;
+        letter-spacing: .16em;
+        margin-bottom: 22px;
+      }
+
+      h1, h2, p { margin: 0; }
+      h1 {
+        font-size: 94px;
+        line-height: 1.08;
+        letter-spacing: -.035em;
+      }
+      h2 {
+        font-size: 70px;
+        line-height: 1.12;
+        letter-spacing: -.025em;
+      }
+      .gold { color: var(--gold-soft); }
+
+      .lead {
+        margin-top: 28px;
+        max-width: 890px;
+        font-size: 42px;
+        line-height: 1.45;
+        color: rgba(244,235,221,.82);
+      }
+
+      .media-window {
+        position: relative;
+        width: 952px;
+        margin-top: 72px;
+        overflow: hidden;
+        border: 2px solid rgba(229,185,75,.72);
+        border-radius: 28px;
+        background: #0b1111;
+        box-shadow: 0 28px 70px rgba(0,0,0,.48), inset 0 0 0 1px rgba(246,216,137,.12);
+      }
+      .media-window.wide { height: 536px; }
+      .media-window.tall { height: 650px; }
+      .media-window img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+      .media-window.contain img { object-fit: contain; }
+
+      .caption {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        bottom: 165px;
+        padding: 28px 34px;
+        border-left: 6px solid var(--gold);
+        border-radius: 12px 24px 24px 12px;
+        background: rgba(18,14,11,.88);
+        box-shadow: 0 16px 40px rgba(0,0,0,.34);
+        font-size: 46px;
+        line-height: 1.35;
+      }
+
+      .badge {
+        position: absolute;
+        top: 70px;
+        right: 64px;
+        z-index: 220;
+        padding: 13px 24px;
+        border: 2px solid rgba(246,216,137,.8);
+        border-radius: 999px;
+        color: var(--gold-soft);
+        background: rgba(18,14,11,.88);
+        font-size: 28px;
+        letter-spacing: .12em;
+      }
+
+      .hook-number {
+        position: absolute;
+        top: 175px;
+        right: 75px;
+        font-size: 260px;
+        line-height: 1;
+        font-weight: 700;
+        color: rgba(229,185,75,.10);
+      }
+
+      .montage {
+        position: relative;
+        height: 1010px;
+        margin-top: 84px;
+        perspective: 1200px;
+      }
+      .shot {
+        position: absolute;
+        width: 760px;
+        height: 430px;
+        overflow: hidden;
+        border: 2px solid rgba(246,216,137,.52);
+        border-radius: 24px;
+        background: #101616;
+        box-shadow: 0 30px 70px rgba(0,0,0,.55);
+      }
+      .shot img { width: 100%; height: 100%; object-fit: cover; }
+      #shot-a { top: 0; left: 0; transform: rotate(-3deg); }
+      #shot-b { top: 292px; right: 0; transform: rotate(3deg); }
+      #shot-c { top: 590px; left: 56px; transform: rotate(-2deg); }
+      .shot-label {
+        position: absolute;
+        left: 22px;
+        bottom: 20px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        color: var(--ink);
+        background: var(--gold-soft);
+        font-size: 28px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+        align-items: center;
+        gap: 18px;
+        margin-top: 54px;
+      }
+      .flow-step {
+        min-height: 126px;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        border: 2px solid rgba(229,185,75,.45);
+        border-radius: 22px;
+        background: rgba(42,27,19,.82);
+        color: var(--paper);
+        text-align: center;
+        font-size: 34px;
+      }
+      .flow-arrow { color: var(--gold); font-size: 44px; }
+
+      .hotspot {
+        position: absolute;
+        min-width: 150px;
+        padding: 14px 20px;
+        border: 2px solid var(--gold-soft);
+        border-radius: 999px;
+        color: var(--ink);
+        background: var(--gold-soft);
+        text-align: center;
+        font-size: 30px;
+        box-shadow: 0 0 0 10px rgba(229,185,75,.12);
+      }
+      #buy-hotspot { left: 335px; top: 760px; }
+      #refresh-hotspot { left: 570px; top: 585px; }
+      #position-hotspot { left: 650px; top: 1010px; }
+
+      .cards {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 50px;
+        margin-top: 72px;
+        perspective: 1200px;
+      }
+      .card-wrap { position: relative; width: 340px; }
+      .card-wrap img {
+        width: 340px;
+        height: auto;
+        display: block;
+        filter: drop-shadow(0 28px 24px rgba(0,0,0,.48));
+        backface-visibility: hidden;
+      }
+      .card-name {
+        margin-top: 20px;
+        text-align: center;
+        color: rgba(244,235,221,.8);
+        font-size: 30px;
+      }
+      .transform-arrow {
+        color: var(--gold-soft);
+        font-size: 74px;
+        text-shadow: 0 0 22px rgba(229,185,75,.45);
+      }
+      .proof {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        margin-top: 48px;
+      }
+      .proof span {
+        padding: 14px 22px;
+        border-radius: 999px;
+        background: rgba(229,185,75,.14);
+        color: var(--gold-soft);
+        font-size: 30px;
+      }
+
+      .resolution-board {
+        position: relative;
+        height: 890px;
+        margin-top: 58px;
+      }
+      .resolution-board .media-window {
+        position: absolute;
+        inset: 110px 0 auto 0;
+        width: 952px;
+        height: 536px;
+        margin: 0;
+        opacity: .42;
+        filter: saturate(.72);
+      }
+      .token-card {
+        position: absolute;
+        right: 54px;
+        top: 20px;
+        width: 292px;
+        filter: drop-shadow(0 24px 28px rgba(0,0,0,.54));
+      }
+      .order-list {
+        position: absolute;
+        left: 8px;
+        top: 45px;
+        display: grid;
+        gap: 22px;
+        width: 600px;
+      }
+      .order-step {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 24px;
+        border: 2px solid rgba(229,185,75,.48);
+        border-radius: 24px;
+        background: rgba(18,14,11,.9);
+        font-size: 36px;
+      }
+      .order-step b {
+        width: 58px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        color: var(--ink);
+        background: var(--gold-soft);
+        font-size: 34px;
+      }
+
+      .timeline-focus {
+        position: absolute;
+        left: 60px;
+        right: 60px;
+        top: 1000px;
+        height: 170px;
+        border: 4px solid var(--gold-soft);
+        border-radius: 28px;
+        box-shadow: 0 0 0 12px rgba(229,185,75,.12), 0 0 44px rgba(229,185,75,.34);
+      }
+      .timeline-focus::after {
+        content: "攻击 · 死亡 · 召唤 · 触发";
+        position: absolute;
+        left: 28px;
+        top: -66px;
+        color: var(--gold-soft);
+        font-size: 32px;
+      }
+
+      .library-layout {
+        position: relative;
+        height: 1080px;
+        margin-top: 50px;
+      }
+      .library-panel {
+        position: absolute;
+        left: 0;
+        top: 180px;
+        width: 720px;
+        height: 432px;
+        overflow: hidden;
+        border: 2px solid rgba(229,185,75,.55);
+        border-radius: 28px;
+        background: #0b1111;
+        box-shadow: 0 26px 60px rgba(0,0,0,.5);
+      }
+      .library-panel img { width: 100%; height: 100%; object-fit: cover; }
+      .brann-card {
+        position: absolute;
+        right: 2px;
+        top: 44px;
+        width: 300px;
+        filter: drop-shadow(0 28px 28px rgba(0,0,0,.58));
+      }
+      .tier-chip {
+        position: absolute;
+        right: 205px;
+        top: 42px;
+        width: 92px;
+        height: 92px;
+        display: grid;
+        place-items: center;
+        z-index: 2;
+        border: 4px solid var(--gold-soft);
+        border-radius: 50%;
+        color: var(--ink);
+        background: var(--gold);
+        font-size: 46px;
+        font-weight: 700;
+      }
+      .filter-chips {
+        position: absolute;
+        left: 0;
+        top: 670px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .filter-chips span {
+        padding: 17px 24px;
+        border: 2px solid rgba(229,185,75,.48);
+        border-radius: 999px;
+        background: rgba(42,27,19,.84);
+        font-size: 32px;
+      }
+
+      .final-scene {
+        display: grid;
+        align-content: center;
+        padding-bottom: 230px;
+        text-align: center;
+      }
+      .final-orbit {
+        position: absolute;
+        left: 50%;
+        top: 48%;
+        width: 820px;
+        height: 820px;
+        border: 2px solid rgba(229,185,75,.18);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 140px rgba(229,185,75,.12) inset;
+      }
+      .final-kicker { color: var(--gold); font-size: 34px; letter-spacing: .18em; }
+      .final-title { margin-top: 28px; font-size: 102px; line-height: 1.04; }
+      .final-sub { margin-top: 34px; color: rgba(244,235,221,.82); font-size: 44px; }
+      .disclaimer {
+        margin: 64px auto 0;
+        width: fit-content;
+        padding: 18px 28px;
+        border: 2px solid rgba(246,216,137,.54);
+        border-radius: 999px;
+        color: var(--gold-soft);
+        background: rgba(18,14,11,.76);
+        font-size: 30px;
+      }
+
+      .transition-layer {
+        position: absolute;
+        inset: -80px;
+        z-index: 180;
+        pointer-events: none;
+        opacity: 0;
+      }
+      #flash-overlay { background: #fff3d7; }
+      #leak-warm { background: rgba(214,110,43,.72); }
+      #leak-1 {
+        background: radial-gradient(circle at 18% 50%, rgba(255,244,204,.96), rgba(236,148,50,.7) 32%, transparent 68%);
+      }
+      #leak-2 {
+        background: radial-gradient(circle at 78% 42%, rgba(255,225,153,.9), rgba(125,47,42,.62) 42%, transparent 70%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+      <section id="scene-1" class="scene clip" data-start="0" data-duration="3.7" data-track-index="1">
+        <div class="hook-number">01</div>
+        <div class="eyebrow">阵容验证</div>
+        <h1 id="s1-title">这套阵容，<br><span class="gold">到底能不能打？</span></h1>
+        <div class="media-window wide" id="s1-window"><img id="s1-image" src="assets/combat-replay.png" alt="真实战斗回放画面" /></div>
+        <div class="caption" id="s1-caption">开战之前，先验证一次。</div>
+      </section>
+
+      <section id="scene-2" class="scene clip" data-start="3" data-duration="5.7" data-track-index="2">
+        <div class="eyebrow">Learn Heartstone</div>
+        <h2 id="s2-title">酒馆战棋<br><span class="gold">学习与模拟工具</span></h2>
+        <div class="montage">
+          <div class="shot" id="shot-a"><img src="assets/tavern-main.png" alt="酒馆主界面" /><span class="shot-label">搭建阵容</span></div>
+          <div class="shot" id="shot-b"><img src="assets/combat-replay.png" alt="战斗回放" /><span class="shot-label">回看结算</span></div>
+          <div class="shot" id="shot-c"><img src="assets/advanced-filter.png" alt="高级筛选" /><span class="shot-label">筛选卡池</span></div>
+        </div>
+        <div class="caption">只展示当前真实功能画面。</div>
+      </section>
+
+      <section id="scene-3" class="scene clip" data-start="8" data-duration="7.7" data-track-index="3">
+        <div class="eyebrow">01 · 创建环境</div>
+        <h2 id="s3-title">选择本局<span class="gold">种族</span><br>再进入酒馆</h2>
+        <div class="media-window wide contain" id="s3-window"><img id="s3-image" src="assets/tribes.png" alt="五种族选择界面" /></div>
+        <div class="flow" id="s3-flow">
+          <div class="flow-step">选择种族</div><div class="flow-arrow">→</div>
+          <div class="flow-step">确认英雄</div><div class="flow-arrow">→</div>
+          <div class="flow-step">进入酒馆</div>
+        </div>
+        <div class="caption">搭建你想测试的对局环境。</div>
+      </section>
+
+      <section id="scene-4" class="scene clip" data-start="15" data-duration="8.7" data-track-index="4">
+        <div class="eyebrow">02 · 准备阶段</div>
+        <h2 id="s4-title"><span class="gold">购买 · 刷新 · 站位</span></h2>
+        <div class="media-window tall" id="s4-window"><img id="s4-image" src="assets/tavern-main.png" alt="购买与站位画面" /></div>
+        <div class="hotspot" id="buy-hotspot">购买</div>
+        <div class="hotspot" id="refresh-hotspot">刷新</div>
+        <div class="hotspot" id="position-hotspot">调整站位</div>
+        <div class="caption">像真实对局一样完成准备。</div>
+      </section>
+
+      <section id="scene-5" class="scene clip" data-start="23" data-duration="8.7" data-track-index="5">
+        <div class="eyebrow">03 · 三连合成</div>
+        <h2 id="s5-title">金色以后，<br><span class="gold">描述也会同步变化</span></h2>
+        <div class="cards">
+          <div class="card-wrap" id="normal-card"><img src="assets/minion-normal.png" alt="普通南海卖艺者" /><div class="card-name">普通 · 获得 1 枚铸币</div></div>
+          <div class="transform-arrow" id="triple-arrow">→</div>
+          <div class="card-wrap" id="golden-card"><img src="assets/minion-golden.png" alt="金色南海卖艺者" /><div class="card-name">金色 · 获得 2 枚铸币</div></div>
+        </div>
+        <div class="proof" id="s5-proof"><span>属性 3/1 → 6/2</span><span>描述 1枚 → 2枚</span></div>
+        <div class="caption">三连生成真正对应的金色版本。</div>
+      </section>
+
+      <section id="scene-6" class="scene clip" data-start="31" data-duration="9.7" data-track-index="6">
+        <div id="scene-6-inner">
+          <div class="eyebrow">04 · 顺序结算</div>
+          <h2 id="s6-title">准备阶段与亡语，<br><span class="gold">按先后顺序处理</span></h2>
+          <div class="resolution-board">
+            <div class="media-window"><img src="assets/combat-replay.png" alt="亡语触发链" /></div>
+            <img class="token-card" id="token-card" src="assets/token-skull.png" alt="衍生骷髅卡牌" />
+            <div class="order-list">
+              <div class="order-step" id="order-1"><b>1</b><span>亡语触发</span></div>
+              <div class="order-step" id="order-2"><b>2</b><span>召唤衍生物</span></div>
+              <div class="order-step" id="order-3"><b>3</b><span>检查衍生物三连</span></div>
+            </div>
+          </div>
+          <div class="caption">召唤、触发和三连都按顺序结算。</div>
+        </div>
+      </section>
+
+      <section id="scene-7" class="scene clip" data-start="40" data-duration="8.7" data-track-index="7">
+        <div class="eyebrow">05 · 战斗回放</div>
+        <h2 id="s7-title">每一次攻击和触发，<br><span class="gold">都能逐步回看</span></h2>
+        <div class="media-window tall" id="s7-window"><img id="s7-image" src="assets/combat-replay.png" alt="逐步战斗回放界面" /></div>
+        <div class="timeline-focus" id="timeline-focus"></div>
+        <div class="caption">攻击指针、伤害、死亡与召唤记录。</div>
+      </section>
+
+      <section id="scene-8" class="scene clip" data-start="48" data-duration="7.7" data-track-index="8">
+        <div class="eyebrow">06 · 卡牌库</div>
+        <h2 id="s8-title">五本筛选，<br><span class="gold">布莱恩正确出现</span></h2>
+        <div class="library-layout">
+          <div class="library-panel" id="library-panel"><img src="assets/advanced-filter.png" alt="卡牌高级筛选界面" /></div>
+          <div class="tier-chip" id="tier-chip">5</div>
+          <img class="brann-card" id="brann-card" src="assets/brann.png" alt="布莱恩铜须卡牌" />
+          <div class="filter-chips" id="filter-chips"><span>等级筛选</span><span>种族筛选</span><span>名称搜索</span><span>加载更多</span></div>
+        </div>
+        <div class="caption">筛选与继续加载，共同覆盖完整卡池。</div>
+      </section>
+
+      <section id="scene-9" class="scene final-scene clip" data-start="55" data-duration="5" data-track-index="9">
+        <div class="final-orbit" id="final-orbit"></div>
+        <div class="final-kicker" id="final-kicker">测试版现已开放体验</div>
+        <h1 class="final-title" id="final-title">Learn<br><span class="gold">Heartstone</span></h1>
+        <p class="final-sub" id="final-sub">欢迎来试试你的阵容</p>
+        <div class="disclaimer" id="disclaimer">非官方学习 / 模拟工具</div>
+      </section>
+
+      <div id="test-version-badge" class="badge clip" data-start="0" data-duration="60" data-track-index="220">测试版</div>
+      <div id="flash-overlay" class="transition-layer clip" data-start="0" data-duration="60" data-track-index="180"></div>
+      <div id="leak-warm" class="transition-layer clip" data-start="0" data-duration="60" data-track-index="181"></div>
+      <div id="leak-1" class="transition-layer clip" data-start="0" data-duration="60" data-track-index="182"></div>
+      <div id="leak-2" class="transition-layer clip" data-start="0" data-duration="60" data-track-index="183"></div>
+
+      <audio id="voice-01" class="clip" data-start="0" data-duration="3.07" data-track-index="60" data-volume="0.95" src="assets/voice-01.wav" preload="auto"></audio>
+      <audio id="voice-02" class="clip" data-start="3.35" data-duration="3.88" data-track-index="60" data-volume="0.95" src="assets/voice-02.wav" preload="auto"></audio>
+      <audio id="voice-03" class="clip" data-start="8.45" data-duration="4.96" data-track-index="60" data-volume="0.95" src="assets/voice-03.wav" preload="auto"></audio>
+      <audio id="voice-04" class="clip" data-start="15.45" data-duration="5.85" data-track-index="60" data-volume="0.95" src="assets/voice-04.wav" preload="auto"></audio>
+      <audio id="voice-05" class="clip" data-start="23.45" data-duration="5.73" data-track-index="60" data-volume="0.95" src="assets/voice-05.wav" preload="auto"></audio>
+      <audio id="voice-06" class="clip" data-start="31.45" data-duration="6.91" data-track-index="60" data-volume="0.95" src="assets/voice-06.wav" preload="auto"></audio>
+      <audio id="voice-07" class="clip" data-start="40.45" data-duration="5.12" data-track-index="60" data-volume="0.95" src="assets/voice-07.wav" preload="auto"></audio>
+      <audio id="voice-08" class="clip" data-start="48.2" data-duration="6.64" data-track-index="60" data-volume="0.95" src="assets/voice-08.wav" preload="auto"></audio>
+      <audio id="voice-09" class="clip" data-start="55.35" data-duration="4.37" data-track-index="60" data-volume="0.95" src="assets/voice-09.wav" preload="auto"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const scenes = ["#scene-1", "#scene-2", "#scene-3", "#scene-4", "#scene-5", "#scene-6", "#scene-7", "#scene-8", "#scene-9"];
+
+      tl.set(scenes, { opacity: 0, x: 0, rotationY: 0, filter: "none" }, 0);
+      tl.set("#scene-1", { opacity: 1 }, 0);
+      tl.set("#leak-1", { x: -480, scale: 1.35 }, 0);
+      tl.set("#leak-2", { x: 420, scale: 1.4 }, 0);
+
+      tl.from("#s1-title", { opacity: 0, y: 34, duration: .55, ease: "power3.out" }, .12);
+      tl.from("#s1-window", { opacity: 0, scale: .94, duration: .6, ease: "power3.out" }, .3);
+      tl.from("#s1-caption", { opacity: 0, y: 28, duration: .45, ease: "power2.out" }, .65);
+      tl.to("#s1-image", { scale: 1.07, duration: 3, ease: "none" }, 0);
+
+      tl.to("#scene-1", { filter: "brightness(2.6)", scale: 1.05, duration: .35, ease: "power2.in" }, 3);
+      tl.to("#flash-overlay", { opacity: 1, duration: .27, ease: "power2.in" }, 3.08);
+      tl.set("#scene-1", { opacity: 0, filter: "none", scale: 1 }, 3.36);
+      tl.set("#scene-2", { opacity: 1 }, 3.36);
+      tl.to("#flash-overlay", { opacity: 0, duration: .32, ease: "power2.out" }, 3.36);
+      tl.from("#s2-title", { opacity: 0, y: 30, duration: .5, ease: "power3.out" }, 3.5);
+      tl.from(["#shot-a", "#shot-b", "#shot-c"], { opacity: 0, rotationY: -80, x: 80, duration: .55, stagger: .38, ease: "power3.out" }, 3.62);
+
+      tl.set("#scene-3", { opacity: 1, rotationY: -180 }, 8);
+      tl.to("#scene-2", { rotationY: 180, duration: .6, ease: "power2.inOut" }, 8);
+      tl.to("#scene-3", { rotationY: 0, duration: .6, ease: "power2.inOut" }, 8);
+      tl.set("#scene-2", { opacity: 0 }, 8.6);
+      tl.from("#s3-title", { opacity: 0, y: 30, duration: .5, ease: "power3.out" }, 8.58);
+      tl.from("#s3-window", { opacity: 0, scale: .95, duration: .55, ease: "power3.out" }, 8.7);
+      tl.from("#s3-flow .flow-step, #s3-flow .flow-arrow", { opacity: 0, y: 24, duration: .4, stagger: .12, ease: "power2.out" }, 9.15);
+      tl.to("#s3-image", { scale: 1.045, duration: 6.4, ease: "none" }, 8.6);
+
+      tl.fromTo("#scene-4", { x: 1080, opacity: 1 }, { x: 0, opacity: 1, duration: .58, ease: "power3.inOut" }, 15);
+      tl.to("#scene-3", { x: -1080, duration: .58, ease: "power3.inOut" }, 15);
+      tl.set("#scene-3", { opacity: 0 }, 15.58);
+      tl.from("#s4-title", { opacity: 0, y: 28, duration: .45, ease: "power3.out" }, 15.55);
+      tl.from("#s4-window", { opacity: 0, scale: .96, duration: .55, ease: "power3.out" }, 15.68);
+      tl.from(["#buy-hotspot", "#refresh-hotspot", "#position-hotspot"], { opacity: 0, scale: .6, duration: .36, stagger: .5, ease: "back.out(1.7)" }, 16.4);
+      tl.to("#s4-image", { scale: 1.06, x: -28, duration: 7.2, ease: "none" }, 15.6);
+
+      tl.to("#leak-warm", { opacity: .56, duration: .28, ease: "power1.in" }, 23);
+      tl.to("#leak-1", { opacity: .95, x: 340, duration: .45, ease: "sine.inOut" }, 23.02);
+      tl.set("#scene-4", { opacity: 0 }, 23.38);
+      tl.set("#scene-5", { opacity: 1 }, 23.38);
+      tl.to(["#leak-warm", "#leak-1"], { opacity: 0, duration: .38, ease: "power2.out" }, 23.42);
+      tl.from("#s5-title", { opacity: 0, y: 30, duration: .5, ease: "power3.out" }, 23.48);
+      tl.from("#normal-card", { opacity: 0, x: -80, duration: .55, ease: "power3.out" }, 23.75);
+      tl.from("#triple-arrow", { opacity: 0, scale: .55, duration: .4, ease: "back.out(1.8)" }, 24.45);
+      tl.from("#golden-card", { opacity: 0, rotationY: -180, duration: .72, ease: "power3.inOut", transformOrigin: "center center" }, 24.72);
+      tl.from("#s5-proof span", { opacity: 0, y: 20, duration: .35, stagger: .18, ease: "power2.out" }, 25.55);
+
+      tl.to("#scene-5", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: .5, ease: "power2.inOut" }, 31);
+      tl.fromTo("#scene-6", { filter: "blur(10px)", scale: .97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: .5, ease: "power2.inOut" }, 31.1);
+      tl.from("#s6-title", { opacity: 0, y: 30, duration: .5, ease: "power3.out" }, 31.58);
+      tl.from(["#order-1", "#order-2", "#order-3"], { opacity: 0, x: -54, duration: .42, stagger: .55, ease: "power3.out" }, 31.85);
+      tl.from("#token-card", { opacity: 0, rotationY: -130, scale: .82, duration: .65, ease: "power3.out" }, 33.25);
+
+      tl.to("#scene-6-inner", { filter: "blur(15px)", duration: .45, ease: "power1.in" }, 40);
+      tl.to("#scene-6-inner", { opacity: 0, duration: .28, ease: "power2.in" }, 40.22);
+      tl.set("#scene-6-inner", { opacity: 0 }, 40.5);
+      tl.fromTo("#scene-7", { opacity: 0 }, { opacity: 1, duration: .32, ease: "power2.out" }, 40.22);
+      tl.from("#s7-title", { opacity: 0, y: 30, duration: .5, ease: "power3.out" }, 40.52);
+      tl.from("#s7-window", { opacity: 0, scale: .96, duration: .55, ease: "power3.out" }, 40.65);
+      tl.from("#timeline-focus", { opacity: 0, scaleX: .35, duration: .6, ease: "power3.out", transformOrigin: "left center" }, 41.28);
+      tl.to("#s7-image", { scale: 1.065, y: -24, duration: 7.2, ease: "none" }, 40.5);
+
+      tl.fromTo("#scene-8", { x: 1080, opacity: 1 }, { x: 0, opacity: 1, duration: .58, ease: "power3.inOut" }, 48);
+      tl.to("#scene-7", { x: -1080, duration: .58, ease: "power3.inOut" }, 48);
+      tl.set("#scene-7", { opacity: 0 }, 48.58);
+      tl.from("#s8-title", { opacity: 0, y: 28, duration: .45, ease: "power3.out" }, 48.55);
+      tl.from("#library-panel", { opacity: 0, x: -60, duration: .5, ease: "power3.out" }, 48.8);
+      tl.from("#brann-card", { opacity: 0, rotationY: -180, duration: .68, ease: "power3.inOut" }, 49.1);
+      tl.from("#tier-chip", { opacity: 0, scale: .4, duration: .36, ease: "back.out(1.8)" }, 49.62);
+      tl.from("#filter-chips span", { opacity: 0, y: 24, duration: .32, stagger: .18, ease: "power2.out" }, 50.0);
+
+      tl.to("#leak-warm", { opacity: .62, duration: .28, ease: "power1.in" }, 55);
+      tl.to("#leak-2", { opacity: .9, x: -320, duration: .5, ease: "sine.inOut" }, 55.02);
+      tl.set("#scene-8", { opacity: 0 }, 55.38);
+      tl.set("#scene-9", { opacity: 1 }, 55.38);
+      tl.to(["#leak-warm", "#leak-2"], { opacity: 0, duration: .42, ease: "power2.out" }, 55.4);
+      tl.from("#final-orbit", { opacity: 0, scale: .76, duration: .7, ease: "power3.out" }, 55.45);
+      tl.from("#final-kicker", { opacity: 0, y: 24, duration: .45, ease: "power2.out" }, 55.55);
+      tl.from("#final-title", { opacity: 0, y: 38, duration: .58, ease: "power3.out" }, 55.72);
+      tl.from("#final-sub", { opacity: 0, y: 22, duration: .42, ease: "power2.out" }, 56.18);
+      tl.from("#disclaimer", { opacity: 0, scale: .88, duration: .42, ease: "power2.out" }, 56.55);
+      tl.to("#final-orbit", { scale: 1.04, duration: 3.5, ease: "none" }, 56.15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

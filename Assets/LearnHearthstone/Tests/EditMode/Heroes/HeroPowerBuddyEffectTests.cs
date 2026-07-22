@@ -2481,8 +2481,9 @@ namespace LearnHearthstone.Tests.EditMode
             vanndar.State.Player.Board.Add(TestMinion("van-low", "VAN_LOW", 1, 2));
             vanndar.State.Player.Board.Add(TestMinion("van-high", "VAN_HIGH", 1, 9));
             vanndar.Apply(new GameCommand(GameCommandType.RunCombatTest));
-            Assert.AreEqual(3, vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Count);
-            Assert.IsTrue(vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "VAN_HIGH" && card.InstanceId.Contains("combat-copy")));
+            Assert.AreEqual(2, vanndar.State.LastReplay.InitialSnapshot.Player.Minions.Count);
+            Assert.IsTrue(vanndar.State.LastReplay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.MinionSummoned && frame.TargetId.Contains("vanndar-combat-copy")));
             vanndar.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             PlayBuddy(vanndar, "BG22_HERO_003_Buddy");
@@ -2496,7 +2497,8 @@ namespace LearnHearthstone.Tests.EditMode
             drek.State.Player.Board.Add(TestMinion("drek-high", "DREK_HIGH", 8, 2));
             drek.State.Player.Board.Add(TestMinion("drek-low", "DREK_LOW", 1, 2));
             drek.Apply(new GameCommand(GameCommandType.RunCombatTest));
-            Assert.IsTrue(drek.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "DREK_HIGH" && card.InstanceId.Contains("combat-copy")));
+            Assert.IsTrue(drek.State.LastReplay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.MinionSummoned && frame.TargetId.Contains("drekthar-combat-copy")));
             drek.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             PlayBuddy(drek, "BG22_HERO_002_Buddy");
@@ -2634,7 +2636,7 @@ namespace LearnHearthstone.Tests.EditMode
             ozumat.State.Player.Board.Add(sold);
             ozumat.Apply(new GameCommand(GameCommandType.SellMinion, sold.InstanceId));
             ozumat.Apply(new GameCommand(GameCommandType.RunCombatTest));
-            var tentacle = ozumat.State.LastReplay.InitialSnapshot.Player.Minions.First(card => card.CardId == "OZUMAT_TENTACLE");
+            var tentacle = ozumat.State.LastResult.FinalPlayerBoard.First(card => card.CardId == "OZUMAT_TENTACLE");
             Assert.IsTrue(tentacle.Keywords.Contains(Keyword.Taunt));
             Assert.AreEqual(6, tentacle.Attack);
 
@@ -2644,11 +2646,12 @@ namespace LearnHearthstone.Tests.EditMode
             PlayBuddy(teron, "BG25_HERO_103_Buddy");
             teron.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
             teron.Apply(new GameCommand(GameCommandType.RunCombatTest));
-            Assert.IsTrue(teron.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.InstanceId.Contains("teron-reanimated")));
-            Assert.IsTrue(teron.State.LastReplay.InitialSnapshot.Player.Minions.Any(card => card.CardId == "BG25_HERO_103_Buddy" && card.Attack > 4));
+            Assert.IsTrue(teron.State.LastReplay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.MinionSummoned && frame.TargetId.Contains("teron-reanimated")));
+            Assert.IsTrue(teron.State.LastResult.FinalPlayerBoard.Any(card => card.CardId == "BG25_HERO_103_Buddy" && card.Attack > 4));
 
             var nzoth = CreateHeroService("TB_BaconShop_HERO_93");
-            Assert.IsTrue(nzoth.State.Player.Board.Any(card => card.CardId == "NZOTH_FISH"));
+            Assert.IsTrue(nzoth.State.Player.Board.Any(card => card.CardId == "TB_BaconShop_HP_105t"));
             var deathrattle = TestMinion("nzoth-deathrattle", "NZOTH_DEATHRATTLE", 1, 1);
             deathrattle.Text = "Deathrattle: test.";
             nzoth.State.Player.Board.Add(deathrattle);
@@ -2685,25 +2688,61 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(5, combatLeft.MaxHealth);
         }
 
-        [Test]
-        public void Sneed_HeroPowerDeathrattleSummonsFromCombatPool()
+        [TestCase(false, 1)]
+        [TestCase(true, 2)]
+        public void Sneed_NewShredderSummonsHighestHealthHandMinionsWithDivineShield(bool golden, int expectedSummons)
         {
             var service = CreateHeroService("BG21_HERO_030");
-            service.State.Player.Tavern.Gold = 10;
-            service.State.Player.Tavern.Tier = 2;
-            service.State.Player.Board.Clear();
             service.State.Opponent.Board.Clear();
-            var target = TestMinion("sneed-target", "SNEED_TARGET", 1, 1);
-            service.State.Player.Board.Add(target);
-            service.Apply(new GameCommand(GameCommandType.UseHeroPower, 0, 0));
+            service.State.Player.Tavern.Hand.Clear();
+            var shredder = service.State.Player.Board.Single(card => card.CardId == "BG21_HERO_030t");
+            shredder.Golden = golden;
+            service.State.Player.Tavern.Hand.Add(TestMinion("sneed-low", "SNEED_LOW", 20, 2));
+            service.State.Player.Tavern.Hand.Add(TestMinion("sneed-highest", "SNEED_HIGHEST", 1, 9));
+            service.State.Player.Tavern.Hand.Add(TestMinion("sneed-second", "SNEED_SECOND", 1, 7));
             service.State.Opponent.Board.Add(TestMinion("sneed-enemy", "SNEED_ENEMY", 20, 20));
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2102, SafetyLimit = 1 }));
 
-            Assert.IsTrue(target.Keywords.Contains(Keyword.Deathrattle));
-            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card =>
-                card.InstanceId.Contains("sneed-deathrattle-") &&
-                card.CardKind == CardKind.Minion));
+            var summoned = service.State.LastResult.FinalPlayerBoard
+                .Where(card => card.CardId.StartsWith("SNEED_"))
+                .ToList();
+            Assert.AreEqual(expectedSummons, summoned.Count);
+            Assert.IsTrue(summoned.All(card => card.Keywords.Contains(Keyword.DivineShield)));
+            Assert.IsTrue(summoned.Any(card => card.CardId == "SNEED_HIGHEST"));
+            Assert.AreEqual(golden, summoned.Any(card => card.CardId == "SNEED_SECOND"));
+            Assert.IsFalse(summoned.Any(card => card.CardId == "SNEED_LOW"));
+            Assert.AreEqual(3, service.State.Player.Tavern.Hand.Count);
+        }
+
+        [Test]
+        public void Raynor_OnlyStartingBattlecruiserUnlocksRefreshUpgrades()
+        {
+            var raynor = CreateHeroService("BG31_HERO_801");
+            var startingBattlecruiser = raynor.State.Player.Board.Single(card => card.CardId == "BG31_HERO_801pt");
+            Assert.Contains("hero_start:raynor_battlecruiser", startingBattlecruiser.Tags);
+            raynor.State.Player.Tavern.Gold = 10;
+            raynor.Apply(new GameCommand(GameCommandType.RerollShop));
+            Assert.IsTrue(raynor.State.Player.Tavern.Shop.Any(card => card?.Tags?.Contains("battlecruiser_upgrade") == true));
+
+            var fakeRaynor = CreateHeroService("BG31_HERO_801");
+            fakeRaynor.State.Player.Board.Clear();
+            var fakeShip = TestMinion("fake-raynor-ship", "BG31_HERO_801pt", 2, 2, new System.Collections.Generic.List<Tribe> { Tribe.Mech });
+            fakeShip.Tags.Add("battlecruiser");
+            fakeRaynor.State.Player.Board.Add(fakeShip);
+            fakeRaynor.State.Player.Tavern.Gold = 10;
+            fakeRaynor.Apply(new GameCommand(GameCommandType.RerollShop));
+            Assert.IsFalse(fakeRaynor.State.Player.Tavern.Shop.Any(card => card?.Tags?.Contains("battlecruiser_upgrade") == true));
+
+            var copiedPower = CreateHeroService("TB_BaconShop_HERO_34");
+            copiedPower.State.Player.HeroPowerCardId = "BG31_HERO_801p";
+            var copiedShip = TestMinion("copied-raynor-ship", "BG31_HERO_801pt", 2, 2, new System.Collections.Generic.List<Tribe> { Tribe.Mech });
+            copiedShip.Tags.Add("battlecruiser");
+            copiedShip.Tags.Add("hero_start:raynor_battlecruiser");
+            copiedPower.State.Player.Board.Add(copiedShip);
+            copiedPower.State.Player.Tavern.Gold = 10;
+            copiedPower.Apply(new GameCommand(GameCommandType.RerollShop));
+            Assert.IsFalse(copiedPower.State.Player.Tavern.Shop.Any(card => card?.Tags?.Contains("battlecruiser_upgrade") == true));
         }
 
         [Test]
@@ -3632,7 +3671,11 @@ namespace LearnHearthstone.Tests.EditMode
 
             var raynor = CreateHeroService("BG31_HERO_801");
             raynor.State.Player.Tavern.Hand.Clear();
-            Assert.IsTrue(raynor.State.Player.Board.Any(card => card.CardId == "BG31_HERO_801pt" && card.Attack == 2 && card.MaxHealth == 2));
+            Assert.IsTrue(raynor.State.Player.Board.Any(card =>
+                card.CardId == "BG31_HERO_801pt" &&
+                card.Attack == 2 &&
+                card.MaxHealth == 2 &&
+                card.Tags.Contains("hero_start:raynor_battlecruiser")));
             PlayBuddy(raynor, "BG31_HERO_801_Buddy");
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-1", "MUKLA_BANANA", 0));
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-2", "MUKLA_BANANA", 0));

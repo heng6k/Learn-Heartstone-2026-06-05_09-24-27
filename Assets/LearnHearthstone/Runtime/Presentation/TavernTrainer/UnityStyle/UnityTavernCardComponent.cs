@@ -70,6 +70,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private UnityTavernCardMode boundMode;
         private float layoutScale = 1f;
         private bool handFocusLiftEnabled;
+        private bool useEnglish;
         private UnityTavernTargetingState targetingState;
         private string targetingLabelOverride;
         private GameObject targetingLabel;
@@ -163,7 +164,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             string primaryActionLabel,
             Action<MinionInstance> onSelect,
             Action<MinionInstance> onPrimaryAction,
-            bool isSelected = false)
+            bool isSelected = false,
+            bool useEnglish = false)
         {
             card = value;
             selectAction = onSelect;
@@ -174,6 +176,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             boundMode = mode;
             layoutScale = 1f;
             handFocusLiftEnabled = false;
+            this.useEnglish = useEnglish;
             selected = isSelected && card != null;
             hovered = false;
             pressed = false;
@@ -363,7 +366,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ClearArtFallbackLabel(artImage.transform);
             }
 
-            SetText(nameText, "空位");
+            SetText(nameText, T("空位", "Empty"));
             SetText(subtitleText, string.Empty);
             SetText(kindText, string.Empty);
             SetText(tierText, string.Empty);
@@ -623,7 +626,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (card == null)
             {
-                var empty = UiFactory.Label("UnityEmptyCardText", transform, "空位", 14, FontStyle.Bold);
+            var empty = UiFactory.Label("UnityEmptyCardText", transform, T("空位", "Empty"), 14, FontStyle.Bold);
                 empty.alignment = TextAnchor.MiddleCenter;
                 empty.color = EmptyTextColor();
                 UnityTavernUiStyle.Stretch(empty.rectTransform);
@@ -949,22 +952,22 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 case UnityTavernTargetingState.Source:
                     if (card != null && card.CardKind == CardKind.HeroPower)
                     {
-                        return "英雄技能";
+                        return T("英雄技能", "Hero Power");
                     }
 
                     return card != null && (card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell)
-                        ? "法术"
+                        ? T("法术", "Spell")
                         : card != null && card.CardKind == CardKind.Minion
-                            ? "随从效果"
-                            : "来源";
+                            ? T("随从效果", "Minion Effect")
+                            : T("来源", "Source");
                 case UnityTavernTargetingState.Candidate:
-                    return previewTarget ? "目标" : "可选";
+                    return previewTarget ? T("目标", "Target") : T("可选", "Valid");
                 case UnityTavernTargetingState.InvalidTarget:
-                    return "不可选";
+                    return T("不可选", "Invalid");
                 case UnityTavernTargetingState.ConfirmedTarget:
-                    return "目标";
+                    return T("目标", "Target");
                 case UnityTavernTargetingState.OpponentTarget:
-                    return "敌技目标";
+                    return T("敌技目标", "Enemy Power Target");
                 default:
                     return null;
             }
@@ -1440,7 +1443,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     minion.CardKind == CardKind.HeroPower);
         }
 
-        private static string HeaderBadgeText(MinionInstance minion)
+        private string HeaderBadgeText(MinionInstance minion)
         {
             if (minion == null)
             {
@@ -1449,10 +1452,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (minion.CardKind == CardKind.Hero)
             {
-                return "英";
+                return useEnglish ? "H" : "英";
             }
 
-            return minion.CardKind == CardKind.HeroPower ? "技" : minion.TavernTier.ToString();
+            return minion.CardKind == CardKind.HeroPower ? (useEnglish ? "P" : "技") : minion.TavernTier.ToString();
         }
 
         private static Color HeaderBadgeColor(MinionInstance minion)
@@ -1472,7 +1475,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 : UnityTavernUiStyle.Gold;
         }
 
-        private static string CardKindText(MinionInstance minion)
+        private string CardKindText(MinionInstance minion)
         {
             if (minion == null)
             {
@@ -1483,46 +1486,51 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 case CardKind.TavernSpell:
                 case CardKind.Spell:
-                    return "法术";
+                    return T("法术", "Spell");
                 case CardKind.Hero:
-                    return "英雄";
+                    return T("英雄", "Hero");
                 case CardKind.HeroPower:
-                    return "英雄技能";
+                    return T("英雄技能", "Hero Power");
                 case CardKind.HeroBuddy:
-                    return "英雄宝宝";
+                    return T("英雄宝宝", "Buddy");
                 default:
                     return TribeText(minion);
             }
         }
 
-        private static string TribeText(MinionInstance minion)
+        private string TribeText(MinionInstance minion)
         {
             if (minion.Tribes == null || minion.Tribes.Count == 0)
             {
-                return "中立";
+                return T("中立", "Neutral");
             }
 
             var tribes = minion.Tribes.Where(tribe => tribe != Tribe.None).Take(2).Select(TribeName).ToArray();
-            return tribes.Length == 0 ? "中立" : string.Join("/", tribes);
+            return tribes.Length == 0 ? T("中立", "Neutral") : string.Join("/", tribes);
         }
 
-        private static string TribeName(Tribe tribe)
+        private string TribeName(Tribe tribe)
         {
             switch (tribe)
             {
-                case Tribe.Beast: return "野兽";
-                case Tribe.Murloc: return "鱼人";
-                case Tribe.Mech: return "机械";
-                case Tribe.Demon: return "恶魔";
-                case Tribe.Dragon: return "龙";
-                case Tribe.Pirate: return "海盗";
-                case Tribe.Elemental: return "元素";
-                case Tribe.Quilboar: return "野猪人";
-                case Tribe.Undead: return "亡灵";
-                case Tribe.Naga: return "纳迦";
-                case Tribe.All: return "全部";
-                default: return "中立";
+                case Tribe.Beast: return T("野兽", "Beast");
+                case Tribe.Murloc: return T("鱼人", "Murloc");
+                case Tribe.Mech: return T("机械", "Mech");
+                case Tribe.Demon: return T("恶魔", "Demon");
+                case Tribe.Dragon: return T("龙", "Dragon");
+                case Tribe.Pirate: return T("海盗", "Pirate");
+                case Tribe.Elemental: return T("元素", "Elemental");
+                case Tribe.Quilboar: return T("野猪人", "Quilboar");
+                case Tribe.Undead: return T("亡灵", "Undead");
+                case Tribe.Naga: return T("纳迦", "Naga");
+                case Tribe.All: return T("全部", "All");
+                default: return T("中立", "Neutral");
             }
+        }
+
+        private string T(string chinese, string english)
+        {
+            return useEnglish ? english : chinese;
         }
     }
 }

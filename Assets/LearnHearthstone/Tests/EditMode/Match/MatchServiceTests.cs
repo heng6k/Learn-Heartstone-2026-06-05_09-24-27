@@ -34,6 +34,46 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DebugAddGold_ChangesActualGoldWithoutRaisingNormalMaxGold()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 100));
+
+            Assert.AreEqual(103, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(3, service.State.Player.Tavern.MaxGold);
+        }
+
+        [Test]
+        public void NextTurn_ClampsNormalMaxGoldToNinetyNineThenAddsBonusGoldAsOverflow()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.PersistentMaxGoldBonus = 200;
+            tavern.NextTurnBonusGold = 4;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(TavernRules.NormalGoldSoftCap, tavern.MaxGold);
+            Assert.AreEqual(103, tavern.Gold);
+        }
+
+        [Test]
+        public void SellMinion_AtNormalMaxGoldAddsToActualGoldWithoutRaisingMaxGold()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var tavern = service.State.Player.Tavern;
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG20_301", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            tavern.Gold = tavern.MaxGold;
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, service.State.Player.Board[0].InstanceId));
+
+            Assert.AreEqual(4, tavern.Gold);
+            Assert.AreEqual(3, tavern.MaxGold);
+        }
+
+        [Test]
         public void CreateNewMatch_DefaultsToAllPlayableTribes()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -3717,6 +3757,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
             Assert.AreEqual(5, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(4, service.State.Player.Tavern.MaxGold);
         }
 
         [Test]

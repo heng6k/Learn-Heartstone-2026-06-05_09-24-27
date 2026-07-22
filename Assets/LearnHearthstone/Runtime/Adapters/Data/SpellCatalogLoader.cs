@@ -10,7 +10,7 @@ namespace LearnHearthstone.Adapters.Data
     {
         private const string ResourcePath = "Data/battlegroundsSpells";
 
-        public static SpellCatalog LoadFromResources()
+        public static SpellCatalog LoadFromResources(bool useEnglish = false)
         {
             var asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
@@ -18,10 +18,10 @@ namespace LearnHearthstone.Adapters.Data
                 throw new InvalidOperationException("Missing Resources/" + ResourcePath + ".json");
             }
 
-            return LoadFromJson(asset.text);
+            return LoadFromJson(asset.text, useEnglish);
         }
 
-        public static SpellCatalog LoadFromJson(string json)
+        public static SpellCatalog LoadFromJson(string json, bool useEnglish = false)
         {
             var payload = JsonUtility.FromJson<RawPayload>(json);
             if (payload == null || payload.spells == null)
@@ -32,20 +32,20 @@ namespace LearnHearthstone.Adapters.Data
             var definitions = new List<TavernSpellDefinition>();
             foreach (var raw in payload.spells)
             {
-                definitions.Add(ToDefinition(raw));
+                definitions.Add(ToDefinition(raw, useEnglish));
             }
 
             return new SpellCatalog(definitions);
         }
 
-        private static TavernSpellDefinition ToDefinition(RawSpell raw)
+        private static TavernSpellDefinition ToDefinition(RawSpell raw, bool useEnglish)
         {
             var definition = new TavernSpellDefinition
             {
                 Id = raw.id,
                 SourceId = raw.sourceId,
                 CardNumber = raw.cardNumber,
-                Name = raw.name,
+                Name = Localized(raw.name, raw.englishName, useEnglish, raw.cardNumber + ".name"),
                 EnglishName = raw.englishName,
                 Type = raw.type,
                 SpecialType = raw.specialType,
@@ -56,7 +56,8 @@ namespace LearnHearthstone.Adapters.Data
                 TavernTier = raw.tavernTier,
                 InPool = raw.inPool != 0,
                 Keywords = raw.keywords ?? new List<string>(),
-                Text = raw.text,
+                Text = Localized(raw.text, raw.englishText, useEnglish, raw.cardNumber + ".text"),
+                EnglishText = raw.englishText,
                 Description = raw.description,
                 ImageUrl = raw.imageUrl,
                 ImagePath = raw.imagePath,
@@ -74,6 +75,16 @@ namespace LearnHearthstone.Adapters.Data
             definition.TargetTemplate = SpellBehaviorTemplate.ResolveTargetTemplate(definition);
             definition.EffectTemplate = SpellBehaviorTemplate.ResolveEffectTemplate(definition);
             return definition;
+        }
+
+        private static string Localized(string chinese, string english, bool useEnglish, string key)
+        {
+            if (!useEnglish)
+            {
+                return chinese;
+            }
+
+            return string.IsNullOrWhiteSpace(english) ? "[Missing en-US: " + key + "]" : english;
         }
 
         private static void ApplyTargetingCorrections(TavernSpellDefinition definition)
@@ -256,6 +267,7 @@ namespace LearnHearthstone.Adapters.Data
             public int inPool = 1;
             public List<string> keywords;
             public string text;
+            public string englishText;
             public string description;
             public string imageUrl;
             public string imagePath;

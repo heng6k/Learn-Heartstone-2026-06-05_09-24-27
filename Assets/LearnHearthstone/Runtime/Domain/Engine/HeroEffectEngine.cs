@@ -218,7 +218,6 @@ namespace LearnHearthstone.Domain.Engine
         private const string DrektharPowerId = "BG22_HERO_002p";
         private const string FrostwolfLieutenantCardId = "BG22_HERO_002_Buddy";
         private const string TeronPowerId = "BG25_HERO_103p";
-        private const string ShadowyConstructCardId = "BG25_HERO_103_Buddy";
         private const string RafaamPowerId = "TB_BaconShop_HP_053";
         private const string LoyalHenchmanCardId = "TB_BaconShop_HERO_45_Buddy";
         private const string RokaraPowerId = "BG20_HERO_100p";
@@ -281,8 +280,10 @@ namespace LearnHearthstone.Domain.Engine
         private const string BrokenHornCardId = "BG31_HERO_811_Buddy";
         private const string PutricidePowerId = "BG25_HERO_100p";
         private const string PutricideCreationCardId = "BG25_HERO_100pt";
+        private const string RaynorHeroId = "BG31_HERO_801";
         private const string RaynorPowerId = "BG31_HERO_801p";
         private const string BattlecruiserCardId = "BG31_HERO_801pt";
+        private const string RaynorStartingBattlecruiserTag = "hero_start:raynor_battlecruiser";
         private const string KerriganPowerTier2Id = "BG31_HERO_811p";
         private const string KerriganPowerTier3Id = "BG31_HERO_811p2";
         private const string KerriganPowerFinalId = "BG31_HERO_811p3";
@@ -291,8 +292,9 @@ namespace LearnHearthstone.Domain.Engine
         private const string HunterOfOldCardId = "TB_BaconShop_HERO_50_Buddy";
         private const string BattlecruiserUpgradeCardId = "BATTLECRUISER_UPGRADE";
         private const string ZergProxyCardId = "ZERG_MINION_PROXY";
-        private const string NzothFishCardId = "NZOTH_FISH";
-        private const string SneedShredderCardId = "SNEED_SHREDDER";
+        private const string NzothFishCardId = "TB_BaconShop_HP_105t";
+        private const string SneedShredderCardId = "BG21_HERO_030t";
+        private const string CuratorAmalgamCardId = "TB_BaconShop_HP_033t";
         private const string OzumatTentacleCardId = "OZUMAT_TENTACLE";
         private static readonly string[] BountyCardIds =
         {
@@ -382,7 +384,6 @@ namespace LearnHearthstone.Domain.Engine
         private const string LichKingRebornSource = "Reborn Rites";
         private const string VoljinSwapSource = "Spirit Swap";
         private const string TeronTargetTag = "teron_reanimation_target";
-        private const string SneedDeathrattleTierTagPrefix = "sneed_deathrattle_tier:";
         private const string LockedTurnsCounter = "locked-turns";
         private static readonly string[] BattlecruiserUpgradeFamilies =
         {
@@ -552,6 +553,15 @@ namespace LearnHearthstone.Domain.Engine
             context.State.Player.Tavern.HeroBrukanElementActive =
                 HasCombatHeroPower(activePowerIds, BrukanPowerId) &&
                 !string.IsNullOrEmpty(context.State.Player.Tavern.HeroBrukanElement);
+            context.State.Player.Tavern.HeroVanndarStormpikeActive =
+                HasCombatHeroPower(activePowerIds, VanndarPowerId) && context.State.Round >= 7;
+            context.State.Player.Tavern.HeroDrektharActive =
+                HasCombatHeroPower(activePowerIds, DrektharPowerId) && context.State.Round >= 7;
+            context.State.Player.Tavern.HeroTeronGorefiendActive = HasCombatHeroPower(activePowerIds, TeronPowerId);
+            context.State.Player.Tavern.HeroTeronTargetInstanceId = context.State.Player.Tavern.HeroTeronGorefiendActive
+                ? context.PlayerBoard.FirstOrDefault(minion => minion.Tags.Contains(TeronTargetTag))?.InstanceId
+                : null;
+            context.State.Player.Tavern.HeroOzumatActive = HasCombatHeroPower(activePowerIds, OzumatPowerId);
 
             if (HasCombatHeroPower(activePowerIds, AlAkirPowerId))
             {
@@ -604,26 +614,6 @@ namespace LearnHearthstone.Domain.Engine
             if (HasCombatHeroPower(activePowerIds, YshaarjPowerId))
             {
                 SummonRandomTierMinionForCombat(context, Math.Max(1, context.State.Player.Tavern.Tier), "Y'Shaarj", true, result);
-            }
-
-            if (HasCombatHeroPower(activePowerIds, VanndarPowerId) && context.State.Round >= 7)
-            {
-                SummonCombatCopy(context, context.PlayerBoard.OrderByDescending(minion => minion.MaxHealth).ThenBy(minion => minion.InstanceId).FirstOrDefault(), "Vanndar", result);
-            }
-
-            if (HasCombatHeroPower(activePowerIds, DrektharPowerId) && context.State.Round >= 7)
-            {
-                SummonCombatCopy(context, context.PlayerBoard.OrderByDescending(minion => minion.Attack).ThenBy(minion => minion.InstanceId).FirstOrDefault(), "Drek'Thar", result);
-            }
-
-            if (HasCombatHeroPower(activePowerIds, TeronPowerId))
-            {
-                ResolveTeronCombatStart(context, result);
-            }
-
-            if (HasCombatHeroPower(activePowerIds, OzumatPowerId))
-            {
-                SummonOzumatTentacle(context, result);
             }
 
             if (context.State.Player.Tavern.HeroOnyxiaBroodmotherActive &&
@@ -864,19 +854,24 @@ namespace LearnHearthstone.Domain.Engine
         {
             if (IsPower(powerId, NzothPowerId) && context.State.Player.Board.Count < 7)
             {
-                context.State.Player.Board.Add(CreateGeneratedMinion(NzothFishCardId, "Fish of N'Zoth", 2, 2, Tribe.None, "nzoth-fish"));
+                var fish = CreateGeneratedMinion(NzothFishCardId, "Fish of N'Zoth", 2, 2, Tribe.Beast, "nzoth-fish");
+                AddTag(fish, "hero_derivative");
+                AddTag(fish, "hero_derivative:nzoth");
+                AddTag(fish, "fish_of_nzoth");
+                context.State.Player.Board.Add(fish);
                 result.Messages.Add("Avatar of N'Zoth: started with a 2/2 Fish.");
             }
 
             if (IsPower(powerId, SneedPowerId) && context.State.Player.Board.Count < 7)
             {
-                var shredder = CreateGeneratedMinion(SneedShredderCardId, "Sneed's Shredder", 2, 1, Tribe.Mech, "sneed-shredder");
-                AddKeyword(shredder, Keyword.Deathrattle, "Pilot the Shredder");
+                var shredder = CreateGeneratedMinion(SneedShredderCardId, "Sneed's New Shredder", 2, 1, Tribe.Mech, "sneed-shredder");
+                AddKeyword(shredder, Keyword.Deathrattle, "Sneed's New Shredder");
+                AddTag(shredder, "hero_derivative");
+                AddTag(shredder, "hero_derivative:sneed");
                 AddTag(shredder, "sneed_shredder");
                 AddTag(shredder, "deathrattle");
-                AddTag(shredder, SneedDeathrattleTierTagPrefix + "1");
                 context.State.Player.Board.Add(shredder);
-                result.Messages.Add("Pilot the Shredder: started with a 2/1 Shredder.");
+                result.Messages.Add("Pilot the Shredder: started with a 2/1 Sneed's New Shredder.");
             }
 
             if (IsPower(powerId, FinleyPowerId))
@@ -910,7 +905,7 @@ namespace LearnHearthstone.Domain.Engine
                 CardKind = CardKind.Minion,
                 InstanceId = "player-curator-amalgam-" + context.State.Round,
                 DefinitionId = "curator-amalgam",
-                CardId = "CURATOR_AMALGAM",
+                CardId = CuratorAmalgamCardId,
                 Name = "Amalgam",
                 Cost = 3,
                 BaseAttack = 2,
@@ -926,7 +921,13 @@ namespace LearnHearthstone.Domain.Engine
                 PoolSource = PoolSource.Copy,
                 OriginPoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
-                Tags = new List<string> { "curator_amalgam", "all_minion_types" }
+                Tags = new List<string>
+                {
+                    "hero_derivative",
+                    "hero_derivative:curator",
+                    "curator_amalgam",
+                    "all_minion_types"
+                }
             };
             context.State.Player.Board.Add(amalgam);
             result.Messages.Add("Menagerist: started with a 2/2 Venomous Amalgam.");
@@ -1160,7 +1161,7 @@ namespace LearnHearthstone.Domain.Engine
             {
                 SpendGold(context.State.Player.Tavern, 3);
                 IncrementCounter(context.State.Player.Tavern, MaxGoldBonusCounter, 1);
-                context.State.Player.Tavern.MaxGold += 1;
+                TavernRules.IncreaseMaxGold(context.State.Player.Tavern, 1);
                 result.Messages.Add("Hero Power: maximum Gold increased by 1.");
                 UpdateMalorneStats(context.State);
             }
@@ -1202,16 +1203,6 @@ namespace LearnHearthstone.Domain.Engine
                 result.Messages.Add("I'll Take That!: armed the next combat kill copy.");
             }
 
-            if (IsPower(powerId, SneedPowerId))
-            {
-                var target = GetFriendlyBoardTarget(context, "Sneed's Replicator needs a friendly minion target.");
-                SpendGold(context.State.Player.Tavern, 1);
-                AddKeyword(target, Keyword.Deathrattle, "Sneed's Replicator");
-                target.Tags.RemoveAll(tag => tag.StartsWith(SneedDeathrattleTierTagPrefix, StringComparison.Ordinal));
-                AddTag(target, SneedDeathrattleTierTagPrefix + Math.Max(1, context.State.Player.Tavern.Tier));
-                result.Messages.Add("Sneed's Replicator: gave a friendly minion a summon Deathrattle.");
-            }
-
             if (IsPower(powerId, JaraxxusPowerId))
             {
                 SpendGold(context.State.Player.Tavern, 1);
@@ -1234,7 +1225,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
 
                 var goldGained = Math.Max(2, context.State.Round + 1);
-                tavern.Gold += goldGained;
+                TavernRules.GainGold(tavern, goldGained);
                 tavern.HeroEffectCounters[KraggUsedCounter] = 1;
                 result.Messages.Add("Piggy Bank: gained " + goldGained + " Gold.");
             }
@@ -1275,7 +1266,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 SpendGold(tavern, 1);
                 var roll = RollSixSidedDie(context);
-                tavern.Gold += roll;
+                TavernRules.GainGold(tavern, roll);
                 tavern.HeroEffectCounters[SnakeEyesLastRollCounter] = roll;
                 tavern.HeroEffectCounters[SnakeEyesReadyRoundCounter] = context.State.Round + roll;
                 result.Messages.Add("Lucky Roll: rolled " + roll + " and gained " + roll + " Gold.");
@@ -1851,7 +1842,7 @@ namespace LearnHearthstone.Domain.Engine
 
             if (IsPower(powerId, CapnHoggarrPowerId) && card.Tribes.Contains(Tribe.Pirate))
             {
-                tavern.Gold += 1;
+                TavernRules.GainGold(tavern, 1);
                 result.Messages.Add("Cap'n Hoggarr: gained 1 Gold from buying a Pirate.");
             }
 
@@ -2419,7 +2410,7 @@ namespace LearnHearthstone.Domain.Engine
                 context.Card.Tags != null &&
                 context.Card.Tags.Contains("tavern_coin"))
             {
-                tavern.Gold = StatMath.SaturatingAdd(tavern.Gold, 1, 0, StatMath.MaxStat);
+                TavernRules.GainGold(tavern, 1);
                 result.Messages.Add("Barov's Apprentice: gained 1 Gold after you played a Tavern Coin.");
             }
         }
@@ -2797,7 +2788,7 @@ namespace LearnHearthstone.Domain.Engine
             foreach (var buddy in MatchingBoardBuddies(context.State, BilgewaterMogulCardId))
             {
                 IncrementCounter(context.State.Player.Tavern, MaxGoldBonusCounter, 1);
-                context.State.Player.Tavern.MaxGold += 1;
+                TavernRules.IncreaseMaxGold(context.State.Player.Tavern, 1);
                 result.Messages.Add("Bilgewater Mogul: maximum Gold increased by 1.");
             }
 
@@ -3031,7 +3022,7 @@ namespace LearnHearthstone.Domain.Engine
             var health = Math.Max(0, target.MaxHealth);
             var extraTargets = string.Equals(target.CardId, NightmareEctoplasmCardId, StringComparison.OrdinalIgnoreCase) ? 1 : 0;
             board.RemoveAt(context.TargetIndex);
-            context.State.Player.Tavern.Gold = Math.Min(context.State.Player.Tavern.MaxGold, context.State.Player.Tavern.Gold + 1);
+            TavernRules.GainGold(context.State.Player.Tavern, 1);
             SpitStatsOntoRandomMinions(context, attack, health, 1 + extraTargets, "Devour", result);
             result.Messages.Add(extraTargets > 0
                 ? "Devour: sold Nightmare Ectoplasm and spat its stats onto an extra minion."
@@ -3205,7 +3196,7 @@ namespace LearnHearthstone.Domain.Engine
             StartLowerTierMinionDiscover(context, tier - 1, "hero-power:trash-for-treasure");
             if (HasBuddy(context.State, RagingContenderCardId))
             {
-                context.State.Player.Tavern.Gold += tier;
+                TavernRules.GainGold(context.State.Player.Tavern, tier);
                 result.Messages.Add("Raging Contender: gained Gold equal to the removed minion's Tier.");
             }
 
@@ -3719,20 +3710,33 @@ namespace LearnHearthstone.Domain.Engine
                 PoolSource = PoolSource.Copy,
                 OriginPoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0,
-                Tags = new List<string> { "battlecruiser", "terran_battlecruiser" }
+                Tags = new List<string> { "battlecruiser", "terran_battlecruiser", RaynorStartingBattlecruiserTag }
             };
         }
 
         private static MinionInstance CurrentBattlecruiser(MatchState state)
         {
-            return state?.Player?.Board?.FirstOrDefault(card =>
-                card != null &&
-                (card.Tags.Contains("battlecruiser") ||
-                 string.Equals(card.CardId, BattlecruiserCardId, StringComparison.OrdinalIgnoreCase)));
+            var board = state?.Player?.Board;
+            if (board == null)
+            {
+                return null;
+            }
+
+            return board.FirstOrDefault(card => card?.Tags?.Contains(RaynorStartingBattlecruiserTag) == true) ??
+                   board.FirstOrDefault(card =>
+                       card != null &&
+                       (card.Tags.Contains("battlecruiser") ||
+                        string.Equals(card.CardId, BattlecruiserCardId, StringComparison.OrdinalIgnoreCase)));
         }
 
         private static void AddBattlecruiserUpgradeToShop(HeroEffectContext context, HeroEffectResult result)
         {
+            if (!string.Equals(context.State.Player.HeroId, RaynorHeroId, StringComparison.OrdinalIgnoreCase) ||
+                !context.State.Player.Board.Any(card => card?.Tags?.Contains(RaynorStartingBattlecruiserTag) == true))
+            {
+                return;
+            }
+
             var tavern = context.State.Player.Tavern;
             var card = CreateRandomBattlecruiserUpgrade(context, "shop");
             var insertIndex = tavern.Shop.FindIndex(slot => slot == null);
@@ -3883,7 +3887,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            context.State.Player.Board.Add(CreateZergMinion(ZergLarvaCardId, "start-" + context.State.Round, false));
+            var larva = CreateZergMinion(ZergLarvaCardId, "start-" + context.State.Round, false);
+            AddTag(larva, "hero_derivative");
+            AddTag(larva, "hero_derivative:kerrigan");
+            context.State.Player.Board.Add(larva);
             result.Messages.Add("Spawning Pool: started with a 2/2 Larva.");
         }
 
@@ -6107,71 +6114,6 @@ namespace LearnHearthstone.Domain.Engine
             result.Messages.Add(source + ": summoned a Tavern Tier " + definition.TavernTier + " minion for combat.");
         }
 
-        private static void SummonCombatCopy(HeroCombatEffectContext context, MinionInstance source, string effectSource, HeroEffectResult result)
-        {
-            if (source == null || context.PlayerBoard.Count >= BoardLimit)
-            {
-                return;
-            }
-
-            var copy = source.Clone();
-            copy.InstanceId = source.InstanceId + "-" + effectSource.ToLowerInvariant().Replace("'", string.Empty) + "-combat-copy";
-            copy.Owner = BoardSide.Player;
-            copy.PoolSource = PoolSource.Summon;
-            copy.OriginPoolSource = PoolSource.Summon;
-            copy.PoolCopiesHeld = 0;
-            context.PlayerBoard.Add(copy);
-            ApplyCombatSummonModifiers(context, copy, result);
-            result.Messages.Add(effectSource + ": summoned a combat copy of " + source.Name + ".");
-        }
-
-        private static void ResolveTeronCombatStart(HeroCombatEffectContext context, HeroEffectResult result)
-        {
-            var target = context.PlayerBoard.FirstOrDefault(minion => minion.Tags.Contains(TeronTargetTag));
-            if (target == null)
-            {
-                return;
-            }
-
-            var index = context.PlayerBoard.FindIndex(minion => minion.InstanceId == target.InstanceId);
-            if (index < 0)
-            {
-                return;
-            }
-
-            var copy = target.Clone();
-            copy.InstanceId = target.InstanceId + "-teron-reanimated";
-            context.PlayerBoard.RemoveAt(index);
-            foreach (var construct in context.PlayerBoard.Where(minion => string.Equals(minion.CardId, ShadowyConstructCardId, StringComparison.OrdinalIgnoreCase)))
-            {
-                Buff(construct, Math.Max(0, target.Attack), Math.Max(0, target.MaxHealth), "Shadowy Construct");
-                break;
-            }
-
-            if (context.PlayerBoard.Count < BoardLimit)
-            {
-                context.PlayerBoard.Insert(Math.Min(index, context.PlayerBoard.Count), copy);
-                ApplyCombatSummonModifiers(context, copy, result);
-            }
-
-            result.Messages.Add("Rapid Reanimation: destroyed and resummoned the marked minion for combat.");
-        }
-
-        private static void SummonOzumatTentacle(HeroCombatEffectContext context, HeroEffectResult result)
-        {
-            if (context.PlayerBoard.Count >= BoardLimit)
-            {
-                return;
-            }
-
-            var bonus = Math.Max(0, GetCounterOrDefault(context.State.Player.Tavern, OzumatTentacleStatsCounter, 0));
-            var tentacle = CreateGeneratedMinion(OzumatTentacleCardId, "Tentacle", 2 + bonus, 2 + bonus, Tribe.None, "ozumat-tentacle");
-            AddKeyword(tentacle, Keyword.Taunt, "Tentacular");
-            context.PlayerBoard.Add(tentacle);
-            ApplyCombatSummonModifiers(context, tentacle, result);
-            result.Messages.Add("Tentacular: summoned a " + tentacle.Attack + "/" + tentacle.MaxHealth + " Taunt Tentacle for combat.");
-        }
-
         private static void ApplyCombatSummonModifiers(HeroCombatEffectContext context, MinionInstance summoned, HeroEffectResult result)
         {
             if (summoned == null)
@@ -6481,7 +6423,7 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var refund = Math.Min(2, goldSpent);
-            state.Player.Tavern.Gold += refund;
+            TavernRules.GainGold(state.Player.Tavern, refund);
             return refund;
         }
 

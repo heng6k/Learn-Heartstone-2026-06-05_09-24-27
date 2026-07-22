@@ -107,7 +107,7 @@ namespace LearnHearthstone.Domain.Engine
             var tavern = target.Player.Tavern;
             tavern.Tier = Math.Max(1, scenario.Tavern?.Tier ?? tavern.Tier);
             tavern.Gold = Math.Max(0, scenario.Tavern?.Gold ?? tavern.Gold);
-            tavern.MaxGold = Math.Max(tavern.Gold, scenario.Tavern?.MaxGold ?? tavern.MaxGold);
+            tavern.MaxGold = TavernRules.ClampMaxGold(scenario.Tavern?.MaxGold ?? tavern.MaxGold);
             tavern.UpgradeCost = Math.Max(0, scenario.Tavern?.UpgradeCost ?? tavern.UpgradeCost);
             tavern.Frozen = scenario.Tavern?.Frozen ?? tavern.Frozen;
             tavern.NextTurnBonusGold = Math.Max(0, scenario.Tavern?.NextTurnBonusGold ?? tavern.NextTurnBonusGold);

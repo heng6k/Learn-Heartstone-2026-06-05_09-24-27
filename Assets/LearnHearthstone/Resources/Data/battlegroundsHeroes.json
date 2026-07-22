@@ -112,9 +112,9 @@
         "cost": 0,
         "text": "[x]Start the game with a 2/2\nFish that gains all your\n<b>Deathrattles</b> in combat.",
         "imagePath": "HeroBuddyImages/heroPowers/TB_BaconShop_HP_105",
-        "primaryCategory": "Combat",
+        "primaryCategory": "Minion",
         "tags": [
-          "combat",
+          "minion",
           "initialonly"
         ],
         "replacementEligibility": "InitialOnly"
@@ -1189,9 +1189,10 @@
         "cost": 0,
         "text": "[x]Once per game, summon\nan exact copy of a friendly\nminion.",
         "imagePath": "HeroBuddyImages/heroPowers/BG31_HERO_005p",
-        "primaryCategory": "Combat",
+        "primaryCategory": "Minion",
         "tags": [
-          "combat",
+          "minion",
+          "copy",
           "summon"
         ],
         "replacementEligibility": "DiscoverableAfterStart"
@@ -2591,9 +2592,8 @@
         "cost": 2,
         "text": "[x]<b>Discover</b> a plain copy of\na minion that died\nlast combat.\n<i>(Unlocks on Turn 3.)</i>",
         "imagePath": "HeroBuddyImages/heroPowers/BG23_HERO_306p",
-        "primaryCategory": "Combat",
+        "primaryCategory": "Discover",
         "tags": [
-          "combat",
           "discover"
         ],
         "replacementEligibility": "DiscoverableAfterStart"

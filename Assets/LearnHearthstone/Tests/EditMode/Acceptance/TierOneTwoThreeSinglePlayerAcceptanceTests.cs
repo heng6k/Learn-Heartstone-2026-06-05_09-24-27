@@ -263,6 +263,110 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
         }
 
+        [Test]
+        public void TierTwoSurfingSylvar_NormalAndGoldenUseOfficialEndTurnRepeats()
+        {
+            var normal = PreparedService(9532);
+            normal.State.Player.Board.Clear();
+            normal.State.Player.Board.Add(TestMinion("normal-left", BoardSide.Player, 1, 5, Tribe.None));
+            normal.State.Player.Board.Add(TestMinion("normal-sylvar", BoardSide.Player, "BG32_235", 1, 5, Tribe.Elemental));
+            normal.State.Player.Board.Add(TestMinion("normal-right", BoardSide.Player, 1, 5, Tribe.None));
+
+            normal.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(2, normal.State.Player.Board[0].Attack);
+            Assert.AreEqual(2, normal.State.Player.Board[2].Attack);
+
+            var golden = PreparedService(9533);
+            golden.State.Player.Board.Clear();
+            golden.State.Player.Board.Add(TestMinion("golden-left", BoardSide.Player, 1, 5, Tribe.None));
+            var sylvar = TestMinion("golden-sylvar", BoardSide.Player, "BG32_235", 2, 10, Tribe.Elemental);
+            sylvar.Golden = true;
+            golden.State.Player.Board.Add(sylvar);
+            golden.State.Player.Board.Add(TestMinion("golden-right", BoardSide.Player, 1, 5, Tribe.None));
+
+            golden.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(5, golden.State.Player.Board[0].Attack);
+            Assert.AreEqual(5, golden.State.Player.Board[2].Attack);
+        }
+
+        [Test]
+        public void TierTwoDefiantShipwright_GainsHealthWhenOtherSourcesGrantAttack()
+        {
+            var normal = PreparedService(9534);
+            normal.State.Player.Board.Clear();
+            normal.State.Player.Board.Add(TestMinion("normal-shipwright", BoardSide.Player, "BG21_018", 1, 1, Tribe.Pirate));
+            PlaySpell(normal, "109230");
+
+            Assert.AreEqual(2, normal.State.Player.Board[0].Attack);
+            Assert.AreEqual(3, normal.State.Player.Board[0].MaxHealth);
+
+            var golden = PreparedService(9535);
+            golden.State.Player.Board.Clear();
+            var shipwright = TestMinion("golden-shipwright", BoardSide.Player, "BG21_018", 2, 2, Tribe.Pirate);
+            shipwright.Golden = true;
+            golden.State.Player.Board.Add(shipwright);
+            PlaySpell(golden, "109230");
+
+            Assert.AreEqual(3, golden.State.Player.Board[0].Attack);
+            Assert.AreEqual(5, golden.State.Player.Board[0].MaxHealth);
+        }
+
+        [Test]
+        public void TierFiveHotAirSurveyor_WeightsNormalAndGoldenCopiesForHandPlayedBloodGems()
+        {
+            var service = PreparedService(9536);
+            service.State.Player.Board.Clear();
+            var target = TestMinion("surveyor-target", BoardSide.Player, 1, 1, Tribe.Quilboar);
+            var normal = TestMinion("normal-surveyor", BoardSide.Player, "BG30_121", 1, 1, Tribe.Pirate);
+            var golden = TestMinion("golden-surveyor", BoardSide.Player, "BG30_121", 2, 2, Tribe.Pirate);
+            golden.Golden = true;
+            service.State.Player.Board.Add(target);
+            service.State.Player.Board.Add(normal);
+            service.State.Player.Board.Add(golden);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                service.State.Player.Tavern.Hand.Count - 1,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified));
+
+            Assert.AreEqual(5, target.Attack);
+            Assert.AreEqual(5, target.MaxHealth);
+        }
+
+        [Test]
+        public void GoldenDuneDwellerAndFreedealingGambler_UseOfficialBattlecryAndSellValues()
+        {
+            var dune = PreparedService(9537);
+            dune.State.Player.Board.Clear();
+            dune.State.Player.Tavern.Shop.Clear();
+            var elemental = TestMinion("dune-elemental", BoardSide.Player, 1, 1, Tribe.Elemental);
+            dune.State.Player.Tavern.Shop.Add(elemental);
+            dune.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_815", CardKind.Minion));
+            dune.State.Player.Tavern.Hand[0].Golden = true;
+
+            dune.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(3, elemental.Attack);
+            Assert.AreEqual(3, elemental.MaxHealth);
+
+            var gamblerService = PreparedService(9538);
+            gamblerService.State.Player.Board.Clear();
+            gamblerService.State.Player.Tavern.Gold = 0;
+            var gambler = TestMinion("golden-gambler", BoardSide.Player, "BGS_049", 6, 6, Tribe.Pirate);
+            gambler.Golden = true;
+            gamblerService.State.Player.Board.Add(gambler);
+
+            gamblerService.Apply(new GameCommand(GameCommandType.SellMinion, gambler.InstanceId));
+
+            Assert.AreEqual(6, gamblerService.State.Player.Tavern.Gold);
+        }
+
         private static MatchService PreparedService(int seed)
         {
             var service = MatchService.CreateWithDefaultCatalog(seed, new InMemoryTestScenarioRepository());

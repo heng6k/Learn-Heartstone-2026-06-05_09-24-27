@@ -13,6 +13,28 @@ namespace LearnHearthstone.Tests.EditMode
     public sealed class TavernSpellEngineTests
     {
         [Test]
+        public void StartOfCombatSpells_MaelstromExtraCastsScaleQueuedEffectsAndReset()
+        {
+            var tavern = new TavernState();
+            Assert.IsTrue(TavernSpellEngine.TryQueueStartOfCombatSpell("105665", tavern));
+            Assert.IsTrue(TavernSpellEngine.TryQueueStartOfCombatSpell("110401", tavern));
+
+            TavernSpellEngine.ApplyAdditionalStartOfCombatSpellCasts(tavern, 2);
+
+            Assert.AreEqual(6, tavern.NextCombatBoardAttack);
+            Assert.AreEqual(3, tavern.NextCombatBoardHealth);
+            Assert.AreEqual(6, tavern.NextCombatBeetles);
+            Assert.AreEqual(2, tavern.CombatTavernSpellExtraCasts);
+
+            TavernSpellEngine.ConsumeStartOfCombatSpells(tavern);
+
+            Assert.AreEqual(0, tavern.NextCombatBoardAttack);
+            Assert.AreEqual(0, tavern.NextCombatBoardHealth);
+            Assert.AreEqual(0, tavern.NextCombatBeetles);
+            Assert.AreEqual(0, tavern.CombatTavernSpellExtraCasts);
+        }
+
+        [Test]
         public void Cast_GoldenTouchSynchronizesGoldenDescription()
         {
             var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
@@ -356,6 +378,23 @@ namespace LearnHearthstone.Tests.EditMode
                 new SeededRng(1));
 
             Assert.AreEqual(state.Player.Tavern.MaxGold + 1, state.Player.Tavern.Gold);
+        }
+
+        [Test]
+        public void Cast_MaxGoldSpellPersistsIncreaseWithoutExceedingNormalSoftCap()
+        {
+            var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
+            state.Player.Tavern.MaxGold = TavernRules.NormalGoldSoftCap;
+
+            TavernSpellEngine.Cast(
+                new MinionInstance { CardKind = CardKind.TavernSpell, CardId = "104029", Name = "Max Gold" },
+                state,
+                MinionCatalogLoader.LoadFromResources(),
+                SpellCatalogLoader.LoadFromResources(),
+                new SeededRng(1));
+
+            Assert.AreEqual(TavernRules.NormalGoldSoftCap, state.Player.Tavern.MaxGold);
+            Assert.AreEqual(1, state.Player.Tavern.PersistentMaxGoldBonus);
         }
 
         [Test]

@@ -477,6 +477,35 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void LesserFortune_ReplacingOriginalTrinketKeepsCrystalBallCopy()
+        {
+            var service = CreateAnomalyService(
+                "BG35_Anomaly_007",
+                new MatchSetupOptions { SelectedHeroCardId = "TB_BaconShop_HERO_34", EnableTrinkets = true });
+            var tavern = service.State.Player.Tavern;
+            var minion = TestMinion("crystal-ball-copy-aura", "crystal-ball-copy-aura", 3, 4);
+            tavern.Gold = 20;
+            service.State.Player.Board.Add(minion);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG30_MagicItem_880", CardKind.Trinket, 0));
+            Assert.AreEqual(7, minion.Attack);
+            Assert.AreEqual(6, minion.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.DebugReplaceTrinket, "BG32_MagicItem_858", CardKind.Trinket, 0));
+
+            var trinkets = tavern.AdvancedMechanics.Trinkets;
+            Assert.AreEqual("BG32_MagicItem_858", trinkets.LesserTrinketId);
+            Assert.AreEqual("BG30_MagicItem_880", trinkets.LesserCrystalBallCopiedTrinketId);
+            Assert.AreEqual(5, minion.Attack);
+            Assert.AreEqual(5, minion.MaxHealth);
+            Assert.IsTrue(tavern.AdvancedMechanics.Equipped.Any(equipped =>
+                equipped.Kind == AdvancedMechanicKind.Trinket &&
+                equipped.SourceId == "BG30_MagicItem_880" &&
+                equipped.Slot == "HeroPower" &&
+                equipped.DisplayName.Contains("Lesser Crystal Ball")));
+        }
+
+        [Test]
         public void GreaterFortune_GrantsGreaterCrystalBallAsSecondHeroPower()
         {
             var service = CreateAnomalyService(

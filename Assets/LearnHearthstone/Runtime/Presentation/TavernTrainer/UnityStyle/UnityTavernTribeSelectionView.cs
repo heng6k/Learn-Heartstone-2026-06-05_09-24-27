@@ -156,8 +156,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             this.backToHub = backToHub;
             layout = layoutContext ?? UnityTavernLayoutContext.FromRoot(root);
             this.repository = repository ?? new JsonCardPoolVersionRepository();
-            this.minionCatalog = minionCatalog ?? MinionCatalogLoader.LoadFromResources();
-            this.spellCatalog = spellCatalog ?? SpellCatalogLoader.LoadFromResources();
+            this.minionCatalog = minionCatalog ?? MinionCatalogLoader.LoadFromResources(useEnglish);
+            this.spellCatalog = spellCatalog ?? SpellCatalogLoader.LoadFromResources(useEnglish);
             this.heroCatalog = heroCatalog ?? HeroCatalogLoader.LoadFromResources();
             this.anomalyCatalog = anomalyCatalog ?? AnomalyCatalogLoader.LoadFromResources(useEnglish);
             this.questCatalog = questCatalog ?? QuestCatalogLoader.LoadFromResources(useEnglish);

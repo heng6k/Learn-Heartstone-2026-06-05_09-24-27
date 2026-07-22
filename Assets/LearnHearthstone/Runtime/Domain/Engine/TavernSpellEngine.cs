@@ -187,7 +187,34 @@ namespace LearnHearthstone.Domain.Engine
             tavern.NextCombatLeftmostCopiesNearestEnemyStats = false;
             tavern.NextCombatLeftmostDoubleAttack = false;
             tavern.NextCombatTriggerMixedMechanics = false;
+            tavern.CombatTavernSpellExtraCasts = 0;
             tavern.NextCombatTavernSpellCardIds?.Clear();
+        }
+
+        public static void ApplyAdditionalStartOfCombatSpellCasts(TavernState tavern, int extraCasts)
+        {
+            if (tavern == null || extraCasts <= 0 || tavern.NextCombatTavernSpellCardIds == null)
+            {
+                return;
+            }
+
+            tavern.CombatTavernSpellExtraCasts = extraCasts;
+            foreach (var cardId in tavern.NextCombatTavernSpellCardIds)
+            {
+                switch (cardId)
+                {
+                    case "105665":
+                        tavern.NextCombatBoardAttack += 2 * extraCasts;
+                        tavern.NextCombatBoardHealth += extraCasts;
+                        break;
+                    case "110401":
+                        tavern.NextCombatBeetles += 2 * extraCasts;
+                        break;
+                    case "104560":
+                        tavern.NextCombatEnemyHealthToOne += extraCasts;
+                        break;
+                }
+            }
         }
 
         public static string Cast(
@@ -644,7 +671,7 @@ namespace LearnHearthstone.Domain.Engine
                     state.Player.Tavern.NextTurnBonusGold += 2;
                     return "Careful Investment: gain 2 Gold next turn";
                 case "104029":
-                    state.Player.Tavern.MaxGold += 1;
+                    TavernRules.IncreasePersistentMaxGold(state.Player.Tavern, 1);
                     return "闂備胶鏅划顖滄暜娴兼潙鍌ㄩ柣鏃€鐡曡棢闂佹寧绋掑畝鎼佸箺瀹曞洦鏆滃ù锝夘棑閻熸劙姊婚崟顒€濮堢憸棰佺劍椤?";
                 case "104446":
                     state.Player.Tavern.FreeRefreshes += 2;
@@ -685,7 +712,7 @@ namespace LearnHearthstone.Domain.Engine
                     BuffAll(state, state.Player.Board, 1, 1, "Shiny Ring", applyTavernSpellBonus);
                     return "Shiny Ring: your minions gain +1/+1";
                 case CoinPouch3GoldProxyCardId:
-                    state.Player.Tavern.Gold = StatMath.SaturatingAdd(state.Player.Tavern.Gold, 3, 0, StatMath.MaxStat);
+                    TavernRules.GainGold(state.Player.Tavern, 3);
                     return "3-Gold Coin Pouch: gain 3 Gold";
                 case "113901":
                     TransformFirstMinionOneTierHigher(state, minions, rng);
@@ -1160,7 +1187,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void GainGold(TavernState tavern, int amount)
         {
-            tavern.Gold += amount;
+            TavernRules.GainGold(tavern, amount);
         }
 
         private static void IncrementAdvancedCounter(MatchState state, string key, int amount)

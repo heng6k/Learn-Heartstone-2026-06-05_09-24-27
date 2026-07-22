@@ -41,10 +41,9 @@ namespace LearnHearthstone.Application.Services
         private const string DrektharOpponentCombatHeroPowerId = "BG22_HERO_002p";
         private const string TeronOpponentCombatHeroPowerId = "BG25_HERO_103p";
         private const string OzumatOpponentCombatHeroPowerId = "BG23_HERO_201p";
+        private const string GreyboughOpponentCombatHeroPowerId = "TB_BaconShop_HP_107";
         private const string OpponentOnyxiaWhelpStatsCounter = "hero:onyxia:whelp_stats";
         private const string OpponentTamsinPhylacteryTag = "hero_tamsin_phylactery";
-        private const string OpponentTeronReanimationTag = "teron_reanimation_target";
-        private const string OpponentOzumatTentacleCardId = "OZUMAT_TENTACLE";
         private const int OpponentLesserTrinketActiveRound = 6;
         private const int OpponentGreaterTrinketActiveRound = 9;
         private const string TripleRewardDefinitionId = "triple-reward";
@@ -249,6 +248,7 @@ namespace LearnHearthstone.Application.Services
         private const string FireBallerCardId = "BG31_816";
         private const string ForestRoverCardId = "BG31_801";
         private const string FreedealingGamblerCardId = "BGS_049";
+        private const string DuneDwellerCardId = "BG31_815";
         private const string HummingBirdCardId = "BG26_805";
         private const string IntrepidBotanistCardId = "BG32_237";
         private const string NerubianDeathswarmerCardId = "BG25_011";
@@ -464,6 +464,7 @@ namespace LearnHearthstone.Application.Services
         private const string TreasureHoardTierSixAnomalyCardId = "BG27_Anomaly_571";
         private const string TreasureHoardTriggeredRoundCounter = "treasure_hoard_triggered_round";
         private const string DazzlingDaggerAuraSourceId = "Trinket:Dazzling Dagger";
+        private const string HordeKeychainAuraSourceId = "Trinket:Horde Keychain";
         private const int AutomaticTavernSpellCastMaxDepth = 4;
         private const string GlobalEternalKnightSourceId = "Eternal Knight";
         private const string GlobalAutomatonSourceId = "Ancestral Automaton";
@@ -572,6 +573,7 @@ namespace LearnHearthstone.Application.Services
         private const string ArenaShowmanCardId = "BG28_550";
         private const string DynamicDuoCardId = "BG26_199";
         private const string DrakkariEnchanterCardId = "BG26_ICC_901";
+        private const string SurfingSylvarCardId = "BG32_235";
         private const string LightfangEnforcerCardId = "BGS_009";
         private const string FarmhandWhirlOMatronCardId = "BG26_162";
         private const string FirelandsFlameCardId = "BG35_882";
@@ -803,7 +805,6 @@ namespace LearnHearthstone.Application.Services
         private const string SkyPirateFlagbearerCardId = "BG30_119";
         private const string FlamingEnforcerCardId = "BG34_500";
         private const string ShipwreckedCaptainCardId = "BG33_821";
-        private const string ObsidianRavagerCardId = "BG33_825";
         private const string MaelstromNagaCardId = "BG34_922";
         private const string SereneMeditatorCardId = "BG32_835";
         private const string DarkcrestStrategistCardId = "BG31_920";
@@ -1623,8 +1624,8 @@ namespace LearnHearthstone.Application.Services
         public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
         {
             return new MatchService(
-                MinionCatalogLoader.LoadFromResources(),
-                SpellCatalogLoader.LoadFromResources(),
+                MinionCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
+                SpellCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
                 HeroCatalogLoader.LoadFromResources(),
                 TrinketCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
                 QuestCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
@@ -1886,8 +1887,7 @@ namespace LearnHearthstone.Application.Services
                     ResetCombatTestSnapshot();
                     break;
                 case GameCommandType.DebugAddGold:
-                    State.Player.Tavern.Gold = Math.Max(0, State.Player.Tavern.Gold + command.Index);
-                    State.Player.Tavern.MaxGold = Math.Max(State.Player.Tavern.MaxGold, State.Player.Tavern.Gold);
+                    TavernRules.GainGold(State.Player.Tavern, command.Index);
                     break;
             }
 
@@ -4768,7 +4768,13 @@ namespace LearnHearthstone.Application.Services
 
             foreach (var option in options)
             {
-                request.Options.Add(CreateTrinketChoiceOption(option, targetSlotKind));
+                var choiceOption = CreateTrinketChoiceOption(option, targetSlotKind);
+                if (IsFreeTrinketReplacementSource(source))
+                {
+                    choiceOption.Cost = 0;
+                }
+
+                request.Options.Add(choiceOption);
             }
 
             advanced.PendingChoice = request;
@@ -6967,7 +6973,7 @@ namespace LearnHearthstone.Application.Services
                     GrantQuestGold(reward.GoldAmount, reward.Name);
                     break;
                 case QuestRewardEffectKind.GrantGoldAndMaxGold:
-                    tavern.MaxGold = Math.Min(StatMath.MaxStat, tavern.MaxGold + reward.MaxGoldAmount);
+                    TavernRules.IncreasePersistentMaxGold(tavern, reward.MaxGoldAmount);
                     GrantQuestGold(reward.GoldAmount, reward.Name);
                     break;
                 case QuestRewardEffectKind.GainGoldEachTurn:
@@ -7222,7 +7228,7 @@ namespace LearnHearthstone.Application.Services
 
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
-            tavern.Gold = Math.Min(StatMath.MaxStat, tavern.Gold + amount);
+            TavernRules.GainGold(tavern, amount);
             AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得" + amount + "枚铸币。", source + ": gained " + amount + " Gold."), before, tavern.Gold);
             TryTriggerSplinterOfAurum();
         }
@@ -8014,6 +8020,7 @@ namespace LearnHearthstone.Application.Services
         private void ApplyGhastlyMask(QuestRewardDefinition reward)
         {
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForTierTwoMinions();
             HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
@@ -9008,7 +9015,7 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var beforeGold = tavern.Gold;
             IncreasePlayerMaxGold(4);
-            tavern.Gold = StatMath.SaturatingAdd(tavern.Gold, 4, 0, StatMath.MaxStat);
+            TavernRules.GainGold(tavern, 4);
             AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedCardName(TimewarpedStrikeOilCardId, "时光突袭油") + "：获得4枚铸币，铸币上限提高4枚。", "Timewarped Strike Oil: gained 4 Gold and +4 maximum Gold."), beforeGold, tavern.Gold);
             TryTriggerSplinterOfAurum();
             return "gained 4 Gold and +4 maximum Gold";
@@ -10275,12 +10282,13 @@ namespace LearnHearthstone.Application.Services
 
             var targetSlotKind = ParseTrinketSlotKind(option.Slot, definition.SlotKind);
             var isReplacement = IsTrinketReplacementSource(request?.Source);
+            var costOverride = IsFreeTrinketReplacementSource(request?.Source) ? 0 : (int?)null;
+            ValidateTrinketEquip(definition, targetSlotKind, costOverride, isReplacement, isReplacement);
             if (isReplacement)
             {
                 ClearEquippedTrinketSlot(targetSlotKind);
             }
 
-            var costOverride = IsFreeTrinketReplacementSource(request?.Source) ? 0 : (int?)null;
             EquipTrinket(definition, targetSlotKind, costOverride, isReplacement);
         }
 
@@ -10304,6 +10312,7 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("Trinket is not eligible under current setup: " + trinketIdOrCardId);
             }
 
+            ValidateTrinketEquip(definition, targetSlotKind, 0, false, true);
             ClearEquippedTrinketSlot(targetSlotKind);
             EquipTrinket(definition, targetSlotKind, 0, false);
         }
@@ -10561,15 +10570,16 @@ namespace LearnHearthstone.Application.Services
             var tavern = State.Player.Tavern;
             var advanced = EnsureAdvancedMechanicState(tavern);
             var trinkets = EnsureTrinketState(tavern);
+            var oldTrinketId = slotKind == TrinketSlotKind.Lesser
+                ? trinkets.LesserTrinketId
+                : trinkets.GreaterTrinketId;
             if (slotKind == TrinketSlotKind.Lesser)
             {
                 trinkets.LesserTrinketId = null;
-                trinkets.LesserCrystalBallCopiedTrinketId = null;
             }
             else
             {
                 trinkets.GreaterTrinketId = null;
-                trinkets.GreaterCrystalBallCopiedTrinketId = null;
             }
 
             if (trinkets.Equipped != null)
@@ -10583,6 +10593,205 @@ namespace LearnHearthstone.Application.Services
                     equipped != null &&
                     equipped.Kind == AdvancedMechanicKind.Trinket &&
                     string.Equals(equipped.Slot, slotKind.ToString(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            ResetRemovedTrinketProgress(oldTrinketId);
+            RecalculateDalaranCheeseWheelBonus();
+            ApplyBoardTrinketAuras();
+            ApplyTrinketShopAuras(tavern.Shop);
+        }
+
+        private void ResetRemovedTrinketProgress(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId) || trinketCatalog == null || !trinketCatalog.TryGetByCardId(cardId, out var removed))
+            {
+                return;
+            }
+
+            if (EquippedTrinketDefinitions().Any(definition =>
+                string.Equals(definition.CardId, cardId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            var trinkets = EnsureTrinketState(State.Player.Tavern);
+            var counters = EnsureAdvancedMechanicState(State.Player.Tavern).Counters;
+            counters.Remove(TypewriterCounterKey(removed));
+            counters.Remove(PortableFactoryCounterKey(removed));
+            foreach (var key in counters.Keys.Where(key =>
+                key.StartsWith(Batch2ScheduleCounterPrefix + cardId + ":", StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                counters.Remove(key);
+            }
+
+            foreach (var effectId in removed.EffectIds ?? new List<string>())
+            {
+                if (HasEquippedTrinketEffect(effectId))
+                {
+                    continue;
+                }
+
+                switch (effectId)
+                {
+                    case "dalaran_cheese_wheel":
+                        trinkets.DalaranCheeseWheelRefreshes = 0;
+                        trinkets.DalaranCheeseWheelBonusAttack = 0;
+                        trinkets.DalaranCheeseWheelBonusHealth = 0;
+                        break;
+                    case "worn_treasure_map":
+                        if (!trinkets.WornTreasureMapClaimed)
+                        {
+                            trinkets.WornTreasureMapDueRound = 0;
+                        }
+                        break;
+                    case "shaman_prayer_beads":
+                        trinkets.ShamanPrayerBeadsBattlecryBuys = 0;
+                        break;
+                    case "reusable_batteries":
+                        trinkets.ReusableBatteriesLastTriggerRound = 0;
+                        break;
+                    case "heart_of_the_forest":
+                        trinkets.HeartOfForestBonusAttack = 0;
+                        trinkets.HeartOfForestBonusHealth = 0;
+                        trinkets.HeartOfForestCastProgress = 0;
+                        break;
+                    case "marvelous_mushroom":
+                        trinkets.MarvelousMushroomBonusAttack = 0;
+                        trinkets.MarvelousMushroomBonusHealth = 0;
+                        break;
+                    case "peacebloom_candle":
+                        trinkets.PeacebloomCandleRound = 0;
+                        trinkets.PeacebloomCandleBuysThisRound = 0;
+                        break;
+                    case "sinstone_sticker":
+                        trinkets.SinstoneStickerRound = 0;
+                        trinkets.SinstoneStickerCopiesThisRound = 0;
+                        break;
+                    case "lubber_sticker":
+                        trinkets.LubberStickerRound = 0;
+                        trinkets.LubberStickerTavernSpellBuysThisRound = 0;
+                        break;
+                    case "water_wheel":
+                        trinkets.WaterWheelRound = 0;
+                        trinkets.WaterWheelTriggersThisRound = 0;
+                        break;
+                    case "charming_panpipes":
+                        trinkets.CharmingPanpipesAttack = 0;
+                        trinkets.CharmingPanpipesHealth = 0;
+                        break;
+                    case "lucky_tabby":
+                        trinkets.LuckyTabbyDeaths = 0;
+                        break;
+                    case "bleeding_heart":
+                        trinkets.BleedingHeartDeaths = 0;
+                        break;
+                    case "stormcoil_sticker":
+                        trinkets.StormcoilStickerDeaths = 0;
+                        break;
+                    case "lava_lamp":
+                        trinkets.LavaLampSoldMinions = 0;
+                        break;
+                    case "fungalmancer_sticker":
+                        trinkets.FungalmancerStickerSoldMinions = 0;
+                        break;
+                    case "avalanche_sticker":
+                        trinkets.AvalancheStickerSoldMinions = 0;
+                        break;
+                    case "gem_donation":
+                        trinkets.GemDonationSoldRound = 0;
+                        break;
+                    case DarnassusPieEffectId:
+                    case DarnassusPieDoubleEffectId:
+                        if (!HasEquippedTrinketEffect(DarnassusPieEffectId) &&
+                            !HasEquippedTrinketEffect(DarnassusPieDoubleEffectId))
+                        {
+                            trinkets.DarnassusPieSoldMinionsThisTurn = 0;
+                        }
+                        break;
+                    case "wildfeather_duster":
+                        trinkets.WildfeatherDusterBeastSummons = 0;
+                        break;
+                    case GoosePortraitEffectId:
+                        trinkets.GoosePortraitBeastSummons = 0;
+                        break;
+                    case "fang_anklet":
+                        trinkets.FangAnkletBonusAttack = 0;
+                        trinkets.FangAnkletBonusHealth = 0;
+                        break;
+                    case "all_purpose_kibble":
+                        trinkets.AllPurposeKibbleAttack = 0;
+                        break;
+                    case "felburned_ledger":
+                        trinkets.FelburnedLedgerBonusThisTurn = 0;
+                        break;
+                    case MysteryCubeEffectId:
+                        counters.Remove(MysteryCubePendingCounter);
+                        break;
+                    case TripVouchersEffectId:
+                        counters.Remove(TripVouchersDueRoundCounter);
+                        break;
+                    case PutricideStickerEffectId:
+                        counters.Remove(PutricideStickerDueRoundCounter);
+                        break;
+                    case AncientWishboneEffectId:
+                        counters.Remove(AncientWishboneRepeatingCounter);
+                        break;
+                    case "guiding_candle":
+                        counters.Remove(GuidingCandleRoundCounter);
+                        counters.Remove(GuidingCandleRefreshesCounter);
+                        break;
+                    case "demonic_tapestry":
+                        counters.Remove(DemonicTapestryRefreshCounter);
+                        break;
+                    case "pilgrimp_sticker":
+                        counters.Remove(PilgrimpRoundCounter);
+                        counters.Remove(PilgrimpUsedCounter);
+                        break;
+                    case "bazaar_sticker":
+                        counters.Remove(BazaarRoundCounter);
+                        counters.Remove(BazaarUsedCounter);
+                        break;
+                    case "magicfin_sticker":
+                        counters.Remove(MagicfinRoundCounter);
+                        counters.Remove(MagicfinUsesCounter);
+                        break;
+                    case "eye_of_sargeras":
+                        counters.Remove(EyeOfSargerasBuyCounter);
+                        break;
+                    case GrifterPortraitEffectId:
+                        counters.Remove(GrifterRoundCounter);
+                        counters.Remove(GrifterUsedCounter);
+                        break;
+                    case "extravagant_scale":
+                        counters.Remove(ExtravagantScaleProgressCounter);
+                        counters.Remove(ExtravagantScaleTriggersCounter);
+                        break;
+                    case "fancy_spellbook":
+                        counters.Remove(FancySpellbookProgressCounter);
+                        break;
+                    case "shark_cannon":
+                        counters.Remove(SharkCannonProgressCounter);
+                        counters.Remove(SharkCannonBonusCounter);
+                        break;
+                    case NetherPendantEffectId:
+                        counters.Remove(NetherPendantDamageCounter);
+                        counters.Remove(NetherPendantBonusCounter);
+                        break;
+                    case "statue_of_hireek":
+                        counters.Remove(StatueOfHireekProgressCounter);
+                        break;
+                    case "replica_cathedral":
+                        counters.Remove(ReplicaCathedralRoundCounter);
+                        counters.Remove(ReplicaCathedralUsedCounter);
+                        break;
+                    case WarDrumEffectId:
+                        counters.Remove(WarDrumRoundCounter);
+                        counters.Remove(WarDrumUsedCounter);
+                        break;
+                    case "spitescale_sushi_roll":
+                        counters.Remove(SpitescaleSushiRollExtraCastsLeftCounter);
+                        break;
+                }
             }
         }
 
@@ -10620,47 +10829,20 @@ namespace LearnHearthstone.Application.Services
                 CostPaid = 0,
                 ImplementationStatus = greaterDefinition.ImplementationStatus.ToString()
             });
+            ApplyTrinketEquippedEffects(greaterDefinition);
+            RecalculateDalaranCheeseWheelBonus();
+            ApplyBoardTrinketAuras();
+            ApplyTrinketShopAuras(State.Player.Tavern.Shop);
             AddRecruitLog(RecruitLogType.Play, Localized("纪念品货架：变形为" + greaterDefinition.Name + "。", "Souvenir Stand: transformed into " + greaterDefinition.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
 
         private void EquipTrinket(TrinketDefinition definition, TrinketSlotKind? targetSlotKind = null, int? costOverride = null, bool allowSlotOverride = false)
         {
-            if (!enableTrinkets)
-            {
-                throw new InvalidOperationException("Trinkets are disabled for this match.");
-            }
-
             var tavern = State.Player.Tavern;
             var advanced = EnsureAdvancedMechanicState(tavern);
             var trinkets = EnsureTrinketState(tavern);
             var slotKind = targetSlotKind ?? definition.SlotKind;
-            if (definition.OfferPoolStatus == TrinketOfferPoolStatus.Disabled)
-            {
-                throw new InvalidOperationException("Disabled Trinkets cannot be equipped: " + definition.CardId);
-            }
-
-            if (slotKind != definition.SlotKind &&
-                !(definition.SlotKind == TrinketSlotKind.Lesser && slotKind == TrinketSlotKind.Greater) &&
-                !allowSlotOverride)
-            {
-                throw new InvalidOperationException("Unsupported Trinket slot override: " + definition.SlotKind + " into " + slotKind);
-            }
-
-            if (slotKind == TrinketSlotKind.Lesser && !string.IsNullOrEmpty(trinkets.LesserTrinketId))
-            {
-                throw new InvalidOperationException("A Lesser Trinket is already equipped.");
-            }
-
-            if (slotKind == TrinketSlotKind.Greater && !string.IsNullOrEmpty(trinkets.GreaterTrinketId))
-            {
-                throw new InvalidOperationException("A Greater Trinket is already equipped.");
-            }
-
-            var cost = Math.Max(0, costOverride ?? definition.Cost);
-            if (tavern.Gold < cost)
-            {
-                throw new InvalidOperationException("Not enough Gold to equip Trinket.");
-            }
+            var cost = ValidateTrinketEquip(definition, slotKind, costOverride, allowSlotOverride, false);
 
             var before = tavern.Gold;
             SpendGold(cost);
@@ -10715,6 +10897,56 @@ namespace LearnHearthstone.Application.Services
                     tavern.Gold,
                     tavern.Gold);
             }
+        }
+
+        private int ValidateTrinketEquip(
+            TrinketDefinition definition,
+            TrinketSlotKind slotKind,
+            int? costOverride,
+            bool allowSlotOverride,
+            bool allowOccupiedTargetSlot)
+        {
+            if (!enableTrinkets)
+            {
+                throw new InvalidOperationException("Trinkets are disabled for this match.");
+            }
+
+            if (definition == null)
+            {
+                throw new InvalidOperationException("Trinket definition is required.");
+            }
+
+            var tavern = State.Player.Tavern;
+            var trinkets = EnsureTrinketState(tavern);
+            if (definition.OfferPoolStatus == TrinketOfferPoolStatus.Disabled)
+            {
+                throw new InvalidOperationException("Disabled Trinkets cannot be equipped: " + definition.CardId);
+            }
+
+            if (slotKind != definition.SlotKind &&
+                !(definition.SlotKind == TrinketSlotKind.Lesser && slotKind == TrinketSlotKind.Greater) &&
+                !allowSlotOverride)
+            {
+                throw new InvalidOperationException("Unsupported Trinket slot override: " + definition.SlotKind + " into " + slotKind);
+            }
+
+            if (!allowOccupiedTargetSlot && slotKind == TrinketSlotKind.Lesser && !string.IsNullOrEmpty(trinkets.LesserTrinketId))
+            {
+                throw new InvalidOperationException("A Lesser Trinket is already equipped.");
+            }
+
+            if (!allowOccupiedTargetSlot && slotKind == TrinketSlotKind.Greater && !string.IsNullOrEmpty(trinkets.GreaterTrinketId))
+            {
+                throw new InvalidOperationException("A Greater Trinket is already equipped.");
+            }
+
+            var cost = Math.Max(0, costOverride ?? definition.Cost);
+            if (tavern.Gold < cost)
+            {
+                throw new InvalidOperationException("Not enough Gold to equip Trinket.");
+            }
+
+            return cost;
         }
 
         private void MaybeTransformLesserCrystalBall(TrinketDefinition definition, TrinketSlotKind slotKind)
@@ -11250,7 +11482,7 @@ namespace LearnHearthstone.Application.Services
                         AddRandomDistinctMagneticMechsToHand(5, definition.Name);
                         break;
                     case HordeKeychainEffectId:
-                        ApplyHordeKeychain(definition);
+                        ApplyBoardTrinketAuras();
                         break;
                     case SelflessPortraitEffectId:
                         AddMinionByCardIdToHandWithKeyword(SelflessHeroCardId, definition.Name, Keyword.Battlecry);
@@ -11265,8 +11497,8 @@ namespace LearnHearthstone.Application.Services
             var trinkets = EnsureTrinketState(tavern);
             var before = tavern.Gold;
             trinkets.ExtraMaxGold += 4;
-            tavern.MaxGold += 4;
-            tavern.Gold += 4;
+            TavernRules.IncreaseMaxGold(tavern, 4);
+            TavernRules.GainGold(tavern, 4);
             AddRecruitLog(RecruitLogType.Play, Localized("鲍勃的赏钱罐：获得4枚铸币，铸币上限提高4枚。", "Bob's Tip Jar: gained 4 Gold and +4 maximum Gold."), before, tavern.Gold);
         }
 
@@ -11325,7 +11557,7 @@ namespace LearnHearthstone.Application.Services
 
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
-            tavern.Gold = Math.Min(StatMath.MaxStat, tavern.Gold + amount);
+            TavernRules.GainGold(tavern, amount);
             AddRecruitLog(RecruitLogType.Play, Localized(source + "：获得" + amount + "枚铸币。", source + ": gained " + amount + " Gold."), before, tavern.Gold);
             TryTriggerSplinterOfAurum();
         }
@@ -11379,6 +11611,7 @@ namespace LearnHearthstone.Application.Services
 
             var rng = new SeededRng(State.Seed + State.Round * 7331 + State.Player.Tavern.RecruitLog.Count + sourceDefinition.DbfId);
             var replacement = rng.Pick(candidates);
+            ValidateTrinketEquip(replacement, targetSlotKind, 0, true, true);
             ClearEquippedTrinketSlot(targetSlotKind);
             EquipTrinket(replacement, targetSlotKind, 0, true);
             AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：已将自身替换为" + replacement.Name + "。", sourceName + ": replaced itself with " + replacement.Name + "."), State.Player.Tavern.Gold, State.Player.Tavern.Gold);
@@ -12224,6 +12457,11 @@ namespace LearnHearthstone.Application.Services
 
             var feralBonus = GetFeralTalismanBonus(trinkets);
             var artisanalUrnAttack = GetArtisanalUrnAttackBonus(trinkets);
+            var hasDazzlingDagger = (trinkets ?? Array.Empty<TrinketDefinition>()).Any(definition =>
+                definition?.EffectIds != null && definition.EffectIds.Contains("dazzling_dagger"));
+            var hasHordeKeychain = (trinkets ?? Array.Empty<TrinketDefinition>()).Any(definition =>
+                definition?.EffectIds != null && definition.EffectIds.Contains(HordeKeychainEffectId));
+            var dazzlingDaggerAttack = hasDazzlingDagger ? CurrentDazzlingDaggerAttack() : 0;
 
             foreach (var minion in board.Where(card => card != null && card.CardKind == CardKind.Minion))
             {
@@ -12239,6 +12477,18 @@ namespace LearnHearthstone.Application.Services
                     artisanalUrnAttack,
                     0,
                     artisanalUrnAttack > 0 && HasTribe(minion, Tribe.Undead));
+                ApplyOrRemoveTrackedBuff(
+                    minion,
+                    DazzlingDaggerAuraSourceId,
+                    dazzlingDaggerAttack,
+                    0,
+                    hasDazzlingDagger);
+                ApplyOrRemoveTrackedBuff(
+                    minion,
+                    HordeKeychainAuraSourceId,
+                    7,
+                    5,
+                    hasHordeKeychain && minion.TavernTier <= 3);
             }
         }
 
@@ -12647,7 +12897,7 @@ namespace LearnHearthstone.Application.Services
                     var tavern = State.Player.Tavern;
                     var trinkets = EnsureTrinketState(tavern);
                     trinkets.ExtraMaxGold += 1;
-                    tavern.MaxGold += 1;
+                    TavernRules.IncreaseMaxGold(tavern, 1);
             AddRecruitLog(RecruitLogType.Play, Localized(definition.Name + "：铸币上限提高1枚。", definition.Name + ": maximum Gold increased by 1."), tavern.Gold, tavern.Gold);
                 }
 
@@ -12747,6 +12997,7 @@ namespace LearnHearthstone.Application.Services
         private void ApplyGhastlySticker(TrinketDefinition definition)
         {
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForTierTwoMinions();
             HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
@@ -12799,15 +13050,6 @@ namespace LearnHearthstone.Application.Services
                     BuffMinion(State.Player.Board[index + 1], amount, amount, definition.Name);
                 }
             }
-        }
-
-        private void ApplyHordeKeychain(TrinketDefinition definition)
-        {
-            BuffAllMinions(
-                State.Player.Board.Where(minion => minion != null && minion.TavernTier <= 3),
-                7,
-                5,
-                definition.Name);
         }
 
         private void ApplyAggemSticker(TrinketDefinition definition)
@@ -14412,7 +14654,8 @@ namespace LearnHearthstone.Application.Services
                 }
 
                 if (definition.EffectIds.Contains(FeralTalismanEffectId) ||
-                    definition.EffectIds.Contains(ArtisanalUrnEffectId))
+                    definition.EffectIds.Contains(ArtisanalUrnEffectId) ||
+                    definition.EffectIds.Contains(HordeKeychainEffectId))
                 {
                     refreshBoardAuras = true;
                 }
@@ -14465,11 +14708,6 @@ namespace LearnHearthstone.Application.Services
                 if (HasTribe(played, Tribe.Demon) && definition.EffectIds.Contains(ShadowyElixirEffectId))
                 {
                     DamagePlayerHero(1);
-                }
-
-                if (definition.EffectIds.Contains(HordeKeychainEffectId) && played.TavernTier <= 3)
-                {
-                    BuffMinion(played, 7, 5, definition.Name);
                 }
 
                 if (definition.EffectIds.Contains(MacawPortraitEffectId) && played.CardId == MonstrousMacawCardId)
@@ -16550,8 +16788,8 @@ namespace LearnHearthstone.Application.Services
             var trinkets = EnsureTrinketState(State.Player.Tavern);
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             AddEquippedTrinketDefinition(result, seen, trinkets.LesserTrinketId);
-            AddEquippedTrinketDefinition(result, seen, trinkets.GreaterTrinketId);
-            AddEquippedTrinketDefinition(result, seen, trinkets.MysteryCubeHeroPowerTrinketId);
+            AddEquippedTrinketDefinition(result, seen, trinkets.GreaterTrinketId, true);
+            AddEquippedTrinketDefinition(result, seen, trinkets.MysteryCubeHeroPowerTrinketId, true);
             if (trinkets.Equipped != null)
             {
                 foreach (var equipped in trinkets.Equipped)
@@ -16575,10 +16813,7 @@ namespace LearnHearthstone.Application.Services
             if (trinketCatalog.TryGetByCardId(cardId, out var definition))
             {
                 result.Add(definition);
-                if (!allowDuplicate)
-                {
-                    seen.Add(cardId);
-                }
+                seen.Add(cardId);
             }
         }
 
@@ -18090,7 +18325,7 @@ namespace LearnHearthstone.Application.Services
                     return AddRandomOneCostTavernSpellToHand(source) > 0;
                 case GalewingRouteIronforge:
                     var before = State.Player.Tavern.Gold;
-                    State.Player.Tavern.Gold = Math.Min(StatMath.MaxStat, State.Player.Tavern.Gold + 2);
+                    TavernRules.GainGold(State.Player.Tavern, 2);
                     AddRecruitLog(RecruitLogType.Play, Localized("丹加尔的狮鹫：铁炉堡使你获得2枚铸币。", "Dungar's Gryphon: Ironforge gained 2 Gold."), before, State.Player.Tavern.Gold);
                     return true;
                 case GalewingRoutePlaguelands:
@@ -19110,6 +19345,26 @@ namespace LearnHearthstone.Application.Services
                 tavern.HeroBrukanElement = opponent.HeroPowerElement;
                 tavern.HeroBrukanElementActive = true;
             }
+
+            tavern.HeroVanndarStormpikeActive =
+                State.Round >= 7 && activePowerIds.Any(powerId => string.Equals(powerId, VanndarOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase));
+            tavern.HeroDrektharActive =
+                State.Round >= 7 && activePowerIds.Any(powerId => string.Equals(powerId, DrektharOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase));
+            tavern.HeroTeronGorefiendActive =
+                activePowerIds.Any(powerId => string.Equals(powerId, TeronOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase));
+            if (tavern.HeroTeronGorefiendActive && opponent.HeroPowerTargetSide == BoardSide.Opponent)
+            {
+                tavern.HeroTeronTargetInstanceId = ResolveOpponentConfiguredHeroPowerTarget(State.Opponent.Board, opponent)?.InstanceId;
+            }
+            tavern.HeroOzumatActive =
+                activePowerIds.Any(powerId => string.Equals(powerId, OzumatOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase));
+
+            if (activePowerIds.Any(powerId => string.Equals(powerId, GreyboughOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase)))
+            {
+                tavern.CombatSummonBonusAttack = 1;
+                tavern.CombatSummonBonusHealth = 2;
+                tavern.CombatSummonTaunt = true;
+            }
         }
 
         private static bool CanTargetTavernMinion(MinionInstance spell)
@@ -19906,7 +20161,7 @@ namespace LearnHearthstone.Application.Services
                         choiceId);
                     if (baseCost > 0)
                     {
-                        State.Player.Tavern.Gold += baseCost;
+                        TavernRules.GainGold(State.Player.Tavern, baseCost);
                     }
 
                     foreach (var message in result.Messages)
@@ -20071,31 +20326,6 @@ namespace LearnHearthstone.Application.Services
                     ApplyOpponentWagtoggleCombatBuffs(opponentCombatBoard, opponentCombatTavern);
                 }
 
-                if (string.Equals(heroPowerCardId, VanndarOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase) && State.Round >= 7)
-                {
-                    SummonOpponentCombatCopy(
-                        opponentCombatBoard.OrderByDescending(minion => minion.MaxHealth).ThenBy(minion => minion.InstanceId).FirstOrDefault(),
-                        opponentCombatBoard,
-                        "opponent-vanndar");
-                }
-
-                if (string.Equals(heroPowerCardId, DrektharOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase) && State.Round >= 7)
-                {
-                    SummonOpponentCombatCopy(
-                        opponentCombatBoard.OrderByDescending(minion => minion.Attack).ThenBy(minion => minion.InstanceId).FirstOrDefault(),
-                        opponentCombatBoard,
-                        "opponent-drekthar");
-                }
-
-                if (string.Equals(heroPowerCardId, TeronOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
-                {
-                    ResolveOpponentTeronCombatStart(opponentCombatBoard);
-                }
-
-                if (string.Equals(heroPowerCardId, OzumatOpponentCombatHeroPowerId, StringComparison.OrdinalIgnoreCase))
-                {
-                    SummonOpponentOzumatTentacle(opponentCombatBoard, opponentCombatTavern);
-                }
             }
         }
 
@@ -20192,90 +20422,6 @@ namespace LearnHearthstone.Application.Services
                 BuffCombatMinion(target, amount, amount, "Opponent Wax Warband");
                 buffed.Add(target.InstanceId);
             }
-        }
-
-        private static void SummonOpponentCombatCopy(MinionInstance target, List<MinionInstance> opponentCombatBoard, string source)
-        {
-            if (target == null || opponentCombatBoard.Count >= BoardLimit)
-            {
-                return;
-            }
-
-            var copy = target.Clone();
-            copy.InstanceId = source + "-combat-copy-" + target.InstanceId;
-            copy.Owner = BoardSide.Opponent;
-            copy.PoolSource = PoolSource.Summon;
-            copy.PoolCopiesHeld = 0;
-            opponentCombatBoard.Add(copy);
-        }
-
-        private void ResolveOpponentTeronCombatStart(List<MinionInstance> opponentCombatBoard)
-        {
-            var opponent = EnsureOpponentState();
-            if (opponent.HeroPowerTargetSide != BoardSide.Opponent)
-            {
-                return;
-            }
-
-            var configured = ResolveOpponentConfiguredHeroPowerTarget(State.Opponent.Board, opponent);
-            if (configured == null)
-            {
-                return;
-            }
-
-            var index = opponentCombatBoard.FindIndex(minion =>
-                minion != null &&
-                string.Equals(minion.InstanceId, configured.InstanceId, StringComparison.OrdinalIgnoreCase));
-            if (index < 0)
-            {
-                return;
-            }
-
-            var copy = opponentCombatBoard[index].Clone();
-            copy.InstanceId = copy.InstanceId + "-teron-reanimated";
-            AddCombatTag(copy, OpponentTeronReanimationTag);
-            opponentCombatBoard.RemoveAt(index);
-            opponentCombatBoard.Insert(Math.Min(index, opponentCombatBoard.Count), copy);
-        }
-
-        private static void SummonOpponentOzumatTentacle(List<MinionInstance> opponentCombatBoard, TavernState opponentCombatTavern)
-        {
-            if (opponentCombatBoard.Count >= BoardLimit)
-            {
-                return;
-            }
-
-            var bonus = 0;
-            if (opponentCombatTavern?.HeroEffectCounters != null)
-            {
-                opponentCombatTavern.HeroEffectCounters.TryGetValue("hero:ozumat:tentacle_stats", out bonus);
-            }
-
-            bonus = Math.Max(0, bonus);
-            opponentCombatBoard.Add(new MinionInstance
-            {
-                CardKind = CardKind.Minion,
-                InstanceId = "opponent-ozumat-tentacle-" + opponentCombatBoard.Count,
-                DefinitionId = OpponentOzumatTentacleCardId,
-                CardId = OpponentOzumatTentacleCardId,
-                Name = "Tentacle",
-                BaseAttack = 2 + bonus,
-                BaseHealth = 2 + bonus,
-                Attack = 2 + bonus,
-                Health = 2 + bonus,
-                MaxHealth = 2 + bonus,
-                TavernTier = 1,
-                Owner = BoardSide.Opponent,
-                Tribes = new List<Tribe> { Tribe.None },
-                Keywords = new List<Keyword> { Keyword.Taunt },
-                OfficialKeywords = new List<Keyword> { Keyword.Taunt },
-                Enchantments = new List<Enchantment>(),
-                Counters = new Dictionary<string, int>(),
-                Tags = new List<string>(),
-                PoolSource = PoolSource.Summon,
-                PoolCopiesHeld = 0,
-                CanAttack = true
-            });
         }
 
         private static void BuffCombatMinion(MinionInstance target, int attack, int health, string sourceId)
@@ -20694,15 +20840,15 @@ namespace LearnHearthstone.Application.Services
 
             var tavern = State.Player.Tavern;
             var before = tavern.Gold;
-            var sellValue = target.CardId == FreedealingGamblerCardId ? 3 : SellValue;
+            var sellValue = target.CardId == FreedealingGamblerCardId ? (target.Golden ? 6 : 3) : SellValue;
             if (target.CardId == BlueshellTurtleCardId && tavern.LostLastCombat)
             {
-                sellValue = 5;
+                sellValue = target.Golden ? 10 : 5;
             }
 
             tavern.SoldThisTurnAttack = StatMath.SaturatingAdd(tavern.SoldThisTurnAttack, Math.Max(0, target.Attack), 0, StatMath.MaxStat);
             tavern.SoldThisTurnHealth = StatMath.SaturatingAdd(tavern.SoldThisTurnHealth, Math.Max(0, target.MaxHealth), 0, StatMath.MaxStat);
-            tavern.Gold = Math.Min(tavern.MaxGold, tavern.Gold + sellValue);
+            TavernRules.GainGold(tavern, sellValue);
             DispatchSourceEvent(MechanicEventType.MinionSold, target);
             ResolveTierOneSellEffect(target);
             ResolveTierSixSevenSellEffect(target);
@@ -21503,6 +21649,7 @@ namespace LearnHearthstone.Application.Services
             var endingRound = State.Round;
             DispatchBoardEvent(MechanicEventType.TurnEnded);
             HandleTurnEndedForTierOneMinions();
+            HandleTurnEndedForTierTwoMinions();
             HandleTurnEndedForHeroBuddies();
             HandleTurnEndedForTierThreeMinions();
             HandleTurnEndedForTierFourMinions();
@@ -21543,7 +21690,10 @@ namespace LearnHearthstone.Application.Services
             var nextRound = State.PendingTurnStartRound;
             var resolveCombat = State.PendingTurnResolvedCombat;
             var trinkets = EnsureTrinketState(tavern);
-            var maxGold = HeroEffectEngine.ModifyTurnMaxGold(State, TavernRules.GetMaxGoldForRound(nextRound)) + Math.Max(0, trinkets.ExtraMaxGold);
+            var maxGold = TavernRules.ClampMaxGold(
+                HeroEffectEngine.ModifyTurnMaxGold(State, TavernRules.GetMaxGoldForRound(nextRound)) +
+                Math.Max(0, trinkets.ExtraMaxGold) +
+                Math.Max(0, tavern.PersistentMaxGoldBonus));
             var bonusGold = tavern.NextTurnBonusGold;
             ResetTealTigerSapphireTurnState();
             trinkets.DarnassusPieSoldMinionsThisTurn = 0;
@@ -21551,8 +21701,9 @@ namespace LearnHearthstone.Application.Services
 
             State.Round = nextRound;
             State.Phase = MatchPhase.Tavern;
-            tavern.Gold = maxGold + bonusGold;
             tavern.MaxGold = maxGold;
+            tavern.Gold = maxGold;
+            TavernRules.GainGold(tavern, bonusGold);
             tavern.NextTurnBonusGold = 0;
             tavern.UpgradeCost = TavernRules.DecrementUpgradeCost(tavern.UpgradeCost);
             if (refreshed)
@@ -22585,6 +22736,8 @@ namespace LearnHearthstone.Application.Services
             }
             var opponentCombatTavern = CreateOpponentCombatTavernState();
             ApplyOpponentCombatStartHeroPowers(opponentCombatBoard, playerCombatBoard, opponentCombatTavern);
+            ApplyMaelstromCombatTavernSpellRepeats(playerCombatBoard, State.Player.Tavern);
+            ApplyMaelstromCombatTavernSpellRepeats(opponentCombatBoard, opponentCombatTavern);
             var combatStartSideOrder = CombatStartSideOrder(nextOptions.Seed).ToList();
             foreach (var side in combatStartSideOrder)
             {
@@ -22646,6 +22799,11 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.HeroTavishDeadeyeActive = false;
             State.Player.Tavern.HeroOnyxiaBroodmotherActive = false;
             State.Player.Tavern.HeroBrukanElementActive = false;
+            State.Player.Tavern.HeroVanndarStormpikeActive = false;
+            State.Player.Tavern.HeroDrektharActive = false;
+            State.Player.Tavern.HeroTeronGorefiendActive = false;
+            State.Player.Tavern.HeroTeronTargetInstanceId = null;
+            State.Player.Tavern.HeroOzumatActive = false;
             ResetTrinketCombatState();
             ResetQuestCombatState();
         }
@@ -24619,11 +24777,6 @@ namespace LearnHearthstone.Application.Services
                 return extra;
             }
 
-            if (State.Player.Board.Any(minion => minion.CardId == MaelstromNagaCardId))
-            {
-                extra += 1;
-            }
-
             var targetsFriendlyMinion = targetZone == TargetZone.FriendlyBoard &&
                                         spell.Tags != null &&
                                         spell.Tags.Any(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase));
@@ -24634,9 +24787,11 @@ namespace LearnHearthstone.Application.Services
                     .Sum(minion => minion.Golden ? 2 : 1);
             }
 
-            if (IsBountyCardId(spell.CardId) && State.Player.Board.Any(minion => minion.CardId == ObsidianRavagerCardId))
+            if (IsBountyCardId(spell.CardId))
             {
-                extra += 1;
+                extra += State.Player.Board
+                    .Where(minion => minion != null && minion.CardId == ProudPrivateerCardId)
+                    .Sum(minion => minion.Golden ? 2 : 1);
             }
 
             if (HasActiveQuestReward(TemporalTamperingRewardId))
@@ -24958,6 +25113,9 @@ namespace LearnHearthstone.Application.Services
                 case LabAssistantCardId:
                     State.Player.Tavern.DemonFodderRefreshes += target.Golden ? 6 : 3;
                     break;
+                case DuneDwellerCardId:
+                    GrowElementalsInTavernAndFuture(target.Golden ? 2 : 1, target.Golden ? 2 : 1, "Dune Dweller");
+                    break;
             }
         }
 
@@ -25091,6 +25249,35 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
+        private void HandleTurnEndedForTierTwoMinions()
+        {
+            var drakkari = State.Player.Board
+                .Where(minion => minion.CardId == DrakkariEnchanterCardId)
+                .OrderByDescending(minion => minion.Golden ? 3 : 2)
+                .FirstOrDefault();
+            var endTurnRepeats = drakkari == null ? 1 : drakkari.Golden ? 3 : 2;
+            for (var repeat = 0; repeat < endTurnRepeats; repeat += 1)
+            {
+                foreach (var sylvar in State.Player.Board.Where(minion => minion.CardId == SurfingSylvarCardId).ToList())
+                {
+                    var index = State.Player.Board.IndexOf(sylvar);
+                    var effectRepeats = 1 + State.Player.Board.Count(minion => minion.Golden);
+                    for (var effectRepeat = 0; effectRepeat < effectRepeats; effectRepeat += 1)
+                    {
+                        if (index > 0)
+                        {
+                            BuffMinion(State.Player.Board[index - 1], sylvar.Golden ? 2 : 1, 0, "Surfing Sylvar");
+                        }
+
+                        if (index + 1 < State.Player.Board.Count)
+                        {
+                            BuffMinion(State.Player.Board[index + 1], sylvar.Golden ? 2 : 1, 0, "Surfing Sylvar");
+                        }
+                    }
+                }
+            }
+        }
+
         private void HandleTurnEndedForHeroBuddies()
         {
             foreach (var minion in State.Player.Board.ToList())
@@ -25158,8 +25345,7 @@ namespace LearnHearthstone.Application.Services
 
             if (extraGold > 0)
             {
-                State.Player.Tavern.Gold += extraGold;
-                State.Player.Tavern.MaxGold = Math.Max(State.Player.Tavern.MaxGold, State.Player.Tavern.Gold);
+                TavernRules.GainGold(State.Player.Tavern, extraGold);
             }
         }
 
@@ -26430,10 +26616,7 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var tavern = State.Player.Tavern;
-            tavern.MaxGold = StatMath.SaturatingAdd(tavern.MaxGold, amount, 0, StatMath.MaxStat);
-            var trinkets = EnsureTrinketState(tavern);
-            trinkets.ExtraMaxGold = StatMath.SaturatingAdd(trinkets.ExtraMaxGold, amount, 0, StatMath.MaxStat);
+            TavernRules.IncreasePersistentMaxGold(State.Player.Tavern, amount);
         }
 
         private void HandleTimewarpedMinionConsumed(MinionInstance consumed)
@@ -26497,8 +26680,7 @@ namespace LearnHearthstone.Application.Services
                 State.Player.Board.RemoveAt(index + 1);
                 BuffMinion(devourer, Math.Max(0, target.Attack), Math.Max(0, target.MaxHealth), "Timewarped Devourer");
                 HandleTimewarpedMinionConsumed(target);
-                State.Player.Tavern.Gold += 3 * (devourer.Golden ? 2 : 1);
-                State.Player.Tavern.MaxGold = Math.Max(State.Player.Tavern.MaxGold, State.Player.Tavern.Gold);
+                TavernRules.GainGold(State.Player.Tavern, 3 * (devourer.Golden ? 2 : 1));
                 ReleaseMinionToPool(target);
             }
         }
@@ -26791,10 +26973,15 @@ namespace LearnHearthstone.Application.Services
                 }
             }
 
-            if ((spell.CardId == BloodGemCardId || spell.CardId == BristlebackBloodGemCardId || spell.CardId == RebornBloodGemCardId) &&
-                State.Player.Board.Any(minion => minion.CardId == HotAirSurveyorCardId))
+            if (fromHand && IsBloodGemSpell(spell))
             {
-                ApplyBloodGem(target, "Hot-Air Surveyor Blood Gem");
+                var extraCasts = State.Player.Board
+                    .Where(minion => minion.CardId == HotAirSurveyorCardId)
+                    .Sum(minion => minion.Golden ? 2 : 1);
+                for (var cast = 0; cast < extraCasts; cast += 1)
+                {
+                    ApplyBloodGem(target, "Hot-Air Surveyor Blood Gem");
+                }
             }
 
             if (fromHand &&
@@ -31081,6 +31268,19 @@ namespace LearnHearthstone.Application.Services
             ResolveHighTierBuffTriggers(target, attack, health);
             ApplyFountainPenExtraStats(target, attack, health, sourceId);
             HandleTimewarpedStatsGained(target, attack, health, sourceId);
+        }
+
+        private static void ApplyMaelstromCombatTavernSpellRepeats(List<MinionInstance> board, TavernState tavern)
+        {
+            if (board == null || tavern == null)
+            {
+                return;
+            }
+
+            var extraCasts = board
+                .Where(minion => minion != null && minion.CardId == MaelstromNagaCardId)
+                .Sum(minion => minion.Golden ? 2 : 1);
+            TavernSpellEngine.ApplyAdditionalStartOfCombatSpellCasts(tavern, extraCasts);
         }
 
         private void ApplyBloodGem(MinionInstance target, string sourceId, TavernState tavern = null)

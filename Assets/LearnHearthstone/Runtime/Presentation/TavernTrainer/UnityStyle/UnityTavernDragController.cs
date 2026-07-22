@@ -62,6 +62,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
     public static class UnityTavernDragController
     {
+        private const string AkazamzarakHeroPowerCardId = "TB_BaconShop_HP_020";
+
         public static bool CanDrop(UnityTavernDragContext drag, UnityTavernDropTarget target, int targetIndex)
         {
             return TryBuildDropCommand(drag, target, targetIndex, out _);
@@ -88,6 +90,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (drag == null || drag.Card == null)
             {
                 failureReason = UnityTavernTargetingFailureReason.MissingSource;
+                return false;
+            }
+
+            if (drag.Source == UnityTavernDragSource.HeroPower && IsDirectUseHeroPower(drag.Card))
+            {
+                failureReason = UnityTavernTargetingFailureReason.UnsupportedTarget;
                 return false;
             }
 
@@ -284,6 +292,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public static bool TargetsTavernOnly(MinionInstance card)
         {
             return CanHeroPowerTargetTavern(card) && !RequiresTwoTargets(card);
+        }
+
+        public static bool IsDirectUseHeroPower(MinionInstance card)
+        {
+            return card != null &&
+                   card.CardKind == CardKind.HeroPower &&
+                   string.Equals(card.CardId, AkazamzarakHeroPowerCardId, System.StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool RequiresBattlecryTarget(MinionInstance card)

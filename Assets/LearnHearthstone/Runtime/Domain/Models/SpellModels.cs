@@ -61,6 +61,7 @@ namespace LearnHearthstone.Domain.Models
         public bool InPool { get; set; }
         public List<string> Keywords { get; set; }
         public string Text { get; set; }
+        public string EnglishText { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
         public string ImagePath { get; set; }

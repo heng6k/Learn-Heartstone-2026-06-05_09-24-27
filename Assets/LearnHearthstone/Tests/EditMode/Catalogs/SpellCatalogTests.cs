@@ -43,6 +43,26 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNull(Resources.Load<Texture2D>("CardImages/TavernSpells/BG31_244"));
         }
 
+        [Test]
+        public void LoadFromResources_EnglishCatalogHasCompleteNamesAndDescriptions()
+        {
+            var catalog = SpellCatalogLoader.LoadFromResources(true);
+            var spell = catalog.GetBySourceId(34597);
+
+            Assert.AreEqual(73, catalog.All.Count);
+            Assert.AreEqual("Pointy Arrow", spell.Name);
+            Assert.AreEqual("Pointy Arrow", spell.EnglishName);
+            Assert.IsTrue(spell.Text.Contains("+4 Attack"));
+            Assert.AreEqual(spell.EnglishText, spell.Text);
+            Assert.IsTrue(catalog.All.All(candidate =>
+                !string.IsNullOrWhiteSpace(candidate.Name) &&
+                !string.IsNullOrWhiteSpace(candidate.Text) &&
+                !candidate.Name.StartsWith("[Missing en-US:") &&
+                !candidate.Text.StartsWith("[Missing en-US:") &&
+                !ContainsChinese(candidate.Name) &&
+                !ContainsChinese(candidate.Text)));
+        }
+
         private static bool ContainsChinese(string value)
         {
             return !string.IsNullOrWhiteSpace(value) && value.Any(character => character >= '\u4e00' && character <= '\u9fff');

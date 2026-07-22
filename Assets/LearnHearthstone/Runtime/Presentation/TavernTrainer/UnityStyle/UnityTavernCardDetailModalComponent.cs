@@ -17,6 +17,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         [SerializeField] private Transform infoParent;
         [SerializeField] private Button closeButton;
         [SerializeField] private Text closeButtonText;
+        private bool useEnglish;
 
         public static GameObject CreateModalHost(Transform parent, string fallbackName)
         {
@@ -54,12 +55,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             closeButtonText = closeLabel;
         }
 
-        public void Build(MinionInstance card, Action close, bool showCardId = true)
+        public void Build(MinionInstance card, Action close, bool showCardId = true, bool useEnglish = false)
         {
+            this.useEnglish = useEnglish;
             ConfigureOverlay(gameObject);
             if (HasPrefabReferences())
             {
-                SetText(titleText, card == null ? "卡牌详情" : card.Name);
+                SetText(titleText, card == null ? T("卡牌详情", "Card Details") : card.Name);
                 UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.Gold, 20);
                 ConfigureChromeFromReferences();
                 ConfigureClose(close);
@@ -123,7 +125,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.childControlHeight = true;
             headerLayout.childForceExpandWidth = false;
 
-            titleText = UiFactory.Label("UnityCardDetailTitle", header.transform, card == null ? "卡牌详情" : card.Name, 20, FontStyle.Bold);
+            titleText = UiFactory.Label("UnityCardDetailTitle", header.transform, card == null ? T("卡牌详情", "Card Details") : card.Name, 20, FontStyle.Bold);
             UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.Gold, 20);
             UnityTavernUiStyle.SetFlexible(titleText.gameObject, 1f, 0f);
             closeButton = CreateCloseButton(header.transform, out closeButtonText);
@@ -179,7 +181,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => close?.Invoke());
             UnityTavernUiStyle.ConfigureButton(closeButton, UnityTavernUiStyle.Brass);
-            SetText(closeButtonText, "关闭");
+            SetText(closeButtonText, T("关闭", "Close"));
             if (closeButtonText != null)
             {
                 closeButtonText.fontSize = Math.Max(14, closeButtonText.fontSize);
@@ -188,7 +190,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private static void BuildCard(Transform parent, MinionInstance card)
+        private void BuildCard(Transform parent, MinionInstance card)
         {
             if (parent == null)
             {
@@ -202,10 +204,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             var cardObject = UnityTavernCardComponent.CreateCardHost(UnityTavernCardMode.Detail, parent, "UnityCardDetailCard");
-            cardObject.GetComponent<UnityTavernCardComponent>().Bind(card, UnityTavernCardMode.Detail, null, null, null);
+            cardObject.GetComponent<UnityTavernCardComponent>().Bind(card, UnityTavernCardMode.Detail, null, null, null, useEnglish: useEnglish);
         }
 
-        private static void BuildInfo(Transform parent, MinionInstance card, bool showCardId)
+        private void BuildInfo(Transform parent, MinionInstance card, bool showCardId)
         {
             if (parent == null)
             {
@@ -216,95 +218,104 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureInfoLayout(parent.gameObject);
             if (card == null)
             {
-                AddLine(parent, "暂未选择卡牌。", 14, FontStyle.Bold, UnityTavernUiStyle.MutedText, 30f);
+                AddLine(parent, T("暂未选择卡牌。", "No card selected."), 14, FontStyle.Bold, UnityTavernUiStyle.MutedText, 30f);
                 return;
             }
 
-            AddLine(parent, "酒馆等级 " + card.TavernTier + "  " + KindText(card), 14, FontStyle.Bold, UnityTavernUiStyle.Gold, 30f);
-            AddLine(parent, card.CardKind == CardKind.TavernSpell ? "消耗 " + Math.Max(0, card.Cost) : TavernNumberFormatter.FullStats(card.Attack, card.Health) + "（上限 " + TavernNumberFormatter.FullNumber(card.MaxHealth) + "）", 14, FontStyle.Bold, UnityTavernUiStyle.Text, 30f);
+            AddLine(parent, T("酒馆等级 ", "Tavern Tier ") + card.TavernTier + "  " + KindText(card), 14, FontStyle.Bold, UnityTavernUiStyle.Gold, 30f);
+            AddLine(parent, card.CardKind == CardKind.TavernSpell
+                ? T("消耗 ", "Cost ") + Math.Max(0, card.Cost)
+                : TavernNumberFormatter.FullStats(card.Attack, card.Health) + T("（上限 ", " (Maximum ") + TavernNumberFormatter.FullNumber(card.MaxHealth) + (useEnglish ? ")" : "）"), 14, FontStyle.Bold, UnityTavernUiStyle.Text, 30f);
 
             var keywords = card.OfficialKeywords != null && card.OfficialKeywords.Count > 0
                 ? card.OfficialKeywords
                 : card.Keywords;
-            AddLine(parent, keywords == null || keywords.Count == 0 ? "关键词：无" : "关键词：" + string.Join("、", keywords.Select(KeywordName).ToArray()), 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 36f);
+            AddLine(parent, keywords == null || keywords.Count == 0
+                ? T("关键词：无", "Keywords: None")
+                : T("关键词：", "Keywords: ") + string.Join(useEnglish ? ", " : "、", keywords.Select(KeywordName).ToArray()), 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 36f);
             if (showCardId)
             {
-                AddLine(parent, "卡牌ID：" + card.CardId, 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 28f);
+                AddLine(parent, T("卡牌ID：", "Card ID: ") + card.CardId, 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 28f);
             }
 
-            var body = AddLine(parent, string.IsNullOrWhiteSpace(card.Text) ? "暂无规则文本。" : card.Text, 14, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
+            var body = AddLine(parent, string.IsNullOrWhiteSpace(card.Text) ? T("暂无规则文本。", "No rules text.") : card.Text, 14, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
             body.alignment = TextAnchor.UpperLeft;
             body.verticalOverflow = VerticalWrapMode.Overflow;
         }
 
-        private static string KindText(MinionInstance card)
+        private string KindText(MinionInstance card)
         {
             if (card.CardKind == CardKind.TavernSpell)
             {
-                return "酒馆法术";
+                return T("酒馆法术", "Tavern Spell");
             }
 
             if (card.Tribes == null || card.Tribes.Count == 0)
             {
-                return "随从";
+                return T("随从", "Minion");
             }
 
             var tribes = card.Tribes.Where(tribe => tribe != Tribe.None).Select(TribeName).ToArray();
-            return tribes.Length == 0 ? "随从" : string.Join("/", tribes);
+            return tribes.Length == 0 ? T("随从", "Minion") : string.Join("/", tribes);
         }
 
-        private static string TribeName(Tribe tribe)
+        private string TribeName(Tribe tribe)
         {
             switch (tribe)
             {
-                case Tribe.Beast: return "野兽";
-                case Tribe.Murloc: return "鱼人";
-                case Tribe.Mech: return "机械";
-                case Tribe.Demon: return "恶魔";
-                case Tribe.Dragon: return "龙";
-                case Tribe.Pirate: return "海盗";
-                case Tribe.Elemental: return "元素";
-                case Tribe.Quilboar: return "野猪人";
-                case Tribe.Undead: return "亡灵";
-                case Tribe.Naga: return "纳迦";
-                case Tribe.All: return "全部";
-                default: return "中立";
+                case Tribe.Beast: return T("野兽", "Beast");
+                case Tribe.Murloc: return T("鱼人", "Murloc");
+                case Tribe.Mech: return T("机械", "Mech");
+                case Tribe.Demon: return T("恶魔", "Demon");
+                case Tribe.Dragon: return T("龙", "Dragon");
+                case Tribe.Pirate: return T("海盗", "Pirate");
+                case Tribe.Elemental: return T("元素", "Elemental");
+                case Tribe.Quilboar: return T("野猪人", "Quilboar");
+                case Tribe.Undead: return T("亡灵", "Undead");
+                case Tribe.Naga: return T("纳迦", "Naga");
+                case Tribe.All: return T("全部", "All");
+                default: return T("中立", "Neutral");
             }
         }
 
-        private static string KeywordName(Keyword keyword)
+        private string KeywordName(Keyword keyword)
         {
             switch (keyword)
             {
-                case Keyword.Taunt: return "嘲讽";
-                case Keyword.DivineShield: return "圣盾";
-                case Keyword.Poisonous: return "剧毒";
-                case Keyword.Venomous: return "烈毒";
-                case Keyword.Reborn: return "复生";
-                case Keyword.Deathrattle: return "亡语";
-                case Keyword.Battlecry: return "战吼";
-                case Keyword.Windfury: return "风怒";
-                case Keyword.Cleave: return "顺劈";
-                case Keyword.Magnetic: return "磁力";
-                case Keyword.Avenge: return "复仇";
-                case Keyword.StartOfCombat: return "战斗开始";
-                case Keyword.EndOfTurn: return "回合结束";
-                case Keyword.Rally: return "集结";
-                case Keyword.Spellcraft: return "塑造法术";
-                case Keyword.Trigger: return "触发";
-                case Keyword.BloodGem: return "鲜血宝石";
-                case Keyword.Discover: return "发现";
-                case Keyword.Refresh: return "刷新";
-                case Keyword.Pass: return "传递";
-                case Keyword.Aura: return "光环";
-                case Keyword.Devour: return "吞噬";
-                case Keyword.TavernSpell: return "酒馆法术";
-                case Keyword.ChooseOne: return "抉择";
-                case Keyword.HiddenDeathrattle: return "隐藏亡语";
-                case Keyword.Stealth: return "潜行";
-                case Keyword.Bounty: return "悬赏";
+                case Keyword.Taunt: return T("嘲讽", "Taunt");
+                case Keyword.DivineShield: return T("圣盾", "Divine Shield");
+                case Keyword.Poisonous: return T("剧毒", "Poisonous");
+                case Keyword.Venomous: return T("烈毒", "Venomous");
+                case Keyword.Reborn: return T("复生", "Reborn");
+                case Keyword.Deathrattle: return T("亡语", "Deathrattle");
+                case Keyword.Battlecry: return T("战吼", "Battlecry");
+                case Keyword.Windfury: return T("风怒", "Windfury");
+                case Keyword.Cleave: return T("顺劈", "Cleave");
+                case Keyword.Magnetic: return T("磁力", "Magnetic");
+                case Keyword.Avenge: return T("复仇", "Avenge");
+                case Keyword.StartOfCombat: return T("战斗开始", "Start of Combat");
+                case Keyword.EndOfTurn: return T("回合结束", "End of Turn");
+                case Keyword.Rally: return T("集结", "Rally");
+                case Keyword.Spellcraft: return T("塑造法术", "Spellcraft");
+                case Keyword.Trigger: return T("触发", "Trigger");
+                case Keyword.BloodGem: return T("鲜血宝石", "Blood Gem");
+                case Keyword.Discover: return T("发现", "Discover");
+                case Keyword.Refresh: return T("刷新", "Refresh");
+                case Keyword.Pass: return T("传递", "Pass");
+                case Keyword.Aura: return T("光环", "Aura");
+                case Keyword.Devour: return T("吞噬", "Devour");
+                case Keyword.TavernSpell: return T("酒馆法术", "Tavern Spell");
+                case Keyword.ChooseOne: return T("抉择", "Choose One");
+                case Keyword.HiddenDeathrattle: return T("隐藏亡语", "Hidden Deathrattle");
+                case Keyword.Stealth: return T("潜行", "Stealth");
+                case Keyword.Bounty: return T("悬赏", "Bounty");
                 default: return keyword.ToString();
             }
+        }
+
+        private string T(string chinese, string english)
+        {
+            return useEnglish ? english : chinese;
         }
 
         private static Text AddLine(Transform parent, string value, int size, FontStyle style, Color color, float height)

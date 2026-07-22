@@ -787,6 +787,7 @@ namespace LearnHearthstone.Domain.Models
         public int Tier;
         public int Gold;
         public int MaxGold;
+        public int PersistentMaxGoldBonus;
         public int UpgradeCost;
         public bool Frozen;
         public int NextTurnBonusGold;
@@ -822,6 +823,7 @@ namespace LearnHearthstone.Domain.Models
         public bool NextCombatLeftmostCopiesNearestEnemyStats;
         public bool NextCombatLeftmostDoubleAttack;
         public bool NextCombatTriggerMixedMechanics;
+        public int CombatTavernSpellExtraCasts;
         public int CombatSummonBonusAttack;
         public int CombatSummonBonusHealth;
         public bool CombatSummonTaunt;
@@ -835,6 +837,11 @@ namespace LearnHearthstone.Domain.Models
         public bool HeroOnyxiaBroodmotherActive;
         public string HeroBrukanElement;
         public bool HeroBrukanElementActive;
+        public bool HeroVanndarStormpikeActive;
+        public bool HeroDrektharActive;
+        public bool HeroTeronGorefiendActive;
+        public string HeroTeronTargetInstanceId;
+        public bool HeroOzumatActive;
         public int QuestFriendlyAttackAura;
         public bool QuestVolatileVenomActive;
         public bool QuestBoomSquadActive;

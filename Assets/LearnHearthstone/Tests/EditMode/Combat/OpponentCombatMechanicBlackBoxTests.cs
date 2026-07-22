@@ -34,6 +34,7 @@ namespace LearnHearthstone.Tests.EditMode
         private const string DrektharHeroPowerCardId = "BG22_HERO_002p";
         private const string TeronHeroPowerCardId = "BG25_HERO_103p";
         private const string OzumatHeroPowerCardId = "BG23_HERO_201p";
+        private const string GreyboughHeroPowerCardId = "TB_BaconShop_HP_107";
         private const string ZerglingCardId = "BG31_HERO_811t2";
         private const string HarmlessBoneheadCardId = "BG28_300";
         private const string ForestRoverCardId = "BG31_801";
@@ -300,6 +301,75 @@ namespace LearnHearthstone.Tests.EditMode
                 frame.TargetId.Contains("BG22_HERO_305t")));
             Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward =>
                 reward.SourceCardId == OnyxiaHeroPowerCardId));
+        }
+
+        [TestCase(VanndarHeroPowerCardId, "vanndar-combat-copy")]
+        [TestCase(DrektharHeroPowerCardId, "drekthar-combat-copy")]
+        [TestCase(OzumatHeroPowerCardId, "ozumat-tentacle")]
+        public void RunCombatTest_OpponentSpaceHeroWaitsUntilCombatCreatesSpace(string heroPowerCardId, string summonedIdFragment)
+        {
+            var service = CreateService();
+            service.State.Round = 7;
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("space-hero-defender", BoardSide.Player, 20, 100));
+            service.State.Opponent.Board.Add(TestMinion("space-hero-fodder", BoardSide.Opponent, 1, 1));
+            service.State.Opponent.Board.Add(TestMinion("space-hero-best", BoardSide.Opponent, 12, 60));
+            for (var index = 0; index < 5; index += 1)
+            {
+                service.State.Opponent.Board.Add(TestMinion("space-hero-fill-" + index, BoardSide.Opponent, 2, 20));
+            }
+
+            service.Apply(new GameCommand(GameCommandType.SetOpponentHeroPower, heroPowerCardId, CardKind.HeroPower));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 4510, SafetyLimit = 1 }));
+
+            Assert.AreEqual(7, service.State.LastReplay.InitialSnapshot.Opponent.Minions.Count, "The Hero Power must not pre-summon onto a full board.");
+            Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.MinionSummoned &&
+                frame.ActorSide == BoardSide.Opponent &&
+                ContainsText(frame.TargetId, summonedIdFragment)),
+                "The Hero Power must summon from the real combat death/space event.");
+        }
+
+        [Test]
+        public void RunCombatTest_OpponentTeronDestroysTargetThroughDeathrattleThenReanimatesExactCopy()
+        {
+            var service = CreateService();
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("teron-defender", BoardSide.Player, 0, 100));
+            service.State.Opponent.Board.Add(TestCardMinion("teron-bonehead", HarmlessBoneheadCardId, BoardSide.Opponent, 4, 5, Tribe.Undead, Keyword.Deathrattle));
+            service.State.Opponent.Board.Add(TestMinion("teron-anchor", BoardSide.Opponent, 1, 40));
+            service.Apply(new GameCommand(GameCommandType.SetOpponentHeroPower, TeronHeroPowerCardId, CardKind.HeroPower));
+            service.Apply(new GameCommand(GameCommandType.SetOpponentHeroPowerTarget, BoardSide.Opponent, 0));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 4511, SafetyLimit = 1 }));
+
+            Assert.IsTrue(service.State.LastResult.OpponentRewards.Any(reward =>
+                reward.Type == CombatRewardType.FriendlyMinionDied && reward.SourceInstanceId == "teron-bonehead"));
+            Assert.AreEqual(2, service.State.LastReplay.Frames.Count(frame =>
+                frame.EventType == CombatEventType.MinionSummoned && ContainsText(frame.TargetId, "skeleton")));
+            var reanimated = service.State.LastResult.FinalOpponentBoard.Single(card => ContainsText(card.InstanceId, "teron-reanimated"));
+            Assert.AreEqual(HarmlessBoneheadCardId, reanimated.CardId);
+            Assert.AreEqual(4, reanimated.Attack);
+            Assert.AreEqual(5, reanimated.MaxHealth);
+        }
+
+        [Test]
+        public void RunCombatTest_OpponentGreyboughBuffsInternalCombatSummons()
+        {
+            var service = CreateService();
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TestMinion("greybough-defender", BoardSide.Player, 20, 100));
+            service.State.Opponent.Board.Add(TestCardMinion("greybough-bonehead", HarmlessBoneheadCardId, BoardSide.Opponent, 1, 1, Tribe.Undead, Keyword.Deathrattle));
+            service.Apply(new GameCommand(GameCommandType.SetOpponentHeroPower, GreyboughHeroPowerCardId, CardKind.HeroPower));
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 4512, SafetyLimit = 1 }));
+
+            var skeletons = service.State.LastResult.FinalOpponentBoard.Where(card => string.Equals(card.CardId, "SKELETON", StringComparison.OrdinalIgnoreCase)).ToList();
+            Assert.AreEqual(2, skeletons.Count);
+            Assert.IsTrue(skeletons.All(card => card.Attack == 2 && card.MaxHealth == 3 && card.Keywords.Contains(Keyword.Taunt)));
         }
 
         [Test]
@@ -1049,30 +1119,29 @@ namespace LearnHearthstone.Tests.EditMode
 
             if (string.Equals(row.CardId, VanndarHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
             {
-                Assert.IsTrue(service.State.LastReplay.InitialSnapshot.Opponent.Minions.Any(minion =>
-                    ContainsText(minion.InstanceId, "opponent-vanndar-combat-copy")));
+                Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+                    frame.EventType == CombatEventType.MinionSummoned && ContainsText(frame.TargetId, "vanndar-combat-copy")));
                 return;
             }
 
             if (string.Equals(row.CardId, DrektharHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
             {
-                Assert.IsTrue(service.State.LastReplay.InitialSnapshot.Opponent.Minions.Any(minion =>
-                    ContainsText(minion.InstanceId, "opponent-drekthar-combat-copy")));
+                Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+                    frame.EventType == CombatEventType.MinionSummoned && ContainsText(frame.TargetId, "drekthar-combat-copy")));
                 return;
             }
 
             if (string.Equals(row.CardId, TeronHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
             {
-                Assert.IsTrue(service.State.LastReplay.InitialSnapshot.Opponent.Minions.Any(minion =>
-                    ContainsText(minion.InstanceId, "teron-reanimated")));
+                Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+                    frame.EventType == CombatEventType.MinionSummoned && ContainsText(frame.TargetId, "teron-reanimated")));
                 return;
             }
 
             if (string.Equals(row.CardId, OzumatHeroPowerCardId, StringComparison.OrdinalIgnoreCase))
             {
-                Assert.IsTrue(service.State.LastReplay.InitialSnapshot.Opponent.Minions.Any(minion =>
-                    string.Equals(minion.CardId, "OZUMAT_TENTACLE", StringComparison.OrdinalIgnoreCase) &&
-                    minion.Keywords.Contains(Keyword.Taunt)));
+                Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+                    frame.EventType == CombatEventType.MinionSummoned && ContainsText(frame.TargetId, "ozumat-tentacle")));
                 return;
             }
 

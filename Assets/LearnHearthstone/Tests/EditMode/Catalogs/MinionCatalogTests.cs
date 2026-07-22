@@ -14,12 +14,43 @@ namespace LearnHearthstone.Tests.EditMode
             var minion = catalog.GetByCardId("BG35_801");
             var brann = catalog.GetByCardId("BG_LOE_077");
 
-            Assert.AreEqual(280, catalog.All.Count);
+            Assert.AreEqual(284, catalog.All.Count);
             Assert.AreEqual("贪吃的穴居人", minion.Name);
             Assert.AreEqual(1, minion.TavernTier);
             Assert.AreEqual(2, minion.BaseAttack);
             Assert.AreEqual(3, minion.BaseHealth);
             CollectionAssert.AreEqual(new[] { Tribe.None }, brann.Tribes);
+        }
+
+        [Test]
+        public void LoadFromResources_EnglishCatalogHasCompleteNormalAndGoldenText()
+        {
+            var chinese = MinionCatalogLoader.LoadFromResources();
+            var english = MinionCatalogLoader.LoadFromResources(true);
+            var trogg = english.GetByCardId("BG35_801");
+
+            Assert.AreEqual(284, english.All.Count);
+            Assert.AreEqual("Gluttonous Trogg", trogg.Name);
+            Assert.IsTrue(trogg.Text.Contains("Once you buy 4 cards"));
+            Assert.IsTrue(english.All.All(definition =>
+                !string.IsNullOrWhiteSpace(definition.Name) &&
+                !string.IsNullOrWhiteSpace(definition.Text) &&
+                definition.Golden != null &&
+                !string.IsNullOrWhiteSpace(definition.Golden.Text) &&
+                !definition.Name.StartsWith("[Missing en-US:") &&
+                !definition.Text.StartsWith("[Missing en-US:") &&
+                !definition.Golden.Text.StartsWith("[Missing en-US:") &&
+                !ContainsChinese(definition.Name) &&
+                !ContainsChinese(definition.Text) &&
+                !ContainsChinese(definition.Golden.Text)));
+
+            var chineseTrogg = chinese.GetByCardId("BG35_801");
+            CollectionAssert.AreEqual(chineseTrogg.Tribes, trogg.Tribes);
+            CollectionAssert.AreEqual(chineseTrogg.Keywords, trogg.Keywords);
+            CollectionAssert.AreEqual(chineseTrogg.EffectIds, trogg.EffectIds);
+            CollectionAssert.AreEqual(chineseTrogg.Tags, trogg.Tags);
+            Assert.AreEqual(chineseTrogg.BaseAttack, trogg.BaseAttack);
+            Assert.AreEqual(chineseTrogg.BaseHealth, trogg.BaseHealth);
         }
 
         [Test]
@@ -69,6 +100,30 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.Contains("spellcraft_generator", catalog.GetByCardId("BG27_004").Tags);
             Assert.Contains("buy_counter", catalog.GetByCardId("BG35_801").Tags);
             Assert.Contains("blood_gem_generator", catalog.GetByCardId("BG20_100").Tags);
+        }
+
+        [Test]
+        public void HeroDerivatives_AreCatalogCardsButNeverNormalPoolCards()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            var derivativeIds = new[]
+            {
+                "TB_BaconShop_HP_105t",
+                "BG21_HERO_030t",
+                "TB_BaconShop_HP_033t",
+                "BG31_HERO_811t"
+            };
+
+            foreach (var cardId in derivativeIds)
+            {
+                var definition = catalog.GetByCardId(cardId);
+                Assert.IsFalse(definition.InPool, cardId);
+                Assert.AreEqual(0, definition.PoolCount, cardId);
+                Assert.Contains("hero_derivative", definition.Tags, cardId);
+                Assert.IsNotNull(definition.Golden, cardId);
+            }
+
+            Assert.IsFalse(catalog.All.Any(card => card.CardId == "BG31_HERO_801pt"));
         }
 
         [Test]
@@ -125,6 +180,11 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsFalse(catalog.TrySyncGoldenText(card));
             Assert.AreEqual("proxy text", card.Text);
+        }
+
+        private static bool ContainsChinese(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) && value.Any(character => character >= '\u4e00' && character <= '\u9fff');
         }
     }
 }

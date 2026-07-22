@@ -92,6 +92,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string SlimyFelbloodCardId = "BG29_873";
         private const string BlackChromawhelpCardId = "BG34_635t";
         private const string BristlingDrummerCardId = "BG34_683";
+        private const string RazorfenFlapperCardId = "BG34_682";
         private const string BoarHerderCardId = "BG33_888";
         private const string GrittyHeadhunterCardId = "BG31_822";
         private const string FirelandsFlameCardId = "BG35_882";
@@ -270,7 +271,9 @@ namespace LearnHearthstone.Domain.Engine
         private const string BloodGolemTokenId = "blood-golem";
         private const string FishOfNzothCardId = "FISH_OF_NZOTH";
         private const string HeroFishOfNzothCardId = "NZOTH_FISH";
-        private const string SneedDeathrattleTierTagPrefix = "sneed_deathrattle_tier:";
+        private const string OfficialFishOfNzothCardId = "TB_BaconShop_HP_105t";
+        private const string SneedShredderCardId = "BG21_HERO_030t";
+        private const string LegacySneedShredderCardId = "SNEED_SHREDDER";
         private const string PilotedWhirlOTronCardId = "BG21_HERO_030_Buddy";
         private const string WanderingTreantCardId = "TB_BaconShop_HERO_95_Buddy";
         private const string VenomstrikeTrapSecretId = "TB_Bacon_Secrets_01";
@@ -307,6 +310,15 @@ namespace LearnHearthstone.Domain.Engine
         private const string BrukanEarthDeathrattleTag = "hero_brukan_earth_deathrattle";
         private const string BrukanSpiritElementTagPrefix = "hero_brukan_spirit:";
         private const string BrukanElementalTokenId = "BG22_HERO_001t";
+        private const string VanndarPowerId = "BG22_HERO_003p";
+        private const string DrektharPowerId = "BG22_HERO_002p";
+        private const string TeronPowerId = "BG25_HERO_103p";
+        private const string TeronTargetTag = "teron_reanimation_target";
+        private const string ShadowyConstructCardId = "BG25_HERO_103_Buddy";
+        private const string ShadowyConstructTriggeredCounter = "shadowy_construct_triggered";
+        private const string OzumatPowerId = "BG23_HERO_201p";
+        private const string OzumatTentacleCardId = "OZUMAT_TENTACLE";
+        private const string OzumatTentacleStatsCounter = "hero:ozumat:tentacle_stats";
         private const string BattlecruiserCardId = "BG31_HERO_801pt";
         private const string ZerglingCardId = "BG31_HERO_811t2";
         private const string BanelingCardId = "BG31_HERO_811t5";
@@ -514,6 +526,8 @@ namespace LearnHearthstone.Domain.Engine
             ResolveTavishDeadeye(context);
             ResolveBrukanElement(context, context.Player, context.Player.Tavern?.HeroBrukanElement);
             ResolveBrukanElement(context, context.Opponent, context.Opponent.Tavern?.HeroBrukanElement);
+            PrepareTeronReanimation(context, context.Player);
+            PrepareTeronReanimation(context, context.Opponent);
             ResolveBattlecruiserStartOfCombat(context, context.Player);
             ResolveBattlecruiserStartOfCombat(context, context.Opponent);
             ResolveZergStartOfCombat(context, context.Player);
@@ -522,6 +536,111 @@ namespace LearnHearthstone.Domain.Engine
             ResolveProtossStartOfCombat(context, context.Opponent);
             ResolveAllDeaths(context, BoardSide.Opponent);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
+        }
+
+        private static void PrepareTeronReanimation(CombatContext context, CombatSideState owner)
+        {
+            var tavern = owner?.Tavern;
+            if (tavern == null || !tavern.HeroTeronGorefiendActive || owner.TeronPrepared)
+            {
+                return;
+            }
+
+            owner.TeronPrepared = true;
+            var target = !string.IsNullOrEmpty(tavern.HeroTeronTargetInstanceId)
+                ? owner.Board.FirstOrDefault(minion => minion.InstanceId == tavern.HeroTeronTargetInstanceId && IsAlive(minion))
+                : owner.Board.FirstOrDefault(minion => IsAlive(minion) && minion.Tags.Contains(TeronTargetTag));
+            if (target == null)
+            {
+                return;
+            }
+
+            owner.PendingTeronCopy = target.Clone();
+            owner.PendingTeronCopy.Tags?.Remove(TeronTargetTag);
+            owner.PendingTeronInsertIndex = owner.Board.FindIndex(minion => minion.InstanceId == target.InstanceId);
+            target.Health = 0;
+            MarkKilledBy(target, TeronPowerId, owner.Side, TeronPowerId);
+            AddLog(context.Log, "HeroStartOfCombat", "Rapid Reanimation destroyed " + target.InstanceId, TeronPowerId, target.InstanceId, LogSeverity.Good);
+            RecordFrame(
+                context,
+                CombatEventType.DeathQueued,
+                "Rapid Reanimation destroyed " + target.InstanceId,
+                owner.Side,
+                TeronPowerId,
+                owner.Side,
+                target.InstanceId,
+                new[] { TeronPowerId, target.InstanceId },
+                null,
+                new[] { target.InstanceId });
+        }
+
+        private static bool ResolveDeferredHeroSpaceEffects(CombatContext context, CombatSideState owner)
+        {
+            var tavern = owner?.Tavern;
+            if (context.IsRecruitPhase || tavern == null || owner.Board.Count >= BoardLimit)
+            {
+                return false;
+            }
+
+            if (owner.PendingTeronCopy != null)
+            {
+                var source = owner.PendingTeronCopy;
+                var summoned = SummonCombatCopy(
+                    context,
+                    owner,
+                    source,
+                    Math.Min(owner.PendingTeronInsertIndex, owner.Board.Count),
+                    TeronPowerId,
+                    "teron-reanimated",
+                    null,
+                    null);
+                if (summoned != null)
+                {
+                    summoned.Tags?.Remove(TeronTargetTag);
+                    owner.PendingTeronCopy = null;
+                    return true;
+                }
+            }
+
+            if (tavern.HeroVanndarStormpikeActive && !owner.VanndarTriggered)
+            {
+                owner.VanndarTriggered = true;
+                var source = owner.Board.Where(IsAlive).OrderByDescending(minion => minion.MaxHealth).ThenBy(minion => minion.InstanceId).FirstOrDefault();
+                return source != null && SummonCombatCopy(context, owner, source, owner.Board.Count, VanndarPowerId, "vanndar-combat-copy", null, null) != null;
+            }
+
+            if (tavern.HeroDrektharActive && !owner.DrektharTriggered)
+            {
+                owner.DrektharTriggered = true;
+                var source = owner.Board.Where(IsAlive).OrderByDescending(minion => minion.Attack).ThenBy(minion => minion.InstanceId).FirstOrDefault();
+                return source != null && SummonCombatCopy(context, owner, source, owner.Board.Count, DrektharPowerId, "drekthar-combat-copy", null, null) != null;
+            }
+
+            if (tavern.HeroOzumatActive && !owner.OzumatTriggered)
+            {
+                owner.OzumatTriggered = true;
+                tavern.HeroEffectCounters.TryGetValue(OzumatTentacleStatsCounter, out var bonus);
+                var tentacle = AddToken(
+                    context,
+                    owner,
+                    null,
+                    owner.Board.Count,
+                    "ozumat-tentacle",
+                    "Tentacle",
+                    2 + Math.Max(0, bonus),
+                    2 + Math.Max(0, bonus),
+                    Tribe.None,
+                    Keyword.Taunt,
+                    false,
+                    OzumatTentacleCardId);
+                if (tentacle != null)
+                {
+                    AddLog(context.Log, "HeroCombatTriggered", "Tentacular summoned " + tentacle.InstanceId, OzumatPowerId, tentacle.InstanceId, LogSeverity.Good);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void ResolveTavishDeadeye(CombatContext context)
@@ -1165,7 +1284,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (tavern.NextCombatLeftmostCopiesNearestEnemyStats)
+            for (var cast = 0; cast < (tavern.NextCombatLeftmostCopiesNearestEnemyStats ? 1 + tavern.CombatTavernSpellExtraCasts : 0); cast += 1)
             {
                 var target = side.Board.FirstOrDefault(IsAlive);
                 var enemy = opponent.Board.FirstOrDefault(IsAlive);
@@ -1175,7 +1294,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (tavern.NextCombatLeftmostDoubleAttack)
+            for (var cast = 0; cast < (tavern.NextCombatLeftmostDoubleAttack ? 1 + tavern.CombatTavernSpellExtraCasts : 0); cast += 1)
             {
                 var target = side.Board.FirstOrDefault(IsAlive);
                 if (target != null)
@@ -1184,7 +1303,7 @@ namespace LearnHearthstone.Domain.Engine
                 }
             }
 
-            if (tavern.NextCombatTriggerMixedMechanics)
+            for (var cast = 0; cast < (tavern.NextCombatTriggerMixedMechanics ? 1 + tavern.CombatTavernSpellExtraCasts : 0); cast += 1)
             {
                 AddReward(context.Log, side, CombatRewardType.AddGeneratedSpellToHand, "127642", ArcaneConsumptionCardId, 1);
                 ImproveUndeadAttackForCombatAndGame(context, side, 2, "127642", null, "Arcane Consumption");
@@ -1850,11 +1969,22 @@ namespace LearnHearthstone.Domain.Engine
         private static void ResolveAllDeaths(CombatContext context, BoardSide firstSide)
         {
             var secondSide = firstSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
-            while (context.Get(firstSide).Board.Any(minion => minion.Health <= 0) ||
-                   context.Get(secondSide).Board.Any(minion => minion.Health <= 0))
+            while (true)
             {
-                ResolveDeaths(context, firstSide);
-                ResolveDeaths(context, secondSide);
+                var hasDeaths = context.Get(firstSide).Board.Any(minion => minion.Health <= 0) ||
+                                context.Get(secondSide).Board.Any(minion => minion.Health <= 0);
+                if (hasDeaths)
+                {
+                    ResolveDeaths(context, firstSide);
+                    ResolveDeaths(context, secondSide);
+                }
+
+                var heroEffectResolved = ResolveDeferredHeroSpaceEffects(context, context.Get(firstSide));
+                heroEffectResolved |= ResolveDeferredHeroSpaceEffects(context, context.Get(secondSide));
+                if (!hasDeaths && !heroEffectResolved)
+                {
+                    break;
+                }
             }
         }
 
@@ -1896,6 +2026,7 @@ namespace LearnHearthstone.Domain.Engine
                 inserted += ResolveDeathSecretTriggers(context, owner, minion, index + inserted, newEntityIds);
                 AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
                 ResolveTavishCrabbyReward(context, owner, minion);
+            ResolveShadowyConstructDeath(owner, minion);
             ResolveTamsinMonstrosityDeath(context, owner, minion);
             ResolveTimewarpedFriendlyDeathTriggers(context, owner, minion);
             ResolveTimewarpedBoarDeath(context, owner, minion);
@@ -2143,6 +2274,31 @@ namespace LearnHearthstone.Domain.Engine
             {
                 BuffMinion(monstrosity, attack, 0, "Monstrosity");
                 AddTargetedReward(context.Log, owner, CombatRewardType.BuffOriginalFriendlyMinion, MonstrosityCardId, monstrosity.InstanceId, 1, attack, 0, deadMinion.InstanceId);
+            }
+        }
+
+        private static void ResolveShadowyConstructDeath(CombatSideState owner, MinionInstance deadMinion)
+        {
+            if (owner == null || deadMinion == null)
+            {
+                return;
+            }
+
+            foreach (var construct in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == ShadowyConstructCardId).ToList())
+            {
+                construct.Counters.TryGetValue(ShadowyConstructTriggeredCounter, out var triggered);
+                if (triggered > 0)
+                {
+                    continue;
+                }
+
+                construct.Counters[ShadowyConstructTriggeredCounter] = 1;
+                var multiplier = construct.Golden ? 2 : 1;
+                BuffMinion(
+                    construct,
+                    StatMath.SaturatingMultiply(Math.Max(0, deadMinion.Attack), multiplier, 0, StatMath.MaxStat),
+                    StatMath.SaturatingMultiply(Math.Max(0, deadMinion.MaxHealth), multiplier, 0, StatMath.MaxStat),
+                    "Shadowy Construct");
             }
         }
 
@@ -2914,6 +3070,7 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case FishOfNzothCardId:
                 case HeroFishOfNzothCardId:
+                case OfficialFishOfNzothCardId:
                     inserted += ResolveFishOfNzothCopiedDeathrattles(context, owner, minion, insertIndex + inserted, newEntityIds);
                     break;
                 case PilotedWhirlOTronCardId:
@@ -3040,6 +3197,9 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case ColdlightDiverCardId:
                     AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, minion.CardId, "104436", minion.Golden ? 2 : 1);
+                    break;
+                case RazorfenFlapperCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, minion.CardId, BloodGemBarrageCardNumber, minion.Golden ? 2 : 1);
                     break;
                 case JuvenileWaveCardId:
                     AddReward(context.Log, owner, CombatRewardType.ImproveRefreshBuff, minion.CardId, null, 1, minion.Golden ? 6 : 3, minion.Golden ? 6 : 3);
@@ -3868,8 +4028,9 @@ namespace LearnHearthstone.Domain.Engine
         {
             return minion != null &&
                    (string.Equals(minion.CardId, FishOfNzothCardId, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(minion.CardId, HeroFishOfNzothCardId, StringComparison.OrdinalIgnoreCase) ||
-                    (minion.Tags != null && minion.Tags.Contains(FishyStickerFishTag)));
+                     string.Equals(minion.CardId, HeroFishOfNzothCardId, StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(minion.CardId, OfficialFishOfNzothCardId, StringComparison.OrdinalIgnoreCase) ||
+                     (minion.Tags != null && minion.Tags.Contains(FishyStickerFishTag)));
         }
 
         private static bool TryTriggerSecret(TavernState tavern, string secretCardId)
@@ -3948,62 +4109,27 @@ namespace LearnHearthstone.Domain.Engine
 
         private static int ResolveSneedSummonDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
         {
-            if (source?.Tags == null)
+            if (!IsSneedShredder(source))
             {
                 return 0;
             }
 
-            var tierTag = source.Tags.FirstOrDefault(tag => tag.StartsWith(SneedDeathrattleTierTagPrefix, StringComparison.Ordinal));
-            if (string.IsNullOrEmpty(tierTag) ||
-                owner.Board.Count >= BoardLimit ||
-                owner.CombatSummonPool.Count == 0)
-            {
-                return 0;
-            }
-
-            var tierText = tierTag.Substring(SneedDeathrattleTierTagPrefix.Length);
-            var tier = int.TryParse(tierText, out var parsed) ? Math.Max(1, parsed) : Math.Max(1, owner.Tavern?.Tier ?? 1);
-            var candidates = owner.CombatSummonPool
-                .Where(card => card.CardKind == CardKind.Minion && card.TavernTier <= tier)
-                .ToList();
-            if (candidates.Count == 0)
-            {
-                candidates = owner.CombatSummonPool.Where(card => card.CardKind == CardKind.Minion).ToList();
-            }
-
-            if (candidates.Count == 0)
-            {
-                return 0;
-            }
-
-            var summoned = new SeededRng(context.Seed + context.Replay.Frames.Count * 997 + owner.Board.Count)
-                .Pick(candidates)
-                .Clone();
-            summoned.InstanceId = "sneed-deathrattle-" + source.InstanceId + "-" + context.Replay.Frames.Count;
-            summoned.Owner = owner.Side;
-            summoned.PoolSource = PoolSource.Summon;
-            summoned.OriginPoolSource = PoolSource.Summon;
-            summoned.PoolCopiesHeld = 0;
-            summoned.CanAttack = true;
-            ApplySummonAuras(owner, summoned);
-            owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), summoned);
-            ResolveFriendlySummonTriggers(context, owner, summoned, source);
-            newEntityIds?.Add(summoned.InstanceId);
-            AddLog(context.Log, "MinionSummoned", "Sneed's Replicator summoned " + summoned.Name, source.InstanceId, summoned.InstanceId, LogSeverity.Good);
-            RecordFrame(
+            return SummonHighestHealthMinionsFromHand(
                 context,
-                CombatEventType.MinionSummoned,
-                "Sneed's Replicator summoned " + summoned.Name,
-                owner.Side,
-                source.InstanceId,
-                owner.Side,
-                summoned.InstanceId,
-                new[] { source.InstanceId, summoned.InstanceId },
-                null,
-                null,
-                new[] { summoned.InstanceId },
-                new[] { source.InstanceId });
-            return 1;
+                owner,
+                source,
+                insertIndex,
+                newEntityIds,
+                source.Golden ? 2 : 1,
+                true);
+        }
+
+        private static bool IsSneedShredder(MinionInstance source)
+        {
+            return source != null &&
+                   (string.Equals(source.CardId, SneedShredderCardId, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(source.CardId, LegacySneedShredderCardId, StringComparison.OrdinalIgnoreCase) ||
+                    source.Tags?.Contains("sneed_shredder") == true);
         }
 
         private static void TriggerLeftmostOtherDeathrattleFromDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source, int insertIndex, List<string> newEntityIds)
@@ -9028,6 +9154,12 @@ namespace LearnHearthstone.Domain.Engine
             public bool BoomControllerTriggered { get; set; }
             public MinionInstance STharaStoredDemon { get; set; }
             public bool STharaTriggered { get; set; }
+            public bool TeronPrepared { get; set; }
+            public MinionInstance PendingTeronCopy { get; set; }
+            public int PendingTeronInsertIndex { get; set; }
+            public bool VanndarTriggered { get; set; }
+            public bool DrektharTriggered { get; set; }
+            public bool OzumatTriggered { get; set; }
         }
 
         private sealed class PersistentCombatTribeBonus

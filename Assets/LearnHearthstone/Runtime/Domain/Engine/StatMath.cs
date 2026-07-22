@@ -120,6 +120,20 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             ApplyStatDelta(target, enchantment.AttackBonus, enchantment.HealthBonus);
+            if (enchantment.AttackBonus > 0 &&
+                target.CardId == "BG21_018" &&
+                !string.Equals(enchantment.SourceId, "Defiant Shipwright", StringComparison.Ordinal))
+            {
+                var shipwrightBonus = new Enchantment
+                {
+                    Id = "Defiant Shipwright",
+                    SourceId = "Defiant Shipwright",
+                    AttackBonus = 0,
+                    HealthBonus = target.Golden ? 2 : 1
+                };
+                target.Enchantments.Add(shipwrightBonus);
+                ApplyStatDelta(target, 0, shipwrightBonus.HealthBonus);
+            }
         }
 
         public static void SetStats(MinionInstance target, int attack, int health, string sourceId)

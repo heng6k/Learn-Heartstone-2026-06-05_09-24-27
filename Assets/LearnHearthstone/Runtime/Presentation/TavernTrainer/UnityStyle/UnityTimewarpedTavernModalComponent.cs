@@ -155,7 +155,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     UnityTavernCardMode.Shop,
                     affordable ? (useEnglish ? "Buy " : "购买 ") + Math.Max(0, offer.Cost) : null,
                     _ => buy?.Invoke(offerIndex),
-                    _ => buy?.Invoke(offerIndex));
+                    _ => buy?.Invoke(offerIndex),
+                    useEnglish: useEnglish);
                 var rect = cardObject.GetComponent<RectTransform>();
                 rect.anchorMin = new Vector2(0.5f, 0.5f);
                 rect.anchorMax = new Vector2(0.5f, 0.5f);

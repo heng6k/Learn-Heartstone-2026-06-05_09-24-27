@@ -180,5 +180,17 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsFalse(minions.All.Any(minion => buddyIds.Contains(minion.CardId)));
         }
+
+        [Test]
+        public void HeroPowerCategories_DistinguishDerivativesRecruitActionsAndCombatEffects()
+        {
+            var catalog = HeroCatalogLoader.LoadFromResources();
+
+            Assert.AreEqual(HeroPowerCategory.Minion, catalog.GetHeroPowerByCardId("TB_BaconShop_HP_105").PrimaryCategory);
+            Assert.AreEqual(HeroPowerCategory.Minion, catalog.GetHeroPowerByCardId("BG31_HERO_005p").PrimaryCategory);
+            Assert.AreEqual(HeroPowerCategory.Discover, catalog.GetHeroPowerByCardId("BG23_HERO_306p").PrimaryCategory);
+            Assert.AreEqual(HeroPowerCategory.Discover, catalog.GetHeroByCardId("TB_BaconShop_HERO_16").HeroPower.PrimaryCategory);
+            Assert.AreEqual(HeroPowerCategory.Combat, catalog.GetHeroPowerByCardId("TB_BaconShop_HP_103").PrimaryCategory);
+        }
     }
 }
