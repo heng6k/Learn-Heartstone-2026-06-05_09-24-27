@@ -2553,6 +2553,14 @@ namespace LearnHearthstone.Application.Services
                 : StandardMaxTavernTier;
         }
 
+        private int CurrentPlayerTavernTier()
+        {
+            var tier = State?.Player?.Tavern?.Tier ?? TavernRules.MinTavernTier;
+            return Math.Min(
+                CurrentMaxTavernTier(),
+                Math.Max(TavernRules.MinTavernTier, tier));
+        }
+
         private bool AllowsCurrentMaxTavernTier(MinionDefinition definition)
         {
             return definition == null || definition.TavernTier <= CurrentMaxTavernTier();
@@ -3928,10 +3936,15 @@ namespace LearnHearthstone.Application.Services
                 TribeAvailabilityRules.IsMinionAvailable(minion, active));
         }
 
-        private IEnumerable<TavernSpellDefinition> AvailableTavernSpells()
+        private IEnumerable<TavernSpellDefinition> AvailableTavernSpells(int maxTier = 0)
         {
             var active = CurrentActiveTribes();
+            var tierCeiling = maxTier > 0
+                ? Math.Min(CurrentMaxTavernTier(), Math.Max(TavernRules.MinTavernTier, maxTier))
+                : CurrentPlayerTavernTier();
             return spellCatalog.All.Where(spell =>
+                spell != null &&
+                spell.TavernTier <= tierCeiling &&
                 cardPoolAvailability.AllowsTavernSpell(spell) &&
                 TribeAvailabilityRules.IsTavernSpellAvailable(spell, active));
         }
@@ -8438,7 +8451,10 @@ namespace LearnHearthstone.Application.Services
             var candidates = SelectSupplyMinionDefinitions(exactTier: TavernRules.MaxTavernTier);
             if (candidates.Count == 0)
             {
-                var highest = SelectSupplyMinionDefinitions().Select(minion => minion.TavernTier).DefaultIfEmpty(1).Max();
+                var highest = SelectSupplyMinionDefinitions(allowAboveCurrentTavernTier: true)
+                    .Select(minion => minion.TavernTier)
+                    .DefaultIfEmpty(1)
+                    .Max();
                 candidates = SelectSupplyMinionDefinitions(exactTier: highest);
             }
 
@@ -8471,8 +8487,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             var rng = new SeededRng(State.Seed + State.Round * 3301 + tavern.RecruitLog.Count);
-            var candidates = AvailableTavernSpells()
-                .Where(spell => spell.TavernTier <= Math.Max(1, maxTier))
+            var candidates = AvailableTavernSpells(maxTier: Math.Max(TavernRules.MinTavernTier, maxTier))
                 .ToList();
             var cast = 0;
             try
@@ -9116,7 +9131,7 @@ namespace LearnHearthstone.Application.Services
             var candidates = SelectSupplyMinionDefinitions(exactTier: rewardTier);
             if (candidates.Count == 0)
             {
-                rewardTier = SelectSupplyMinionDefinitions()
+                rewardTier = SelectSupplyMinionDefinitions(allowAboveCurrentTavernTier: true)
                     .Select(minion => minion.TavernTier)
                     .DefaultIfEmpty(TavernRules.MaxTavernTier)
                     .Max();
@@ -10011,9 +10026,19 @@ namespace LearnHearthstone.Application.Services
             int minTier = 0,
             int maxTier = 0,
             bool excludeDuos = false,
-            Func<MinionDefinition, bool> predicate = null)
+            Func<MinionDefinition, bool> predicate = null,
+            bool allowAboveCurrentTavernTier = false)
         {
-            var maxAvailableTier = CurrentMaxTavernTier();
+            // An omitted tier constraint is an ordinary player-facing random pool.
+            // Explicit tier bounds (or an explicit ANY-tier/closed-pool opt-in) are
+            // allowed to use the match ceiling, while still respecting it.
+            var hasExplicitTierSelection = allowAboveCurrentTavernTier ||
+                exactTier > 0 ||
+                minTier > 0 ||
+                maxTier > 0;
+            var maxAvailableTier = hasExplicitTierSelection
+                ? CurrentMaxTavernTier()
+                : CurrentPlayerTavernTier();
             var candidates = AvailableMinions()
                 .Where(definition => definition.InPool && definition.TavernTier <= maxAvailableTier);
             if (tribe != Tribe.None)
@@ -11479,7 +11504,7 @@ namespace LearnHearthstone.Application.Services
                         AddWhelpSmugglerPortraitMinion(definition.Name);
                         break;
                     case TurbochargedDrillEffectId:
-                        AddRandomDistinctMagneticMechsToHand(5, definition.Name);
+                        AddRandomDistinctMagneticMechsToHand(5, definition.Name, allowAboveCurrentTavernTier: true);
                         break;
                     case HordeKeychainEffectId:
                         ApplyBoardTrinketAuras();
@@ -11854,7 +11879,7 @@ namespace LearnHearthstone.Application.Services
             var tier = TavernRules.MaxTavernTier;
             if (candidates.Count == 0)
             {
-                tier = SelectSupplyMinionDefinitions()
+                tier = SelectSupplyMinionDefinitions(allowAboveCurrentTavernTier: true)
                     .Select(minion => minion.TavernTier)
                     .DefaultIfEmpty(Math.Max(1, State.Player.Tavern.Tier))
                     .Max();
@@ -24259,7 +24284,10 @@ namespace LearnHearthstone.Application.Services
             var rewardTier = 7;
             if (candidates.Count == 0)
             {
-                rewardTier = SelectSupplyMinionDefinitions().Select(minion => minion.TavernTier).DefaultIfEmpty(TavernRules.MaxTavernTier).Max();
+                rewardTier = SelectSupplyMinionDefinitions(allowAboveCurrentTavernTier: true)
+                    .Select(minion => minion.TavernTier)
+                    .DefaultIfEmpty(TavernRules.MaxTavernTier)
+                    .Max();
                 candidates = SelectSupplyMinionDefinitions(exactTier: rewardTier);
             }
 
@@ -25392,7 +25420,7 @@ namespace LearnHearthstone.Application.Services
                 switch (minion.CardId)
                 {
                     case SignatureTimerCardId:
-                        AddRandomTavernSpellToHand(TavernRules.MaxTavernTier, multiplier, "signature-timer");
+                        AddRandomTavernSpellToHand(State.Player.Tavern.Tier, multiplier, "signature-timer");
                         break;
                     case WoodlandDefilerCardId:
                         State.Player.Tavern.DemonFodderRefreshes += 3 * multiplier;
@@ -25724,7 +25752,7 @@ namespace LearnHearthstone.Application.Services
                 switch (minion.CardId)
                 {
                     case "BG28_595":
-                        AddRandomTavernSpellToHand(TavernRules.MaxTavernTier, 2 * multiplier, "firestarter");
+                        AddRandomTavernSpellToHand(State.Player.Tavern.Tier, 2 * multiplier, "firestarter");
                         break;
                     case MoonsteelJuggernautCardId:
                         minion.Counters.TryGetValue("moonsteel_bonus", out var bonus);
@@ -27650,7 +27678,7 @@ namespace LearnHearthstone.Application.Services
                 Kind = GeneratedCardKind.RandomTavernSpell,
                 Count = count,
                 Source = source,
-                Tier = maxTier,
+                Tier = Math.Min(maxTier, CurrentPlayerTavernTier()),
                 UsesTier = true,
                 SeedSalt = 541
             });
@@ -28166,7 +28194,9 @@ namespace LearnHearthstone.Application.Services
 
         private void AddRandomGeneratedTavernSpellsToHand(GeneratedCardRequest request, int count)
         {
-            var candidates = AvailableTavernSpells();
+            var candidates = request.UsesTier
+                ? AvailableTavernSpells(maxTier: Math.Max(1, request.Tier))
+                : AvailableTavernSpells();
             if (request.UsesTier)
             {
                 var tier = Math.Max(1, request.Tier);
@@ -28220,7 +28250,9 @@ namespace LearnHearthstone.Application.Services
 
         private void AddRandomTavernSpellcraftCardsToHand(GeneratedCardRequest request, int count)
         {
-            var candidates = AvailableTavernSpells()
+            var candidates = (request.UsesTier
+                    ? AvailableTavernSpells(maxTier: Math.Max(1, request.Tier))
+                    : AvailableTavernSpells())
                 .Where(spell => spell.Tags != null && spell.Tags.Any(tag => tag.IndexOf("spellcraft", StringComparison.OrdinalIgnoreCase) >= 0))
                 .ToList();
             if (candidates.Count > 0)
@@ -28370,7 +28402,7 @@ namespace LearnHearthstone.Application.Services
 
         private void AddRandomSpellcraftSpellsToHand(int count, string source)
         {
-            AddRandomSpellcraftSpellsToHand(count, source, null);
+            AddRandomSpellcraftSpellsToHand(count, source, CurrentPlayerTavernTier());
         }
 
         private void AddRandomSpellcraftSpellsToHand(int count, string source, int? maxSourceTier)
@@ -29944,12 +29976,13 @@ namespace LearnHearthstone.Application.Services
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
-        private void AddRandomDistinctMagneticMechsToHand(int count, string source)
+        private void AddRandomDistinctMagneticMechsToHand(int count, string source, bool allowAboveCurrentTavernTier = false)
         {
             var rng = new SeededRng(State.Seed + State.Round * 607 + State.Player.Tavern.RecruitLog.Count);
             var candidates = SelectSupplyMinionDefinitions(
                     Tribe.Mech,
-                    predicate: minion => minion.Keywords.Contains(Keyword.Magnetic))
+                    predicate: minion => minion.Keywords.Contains(Keyword.Magnetic),
+                    allowAboveCurrentTavernTier: allowAboveCurrentTavernTier)
                 .GroupBy(minion => minion.CardId, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First())
                 .ToList();
@@ -29982,7 +30015,9 @@ namespace LearnHearthstone.Application.Services
         {
             var rng = new SeededRng(State.Seed + State.Round * 607 + State.Player.Tavern.RecruitLog.Count);
             var ids = new[] { BlueChromawhelpCardId, BlackChromawhelpCardId, GreenChromawhelpCardId, BronzeChromawhelpCardId, RedChromawhelpCardId };
-            var candidates = SelectSupplyMinionDefinitions(predicate: minion => ids.Contains(minion.CardId));
+            var candidates = SelectSupplyMinionDefinitions(
+                predicate: minion => ids.Contains(minion.CardId),
+                allowAboveCurrentTavernTier: true);
             return AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
@@ -30277,10 +30312,12 @@ namespace LearnHearthstone.Application.Services
             Func<MinionDefinition, bool> normalPredicate,
             Func<HeroBuddyDefinition, bool> buddyPredicate)
         {
+            var currentTier = CurrentPlayerTavernTier();
             var pool = new MinionPool(CurrentPoolMinionDefinitions(), State.Player.Tavern.Pool, CurrentActiveTribes(), AllowsCurrentPoolMinion, CurrentPoolCapacities());
             var normalCandidates = CurrentPoolMinionDefinitions()
                 .Where(definition =>
                     definition.InPool &&
+                    definition.TavernTier <= currentTier &&
                     pool.Remaining(definition.Id) > 0 &&
                     (normalPredicate == null || normalPredicate(definition)))
                 .ToList();
@@ -30288,6 +30325,7 @@ namespace LearnHearthstone.Application.Services
             var buddyPool = CurrentBuddyPoolSnapshot();
             var buddyCandidates = DiscoverableBuddyDefinitions()
                 .Where(buddy =>
+                    buddy.TavernTier <= currentTier &&
                     buddyPool.TryGetValue(buddy.CardId, out var remaining) &&
                     remaining > 0 &&
                     AreCardTribesAvailable(buddy.Tribes, activeTribes) &&
@@ -32053,7 +32091,7 @@ namespace LearnHearthstone.Application.Services
         private TavernSpellDefinition DrawTavernSpell(int tier, SeededRng rng, int minimumTier = TavernRules.MinTavernTier)
         {
             var minTier = Math.Max(TavernRules.MinTavernTier, minimumTier);
-            var candidates = AvailableTavernSpells()
+            var candidates = AvailableTavernSpells(maxTier: tier)
                 .Where(spell => spell.TavernTier >= minTier && spell.TavernTier <= tier)
                 .ToList();
             return candidates.Count == 0 ? null : rng.Pick(candidates);

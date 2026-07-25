@@ -2031,8 +2031,14 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 13, SafetyLimit = 8 }));
 
-            Assert.GreaterOrEqual(service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell), 2);
+            var tavernSpells = service.State.Player.Tavern.Hand
+                .Where(card => card.CardKind == CardKind.TavernSpell)
+                .ToList();
+            Assert.IsNotEmpty(tavernSpells);
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.Tags.Any(tag => tag.ToLowerInvariant().Contains("spellcraft"))));
+            Assert.That(
+                tavernSpells.Select(card => card.TavernTier),
+                Is.All.LessThanOrEqualTo(service.State.Player.Tavern.Tier));
         }
 
         [Test]

@@ -3475,7 +3475,9 @@ namespace LearnHearthstone.Domain.Engine
             if (candidates.Count < 3)
             {
                 candidates = context.Minions.All
-                    .Where(minion => minion.InPool && minion.Tribes.Any(tribe => fedTribes.Contains(tribe)))
+                    .Where(minion => minion.InPool &&
+                                     minion.TavernTier <= Math.Max(1, tavern.Tier) &&
+                                     minion.Tribes.Any(tribe => fedTribes.Contains(tribe)))
                     .ToList();
             }
 

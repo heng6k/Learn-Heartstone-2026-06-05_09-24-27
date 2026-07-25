@@ -1245,8 +1245,14 @@ namespace LearnHearthstone.Domain.Engine
                 return 0;
             }
 
+            var currentTier = Math.Max(TavernRules.MinTavernTier, state.Player.Tavern.Tier);
             var candidates = spells.All
-                .Where(spell => spell.InPool && spell.Category == "TavernSpell" && (predicate == null || predicate(spell)))
+                .Where(spell =>
+                    spell != null &&
+                    spell.InPool &&
+                    spell.Category == "TavernSpell" &&
+                    spell.TavernTier <= currentTier &&
+                    (predicate == null || predicate(spell)))
                 .ToList();
             if (candidates.Count == 0)
             {
@@ -1324,7 +1330,10 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var candidates = catalog.All
-                .Where(minion => minion.InPool && MatchesTribe(minion, tribe))
+                .Where(minion =>
+                    minion.InPool &&
+                    minion.TavernTier <= Math.Max(TavernRules.MinTavernTier, state.Player.Tavern.Tier) &&
+                    MatchesTribe(minion, tribe))
                 .ToList();
             if (candidates.Count == 0)
             {
@@ -1803,7 +1812,10 @@ namespace LearnHearthstone.Domain.Engine
         private static void StartTribeDiscoverWithTag(MatchState state, MinionCatalog catalog, SeededRng rng, Tribe tribe, string source, string tag)
         {
             var candidates = catalog.All
-                .Where(minion => minion.InPool && MatchesTribe(minion, tribe))
+                .Where(minion =>
+                    minion.InPool &&
+                    minion.TavernTier <= Math.Max(TavernRules.MinTavernTier, state.Player.Tavern.Tier) &&
+                    MatchesTribe(minion, tribe))
                 .ToList();
             var options = new List<MinionInstance>();
             while (options.Count < 3 && candidates.Count > 0)
@@ -2279,7 +2291,11 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var candidates = catalog.All
-                .Where(minion => minion.InPool && minion.CardId != target.CardId && MatchesAnyTribe(minion, tribes))
+                .Where(minion =>
+                    minion.InPool &&
+                    minion.TavernTier <= Math.Max(TavernRules.MinTavernTier, state.Player.Tavern.Tier) &&
+                    minion.CardId != target.CardId &&
+                    MatchesAnyTribe(minion, tribes))
                 .ToList();
             if (candidates.Count == 0)
             {
