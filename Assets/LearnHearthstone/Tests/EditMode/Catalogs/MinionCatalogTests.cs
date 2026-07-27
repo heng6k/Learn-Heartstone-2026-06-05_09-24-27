@@ -103,6 +103,19 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void InPoolMinions_UseCurrentTierCopyCounts()
+        {
+            var expectedByTier = new[] { 0, 15, 15, 13, 11, 9, 7, 5 };
+            var catalog = MinionCatalogLoader.LoadFromResources();
+
+            foreach (var definition in catalog.All.Where(definition => definition.InPool))
+            {
+                Assert.That(definition.TavernTier, Is.InRange(1, 7), definition.CardId);
+                Assert.AreEqual(expectedByTier[definition.TavernTier], definition.PoolCount, definition.CardId);
+            }
+        }
+
+        [Test]
         public void HeroDerivatives_AreCatalogCardsButNeverNormalPoolCards()
         {
             var catalog = MinionCatalogLoader.LoadFromResources();

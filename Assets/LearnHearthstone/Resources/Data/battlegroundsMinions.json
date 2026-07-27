@@ -205,7 +205,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Gluttonous Trogg",
       "englishText": "Once you buy 4 cards,\ngain +4/+4. <i>(4 left!)</i>"
@@ -281,7 +281,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "effectIds": [
         "combat_reborn_self"
       ],
@@ -322,7 +322,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "effectIds": [
         "deathrattle_summon_token_1"
       ],
@@ -362,7 +362,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Rot Hide Gnoll",
       "englishText": "Has +1 Attack for each friendly minion that died this combat."
@@ -399,7 +399,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "effectIds": [
         "deathrattle_summon_beetle_2_2"
       ],
@@ -447,7 +447,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "effectIds": [
         "future_shop_typed_buff_1_1"
       ],
@@ -489,7 +489,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "DivineShield",
         "Windfury"
@@ -527,7 +527,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Wrath Weaver",
       "englishText": "After you play a Demon, deal 1 damage to your hero and gain +2/+1."
@@ -564,7 +564,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -604,7 +604,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -643,7 +643,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "DivineShield"
@@ -683,7 +683,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "effectIds": [
         "summon_token_microbot"
       ],
@@ -724,7 +724,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -763,7 +763,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "DivineShield",
         "Battlecry"
@@ -806,7 +806,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Deathrattle",
         "Spellcraft"
@@ -880,7 +880,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry",
         "BloodGem"
@@ -918,7 +918,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -957,7 +957,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Flighty Scout",
       "englishText": "<b>Start of Combat:</b> If this\nminion is in your hand,\nsummon a copy of it."
@@ -988,7 +988,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "River Skipper",
       "englishText": "When you sell this, get a random Tier 1 minion."
@@ -1023,7 +1023,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -1062,7 +1062,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Upbeat Frontdrake",
       "englishText": "At the end of every 3 turns,\nget a random Dragon.\n<i>(3 turns left!)</i>"
@@ -1097,7 +1097,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -1136,7 +1136,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Intrepid Botanist",
       "englishText": "<b>Choose One -</b> Your Tavern\nspells give an extra\n+1 Attack this game;\nor +1 Health."
@@ -1171,7 +1171,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -1210,7 +1210,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Discover"
       ],
@@ -1249,7 +1249,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "Battlecry"
@@ -1289,7 +1289,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Pass"
       ],
@@ -1330,7 +1330,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "BloodGem"
@@ -1364,7 +1364,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Old Soul",
       "englishText": "After 15 friendly minions die while this is in your hand, make this Golden. <i>(15 left!)</i>"
@@ -1399,7 +1399,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -1438,7 +1438,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Eternal Knight",
       "englishText": "Has +4/+2 for each friendly\nEternal Knight that died this\n  game <i>(wherever this is)</i>."
@@ -1475,7 +1475,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Deathrattle",
         "Reborn"
@@ -1509,7 +1509,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Snow Baller",
       "englishText": "When you sell this, give\nyour minions +1 Health.\nImprove your future\nBallers."
@@ -1540,7 +1540,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Sellemental",
       "englishText": "When you sell this,\nget a 3/3 Elemental."
@@ -1571,7 +1571,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Fire Baller",
       "englishText": "When you sell this, give\nyour minions +1 Attack.\nImprove your future\nBallers."
@@ -1606,7 +1606,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Gathering Stormer",
       "englishText": "When you sell this, your\nteammate gains 1 Gold.\n<i>(Improves each turn!)</i>"
@@ -1643,7 +1643,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry",
         "Refresh"
@@ -1681,7 +1681,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Soul Rewinder",
       "englishText": "After your hero takes damage, rewind it and give this +1 Health."
@@ -1716,7 +1716,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Ancestral Automaton",
       "englishText": "Has +3/+2 for each other\nAncestral Automaton you've\nsummoned this game\n<i>(wherever this is)</i>."
@@ -1755,7 +1755,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -1793,7 +1793,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -1830,7 +1830,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Surfing Sylvar",
       "englishText": "At the end of your turn, give\nadjacent minions +1 Attack.\nRepeat for each friendly\nGolden minion."
@@ -1865,7 +1865,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Defiant Shipwright",
       "englishText": "Whenever this gains\nAttack from other sources,\ngain +1 Health."
@@ -1896,7 +1896,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Freedealing Gambler",
       "englishText": "This minion sells for\n3 Gold."
@@ -1933,7 +1933,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -1972,7 +1972,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -2009,7 +2009,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -2048,7 +2048,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -2088,7 +2088,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Humming Bird",
       "englishText": "<b>Start of Combat:</b> For the rest of this combat, your Beasts have +1 Attack."
@@ -2125,7 +2125,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -2167,7 +2167,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "Deathrattle",
@@ -2210,7 +2210,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt",
         "Deathrattle",
@@ -2251,7 +2251,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Deathrattle",
         "BloodGem"
@@ -2285,7 +2285,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Tad",
       "englishText": "When you sell this,\nget a random Murloc."
@@ -2322,7 +2322,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Taunt"
       ],
@@ -2359,7 +2359,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Rally"
       ],
@@ -2396,7 +2396,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [],
       "englishName": "Tarecgosa",
       "englishText": "This permanently keeps <b><b>Bonus Keyword</b>s</b> and stats gained in combat."
@@ -2431,7 +2431,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 15,
       "officialKeywords": [
         "Rally"
       ],
@@ -2468,7 +2468,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -2505,7 +2505,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -2542,7 +2542,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Venomous"
       ],
@@ -2579,7 +2579,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Rally"
       ],
@@ -2618,7 +2618,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle",
         "Reborn"
@@ -2658,7 +2658,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle",
         "Reborn"
@@ -2696,7 +2696,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -2735,7 +2735,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle",
         "Refresh"
@@ -2773,7 +2773,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -2810,7 +2810,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Wildfire Elemental",
       "englishText": "After this attacks and\nkills a minion, deal\nexcess damage to an adjacent minion."
@@ -2846,7 +2846,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -2884,7 +2884,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -2923,7 +2923,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Pass"
       ],
@@ -2962,7 +2962,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Refresh"
       ],
@@ -3001,7 +3001,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -3042,7 +3042,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "DivineShield",
@@ -3083,7 +3083,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -3120,7 +3120,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Peggy Sturdybone",
       "englishText": "Whenever a card is added to\nyour hand, give another\nfriendly Pirate +2/+1."
@@ -3157,7 +3157,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "Bounty"
@@ -3195,7 +3195,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Plunder Pal",
       "englishText": "At the start of your turn, you and your teammate each gain 1 Gold."
@@ -3230,7 +3230,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -3267,7 +3267,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Gunpowder Courier",
       "englishText": "Whenever you spend 6 Gold,\ngive your Pirates +2 Attack.\n<i>(6 Gold left!)</i>"
@@ -3304,7 +3304,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -3345,7 +3345,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "Spellcraft"
@@ -3385,7 +3385,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt"
       ],
@@ -3426,7 +3426,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Reborn"
       ],
@@ -3463,7 +3463,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -3502,7 +3502,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle",
         "BloodGem"
@@ -3544,7 +3544,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "BloodGem"
@@ -3584,7 +3584,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "BloodGem"
@@ -3624,7 +3624,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "BloodGem"
@@ -3666,7 +3666,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "Deathrattle",
@@ -3708,7 +3708,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Venomous"
       ],
@@ -3749,7 +3749,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -3787,7 +3787,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -3824,7 +3824,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Bottom Feeder",
       "englishText": "At the end of your turn,\nyou and your teammate\neach get a random\nTier 1 card."
@@ -3861,7 +3861,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Pass"
       ],
@@ -3898,7 +3898,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -3935,7 +3935,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -3972,7 +3972,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Roaring Recruiter",
       "englishText": "Whenever another friendly Dragon attacks, give it +3/+1."
@@ -4007,7 +4007,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Doting Dracthyr",
       "englishText": "At the end of your turn, give your teammate's minions +1 Attack."
@@ -4048,7 +4048,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Taunt",
         "DivineShield"
@@ -4088,7 +4088,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "TavernSpell"
@@ -4126,7 +4126,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "TavernSpell"
@@ -4166,7 +4166,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "TavernSpell"
@@ -4204,7 +4204,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "TavernSpell"
@@ -4244,7 +4244,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [
         "Battlecry",
         "TavernSpell"
@@ -4285,7 +4285,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 13,
       "officialKeywords": [],
       "englishName": "Timecap'n Hooktail",
       "englishText": "Whenever you cast a\nTavern spell, give your\nminions +1 Attack."
@@ -4322,7 +4322,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -4360,7 +4360,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Egg of the Endtimes",
       "englishText": "After this is in your hand for\n2 |4 (turn, turns), choose a Tier 6\nDragon to hatch into.\n<i>(2 turns left!)</i>"
@@ -4399,7 +4399,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -4438,7 +4438,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Stealth",
         "Rally"
@@ -4472,7 +4472,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Tortollan Blue Shell",
       "englishText": "If you lost your last combat, this minion sells for 5 Gold."
@@ -4515,7 +4515,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "DivineShield",
@@ -4563,7 +4563,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "DivineShield",
@@ -4606,7 +4606,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -4643,7 +4643,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Avenge"
       ],
@@ -4680,7 +4680,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -4719,7 +4719,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "San'layn Scribe",
       "englishText": "Has +4/+4 for each of your team's San'layn Scribes that died this game <i>(wherever this is)</i>."
@@ -4757,7 +4757,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Magnetic",
         "Reborn"
@@ -4797,7 +4797,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Refresh"
@@ -4835,7 +4835,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -4874,7 +4874,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle",
         "Refresh"
@@ -4914,7 +4914,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Refresh"
@@ -4952,7 +4952,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -4991,7 +4991,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -5032,7 +5032,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Flaming Enforcer",
       "englishText": "At the end of your turn,\nconsume the highest-Health\nminion in the Tavern to\ngain its stats."
@@ -5071,7 +5071,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Discover",
         "Pass"
@@ -5111,7 +5111,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Discover"
@@ -5151,7 +5151,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Refresh"
       ],
@@ -5190,7 +5190,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -5228,7 +5228,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Devout Hellcaller",
       "englishText": "After another friendly Demon deals damage, gain +1/+2 permanently."
@@ -5267,7 +5267,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Discover",
@@ -5308,7 +5308,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Marquee Ticker",
       "englishText": "At the end of your turn, get\na random Tavern spell."
@@ -5345,7 +5345,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Magnetic",
         "Rally"
@@ -5385,7 +5385,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle",
         "Magnetic"
@@ -5427,7 +5427,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -5460,7 +5460,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Blade Collector",
       "englishText": "Also damages the minions next to whomever\nthis attacks."
@@ -5495,7 +5495,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Dual-Wield Corsair",
       "englishText": "Whenever you spend 5 Gold,\ngive two friendly Pirates\n+3/+4. <i>(5 Gold left!)</i>"
@@ -5532,7 +5532,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -5569,7 +5569,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -5606,7 +5606,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Rally",
         "Bounty"
@@ -5644,7 +5644,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Rally"
       ],
@@ -5685,7 +5685,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -5726,7 +5726,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -5765,7 +5765,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -5806,7 +5806,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Spellcraft",
         "Pass"
@@ -5848,7 +5848,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -5887,7 +5887,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Refresh"
       ],
@@ -5926,7 +5926,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle",
         "Rally"
@@ -5964,7 +5964,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -6003,7 +6003,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Discover"
@@ -6045,7 +6045,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "Battlecry",
@@ -6084,7 +6084,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Trigore the Lasher",
       "englishText": "Whenever another friendly\nBeast takes damage, gain\n+2 Health permanently."
@@ -6119,7 +6119,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Banana Slamma",
       "englishText": "After you summon a\nBeast in combat,\ndouble its Attack."
@@ -6156,7 +6156,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Deathrattle",
         "BloodGem"
@@ -6198,7 +6198,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "DivineShield",
         "BloodGem"
@@ -6238,7 +6238,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -6277,7 +6277,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "BloodGem",
         "Avenge"
@@ -6319,7 +6319,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "BloodGem",
         "Reborn"
@@ -6359,7 +6359,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Diremuck Forager",
       "englishText": "<b>Start of Combat:</b> When you have space, summon the highest-Attack Murloc from your hand\nfor this combat only."
@@ -6394,7 +6394,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -6433,7 +6433,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -6467,7 +6467,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Bream Counter",
       "englishText": "While this is in your hand, after you play a Murloc, gain +6/+6."
@@ -6502,7 +6502,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Avenge",
         "TavernSpell"
@@ -6542,7 +6542,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -6581,7 +6581,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -6621,7 +6621,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 11,
       "officialKeywords": [],
       "englishName": "Prized Promo-Drake",
       "englishText": "<b>Start of Combat:</b> Give your Dragons +4/+4."
@@ -6656,7 +6656,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Nomi, Kitchen Nightmare",
       "englishText": "After you play an Elemental,\ngive Elementals in the\nTavern +4/+4 this game."
@@ -6695,7 +6695,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Spellcraft",
         "Pass"
@@ -6733,7 +6733,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Mooneater's Champion",
       "englishText": "After you play an odd-Tier card, give your odd-Tier minions +1/+1."
@@ -6768,7 +6768,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -6807,7 +6807,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -6848,7 +6848,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "DivineShield",
         "Battlecry",
@@ -6889,7 +6889,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -6928,7 +6928,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Nalaa the Redeemer",
       "englishText": "Whenever you cast a Tavern\nspell, give a friendly minion\nof each type +4/+3."
@@ -6965,7 +6965,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Cataclysmic Harbinger",
       "englishText": "At the end of your turn,\nget a copy of the last\nTavern spell you cast."
@@ -7004,7 +7004,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Discover"
@@ -7042,7 +7042,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -7081,7 +7081,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Upbeat Duo",
       "englishText": "At the end of every 2 turns,\nget a plain copy of\nthe minion to the left of this.\n<i>(2 turns left!)</i>"
@@ -7118,7 +7118,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -7156,7 +7156,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Drakkari Enchanter",
       "englishText": "Your end of turn effects trigger twice."
@@ -7191,7 +7191,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -7228,7 +7228,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Catacomb Crasher",
       "englishText": "Whenever you would summon\na minion that doesn't fit in your\nwarband, give your minions\n+2/+2 permanently."
@@ -7263,7 +7263,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Archlich Kel'Thuzad",
       "englishText": "At the end of your turn,\ndestroy the Undead to the\nleft of this and resummon\nan exact copy."
@@ -7298,7 +7298,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Avenge"
       ],
@@ -7335,7 +7335,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Avenge"
       ],
@@ -7374,7 +7374,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Avenge"
       ],
@@ -7413,7 +7413,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -7451,7 +7451,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -7488,7 +7488,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Air Revenant",
       "englishText": "After you spend 7 Gold, cast Easterly Winds.\n<i>(7 left!)</i>"
@@ -7525,7 +7525,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle"
@@ -7563,7 +7563,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -7602,7 +7602,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -7640,7 +7640,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Ashen Corruptor",
       "englishText": "After your hero takes\ndamage, rewind it and\ngive minions in the Tavern\n+1/+1 this turn."
@@ -7675,7 +7675,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -7714,7 +7714,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Famished Felbat",
       "englishText": "At the end of your turn, your Demons each consume a minion in the Tavern to gain its stats."
@@ -7752,7 +7752,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Felboar",
       "englishText": "After you cast 3 spells,\nconsume a minion in the\nTavern to gain its stats.\n<i>(3 left!)</i>"
@@ -7790,7 +7790,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Felfire Conjurer",
       "englishText": "At the end of your turn,\nyour Tavern spells give\nan extra +1/+1\nthis game."
@@ -7827,7 +7827,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -7866,7 +7866,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle",
         "Magnetic"
@@ -7906,7 +7906,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle",
         "Magnetic"
@@ -7986,7 +7986,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -8023,7 +8023,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Brazen Buccaneer",
       "englishText": "At the end of your turn, give\nyour left-most Pirate +2/+3.\nRepeat for each card you\nplayed this turn. <i>(0)</i>"
@@ -8060,7 +8060,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle",
@@ -8099,7 +8099,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Bounty"
       ],
@@ -8138,7 +8138,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Maelstrom Emergent",
       "englishText": "Your Tavern spells cast an extra time in combat."
@@ -8177,7 +8177,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -8258,7 +8258,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Taunt",
         "DivineShield",
@@ -8301,7 +8301,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Pass"
       ],
@@ -8340,7 +8340,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Taunt",
         "Deathrattle"
@@ -8378,7 +8378,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -8419,7 +8419,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Taunt",
         "Deathrattle",
@@ -8458,7 +8458,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Lurking Leviathan",
       "englishText": "Whenever you summon a Beast, give it +2 Attack and improve this permanently."
@@ -8493,7 +8493,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Iridescent Skyblazer",
       "englishText": "Whenever a friendly Beast\ntakes damage, give a\nfriendly Beast other than it\n+3/+2 permanently."
@@ -8528,7 +8528,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -8567,7 +8567,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Deathrattle",
         "BloodGem"
@@ -8607,7 +8607,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -8646,7 +8646,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -8683,7 +8683,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Cousin Errgl",
       "englishText": "At the end of your turn,\nget a Mama Mrrglton or a\nPapa Mrrglton."
@@ -8720,7 +8720,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Venomous",
         "Rally"
@@ -8762,7 +8762,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Tidecaller Prophet",
       "englishText": "Your Tavern spells give an\nextra +1/+1. After you\nplay 2 Murlocs, improve for\n   this turn only. <i>(2 left!)</i>"
@@ -8799,7 +8799,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Discover"
@@ -8837,7 +8837,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [],
       "englishName": "Mrglin' Burglar",
       "englishText": "After you play a Murloc,\ngive a friendly minion and\na minion in your hand\n+5/+5."
@@ -8874,7 +8874,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -8911,7 +8911,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -8950,7 +8950,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 9,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle",
@@ -8989,7 +8989,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Balinda Stonehearth",
       "englishText": "Your spells that target\nfriendly minions cast\ntwice."
@@ -9024,7 +9024,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Greymane's Champion",
       "englishText": "After you play an even-Tier card, give your even-Tier minions +2/+2."
@@ -9061,7 +9061,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Deathrattle",
         "Reborn"
@@ -9101,7 +9101,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Deathrattle",
         "Avenge"
@@ -9141,7 +9141,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Forsaken Weaver",
       "englishText": "After you cast a Tavern\nspell, your Undead have\n+2 Attack this game\n<i>(wherever they are)</i>."
@@ -9177,7 +9177,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Rally"
       ],
@@ -9214,7 +9214,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "DivineShield"
       ],
@@ -9251,7 +9251,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Unleashed Mana Surge",
       "englishText": "After you play an Elemental, give your Elementals +4/+4."
@@ -9286,7 +9286,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Lord of the Ruins",
       "englishText": "After a friendly Demon deals damage, give friendly minions other than it +2/+1."
@@ -9323,7 +9323,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Refresh"
       ],
@@ -9362,7 +9362,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Consummate Conqueror",
       "englishText": "Whenever a minion is consumed, give minions in the Tavern +1/+1 this turn."
@@ -9397,7 +9397,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Dark Dazzler",
       "englishText": "After your teammate sells\na minion, gain its stats.\n<i>(Once per turn.)</i>"
@@ -9436,7 +9436,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "DivineShield",
         "Deathrattle"
@@ -9476,7 +9476,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -9515,7 +9515,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -9556,7 +9556,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Magnetic",
         "Pass"
@@ -9594,7 +9594,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Dastardly Drust",
       "englishText": "Whenever you get a Pirate,\ngive your minions +2/+2.\nGive Golden ones\n+6/+6 instead."
@@ -9629,7 +9629,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Bounty"
       ],
@@ -9666,7 +9666,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Spacefarer",
       "englishText": "Whenever another friendly Pirate gains Attack, gain +2 Health."
@@ -9701,7 +9701,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Rally"
       ],
@@ -9738,7 +9738,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Wrathscale Rogue",
       "englishText": "After another friendly Naga gains Health, give it that much Attack."
@@ -9777,7 +9777,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle",
@@ -9816,7 +9816,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Sundered Matriarch",
       "englishText": "Whenever you cast a spell,\ngive your minions\n+3 Health."
@@ -9851,7 +9851,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Groundbreaker",
       "englishText": "After you play a Naga, gain\n+1/+1. <i>(Improved by\nevery 4 spells you've cast\nthis game!)</i>"
@@ -9887,7 +9887,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Ring Bearer",
       "englishText": "Whenever a friendly minion\nattacks, cast Shiny Ring."
@@ -9922,7 +9922,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -9959,7 +9959,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -9996,7 +9996,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Rabid Panther",
       "englishText": "After you play a Beast, give\nyour Beasts +3/+3 and\n   deal 1 damage to them."
@@ -10033,7 +10033,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "BloodGem",
         "Avenge"
@@ -10075,7 +10075,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Windfury",
         "BloodGem"
@@ -10115,7 +10115,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -10156,7 +10156,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Deathrattle",
         "BloodGem"
@@ -10194,7 +10194,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Primitive Painter",
       "englishText": "After you play a card from Tier 3 or below, give your Murlocs +2/+2."
@@ -10231,7 +10231,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Choral Mrrrglr",
       "englishText": "<b>Start of Combat:</b> Gain\nthe stats of all the\nminions in your hand."
@@ -10268,7 +10268,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "effectIds": [
         "tavern_spell_cast_buff_self_1_1"
       ],
@@ -10310,7 +10310,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "effectIds": [
         "tavern_spell_cast_buff_self_1_1"
       ],
@@ -10350,7 +10350,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [],
       "englishName": "Ignition Specialist",
       "englishText": "At the end of your turn, get\n2 random Tavern spells."
@@ -10385,7 +10385,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 7,
       "officialKeywords": [
         "Rally"
       ],
@@ -10424,7 +10424,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [],
       "englishName": "Sandy",
       "englishText": "<b>Start of Combat:</b>\nTransform into a copy of\nyour teammate's highest-\nHealth minion."
@@ -10463,7 +10463,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Battlecry",
         "Deathrattle",
@@ -10506,7 +10506,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Deathrattle"
       ],
@@ -10543,7 +10543,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "effectIds": [
         "card_bought_buff_self_1_1"
       ],
@@ -10581,7 +10581,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Rally"
       ],
@@ -10620,7 +10620,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "effectIds": [
         "deathrattle_buff_random_friendly_2_2"
       ],
@@ -10661,7 +10661,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Magnetic"
       ],
@@ -10698,7 +10698,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Battlecry"
       ],
@@ -10737,7 +10737,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Spellcraft"
       ],
@@ -10774,7 +10774,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [],
       "englishName": "Stalwart Kodo",
       "englishText": "After you summon a minion\nin combat, give it this\nminion's maximum stats.\n<i>(3 times per combat.)</i>"
@@ -10813,7 +10813,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "effectIds": [
         "deathrattle_buff_random_friendly_2_2"
       ],
@@ -10855,7 +10855,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "effectIds": [
         "turn_ended_self_buff_1_1"
       ],
@@ -10893,7 +10893,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 12,
+      "poolCount": 5,
       "officialKeywords": [
         "Rally"
       ],
