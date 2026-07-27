@@ -365,7 +365,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
                 case Keyword.Windfury: return "风怒";
                 case Keyword.Magnetic: return "磁力";
                 case Keyword.Stealth: return "潜行";
-                case Keyword.Bounty: return "Bounty";
+                case Keyword.Bounty: return "悬赏";
                 default: return keyword.ToString();
             }
         }

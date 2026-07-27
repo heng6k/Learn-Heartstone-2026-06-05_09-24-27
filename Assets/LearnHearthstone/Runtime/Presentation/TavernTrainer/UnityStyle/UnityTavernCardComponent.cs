@@ -325,7 +325,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ConfigureArtImage(artImage, sprite, card, mode, mode == UnityTavernCardMode.Board ? 9 : 11);
             }
 
-            SetTextVisible(nameText, usesContainedFullArtHud || mode != UnityTavernCardMode.Board && !usesFullCardArt, card.Name);
+            SetTextVisible(nameText, usesContainedFullArtHud || mode != UnityTavernCardMode.Board && !usesFullCardArt, DisplayName(card));
             if (usesContainedFullArtHud)
             {
                 ConfigureContainedFullArtName(nameText, mode);
@@ -693,7 +693,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void BuildName(UnityTavernCardMode mode, bool containedFullArt = false)
         {
-            var name = UiFactory.Label("UnityCardName", transform, card.Name, 14, FontStyle.Bold);
+            var name = UiFactory.Label("UnityCardName", transform, DisplayName(card), 14, FontStyle.Bold);
             name.alignment = TextAnchor.MiddleCenter;
             name.color = UnityTavernUiStyle.Text;
             name.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -1219,7 +1219,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 color.a);
         }
 
-        private static void ConfigureArtImage(Image image, Sprite sprite, MinionInstance minion, UnityTavernCardMode mode, int fallbackFontSize)
+        private void ConfigureArtImage(Image image, Sprite sprite, MinionInstance minion, UnityTavernCardMode mode, int fallbackFontSize)
         {
             if (sprite != null && UsesCroppedArtViewport(sprite, minion, mode))
             {
@@ -1342,7 +1342,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return UsesContainedFullArtHud(minion, mode) && CardImageProvider.ShouldCropToPortrait(sprite, minion.Tags);
         }
 
-        private static void BuildArtFallbackLabel(Transform parent, MinionInstance minion, int fontSize)
+        private void BuildArtFallbackLabel(Transform parent, MinionInstance minion, int fontSize)
         {
             ClearArtFallbackLabel(parent);
             var label = UiFactory.Label("UnityCardArtFallbackText", parent, ArtFallbackText(minion), Math.Max(20, fontSize), FontStyle.Bold);
@@ -1378,49 +1378,50 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private static string DescriptionText(MinionInstance minion, bool usesFullCardArt)
+        private string DescriptionText(MinionInstance minion, bool usesFullCardArt)
         {
             if (minion == null || usesFullCardArt)
             {
                 return string.Empty;
             }
 
-            return string.IsNullOrWhiteSpace(minion.Text)
+            var text = DisplayText(minion);
+            return string.IsNullOrWhiteSpace(text)
                 ? string.Empty
-                : minion.Text.Replace("[x]", string.Empty).Replace("\r", string.Empty).Trim();
+                : text.Replace("[x]", string.Empty).Replace("\r", string.Empty).Trim();
         }
 
-        private static string ArtFallbackText(MinionInstance minion)
+        private string ArtFallbackText(MinionInstance minion)
         {
             if (minion == null)
             {
                 return string.Empty;
             }
 
-            return UnityTavernUiStyle.ArtFallbackText(minion.Name, ArtFallbackTypeText(minion));
+            return UnityTavernUiStyle.ArtFallbackText(DisplayName(minion), ArtFallbackTypeText(minion));
         }
 
-        private static string ArtFallbackTypeText(MinionInstance minion)
+        private string ArtFallbackTypeText(MinionInstance minion)
         {
 
             if (minion.CardKind == CardKind.TavernSpell || minion.CardKind == CardKind.Spell)
             {
-                return "SPELL";
+                return T("法术", "SPELL");
             }
 
             if (minion.CardKind == CardKind.HeroPower)
             {
-                return "POWER";
+                return T("技能", "POWER");
             }
 
             if (minion.CardKind == CardKind.Hero)
             {
-                return "HERO";
+                return T("英雄", "HERO");
             }
 
             if (minion.CardKind == CardKind.HeroBuddy)
             {
-                return "BUDDY";
+                return T("伙伴", "BUDDY");
             }
 
             if (minion.Tribes != null)
@@ -1428,11 +1429,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var tribe = minion.Tribes.FirstOrDefault(value => value != Tribe.None);
                 if (tribe != Tribe.None)
                 {
-                    return tribe.ToString().ToUpperInvariant();
+                    return useEnglish ? tribe.ToString().ToUpperInvariant() : TribeName(tribe);
                 }
             }
 
-            return "CARD";
+            return T("卡牌", "CARD");
+        }
+
+        private string DisplayName(MinionInstance minion)
+        {
+            return !useEnglish && !string.IsNullOrEmpty(minion?.ZhName) ? minion.ZhName : minion?.Name ?? string.Empty;
+        }
+
+        private string DisplayText(MinionInstance minion)
+        {
+            return !useEnglish && !string.IsNullOrEmpty(minion?.ZhText) ? minion.ZhText : minion?.Text ?? string.Empty;
         }
 
         private static bool IsSpellLike(MinionInstance minion)

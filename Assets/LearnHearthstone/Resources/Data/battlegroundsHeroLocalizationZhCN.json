@@ -1,7 +1,7 @@
 {
     "source":  "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
-    "generatedAt":  "2026-07-08T00:52:09.121Z",
-    "count":  231,
+    "generatedAt":  "2026-07-22T09:11:01.823Z",
+    "count":  339,
     "cards":  [
                   {
                       "cardId":  "TB_BaconShop_HERO_35",
@@ -1388,6 +1388,654 @@
                       "kind":  "heroPower",
                       "name":  "小型水晶球",
                       "text":  "当你购买小型\u003cb\u003e饰品\u003c/b\u003e时，本技能变形成为它的复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_35_Buddy",
+                      "kind":  "buddy",
+                      "name":  "尤格-萨隆侍战者",
+                      "text":  "在你的回合开始时，转动尤格-萨隆的命运之轮。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_27_Buddy",
+                      "kind":  "buddy",
+                      "name":  "解冻的勇士",
+                      "text":  "在你的回合结束时，随机将酒馆中被\u003cb\u003e冻结\u003c/b\u003e的一个随从变为金色。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_93_Buddy",
+                      "kind":  "buddy",
+                      "name":  "恩佐斯幼体",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e使一个友方\u003cb\u003e亡语\u003c/b\u003e随从变为金色。"
+                  },
+                  {
+                      "cardId":  "BG30_HERO_304_Buddy",
+                      "kind":  "buddy",
+                      "name":  "神奇的搬运工",
+                      "text":  "在你的回合\n结束时，获取一张有用的卡牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_90_Buddy",
+                      "kind":  "buddy",
+                      "name":  "布尔斯",
+                      "text":  "在你\u003cb\u003e发现\u003c/b\u003e一个随从后，使其获得+2/+2并提升此效果。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_301_Buddy",
+                      "kind":  "buddy",
+                      "name":  "噩梦软浆怪",
+                      "text":  "当你“吞噬”本随从时，将它的属性值吐到额外1个随从身上。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_201_Buddy",
+                      "kind":  "buddy",
+                      "name":  "塔穆佐",
+                      "text":  "在战斗中，在你召唤一个随从后，使其属性值翻倍。"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_020_Buddy",
+                      "kind":  "buddy",
+                      "name":  "副厨师长",
+                      "text":  "每个回合你可以额外使用一次英雄技能。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_76_Buddy",
+                      "kind":  "buddy",
+                      "name":  "空气之灵",
+                      "text":  "\u003cb\u003e亡语：\u003c/b\u003e随机使一个友方随从获得\u003cb\u003e风怒\u003c/b\u003e，\u003cb\u003e圣盾\u003c/b\u003e和\u003cb\u003e嘲讽\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_16_Buddy",
+                      "kind":  "buddy",
+                      "name":  "零食商人",
+                      "text":  "在你的回合结束时，使一个等级3的随从获得本随从的属性值。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_02_Buddy",
+                      "kind":  "buddy",
+                      "name":  "迦拉克隆的使徒",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e将酒馆中的牌替换为高一级的牌。"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_105_Buddy",
+                      "kind":  "buddy",
+                      "name":  "星探",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e使一个\u003cb\u003e伙伴\u003c/b\u003e变为金色。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_43_Buddy",
+                      "kind":  "buddy",
+                      "name":  "布莱恩的宝贝蛋",
+                      "text":  "\u003cb\u003e嘲讽\u003c/b\u003e。\u003cb\u003e亡语：\u003c/b\u003e召唤并获取一个随机\u003cb\u003e战吼\u003c/b\u003e随从。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_23_Buddy",
+                      "kind":  "buddy",
+                      "name":  "污物投掷者",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e随机获取一张\u003cb\u003e战吼\u003c/b\u003e随从牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_68_Buddy",
+                      "kind":  "buddy",
+                      "name":  "鲨鱼饵",
+                      "text":  "当你出售本随从时，复原你的英雄技能。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_92_Buddy",
+                      "kind":  "buddy",
+                      "name":  "亚煞极幼体",
+                      "text":  "在你召唤一个你当前等级的随从后，使你的随从获得+1/+1。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_40_Buddy",
+                      "kind":  "buddy",
+                      "name":  "“威武战驹”麦克斯韦",
+                      "text":  "当你出售本随从时，获取一张你的英雄技能对应的\u003cb\u003e伙伴\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_59_Buddy",
+                      "kind":  "buddy",
+                      "name":  "恶魔猎手斯克里布",
+                      "text":  "每当酒馆\u003cb\u003e刷新\u003c/b\u003e时，会额外提供一个更高等级的随从。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_303_Buddy",
+                      "kind":  "buddy",
+                      "name":  "蛙生",
+                      "text":  "在你用“特邀侦探”猜中随从后，获取一张猜中的随从的原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_49_Buddy",
+                      "kind":  "buddy",
+                      "name":  "玛格努斯·法力风暴",
+                      "text":  "每回合中，\n有两次\u003cb\u003e刷新\u003c/b\u003e免费。\u003ci\u003e（还剩0次！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_22_Buddy",
+                      "kind":  "buddy",
+                      "name":  "阿尔福斯",
+                      "text":  "在一个友方随从\u003cb\u003e复生\u003c/b\u003e后，使其获得本随从的攻击力。"
+                  },
+                  {
+                      "cardId":  "BG32_HERO_001_Buddy",
+                      "kind":  "buddy",
+                      "name":  "玛洛恩",
+                      "text":  "在本局对战中，你每花费3枚铸币，便拥有+1+1。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_003_Buddy",
+                      "kind":  "buddy",
+                      "name":  "雷矛军官",
+                      "text":  "在你的回合结束时，使你最右边的随从获得+10生命值。"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_104_Buddy",
+                      "kind":  "buddy",
+                      "name":  "摇滚犀牛阿卡里",
+                      "text":  "每2个回合，在回合结束时获取你最左边的手牌的一张原始版复制。\u003ci\u003e（还剩2回合！）\u003c/i\u003e2每2个回合，在回合结束时获取你最左边的手牌的一张原始版复制。\u003ci\u003e（就是这回合！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_005_Buddy",
+                      "kind":  "buddy",
+                      "name":  "迷你泽里克",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e选择一个酒馆中的随从，变形成为它的复制。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_000_Buddy",
+                      "kind":  "buddy",
+                      "name":  "大钳蟹",
+                      "text":  "在你用“子弹上膛”移除一个随从后，获取它的一张原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_75_Buddy",
+                      "kind":  "buddy",
+                      "name":  "护灯人",
+                      "text":  "在你的回合结束时，\n随机获取2张能使随从获得属性值的酒馆法术牌。"
+                  },
+                  {
+                      "cardId":  "BG27_HERO_801_Buddy",
+                      "kind":  "buddy",
+                      "name":  "维拉努斯，风暴之王的坐骑",
+                      "text":  "在你的回合结束时，将本随从左侧的随从变形成为高一级的随从\u003ci\u003e（最高不超过7级！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG33_HERO_000_Buddy",
+                      "kind":  "buddy",
+                      "name":  "石壳守卫",
+                      "text":  "每回合中，你使用的\n第一张三连奖励会\u003cb\u003e\u003cb\u003e发现\u003c/b\u003e\u003c/b\u003e金色随从。\u003ci\u003e（还剩1张！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_400_Buddy",
+                      "kind":  "buddy",
+                      "name":  "对子六",
+                      "text":  "在你的回合开始时，投一枚6面骰。\u003cb\u003e发现\u003c/b\u003e一张等级对应点数的酒馆法术牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_17_Buddy",
+                      "kind":  "buddy",
+                      "name":  "源质松鼠炸弹",
+                      "text":  "\u003cb\u003e亡语：\u003c/b\u003e在本场战斗中每有一个你的机械死亡，随机对一个敌方随从造成4点伤害。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_305_Buddy",
+                      "kind":  "buddy",
+                      "name":  "雏龙群",
+                      "text":  "每当你召唤一条雏龙，永久获得+2/+2。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_283_Buddy",
+                      "kind":  "buddy",
+                      "name":  "飞行训练师",
+                      "text":  "你的航线效果会触发两次。"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_000_Buddy",
+                      "kind":  "buddy",
+                      "name":  "法莫斯队长",
+                      "text":  "在你的回合结束时，随机提升“定罪”。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_50_Buddy",
+                      "kind":  "buddy",
+                      "name":  "老练的猎人",
+                      "text":  "在你的回合开始时，获取一张上一个对手的\u003cb\u003e伙伴\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_15_Buddy",
+                      "kind":  "buddy",
+                      "name":  "走失的卡尔",
+                      "text":  "在你使用你的英雄技能后，使你的\u003cb\u003e圣盾\u003c/b\u003e随从获得+2攻击力。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_53_Buddy",
+                      "kind":  "buddy",
+                      "name":  "踏梦者瓦莉瑟瑞娅",
+                      "text":  "每当一条龙进入你的战队或酒馆时，获得+1/+1。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_41_Buddy",
+                      "kind":  "buddy",
+                      "name":  "高级探墓员",
+                      "text":  "\u003cb\u003e嘲讽\u003c/b\u003e。\u003cb\u003e亡语：\u003c/b\u003e使你最右边的随从变为金色。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_10_Buddy",
+                      "kind":  "buddy",
+                      "name":  "锈水大亨",
+                      "text":  "在你的回合结束时，你的铸币上限\n提高1枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_34_Buddy",
+                      "kind":  "buddy",
+                      "name":  "迷你憎恶",
+                      "text":  "在你的回合结束时，使本随从左边的随从获得+1生命值。\u003ci\u003e（你的英雄每缺失一点生命值都会提升！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_305_Buddy",
+                      "kind":  "buddy",
+                      "name":  "垂滴的蜡烛巨龙",
+                      "text":  "\u003cb\u003e\u003cb\u003e战吼：\u003c/b\u003e刷新\u003c/b\u003e酒馆，使其中的随从变为每个对手的战队中等级最高的随从。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_282_Buddy",
+                      "kind":  "buddy",
+                      "name":  "怪物",
+                      "text":  "在一个友方随从死亡后，获得其攻击力。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_201_Buddy",
+                      "kind":  "buddy",
+                      "name":  "加德林大师",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e使本随从左边的随从获得等同于其攻击力的生命值。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_007_Buddy",
+                      "kind":  "buddy",
+                      "name":  "皇家守护者",
+                      "text":  "在你对一个不同的友方随从施放法术后，还会对本随从施放。\u003ci\u003e（每回合一次。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_28_Buddy",
+                      "kind":  "buddy",
+                      "name":  "发条助手",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e\u003cb\u003e发现\u003c/b\u003e一张比当前酒馆等级高一级的随从牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_70_Buddy",
+                      "kind":  "buddy",
+                      "name":  "小克",
+                      "text":  "在你的回合开始时，获取生命值最低的对手的战队中的一个原始版随从。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_29_Buddy",
+                      "kind":  "buddy",
+                      "name":  "克苏恩的触手",
+                      "text":  "在一个不同的友方随从获得属性值后，直到下个回合，获得+1/+1。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_201_Buddy",
+                      "kind":  "buddy",
+                      "name":  "水下大厨",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e获取等级1，3和5的随机随从牌各一张。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_78_Buddy",
+                      "kind":  "buddy",
+                      "name":  "冰雪元素",
+                      "text":  "每当酒馆\u003cb\u003e刷新\u003c/b\u003e时，总会额外提供一个\u003cb\u003e冻结\u003c/b\u003e的元素。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_21_Buddy",
+                      "kind":  "buddy",
+                      "name":  "街头魔术师",
+                      "text":  "“神奇魔术”会从优化的\u003cb\u003e奥秘\u003c/b\u003e中选择。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_006_Buddy",
+                      "kind":  "buddy",
+                      "name":  "宇宙档案馆",
+                      "text":  "每当你购买\n消耗（0）枚铸币的酒馆法术牌时，获取一张它的复制。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_304_Buddy",
+                      "kind":  "buddy",
+                      "name":  "盘牙精英",
+                      "text":  "在一个\u003cb\u003e塑造法术\u003c/b\u003e随从出现在酒馆中后，获取其法术的一张复制。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_101_Buddy",
+                      "kind":  "buddy",
+                      "name":  "幼年雷象",
+                      "text":  "每当你使用一张攻击力小于本随从的随从牌，使其获得+1/+1并提升此效果。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_100_Buddy",
+                      "kind":  "buddy",
+                      "name":  "冰嚎，强力猛狼",
+                      "text":  "在一个友方随从消灭敌人后，永久获得+3生命值。"
+                  },
+                  {
+                      "cardId":  "BG23_HERO_306_Buddy",
+                      "kind":  "buddy",
+                      "name":  "纳萨诺斯·凋零者",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e出售一个\n友方随从，将其属性值均等分配到其相邻随从身上。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_004_Buddy",
+                      "kind":  "buddy",
+                      "name":  "瓦尔登的水波勇士",
+                      "text":  "好事成霜还会使这两个随从获得等同于你当前等级的属性值。"
+                  },
+                  {
+                      "cardId":  "BG24_HERO_204_Buddy",
+                      "kind":  "buddy",
+                      "name":  "强化医疗机",
+                      "text":  "在你购买一个随从后，购买的随从每拥有一个\u003cb\u003e额外关键词\u003c/b\u003e，本随从获得+3/+3。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_002_Buddy",
+                      "kind":  "buddy",
+                      "name":  "霜狼军官",
+                      "text":  "在你的回合结束时，使你最左边的随从获得+10攻击力。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_242_Buddy",
+                      "kind":  "buddy",
+                      "name":  "科多兽宝宝",
+                      "text":  "\u003cb\u003e战吼：刷新\u003c/b\u003e酒馆，使其中的随从变为每个等级一个。"
+                  },
+                  {
+                      "cardId":  "BG32_HERO_002_Buddy",
+                      "kind":  "buddy",
+                      "name":  "拉链",
+                      "text":  "\u003cb\u003e亡语：\u003c/b\u003e获取一张有用的卡牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_33_Buddy",
+                      "kind":  "buddy",
+                      "name":  "混合体",
+                      "text":  "每当你的融合怪获得属性值时，本随从也会获得。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_12_Buddy",
+                      "kind":  "buddy",
+                      "name":  "鸽群领主",
+                      "text":  "当酒馆中没有你的英雄技能对应的随从类型时，你的\u003cb\u003e刷新\u003c/b\u003e免费。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_60_Buddy",
+                      "kind":  "buddy",
+                      "name":  "炽手百夫长",
+                      "text":  "\u003cb\u003e圣盾\u003c/b\u003e。在“翠绿魔珠”触发后，获得你购买的上一个随从的属性值。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_56_Buddy",
+                      "kind":  "buddy",
+                      "name":  "瓦拉斯塔兹",
+                      "text":  "\u003cb\u003e进击：\u003c/b\u003e随机获取一张龙牌。"
+                  },
+                  {
+                      "cardId":  "BG24_HERO_100_Buddy",
+                      "kind":  "buddy",
+                      "name":  "阴蔽的权贵",
+                      "text":  "当你出售本随从时，\u003cb\u003e发现\u003c/b\u003e一个\u003cb\u003e任务\u003c/b\u003e。完成该任务即可获取一袋8枚装的铸币。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_94_Buddy",
+                      "kind":  "buddy",
+                      "name":  "奖券收集者",
+                      "text":  "当你出售本随从时，\u003cb\u003e发现\u003c/b\u003e一个下一等级的暗月奖品。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_702_Buddy",
+                      "kind":  "buddy",
+                      "name":  "渊誓囚魂者",
+                      "text":  "\u003cb\u003e亡语：\u003c/b\u003e随机召唤\n2个亡灵。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_58_Buddy",
+                      "kind":  "buddy",
+                      "name":  "魔枢领主",
+                      "text":  "“奥术变易”会将牌随机替换为高一级的牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_42_Buddy",
+                      "kind":  "buddy",
+                      "name":  "初级导航员",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e使“探险者领队”消耗的铸币减少（2）枚。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_36_Buddy",
+                      "kind":  "buddy",
+                      "name":  "帽商艾舍尔",
+                      "text":  "在你出售一个随从后，获得两顶+1/+1的帽子。帽子会在出售时传递给一个友方随从。"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_102_Buddy",
+                      "kind":  "buddy",
+                      "name":  "庄严乐师",
+                      "text":  "在你对一个随从使用你的英雄技能后，使其获得本随从一半的攻击力。\u003ci\u003e（下回合切换为生命值！）\u003c/i\u003e0在你对一个随从使用你的英雄技能后，使其获得本随从一半的生命值。\u003ci\u003e（下回合切换为攻击力！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_202_Buddy",
+                      "kind":  "buddy",
+                      "name":  "雷·火掌",
+                      "text":  "在你的回合开始时，获取你的英雄技能对应的\u003cb\u003e伙伴\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_010_Buddy",
+                      "kind":  "buddy",
+                      "name":  "典狱官塞尔沃特",
+                      "text":  "在你的回合开始时，获取一张下一个对手的伙伴。"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_103_Buddy",
+                      "kind":  "buddy",
+                      "name":  "阴暗构造体",
+                      "text":  "每当一个友方随从死亡，获得其最大属性值。\u003ci\u003e（每场战斗限一次。）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_45_Buddy",
+                      "kind":  "buddy",
+                      "name":  "铁杆匪徒",
+                      "text":  "每场战斗中，在你消灭第二个随从后，获取一张它的原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_64_Buddy",
+                      "kind":  "buddy",
+                      "name":  "达戈维克·黏趾",
+                      "text":  "在你的回合结束时，随机使一个友方金色随从获得+5/+5。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_57_Buddy",
+                      "kind":  "buddy",
+                      "name":  "克罗米",
+                      "text":  "每回合中，有一次有用的\u003cb\u003e刷新\u003c/b\u003e！\u003ci\u003e（还剩1次！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_37_Buddy",
+                      "kind":  "buddy",
+                      "name":  "基尔里克",
+                      "text":  "\u003cb\u003e嘲讽\u003c/b\u003e。\u003cb\u003e亡语：\u003c/b\u003e随机获取一张恶魔牌。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_25_Buddy",
+                      "kind":  "buddy",
+                      "name":  "破土杂兵",
+                      "text":  "每当你的英雄即将受到伤害时，回溯该伤害并获得等同于伤害量的属性值。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_18_Buddy",
+                      "kind":  "buddy",
+                      "name":  "海象人海盗",
+                      "text":  "\u003cb\u003e战吼，亡语，进击：\u003c/b\u003e随机获取一张\n\u003cb\u003e悬赏令\u003c/b\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_52_Buddy",
+                      "kind":  "buddy",
+                      "name":  "希奈丝特拉",
+                      "text":  "每当友方随从\n在战斗阶段获得攻击力时，使其永久获得+1生命值。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_103_Buddy",
+                      "kind":  "buddy",
+                      "name":  "亡首圣贤",
+                      "text":  "在你获取一张\u003cb\u003e鲜血宝石\u003c/b\u003e后，额外获取一张该宝石的复制。"
+                  },
+                  {
+                      "cardId":  "BG21_HERO_030_Buddy",
+                      "kind":  "buddy",
+                      "name":  "载人飓风机甲",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e复制你最左边的两个\u003cb\u003e亡语\u003c/b\u003e\u003ci\u003e（其他飓风机甲的除外）\u003c/i\u003e。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_67_Buddy",
+                      "kind":  "buddy",
+                      "name":  "狂暴的选手",
+                      "text":  "在你使用“变废为宝”后，获得等同于被移除随从等级的铸币。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_280_Buddy",
+                      "kind":  "buddy",
+                      "name":  "活体梦魇",
+                      "text":  "在你购买一张牌后，酒馆中的随从在本回合中拥有+2/+2。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_55_Buddy",
+                      "kind":  "buddy",
+                      "name":  "闪鳍预言者",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e将酒馆中的随从变形成为相同等级的鱼人。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_39_Buddy",
+                      "kind":  "buddy",
+                      "name":  "泰坦守护者",
+                      "text":  "每当你手牌中或场上的不同的友方随从获得生命值时，本随从也会获得。"
+                  },
+                  {
+                      "cardId":  "BG20_HERO_102_Buddy",
+                      "kind":  "buddy",
+                      "name":  "德拉诺什·萨鲁法尔",
+                      "text":  "在你购买一个随从后，获得其一半的属性值。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_71_Buddy",
+                      "kind":  "buddy",
+                      "name":  "詹迪斯的学徒",
+                      "text":  "在你使用一张在本回合中使用过的随从牌后，使你的随从获得等同于你当前等级的属性值。"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_800_Buddy",
+                      "kind":  "buddy",
+                      "name":  "遗物学会侍从",
+                      "text":  "每回合一次：在你施放酒馆法术后，获取一张它的新复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_95_Buddy",
+                      "kind":  "buddy",
+                      "name":  "游荡树人",
+                      "text":  "每当一个友方\u003cb\u003e嘲讽\u003c/b\u003e随从受到攻击时，使你的随从永久获得+1/+1。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_38_Buddy",
+                      "kind":  "buddy",
+                      "name":  "疯狂的猴子",
+                      "text":  "当你出售本随从时，喂给你的随从1根香蕉。在你施放2个法术后，提升此效果。\u003ci\u003e（还剩2个！）\u003c/i\u003e2当你出售本随从时，喂给你的随从1根香蕉。在你施放2个法术后，提升此效果。\u003ci\u003e（还剩2个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_01_Buddy",
+                      "kind":  "buddy",
+                      "name":  "军情七处斥候",
+                      "text":  "在你购买一张牌后，获得+2/+2。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_62_Buddy",
+                      "kind":  "buddy",
+                      "name":  "暗影守望者",
+                      "text":  "\u003cb\u003e战吼：\u003c/b\u003e你的下一个英雄技能会使目标变为金色。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_91_Buddy",
+                      "kind":  "buddy",
+                      "name":  "弗里斯杰",
+                      "text":  "当你出售本随从时，从你只有一个的其他随从中\u003cb\u003e发现\u003c/b\u003e一张原始版复制。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_08_Buddy",
+                      "kind":  "buddy",
+                      "name":  "日蚀伊利达雷",
+                      "text":  "你的第一个攻击的\n随从拥有仅在一次攻击中有效的“攻击时\u003cb\u003e免疫\u003c/b\u003e”。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_74_Buddy",
+                      "kind":  "buddy",
+                      "name":  "常青绿植",
+                      "text":  "在你的回合结束时，随机获取一张你当前等级的随从牌。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_001_Buddy",
+                      "kind":  "buddy",
+                      "name":  "幽灵迅猛龙",
+                      "text":  "在你唤起一种新的元素后，记住该元素。\u003cb\u003e亡语：\u003c/b\u003e唤起记住的元素。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_11_Buddy",
+                      "kind":  "buddy",
+                      "name":  "鲁西弗隆",
+                      "text":  "你的回合结束效果额外触发一次。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_14_Buddy",
+                      "kind":  "buddy",
+                      "name":  "长者塔格瓦格",
+                      "text":  "\u003cb\u003e战斗开始时：\u003c/b\u003e如果你控制着4个不同类型的随从，则获得你的随从中最高的攻击力和生命值。"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_811_Buddy",
+                      "kind":  "buddy",
+                      "name":  "断角",
+                      "text":  "当你出售本随从时，\u003cb\u003e发现\u003c/b\u003e一个异虫随从并将其属性值变为6/6，该随从不会变异。"
+                  },
+                  {
+                      "cardId":  "BG28_HERO_801_Buddy",
+                      "kind":  "buddy",
+                      "name":  "九蛙",
+                      "text":  "在你购买随从牌后，随机获取一张相同等级的酒馆法术牌。\u003ci\u003e（还剩9张！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_801_Buddy",
+                      "kind":  "buddy",
+                      "name":  "泰凯斯·芬利",
+                      "text":  "在你施放两个酒馆法术后，随机获取一张战列巡航舰升级。\u003ci\u003e（还剩2个！）\u003c/i\u003e"
+                  },
+                  {
+                      "cardId":  "BG31_HERO_802_Buddy",
+                      "kind":  "buddy",
+                      "name":  "普罗比斯",
+                      "text":  "\u003cb\u003e磁力\u003c/b\u003e。在你将本随从\u003cb\u003e磁力吸附\u003c/b\u003e到机械上后，将目标机械变为\n金色。"
+                  },
+                  {
+                      "cardId":  "BG26_HERO_101_Buddy",
+                      "kind":  "buddy",
+                      "name":  "辉金水手",
+                      "text":  "\u003cb\u003e圣盾\u003c/b\u003e。每当酒馆\u003cb\u003e刷新\u003c/b\u003e时，总会额外提供一个海盗。"
+                  },
+                  {
+                      "cardId":  "BG22_HERO_200_Buddy",
+                      "kind":  "buddy",
+                      "name":  "潜水清扫机",
+                      "text":  "在你使用一张机械牌后，获得+3/+3。"
+                  },
+                  {
+                      "cardId":  "BG25_HERO_100_Buddy",
+                      "kind":  "buddy",
+                      "name":  "烂肠",
+                      "text":  "\u003cb\u003e亡语：\u003c/b\u003e召唤并获取一个随机亡灵造物。"
+                  },
+                  {
+                      "cardId":  "TB_BaconShop_HERO_72_Buddy",
+                      "kind":  "buddy",
+                      "name":  "巴罗夫的扈从",
+                      "text":  "在你使用一张“铸币”后，获得1枚铸币。"
                   }
               ]
 }

@@ -72,6 +72,7 @@ namespace LearnHearthstone.Domain.Models
         public string DefinitionId;
         public string CardId;
         public string Name;
+        public string ZhName;
         public int Cost;
         public int BaseAttack;
         public int BaseHealth;
@@ -83,6 +84,7 @@ namespace LearnHearthstone.Domain.Models
         public List<Keyword> Keywords = new List<Keyword>();
         public List<Keyword> OfficialKeywords = new List<Keyword>();
         public string Text;
+        public string ZhText;
         public bool Golden;
         public BoardSide Owner;
         public List<Enchantment> Enchantments = new List<Enchantment>();
@@ -106,6 +108,7 @@ namespace LearnHearthstone.Domain.Models
                 DefinitionId = DefinitionId,
                 CardId = CardId,
                 Name = Name,
+                ZhName = ZhName,
                 Cost = Cost,
                 BaseAttack = BaseAttack,
                 BaseHealth = BaseHealth,
@@ -117,6 +120,7 @@ namespace LearnHearthstone.Domain.Models
                 Keywords = new List<Keyword>(Keywords),
                 OfficialKeywords = new List<Keyword>(OfficialKeywords),
                 Text = Text,
+                ZhText = ZhText,
                 Golden = Golden,
                 Owner = Owner,
                 Enchantments = Enchantments == null
@@ -236,6 +240,7 @@ namespace LearnHearthstone.Domain.Models
                 DefinitionId = definition.CardId,
                 CardId = definition.CardId,
                 Name = definition.Name,
+                ZhName = definition.ZhName,
                 Cost = definition.Cost,
                 BaseAttack = 0,
                 BaseHealth = 0,
@@ -247,6 +252,7 @@ namespace LearnHearthstone.Domain.Models
                 Keywords = new List<Keyword>(),
                 OfficialKeywords = new List<Keyword>(),
                 Text = definition.Text,
+                ZhText = definition.ZhText,
                 Golden = false,
                 Owner = owner,
                 Enchantments = new List<Enchantment>(),
@@ -283,6 +289,7 @@ namespace LearnHearthstone.Domain.Models
                 DefinitionId = definition.HeroCardId,
                 CardId = definition.HeroCardId,
                 Name = definition.Name,
+                ZhName = definition.ZhName,
                 Cost = 0,
                 BaseAttack = Math.Max(0, definition.Armor),
                 BaseHealth = definition.Health > 0 ? definition.Health : 30,
@@ -294,6 +301,7 @@ namespace LearnHearthstone.Domain.Models
                 Keywords = new List<Keyword>(),
                 OfficialKeywords = new List<Keyword>(),
                 Text = definition.HeroPower == null ? string.Empty : definition.HeroPower.Text,
+                ZhText = definition.HeroPower == null ? string.Empty : definition.HeroPower.ZhText,
                 Golden = false,
                 Owner = owner,
                 Enchantments = new List<Enchantment>(),
@@ -334,6 +342,7 @@ namespace LearnHearthstone.Domain.Models
                 DefinitionId = definition.CardId,
                 CardId = definition.CardId,
                 Name = definition.Name,
+                ZhName = definition.ZhName,
                 Cost = 3,
                 BaseAttack = definition.Attack,
                 BaseHealth = definition.Health,
@@ -345,6 +354,7 @@ namespace LearnHearthstone.Domain.Models
                 Keywords = keywords,
                 OfficialKeywords = new List<Keyword>(keywords),
                 Text = definition.Text,
+                ZhText = definition.ZhText,
                 Golden = false,
                 Owner = owner,
                 Enchantments = new List<Enchantment>(),

@@ -19,6 +19,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(108, catalog.AllBuddies.Count);
             Assert.IsTrue(catalog.AllHeroPowers.All(power => !string.IsNullOrEmpty(power.CardId)));
             Assert.IsTrue(catalog.AllBuddies.All(buddy => !string.IsNullOrEmpty(buddy.CardId)));
+            Assert.IsTrue(catalog.AllBuddies.All(buddy => !string.IsNullOrEmpty(buddy.ZhName)));
+            Assert.IsTrue(catalog.AllBuddies.All(buddy => !string.IsNullOrEmpty(buddy.ZhText)));
             Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_002t").ReplacementEligibility);
             Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_007t").ReplacementEligibility);
             Assert.AreEqual(HeroPowerReplacementEligibility.Disabled, catalog.GetHeroPowerByCardId("BG35_Anomaly_008t").ReplacementEligibility);
@@ -57,6 +59,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("Puzzle Box", yogg.HeroPower.Name);
             Assert.AreEqual("谜之匣", yogg.HeroPower.ZhName);
             Assert.IsTrue(yogg.HeroPower.ZhText.Contains("酒馆法术"));
+            Assert.AreEqual("尤格-萨隆侍战者", yogg.Buddy.ZhName);
+            Assert.IsTrue(yogg.Buddy.ZhText.Contains("回合开始"));
 
             var lesserCrystalBall = catalog.GetHeroPowerByCardId("BG35_Anomaly_007t");
             Assert.AreEqual("小型水晶球", lesserCrystalBall.ZhName);

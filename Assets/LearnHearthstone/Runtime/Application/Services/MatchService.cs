@@ -116,28 +116,28 @@ namespace LearnHearthstone.Application.Services
         private const string AkazamzarakSecretDiscoverSource = "hero-power:prestidigitation";
         private const string CompetitiveSpiritSecretId = "TB_Bacon_Secrets_13";
         private const int AkazamzarakActiveSecretLimit = 4;
-        private static readonly (string CardId, string Name, string Text, bool Better)[] NormalSecretPool =
+        private static readonly (string CardId, string Name, string Text, string ZhName, string ZhText, bool Better)[] NormalSecretPool =
         {
-            ("TB_Bacon_Secrets_01", "Venomstrike Trap", "Secret: When a friendly minion is attacked, summon a 2/3 Poisonous Cobra.", false),
-            ("TB_Bacon_Secrets_02", "Snake Trap", "Secret: When a friendly minion is attacked, summon three 1/1 Snakes.", false),
-            ("TB_Bacon_Secrets_04", "Splitting Image", "Secret: When a friendly minion is attacked, summon a copy of it.", false),
-            ("TB_Bacon_Secrets_05", "Effigy", "Secret: When a friendly minion dies, summon a random minion of the same Tier.", false),
-            ("TB_Bacon_Secrets_07", "Autodefense Matrix", "Secret: When a friendly minion is attacked, give it Divine Shield.", false),
-            ("TB_Bacon_Secrets_08", "Avenge", "Secret: When a friendly minion dies, give a random friendly minion +3/+2.", false),
-            ("TB_Bacon_Secrets_10", "Redemption", "Secret: When a friendly minion dies, return it to life with 1 Health.", false),
-            ("TB_Bacon_Secrets_11", "Hand of Salvation", "Secret: When your second friendly minion dies each combat, return it to life.", false),
-            ("TB_Bacon_Secrets_12", "Ice Block", "Secret: When your hero takes fatal damage, prevent it.", false),
-            ("TB_Bacon_Secrets_13", "Competitive Spirit", "Secret: At the start of your next turn, give your minions +1/+1.", false),
-            ("TB_Bacon_Secrets_14", "Reckoning", "Secret: After an enemy minion deals 3 or more damage, destroy it.", false),
-            ("TB_Bacon_Secrets_15", "Pack Tactics", "Secret: When a friendly minion is attacked, summon a 3/3 copy.", false)
+            ("TB_Bacon_Secrets_01", "Venomstrike Trap", "Secret: When a friendly minion is attacked, summon a 2/3 Poisonous Cobra.", "眼镜蛇陷阱", "奥秘：当一个友方随从受到攻击时，召唤一条2/3并具有剧毒的眼镜蛇。", false),
+            ("TB_Bacon_Secrets_02", "Snake Trap", "Secret: When a friendly minion is attacked, summon three 1/1 Snakes.", "毒蛇陷阱", "奥秘：当一个友方随从受到攻击时，召唤三条1/1的蛇。", false),
+            ("TB_Bacon_Secrets_04", "Splitting Image", "Secret: When a friendly minion is attacked, summon a copy of it.", "裂魂残像", "奥秘：当一个友方随从受到攻击时，召唤一个它的复制。", false),
+            ("TB_Bacon_Secrets_05", "Effigy", "Secret: When a friendly minion dies, summon a random minion of the same Tier.", "轮回", "奥秘：当一个友方随从死亡时，随机召唤一个相同等级的随从。", false),
+            ("TB_Bacon_Secrets_07", "Autodefense Matrix", "Secret: When a friendly minion is attacked, give it Divine Shield.", "自动防御矩阵", "奥秘：当一个友方随从受到攻击时，使其获得圣盾。", false),
+            ("TB_Bacon_Secrets_08", "Avenge", "Secret: When a friendly minion dies, give a random friendly minion +3/+2.", "复仇", "奥秘：当一个友方随从死亡时，随机使一个友方随从获得+3/+2。", false),
+            ("TB_Bacon_Secrets_10", "Redemption", "Secret: When a friendly minion dies, return it to life with 1 Health.", "救赎", "奥秘：当一个友方随从死亡时，使其以1点生命值复活。", false),
+            ("TB_Bacon_Secrets_11", "Hand of Salvation", "Secret: When your second friendly minion dies each combat, return it to life.", "拯救之手", "奥秘：每场战斗中，当你的第二个友方随从死亡时，使其复活。", false),
+            ("TB_Bacon_Secrets_12", "Ice Block", "Secret: When your hero takes fatal damage, prevent it.", "寒冰屏障", "奥秘：当你的英雄受到致命伤害时，阻止这次伤害。", false),
+            ("TB_Bacon_Secrets_13", "Competitive Spirit", "Secret: At the start of your next turn, give your minions +1/+1.", "争强好胜", "奥秘：在你的下一个回合开始时，使你的随从获得+1/+1。", false),
+            ("TB_Bacon_Secrets_14", "Reckoning", "Secret: After an enemy minion deals 3 or more damage, destroy it.", "清算", "奥秘：在一个敌方随从造成3点或以上伤害后，将其消灭。", false),
+            ("TB_Bacon_Secrets_15", "Pack Tactics", "Secret: When a friendly minion is attacked, summon a 3/3 copy.", "集群战术", "奥秘：当一个友方随从受到攻击时，召唤一个3/3的复制。", false)
         };
 
-        private static readonly (string CardId, string Name, string Text, bool Better)[] BetterSecretPool =
+        private static readonly (string CardId, string Name, string Text, string ZhName, string ZhText, bool Better)[] BetterSecretPool =
         {
-            ("TB_Bacon_Secrets_01b", "Better Venomstrike Trap", "Better Secret: When a friendly minion is attacked, summon a 2/3 Poisonous Cobra with Reborn.", true),
-            ("TB_Bacon_Secrets_07b", "Better Autodefense Matrix", "Better Secret: When a friendly minion is attacked, protect it with Divine Shield.", true),
-            ("TB_Bacon_Secrets_10b", "Better Redemption", "Better Secret: When a friendly minion dies, return it with full Health and enchantments.", true),
-            ("TB_Bacon_Secrets_15b", "Better Pack Tactics", "Better Secret: When a friendly minion is attacked, summon a copy.", true)
+            ("TB_Bacon_Secrets_01b", "Better Venomstrike Trap", "Better Secret: When a friendly minion is attacked, summon a 2/3 Poisonous Cobra with Reborn.", "优化的眼镜蛇陷阱", "强化奥秘：当一个友方随从受到攻击时，召唤一条2/3并具有剧毒和复生的眼镜蛇。", true),
+            ("TB_Bacon_Secrets_07b", "Better Autodefense Matrix", "Better Secret: When a friendly minion is attacked, give it Divine Shield and Reborn.", "优化的自动防御矩阵", "强化奥秘：当一个友方随从受到攻击时，使其获得圣盾和复生。", true),
+            ("TB_Bacon_Secrets_10b", "Better Redemption", "Better Secret: When a friendly minion dies, return it with full Health and enchantments.", "优化的救赎", "强化奥秘：当一个友方随从死亡时，使其以全部生命值复活并保留附魔。", true),
+            ("TB_Bacon_Secrets_15b", "Better Pack Tactics", "Better Secret: When a friendly minion is attacked, summon a copy.", "优化的集群战术", "强化奥秘：当一个友方随从受到攻击时，召唤一个它的复制。", true)
         };
         private const string AcolyteOfYoggSaronCardId = "TB_BaconShop_HERO_35_Buddy";
         private const string GoldenAcolyteOfYoggSaronCardId = "TB_BaconShop_HERO_35_Buddy_G";
@@ -3451,6 +3451,8 @@ namespace LearnHearthstone.Application.Services
             {
                 StartThorimDiscover();
             }
+
+            TryStartMasterNguyenHeroPowerChoiceAndResolveLei();
         }
 
         private void StartNextFaelinDiscoverAfter(int tier)
@@ -18163,7 +18165,7 @@ namespace LearnHearthstone.Application.Services
                 var index = rng.NextInt(candidates.Count);
                 var secret = candidates[index];
                 candidates.RemoveAt(index);
-                options.Add(CreateSecretDiscoverOption(secret.CardId, secret.Name, secret.Text, secret.Better, options.Count));
+                options.Add(CreateSecretDiscoverOption(secret.CardId, secret.Name, secret.Text, secret.ZhName, secret.ZhText, secret.Better, options.Count));
             }
 
             tavern.QueueDiscover(new DiscoverState
@@ -18176,7 +18178,7 @@ namespace LearnHearthstone.Application.Services
             AddRecruitLog(RecruitLogType.Discover, Localized(sourceName + "：选择一个" + (better ? "强化" : string.Empty) + "奥秘。", sourceName + ": choose a " + (better ? "Better " : string.Empty) + "Secret."), tavern.Gold, tavern.Gold);
         }
 
-        private MinionInstance CreateSecretDiscoverOption(string cardId, string name, string text, bool better, int index)
+        private MinionInstance CreateSecretDiscoverOption(string cardId, string name, string text, string zhName, string zhText, bool better, int index)
         {
             return new MinionInstance
             {
@@ -18185,11 +18187,13 @@ namespace LearnHearthstone.Application.Services
                 DefinitionId = cardId,
                 CardId = cardId,
                 Name = name,
+                ZhName = zhName,
                 Cost = 0,
                 TavernTier = 0,
                 Tribes = new List<Tribe> { Tribe.None },
                 Keywords = new List<Keyword>(),
                 Text = text,
+                ZhText = zhText,
                 Owner = BoardSide.Player,
                 PoolSource = PoolSource.Discover,
                 OriginPoolSource = PoolSource.Discover,
@@ -18228,6 +18232,9 @@ namespace LearnHearthstone.Application.Services
                 {
                     SecretCardId = picked.CardId,
                     Name = picked.Name,
+                    Text = picked.Text,
+                    ZhName = picked.ZhName,
+                    ZhText = picked.ZhText,
                     Source = discover.Source,
                     Owner = BoardSide.Player,
                     Better = better,

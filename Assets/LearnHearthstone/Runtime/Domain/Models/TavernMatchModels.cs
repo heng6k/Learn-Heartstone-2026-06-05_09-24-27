@@ -1102,6 +1102,9 @@ namespace LearnHearthstone.Domain.Models
     {
         public string SecretCardId;
         public string Name;
+        public string Text;
+        public string ZhName;
+        public string ZhText;
         public string Source;
         public BoardSide Owner;
         public bool Better;

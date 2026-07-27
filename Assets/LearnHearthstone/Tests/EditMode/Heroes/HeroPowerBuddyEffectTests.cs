@@ -2896,10 +2896,16 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(0, tavern.Gold);
             Assert.IsNotNull(tavern.Discover);
             Assert.AreEqual(4, tavern.Discover.Options.Count);
-            var firstPick = tavern.Discover.Options[0].CardId;
+            var firstOption = tavern.Discover.Options[0];
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
             Assert.AreEqual(1, tavern.Secrets.Count);
-            Assert.AreEqual(firstPick, tavern.Secrets[0].SecretCardId);
+            Assert.AreEqual(firstOption.CardId, tavern.Secrets[0].SecretCardId);
+            Assert.AreEqual(firstOption.Name, tavern.Secrets[0].Name);
+            Assert.AreEqual(firstOption.Text, tavern.Secrets[0].Text);
+            Assert.AreEqual(firstOption.ZhName, tavern.Secrets[0].ZhName);
+            Assert.AreEqual(firstOption.ZhText, tavern.Secrets[0].ZhText);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(tavern.Secrets[0].ZhName));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(tavern.Secrets[0].ZhText));
 
             var duplicateFilter = CreateHeroService("TB_BaconShop_HERO_21");
             AddSecret(duplicateFilter, "TB_Bacon_Secrets_01", "Venomstrike Trap");
@@ -3214,10 +3220,9 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = CreateHeroService("BG20_HERO_202");
 
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
-
             var discover = service.State.Player.Tavern.Discover;
             Assert.IsNotNull(discover);
+            Assert.AreEqual(1, service.State.Round);
             Assert.AreEqual("hero-power:master-nguyen", discover.Source);
             Assert.AreEqual(2, discover.Options.Count);
             Assert.IsTrue(discover.Options.All(card => card.CardKind == CardKind.HeroPower));
@@ -3229,7 +3234,6 @@ namespace LearnHearthstone.Tests.EditMode
         public void MasterNguyen_ChoiceTemporarilyReplacesHeroPowerAndNextTurnRestores()
         {
             var service = CreateHeroService("BG20_HERO_202");
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
             var selectedPowerId = service.State.Player.Tavern.Discover.Options[0].CardId;
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
@@ -3247,7 +3251,6 @@ namespace LearnHearthstone.Tests.EditMode
         public void MasterNguyen_TemporaryHeroPowerHasFreshUseBudget()
         {
             var service = CreateHeroService("BG20_HERO_202");
-            service.Apply(new GameCommand(GameCommandType.NextTurn));
             var selectedPowerId = service.State.Player.Tavern.Discover.Options[0].CardId;
 
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
@@ -3261,6 +3264,7 @@ namespace LearnHearthstone.Tests.EditMode
         public void LeiFlamepaw_WaitsForNguyenChoiceAndGetsSelectedPowerBuddy()
         {
             var service = CreateHeroService("BG20_HERO_202");
+            ResolveDiscoverChoices(service);
             PlayBuddy(service, "BG20_HERO_202_Buddy");
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));

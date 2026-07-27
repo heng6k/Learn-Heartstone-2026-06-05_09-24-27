@@ -1800,23 +1800,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (reward.Type)
             {
                 case CombatRewardType.ImproveUndeadAttack:
-                    return "UndeadAttackBonus +" + Math.Max(0, reward.Amount);
+                    return "亡灵攻击 +" + Math.Max(0, reward.Amount);
                 case CombatRewardType.AddTavernSpellToHand:
                 case CombatRewardType.AddGeneratedSpellToHand:
                 case CombatRewardType.AddRandomTavernSpellToHand:
                 case CombatRewardType.AddRandomSpellcraftSpellToHand:
-                    return "Hand +" + Math.Max(1, reward.Amount);
+                    return "手牌 +" + Math.Max(1, reward.Amount);
                 case CombatRewardType.GainNextTurnGold:
-                    return "NextTurnBonusGold +" + Math.Max(0, reward.Amount);
+                    return "下回合金币 +" + Math.Max(0, reward.Amount);
                 case CombatRewardType.ImproveShopStats:
-                    return "BobTavernGrowth " + SignedStats(reward.Attack * Math.Max(1, reward.Amount), reward.Health * Math.Max(1, reward.Amount));
+                    return "鲍勃酒馆成长 " + SignedStats(reward.Attack * Math.Max(1, reward.Amount), reward.Health * Math.Max(1, reward.Amount));
                 case CombatRewardType.ImproveElementalShopStats:
                 case CombatRewardType.ImproveTavernMinionStats:
-                    return "BobTavernGrowth +" + Math.Max(1, reward.Amount) + "/+" + Math.Max(1, reward.Amount);
+                    return "鲍勃酒馆成长 +" + Math.Max(1, reward.Amount) + "/+" + Math.Max(1, reward.Amount);
                 case CombatRewardType.ImproveElementalHealth:
-                    return "BobTavernGrowth +0/+" + Math.Max(0, reward.Amount);
+                    return "鲍勃酒馆成长 +0/+" + Math.Max(0, reward.Amount);
                 case CombatRewardType.GainFreeRefresh:
-                    return "FreeRefreshes +" + Math.Max(0, reward.Amount);
+                    return "免费刷新 +" + Math.Max(0, reward.Amount);
                 default:
                     return "已结算";
             }
@@ -1836,18 +1836,62 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             switch (type)
             {
+                case CombatRewardType.TavernSpellCostReduction: return "酒馆法术减费";
+                case CombatRewardType.AddGeneratedSpellToHand: return "获得生成法术";
+                case CombatRewardType.EternalKnightDied: return "永恒骑士阵亡";
+                case CombatRewardType.AncestralAutomatonSummoned: return "远古自动机被召唤";
+                case CombatRewardType.FriendlyMinionDied: return "友方随从阵亡";
+                case CombatRewardType.FriendlyDeathrattleTriggered: return "友方亡语触发";
+                case CombatRewardType.FriendlyAvengeTriggered: return "友方复仇触发";
+                case CombatRewardType.FriendlyRallyTriggered: return "友方进击触发";
+                case CombatRewardType.FriendlyMinionKilledEnemy: return "友方随从消灭敌人";
+                case CombatRewardType.FriendlyMinionAttacked: return "友方随从攻击";
+                case CombatRewardType.FriendlyMinionSummoned: return "友方随从被召唤";
+                case CombatRewardType.BuffHandMinion: return "手牌随从获得增益";
+                case CombatRewardType.ImproveBloodGemAttack: return "鲜血宝石攻击提升";
+                case CombatRewardType.ImproveElementalHealth: return "元素生命提升";
+                case CombatRewardType.ImproveRefreshBuff: return "刷新增益提升";
+                case CombatRewardType.AddTavernSpellToHand: return "获得酒馆法术";
+                case CombatRewardType.AddRandomBeastToHand: return "获得随机野兽";
+                case CombatRewardType.AddRandomMagneticMechToHand: return "获得随机磁力机械";
+                case CombatRewardType.AddRandomChromawhelpToHand: return "获得随机彩鳞幼龙";
                 case CombatRewardType.ImproveUndeadAttack:
-                    return "ImproveUndeadAttack";
-                case CombatRewardType.AddTavernSpellToHand:
-                    return "AddTavernSpellToHand";
-                case CombatRewardType.AddGeneratedSpellToHand:
-                    return "AddGeneratedSpellToHand";
-                case CombatRewardType.GainNextTurnGold:
-                    return "GainNextTurnGold";
-                case CombatRewardType.ImproveShopStats:
-                    return "ImproveShopStats";
-                default:
-                    return type.ToString();
+                    return "亡灵攻击提升";
+                case CombatRewardType.ImproveTavernSpellAttack: return "酒馆法术攻击提升";
+                case CombatRewardType.ImproveBloodGemHealth: return "鲜血宝石生命提升";
+                case CombatRewardType.PersistAdjacentDragonCombatBuffs: return "保留相邻龙类战斗增益";
+                case CombatRewardType.GainFreeRefresh: return "获得免费刷新";
+                case CombatRewardType.AddRandomSameTribeMinionToHand: return "获得随机同种族随从";
+                case CombatRewardType.AddRandomElementalToHand: return "获得随机元素";
+                case CombatRewardType.AddRandomDemonToHand: return "获得随机恶魔";
+                case CombatRewardType.AddRandomBattlecryMinionToHand: return "获得随机战吼随从";
+                case CombatRewardType.AddBountyToHand: return "获得悬赏";
+                case CombatRewardType.ImproveElementalShopStats: return "元素酒馆属性提升";
+                case CombatRewardType.ImproveTavernMinionStats: return "酒馆随从属性提升";
+                case CombatRewardType.AddRandomTierSixMinionToHand: return "获得随机六星随从";
+                case CombatRewardType.FriendlyDeathrattleMinionDied: return "友方亡语随从阵亡";
+                case CombatRewardType.AddRandomTavernSpellToHand: return "获得随机酒馆法术";
+                case CombatRewardType.BuffOriginalFriendlyMinion: return "原友方随从获得增益";
+                case CombatRewardType.ImproveAllPurposeKibble: return "全能饲料提升";
+                case CombatRewardType.TriggerFriendlyBattlecry: return "触发友方战吼";
+                case CombatRewardType.GainNextTurnGold: return "获得下回合金币";
+                case CombatRewardType.ImproveBloodGemsUntilNextCombat: return "鲜血宝石提升至下次战斗";
+                case CombatRewardType.AddRandomSpellcraftSpellToHand: return "获得随机塑造法术";
+                case CombatRewardType.ImproveBloodGemStats: return "鲜血宝石属性提升";
+                case CombatRewardType.ImproveTavernSpellStats: return "酒馆法术属性提升";
+                case CombatRewardType.ImproveBeetleStats: return "甲虫属性提升";
+                case CombatRewardType.BuffFriendlyTribe: return "友方种族获得增益";
+                case CombatRewardType.BuffOneOfEachFriendlyType: return "各类友方随从获得增益";
+                case CombatRewardType.BuffFriendlyBoard: return "友方战场获得增益";
+                case CombatRewardType.BuffTargetHandMinion: return "目标手牌随从获得增益";
+                case CombatRewardType.AddTripleRewardToHand: return "获得三连奖励";
+                case CombatRewardType.AddCopyOfKillerToHand: return "获得击杀者复制";
+                case CombatRewardType.AddPlainCopyOfKilledEnemyToHand: return "获得被消灭敌人的普通复制";
+                case CombatRewardType.AddRandomProtossToHand: return "获得随机星元";
+                case CombatRewardType.AddRandomGoldenBeastToHand: return "获得随机金色野兽";
+                case CombatRewardType.AddKeywordToOriginalFriendlyMinion: return "原友方随从获得关键词";
+                case CombatRewardType.ImproveShopStats: return "鲍勃酒馆属性提升";
+                default: return "战斗奖励";
             }
         }
 

@@ -2758,7 +2758,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void AkazamzarakHeroPowerUi_ChoosesSecretDirectlyWithoutMinionTargeting()
+        public void AkazamzarakHeroPowerUi_ChoosesAndShowsSecretWithoutQuest()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
             try
@@ -2781,8 +2781,128 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNull(FindChild(rootObject.transform, "UnityTargetingSourceMarker"));
                 Assert.AreEqual(UnityTavernTargetingState.None, FindChild(rootObject.transform, "UnityCard-secret-ui-minion").GetComponent<UnityTavernCardComponent>().TargetingState);
 
-                service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+                var selectedOption = service.State.Player.Tavern.Discover.Options[0];
+                FindChild(rootObject.transform, "UnityCardAction-" + selectedOption.InstanceId).GetComponent<Button>().onClick.Invoke();
+
                 Assert.AreEqual(1, service.State.Player.Tavern.Secrets.Count);
+                var secret = service.State.Player.Tavern.Secrets[0];
+                Assert.AreEqual(selectedOption.CardId, secret.SecretCardId);
+                Assert.AreEqual(selectedOption.ZhName, secret.ZhName);
+                Assert.AreEqual(selectedOption.ZhText, secret.ZhText);
+                Assert.IsNull(FindChild(rootObject.transform, "UnityHeroEffectQuest-Main"));
+
+                var secretEffect = FindChild(rootObject.transform, "UnityHeroEffectSecret-" + secret.SecretCardId);
+                Assert.IsNotNull(secretEffect);
+                Assert.GreaterOrEqual(secretEffect.GetComponent<RectTransform>().rect.height, 44f);
+                secretEffect.GetComponent<Button>().onClick.Invoke();
+
+                Assert.AreEqual("奥秘", FindChild(rootObject.transform, "UnityHeroEffectTooltipKind").GetComponent<Text>().text);
+                Assert.AreEqual(secret.ZhName, FindChild(rootObject.transform, "UnityHeroEffectTooltipTitle").GetComponent<Text>().text);
+                Assert.AreEqual(secret.ZhText, FindChild(rootObject.transform, "UnityHeroEffectTooltipDescription").GetComponent<Text>().text);
+                Assert.AreEqual("来源：神奇魔术", FindChild(rootObject.transform, "UnityHeroEffectTooltipSource").GetComponent<Text>().text);
+                Assert.AreEqual("状态：等待触发", FindChild(rootObject.transform, "UnityHeroEffectTooltipStatus").GetComponent<Text>().text);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void HeroEffectRack_EnglishSecretsCoexistWithQuestAndTriggeredSecretDisappears()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(994f, 384f);
+                var service = MatchService.CreateWithDefaultCatalog(
+                    12345,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions { UseEnglish = true });
+                service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+                service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+                var tavern = service.State.Player.Tavern;
+                tavern.Secrets.AddRange(new[]
+                {
+                    new SecretState
+                    {
+                        SecretCardId = "TB_Bacon_Secrets_01",
+                        Name = "Venomstrike Trap",
+                        Text = "Secret: When a friendly minion is attacked, summon a 2/3 Poisonous Cobra.",
+                        ZhName = "眼镜蛇陷阱",
+                        ZhText = "奥秘：当一个友方随从受到攻击时，召唤一条2/3并具有剧毒的眼镜蛇。",
+                        Source = "hero-power:prestidigitation:normal",
+                        Owner = BoardSide.Player
+                    },
+                    new SecretState
+                    {
+                        SecretCardId = "TB_Bacon_Secrets_07b",
+                        Name = "Better Autodefense Matrix",
+                        Text = "Better Secret: When a friendly minion is attacked, give it Divine Shield and Reborn.",
+                        ZhName = "优化的自动防御矩阵",
+                        ZhText = "强化奥秘：当一个友方随从受到攻击时，使其获得圣盾和复生。",
+                        Source = "hero-power:prestidigitation:better",
+                        Owner = BoardSide.Player,
+                        Better = true
+                    },
+                    new SecretState
+                    {
+                        SecretCardId = "TB_Bacon_Secrets_10",
+                        Name = "Redemption",
+                        Text = "Secret: When a friendly minion dies, return it to life with 1 Health.",
+                        ZhName = "救赎",
+                        ZhText = "奥秘：当一个友方随从死亡时，使其以1点生命值复活。",
+                        Source = "hero-power:prestidigitation:normal",
+                        Owner = BoardSide.Player
+                    },
+                    new SecretState
+                    {
+                        SecretCardId = "TB_Bacon_Secrets_12",
+                        Name = "Ice Block",
+                        Text = "Secret: When your hero takes fatal damage, prevent it.",
+                        ZhName = "寒冰屏障",
+                        ZhText = "奥秘：当你的英雄受到致命伤害时，阻止这次伤害。",
+                        Source = "hero-power:prestidigitation:normal",
+                        Owner = BoardSide.Player
+                    }
+                });
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                var rack = FindChild(rootObject.transform, "UnityHeroEffectRack");
+                var heroPower = FindChild(rootObject.transform, "UnityQuickHeroPowerButton");
+                var quest = FindChild(rootObject.transform, "UnityHeroEffectQuest-Main");
+                Assert.IsNotNull(rack);
+                Assert.IsNotNull(quest);
+                foreach (var secret in tavern.Secrets)
+                {
+                    var effect = FindChild(rootObject.transform, "UnityHeroEffectSecret-" + secret.SecretCardId);
+                    Assert.IsNotNull(effect);
+                    Assert.AreSame(rack.transform, effect.transform.parent);
+                }
+
+                var firstSecret = FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_01");
+                var betterSecret = FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_07b");
+                Assert.Less(heroPower.transform.GetSiblingIndex(), firstSecret.transform.GetSiblingIndex());
+                Assert.Less(betterSecret.transform.GetSiblingIndex(), quest.transform.GetSiblingIndex());
+                Assert.AreSame(rack.transform, quest.transform.parent);
+
+                betterSecret.GetComponent<Button>().onClick.Invoke();
+                Assert.AreEqual("Better Secret", FindChild(rootObject.transform, "UnityHeroEffectTooltipKind").GetComponent<Text>().text);
+                Assert.AreEqual("Better Autodefense Matrix", FindChild(rootObject.transform, "UnityHeroEffectTooltipTitle").GetComponent<Text>().text);
+                Assert.AreEqual("Better Secret: When a friendly minion is attacked, give it Divine Shield and Reborn.", FindChild(rootObject.transform, "UnityHeroEffectTooltipDescription").GetComponent<Text>().text);
+                Assert.AreEqual("Source: Street Magician", FindChild(rootObject.transform, "UnityHeroEffectTooltipSource").GetComponent<Text>().text);
+                Assert.AreEqual("Status: Armed", FindChild(rootObject.transform, "UnityHeroEffectTooltipStatus").GetComponent<Text>().text);
+
+                tavern.Secrets[0].Triggered = true;
+                ClearChildren(rootObject.transform);
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+
+                Assert.IsNull(FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_01"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_07b"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_10"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectSecret-TB_Bacon_Secrets_12"));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityHeroEffectQuest-Main"));
             }
             finally
             {

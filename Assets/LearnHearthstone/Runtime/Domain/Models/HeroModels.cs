@@ -62,10 +62,12 @@ namespace LearnHearthstone.Domain.Models
         public string CardId;
         public int DbfId;
         public string Name;
+        public string ZhName;
         public int TavernTier;
         public int Attack;
         public int Health;
         public string Text;
+        public string ZhText;
         public string ImagePath;
         public List<Tribe> Tribes = new List<Tribe>();
         public List<Keyword> Keywords = new List<Keyword>();

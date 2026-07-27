@@ -97,6 +97,22 @@ namespace LearnHearthstone.Adapters.Data
                         heroPower.ZhText = powerCard.text;
                     }
                 }
+
+                var buddy = definition.Buddy;
+                if (buddy != null &&
+                    !string.IsNullOrEmpty(buddy.CardId) &&
+                    cardsById.TryGetValue(buddy.CardId, out var buddyCard))
+                {
+                    if (!string.IsNullOrEmpty(buddyCard.name))
+                    {
+                        buddy.ZhName = buddyCard.name;
+                    }
+
+                    if (!string.IsNullOrEmpty(buddyCard.text))
+                    {
+                        buddy.ZhText = buddyCard.text;
+                    }
+                }
             }
         }
 

@@ -61,7 +61,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureOverlay(gameObject);
             if (HasPrefabReferences())
             {
-                SetText(titleText, card == null ? T("卡牌详情", "Card Details") : card.Name);
+                SetText(titleText, card == null ? T("卡牌详情", "Card Details") : DisplayName(card));
                 UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.Gold, 20);
                 ConfigureChromeFromReferences();
                 ConfigureClose(close);
@@ -125,7 +125,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.childControlHeight = true;
             headerLayout.childForceExpandWidth = false;
 
-            titleText = UiFactory.Label("UnityCardDetailTitle", header.transform, card == null ? T("卡牌详情", "Card Details") : card.Name, 20, FontStyle.Bold);
+            titleText = UiFactory.Label("UnityCardDetailTitle", header.transform, card == null ? T("卡牌详情", "Card Details") : DisplayName(card), 20, FontStyle.Bold);
             UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.Gold, 20);
             UnityTavernUiStyle.SetFlexible(titleText.gameObject, 1f, 0f);
             closeButton = CreateCloseButton(header.transform, out closeButtonText);
@@ -238,7 +238,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 AddLine(parent, T("卡牌ID：", "Card ID: ") + card.CardId, 14, FontStyle.Normal, UnityTavernUiStyle.MutedText, 28f);
             }
 
-            var body = AddLine(parent, string.IsNullOrWhiteSpace(card.Text) ? T("暂无规则文本。", "No rules text.") : card.Text, 14, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
+            var body = AddLine(parent, string.IsNullOrWhiteSpace(DisplayText(card)) ? T("暂无规则文本。", "No rules text.") : DisplayText(card), 14, FontStyle.Normal, UnityTavernUiStyle.Text, 120f);
             body.alignment = TextAnchor.UpperLeft;
             body.verticalOverflow = VerticalWrapMode.Overflow;
         }
@@ -378,6 +378,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 UiFactory.EnsureFont(label);
                 label.text = value ?? string.Empty;
             }
+        }
+
+        private string DisplayName(MinionInstance card)
+        {
+            return !useEnglish && !string.IsNullOrEmpty(card?.ZhName) ? card.ZhName : card?.Name ?? string.Empty;
+        }
+
+        private string DisplayText(MinionInstance card)
+        {
+            return !useEnglish && !string.IsNullOrEmpty(card?.ZhText) ? card.ZhText : card?.Text ?? string.Empty;
         }
 
         private static Button CreateCloseButton(Transform parent, out Text label)

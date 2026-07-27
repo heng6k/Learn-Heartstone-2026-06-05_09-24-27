@@ -303,6 +303,29 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
         }
 
+        [TestCase(CombatWinner.Draw, 5)]
+        [TestCase(CombatWinner.Opponent, 4)]
+        public void ContingentCombatGoldSpell_UsesDrawAndLossPayouts(CombatWinner expectedWinner, int expectedGold)
+        {
+            var service = PreparedService(9508 + expectedGold);
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            if (expectedWinner == CombatWinner.Opponent)
+            {
+                service.State.Opponent.Board.Add(TestMinion("o-winner", BoardSide.Opponent, 1, 1, Tribe.None));
+            }
+
+            PlaySpell(service, "105267");
+            service.Apply(new GameCommand(GameCommandType.SimulateCombat));
+
+            Assert.AreEqual(expectedWinner, service.State.LastResult.Winner);
+            Assert.AreEqual(2, service.State.Round);
+            Assert.AreEqual(0, service.State.Player.Tavern.NextTurnBonusGold);
+            Assert.AreEqual(expectedGold, service.State.Player.Tavern.Gold);
+            Assert.AreEqual(0, service.State.Player.Tavern.PendingCombatWinGold);
+            Assert.AreEqual(0, service.State.Player.Tavern.PendingCombatDrawGold);
+        }
+
         [Test]
         public void TierTwoSurfingSylvar_NormalAndGoldenUseOfficialEndTurnRepeats()
         {

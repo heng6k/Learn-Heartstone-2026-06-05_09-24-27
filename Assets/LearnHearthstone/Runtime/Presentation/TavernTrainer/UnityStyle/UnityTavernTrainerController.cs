@@ -360,6 +360,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return service.UseEnglish ? english : chinese;
         }
 
+        private string DisplayCardName(MinionInstance card)
+        {
+            return !service.UseEnglish && !string.IsNullOrEmpty(card?.ZhName) ? card.ZhName : card?.Name ?? string.Empty;
+        }
+
+        private string DisplayCardText(MinionInstance card)
+        {
+            return !service.UseEnglish && !string.IsNullOrEmpty(card?.ZhText) ? card.ZhText : card?.Text ?? string.Empty;
+        }
+
         private void BuildBackground()
         {
             var back = Panel("UnityTavernBackWall", transform, UnityTavernUiStyle.BackWall);
@@ -789,6 +799,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 });
             }
 
+            var secrets = service.State.Player.Tavern.Secrets;
+            if (secrets != null)
+            {
+                var activeSecretIndex = 0;
+                foreach (var secret in secrets)
+                {
+                    if (secret == null || secret.Triggered || string.IsNullOrWhiteSpace(secret.SecretCardId)) continue;
+                    AddSecretEffect(items, secret, activeSecretIndex);
+                    activeSecretIndex += 1;
+                }
+            }
+
             var quests = service.State.Player.Tavern.AdvancedMechanics?.Quests;
             AddQuestEffect(items, quests?.MainQuest, "Main", 20);
             AddQuestEffect(items, quests?.BonusQuest, "Bonus", 21);
@@ -816,6 +838,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             return items;
+        }
+
+        private void AddSecretEffect(List<EffectDisplayItem> items, SecretState secret, int index)
+        {
+            if (secret == null || secret.Triggered || string.IsNullOrWhiteSpace(secret.SecretCardId)) return;
+            var better = secret.Better;
+            items.Add(new EffectDisplayItem
+            {
+                Id = "Secret-" + secret.SecretCardId,
+                ObjectName = "UnityHeroEffectSecret-" + secret.SecretCardId,
+                Type = better ? T("强化奥秘", "Better Secret") : T("奥秘", "Secret"),
+                Name = !service.UseEnglish && !string.IsNullOrWhiteSpace(secret.ZhName) ? secret.ZhName : secret.Name,
+                Description = !service.UseEnglish && !string.IsNullOrWhiteSpace(secret.ZhText) ? secret.ZhText : secret.Text,
+                Source = better ? T("街头魔术师", "Street Magician") : T("神奇魔术", "Prestidigitation"),
+                Status = T("等待触发", "Armed"),
+                CardId = secret.SecretCardId,
+                CardKind = CardKind.Spell,
+                SortOrder = 10 + index,
+                Accent = better ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Blue
+            });
         }
 
         private void AddQuestEffect(List<EffectDisplayItem> items, ActiveQuestState quest, string slot, int sortOrder)
@@ -2250,7 +2292,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildSelectedCardSummary(infoStack.transform, card);
 
             var effectSection = BuildInspectorSection(infoStack.transform, "UnitySelectedCardEffectSection", T("效果", "Effect"), UnityTavernUiStyle.Blue, 226f, 74f);
-            var text = UiFactory.Label("UnitySelectedCardText", effectSection.transform, string.IsNullOrEmpty(card.Text) ? T("无额外效果。", "No additional effect.") : card.Text, 11, FontStyle.Normal);
+            var displayText = DisplayCardText(card);
+            var text = UiFactory.Label("UnitySelectedCardText", effectSection.transform, string.IsNullOrEmpty(displayText) ? T("无额外效果。", "No additional effect.") : displayText, 11, FontStyle.Normal);
             text.color = UnityTavernUiStyle.MutedText;
             text.alignment = TextAnchor.UpperLeft;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -2359,7 +2402,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             textLayout.childForceExpandWidth = true;
             textLayout.childForceExpandHeight = false;
 
-            var name = UiFactory.Label("UnitySelectedCardNameText", textStack.transform, card.Name, 12, FontStyle.Bold);
+            var name = UiFactory.Label("UnitySelectedCardNameText", textStack.transform, DisplayCardName(card), 12, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
             name.verticalOverflow = VerticalWrapMode.Truncate;
             UnityTavernUiStyle.SetPreferredHeight(name.gameObject, 18f);
@@ -3167,11 +3210,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandHeight = false;
 
             var value = service.State.Player.Tavern == null ? 0 : Math.Max(0, service.State.Player.Tavern.UndeadAttackBonus);
-            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusValue", "亡灵攻击加成：+" + value, 14, FontStyle.Bold, UnityTavernUiStyle.Gold);
-            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusSource", "来源：永久全局 State.Player.Tavern.UndeadAttackBonus", 12, FontStyle.Normal, UnityTavernUiStyle.Text);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusValue", T("亡灵攻击加成：+", "Undead Attack Bonus: +") + value, 14, FontStyle.Bold, UnityTavernUiStyle.Gold);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusSource", T("来源：本局永久生效", "Source: permanent for this match"), 12, FontStyle.Normal, UnityTavernUiStyle.Text);
             AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusRecent", RecentUndeadAttackRewardText(), 12, FontStyle.Normal, UnityTavernUiStyle.Text);
-            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusImpact", "影响：后续亡灵/酒馆成长", 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
-            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusManual", "手动修改会立即重算已有战场、手牌和商店牌", 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusImpact", T("影响：后续亡灵/酒馆成长", "Affects future Undead and Tavern growth"), 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
+            AddStatusCardLine(card.transform, "UnityToolsPlayerUndeadAttackStatusManual", T("手动修改会立即重算已有战场、手牌和商店牌", "Manual changes immediately recalculate existing board, hand, and shop cards"), 12, FontStyle.Normal, UnityTavernUiStyle.MutedText);
         }
 
         private string RecentUndeadAttackRewardText()
@@ -3183,8 +3226,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                     .Where(reward => reward != null && reward.Type == CombatRewardType.ImproveUndeadAttack)
                     .Sum(reward => Math.Max(0, reward.Amount));
             return amount > 0
-                ? "最近变化：战斗奖励 ImproveUndeadAttack +" + amount
-                : "最近变化：无";
+                ? T("最近变化：战斗奖励使亡灵攻击 +", "Latest change: combat reward increased Undead Attack by ") + amount
+                : T("最近变化：无", "Latest change: none");
         }
 
         private static void AddStatusCardLine(Transform parent, string name, string text, int size, FontStyle style, Color color)
@@ -5442,7 +5485,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFixedSize(accent, 4f, 32f);
             UnityTavernUiStyle.ConfigureSurface(accent, CardKindAccent(card.CardKind));
 
-            var name = UiFactory.Label("UnityToolsCardLibraryChoiceName", row.transform, card.Name, 14, FontStyle.Bold);
+            var name = UiFactory.Label("UnityToolsCardLibraryChoiceName", row.transform, DisplayCardName(card), 14, FontStyle.Bold);
             name.color = UnityTavernUiStyle.Text;
             name.horizontalOverflow = HorizontalWrapMode.Wrap;
             name.verticalOverflow = VerticalWrapMode.Truncate;
@@ -6563,7 +6606,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityQuestTrackerTitle", panel.transform, "Quests", 14, FontStyle.Bold);
+            var title = UiFactory.Label("UnityQuestTrackerTitle", panel.transform, T("任务", "Quests"), 14, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
             title.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.SetFixedSize(title.gameObject, 64f, UnityTavernUiStyle.TouchHeight);
@@ -6602,14 +6645,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
 
-            var headingText = slot + " " + quest.Progress + "/" + quest.RequiredAmount + "  " + quest.QuestName;
+            var slotText = slot == "Main" ? T("主任务", "Main") : T("额外任务", "Bonus");
+            var headingText = slotText + " " + quest.Progress + "/" + quest.RequiredAmount + "  " + quest.QuestName;
             var heading = UiFactory.Label("UnityQuestTrackerHeading", row.transform, headingText, 14, FontStyle.Bold);
             heading.color = quest.Completed ? UnityTavernUiStyle.Green : UnityTavernUiStyle.Text;
             heading.horizontalOverflow = HorizontalWrapMode.Wrap;
             heading.verticalOverflow = VerticalWrapMode.Truncate;
             UnityTavernUiStyle.SetFlexible(heading.gameObject, 1f, 0f);
 
-            var reward = UiFactory.Label("UnityQuestTrackerReward", row.transform, quest.RewardActive ? "Active" : "Reward", 14, FontStyle.Bold);
+            var reward = UiFactory.Label("UnityQuestTrackerReward", row.transform, quest.RewardActive ? T("生效", "Active") : T("奖励", "Reward"), 14, FontStyle.Bold);
             reward.color = UnityTavernUiStyle.MutedText;
             reward.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.SetFixedSize(reward.gameObject, 64f, 32f);
@@ -6626,7 +6670,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton(
                 "UnityQuestCompleteButton-" + slot,
                 row.transform,
-                "Done",
+                T("完成", "Done"),
                 () => Apply(new GameCommand(GameCommandType.DebugCompleteQuest, questIndex)),
                 58f,
                 UnityTavernUiStyle.TouchHeight,
@@ -6636,7 +6680,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ActionButton(
                 "UnityQuestReplaceRewardButton-" + slot,
                 row.transform,
-                "Reward",
+                T("奖励", "Reward"),
                 () => OpenQuestRewardLibrary(questIndex),
                 76f,
                 UnityTavernUiStyle.TouchHeight,
@@ -8476,13 +8520,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 case GameCommandType.ChooseDiscover:
                     return T("已选择发现奖励", "Discover reward chosen");
                 case GameCommandType.ChooseMechanicOption:
-                    return "Advanced mechanic selected";
+                    return T("已选择进阶机制", "Advanced mechanic selected");
                 case GameCommandType.DebugCompleteQuest:
-                    return "Quest completed";
+                    return T("任务已完成", "Quest completed");
                 case GameCommandType.DebugReplaceQuestReward:
-                    return "Quest reward replaced";
+                    return T("任务奖励已替换", "Quest reward replaced");
                 case GameCommandType.DebugReplaceTrinket:
-                    return "Trinket replaced";
+                    return T("饰品已替换", "Trinket replaced");
                 case GameCommandType.SetOpponentQuestReward:
                     return T("已配置对手任务奖励", "Opponent quest reward configured");
                 case GameCommandType.ClearOpponentQuestReward:
@@ -8791,11 +8835,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private static string TooltipDescription(MinionInstance card)
+        private string TooltipDescription(MinionInstance card)
         {
-            return card == null || string.IsNullOrWhiteSpace(card.Text)
+            var text = DisplayCardText(card);
+            return string.IsNullOrWhiteSpace(text)
                 ? string.Empty
-                : card.Text.Replace("[x]", string.Empty).Replace("\r", string.Empty).Trim();
+                : text.Replace("[x]", string.Empty).Replace("\r", string.Empty).Trim();
         }
 
         private void HideKeywordTooltip(MinionInstance card)

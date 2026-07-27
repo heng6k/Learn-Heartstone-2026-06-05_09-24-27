@@ -1765,7 +1765,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
                 case Keyword.Battlecry: return "战吼";
                 case Keyword.Windfury: return "风怒";
                 case Keyword.Cleave: return "顺劈";
-                case Keyword.Bounty: return "Bounty";
+                case Keyword.Bounty: return "悬赏";
                 default: return keyword.ToString();
             }
         }
