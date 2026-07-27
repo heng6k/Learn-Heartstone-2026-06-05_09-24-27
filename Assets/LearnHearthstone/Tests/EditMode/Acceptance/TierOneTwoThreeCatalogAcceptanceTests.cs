@@ -34,10 +34,10 @@ namespace LearnHearthstone.Tests.EditMode
                 .Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier >= 1 && spell.TavernTier <= 3)
                 .ToList();
 
-            Assert.AreEqual(30, tierOneToThree.Count);
+            Assert.AreEqual(31, tierOneToThree.Count);
             Assert.AreEqual(8, tierOneToThree.Count(spell => spell.TavernTier == 1));
             Assert.AreEqual(6, tierOneToThree.Count(spell => spell.TavernTier == 2));
-            Assert.AreEqual(16, tierOneToThree.Count(spell => spell.TavernTier == 3));
+            Assert.AreEqual(17, tierOneToThree.Count(spell => spell.TavernTier == 3));
             Assert.IsTrue(tierOneToThree.All(spell => spell.SourceId > 0));
             Assert.IsTrue(tierOneToThree.All(spell => !string.IsNullOrWhiteSpace(spell.Name)));
             Assert.IsTrue(tierOneToThree.All(spell => !string.IsNullOrWhiteSpace(spell.CardNumber)));

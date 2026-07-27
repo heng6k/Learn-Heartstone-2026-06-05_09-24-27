@@ -333,6 +333,11 @@ namespace LearnHearthstone.Domain.Models
         public bool Completed;
         public bool RewardActive;
         public QuestImplementationStatus ImplementationStatus;
+
+        public ActiveQuestState Clone()
+        {
+            return (ActiveQuestState)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -346,5 +351,17 @@ namespace LearnHearthstone.Domain.Models
         public int CookedBookHealth = 2;
         public Dictionary<string, int> RewardCounters = new Dictionary<string, int>();
         public Dictionary<string, bool> RewardFlags = new Dictionary<string, bool>();
+
+        public PlayerQuestState Clone()
+        {
+            var clone = (PlayerQuestState)MemberwiseClone();
+            clone.MainQuest = MainQuest?.Clone();
+            clone.BonusQuest = BonusQuest?.Clone();
+            clone.Completed = (Completed ?? new List<ActiveQuestState>())
+                .ConvertAll(quest => quest?.Clone());
+            clone.RewardCounters = new Dictionary<string, int>(RewardCounters ?? new Dictionary<string, int>());
+            clone.RewardFlags = new Dictionary<string, bool>(RewardFlags ?? new Dictionary<string, bool>());
+            return clone;
+        }
     }
 }

@@ -91,5 +91,17 @@ namespace LearnHearthstone.Domain.Models
         public List<string> AppliedPoolModifiers = new List<string>();
         public List<string> BlockedHeroIds = new List<string>();
         public List<string> BlockedTribes = new List<string>();
+
+        public AnomalyState Clone()
+        {
+            var clone = (AnomalyState)MemberwiseClone();
+            clone.AvailabilityReasons = new List<AnomalyAvailabilityReason>(AvailabilityReasons ?? new List<AnomalyAvailabilityReason>());
+            clone.Counters = new Dictionary<string, int>(Counters ?? new Dictionary<string, int>());
+            clone.Flags = new Dictionary<string, string>(Flags ?? new Dictionary<string, string>());
+            clone.AppliedPoolModifiers = new List<string>(AppliedPoolModifiers ?? new List<string>());
+            clone.BlockedHeroIds = new List<string>(BlockedHeroIds ?? new List<string>());
+            clone.BlockedTribes = new List<string>(BlockedTribes ?? new List<string>());
+            return clone;
+        }
     }
 }

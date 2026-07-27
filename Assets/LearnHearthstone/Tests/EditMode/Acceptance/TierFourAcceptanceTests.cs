@@ -14,7 +14,7 @@ namespace LearnHearthstone.Tests.EditMode
     {
         private static readonly string[] TierFourSpellIds =
         {
-            "104445", "104472", "105271", "105276", "110400", "110406",
+            "104445", "104472", "105271", "110400", "110406",
             "110401", "110642", "117670", "120900", "123553", "126909",
             "126957", "130310", "130311", "130312", "131153", "131218"
         };
@@ -28,7 +28,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(60, minions.Count);
             Assert.AreEqual(53, minions.Count(minion => !minion.CardId.StartsWith("BGDUO")));
             Assert.AreEqual(7, minions.Count(minion => minion.CardId.StartsWith("BGDUO")));
-            Assert.AreEqual(18, spells.Count);
+            Assert.AreEqual(17, spells.Count);
             Assert.AreEqual(TierFourSpellIds.OrderBy(id => id).ToList(), spells.Select(spell => spell.CardNumber).OrderBy(id => id).ToList());
         }
 
@@ -62,8 +62,21 @@ namespace LearnHearthstone.Tests.EditMode
                 service.State.Player.Board.Clear();
                 AddAndPlay(service, "BGS_116");
                 service.Apply(new GameCommand(GameCommandType.AddCardToHand, spellId, CardKind.TavernSpell));
+                var handIndex = service.State.Player.Tavern.Hand.Count - 1;
+                var spell = service.State.Player.Tavern.Hand[handIndex];
+                var target = service.State.Player.Board[0];
+                var command = TavernSpellEngine.TargetsFriendlyMinion(spell)
+                    ? new GameCommand(
+                        GameCommandType.PlayMinion,
+                        handIndex,
+                        0,
+                        TargetZone.FriendlyBoard,
+                        -1,
+                        TargetZone.Unspecified,
+                        target.InstanceId)
+                    : new GameCommand(GameCommandType.PlayMinion, handIndex);
 
-                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)), spellId);
+                Assert.DoesNotThrow(() => service.Apply(command), spellId);
                 Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Last().Message.Contains("暂未实现"), spellId);
             }
         }
@@ -160,7 +173,14 @@ namespace LearnHearthstone.Tests.EditMode
             var volcanic = service.State.Player.Board.First(card => card.CardId == "BG30_117");
             var attackBefore = volcanic.Attack;
             var attackSpellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "VOLCANIC_VISITOR_ATTACK_SPELL");
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, attackSpellIndex));
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                attackSpellIndex,
+                service.State.Player.Board.IndexOf(volcanic),
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified,
+                volcanic.InstanceId));
 
             Assert.AreEqual(attackBefore + 4, volcanic.Attack);
             Assert.IsTrue(volcanic.Tags.Contains("temporary_spellcraft"));

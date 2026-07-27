@@ -2312,7 +2312,7 @@
         "通用"
       ],
       "cost": 2,
-      "tavernTier": 4,
+      "tavernTier": 3,
       "keywords": [],
       "text": "使酒馆中的随从在本局对战中获得+2/+2。",
       "description": "",
@@ -2322,6 +2322,7 @@
         "tier4:staff-of-enrichment"
       ],
       "tags": [
+        "tier_3",
         "shop_growth",
         "buff_spell"
       ],
@@ -2374,7 +2375,7 @@
           "section": "up",
           "title": "酒馆等级",
           "style": "text",
-          "text": "4"
+          "text": "3"
         },
         {
           "section": "down",
@@ -4065,7 +4066,7 @@
       "availableModes": [
         "通用"
       ],
-      "cost": 2,
+      "cost": 1,
       "tavernTier": 4,
       "keywords": [],
       "text": "使一个随从获得+2/+2，触发两次。如果该随从是纳迦，重复此效果。",
@@ -4123,7 +4124,7 @@
           "section": "up",
           "title": "价格",
           "style": "text",
-          "text": "2"
+          "text": "1"
         },
         {
           "section": "up",

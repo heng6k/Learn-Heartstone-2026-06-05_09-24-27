@@ -108,6 +108,8 @@ namespace LearnHearthstone.Domain.Engine
         private const string TimewarpedLavaLurkerCardId = "BG34_Giant_678";
         private const string TemporarySpellcraftSourceId = "Temporary Spellcraft";
         private const string PermanentSpellcraftSourceId = "Permanent Spellcraft";
+        public const string HauntedCarapaceSourceId = "Haunted Carapace";
+        private const string RobustEvolutionSourceId = "Robust Evolution";
         private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
         private const string LockedTurnsCounter = "locked-turns";
         private static readonly HashSet<string> StartOfCombatSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -119,6 +121,118 @@ namespace LearnHearthstone.Domain.Engine
             "119599",
             "127642"
         };
+        private static readonly string[] RandomSpellcraftCardIds =
+        {
+            DeepSeaAnglerSpellCardId,
+            DeepBlueSpellCardId,
+            ReefRifferSpellCardId,
+            SurfNSurfSpellCardId,
+            VolcanicVisitorAttackSpellCardId,
+            VolcanicVisitorHealthSpellCardId,
+            FrostlingPriestessSpellCardId
+        };
+        private static readonly HashSet<string> FriendlyMinionTargetedSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            BloodGemCardId,
+            BristlebackBloodGemCardId,
+            RebornBloodGemCardId,
+            SlimyShieldCardId,
+            ReefRifferSpellCardId,
+            SurfNSurfSpellCardId,
+            DeepSeaAnglerSpellCardId,
+            DeepBlueSpellCardId,
+            VolcanicVisitorAttackSpellCardId,
+            VolcanicVisitorHealthSpellCardId,
+            TimewarpedGlowscaleSpellCardId,
+            WearyMageSpellCardId,
+            DoubleStitchNeedleSpellCardId,
+            TokenOfTheOldGodsSpellCardId,
+            JailerStickerSpellCardId,
+            DemonbloodGourdSpellCardId,
+            ShiftingTideSpellCardId,
+            DeepwaterSchoolCardId,
+            ArcaneConsumptionCardId,
+            EnhanceAMaticTauntSpellCardId,
+            EnhanceAMaticWindfurySpellCardId,
+            EnhanceAMaticDivineShieldSpellCardId,
+            EnhanceAMaticRebornSpellCardId,
+            RushingWindsSpellCardId,
+            "100596",
+            "100601",
+            "100899",
+            "100911",
+            "103791",
+            "103796",
+            "104445",
+            "104472",
+            "104601",
+            "105664",
+            "105667",
+            "105752",
+            "110407",
+            "110412",
+            "110642",
+            "113901",
+            "119603",
+            "120900",
+            "122862",
+            "130310",
+            "130312",
+            "131153"
+        };
+        private static readonly HashSet<string> NonTargetedSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "117573"
+        };
+        private static readonly HashSet<string> AutomaticFriendlyTargetSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            SelfishBountyCardId,
+            OfficialSelfishBountyCardId
+        };
+        private static readonly HashSet<string> TavernMinionTargetedSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            BloodGemCardId,
+            BristlebackBloodGemCardId,
+            RebornBloodGemCardId,
+            SlimyShieldCardId,
+            ReefRifferSpellCardId,
+            SurfNSurfSpellCardId,
+            DeepSeaAnglerSpellCardId,
+            DeepBlueSpellCardId,
+            VolcanicVisitorAttackSpellCardId,
+            VolcanicVisitorHealthSpellCardId,
+            TimewarpedGlowscaleSpellCardId,
+            WearyMageSpellCardId,
+            ThaumaturgistSpellCardId,
+            PreciousPearlSpellCardId,
+            OphidianStaffSpellCardId,
+            VibrantBubbleSpellCardId,
+            ShiftingTideSpellCardId,
+            DeepwaterSchoolCardId,
+            EnhanceAMaticTauntSpellCardId,
+            EnhanceAMaticWindfurySpellCardId,
+            EnhanceAMaticDivineShieldSpellCardId,
+            EnhanceAMaticRebornSpellCardId,
+            RushingWindsSpellCardId,
+            "100596",
+            "100911",
+            "103791",
+            "103796",
+            "104472",
+            "104601",
+            "105664",
+            "105667",
+            "105752",
+            "110642",
+            "113901",
+            "120900",
+            "130310",
+            "130312",
+            "131153",
+            "BG27_Reward_504t",
+            "BG24_Reward_718t",
+            "TIMEWARPED_SUMMONER_SPELL"
+        };
         [ThreadStatic] private static MinionInstance explicitTarget;
 
         public static bool IsStartOfCombatSpell(string cardId)
@@ -126,12 +240,55 @@ namespace LearnHearthstone.Domain.Engine
             return !string.IsNullOrWhiteSpace(cardId) && StartOfCombatSpellCardIds.Contains(cardId);
         }
 
+        public static bool TargetsFriendlyMinion(MinionInstance spell)
+        {
+            if (spell == null ||
+                string.IsNullOrWhiteSpace(spell.CardId) ||
+                NonTargetedSpellCardIds.Contains(spell.CardId) ||
+                AutomaticFriendlyTargetSpellCardIds.Contains(spell.CardId))
+            {
+                return false;
+            }
+
+            return FriendlyMinionTargetedSpellCardIds.Contains(spell.CardId) ||
+                   (spell.Tags != null && spell.Tags.Any(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public static bool CanTargetTavernMinion(MinionInstance spell)
+        {
+            return spell != null &&
+                   !string.IsNullOrWhiteSpace(spell.CardId) &&
+                   TavernMinionTargetedSpellCardIds.Contains(spell.CardId);
+        }
+
+        public static bool IsLegalFriendlyMinionTarget(MinionInstance spell, MinionInstance target)
+        {
+            if (spell == null || target == null || target.CardKind != CardKind.Minion)
+            {
+                return false;
+            }
+
+            switch (spell.CardId)
+            {
+                case OphidianStaffSpellCardId:
+                    return MatchesTribe(target, Tribe.Beast);
+                case "100601":
+                    return target.TavernTier <= 4;
+                case ArcaneConsumptionCardId:
+                    return MatchesTribe(target, Tribe.Elemental);
+                case "110407":
+                    return MatchesTribe(target, Tribe.Demon);
+                case "110412":
+                case JailerStickerSpellCardId:
+                    return MatchesTribe(target, Tribe.Undead);
+                default:
+                    return true;
+            }
+        }
+
         public static bool CanQueueStartOfCombatSpell(string cardId, TavernState tavern)
         {
-            return tavern != null &&
-                   IsStartOfCombatSpell(cardId) &&
-                   (tavern.NextCombatTavernSpellCardIds == null ||
-                    !tavern.NextCombatTavernSpellCardIds.Any(queued => string.Equals(queued, cardId, StringComparison.OrdinalIgnoreCase)));
+            return tavern != null && IsStartOfCombatSpell(cardId);
         }
 
         public static bool TryQueueStartOfCombatSpell(string cardId, TavernState tavern)
@@ -228,7 +385,11 @@ namespace LearnHearthstone.Domain.Engine
             DarkmoonPrizeCatalog darkmoonPrizes = null,
             TargetZone targetZone = TargetZone.Unspecified,
             string targetInstanceId = null,
-            Action<MinionInstance> destroyFriendlyMinion = null)
+            Action<MinionInstance> destroyFriendlyMinion = null,
+            string choiceId = null,
+            Action<int> addRandomSpellcraftToHand = null,
+            Action<MinionInstance> sellFriendlyMinion = null,
+            Action<int, MinionInstance> consumeTavernMinion = null)
         {
             if (spell == null || (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell))
             {
@@ -239,7 +400,20 @@ namespace LearnHearthstone.Domain.Engine
             explicitTarget = ResolveExplicitTarget(state, targetIndex, targetZone, targetInstanceId);
             try
             {
-                return CastInternal(spell, state, minions, spells, rng, heroes, darkmoonPrizes, destroyFriendlyMinion);
+                ValidateExplicitMinionTarget(spell, state);
+                return CastInternal(
+                    spell,
+                    state,
+                    minions,
+                    spells,
+                    rng,
+                    heroes,
+                    darkmoonPrizes,
+                    destroyFriendlyMinion,
+                    choiceId,
+                    addRandomSpellcraftToHand,
+                    sellFriendlyMinion,
+                    consumeTavernMinion);
             }
             finally
             {
@@ -247,7 +421,45 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static string CastInternal(MinionInstance spell, MatchState state, MinionCatalog minions, SpellCatalog spells, SeededRng rng, HeroCatalog heroes, DarkmoonPrizeCatalog darkmoonPrizes, Action<MinionInstance> destroyFriendlyMinion)
+        private static void ValidateExplicitMinionTarget(MinionInstance spell, MatchState state)
+        {
+            if (!TargetsFriendlyMinion(spell))
+            {
+                return;
+            }
+
+            var target = ExplicitAnyTarget(state);
+            if (target == null)
+            {
+                throw new InvalidOperationException(spell.Name + " needs a target.");
+            }
+
+            var targetsTavernMinion = state.Player.Tavern.Shop.Any(card =>
+                card != null && string.Equals(card.InstanceId, target.InstanceId, StringComparison.OrdinalIgnoreCase));
+            if (targetsTavernMinion && !CanTargetTavernMinion(spell))
+            {
+                throw new InvalidOperationException(spell.Name + " cannot target a Tavern minion.");
+            }
+
+            if (!IsLegalFriendlyMinionTarget(spell, target))
+            {
+                throw new InvalidOperationException(spell.Name + " cannot target " + target.Name + ".");
+            }
+        }
+
+        private static string CastInternal(
+            MinionInstance spell,
+            MatchState state,
+            MinionCatalog minions,
+            SpellCatalog spells,
+            SeededRng rng,
+            HeroCatalog heroes,
+            DarkmoonPrizeCatalog darkmoonPrizes,
+            Action<MinionInstance> destroyFriendlyMinion,
+            string choiceId,
+            Action<int> addRandomSpellcraftToHand,
+            Action<MinionInstance> sellFriendlyMinion,
+            Action<int, MinionInstance> consumeTavernMinion)
         {
             var cardNumber = spell.CardId;
             var applyTavernSpellBonus = spell.CardKind == CardKind.TavernSpell;
@@ -376,7 +588,7 @@ namespace LearnHearthstone.Domain.Engine
                 case ShiftingTideSpellCardId:
                     return "Shifting Tide Spellcraft: buff handled by Trinket";
                 case TimewarpedGlowscaleSpellCardId:
-                    AddKeyword(FirstFriendlyBoard(state), Keyword.DivineShield);
+                    AddKeyword(FirstAnyMinion(state), Keyword.DivineShield);
                     return "Timewarped Glowscale Spellcraft: target gains Divine Shield";
                 case TimewarpedEvolvingTavernSpellCardId:
                     var evolved = RefreshShopWithHigherTierMinions(state, minions, rng);
@@ -644,20 +856,21 @@ namespace LearnHearthstone.Domain.Engine
                     SetStats(
                         FirstAnyMinion(state),
                         StatMath.SaturatingAdd(
-                            StatMath.SaturatingAdd(20, state.Player.Tavern.SpellPower, 0, StatMath.MaxStat),
+                            20,
                             state.Player.Tavern.TavernSpellBonusAttack,
                             0,
                             StatMath.MaxStat),
                         StatMath.SaturatingAdd(
-                            StatMath.SaturatingAdd(20, state.Player.Tavern.SpellPower, 1, StatMath.MaxStat),
+                            20,
                             state.Player.Tavern.TavernSpellBonusHealth,
                             1,
                             StatMath.MaxStat),
                         "Perfect Vision");
                     return "闁诲海鎳撻惉鑲╂閵娿劊浜归柕蹇ョ秬閺変粙鏌ㄥ☉娆愮殤婵炶弓鍗冲浠嬪炊椤掍緡鍚傛繛瀵稿Т妤犳瓕銇愭径瀣枖?0/20";
                 case "104445":
-                    Buff(state, FirstFriendlyBoard(state), 6, 6, "Defender Rites", applyTavernSpellBonus);
-                    AddKeyword(FirstFriendlyBoard(state), Keyword.Taunt);
+                    var defenderTarget = ExplicitFriendlyBoardTarget(state);
+                    Buff(state, defenderTarget, 6, 6, "Defender Rites", applyTavernSpellBonus);
+                    AddKeyword(defenderTarget, Keyword.Taunt);
                     return "Defender Rites: friendly minion gains +6/+6 and Taunt";
                 case "105667":
                     var pantsTarget = FirstAnyMinion(state);
@@ -687,7 +900,7 @@ namespace LearnHearthstone.Domain.Engine
                     StartLockedCurrentTierDiscover(state, minions, rng, "Search the Ages");
                     return "Search the Ages: discover a current-tier minion and lock it";
                 case "105664":
-                    AddSameTribeMinionToHand(state, minions, rng, FirstAnyMinion(state), "Chef Choice");
+                    AddSameTribeMinionToHand(state, minions, rng, ExplicitAnyTarget(state), "Chef Choice");
                     return "Chef Choice: get another minion of the same type";
                 case "103785":
                     state.Player.Armor = 5;
@@ -718,32 +931,43 @@ namespace LearnHearthstone.Domain.Engine
                     TransformFirstMinionOneTierHigher(state, minions, rng);
                     return "Steady Mutation: transform first minion one tier higher";
                 case "117573":
-                    BuffAll(state, state.Player.Board, 2, 2, "Time Management", applyTavernSpellBonus);
-                    return "Time Management: deterministic immediate +2/+2 choice";
+                    ResolveTimeManagement(state, choiceId, applyTavernSpellBonus);
+                    return "Time Management: resolved the selected immediate or delayed +2/+2 choice";
                 case "122489":
-                    BuffAllTemporary(state, state.Player.Board, 3, 1, "Soulbound Carapace");
-                    return "Soulbound Carapace: temporary board buff";
+                    ResolveHauntedCarapace(state, applyTavernSpellBonus);
+                    return "Haunted Carapace: your minions gain temporary +3/+1";
                 case "122862":
-                    SellMinionAndBuffLeftmostElemental(state);
+                    SellMinionAndBuffLeftmostElemental(state, sellFriendlyMinion);
                     return "Cascading Avalanche: sell a minion and buff leftmost Elemental";
                 case "109232":
-                    BuffAll(state, state.Player.Board, 4, 4, "Board Buff", applyTavernSpellBonus);
-                    return "Board Buff: your minions gain +4/+4";
+                    for (var resolution = 0; resolution < 2; resolution += 1)
+                    {
+                        BuffAll(state, state.Player.Board, 2, 2, "Azerite Empowerment", applyTavernSpellBonus);
+                    }
+
+                    return "Azerite Empowerment: your minions gain +2/+2 twice";
                 case "131152":
-                    BuffAll(state, state.Player.Board.Take(4), 1, 2, "Might of Stormwind", applyTavernSpellBonus);
+                    var stormwindCandidates = state.Player.Board.Where(minion => minion != null).ToList();
+                    for (var pickedCount = 0; pickedCount < 4 && stormwindCandidates.Count > 0; pickedCount += 1)
+                    {
+                        var picked = rng.Pick(stormwindCandidates);
+                        stormwindCandidates.Remove(picked);
+                        Buff(state, picked, 1, 2, "Might of Stormwind", applyTavernSpellBonus);
+                    }
+
                     return "Might of Stormwind: four friendly minions gain +1/+2";
                 case "110401":
                     return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
                         ? "Boon of Beetles: summon two 1/1 Taunt Beetles next combat"
                         : "Boon of Beetles: already queued this turn";
                 case "130310":
-                    ResolveConflagration(state, applyTavernSpellBonus);
+                    ResolveConflagration(state, ExplicitAnyTarget(state), applyTavernSpellBonus);
                     return "Conflagration: first minion gains scaling Elemental stats";
                 case "130312":
-                    ResolveEonarsFavor(state, applyTavernSpellBonus);
+                    ResolveEonarsFavor(state, ExplicitAnyTarget(state), applyTavernSpellBonus);
                     return "Eonar's Favor: same-type Tavern minions gain +3/+3 this game";
                 case "131153":
-                    ResolveBackToBack(state, applyTavernSpellBonus);
+                    ResolveBackToBack(state, ExplicitAnyTarget(state), applyTavernSpellBonus);
                     return "Back to Back: target minion gains scaling stats";
                 case "110412":
                     ResolveButchering(state, destroyFriendlyMinion);
@@ -758,7 +982,7 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveMenagerieTableware(state, applyTavernSpellBonus);
                     return "Menagerie Tableware: board gains stats for each friendly minion type";
                 case "100899":
-                    ResolveInvokeTheDevourer(state);
+                    ResolveInvokeTheDevourer(state, rng, sellFriendlyMinion);
                     return "Invoke the Devourer: sell a minion and pass its stats";
                 case "100910":
                 case "EBG_Spell_037":
@@ -798,7 +1022,12 @@ namespace LearnHearthstone.Domain.Engine
                     BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 1, 2, "Unexpected Fruit", applyTavernSpellBonus);
                     return "Unexpected Fruit: Tavern minions gain +1/+2";
                 case "105276":
-                    AddShopGrowth(state, Tribe.All, 2, 2, "Plenty Staff");
+                    AddShopGrowth(
+                        state,
+                        Tribe.All,
+                        StatMath.SaturatingAdd(2, applyTavernSpellBonus ? state.Player.Tavern.TavernSpellBonusAttack : 0, 0, StatMath.MaxStat),
+                        StatMath.SaturatingAdd(2, applyTavernSpellBonus ? state.Player.Tavern.TavernSpellBonusHealth : 0, 0, StatMath.MaxStat),
+                        "Plenty Staff");
                     BuffAll(state, state.Player.Tavern.Shop.Where(card => card != null && card.CardKind == CardKind.Minion), 2, 2, "Plenty Staff", applyTavernSpellBonus);
                     return "Plenty Staff: Tavern minions gain +2/+2 this game";
                 case "104448":
@@ -811,45 +1040,47 @@ namespace LearnHearthstone.Domain.Engine
                     AddRandomTribeMinionAndCopyToHand(state, minions, rng, Tribe.Murloc, "Cloning Conch");
                     return "Cloning Conch: get a random Murloc and a copy";
                 case "110406":
+                    if (addRandomSpellcraftToHand != null)
+                    {
+                        addRandomSpellcraftToHand(3);
+                    }
+                    else
+                    {
+                        AddSpellcraftBundleToHand(state, spells, rng);
+                    }
+
+                    return "Spitescale Special: get 3 random Spellcraft spells";
                 case "110407":
-                    AddSpellcraftBundleToHand(state, spells, rng);
-                    return "Special: get temporary Spellcraft spells";
+                    ResolveCorruptedCupcakes(state, rng, consumeTavernMinion);
+                    return "Corrupted Cupcakes: a friendly Demon consumes random Tavern minions";
                 case "110642":
-                    ApplyBloodGemsAndStealAdjacentGems(state, FirstFriendlyBoard(state));
+                    ApplyBloodGemsAndStealAdjacentGems(state, ExplicitFriendlyBoardTarget(state));
                     return "Blood Gem Scraper: play Blood Gems and steal adjacent Gems";
                 case "117670":
                     AddMinionByCardIdToHand(state, minions, FireBallerCardId, "ballers-fire");
                     AddMinionByCardIdToHand(state, minions, SnowBallerCardId, "ballers-snow");
                     return "Ballers: add Fire Baller and Snow Baller to hand";
                 case "120900":
-                    ApplyShiftingTide(state, FirstAnyMinion(state), applyTavernSpellBonus);
-                    return "Shifting Tide: swap stats and give +2/+2";
+                    ApplyShiftingTide(state, ExplicitAnyTarget(state), applyTavernSpellBonus);
+                    return "Shifting Tide: give +1/+1 twice, or four times to a Naga";
                 case "123553":
                     state.Player.Tavern.TemporaryAvengeBeastRewards += 1;
                     return "Beast reward: enable temporary Avenge Beast rewards";
                 case "126909":
-                    state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 5, 0, StatMath.MaxStat);
-                    state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 5, 0, StatMath.MaxStat);
-                    return "Rightmost Refresh Buff: after refresh, rightmost Tavern minion gets +5/+5";
+                    state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 6, 0, StatMath.MaxStat);
+                    state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 6, 0, StatMath.MaxStat);
+                    return "Easterly Winds: after refresh, a random Tavern minion gets +6/+6";
                 case "126957":
                     StartTribeDiscoverWithTag(state, minions, rng, Tribe.Undead, "Undead Discover", "discover_then_death");
                     return "Undead Discover: discover an Undead that dies later";
                 case "126676":
                     var barrageAttack = StatMath.SaturatingAdd(
-                        StatMath.SaturatingAdd(
-                            1,
-                            state.Player.Tavern.SpellPower,
-                            0,
-                            StatMath.MaxStat),
+                        1,
                         state.Player.Tavern.TavernSpellBonusAttack,
                         0,
                         StatMath.MaxStat);
                     var barrageHealth = StatMath.SaturatingAdd(
-                        StatMath.SaturatingAdd(
-                            1,
-                            state.Player.Tavern.SpellPower,
-                            0,
-                            StatMath.MaxStat),
+                        1,
                         state.Player.Tavern.TavernSpellBonusHealth,
                         0,
                         StatMath.MaxStat);
@@ -864,19 +1095,22 @@ namespace LearnHearthstone.Domain.Engine
                     });
                     return "Blood Gem Barrage: future refreshes attach Blood Gems using cast-time spell scaling and current Blood Gem quality";
                 case "100601":
-                    MakeGolden(FirstFriendlyBoard(state)?.TavernTier <= 4
-                        ? FirstFriendlyBoard(state)
-                        : state.Player.Board.FirstOrDefault(minion => minion.TavernTier <= 4), minions);
-                    return "Eyes of the Earth Mother: golden the first Tier 4 or lower friendly minion";
+                    var eyesTarget = ExplicitFriendlyBoardTarget(state);
+                    if (eyesTarget != null && eyesTarget.TavernTier <= 4)
+                    {
+                        MakeGolden(eyesTarget, minions);
+                    }
+
+                    return "Eyes of the Earth Mother: make the chosen Tier 4 or lower minion Golden";
                 case "100911":
-                    RefreshShopToTargetTribe(state, minions, rng);
+                    RefreshShopToTargetTribe(state, minions, rng, ExplicitAnyTarget(state));
                     return "Hamuul's Lost Staff: refresh the Tavern into the target type";
                 case "119599":
                     return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
                         ? "Share the Love: next combat leftmost minion copies nearest enemy stats"
                         : "Share the Love: already queued this turn";
                 case "119603":
-                    SetFirstFriendlyToBestTeamStats(state);
+                    SetFirstFriendlyToBestTeamStats(state, ExplicitFriendlyBoardTarget(state));
                     return "Blade of Ambition: target gains the best team stats";
                 case "127642":
                     return TryQueueStartOfCombatSpell(cardNumber, state.Player.Tavern)
@@ -912,6 +1146,13 @@ namespace LearnHearthstone.Domain.Engine
         private static MinionInstance ResolveExplicitTarget(MatchState state, int targetIndex, TargetZone targetZone, string targetInstanceId)
         {
             if (state == null)
+            {
+                return null;
+            }
+
+            if (targetZone != TargetZone.Unspecified &&
+                targetZone != TargetZone.FriendlyBoard &&
+                targetZone != TargetZone.TavernShop)
             {
                 return null;
             }
@@ -1857,21 +2098,106 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var attack = target.Attack;
-            var health = target.Health;
             var maxHealth = target.MaxHealth;
+            var damage = Math.Max(0L, (long)target.MaxHealth - target.Health);
+            var frozen = target.Tags != null && target.Tags.Contains("frozen");
             var picked = rng.Pick(candidates);
+            target.CardKind = CardKind.Minion;
             target.DefinitionId = picked.Id;
             target.CardId = picked.CardId;
             target.Name = picked.Name;
+            target.ZhName = null;
+            target.Cost = 3;
+            target.BaseAttack = picked.BaseAttack;
+            target.BaseHealth = picked.BaseHealth;
             target.TavernTier = picked.TavernTier;
-            target.Tribes = new List<Tribe>(picked.Tribes);
-            target.Keywords = new List<Keyword>(picked.Keywords);
+            target.Tribes = new List<Tribe>(picked.Tribes ?? new List<Tribe>());
+            target.Keywords = new List<Keyword>(picked.Keywords ?? new List<Keyword>());
+            target.OfficialKeywords = new List<Keyword>(picked.OfficialKeywords ?? new List<Keyword>());
             target.Text = picked.Text;
+            target.ZhText = null;
+            target.Golden = false;
+            target.Enchantments = new List<Enchantment>();
+            target.Counters = new Dictionary<string, int>();
             target.ImagePath = picked.ImagePath;
-            target.Attack = attack;
-            target.Health = Math.Max(1, health);
-            target.MaxHealth = Math.Max(1, maxHealth);
+            target.EffectIds = new List<string>(picked.EffectIds ?? new List<string>());
+            target.Tags = new List<string>(picked.Tags ?? new List<string>());
+            if (frozen)
+            {
+                AddTag(target, "frozen");
+            }
+
+            target.OriginPoolSource = PoolSource.Copy;
+            target.CanReturnToPoolAfterAttach = false;
+            target.PoolSource = PoolSource.Copy;
+            target.PoolCopiesHeld = 0;
+            SetStats(target, attack, maxHealth, RobustEvolutionSourceId);
+            target.Health = StatMath.ClampHealth((long)target.MaxHealth - damage);
+            StatMath.ClampCurrentHealthToMax(target);
             return true;
+        }
+
+        private static void ResolveTimeManagement(MatchState state, string choiceId, bool applyTavernSpellBonus)
+        {
+            var tavern = state?.Player?.Tavern;
+            if (tavern == null)
+            {
+                return;
+            }
+
+            var attack = StatMath.SaturatingAdd(2, applyTavernSpellBonus ? tavern.TavernSpellBonusAttack : 0, 0, StatMath.MaxStat);
+            var health = StatMath.SaturatingAdd(2, applyTavernSpellBonus ? tavern.TavernSpellBonusHealth : 0, 0, StatMath.MaxStat);
+            if (IsDelayedTimeManagementChoice(choiceId))
+            {
+                tavern.PendingTimeManagementEnchantments ??= new List<Enchantment>();
+                for (var resolution = 0; resolution < 2; resolution += 1)
+                {
+                    tavern.PendingTimeManagementEnchantments.Add(new Enchantment
+                    {
+                        SourceId = "Time Management",
+                        AttackBonus = attack,
+                        HealthBonus = health
+                    });
+                }
+
+                return;
+            }
+
+            BuffAll(state, state.Player.Board, 2, 2, "Time Management", applyTavernSpellBonus);
+        }
+
+        private static bool IsDelayedTimeManagementChoice(string choiceId)
+        {
+            if (string.IsNullOrWhiteSpace(choiceId))
+            {
+                return false;
+            }
+
+            return string.Equals(choiceId, "next", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(choiceId, "next_turn", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(choiceId, "delayed", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(choiceId, "start_of_next_turn", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void ResolveHauntedCarapace(MatchState state, bool applyTavernSpellBonus)
+        {
+            var tavern = state?.Player?.Tavern;
+            if (tavern == null)
+            {
+                return;
+            }
+
+            var attack = StatMath.SaturatingAdd(3, applyTavernSpellBonus ? tavern.TavernSpellBonusAttack : 0, 0, StatMath.MaxStat);
+            var health = StatMath.SaturatingAdd(1, applyTavernSpellBonus ? tavern.TavernSpellBonusHealth : 0, 0, StatMath.MaxStat);
+            tavern.TemporaryCarapaceAttack = StatMath.SaturatingAdd(tavern.TemporaryCarapaceAttack, attack, 0, StatMath.MaxStat);
+            tavern.TemporaryCarapaceHealth = StatMath.SaturatingAdd(tavern.TemporaryCarapaceHealth, health, 0, StatMath.MaxStat);
+            foreach (var target in state.Player.Board
+                .Concat(tavern.Hand ?? new List<MinionInstance>())
+                .Concat((tavern.Shop ?? new List<MinionInstance>()).Where(card => card != null))
+                .Where(card => card != null && card.CardKind == CardKind.Minion))
+            {
+                Buff(state, target, attack, health, HauntedCarapaceSourceId, false);
+            }
         }
 
         private static void BuffAllTemporary(MatchState state, IEnumerable<MinionInstance> targets, int attack, int health, string sourceId)
@@ -1893,20 +2219,18 @@ namespace LearnHearthstone.Domain.Engine
             var repeats = target.Tribes.Contains(Tribe.Naga) ? 4 : 2;
             for (var index = 0; index < repeats; index += 1)
             {
-                Buff(state, target, 2, 2, "Naga Repeat Buff", applyTavernSpellBonus);
+                Buff(state, target, 1, 1, "Shifting Tide", applyTavernSpellBonus);
             }
         }
 
-        private static void ResolveConflagration(MatchState state, bool applyTavernSpellBonus)
+        private static void ResolveConflagration(MatchState state, MinionInstance target, bool applyTavernSpellBonus)
         {
-            var target = FirstAnyMinion(state);
-            var amount = 2 + Math.Max(0, state.Player.Tavern.ElementalsPlayedThisTurn);
+            var amount = 4 + Math.Max(0, state.Player.Tavern.ElementalsPlayedThisTurn);
             Buff(state, target, amount, amount, "Conflagration", applyTavernSpellBonus);
         }
 
-        private static void ResolveEonarsFavor(MatchState state, bool applyTavernSpellBonus)
+        private static void ResolveEonarsFavor(MatchState state, MinionInstance target, bool applyTavernSpellBonus)
         {
-            var target = FirstAnyMinion(state);
             if (target == null)
             {
                 return;
@@ -1925,7 +2249,12 @@ namespace LearnHearthstone.Domain.Engine
 
             foreach (var tribe in tribes)
             {
-                AddShopGrowth(state, tribe, 3, 3, "Eonar's Favor");
+                AddShopGrowth(
+                    state,
+                    tribe,
+                    StatMath.SaturatingAdd(3, applyTavernSpellBonus ? state.Player.Tavern.TavernSpellBonusAttack : 0, 0, StatMath.MaxStat),
+                    StatMath.SaturatingAdd(3, applyTavernSpellBonus ? state.Player.Tavern.TavernSpellBonusHealth : 0, 0, StatMath.MaxStat),
+                    "Eonar's Favor");
             }
 
             BuffAll(
@@ -1937,11 +2266,32 @@ namespace LearnHearthstone.Domain.Engine
                 applyTavernSpellBonus);
         }
 
-        private static void ResolveBackToBack(MatchState state, bool applyTavernSpellBonus)
+        private static void ResolveBackToBack(MatchState state, MinionInstance target, bool applyTavernSpellBonus)
         {
-            var amount = 2 + Math.Max(0, state.Player.Tavern.BackToBackBonus);
-            Buff(state, FirstAnyMinion(state), amount, amount, "Back to Back", applyTavernSpellBonus);
-            state.Player.Tavern.BackToBackBonus += 2;
+            if (target == null)
+            {
+                return;
+            }
+
+            var tavern = state.Player.Tavern;
+            var priorAttack = Math.Max(0, Math.Max(tavern.BackToBackAttackBonus, tavern.BackToBackBonus));
+            var priorHealth = Math.Max(0, Math.Max(tavern.BackToBackHealthBonus, tavern.BackToBackBonus));
+            var spellAttackBonus = applyTavernSpellBonus ? Math.Max(0, tavern.TavernSpellBonusAttack) : 0;
+            var spellHealthBonus = applyTavernSpellBonus ? Math.Max(0, tavern.TavernSpellBonusHealth) : 0;
+            var attack = StatMath.SaturatingAdd(4, priorAttack, 0, StatMath.MaxStat);
+            var health = StatMath.SaturatingAdd(4, priorHealth, 0, StatMath.MaxStat);
+            Buff(state, target, attack, health, "Back to Back", applyTavernSpellBonus);
+            tavern.BackToBackAttackBonus = StatMath.SaturatingAdd(
+                StatMath.SaturatingAdd(priorAttack, 4, 0, StatMath.MaxStat),
+                spellAttackBonus,
+                0,
+                StatMath.MaxStat);
+            tavern.BackToBackHealthBonus = StatMath.SaturatingAdd(
+                StatMath.SaturatingAdd(priorHealth, 4, 0, StatMath.MaxStat),
+                spellHealthBonus,
+                0,
+                StatMath.MaxStat);
+            tavern.BackToBackBonus = Math.Min(tavern.BackToBackAttackBonus, tavern.BackToBackHealthBonus);
         }
 
         private static void ResolveDeepwaterClan(MatchState state, bool applyTavernSpellBonus)
@@ -1950,7 +2300,7 @@ namespace LearnHearthstone.Domain.Engine
             Buff(state, target, 2, 2, "Deepwater Clan", applyTavernSpellBonus);
             BuffAll(
                 state,
-                state.Player.Board.Where(minion => minion.Tribes.Contains(Tribe.Murloc) && (target == null || minion.InstanceId != target.InstanceId)),
+                state.Player.Board.Where(minion => minion.Tribes.Contains(Tribe.Murloc)),
                 2,
                 2,
                 "Deepwater Clan Murlocs",
@@ -1974,27 +2324,36 @@ namespace LearnHearthstone.Domain.Engine
         private static void ResolveButchering(MatchState state, Action<MinionInstance> destroyFriendlyMinion)
         {
             var target = ExplicitFriendlyBoardTarget(state);
-            if (target == null || !target.Tribes.Contains(Tribe.Undead))
+            if (target == null || !MatchesTribe(target, Tribe.Undead))
             {
-                target = state.Player.Board.FirstOrDefault(minion => minion.Tribes.Contains(Tribe.Undead));
+                return;
             }
 
-            if (target != null)
+            var destroyed = false;
+            if (destroyFriendlyMinion != null)
             {
-                if (destroyFriendlyMinion != null)
-                {
-                    destroyFriendlyMinion(target);
-                }
-                else
-                {
-                    state.Player.Board.Remove(target);
-                }
+                destroyFriendlyMinion(target);
+                destroyed = !state.Player.Board.Contains(target);
+            }
+            else
+            {
+                destroyed = state.Player.Board.Remove(target);
             }
 
-            state.Player.Tavern.UndeadAttackBonus += 4;
-            foreach (var undead in state.Player.Board.Where(minion => minion.Tribes.Contains(Tribe.Undead)))
+            if (!destroyed)
             {
-                Buff(state, undead, 4, 0, "Butchering", false);
+                return;
+            }
+
+            var amount = StatMath.SaturatingAdd(5, state.Player.Tavern.TavernSpellBonusAttack, 0, StatMath.MaxStat);
+            state.Player.Tavern.ButcheringAttackBonus = StatMath.SaturatingAdd(state.Player.Tavern.ButcheringAttackBonus, amount, 0, StatMath.MaxStat);
+            AddShopGrowth(state, Tribe.Undead, amount, 0, "Butchering");
+            foreach (var undead in state.Player.Board
+                .Concat(state.Player.Tavern.Hand)
+                .Concat(state.Player.Tavern.Shop)
+                .Where(minion => minion != null && minion.CardKind == CardKind.Minion && MatchesTribe(minion, Tribe.Undead)))
+            {
+                Buff(state, undead, amount, 0, "Butchering", false);
             }
         }
 
@@ -2006,28 +2365,37 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveMenagerieTableware(MatchState state, bool applyTavernSpellBonus)
         {
-            var typeCount = BoardTribeAnalyzer.CountDistinctTribes(state.Player.Board);
-            if (typeCount <= 0)
+            var resolutions = 1 + BoardTribeAnalyzer.CountDistinctTribes(state.Player.Board);
+            for (var resolution = 0; resolution < resolutions; resolution += 1)
             {
-                return;
+                BuffAll(state, state.Player.Board, 3, 3, "Menagerie Tableware", applyTavernSpellBonus);
             }
-
-            BuffAll(state, state.Player.Board, 3 * typeCount, 3 * typeCount, "Menagerie Tableware", applyTavernSpellBonus);
         }
 
-        private static void ResolveInvokeTheDevourer(MatchState state)
+        private static void ResolveInvokeTheDevourer(MatchState state, SeededRng rng, Action<MinionInstance> sellFriendlyMinion)
         {
-            var sold = ExplicitFriendlyBoardTarget(state) ?? state.Player.Board.FirstOrDefault();
+            var sold = ExplicitFriendlyBoardTarget(state);
             if (sold == null)
             {
                 return;
             }
 
-            state.Player.Board.Remove(sold);
-            var target = state.Player.Board.FirstOrDefault();
+            var attack = sold.Attack;
+            var health = sold.MaxHealth;
+            if (sellFriendlyMinion != null)
+            {
+                sellFriendlyMinion(sold);
+            }
+            else
+            {
+                state.Player.Board.Remove(sold);
+            }
+
+            var candidates = state.Player.Board.Where(minion => minion != null).ToList();
+            var target = candidates.Count == 0 ? null : (rng ?? new SeededRng(0)).Pick(candidates);
             if (target != null)
             {
-                Buff(state, target, sold.Attack, sold.MaxHealth, "Invoke the Devourer", false);
+                Buff(state, target, attack, health, "Invoke the Devourer", false);
             }
         }
 
@@ -2121,9 +2489,13 @@ namespace LearnHearthstone.Domain.Engine
                 || (!string.IsNullOrWhiteSpace(minion.Text) && minion.Text.IndexOf("Battlecry", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
-        private static void RefreshShopToTargetTribe(MatchState state, MinionCatalog catalog, SeededRng rng)
+        private static void RefreshShopToTargetTribe(MatchState state, MinionCatalog catalog, SeededRng rng, MinionInstance target)
         {
-            var target = FirstAnyMinion(state);
+            if (target == null)
+            {
+                return;
+            }
+
             var tribes = BoardTribeAnalyzer.GetCountedTribes(target);
             if (tribes.Count == 0)
             {
@@ -2144,9 +2516,8 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void SetFirstFriendlyToBestTeamStats(MatchState state)
+        private static void SetFirstFriendlyToBestTeamStats(MatchState state, MinionInstance target)
         {
-            var target = FirstFriendlyBoard(state);
             if (target == null)
             {
                 return;
@@ -2231,25 +2602,52 @@ namespace LearnHearthstone.Domain.Engine
                 EnchantmentKind.BloodGem);
         }
 
-        private static void SellMinionAndBuffLeftmostElemental(MatchState state)
+        private static void SellMinionAndBuffLeftmostElemental(MatchState state, Action<MinionInstance> sellFriendlyMinion)
         {
-            var elemental = state.Player.Board.FirstOrDefault(minion => minion.Tribes.Contains(Tribe.Elemental));
-            if (elemental == null)
-            {
-                return;
-            }
-
-            var sold = state.Player.Board.FirstOrDefault(minion => minion.InstanceId != elemental.InstanceId)
-                ?? state.Player.Board.FirstOrDefault();
+            var sold = ExplicitFriendlyBoardTarget(state);
             if (sold == null)
             {
                 return;
             }
 
-            state.Player.Board.Remove(sold);
-            if (sold.InstanceId != elemental.InstanceId)
+            var attack = sold.Attack;
+            var health = sold.MaxHealth;
+            if (sellFriendlyMinion != null)
             {
-                Buff(state, elemental, sold.Attack, sold.MaxHealth, "Cascading Avalanche", false);
+                sellFriendlyMinion(sold);
+            }
+            else
+            {
+                state.Player.Board.Remove(sold);
+            }
+
+            var elemental = state.Player.Board.FirstOrDefault(minion => minion != null && minion.Tribes.Contains(Tribe.Elemental));
+            if (elemental != null)
+            {
+                Buff(state, elemental, attack, health, "Cascading Avalanche", false);
+            }
+        }
+
+        private static void ResolveCorruptedCupcakes(MatchState state, SeededRng rng, Action<int, MinionInstance> consumeTavernMinion)
+        {
+            var target = ExplicitFriendlyBoardTarget(state);
+            if (target == null || !MatchesTribe(target, Tribe.Demon))
+            {
+                return;
+            }
+
+            var candidates = state.Player.Tavern.Shop
+                .Select((card, index) => new { Card = card, Index = index })
+                .Where(item => item.Card != null && item.Card.CardKind == CardKind.Minion)
+                .ToList();
+            var random = rng ?? new SeededRng(0);
+            for (var consumed = 0; consumed < 3 && candidates.Count > 0; consumed += 1)
+            {
+                var picked = random.Pick(candidates);
+                candidates.Remove(picked);
+                state.Player.Tavern.Shop[picked.Index] = null;
+                Buff(state, target, picked.Card.Attack, picked.Card.MaxHealth, "Corrupted Cupcakes", false);
+                consumeTavernMinion?.Invoke(picked.Index, picked.Card);
             }
         }
 
@@ -2355,10 +2753,14 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void AddSpellcraftBundleToHand(MatchState state, SpellCatalog spells, SeededRng rng)
         {
-            var candidates = spells.All.Where(spell => spell.Category == "TavernSpell" && spell.TavernTier <= Math.Max(1, state.Player.Tavern.Tier)).ToList();
+            var random = rng ?? new SeededRng(0);
+            var candidates = (spells?.All ?? Enumerable.Empty<TavernSpellDefinition>())
+                .Where(definition => definition != null && RandomSpellcraftCardIds.Contains(definition.CardNumber, StringComparer.OrdinalIgnoreCase))
+                .ToList();
             for (var count = 0; count < 3 && state.Player.Tavern.Hand.Count < HandLimit && candidates.Count > 0; count += 1)
             {
-                var card = MinionFactory.Create(rng.Pick(candidates), BoardSide.Player, "spellcraft-" + state.Round + "-" + count);
+                var definition = random.Pick(candidates);
+                var card = MinionFactory.Create(definition, BoardSide.Player, "spellcraft-" + state.Round + "-" + count);
                 AddTag(card, "generated_spell");
                 AddTag(card, "spellcraft");
                 AddTag(card, "temporary_spellcraft_card");

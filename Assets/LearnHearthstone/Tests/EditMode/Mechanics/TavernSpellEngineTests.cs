@@ -35,6 +35,26 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Cast_TargetedSpellRejectsUnsupportedExplicitTargetZone()
+        {
+            var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
+            state.Player.Board.Clear();
+            var target = TestBoardMinion("target", "Target", 2, 3, Tribe.Murloc);
+            state.Player.Board.Add(target);
+
+            Assert.Throws<System.InvalidOperationException>(() => TavernSpellEngine.Cast(
+                new MinionInstance { CardKind = CardKind.TavernSpell, CardId = "100596", Name = "Pointy Arrow" },
+                state,
+                MinionCatalogLoader.LoadFromResources(),
+                SpellCatalogLoader.LoadFromResources(),
+                new SeededRng(1),
+                0,
+                targetZone: TargetZone.OpponentBoard,
+                targetInstanceId: target.InstanceId));
+            Assert.AreEqual(2, target.Attack);
+        }
+
+        [Test]
         public void Cast_GoldenTouchSynchronizesGoldenDescription()
         {
             var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
@@ -91,8 +111,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.Contains("Blood Gem Barrage"));
             Assert.AreEqual(1, state.Player.Tavern.Growth.ShopModifiers.Count);
             Assert.AreEqual(BuffScope.ShopGlobal, state.Player.Tavern.Growth.ShopModifiers[0].Scope);
-            Assert.AreEqual(6, state.Player.Tavern.Growth.ShopModifiers[0].Attack);
-            Assert.AreEqual(7, state.Player.Tavern.Growth.ShopModifiers[0].Health);
+            Assert.AreEqual(4, state.Player.Tavern.Growth.ShopModifiers[0].Attack);
+            Assert.AreEqual(5, state.Player.Tavern.Growth.ShopModifiers[0].Health);
             Assert.AreEqual(EnchantmentKind.BloodGem, state.Player.Tavern.Growth.ShopModifiers[0].EnchantmentKind);
         }
 
@@ -122,8 +142,8 @@ namespace LearnHearthstone.Tests.EditMode
                 .ToList();
             Assert.IsNotEmpty(gems);
             Assert.IsTrue(gems.All(gem => gem.Kind == EnchantmentKind.BloodGem));
-            Assert.IsTrue(gems.All(gem => gem.AttackBonus == 13));
-            Assert.IsTrue(gems.All(gem => gem.HealthBonus == 15));
+            Assert.IsTrue(gems.All(gem => gem.AttackBonus == 11));
+            Assert.IsTrue(gems.All(gem => gem.HealthBonus == 13));
         }
 
         [Test]
@@ -187,7 +207,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Cast_PerfectVisionUsesSpellPowerAndPreservesHiddenBloodGem()
+        public void Cast_PerfectVisionUsesTavernSpellBonusAndPreservesHiddenBloodGem()
         {
             var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
             state.Player.Board.Clear();
@@ -206,11 +226,79 @@ namespace LearnHearthstone.Tests.EditMode
                 new SeededRng(1),
                 0);
 
-            Assert.AreEqual(23, target.Attack);
-            Assert.AreEqual(25, target.MaxHealth);
-            Assert.AreEqual(25, target.Health);
+            Assert.AreEqual(21, target.Attack);
+            Assert.AreEqual(23, target.MaxHealth);
+            Assert.AreEqual(23, target.Health);
             Assert.AreEqual(1, target.Enchantments.Count(StatMath.IsBloodGemEnchantment));
             Assert.IsTrue(target.Enchantments.Any(enchantment => enchantment.Kind == EnchantmentKind.SetStats));
+        }
+
+        [Test]
+        public void Cast_RobustEvolutionResetsIdentityAndKeepsStatsAcrossRecalculation()
+        {
+            var state = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository()).State;
+            var minions = MinionCatalogLoader.LoadFromResources();
+            var originalDefinition = minions.All.First(definition => definition.InPool && definition.TavernTier == 1);
+            var target = MinionFactory.Create(originalDefinition, BoardSide.Player, "robust-evolution", true, PoolSource.Pool, 3);
+            StatMath.ApplyEnchantment(target, new Enchantment
+            {
+                Id = "stale-buff",
+                SourceId = "stale-buff",
+                AttackBonus = 9,
+                HealthBonus = 11,
+                AddedKeywords = new List<Keyword> { Keyword.Taunt }
+            });
+            target.Counters["stale-counter"] = 7;
+            target.EffectIds.Add("stale-effect");
+            target.Tags.Add("stale-tag");
+            target.Tags.Add("frozen");
+            target.Health -= 3;
+            var preservedAttack = target.Attack;
+            var preservedMaxHealth = target.MaxHealth;
+            state.Player.Board.Clear();
+            state.Player.Board.Add(target);
+
+            TavernSpellEngine.Cast(
+                new MinionInstance { CardKind = CardKind.TavernSpell, CardId = "113901", Name = "Robust Evolution" },
+                state,
+                minions,
+                SpellCatalogLoader.LoadFromResources(),
+                new SeededRng(1),
+                0,
+                null,
+                null,
+                TargetZone.FriendlyBoard,
+                target.InstanceId);
+
+            var transformedDefinition = minions.GetByCardId(target.CardId);
+            Assert.AreEqual(2, target.TavernTier);
+            Assert.AreEqual(transformedDefinition.Id, target.DefinitionId);
+            Assert.AreEqual(transformedDefinition.BaseAttack, target.BaseAttack);
+            Assert.AreEqual(transformedDefinition.BaseHealth, target.BaseHealth);
+            CollectionAssert.AreEqual(transformedDefinition.Tribes, target.Tribes);
+            CollectionAssert.AreEqual(transformedDefinition.Keywords, target.Keywords);
+            CollectionAssert.AreEqual(transformedDefinition.OfficialKeywords, target.OfficialKeywords);
+            CollectionAssert.AreEqual(transformedDefinition.EffectIds, target.EffectIds);
+            CollectionAssert.AreEquivalent(
+                transformedDefinition.Tags.Concat(new[] { "frozen" }),
+                target.Tags);
+            Assert.IsFalse(target.Golden);
+            Assert.IsEmpty(target.Counters);
+            Assert.AreEqual(PoolSource.Copy, target.PoolSource);
+            Assert.AreEqual(0, target.PoolCopiesHeld);
+            Assert.AreEqual(preservedAttack, target.Attack);
+            Assert.AreEqual(preservedMaxHealth, target.MaxHealth);
+            Assert.AreEqual(preservedMaxHealth - 3, target.Health);
+            Assert.AreEqual(1, target.Enchantments.Count);
+            Assert.AreEqual(EnchantmentKind.SetStats, target.Enchantments[0].Kind);
+            Assert.AreEqual(preservedAttack, target.Enchantments[0].AttackBonus);
+            Assert.AreEqual(preservedMaxHealth, target.Enchantments[0].HealthBonus);
+
+            StatMath.RecalculateStatsPreservingDamage(target);
+
+            Assert.AreEqual(preservedAttack, target.Attack);
+            Assert.AreEqual(preservedMaxHealth, target.MaxHealth);
+            Assert.AreEqual(preservedMaxHealth - 3, target.Health);
         }
 
         [Test]
@@ -364,7 +452,12 @@ namespace LearnHearthstone.Tests.EditMode
                 state,
                 MinionCatalogLoader.LoadFromResources(),
                 SpellCatalogLoader.LoadFromResources(),
-                new SeededRng(1));
+                new SeededRng(1),
+                0,
+                null,
+                null,
+                TargetZone.FriendlyBoard,
+                minion.InstanceId);
 
             Assert.AreEqual(minion.BaseAttack + 1, state.Player.Board[0].Attack);
             Assert.AreEqual(minion.BaseHealth + 1, state.Player.Board[0].MaxHealth);
@@ -411,8 +504,8 @@ namespace LearnHearthstone.Tests.EditMode
                 SpellCatalogLoader.LoadFromResources(),
                 new SeededRng(1));
 
-            Assert.AreEqual(31, state.Player.Board[0].Attack);
-            Assert.AreEqual(31, state.Player.Board[0].MaxHealth);
+            Assert.AreEqual(34, state.Player.Board[0].Attack);
+            Assert.AreEqual(34, state.Player.Board[0].MaxHealth);
         }
 
         [Test]
@@ -437,14 +530,14 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void StartOfCombatSpellQueue_PreventsDuplicateAndConsumesAllEffects()
+        public void StartOfCombatSpellQueue_PreservesDuplicateOccurrencesAndConsumesAllEffects()
         {
             var tavern = new TavernState();
 
             Assert.IsTrue(TavernSpellEngine.TryQueueStartOfCombatSpell("110401", tavern));
-            Assert.IsFalse(TavernSpellEngine.TryQueueStartOfCombatSpell("110401", tavern));
-            Assert.AreEqual(2, tavern.NextCombatBeetles);
-            CollectionAssert.AreEqual(new[] { "110401" }, tavern.NextCombatTavernSpellCardIds);
+            Assert.IsTrue(TavernSpellEngine.TryQueueStartOfCombatSpell("110401", tavern));
+            Assert.AreEqual(4, tavern.NextCombatBeetles);
+            CollectionAssert.AreEqual(new[] { "110401", "110401" }, tavern.NextCombatTavernSpellCardIds);
 
             TavernSpellEngine.ConsumeStartOfCombatSpells(tavern);
 
@@ -466,8 +559,12 @@ namespace LearnHearthstone.Tests.EditMode
             var preview = service.GetOpponentCombatTavernStatePreview();
             Assert.AreEqual(2, preview.NextCombatBeetles);
             Assert.AreEqual(1, preview.NextCombatEnemyHealthToOne);
-            Assert.Throws<System.InvalidOperationException>(() =>
+            Assert.DoesNotThrow(() =>
                 service.Apply(new GameCommand(GameCommandType.SetOpponentStartOfCombatSpell, "110401", CardKind.TavernSpell)));
+            Assert.AreEqual(4, service.GetOpponentCombatTavernStatePreview().NextCombatBeetles);
+            CollectionAssert.AreEqual(
+                new[] { "110401", "104560", "110401" },
+                service.State.Opponent.NextCombatTavernSpellCardIds);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 91, SafetyLimit = 4 }));
 

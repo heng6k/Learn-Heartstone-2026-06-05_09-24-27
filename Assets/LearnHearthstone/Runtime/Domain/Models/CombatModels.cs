@@ -24,6 +24,8 @@ namespace LearnHearthstone.Domain.Models
         public CombatReplay Replay = new CombatReplay();
         public List<CombatReward> PlayerRewards = new List<CombatReward>();
         public List<CombatReward> OpponentRewards = new List<CombatReward>();
+        public TavernState FinalPlayerTavern;
+        public TavernState FinalOpponentTavern;
         public int Steps;
         public bool SafetyStopped;
     }
@@ -207,6 +209,7 @@ namespace LearnHearthstone.Domain.Models
         AddRandomProtossToHand,
         AddRandomGoldenBeastToHand,
         AddKeywordToOriginalFriendlyMinion,
-        ImproveShopStats
+        ImproveShopStats,
+        ImproveFireforgedEvoker
     }
 }

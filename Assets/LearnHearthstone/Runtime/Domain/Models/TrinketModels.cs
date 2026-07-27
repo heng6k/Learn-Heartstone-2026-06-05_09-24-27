@@ -112,6 +112,11 @@ namespace LearnHearthstone.Domain.Models
         public int EquippedRound;
         public int CostPaid;
         public TrinketImplementationStatus ImplementationStatus;
+
+        public EquippedTrinketState Clone()
+        {
+            return (EquippedTrinketState)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -163,5 +168,13 @@ namespace LearnHearthstone.Domain.Models
         public int FangAnkletBonusHealth;
         public int AllPurposeKibbleAttack;
         public int FelburnedLedgerBonusThisTurn;
+
+        public PlayerTrinketState Clone()
+        {
+            var clone = (PlayerTrinketState)MemberwiseClone();
+            clone.Equipped = (Equipped ?? new List<EquippedTrinketState>())
+                .ConvertAll(item => item?.Clone());
+            return clone;
+        }
     }
 }

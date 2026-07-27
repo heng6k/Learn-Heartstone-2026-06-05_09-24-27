@@ -96,6 +96,13 @@ namespace LearnHearthstone.Domain.Models
         public string Slot;
         public string ImplementationStatus;
         public List<string> Tags = new List<string>();
+
+        public MechanicChoiceOption Clone()
+        {
+            var clone = (MechanicChoiceOption)MemberwiseClone();
+            clone.Tags = new List<string>(Tags ?? new List<string>());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -108,6 +115,14 @@ namespace LearnHearthstone.Domain.Models
         public int Round;
         public int RemainingPicks = 1;
         public List<MechanicChoiceOption> Options = new List<MechanicChoiceOption>();
+
+        public MechanicChoiceRequest Clone()
+        {
+            var clone = (MechanicChoiceRequest)MemberwiseClone();
+            clone.Options = (Options ?? new List<MechanicChoiceOption>())
+                .ConvertAll(option => option?.Clone());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -120,6 +135,11 @@ namespace LearnHearthstone.Domain.Models
         public int EquippedRound;
         public int CostPaid;
         public string ImplementationStatus;
+
+        public EquippedAdvancedMechanic Clone()
+        {
+            return (EquippedAdvancedMechanic)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -132,5 +152,19 @@ namespace LearnHearthstone.Domain.Models
         public PlayerTrinketState Trinkets = new PlayerTrinketState();
         public PlayerQuestState Quests = new PlayerQuestState();
         public AnomalyState Anomalies = new AnomalyState();
+
+        public AdvancedMechanicState Clone()
+        {
+            var clone = (AdvancedMechanicState)MemberwiseClone();
+            clone.PendingChoice = PendingChoice?.Clone();
+            clone.Equipped = (Equipped ?? new List<EquippedAdvancedMechanic>())
+                .ConvertAll(item => item?.Clone());
+            clone.Counters = new Dictionary<string, int>(Counters ?? new Dictionary<string, int>());
+            clone.Selections = new Dictionary<string, string>(Selections ?? new Dictionary<string, string>());
+            clone.Trinkets = Trinkets?.Clone() ?? new PlayerTrinketState();
+            clone.Quests = Quests?.Clone() ?? new PlayerQuestState();
+            clone.Anomalies = Anomalies?.Clone() ?? new AnomalyState();
+            return clone;
+        }
     }
 }

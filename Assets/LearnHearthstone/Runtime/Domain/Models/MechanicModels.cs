@@ -84,6 +84,11 @@ namespace LearnHearthstone.Domain.Models
         public int Health;
         public EnchantmentKind EnchantmentKind = EnchantmentKind.Unspecified;
         public string SourceId;
+
+        public TavernGrowthModifier Clone()
+        {
+            return (TavernGrowthModifier)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -92,5 +97,10 @@ namespace LearnHearthstone.Domain.Models
         public string CardId;
         public int AttackBonus;
         public int HealthBonus;
+
+        public GeneratedCardBuffState Clone()
+        {
+            return (GeneratedCardBuffState)MemberwiseClone();
+        }
     }
 }

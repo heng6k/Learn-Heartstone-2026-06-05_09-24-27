@@ -999,6 +999,137 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void RemainingBatch_TemporalTamperingRepeatsSpitescalePerActualCast()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            ActivateRewardDirectly(service, "BG28_Reward_501");
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "110406", CardKind.TavernSpell));
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "110406");
+            var castsThisTurn = tavern.TavernSpellsCastThisTurn;
+            var castsThisGame = tavern.TavernSpellsCastThisGame;
+            var cardsPlayed = tavern.CardsPlayedThisTurn;
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex));
+
+            Assert.AreEqual(6, tavern.Hand.Count);
+            Assert.AreEqual(6, tavern.Hand.Select(card => card.InstanceId).Distinct().Count());
+            Assert.IsTrue(tavern.Hand.All(card => card.CardKind == CardKind.Spell));
+            Assert.IsTrue(tavern.Hand.All(card => card.Keywords.Contains(Keyword.Spellcraft)));
+            Assert.IsTrue(tavern.Hand.All(card => card.Tags.Contains("temporary_spellcraft_card")));
+            Assert.AreEqual(castsThisTurn + 2, tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(castsThisGame + 2, tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(cardsPlayed + 1, tavern.CardsPlayedThisTurn);
+        }
+
+        [Test]
+        public void RemainingBatch_TemporalTamperingRepeatsMountingAvalancheWithAResolvedSecondTarget()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            var first = TestMinion("avalanche-temporal-first");
+            first.Attack = 3;
+            first.BaseAttack = 3;
+            first.Health = 5;
+            first.MaxHealth = 5;
+            first.BaseHealth = 5;
+            var second = TestMinion("avalanche-temporal-second");
+            second.Attack = 7;
+            second.BaseAttack = 7;
+            second.Health = 9;
+            second.MaxHealth = 9;
+            second.BaseHealth = 9;
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            tavern.Gold = 0;
+            tavern.MaxGold = 10;
+            ActivateRewardDirectly(service, "BG28_Reward_501");
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "122862", CardKind.TavernSpell));
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "122862");
+            var soldAttack = tavern.SoldThisTurnAttack;
+            var soldHealth = tavern.SoldThisTurnHealth;
+            var sellLogs = tavern.RecruitLog.Count(entry => entry.Type == RecruitLogType.Sell);
+            var castsThisTurn = tavern.TavernSpellsCastThisTurn;
+            var castsThisGame = tavern.TavernSpellsCastThisGame;
+            var cardsPlayed = tavern.CardsPlayedThisTurn;
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                spellIndex,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified,
+                first.InstanceId));
+
+            Assert.AreEqual(0, service.State.Player.Board.Count);
+            Assert.AreEqual(2, tavern.Gold);
+            Assert.AreEqual(soldAttack + 10, tavern.SoldThisTurnAttack);
+            Assert.AreEqual(soldHealth + 14, tavern.SoldThisTurnHealth);
+            Assert.AreEqual(sellLogs + 2, tavern.RecruitLog.Count(entry => entry.Type == RecruitLogType.Sell));
+            Assert.AreEqual(castsThisTurn + 2, tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(castsThisGame + 2, tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(cardsPlayed + 1, tavern.CardsPlayedThisTurn);
+            Assert.AreEqual(0, tavern.Hand.Count);
+        }
+
+        [Test]
+        public void RemainingBatch_TemporalTamperingRepeatsChannelTheDevourerWithAResolvedSecondTarget()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var tavern = service.State.Player.Tavern;
+            service.State.Player.Board.Clear();
+            tavern.Hand.Clear();
+            var first = TestMinion("devourer-temporal-first");
+            first.Attack = 3;
+            first.BaseAttack = 3;
+            first.Health = 5;
+            first.MaxHealth = 5;
+            first.BaseHealth = 5;
+            var second = TestMinion("devourer-temporal-second");
+            second.Attack = 7;
+            second.BaseAttack = 7;
+            second.Health = 9;
+            second.MaxHealth = 9;
+            second.BaseHealth = 9;
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            tavern.Gold = 0;
+            tavern.MaxGold = 10;
+            ActivateRewardDirectly(service, "BG28_Reward_501");
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "100899", CardKind.TavernSpell));
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "100899");
+            var soldAttack = tavern.SoldThisTurnAttack;
+            var soldHealth = tavern.SoldThisTurnHealth;
+            var sellLogs = tavern.RecruitLog.Count(entry => entry.Type == RecruitLogType.Sell);
+            var castsThisTurn = tavern.TavernSpellsCastThisTurn;
+            var castsThisGame = tavern.TavernSpellsCastThisGame;
+            var cardsPlayed = tavern.CardsPlayedThisTurn;
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                spellIndex,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified,
+                first.InstanceId));
+
+            Assert.AreEqual(0, service.State.Player.Board.Count);
+            Assert.AreEqual(2, tavern.Gold);
+            Assert.AreEqual(soldAttack + 13, tavern.SoldThisTurnAttack);
+            Assert.AreEqual(soldHealth + 19, tavern.SoldThisTurnHealth);
+            Assert.AreEqual(sellLogs + 2, tavern.RecruitLog.Count(entry => entry.Type == RecruitLogType.Sell));
+            Assert.AreEqual(castsThisTurn + 2, tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(castsThisGame + 2, tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(cardsPlayed + 1, tavern.CardsPlayedThisTurn);
+            Assert.AreEqual(0, tavern.Hand.Count);
+        }
+
+        [Test]
         public void RemainingBatch_GoldenHammerSpellcraftRevertsNextTurn()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());

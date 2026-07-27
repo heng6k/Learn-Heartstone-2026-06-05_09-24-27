@@ -26,6 +26,7 @@ namespace LearnHearthstone.Tests.EditMode
             "104502",
             "104559",
             "105267",
+            "105276",
             "105664",
             "105665",
             "105667",
@@ -67,7 +68,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .OrderBy(id => id)
                 .ToList();
 
-            Assert.AreEqual(30, tierOneToThree.Count);
+            Assert.AreEqual(31, tierOneToThree.Count);
             Assert.AreEqual(tierOneToThree, ImplementedTierOneTwoThreeTavernSpells.OrderBy(id => id).ToList());
         }
 
@@ -85,8 +86,11 @@ namespace LearnHearthstone.Tests.EditMode
                 var service = PreparedService(9300 + spell.SourceId);
                 service.State.Player.Tavern.Tier = Math.Max(1, spell.TavernTier);
                 service.Apply(new GameCommand(GameCommandType.AddCardToHand, spell.CardNumber, CardKind.TavernSpell));
+                var handIndex = service.State.Player.Tavern.Hand.Count - 1;
+                var spellCard = service.State.Player.Tavern.Hand[handIndex];
+                var command = BuildTavernSpellPlayCommand(service, handIndex, spellCard);
 
-                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)), spell.CardNumber + " should resolve.");
+                Assert.DoesNotThrow(() => service.Apply(command), spell.CardNumber + " should resolve.");
             }
         }
 
@@ -114,8 +118,26 @@ namespace LearnHearthstone.Tests.EditMode
                 }
 
                 var service = PreparedService(9400 + minion.DbfId);
+                MinionInstance battlecryTarget = null;
+                if (minion.CardId == "BG28_303")
+                {
+                    battlecryTarget = TestMinion("graverobber-target", BoardSide.Player, 2, 2, Tribe.Undead);
+                    service.State.Player.Board.Add(battlecryTarget);
+                }
+
                 service.Apply(new GameCommand(GameCommandType.AddCardToHand, minion.CardId, CardKind.Minion));
-                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)), minion.CardId + " should be playable.");
+                var handIndex = service.State.Player.Tavern.Hand.Count - 1;
+                var command = battlecryTarget == null
+                    ? new GameCommand(GameCommandType.PlayMinion, handIndex)
+                    : new GameCommand(
+                        GameCommandType.PlayMinion,
+                        handIndex,
+                        service.State.Player.Board.IndexOf(battlecryTarget),
+                        TargetZone.FriendlyBoard,
+                        -1,
+                        TargetZone.Unspecified,
+                        battlecryTarget.InstanceId);
+                Assert.DoesNotThrow(() => service.Apply(command), minion.CardId + " should be playable.");
             }
         }
 
@@ -195,13 +217,31 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(originalAttack, service.State.Player.Board[0].Attack);
 
             service = PreparedService(9505);
+            service.State.Opponent.Board.Clear();
+            var carapaceTarget = service.State.Player.Board[0];
+            var carapaceOriginalAttack = carapaceTarget.Attack;
+            var carapaceOriginalMaxHealth = carapaceTarget.MaxHealth;
+            carapaceTarget.Health -= 1;
             PlaySpell(service, "122489");
-            Assert.IsTrue(service.State.Player.Board.All(minion => minion.Tags.Contains("temporary_spellcraft")));
+            Assert.AreEqual(3, service.State.Player.Tavern.TemporaryCarapaceAttack);
+            Assert.AreEqual(1, service.State.Player.Tavern.TemporaryCarapaceHealth);
+            Assert.IsTrue(service.State.Player.Board.All(minion => minion.Enchantments.Any(enchantment => enchantment.SourceId == TavernSpellEngine.HauntedCarapaceSourceId)));
+            Assert.AreEqual(carapaceOriginalAttack + 3, carapaceTarget.Attack);
+            Assert.AreEqual(carapaceOriginalMaxHealth + 1, carapaceTarget.MaxHealth);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(0, service.State.Player.Tavern.TemporaryCarapaceAttack);
+            Assert.AreEqual(0, service.State.Player.Tavern.TemporaryCarapaceHealth);
+            Assert.IsFalse(service.State.Player.Board.Any(minion => minion.Enchantments.Any(enchantment => enchantment.SourceId == TavernSpellEngine.HauntedCarapaceSourceId)));
+            Assert.AreEqual(carapaceOriginalAttack, carapaceTarget.Attack);
+            Assert.AreEqual(carapaceOriginalMaxHealth, carapaceTarget.MaxHealth);
+            Assert.AreEqual(carapaceOriginalMaxHealth - 1, carapaceTarget.Health);
 
             service = PreparedService(9506);
             var elemental = service.State.Player.Board.First(minion => minion.Tribes.Contains(Tribe.Elemental));
             var before = elemental.Attack;
-            PlaySpell(service, "122862");
+            PlaySpell(service, "122862", minion => !minion.Tribes.Contains(Tribe.Elemental));
             Assert.Less(service.State.Player.Board.Count, 3);
             Assert.Greater(elemental.Attack, before);
         }
@@ -390,11 +430,57 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestMinion("p-murloc", BoardSide.Player, 2, 3, Tribe.Murloc));
         }
 
-        private static void PlaySpell(MatchService service, string cardNumber)
+        private static void PlaySpell(
+            MatchService service,
+            string cardNumber,
+            Func<MinionInstance, bool> preferredBoardTarget = null)
         {
             service.State.Player.Tavern.Hand.Clear();
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardNumber, CardKind.TavernSpell));
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            var spell = service.State.Player.Tavern.Hand[0];
+            service.Apply(BuildTavernSpellPlayCommand(service, 0, spell, preferredBoardTarget));
+        }
+
+        private static GameCommand BuildTavernSpellPlayCommand(
+            MatchService service,
+            int handIndex,
+            MinionInstance spell,
+            Func<MinionInstance, bool> preferredBoardTarget = null)
+        {
+            var boardTarget = service.State.Player.Board
+                .Select((card, index) => new { Card = card, Index = index })
+                .FirstOrDefault(item =>
+                    item.Card != null &&
+                    (preferredBoardTarget == null || preferredBoardTarget(item.Card)) &&
+                    TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, item.Card));
+            if (boardTarget != null && TavernSpellEngine.TargetsFriendlyMinion(spell))
+            {
+                return new GameCommand(
+                    GameCommandType.PlayMinion,
+                    handIndex,
+                    boardTarget.Index,
+                    TargetZone.FriendlyBoard,
+                    -1,
+                    TargetZone.Unspecified,
+                    boardTarget.Card.InstanceId);
+            }
+
+            var shopTarget = service.State.Player.Tavern.Shop
+                .Select((card, index) => new { Card = card, Index = index })
+                .FirstOrDefault(item => item.Card != null && TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, item.Card));
+            if (shopTarget != null && TavernSpellEngine.CanTargetTavernMinion(spell))
+            {
+                return new GameCommand(
+                    GameCommandType.PlayMinion,
+                    handIndex,
+                    shopTarget.Index,
+                    TargetZone.TavernShop,
+                    -1,
+                    TargetZone.Unspecified,
+                    shopTarget.Card.InstanceId);
+            }
+
+            return new GameCommand(GameCommandType.PlayMinion, handIndex);
         }
 
         private static void AddAndPlay(MatchService service, string cardId)

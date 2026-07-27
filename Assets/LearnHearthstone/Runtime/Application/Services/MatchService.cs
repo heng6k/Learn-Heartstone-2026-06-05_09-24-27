@@ -296,6 +296,8 @@ namespace LearnHearthstone.Application.Services
         private const string TimewarpedSummonerSpellCardId = "TIMEWARPED_SUMMONER_SPELL";
         private const string TemporarySpellcraftSourceId = "Temporary Spellcraft";
         private const string PermanentSpellcraftSourceId = "Permanent Spellcraft";
+        private const string HauntedCarapaceSourceId = "Haunted Carapace";
+        private const string ButcheringSourceId = "Butchering";
         private const string TemporaryVenomousSourceId = "Temporary Venomous";
         private const string PermanentSpellcraftCounter = "permanent_spellcraft_left";
         private const string AllSpellsCastThisGameCounter = "all_spells_cast_this_game";
@@ -772,6 +774,7 @@ namespace LearnHearthstone.Application.Services
         private const string WarDrumRoundCounter = "trinket:war_drum:round";
         private const string WarDrumUsedCounter = "trinket:war_drum:used";
         private const string DemonicTapestryHealthCostTag = "trinket_demonic_tapestry_health_cost";
+        private const string TaughtSpellTagPrefix = "taught_spell:";
         private const string TaughtTavernSpellTagPrefix = "taught_tavern_spell:";
         private const string Batch3HealthCostPilgrimp = "pilgrimp";
         private const string Batch3HealthCostBazaar = "bazaar";
@@ -1008,6 +1011,7 @@ namespace LearnHearthstone.Application.Services
         private const string WildfireManasurgeCardId = "BG32_846";
         private const string AirAdmiralRogersCardId = "BG33_823";
         private const string FelfinFungalmancerCardId = "BG33_891";
+        private const string MagicfinApprenticeCardId = "BG33_890t";
         private const string PrimalfinPortraitistCardId = "BG33_893";
         private const string SlitherspearCardId = "BG33_920";
         private const string ShatteredMatriarchCardId = "BG33_923";
@@ -1047,7 +1051,7 @@ namespace LearnHearthstone.Application.Services
         private const string SacredGiftCardNumber = "122899";
         private const string ConflagrationCardNumber = "130310";
         private const string QueensCommandCardNumber = "130713";
-        private const string MenagerieTablewareCardNumber = "105271";
+        private const string MenagerieTablewareCardNumber = "130527";
         private const string StaffOfEnrichmentCardNumber = "105276";
         private const string DisturbedGraveCardNumber = "126957";
         private const string ButcheringCardNumber = "110412";
@@ -1768,6 +1772,7 @@ namespace LearnHearthstone.Application.Services
                     break;
                 case GameCommandType.ChooseDiscover:
                     ChooseDiscover(command.Index);
+                    ResolveAutomaticDiscovers();
                     break;
                 case GameCommandType.ChooseMechanicOption:
                     ChooseMechanicOption(command.Index);
@@ -5567,7 +5572,8 @@ namespace LearnHearthstone.Application.Services
                 ApplyTimewarpedCastsWhenBought(definition);
                 AddRecruitLog(RecruitLogType.Buy, Localized("购买时施放：" + TimewarpedName(definition), "Casts When Bought: " + TimewarpedName(definition)), before, timewarp.Chronum);
                 HandleTimewarpedCardBought(castWhenBoughtCard);
-                HandleAutomaticSpellCastSideEffects(castWhenBoughtCard, null, 0);
+                HandleSingleSpellCastSideEffects(castWhenBoughtCard, null);
+                HandleCardPlayedSideEffects(castWhenBoughtCard);
                 return;
             }
 
@@ -8545,7 +8551,8 @@ namespace LearnHearthstone.Application.Services
             SeededRng rng,
             int targetIndex,
             TargetZone targetZone = TargetZone.Unspecified,
-            string targetInstanceId = null)
+            string targetInstanceId = null,
+            string choiceId = null)
         {
             var before = CapturePlayerBoardStats();
             var result = TavernSpellEngine.Cast(
@@ -8559,9 +8566,133 @@ namespace LearnHearthstone.Application.Services
                 darkmoonPrizeCatalog,
                 targetZone,
                 targetInstanceId,
-                target => DestroyRecruitPhaseMinion(target, "Butchering"));
+                target => DestroyRecruitPhaseMinion(target, "Butchering"),
+                choiceId,
+                count => AddRandomSpellcraftSpellsToHand(count, "Spitescale Special", null),
+                target => SellMinion(target?.InstanceId),
+                (index, consumed) =>
+                {
+                    ReleaseMinionToPool(consumed);
+                    TavernShopSlots.Ensure(State.Player.Tavern);
+                });
             HandleTimewarpedStatsGainedFromSnapshot(before, "TavernSpellEngine:" + (spell?.CardId ?? "unknown"));
             return result;
+        }
+
+        private string CastTavernSpellEffectWithBonuses(
+            MinionInstance spell,
+            SeededRng rng,
+            int targetIndex,
+            TargetZone targetZone = TargetZone.Unspecified,
+            string targetInstanceId = null,
+            string choiceId = null)
+        {
+            var tavern = State.Player.Tavern;
+            var dynamicBonus = GetBoardTavernSpellBonus();
+            var perpetualBonus = spell?.CardKind == CardKind.TavernSpell ? GetPerpetualIncantationBonus() : (Attack: 0, Health: 0);
+            var trinketBonus = spell?.CardKind == CardKind.TavernSpell ? GetTrinketTavernSpellBonus() : (Attack: 0, Health: 0);
+            tavern.TavernSpellBonusAttack += dynamicBonus.Attack + perpetualBonus.Attack + trinketBonus.Attack;
+            tavern.TavernSpellBonusHealth += dynamicBonus.Health + perpetualBonus.Health + trinketBonus.Health;
+            try
+            {
+                return CastTavernSpellEngineWithTimewarpedStatTracking(
+                    spell,
+                    rng,
+                    targetIndex,
+                    targetZone,
+                    targetInstanceId,
+                    choiceId);
+            }
+            finally
+            {
+                tavern.TavernSpellBonusAttack -= dynamicBonus.Attack;
+                tavern.TavernSpellBonusHealth -= dynamicBonus.Health;
+                tavern.TavernSpellBonusAttack -= perpetualBonus.Attack;
+                tavern.TavernSpellBonusHealth -= perpetualBonus.Health;
+                tavern.TavernSpellBonusAttack -= trinketBonus.Attack;
+                tavern.TavernSpellBonusHealth -= trinketBonus.Health;
+            }
+        }
+
+        private string CastSingleTavernSpellEffect(
+            MinionInstance spell,
+            SeededRng rng,
+            int targetIndex,
+            TargetZone targetZone = TargetZone.Unspecified,
+            string targetInstanceId = null,
+            string choiceId = null)
+        {
+            if (TryCastQuestRewardSpell(spell, targetIndex, targetZone, targetInstanceId, out var result))
+            {
+                return result;
+            }
+
+            if (TryCastTimewarpedNonMinionSpell(spell, targetIndex, out result))
+            {
+                return result;
+            }
+
+            return CastTavernSpellEffectWithBonuses(spell, rng, targetIndex, targetZone, targetInstanceId, choiceId);
+        }
+
+        private void HandleSingleSpellCastSideEffects(
+            MinionInstance spell,
+            string spellTargetId,
+            bool fromHand = false,
+            bool suppressImperialDefenderCopy = false)
+        {
+            if (spell == null)
+            {
+                return;
+            }
+
+            HandleSpellCastOnTarget(spell, spellTargetId, fromHand, suppressImperialDefenderCopy);
+            DispatchTrinketSpellcraftCast(spell);
+            DispatchTrinketSpellCast(spell, fromHand);
+            RecordQuestProgress(QuestObjectiveKind.CastSpells, 1);
+            if (spell.CardKind != CardKind.TavernSpell)
+            {
+                return;
+            }
+
+            var tavern = State.Player.Tavern;
+            tavern.TavernSpellsCastThisTurn = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisTurn, 1, 0, StatMath.MaxStat);
+            tavern.TavernSpellsCastThisGame = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisGame, 1, 0, StatMath.MaxStat);
+            tavern.LastTavernSpellCardId = spell.CardId;
+            RecordQuestProgress(QuestObjectiveKind.CastTavernSpells, 1);
+            DispatchBoardEvent(MechanicEventType.TavernSpellCast);
+            HandleTavernSpellCastForTierThreeMinions(spell);
+            HandleTavernSpellCastForTierFourMinions(spell);
+            HandleTavernSpellCastForTierFiveMinions(spell);
+            HandleTavernSpellCastForTierSixSevenMinions(spell);
+            HandleTimewarpedTavernSpellCast(spell);
+            DispatchHeroEffect(HeroEffectEventType.TavernSpellCast, spell);
+            DispatchTrinketTavernSpellCast(spell, fromHand);
+            ImprovePerpetualIncantation();
+        }
+
+        private void HandleCardPlayedSideEffects(MinionInstance spell, bool includeTimewarped = true)
+        {
+            if (spell == null)
+            {
+                return;
+            }
+
+            if (spell.CardKind == CardKind.TavernSpell)
+            {
+                State.Player.Tavern.CardsPlayedThisTurn = StatMath.SaturatingAdd(
+                    State.Player.Tavern.CardsPlayedThisTurn,
+                    1,
+                    0,
+                    StatMath.MaxStat);
+            }
+
+            HandleCardPlayedForTierFiveMinions(spell);
+            HandleCardPlayedForTierSixSevenMinions(spell);
+            if (includeTimewarped)
+            {
+                HandleTimewarpedCardPlayed(spell);
+            }
         }
 
         private Dictionary<MinionInstance, (int Attack, int Health)> CapturePlayerBoardStats()
@@ -8604,10 +8735,14 @@ namespace LearnHearthstone.Application.Services
             }
 
             var tavern = State.Player.Tavern;
-            var resolvedTargetIndex = ResolveDebugSpellTargetIndex(spell, targetIndex);
+            var resolvedTarget = ResolveAutomaticSpellTarget(spell, targetIndex, rngSeed);
             try
             {
-                ValidateExplicitPlayTarget(spell, resolvedTargetIndex);
+                ValidateExplicitPlayTarget(
+                    spell,
+                    resolvedTarget.TargetIndex,
+                    resolvedTarget.TargetZone,
+                    resolvedTarget.TargetInstanceId);
             }
             catch (InvalidOperationException ex)
             {
@@ -8615,74 +8750,36 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            var spellTargetId = ResolveFriendlyBoardTargetId(resolvedTargetIndex);
             string spellResult;
-            var spellcraftCastCount = 1;
-            if (TryCastQuestRewardSpell(spell, resolvedTargetIndex, TargetZone.FriendlyBoard, null, out spellResult))
+            var actualCastCount = 1 + GetTavernSpellExtraCasts(spell, resolvedTarget.TargetZone);
+            var results = new List<string>();
+            var castTarget = resolvedTarget;
+            for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
             {
-                HandleAutomaticSpellCastSideEffects(spell, spellTargetId, spellcraftCastCount);
-                return true;
-            }
-
-            var dynamicBonus = GetBoardTavernSpellBonus();
-            var perpetualBonus = spell.CardKind == CardKind.TavernSpell ? GetPerpetualIncantationBonus() : (Attack: 0, Health: 0);
-            var trinketBonus = spell.CardKind == CardKind.TavernSpell ? GetTrinketTavernSpellBonus() : (Attack: 0, Health: 0);
-            tavern.TavernSpellBonusAttack += dynamicBonus.Attack + perpetualBonus.Attack + trinketBonus.Attack;
-            tavern.TavernSpellBonusHealth += dynamicBonus.Health + perpetualBonus.Health + trinketBonus.Health;
-            try
-            {
-                if (!TryCastTimewarpedNonMinionSpell(spell, resolvedTargetIndex, out spellResult))
+                if (actualCast > 0 && !TryResolveRepeatedTavernSpellTarget(
+                    spell,
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId,
+                    rngSeed + actualCast,
+                    out castTarget))
                 {
-                    spellResult = CastTavernSpellEngineWithTimewarpedStatTracking(spell, new SeededRng(rngSeed), resolvedTargetIndex);
-                    var extraCasts = GetTavernSpellExtraCasts(spell, TargetZone.FriendlyBoard);
-                    spellcraftCastCount += extraCasts;
-                    for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
-                    {
-                        spellResult += " + " + CastTavernSpellEngineWithTimewarpedStatTracking(spell, new SeededRng(rngSeed + extraCast + 1), resolvedTargetIndex);
-                    }
+                    break;
                 }
-            }
-            finally
-            {
-                tavern.TavernSpellBonusAttack -= dynamicBonus.Attack;
-                tavern.TavernSpellBonusHealth -= dynamicBonus.Health;
-                tavern.TavernSpellBonusAttack -= perpetualBonus.Attack;
-                tavern.TavernSpellBonusHealth -= perpetualBonus.Health;
-                tavern.TavernSpellBonusAttack -= trinketBonus.Attack;
-                tavern.TavernSpellBonusHealth -= trinketBonus.Health;
+
+                results.Add(CastSingleTavernSpellEffect(
+                    spell,
+                    new SeededRng(rngSeed + actualCast),
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId));
+
+                HandleSingleSpellCastSideEffects(spell, castTarget.TargetInstanceId, fromHand: false);
             }
 
-            HandleAutomaticSpellCastSideEffects(spell, spellTargetId, spellcraftCastCount);
+            spellResult = string.Join(" + ", results);
+            HandleCardPlayedSideEffects(spell);
             return true;
-        }
-
-        private void HandleAutomaticSpellCastSideEffects(MinionInstance spell, string spellTargetId, int spellcraftCastCount)
-        {
-            var tavern = State.Player.Tavern;
-            HandleSpellCastOnTarget(spell, spellTargetId);
-            DispatchTrinketSpellcraftCast(spell, spellcraftCastCount);
-            DispatchTrinketSpellCast(spell);
-            RecordQuestProgress(QuestObjectiveKind.CastSpells, 1);
-            if (spell.CardKind == CardKind.TavernSpell)
-            {
-                tavern.TavernSpellsCastThisTurn = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisTurn, 1, 0, StatMath.MaxStat);
-                tavern.TavernSpellsCastThisGame = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisGame, 1, 0, StatMath.MaxStat);
-                tavern.CardsPlayedThisTurn = StatMath.SaturatingAdd(tavern.CardsPlayedThisTurn, 1, 0, StatMath.MaxStat);
-                tavern.LastTavernSpellCardId = spell.CardId;
-                RecordQuestProgress(QuestObjectiveKind.CastTavernSpells, 1);
-                DispatchBoardEvent(MechanicEventType.TavernSpellCast);
-                HandleTavernSpellCastForTierThreeMinions(spell);
-                HandleTavernSpellCastForTierFourMinions(spell);
-                HandleTavernSpellCastForTierFiveMinions(spell);
-                HandleTavernSpellCastForTierSixSevenMinions(spell);
-                HandleTimewarpedTavernSpellCast(spell);
-                DispatchHeroEffect(HeroEffectEventType.TavernSpellCast, spell);
-                DispatchTrinketTavernSpellCast(spell, false);
-                ImprovePerpetualIncantation();
-            }
-
-            HandleCardPlayedForTierFiveMinions(spell);
-            HandleCardPlayedForTierSixSevenMinions(spell);
         }
 
         private void ScheduleNorgannonAutoUpgrade(QuestRewardDefinition reward)
@@ -14413,7 +14510,8 @@ namespace LearnHearthstone.Application.Services
                 1,
                 1,
                 suffix,
-                new[] { Tribe.Murloc });
+                new[] { Tribe.Murloc },
+                Keyword.Battlecry);
             murloc.Tags.Add(TaughtTavernSpellTagPrefix + bought.CardId);
             murloc.Tags.Add("magicfin_taught_murloc");
             State.Player.Tavern.Hand.Add(murloc);
@@ -17588,7 +17686,7 @@ namespace LearnHearthstone.Application.Services
                 var spellTargetName = ResolvePlayerMinionTargetName(targetIndex, targetZone, targetInstanceId);
                 tavern.Hand.RemoveAt(handIndex);
                 string spellResult;
-                if (TryCastQuestRewardSpell(target, targetIndex, targetZone, targetInstanceId, out spellResult))
+                if (false && TryCastQuestRewardSpell(target, targetIndex, targetZone, targetInstanceId, out spellResult))
                 {
                     HandleSpellCastOnTarget(target, spellTargetId, true);
                     DispatchTrinketSpellcraftCast(target);
@@ -17600,70 +17698,35 @@ namespace LearnHearthstone.Application.Services
                     return;
                 }
 
-                var dynamicBonus = GetBoardTavernSpellBonus();
-                var perpetualBonus = target.CardKind == CardKind.TavernSpell ? GetPerpetualIncantationBonus() : (Attack: 0, Health: 0);
-                var trinketBonus = target.CardKind == CardKind.TavernSpell ? GetTrinketTavernSpellBonus() : (Attack: 0, Health: 0);
-                tavern.TavernSpellBonusAttack += dynamicBonus.Attack + perpetualBonus.Attack + trinketBonus.Attack;
-                tavern.TavernSpellBonusHealth += dynamicBonus.Health + perpetualBonus.Health + trinketBonus.Health;
-                var spellcraftCastCount = 1;
-                try
+                var actualCastCount = 1 + GetTavernSpellExtraCasts(target, targetZone);
+                var results = new List<string>();
+                var castTarget = (TargetIndex: targetIndex, TargetZone: targetZone, TargetInstanceId: targetInstanceId);
+                for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
                 {
-                    if (!TryCastTimewarpedNonMinionSpell(target, targetIndex, out spellResult))
+                    if (actualCast > 0 && !TryResolveRepeatedTavernSpellTarget(
+                        target,
+                        castTarget.TargetIndex,
+                        castTarget.TargetZone,
+                        castTarget.TargetInstanceId,
+                        State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast,
+                        out castTarget))
                     {
-                        spellResult = CastTavernSpellEngineWithTimewarpedStatTracking(
-                            target,
-                            new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count),
-                            targetIndex,
-                            targetZone,
-                            targetInstanceId);
-                        var extraCasts = GetTavernSpellExtraCasts(target, targetZone);
-                        spellcraftCastCount += extraCasts;
-                        for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
-                        {
-                            spellResult += " + " + CastTavernSpellEngineWithTimewarpedStatTracking(
-                                target,
-                                new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1),
-                                targetIndex,
-                                targetZone,
-                                targetInstanceId);
-                        }
+                        break;
                     }
-                }
-                finally
-                {
-                    tavern.TavernSpellBonusAttack -= dynamicBonus.Attack;
-                    tavern.TavernSpellBonusHealth -= dynamicBonus.Health;
-                    tavern.TavernSpellBonusAttack -= perpetualBonus.Attack;
-                    tavern.TavernSpellBonusHealth -= perpetualBonus.Health;
-                    tavern.TavernSpellBonusAttack -= trinketBonus.Attack;
-                    tavern.TavernSpellBonusHealth -= trinketBonus.Health;
+
+                    results.Add(CastSingleTavernSpellEffect(
+                        target,
+                        new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast),
+                        castTarget.TargetIndex,
+                        castTarget.TargetZone,
+                        castTarget.TargetInstanceId,
+                        choiceId));
+
+                    HandleSingleSpellCastSideEffects(target, castTarget.TargetInstanceId, fromHand: actualCast == 0);
                 }
 
-                HandleSpellCastOnTarget(target, spellTargetId, true);
-                DispatchTrinketSpellcraftCast(target, spellcraftCastCount);
-                DispatchTrinketSpellCast(target, true);
-                RecordQuestProgress(QuestObjectiveKind.CastSpells, 1);
-                if (target.CardKind == CardKind.TavernSpell)
-                {
-                    tavern.TavernSpellsCastThisTurn = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisTurn, 1, 0, StatMath.MaxStat);
-                    tavern.TavernSpellsCastThisGame = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisGame, 1, 0, StatMath.MaxStat);
-                    tavern.CardsPlayedThisTurn = StatMath.SaturatingAdd(tavern.CardsPlayedThisTurn, 1, 0, StatMath.MaxStat);
-                    tavern.LastTavernSpellCardId = target.CardId;
-                    RecordQuestProgress(QuestObjectiveKind.CastTavernSpells, 1);
-                    DispatchBoardEvent(MechanicEventType.TavernSpellCast);
-                    HandleTavernSpellCastForTierThreeMinions(target);
-                    HandleTavernSpellCastForTierFourMinions(target);
-                    HandleTavernSpellCastForTierFiveMinions(target);
-                    HandleTavernSpellCastForTierSixSevenMinions(target);
-                    HandleTimewarpedTavernSpellCast(target);
-                    DispatchHeroEffect(HeroEffectEventType.TavernSpellCast, target);
-                    DispatchTrinketTavernSpellCast(target, true);
-                    ImprovePerpetualIncantation();
-                }
-
-                HandleCardPlayedForTierFiveMinions(target);
-                HandleCardPlayedForTierSixSevenMinions(target);
-                HandleTimewarpedCardPlayed(target);
+                spellResult = string.Join(" + ", results);
+                HandleCardPlayedSideEffects(target);
                 AddRecruitLog(RecruitLogType.Play, "施放 " + target.Name + FormatTargetSuffix(spellTargetName) + " - " + spellResult, tavern.Gold, tavern.Gold);
                 return;
             }
@@ -17678,13 +17741,16 @@ namespace LearnHearthstone.Application.Services
                 throw new InvalidOperationException("战场已满。");
             }
 
-            var battlecryTargetId = ResolveBattlecryTargetId(target, targetIndex);
-            var battlecryTargetName = string.IsNullOrEmpty(battlecryTargetId) ? null : ResolveFriendlyBoardTargetName(targetIndex);
+            var battlecryTargetId = ResolveBattlecryTargetId(target, targetIndex, targetZone, targetInstanceId);
+            var battlecryTargetName = string.IsNullOrEmpty(battlecryTargetId)
+                ? null
+                : ResolvePlayerMinionTargetName(targetIndex, targetZone, targetInstanceId);
 
             tavern.Hand.RemoveAt(handIndex);
             target.Owner = BoardSide.Player;
             target.InstanceId = "player-" + target.DefinitionId + "-play-" + State.Round + "-" + handIndex;
             State.Player.Board.Insert(NormalizeBoardInsertIndex(targetIndex, State.Player.Board.Count), target);
+            ApplyPersistentTavernSpellBonuses(new[] { target });
             if (target.CardId == AncestralAutomatonCardId)
             {
                 State.Player.Tavern.AncestralAutomatonSummons += 1;
@@ -18767,6 +18833,13 @@ namespace LearnHearthstone.Application.Services
             out MinionInstance target)
         {
             target = null;
+            if (targetZone != TargetZone.Unspecified &&
+                targetZone != TargetZone.FriendlyBoard &&
+                targetZone != TargetZone.TavernShop)
+            {
+                return false;
+            }
+
             if (targetZone == TargetZone.TavernShop)
             {
                 target = !string.IsNullOrEmpty(targetInstanceId)
@@ -18812,9 +18885,15 @@ namespace LearnHearthstone.Application.Services
 
             if (card.CardId != ScrapperCardId &&
                 card.CardId != MutableBeetleCardId &&
-                card.CardId != DisguisedGraverobberCardId)
+                card.CardId != DisguisedGraverobberCardId &&
+                !IsTaughtSpellBattlecryTargeted(card))
             {
                 return null;
+            }
+
+            if (IsTaughtSpellBattlecryTargeted(card))
+            {
+                return ResolvePlayerMinionTargetId(targetIndex, targetZone, targetInstanceId);
             }
 
             if (targetZone != TargetZone.Unspecified && targetZone != TargetZone.FriendlyBoard)
@@ -18852,12 +18931,11 @@ namespace LearnHearthstone.Application.Services
             {
                 if (RequiresExplicitBattlecryTarget(card))
                 {
-                    throw new InvalidOperationException(card.Name + " needs a friendly board target.");
+                    throw new InvalidOperationException(card.Name + (IsTaughtSpellBattlecryTargeted(card) ? " needs a target." : " needs a friendly board target."));
                 }
 
                 if ((card.CardKind == CardKind.TavernSpell || card.CardKind == CardKind.Spell) &&
-                    card.Tags != null &&
-                    card.Tags.Any(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase)))
+                    TavernSpellEngine.TargetsFriendlyMinion(card))
                 {
                     throw new InvalidOperationException(card.Name + " needs a target.");
                 }
@@ -18869,9 +18947,9 @@ namespace LearnHearthstone.Application.Services
             {
                 if (!TryResolvePlayerMinionTarget(targetIndex, targetZone, targetInstanceId, out var target))
                 {
-                    if (IsFriendlyBoardTargetedSpell(card.CardId))
+                    if (TavernSpellEngine.TargetsFriendlyMinion(card))
                     {
-                        throw new InvalidOperationException(card.Name + " needs a friendly board target.");
+                        throw new InvalidOperationException(card.Name + (CanTargetTavernMinion(card) ? " needs a minion target." : " needs a friendly board target."));
                     }
 
                     return;
@@ -18896,6 +18974,25 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
+            if (IsTaughtSpellBattlecryTargeted(card))
+            {
+                var taughtSpell = CreateTaughtSpellInstance(card, "taught-validate");
+                if (taughtSpell == null || !TryResolvePlayerMinionTarget(targetIndex, targetZone, targetInstanceId, out var taughtTarget))
+                {
+                    throw new InvalidOperationException(card.Name + " needs a target.");
+                }
+
+                var targetsTavernMinion = State.Player.Tavern.Shop.Any(shopCard =>
+                    shopCard != null && string.Equals(shopCard.InstanceId, taughtTarget.InstanceId, StringComparison.OrdinalIgnoreCase));
+                if (targetsTavernMinion && !CanTargetTavernMinion(taughtSpell))
+                {
+                    throw new InvalidOperationException(taughtSpell.Name + " cannot target a Tavern minion.");
+                }
+
+                ValidateTargetedSpellTarget(taughtSpell, taughtTarget);
+                return;
+            }
+
             if (RequiresExplicitBattlecryTarget(card))
             {
                 if (targetZone != TargetZone.Unspecified && targetZone != TargetZone.FriendlyBoard)
@@ -18917,6 +19014,7 @@ namespace LearnHearthstone.Application.Services
                 {
                     throw new InvalidOperationException("Disguised Graverobber needs a friendly Undead target.");
                 }
+
             }
         }
 
@@ -18941,6 +19039,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             if (RequiresExplicitBattlecryTarget(card) &&
+                !IsTaughtSpellBattlecryTargeted(card) &&
                 targetZone != TargetZone.Unspecified &&
                 targetZone != TargetZone.FriendlyBoard)
             {
@@ -18966,14 +19065,21 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private static bool RequiresExplicitBattlecryTarget(MinionInstance card)
+        private bool RequiresExplicitBattlecryTarget(MinionInstance card)
         {
             return card != null &&
-                   (card.CardId == ScrapperCardId || card.CardId == DisguisedGraverobberCardId);
+                   (card.CardId == ScrapperCardId ||
+                    card.CardId == DisguisedGraverobberCardId ||
+                    IsTaughtSpellBattlecryTargeted(card));
         }
 
         private void ValidateTargetedSpellTarget(MinionInstance spell, MinionInstance target)
         {
+            if (!TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, target))
+            {
+                throw new InvalidOperationException(spell.Name + " cannot target " + target.Name + ".");
+            }
+
             if (IsJewelryBoxBloodGemSpell(spell) && !HasTribe(target, Tribe.Quilboar))
             {
                 throw new InvalidOperationException(spell.Name + " needs a Quilboar target.");
@@ -19031,66 +19137,6 @@ namespace LearnHearthstone.Application.Services
                     }
 
                     break;
-            }
-        }
-
-        private static bool IsFriendlyBoardTargetedSpell(string cardId)
-        {
-            switch (cardId)
-            {
-                case BloodGemCardId:
-                case BristlebackBloodGemCardId:
-                case RebornBloodGemCardId:
-                case SlimyShieldCardId:
-                case ReefRifferSpellCardId:
-                case SurfNSurfSpellCardId:
-                case DeepSeaAnglerSpellCardId:
-                case DeepBlueSpellCardId:
-                case VolcanicVisitorAttackSpellCardId:
-                case VolcanicVisitorHealthSpellCardId:
-                case TimewarpedGlowscaleSpellCardId:
-                case TimewarpedRatInACageCardId:
-                case TimewarpedChefsChoiceCardId:
-                case TimewarpedGoldenizerCardId:
-                case WearyMageSpellCardId:
-                case TimewarpedSummonerSpellCardId:
-                case DoubleStitchNeedleSpellCardId:
-                case TokenOfTheOldGodsSpellCardId:
-                case JailerStickerSpellCardId:
-                case DemonbloodGourdSpellCardId:
-                case ShiftingTideSpellCardId:
-                case DeepwaterSchoolCardId:
-                case ArcaneConsumptionCardId:
-                case EnhanceAMaticTauntSpellCardId:
-                case EnhanceAMaticWindfurySpellCardId:
-                case EnhanceAMaticDivineShieldSpellCardId:
-                case EnhanceAMaticRebornSpellCardId:
-                case RushingWindsSpellCardId:
-                case TimelineAcceleratorSpellCardId:
-                case GoldenHammerSpellCardId:
-                case ButcheringCardNumber:
-                case "100596":
-                case "100601":
-                case "100899":
-                case "103791":
-                case "103796":
-                case "104445":
-                case "104472":
-                case "104601":
-                case "105664":
-                case "105667":
-                case "105752":
-                case "110642":
-                case "113901":
-                case "117573":
-                case "119603":
-                case "120900":
-                case "130310":
-                case "130312":
-                case "131153":
-                    return true;
-                default:
-                    return false;
             }
         }
 
@@ -19321,11 +19367,6 @@ namespace LearnHearthstone.Application.Services
                 opponent.NextCombatTavernSpellCardIds = new List<string>();
             }
 
-            if (opponent.NextCombatTavernSpellCardIds.Any(queued => string.Equals(queued, cardId, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new InvalidOperationException("This start-of-combat Tavern spell is already configured for the opponent this turn.");
-            }
-
             opponent.NextCombatTavernSpellCardIds.Add(cardId);
             AddRecruitLog(RecruitLogType.Play, "Configured opponent start-of-combat Tavern spell: " + cardId + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
         }
@@ -19394,35 +19435,7 @@ namespace LearnHearthstone.Application.Services
 
         private static bool CanTargetTavernMinion(MinionInstance spell)
         {
-            if (spell == null)
-            {
-                return false;
-            }
-
-            if (IsBloodGemSpell(spell) || IsJewelryBoxBloodGemSpell(spell))
-            {
-                return true;
-            }
-
-            switch (spell.CardId)
-            {
-                case SlimyShieldCardId:
-                case PointyArrowCardId:
-                case ReefRifferSpellCardId:
-                case SurfNSurfSpellCardId:
-                case DeepSeaAnglerSpellCardId:
-                case DeepBlueSpellCardId:
-                case WearyMageSpellCardId:
-                case TimelineAcceleratorSpellCardId:
-                case KidnapSackSpellCardId:
-                case PreciousPearlSpellCardId:
-                case OphidianStaffSpellCardId:
-                case TimewarpedSummonerSpellCardId:
-                case NaturalBlessingCardNumber:
-                    return true;
-                default:
-                    return false;
-            }
+            return TavernSpellEngine.CanTargetTavernMinion(spell) || IsJewelryBoxBloodGemSpell(spell);
         }
 
         private static MinionInstance ResolveOpponentConfiguredHeroPowerTarget(IList<MinionInstance> board, LocalOpponentState opponent)
@@ -19678,16 +19691,28 @@ namespace LearnHearthstone.Application.Services
 
             var tavern = State.Player.Tavern;
             var spell = CreateDebugCard(cardId, cardKind, "debug-cast-" + State.Round + "-" + tavern.RecruitLog.Count);
-            var resolvedTargetIndex = ResolveDebugSpellTargetIndex(spell, targetIndex);
-            ValidateExplicitPlayTarget(spell, resolvedTargetIndex);
+            var resolvedTarget = ResolveAutomaticSpellTarget(
+                spell,
+                targetIndex,
+                State.Seed + State.Round * 1879 + tavern.RecruitLog.Count);
+            ValidateExplicitPlayTarget(
+                spell,
+                resolvedTarget.TargetIndex,
+                resolvedTarget.TargetZone,
+                resolvedTarget.TargetInstanceId);
 
-            var spellTargetId = ResolveFriendlyBoardTargetId(resolvedTargetIndex);
-            var spellTargetName = ResolveFriendlyBoardTargetName(resolvedTargetIndex);
+            var spellTargetName = ResolvePlayerMinionTargetName(
+                resolvedTarget.TargetIndex,
+                resolvedTarget.TargetZone,
+                resolvedTarget.TargetInstanceId);
             string spellResult;
-            if (TryCastQuestRewardSpell(spell, resolvedTargetIndex, TargetZone.FriendlyBoard, null, out spellResult))
+            if (false && TryCastQuestRewardSpell(
+                spell,
+                resolvedTarget.TargetIndex,
+                resolvedTarget.TargetZone,
+                resolvedTarget.TargetInstanceId,
+                out spellResult))
             {
-                HandleSpellCastOnTarget(spell, spellTargetId);
-                DispatchTrinketSpellcraftCast(spell);
                 DispatchTrinketSpellCast(spell);
                 HandleCardPlayedForTierFiveMinions(spell);
                 HandleCardPlayedForTierSixSevenMinions(spell);
@@ -19695,45 +19720,35 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var dynamicBonus = GetBoardTavernSpellBonus();
-            var perpetualBonus = spell.CardKind == CardKind.TavernSpell ? GetPerpetualIncantationBonus() : (Attack: 0, Health: 0);
-            var trinketBonus = spell.CardKind == CardKind.TavernSpell ? GetTrinketTavernSpellBonus() : (Attack: 0, Health: 0);
-            tavern.TavernSpellBonusAttack += dynamicBonus.Attack + perpetualBonus.Attack + trinketBonus.Attack;
-            tavern.TavernSpellBonusHealth += dynamicBonus.Health + perpetualBonus.Health + trinketBonus.Health;
-            var spellcraftCastCount = 1;
-            try
+            var actualCastCount = 1 + GetTavernSpellExtraCasts(spell, resolvedTarget.TargetZone);
+            var results = new List<string>();
+            var castTarget = resolvedTarget;
+            for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
             {
-                if (!TryCastTimewarpedNonMinionSpell(spell, resolvedTargetIndex, out spellResult))
+                if (actualCast > 0 && !TryResolveRepeatedTavernSpellTarget(
+                    spell,
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId,
+                    State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast,
+                    out castTarget))
                 {
-                    spellResult = CastTavernSpellEngineWithTimewarpedStatTracking(
-                        spell,
-                        new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count),
-                        resolvedTargetIndex);
-                    var extraCasts = GetTavernSpellExtraCasts(spell, TargetZone.FriendlyBoard);
-                    spellcraftCastCount += extraCasts;
-                    for (var extraCast = 0; extraCast < extraCasts; extraCast += 1)
-                    {
-                        spellResult += " + " + CastTavernSpellEngineWithTimewarpedStatTracking(
-                            spell,
-                            new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + extraCast + 1),
-                            resolvedTargetIndex);
-                    }
+                    break;
                 }
-            }
-            finally
-            {
-                tavern.TavernSpellBonusAttack -= dynamicBonus.Attack;
-                tavern.TavernSpellBonusHealth -= dynamicBonus.Health;
-                tavern.TavernSpellBonusAttack -= perpetualBonus.Attack;
-                tavern.TavernSpellBonusHealth -= perpetualBonus.Health;
-                tavern.TavernSpellBonusAttack -= trinketBonus.Attack;
-                tavern.TavernSpellBonusHealth -= trinketBonus.Health;
+
+                results.Add(CastSingleTavernSpellEffect(
+                    spell,
+                    new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast),
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId));
+                HandleSingleSpellCastSideEffects(spell, castTarget.TargetInstanceId, fromHand: false);
             }
 
-            HandleSpellCastOnTarget(spell, spellTargetId);
-            DispatchTrinketSpellcraftCast(spell, spellcraftCastCount);
-            DispatchTrinketSpellCast(spell);
-            if (spell.CardKind == CardKind.TavernSpell)
+            spellResult = string.Join(" + ", results);
+
+            HandleCardPlayedSideEffects(spell);
+            if (false && spell.CardKind == CardKind.TavernSpell)
             {
                 tavern.TavernSpellsCastThisTurn = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisTurn, 1, 0, StatMath.MaxStat);
                 tavern.TavernSpellsCastThisGame = StatMath.SaturatingAdd(tavern.TavernSpellsCastThisGame, 1, 0, StatMath.MaxStat);
@@ -19749,42 +19764,121 @@ namespace LearnHearthstone.Application.Services
                 DispatchTrinketTavernSpellCast(spell, false);
                 ImprovePerpetualIncantation();
             }
-
-            HandleCardPlayedForTierFiveMinions(spell);
-            HandleCardPlayedForTierSixSevenMinions(spell);
             AddRecruitLog(RecruitLogType.Play, "Debug cast " + spell.Name + FormatTargetSuffix(spellTargetName) + " - " + spellResult, tavern.Gold, tavern.Gold);
         }
 
-        private int ResolveDebugSpellTargetIndex(MinionInstance spell, int targetIndex)
+        private bool TryResolveRepeatedTavernSpellTarget(
+            MinionInstance spell,
+            int previousTargetIndex,
+            TargetZone previousTargetZone,
+            string previousTargetInstanceId,
+            int rngSeed,
+            out (int TargetIndex, TargetZone TargetZone, string TargetInstanceId) resolvedTarget)
         {
-            if (targetIndex >= 0 || spell == null || !IsFriendlyBoardTargetedSpell(spell.CardId) || State.Player.Board.Count == 0)
+            resolvedTarget = (previousTargetIndex, previousTargetZone, previousTargetInstanceId);
+            if (spell == null || !TavernSpellEngine.TargetsFriendlyMinion(spell))
             {
-                return targetIndex;
+                return true;
             }
 
-            var candidates = new List<int>();
-            for (var index = 0; index < State.Player.Board.Count; index += 1)
+            MinionInstance currentTarget = null;
+            if (!string.IsNullOrEmpty(previousTargetInstanceId))
             {
-                if (IsValidDebugSpellTarget(spell, State.Player.Board[index]))
+                TryResolvePlayerMinionTarget(-1, previousTargetZone, previousTargetInstanceId, out currentTarget);
+            }
+            else
+            {
+                TryResolvePlayerMinionTarget(previousTargetIndex, previousTargetZone, null, out currentTarget);
+            }
+
+            if (currentTarget != null)
+            {
+                var boardIndex = State.Player.Board.IndexOf(currentTarget);
+                var shopIndex = State.Player.Tavern.Shop.IndexOf(currentTarget);
+                var currentZone = boardIndex >= 0
+                    ? TargetZone.FriendlyBoard
+                    : shopIndex >= 0
+                        ? TargetZone.TavernShop
+                        : TargetZone.Unspecified;
+                var currentIndex = boardIndex >= 0 ? boardIndex : shopIndex;
+                if (currentZone != TargetZone.Unspecified &&
+                    IsValidAutomaticSpellTarget(spell, currentIndex, currentZone, currentTarget))
                 {
-                    candidates.Add(index);
+                    resolvedTarget = (currentIndex, currentZone, currentTarget.InstanceId);
+                    return true;
                 }
             }
 
-            if (candidates.Count == 0)
-            {
-                return targetIndex;
-            }
-
-            var rng = new SeededRng(State.Seed + State.Round * 1879 + State.Player.Tavern.RecruitLog.Count);
-            return candidates[rng.NextInt(candidates.Count)];
+            resolvedTarget = ResolveAutomaticSpellTarget(spell, -1, rngSeed);
+            return resolvedTarget.TargetIndex >= 0 && !string.IsNullOrEmpty(resolvedTarget.TargetInstanceId);
         }
 
-        private bool IsValidDebugSpellTarget(MinionInstance spell, MinionInstance target)
+        private (int TargetIndex, TargetZone TargetZone, string TargetInstanceId) ResolveAutomaticSpellTarget(
+            MinionInstance spell,
+            int targetIndex,
+            int rngSeed)
         {
+            if (spell == null || !TavernSpellEngine.TargetsFriendlyMinion(spell))
+            {
+                return (-1, TargetZone.Unspecified, null);
+            }
+
+            if (targetIndex >= 0 && targetIndex < State.Player.Board.Count &&
+                IsValidAutomaticSpellTarget(spell, targetIndex, TargetZone.FriendlyBoard, State.Player.Board[targetIndex]))
+            {
+                return (targetIndex, TargetZone.FriendlyBoard, State.Player.Board[targetIndex].InstanceId);
+            }
+
+            var boardCandidates = new List<(int TargetIndex, TargetZone TargetZone, string TargetInstanceId)>();
+            for (var index = 0; index < State.Player.Board.Count; index += 1)
+            {
+                var candidate = State.Player.Board[index];
+                if (IsValidAutomaticSpellTarget(spell, index, TargetZone.FriendlyBoard, candidate))
+                {
+                    boardCandidates.Add((index, TargetZone.FriendlyBoard, candidate.InstanceId));
+                }
+            }
+
+            if (boardCandidates.Count > 0)
+            {
+                return new SeededRng(rngSeed).Pick(boardCandidates);
+            }
+
+            if (CanTargetTavernMinion(spell))
+            {
+                var shopCandidates = new List<(int TargetIndex, TargetZone TargetZone, string TargetInstanceId)>();
+                for (var index = 0; index < State.Player.Tavern.Shop.Count; index += 1)
+                {
+                    var candidate = State.Player.Tavern.Shop[index];
+                    if (IsValidAutomaticSpellTarget(spell, index, TargetZone.TavernShop, candidate))
+                    {
+                        shopCandidates.Add((index, TargetZone.TavernShop, candidate.InstanceId));
+                    }
+                }
+
+                if (shopCandidates.Count > 0)
+                {
+                    return new SeededRng(rngSeed).Pick(shopCandidates);
+                }
+            }
+
+            return (-1, TargetZone.Unspecified, null);
+        }
+
+        private bool IsValidAutomaticSpellTarget(
+            MinionInstance spell,
+            int targetIndex,
+            TargetZone targetZone,
+            MinionInstance target)
+        {
+            if (target == null || !TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, target))
+            {
+                return false;
+            }
+
             try
             {
-                ValidateTargetedSpellTarget(spell, target);
+                ValidateExplicitPlayTarget(spell, targetIndex, targetZone, target.InstanceId);
                 return true;
             }
             catch (InvalidOperationException)
@@ -21225,6 +21319,7 @@ namespace LearnHearthstone.Application.Services
                 AddCoilfangEliteShopSpellcraft();
             }
 
+            ApplyPersistentTavernSpellBonuses(shop);
             TavernShopSlots.Ensure(tavern);
         }
 
@@ -21754,6 +21849,7 @@ namespace LearnHearthstone.Application.Services
             TickHandLocks();
             TickPatientScouts();
             ClearTemporarySpellcraftEffects();
+            ResolvePendingTimeManagement();
             ResetPermanentSpellcraftCounters();
             if (!resolveCombat)
             {
@@ -21922,13 +22018,64 @@ namespace LearnHearthstone.Application.Services
         {
             foreach (var card in State.Player.Board.Concat(State.Player.Tavern.Hand).Concat(State.Player.Tavern.Shop.Where(card => card != null)))
             {
+                ClearTemporaryCarapaceEffect(card);
                 ClearTemporarySpellcraftEffects(card);
             }
+
+            State.Player.Tavern.TemporaryCarapaceAttack = 0;
+            State.Player.Tavern.TemporaryCarapaceHealth = 0;
         }
 
         private void DiscardUnusedTemporarySpellcraftCards()
         {
             State.Player.Tavern.Hand.RemoveAll(card => card.Tags != null && card.Tags.Contains("temporary_spellcraft_card"));
+        }
+
+        private static void ClearTemporaryCarapaceEffect(MinionInstance card)
+        {
+            if (card?.Enchantments == null)
+            {
+                return;
+            }
+
+            var enchantments = card.Enchantments
+                .Where(enchantment => enchantment != null && string.Equals(enchantment.SourceId, HauntedCarapaceSourceId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            foreach (var enchantment in enchantments)
+            {
+                StatMath.ApplyStatDelta(
+                    card,
+                    StatMath.SaturatingSubtract(0, enchantment.AttackBonus),
+                    StatMath.SaturatingSubtract(0, enchantment.HealthBonus));
+                card.Enchantments.Remove(enchantment);
+            }
+        }
+
+        private void ResolvePendingTimeManagement()
+        {
+            var tavern = State.Player.Tavern;
+            var pendingEnchantments = (tavern.PendingTimeManagementEnchantments ?? new List<Enchantment>())
+                .Where(enchantment => enchantment != null)
+                .ToList();
+            tavern.PendingTimeManagementEnchantments = new List<Enchantment>();
+            if (pendingEnchantments.Count == 0 || State.Player.Board.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var enchantment in pendingEnchantments)
+            {
+                foreach (var target in State.Player.Board.Where(minion => minion != null && minion.CardKind == CardKind.Minion).ToList())
+                {
+                    BuffMinion(target, enchantment.AttackBonus, enchantment.HealthBonus, "Time Management");
+                }
+            }
+
+            AddRecruitLog(
+                RecruitLogType.TurnStart,
+                "Time Management: resolved " + pendingEnchantments.Count + " delayed board buff(s).",
+                tavern.Gold,
+                tavern.Gold);
         }
 
         private static void ClearTemporarySpellcraftEffects(MinionInstance card)
@@ -22484,6 +22631,31 @@ namespace LearnHearthstone.Application.Services
             State.Player.Tavern.PromoteQueuedDiscover();
         }
 
+        private void ResolveAutomaticDiscovers()
+        {
+            const int safetyLimit = 128;
+            var resolved = 0;
+            while (State?.Player?.Tavern?.Discover?.AutoResolveRandomly == true)
+            {
+                if (resolved >= safetyLimit)
+                {
+                    throw new InvalidOperationException("Automatic combat Discover resolution exceeded the safety limit.");
+                }
+
+                var discover = State.Player.Tavern.Discover;
+                if (discover.Options == null || discover.Options.Count == 0)
+                {
+                    State.Player.Tavern.CompleteDiscover();
+                    resolved += 1;
+                    continue;
+                }
+
+                var optionIndex = new SeededRng(discover.AutoResolveSeed).NextInt(discover.Options.Count);
+                ChooseDiscover(optionIndex);
+                resolved += 1;
+            }
+        }
+
         private bool TryContinueTierDiscover(DiscoverState discover)
         {
             if (discover == null)
@@ -22793,13 +22965,27 @@ namespace LearnHearthstone.Application.Services
                 opponentCombatTavern.Hand,
                 CreateCombatBattlecrySummonPool(),
                 null,
-                combatStartSideOrder[0]);
+                combatStartSideOrder[0],
+                catalog,
+                spellCatalog,
+                heroCatalog,
+                darkmoonPrizeCatalog,
+                State.ActiveTribes,
+                State.Round,
+                true,
+                CreateTaughtSpellInstance);
+            if (result.FinalPlayerTavern != null)
+            {
+                State.Player.Tavern = result.FinalPlayerTavern;
+            }
+
             State.Phase = MatchPhase.Result;
             State.CombatLog = result.Log;
             State.LastResult = result;
             State.LastReplay = result.Replay;
             combatTestSnapshot.Result = result;
             combatExplanation = CombatResultExplainer.Analyze(result, combatTestSnapshot.BeforeCombat);
+            ResolveAutomaticDiscovers();
             ApplyPermanentCombatBuffs(result);
             ApplyCombatOutcomeRewards(result);
             ApplyCombatRewards(result.PlayerRewards);
@@ -23504,8 +23690,34 @@ namespace LearnHearthstone.Application.Services
                     case CombatRewardType.AddRandomTierSixMinionToHand:
                         AddRandomTierMinionsToHand(6, reward.Amount, "combat-" + reward.SourceCardId);
                         break;
+                    case CombatRewardType.ImproveFireforgedEvoker:
+                        ApplyFireforgedEvokerCombatReward(reward);
+                        break;
                 }
             }
+        }
+
+        private void ApplyFireforgedEvokerCombatReward(CombatReward reward)
+        {
+            if (reward == null || string.IsNullOrEmpty(reward.TargetInstanceId))
+            {
+                return;
+            }
+
+            var evoker = State.Player.Board.FirstOrDefault(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, reward.TargetInstanceId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(minion.CardId, FireforgedEvokerCardId, StringComparison.OrdinalIgnoreCase));
+            if (evoker == null)
+            {
+                return;
+            }
+
+            var counters = EnsureCounters(evoker);
+            counters.TryGetValue("dragon_spell_attack", out var attack);
+            counters.TryGetValue("dragon_spell_health", out var health);
+            counters["dragon_spell_attack"] = StatMath.SaturatingAdd(attack, reward.Attack, 0, StatMath.MaxStat);
+            counters["dragon_spell_health"] = StatMath.SaturatingAdd(health, reward.Health, 0, StatMath.MaxStat);
         }
 
         private void ApplyOpponentCombatRewards(IEnumerable<CombatReward> rewards)
@@ -23891,7 +24103,7 @@ namespace LearnHearthstone.Application.Services
         {
             AddGeneratedCardsToHand(new GeneratedCardRequest
             {
-                Kind = GeneratedCardKind.RandomTavernSpellcraft,
+                Kind = GeneratedCardKind.RandomGeneratedSpellcraft,
                 Count = count,
                 Source = source,
                 SeedSalt = 919
@@ -24461,13 +24673,270 @@ namespace LearnHearthstone.Application.Services
             combatExplanation = null;
         }
 
+        private string GetTaughtSpellCardId(MinionInstance minion)
+        {
+            if (minion?.Tags == null)
+            {
+                return null;
+            }
+
+            foreach (var prefix in new[] { TaughtSpellTagPrefix, TaughtTavernSpellTagPrefix })
+            {
+                var tag = minion.Tags.FirstOrDefault(value =>
+                    value != null && value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(tag) && tag.Length > prefix.Length)
+                {
+                    return tag.Substring(prefix.Length);
+                }
+            }
+
+            return null;
+        }
+
+        private MinionInstance CreateTaughtSpellInstance(MinionInstance minion, string suffix)
+        {
+            return CreateTaughtSpellInstance(GetTaughtSpellCardId(minion), minion?.Owner ?? BoardSide.Player, suffix);
+        }
+
+        private MinionInstance CreateTaughtSpellInstance(string cardId, BoardSide owner, string suffix)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                return null;
+            }
+
+            if (timewarpedCatalog != null && timewarpedCatalog.TryGetByCardId(cardId, out var timewarped))
+            {
+                var result = CreateTimewarpedCardInstance(timewarped, suffix);
+                result.Owner = owner;
+                return result;
+            }
+
+            var definition = spellCatalog?.All?.FirstOrDefault(spell =>
+                string.Equals(spell.CardNumber, cardId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(spell.Id, cardId, StringComparison.OrdinalIgnoreCase));
+            if (definition != null)
+            {
+                var result = MinionFactory.Create(definition, owner, suffix);
+                result.PoolSource = PoolSource.Copy;
+                result.OriginPoolSource = PoolSource.Copy;
+                return result;
+            }
+
+            try
+            {
+                var generated = CreateGeneratedSpellCard(cardId, suffix);
+                generated.Owner = owner;
+                generated.PoolSource = PoolSource.Copy;
+                generated.OriginPoolSource = PoolSource.Copy;
+                return generated;
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        private bool IsTaughtSpellBattlecryTargeted(MinionInstance minion)
+        {
+            var spell = CreateTaughtSpellInstance(minion, "taught-target-check");
+            if (spell == null)
+            {
+                return false;
+            }
+
+            return TavernSpellEngine.TargetsFriendlyMinion(spell);
+        }
+
+        private bool TryResolveTaughtSpellTarget(
+            MinionInstance spell,
+            string preferredTargetId,
+            out int targetIndex,
+            out TargetZone targetZone,
+            out string targetInstanceId)
+        {
+            targetIndex = -1;
+            targetZone = TargetZone.Unspecified;
+            targetInstanceId = null;
+            if (spell == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(preferredTargetId) && TryResolveTaughtSpellTargetInZone(
+                spell,
+                State.Player.Board,
+                TargetZone.FriendlyBoard,
+                preferredTargetId,
+                true,
+                out targetIndex,
+                out targetInstanceId))
+            {
+                targetZone = TargetZone.FriendlyBoard;
+                return true;
+            }
+
+            if (CanTargetTavernMinion(spell) && !string.IsNullOrEmpty(preferredTargetId) && TryResolveTaughtSpellTargetInZone(
+                spell,
+                State.Player.Tavern.Shop,
+                TargetZone.TavernShop,
+                preferredTargetId,
+                true,
+                out targetIndex,
+                out targetInstanceId))
+            {
+                targetZone = TargetZone.TavernShop;
+                return true;
+            }
+
+            if (TryResolveTaughtSpellTargetInZone(
+                spell,
+                State.Player.Board,
+                TargetZone.FriendlyBoard,
+                null,
+                false,
+                out targetIndex,
+                out targetInstanceId))
+            {
+                targetZone = TargetZone.FriendlyBoard;
+                return true;
+            }
+
+            if (CanTargetTavernMinion(spell) && TryResolveTaughtSpellTargetInZone(
+                spell,
+                State.Player.Tavern.Shop,
+                TargetZone.TavernShop,
+                null,
+                false,
+                out targetIndex,
+                out targetInstanceId))
+            {
+                targetZone = TargetZone.TavernShop;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryResolveTaughtSpellTargetInZone(
+            MinionInstance spell,
+            IList<MinionInstance> candidates,
+            TargetZone zone,
+            string preferredTargetId,
+            bool preferredOnly,
+            out int targetIndex,
+            out string targetInstanceId)
+        {
+            targetIndex = -1;
+            targetInstanceId = null;
+            if (candidates == null)
+            {
+                return false;
+            }
+
+            for (var pass = 0; pass < 2; pass += 1)
+            {
+                for (var index = 0; index < candidates.Count; index += 1)
+                {
+                    var candidate = candidates[index];
+                    if (candidate == null || candidate.CardKind != CardKind.Minion ||
+                        !TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, candidate))
+                    {
+                        continue;
+                    }
+
+                    var isPreferred = !string.IsNullOrEmpty(preferredTargetId) &&
+                                      string.Equals(candidate.InstanceId, preferredTargetId, StringComparison.OrdinalIgnoreCase);
+                    if ((preferredOnly && !isPreferred) ||
+                        (!preferredOnly && ((pass == 0 && !isPreferred) || (pass == 1 && isPreferred))))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        ValidateExplicitPlayTarget(spell, index, zone, candidate.InstanceId);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        continue;
+                    }
+
+                    targetIndex = index;
+                    targetInstanceId = candidate.InstanceId;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void ResolveTaughtSpellBattlecry(MinionInstance source, string battlecryTargetId)
+        {
+            var spell = CreateTaughtSpellInstance(source, "taught-cast-" + State.Round + "-" + State.Player.Tavern.RecruitLog.Count);
+            if (spell == null)
+            {
+                return;
+            }
+
+            var baseCastCount = source.Golden ? 2 : 1;
+            var targeted = IsTaughtSpellBattlecryTargeted(source);
+            var targetZone = TargetZone.Unspecified;
+            var targetIndex = -1;
+            var targetId = battlecryTargetId;
+            string resolvedTargetId = null;
+            if (targeted &&
+                !TryResolveTaughtSpellTarget(spell, targetId, out targetIndex, out targetZone, out resolvedTargetId))
+            {
+                AddRecruitLog(RecruitLogType.Play, "Battlecry cast skipped: no legal target for " + spell.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                return;
+            }
+            if (targeted)
+            {
+                targetId = resolvedTargetId;
+            }
+
+            var actualCastCount = baseCastCount * (1 + GetTavernSpellExtraCasts(spell, targetZone));
+            var results = new List<string>();
+            for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
+            {
+                if (targeted &&
+                    !TryResolveTaughtSpellTarget(spell, targetId, out targetIndex, out targetZone, out resolvedTargetId))
+                {
+                    AddRecruitLog(RecruitLogType.Play, "Battlecry cast skipped: no legal target for " + spell.Name + ".", State.Player.Tavern.Gold, State.Player.Tavern.Gold);
+                    continue;
+                }
+                if (targeted)
+                {
+                    targetId = resolvedTargetId;
+                }
+
+                results.Add(CastSingleTavernSpellEffect(
+                    spell,
+                    new SeededRng(State.Seed + State.Round * 4211 + State.Player.Tavern.RecruitLog.Count + actualCast),
+                    targetIndex,
+                    targetZone,
+                    targetId));
+                HandleSingleSpellCastSideEffects(spell, targetId, fromHand: false);
+            }
+
+            AddRecruitLog(
+                RecruitLogType.Play,
+                "Battlecry cast " + spell.Name + (results.Count > 1 ? " x" + results.Count : string.Empty),
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
+        }
+
         private void ResolveMinionBattlecry(MinionInstance target, string battlecryTargetId = null)
         {
+            ApplyPersistentTavernSpellBonuses(State.Player.Board);
             var repeats = GetBattlecryRepeats(target);
             for (var index = 0; index < repeats; index += 1)
             {
                 ResolveSingleMinionBattlecry(target, battlecryTargetId);
             }
+
+            ApplyPersistentTavernSpellBonuses(State.Player.Board);
         }
 
         private HeroBattlecryReplayResult ReplayBattlecryForHeroEffect(HeroBattlecryReplayRequest request)
@@ -24519,6 +24988,7 @@ namespace LearnHearthstone.Application.Services
             ResolveSubmersibleChefBattlecry(target);
             ResolveKalecgosBattlecryTrigger(target);
             ResolveTimewarpedBattlecry(target);
+            ResolveTaughtSpellBattlecry(target, battlecryTargetId);
         }
 
         private void ResolveClockworkAssistantBattlecry(MinionInstance target)
@@ -24688,11 +25158,12 @@ namespace LearnHearthstone.Application.Services
                 return 1;
             }
 
-            var brann = State.Player.Board
-                .Where(minion => minion.CardId == BrannBronzebeardCardId && minion.InstanceId != target.InstanceId)
-                .OrderByDescending(minion => minion.Golden ? 3 : 2)
-                .FirstOrDefault();
-            var repeats = brann == null ? 1 : brann.Golden ? 3 : 2;
+            var brannContribution = State.Player.Board
+                .Where(minion => minion != null &&
+                                 minion.CardId == BrannBronzebeardCardId &&
+                                 minion.InstanceId != target.InstanceId)
+                .Sum(minion => minion.Golden ? 2 : 1);
+            var repeats = 1 + brannContribution;
             var firstBattlecryExtraReward = ActiveQuestRewards()
                 .Select(active => questCatalog.TryGetRewardById(active.RewardId, out var reward) ? reward : null)
                 .FirstOrDefault(reward => reward != null && reward.EffectKind == QuestRewardEffectKind.FirstBattlecryExtraTriggers);
@@ -24805,9 +25276,10 @@ namespace LearnHearthstone.Application.Services
                 return extra;
             }
 
-            var targetsFriendlyMinion = targetZone == TargetZone.FriendlyBoard &&
-                                        spell.Tags != null &&
-                                        spell.Tags.Any(tag => string.Equals(tag, "targeted_spell", StringComparison.OrdinalIgnoreCase));
+            var targetsFriendlyMinion = (targetZone == TargetZone.FriendlyBoard ||
+                                         targetZone == TargetZone.TavernShop ||
+                                         targetZone == TargetZone.Unspecified) &&
+                                        TavernSpellEngine.TargetsFriendlyMinion(spell);
             if (targetsFriendlyMinion)
             {
                 extra += State.Player.Board
@@ -25799,9 +26271,8 @@ namespace LearnHearthstone.Application.Services
                         fungalmancer.Counters["felfin_used_round"] = State.Round;
                     }
 
-                    if (uses < maxUses)
+                    if (uses < maxUses && AddTaughtMurlocToHand(bought, "felfin"))
                     {
-                        AddTaughtMurlocToHand(bought, "felfin");
                         fungalmancer.Counters["felfin_uses"] = uses + 1;
                     }
                 }
@@ -26919,10 +27390,15 @@ namespace LearnHearthstone.Application.Services
                 while (spent >= 7)
                 {
                     spent -= 7;
-                    CastTavernSpellEngineWithTimewarpedStatTracking(
-                        MinionFactory.Create(spellCatalog.All.First(spell => spell.CardNumber == BorrowingEastWindCardNumber), BoardSide.Player, "windfall-tornado"),
+                    var spell = MinionFactory.Create(
+                        spellCatalog.All.First(definition => definition.CardNumber == BorrowingEastWindCardNumber),
+                        BoardSide.Player,
+                        "windfall-tornado");
+                    CastSingleTavernSpellEffect(
+                        spell,
                         new SeededRng(State.Seed + State.Round * 619 + spent),
                         -1);
+                    HandleSingleSpellCastSideEffects(spell, null, fromHand: false);
                 }
 
                 tornado.Counters["gold_spent"] = spent;
@@ -27041,12 +27517,6 @@ namespace LearnHearthstone.Application.Services
             if (spell.CardId == DemonbloodGourdSpellCardId)
             {
                 DevourRandomShopMinion(target, 1);
-            }
-
-            if (spell.CardId == ShiftingTideSpellCardId)
-            {
-                var amount = HasTribe(target, Tribe.Naga) ? 4 : 2;
-                BuffMinion(target, amount, amount, "Shifting Tide");
             }
 
             if (spell.CardId == TimewarpedArcherSpellCardId || spell.Tags.Contains("timewarped_archer_spell"))
@@ -27230,12 +27700,14 @@ namespace LearnHearthstone.Application.Services
                 copy.PoolCopiesHeld = 0;
                 var enchantmentCountBeforeCopy = lavaLurker.Enchantments.Count;
                 var tagsBeforeCopy = new HashSet<string>(lavaLurker.Tags);
-                var result = CastTavernSpellEngineWithTimewarpedStatTracking(
+                var result = CastSingleTavernSpellEffect(
                     copy,
                     new SeededRng(State.Seed + State.Round * 3827 + tavern.RecruitLog.Count + targetIndex),
-                    targetIndex);
+                    targetIndex,
+                    TargetZone.FriendlyBoard,
+                    lavaLurker.InstanceId);
                 ConvertCopiedSpellcraftToPermanent(lavaLurker, enchantmentCountBeforeCopy, tagsBeforeCopy);
-                HandleSpellCastOnTarget(copy, lavaLurker.InstanceId, fromHand: false, suppressImperialDefenderCopy: true);
+                HandleSingleSpellCastSideEffects(copy, lavaLurker.InstanceId, fromHand: false, suppressImperialDefenderCopy: true);
                 AddRecruitLog(RecruitLogType.Play, Localized(TimewarpedCardName(TimewarpedLavaLurkerCardId, "时光熔岩潜伏者") + "复制施放了" + spell.Name + "。", "Timewarped Lava Lurker copied " + spell.Name + " - " + result), tavern.Gold, tavern.Gold);
             }
         }
@@ -27313,11 +27785,13 @@ namespace LearnHearthstone.Application.Services
                 copy.PoolSource = PoolSource.Copy;
                 copy.OriginPoolSource = PoolSource.Copy;
                 copy.PoolCopiesHeld = 0;
-                results.Add(CastTavernSpellEngineWithTimewarpedStatTracking(
+                results.Add(CastSingleTavernSpellEffect(
                     copy,
                     new SeededRng(State.Seed + State.Round * 3821 + tavern.RecruitLog.Count + index),
-                    targetIndex));
-                HandleSpellCastOnTarget(copy, defender.InstanceId, fromHand: false, suppressImperialDefenderCopy: true);
+                    targetIndex,
+                    TargetZone.FriendlyBoard,
+                    defender.InstanceId));
+                HandleSingleSpellCastSideEffects(copy, defender.InstanceId, fromHand: false, suppressImperialDefenderCopy: true);
             }
 
             AddRecruitLog(RecruitLogType.Play, "Imperial Defender copied " + spell.Name + " on itself" + (results.Count > 0 ? " - " + string.Join(" + ", results) : string.Empty), tavern.Gold, tavern.Gold);
@@ -27350,6 +27824,7 @@ namespace LearnHearthstone.Application.Services
             var addedCards = State.Player.Tavern.Hand
                 .Skip(Math.Max(0, State.Player.Tavern.Hand.Count - count))
                 .ToList();
+            ApplyPersistentTavernSpellBonuses(addedCards);
             foreach (var card in addedCards)
             {
                 SetupDoomsdayDragonEgg(card);
@@ -27413,6 +27888,70 @@ namespace LearnHearthstone.Application.Services
             }
 
             HandleCardsAddedToHandForTimewarpedMinions(count);
+        }
+
+        private void ApplyPersistentTavernSpellBonuses(IEnumerable<MinionInstance> cards)
+        {
+            var tavern = State?.Player?.Tavern;
+            if (tavern == null)
+            {
+                return;
+            }
+
+            foreach (var card in cards ?? Enumerable.Empty<MinionInstance>())
+            {
+                if (card == null || card.CardKind != CardKind.Minion)
+                {
+                    continue;
+                }
+
+                ApplyMissingPersistentSpellBonus(
+                    card,
+                    HauntedCarapaceSourceId,
+                    Math.Max(0, tavern.TemporaryCarapaceAttack),
+                    Math.Max(0, tavern.TemporaryCarapaceHealth));
+                if (card.Tribes != null && card.Tribes.Contains(Tribe.Undead))
+                {
+                    ApplyMissingPersistentSpellBonus(
+                        card,
+                        ButcheringSourceId,
+                        Math.Max(0, tavern.ButcheringAttackBonus),
+                        0);
+                }
+            }
+        }
+
+        private static void ApplyMissingPersistentSpellBonus(
+            MinionInstance card,
+            string sourceId,
+            int desiredAttack,
+            int desiredHealth)
+        {
+            if (card == null || string.IsNullOrEmpty(sourceId) || (desiredAttack <= 0 && desiredHealth <= 0))
+            {
+                return;
+            }
+
+            var existingAttack = (card.Enchantments ?? new List<Enchantment>())
+                .Where(enchantment => enchantment != null && string.Equals(enchantment.SourceId, sourceId, StringComparison.OrdinalIgnoreCase))
+                .Sum(enchantment => enchantment.AttackBonus);
+            var existingHealth = (card.Enchantments ?? new List<Enchantment>())
+                .Where(enchantment => enchantment != null && string.Equals(enchantment.SourceId, sourceId, StringComparison.OrdinalIgnoreCase))
+                .Sum(enchantment => enchantment.HealthBonus);
+            var attackDelta = Math.Max(0, desiredAttack - existingAttack);
+            var healthDelta = Math.Max(0, desiredHealth - existingHealth);
+            if (attackDelta <= 0 && healthDelta <= 0)
+            {
+                return;
+            }
+
+            StatMath.ApplyEnchantment(card, new Enchantment
+            {
+                Id = sourceId,
+                SourceId = sourceId,
+                AttackBonus = attackDelta,
+                HealthBonus = healthDelta
+            });
         }
 
         private void HandleGoldSpent(int amount)
@@ -27762,10 +28301,13 @@ namespace LearnHearthstone.Application.Services
                 return;
             }
 
-            var target = RightmostShopMinion(shop);
+            var candidates = ShopMinions(shop).ToList();
+            var target = candidates.Count == 0
+                ? null
+                : new SeededRng(State.Seed + State.Round * 2791 + State.Player.Tavern.RecruitLog.Count).Pick(candidates);
             if (target != null)
             {
-                BuffMinion(target, attack, health, "Borrowing East Wind");
+                BuffMinion(target, attack, health, "Easterly Winds");
             }
         }
 
@@ -29170,20 +29712,20 @@ namespace LearnHearthstone.Application.Services
             HandleCardsAddedToHand(State.Player.Tavern.Hand.Count - before, source);
         }
 
-        private void AddTaughtMurlocToHand(MinionInstance spell, string source)
+        private bool AddTaughtMurlocToHand(MinionInstance spell, string source)
         {
-            if (State.Player.Tavern.Hand.Count >= HandLimit)
+            if (spell == null || string.IsNullOrEmpty(spell.CardId) || State.Player.Tavern.Hand.Count >= HandLimit)
             {
-                return;
+                return false;
             }
 
             State.Player.Tavern.Hand.Add(new MinionInstance
             {
                 CardKind = CardKind.Minion,
                 InstanceId = source + "-" + State.Round + "-" + State.Player.Tavern.Hand.Count,
-                DefinitionId = "taught-murloc",
+                DefinitionId = MagicfinApprenticeCardId,
                 CardId = "TAUGHT_MURLOC",
-                Name = "Taught Murloc",
+                Name = "Magicfin Apprentice",
                 BaseAttack = 1,
                 BaseHealth = 1,
                 Attack = 1,
@@ -29192,14 +29734,21 @@ namespace LearnHearthstone.Application.Services
                 TavernTier = 1,
                 Owner = BoardSide.Player,
                 Tribes = new List<Tribe> { Tribe.Murloc },
-                Keywords = new List<Keyword>(),
+                Keywords = new List<Keyword> { Keyword.Battlecry },
+                OfficialKeywords = new List<Keyword> { Keyword.Battlecry },
                 Enchantments = new List<Enchantment>(),
-                Counters = new Dictionary<string, int> { { "taught_spell", spell?.CardId?.GetHashCode() ?? 0 } },
-                Tags = new List<string> { "generated_minion", "taught_spell:" + (spell?.CardId ?? string.Empty) },
+                Counters = new Dictionary<string, int>(),
+                Tags = new List<string>
+                {
+                    "generated_minion",
+                    TaughtSpellTagPrefix + spell.CardId,
+                    "official_card_id:" + MagicfinApprenticeCardId
+                },
                 PoolSource = PoolSource.Copy,
                 PoolCopiesHeld = 0
             });
             HandleCardsAddedToHand(1, source);
+            return true;
         }
 
         private void AddMinionByCardIdToHand(string cardId, string source)

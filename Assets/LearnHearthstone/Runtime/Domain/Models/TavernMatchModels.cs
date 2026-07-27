@@ -55,6 +55,11 @@ namespace LearnHearthstone.Domain.Models
         public string DefinitionId;
         public string Priority = "MEDIUM";
         public int DesiredCopies = 1;
+
+        public SearchTarget Clone()
+        {
+            return (SearchTarget)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -63,6 +68,14 @@ namespace LearnHearthstone.Domain.Models
         public List<SearchTarget> Targets = new List<SearchTarget>();
         public int GoldSpentOnRerollThisTurn;
         public List<string> HitsThisTurn = new List<string>();
+
+        public SearchPlanState Clone()
+        {
+            var clone = (SearchPlanState)MemberwiseClone();
+            clone.Targets = (Targets ?? new List<SearchTarget>()).ConvertAll(target => target?.Clone());
+            clone.HitsThisTurn = new List<string>(HitsThisTurn ?? new List<string>());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -74,6 +87,11 @@ namespace LearnHearthstone.Domain.Models
         public string Message;
         public int GoldBefore;
         public int GoldAfter;
+
+        public RecruitLogEntry Clone()
+        {
+            return (RecruitLogEntry)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -83,7 +101,16 @@ namespace LearnHearthstone.Domain.Models
         public int RewardTier;
         public string TargetInstanceId;
         public int RemainingPicks;
+        public bool AutoResolveRandomly;
+        public int AutoResolveSeed;
         public List<MinionInstance> Options = new List<MinionInstance>();
+
+        public DiscoverState Clone()
+        {
+            var clone = (DiscoverState)MemberwiseClone();
+            clone.Options = (Options ?? new List<MinionInstance>()).ConvertAll(option => option?.Clone());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -91,6 +118,14 @@ namespace LearnHearthstone.Domain.Models
     {
         public List<TavernGrowthModifier> ShopModifiers = new List<TavernGrowthModifier>();
         public List<GeneratedCardBuffState> GeneratedCardBuffs = new List<GeneratedCardBuffState>();
+
+        public TavernGrowthState Clone()
+        {
+            var clone = (TavernGrowthState)MemberwiseClone();
+            clone.ShopModifiers = (ShopModifiers ?? new List<TavernGrowthModifier>()).ConvertAll(modifier => modifier?.Clone());
+            clone.GeneratedCardBuffs = (GeneratedCardBuffs ?? new List<GeneratedCardBuffState>()).ConvertAll(buff => buff?.Clone());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -99,6 +134,11 @@ namespace LearnHearthstone.Domain.Models
         public string SlotId;
         public bool Frozen;
         public string CardInstanceId;
+
+        public TavernShopSlotState Clone()
+        {
+            return (TavernShopSlotState)MemberwiseClone();
+        }
     }
 
     public enum TimewarpKind
@@ -506,6 +546,11 @@ namespace LearnHearthstone.Domain.Models
         public bool Golden;
         public bool Purchased;
         public string Source;
+
+        public TimewarpedOfferSlot Clone()
+        {
+            return (TimewarpedOfferSlot)MemberwiseClone();
+        }
     }
 
     [Serializable]
@@ -520,6 +565,13 @@ namespace LearnHearthstone.Domain.Models
         public bool HasTemporaryHandExpansion;
         public string PendingSource;
         public List<TimewarpedOfferSlot> Offers = new List<TimewarpedOfferSlot>();
+
+        public PlayerTimewarpTavernState Clone()
+        {
+            var clone = (PlayerTimewarpTavernState)MemberwiseClone();
+            clone.Offers = (Offers ?? new List<TimewarpedOfferSlot>()).ConvertAll(offer => offer?.Clone());
+            return clone;
+        }
     }
 
     [Serializable]
@@ -930,7 +982,13 @@ namespace LearnHearthstone.Domain.Models
         public bool TrinketScrapsmithPortraitActive;
         public bool TrinketEyeOfDalaranActive;
         public int ElementalsPlayedThisTurn;
+        public int BackToBackAttackBonus;
+        public int BackToBackHealthBonus;
         public int BackToBackBonus;
+        public List<Enchantment> PendingTimeManagementEnchantments = new List<Enchantment>();
+        public int TemporaryCarapaceAttack;
+        public int TemporaryCarapaceHealth;
+        public int ButcheringAttackBonus;
         public int HelpfulRefreshes;
         public bool LostLastCombat;
         public int ElementalHealthBonus;
@@ -963,6 +1021,30 @@ namespace LearnHearthstone.Domain.Models
         public SearchPlanState SearchPlan = new SearchPlanState();
         public TavernGrowthState Growth = new TavernGrowthState();
         public List<RecruitLogEntry> RecruitLog = new List<RecruitLogEntry>();
+
+        public TavernState CloneForCombat()
+        {
+            var clone = (TavernState)MemberwiseClone();
+            clone.NextCombatTavernSpellCardIds = new List<string>(NextCombatTavernSpellCardIds ?? new List<string>());
+            clone.PendingTimeManagementEnchantments = (PendingTimeManagementEnchantments ?? new List<Enchantment>()).ConvertAll(enchantment => enchantment?.Clone());
+            clone.Shop = (Shop ?? new List<MinionInstance>()).ConvertAll(card => card?.Clone());
+            clone.ShopSlots = (ShopSlots ?? new List<TavernShopSlotState>()).ConvertAll(slot => slot?.Clone());
+            clone.Hand = (Hand ?? new List<MinionInstance>()).ConvertAll(card => card?.Clone());
+            clone.Pool = new Dictionary<string, int>(Pool ?? new Dictionary<string, int>());
+            clone.PoolCapacities = new Dictionary<string, int>(PoolCapacities ?? new Dictionary<string, int>());
+            clone.BuddyPool = new Dictionary<string, int>(BuddyPool ?? new Dictionary<string, int>());
+            clone.BuddyPoolCapacities = new Dictionary<string, int>(BuddyPoolCapacities ?? new Dictionary<string, int>());
+            clone.HeroEffectCounters = new Dictionary<string, int>(HeroEffectCounters ?? new Dictionary<string, int>());
+            clone.Secrets = (Secrets ?? new List<SecretState>()).ConvertAll(secret => secret?.Clone());
+            clone.Discover = Discover?.Clone();
+            clone.DiscoverQueue = (DiscoverQueue ?? new List<DiscoverState>()).ConvertAll(discover => discover?.Clone());
+            clone.AdvancedMechanics = AdvancedMechanics?.Clone() ?? new AdvancedMechanicState();
+            clone.Timewarp = Timewarp?.Clone() ?? new PlayerTimewarpTavernState();
+            clone.SearchPlan = SearchPlan?.Clone() ?? new SearchPlanState();
+            clone.Growth = Growth?.Clone() ?? new TavernGrowthState();
+            clone.RecruitLog = (RecruitLog ?? new List<RecruitLogEntry>()).ConvertAll(entry => entry?.Clone());
+            return clone;
+        }
 
         public void QueueDiscover(DiscoverState discover)
         {
@@ -1025,6 +1107,11 @@ namespace LearnHearthstone.Domain.Models
         public bool Better;
         public int CreatedRound;
         public bool Triggered;
+
+        public SecretState Clone()
+        {
+            return (SecretState)MemberwiseClone();
+        }
     }
 
     public enum SideCombatModifierKind

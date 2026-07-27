@@ -1801,6 +1801,29 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void HauntedCarapace_AuraIsInheritedByTimewarpedSummonedToken()
+        {
+            var service = CreateTimewarpOnlyService(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Add(TestBoardMinion("carapace-source", "Carapace Source", "CARAPACE_SOURCE", 2, 2, Tribe.Beast, 1));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "122489", CardKind.TavernSpell));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            Assert.AreEqual(3, service.State.Player.Tavern.TemporaryCarapaceAttack);
+            Assert.AreEqual(1, service.State.Player.Tavern.TemporaryCarapaceHealth);
+
+            BuyFixedTimewarpedCard(service, "BG34_Giant_687");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+
+            var beetle = service.State.Player.Board.LastOrDefault(card => card != null && card.DefinitionId == "timewarped-nest-beetle");
+            Assert.IsNotNull(beetle);
+            Assert.GreaterOrEqual(beetle.Attack, service.State.Player.Tavern.TemporaryCarapaceAttack + 2);
+            Assert.GreaterOrEqual(beetle.MaxHealth, service.State.Player.Tavern.TemporaryCarapaceHealth + 3);
+            Assert.IsTrue(beetle.Enchantments.Any(enchantment => enchantment.SourceId == TavernSpellEngine.HauntedCarapaceSourceId));
+        }
+
+        [Test]
         public void TimewarpedStats_BuyingElementalBuffsBehemoth()
         {
             var service = CreateTimewarpOnlyService(12345);
@@ -3106,8 +3129,9 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
 
             Assert.AreEqual(2, service.State.Player.Board.Count(minion => minion.Name == "Skeleton"));
-            Assert.IsTrue(service.State.Player.Board.Where(minion => minion.Name == "Skeleton").All(minion => minion.Attack == 5));
-            Assert.AreEqual(4, service.State.Player.Tavern.UndeadAttackBonus);
+            Assert.IsTrue(service.State.Player.Board.Where(minion => minion.Name == "Skeleton").All(minion => minion.Attack == 6));
+            Assert.AreEqual(5, service.State.Player.Tavern.ButcheringAttackBonus);
+            Assert.AreEqual(0, service.State.Player.Tavern.UndeadAttackBonus);
         }
 
         [Test]

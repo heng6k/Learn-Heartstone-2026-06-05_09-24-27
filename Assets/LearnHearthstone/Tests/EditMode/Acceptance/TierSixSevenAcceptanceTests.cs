@@ -22,6 +22,18 @@ namespace LearnHearthstone.Tests.EditMode
             "103796", "119599", "119603", "119718", "130527"
         };
 
+        private static readonly string[] CombatSkippedTaughtSpellIds =
+        {
+            "104560", "105665", "110401", "119599", "127503", "127642",
+            "123553", "103785", "100899", "122862", "110407"
+        };
+
+        private static readonly string[] CombatAutoDiscoverSpellIds =
+        {
+            "100910", "105264", "105265", "105669",
+            "119718", "122864", "126957", "127288"
+        };
+
         [Test]
         public void TierSixSevenCatalog_CountsAndDuosScopeAreStable()
         {
@@ -75,8 +87,10 @@ namespace LearnHearthstone.Tests.EditMode
                 service.State.Player.Board.Add(Card("target-dragon", BoardSide.Player, "TARGET_DRAGON", 6, 10, Tribe.Dragon, 6));
                 service.State.Player.Tavern.Shop.Add(Card("shop-murloc", BoardSide.Player, "SHOP_MURLOC", 4, 8, Tribe.Murloc, 6));
                 service.Apply(new GameCommand(GameCommandType.AddCardToHand, spellId, CardKind.TavernSpell));
+                var handIndex = service.State.Player.Tavern.Hand.Count - 1;
+                var command = BuildTavernSpellPlayCommand(service, handIndex, service.State.Player.Tavern.Hand[handIndex]);
 
-                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)), spellId);
+                Assert.DoesNotThrow(() => service.Apply(command), spellId);
                 Assert.IsFalse((service.State.Player.Tavern.RecruitLog.Last().Message ?? string.Empty).Contains("\u6682\u672a\u5b9e\u73b0"), spellId);
             }
         }
@@ -178,6 +192,435 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TierSixFelfin_OnlyConsumesSuccessfulApprenticeInsertionsAndGoldenAllowsTwo()
+        {
+            var normal = MatchService.CreateWithDefaultCatalog(9620, new InMemoryTestScenarioRepository());
+            normal.State.Player.Tavern.Gold = 20;
+            normal.State.Player.Tavern.Hand.Clear();
+            normal.State.Player.Tavern.Shop.Clear();
+            normal.State.Player.Board.Clear();
+            var normalFelfin = Card("normal-felfin", BoardSide.Player, "BG33_891", 4, 8, Tribe.Murloc, 6);
+            normal.State.Player.Board.Add(normalFelfin);
+            for (var index = 0; index < 9; index += 1)
+            {
+                normal.State.Player.Tavern.Hand.Add(Card("filler-" + index, BoardSide.Player, "FILLER_" + index, 1, 1, Tribe.None, 1));
+            }
+
+            normal.State.Player.Tavern.Shop.Add(TavernSpell("blocked-spell", "131153", 4));
+            normal.State.Player.Tavern.Shop.Add(TavernSpell("first-success", "131153", 4));
+            normal.State.Player.Tavern.Shop.Add(TavernSpell("over-limit", "131153", 4));
+
+            normal.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+
+            Assert.AreEqual(0, normal.State.Player.Tavern.Hand.Count(IsTaughtApprentice));
+            Assert.AreEqual(0, normalFelfin.Counters.TryGetValue("felfin_uses", out var blockedUses) ? blockedUses : 0);
+
+            normal.State.Player.Tavern.Hand.Clear();
+            normal.Apply(new GameCommand(GameCommandType.BuyMinion, 1));
+            normal.Apply(new GameCommand(GameCommandType.BuyMinion, 2));
+
+            Assert.AreEqual(1, normal.State.Player.Tavern.Hand.Count(IsTaughtApprentice));
+            Assert.AreEqual(1, normalFelfin.Counters["felfin_uses"]);
+
+            var golden = MatchService.CreateWithDefaultCatalog(9621, new InMemoryTestScenarioRepository());
+            golden.State.Player.Tavern.Gold = 20;
+            golden.State.Player.Tavern.Hand.Clear();
+            golden.State.Player.Tavern.Shop.Clear();
+            golden.State.Player.Board.Clear();
+            var goldenFelfin = Card("golden-felfin", BoardSide.Player, "BG33_891", 8, 16, Tribe.Murloc, 6);
+            goldenFelfin.Golden = true;
+            golden.State.Player.Board.Add(goldenFelfin);
+            golden.State.Player.Tavern.Shop.Add(TavernSpell("golden-spell-a", "131153", 4));
+            golden.State.Player.Tavern.Shop.Add(TavernSpell("golden-spell-b", "131153", 4));
+            golden.State.Player.Tavern.Shop.Add(TavernSpell("golden-spell-c", "131153", 4));
+
+            golden.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+            golden.Apply(new GameCommand(GameCommandType.BuyMinion, 1));
+            golden.Apply(new GameCommand(GameCommandType.BuyMinion, 2));
+
+            Assert.AreEqual(2, golden.State.Player.Tavern.Hand.Count(IsTaughtApprentice));
+            Assert.AreEqual(2, goldenFelfin.Counters["felfin_uses"]);
+        }
+
+        [Test]
+        public void TierSixFelfin_ApprenticeConsumesProxyAndCastsItsLearnedSpell()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9622, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Gold = 10;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Shop.Clear();
+            service.State.Player.Board.Clear();
+            var target = Card("learned-target", BoardSide.Player, "LEARNED_TARGET", 1, 1, Tribe.Murloc, 1);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Board.Add(Card("felfin", BoardSide.Player, "BG33_891", 4, 8, Tribe.Murloc, 6));
+            service.State.Player.Tavern.Shop.Add(TavernSpell("learned-back-to-back", "131153", 4));
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, 0));
+            var apprentice = service.State.Player.Tavern.Hand.Single(IsTaughtApprentice);
+            var apprenticeHandIndex = service.State.Player.Tavern.Hand.IndexOf(apprentice);
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                apprenticeHandIndex,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified,
+                target.InstanceId));
+
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == apprentice.InstanceId));
+            Assert.IsTrue(service.State.Player.Board.Any(card => card.CardId == "TAUGHT_MURLOC"));
+            Assert.AreEqual(5, target.Attack);
+            Assert.AreEqual(5, target.MaxHealth);
+            Assert.AreEqual(1, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(1, service.State.Player.Tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(4, service.State.Player.Tavern.BackToBackAttackBonus);
+            Assert.AreEqual(4, service.State.Player.Tavern.BackToBackHealthBonus);
+        }
+
+        [TestCase(false, 0, 0, 0, 0, 1)]
+        [TestCase(true, 0, 0, 0, 0, 2)]
+        [TestCase(false, 2, 0, 0, 0, 3)]
+        [TestCase(false, 1, 1, 0, 0, 4)]
+        [TestCase(false, 0, 0, 2, 0, 3)]
+        [TestCase(false, 0, 0, 1, 1, 4)]
+        [TestCase(true, 1, 1, 1, 1, 32)]
+        public void TierSixMagicfinApprentice_MultipliesGoldenBrannAndBelindaActualCasts(
+            bool goldenApprentice,
+            int normalBranns,
+            int goldenBranns,
+            int normalBelindas,
+            int goldenBelindas,
+            int expectedCasts)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9630 + expectedCasts, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.TavernSpellBonusAttack = 1;
+            service.State.Player.Tavern.TavernSpellBonusHealth = 3;
+            var target = Card("multiplier-target", BoardSide.Player, "MULTIPLIER_TARGET", 1, 1, Tribe.Murloc, 1);
+            service.State.Player.Board.Add(target);
+            AddRepeaters(service, normalBranns, goldenBranns, normalBelindas, goldenBelindas);
+            var apprentice = TaughtApprentice("multiplier-apprentice", "131153", goldenApprentice);
+            service.State.Player.Tavern.Hand.Add(apprentice);
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified,
+                target.InstanceId));
+
+            var triangularCasts = expectedCasts * (expectedCasts + 1) / 2;
+            Assert.AreEqual(1 + triangularCasts * 5, target.Attack);
+            Assert.AreEqual(1 + triangularCasts * 7, target.MaxHealth);
+            Assert.AreEqual(expectedCasts, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(expectedCasts, service.State.Player.Tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(expectedCasts * 5, service.State.Player.Tavern.BackToBackAttackBonus);
+            Assert.AreEqual(expectedCasts * 7, service.State.Player.Tavern.BackToBackHealthBonus);
+            Assert.AreEqual(expectedCasts * 5, service.State.Player.Tavern.BackToBackBonus);
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == apprentice.InstanceId));
+        }
+
+        [TestCase(false, 1)]
+        [TestCase(true, 2)]
+        public void TierSixHeavyMetalWyrm_TriggersOneOrBothAdjacentTaughtBattlecries(bool golden, int expectedCasts)
+        {
+            var left = TaughtApprentice("left-apprentice", "131153");
+            var right = TaughtApprentice("right-apprentice", "131153");
+            var wyrm = Card("heavy-metal-wyrm", BoardSide.Player, "BG26_801", 0, 1, Tribe.Beast, 4, Keyword.Taunt, Keyword.Deathrattle);
+            wyrm.Golden = golden;
+            left.CanAttack = false;
+            right.CanAttack = false;
+            wyrm.CanAttack = false;
+            var opponents = Enumerable.Range(0, 4)
+                .Select(index => Card("wyrm-opponent-" + index, BoardSide.Opponent, "WALL_" + index, 10, 10, Tribe.None, 1))
+                .ToList();
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { left, wyrm, right },
+                opponents,
+                9640 + expectedCasts,
+                1,
+                new TavernState(),
+                minionCatalog: MinionCatalogLoader.LoadFromResources(),
+                spellCatalog: SpellCatalogLoader.LoadFromResources(),
+                isolateTavernState: true);
+
+            Assert.AreEqual(expectedCasts, result.FinalPlayerTavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(expectedCasts, result.FinalPlayerTavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(expectedCasts * 4, result.FinalPlayerTavern.BackToBackAttackBonus);
+            Assert.AreEqual(expectedCasts, result.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+        }
+
+        [Test]
+        public void TierSixRylakPortrait_TriggersTaughtBattlecryAtCombatStart()
+        {
+            var tavern = new TavernState { TrinketRylakPortraitActive = true };
+            var apprentice = TaughtApprentice("portrait-apprentice", "131153");
+            var wyrm = Card("portrait-wyrm", BoardSide.Player, "BG26_801", 0, 5, Tribe.Beast, 4, Keyword.Deathrattle);
+            var wall = Card("portrait-wall", BoardSide.Opponent, "PORTRAIT_WALL", 0, 20, Tribe.None, 1);
+            apprentice.CanAttack = false;
+            wyrm.CanAttack = false;
+            wall.CanAttack = false;
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { apprentice, wyrm },
+                new[] { wall },
+                9650,
+                1,
+                tavern,
+                minionCatalog: MinionCatalogLoader.LoadFromResources(),
+                spellCatalog: SpellCatalogLoader.LoadFromResources(),
+                isolateTavernState: true);
+
+            Assert.AreEqual(1, result.FinalPlayerTavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(4, result.FinalPlayerTavern.BackToBackAttackBonus);
+            Assert.AreEqual(1, result.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+            Assert.IsTrue(result.FinalPlayerBoard.Any(card => card.InstanceId == wyrm.InstanceId));
+        }
+
+        [Test]
+        public void TierSixCombatTaughtSpell_BrannBelindaAndEvokersPersistEveryActualCast()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9660, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            var brann = Card("combat-brann", BoardSide.Player, "BG_LOE_077", 0, 20, Tribe.None, 5);
+            var belinda = Card("combat-belinda", BoardSide.Player, "BG35_883", 0, 20, Tribe.None, 6);
+            var normalEvoker = Card("normal-evoker", BoardSide.Player, "BG32_822", 0, 20, Tribe.Dragon, 6);
+            var goldenEvoker = Card("golden-evoker", BoardSide.Player, "BG32_822", 0, 20, Tribe.Dragon, 6);
+            goldenEvoker.Golden = true;
+            var apprentice = TaughtApprentice("combat-apprentice", "131153");
+            var wyrm = Card("combat-wyrm", BoardSide.Player, "BG26_801", 0, 1, Tribe.Beast, 4, Keyword.Taunt, Keyword.Deathrattle);
+            foreach (var minion in new[] { brann, belinda, normalEvoker, goldenEvoker, apprentice, wyrm })
+            {
+                minion.CanAttack = false;
+                service.State.Player.Board.Add(minion);
+            }
+
+            for (var index = 0; index < 7; index += 1)
+            {
+                service.State.Opponent.Board.Add(Card("combat-opponent-" + index, BoardSide.Opponent, "COMBAT_WALL_" + index, 10, 10, Tribe.None, 1));
+            }
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9660, SafetyLimit = 1 }));
+
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(16, service.State.Player.Tavern.BackToBackAttackBonus);
+            Assert.AreEqual(16, service.State.Player.Tavern.BackToBackHealthBonus);
+            Assert.AreEqual(8, normalEvoker.Counters["dragon_spell_attack"]);
+            Assert.AreEqual(4, normalEvoker.Counters["dragon_spell_health"]);
+            Assert.AreEqual(16, goldenEvoker.Counters["dragon_spell_attack"]);
+            Assert.AreEqual(8, goldenEvoker.Counters["dragon_spell_health"]);
+            Assert.AreEqual(4, service.State.LastResult.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+            Assert.AreEqual(8, service.State.LastResult.PlayerRewards
+                .Where(reward => reward.Type == CombatRewardType.ImproveFireforgedEvoker && reward.TargetInstanceId == normalEvoker.InstanceId)
+                .Sum(reward => reward.Attack));
+            Assert.AreEqual(16, service.State.LastResult.PlayerRewards
+                .Where(reward => reward.Type == CombatRewardType.ImproveFireforgedEvoker && reward.TargetInstanceId == goldenEvoker.InstanceId)
+                .Sum(reward => reward.Attack));
+
+            service.State.Opponent.Board.Clear();
+            var passiveWall = Card("passive-wall", BoardSide.Opponent, "PASSIVE_WALL", 0, 20, Tribe.None, 1);
+            passiveWall.CanAttack = false;
+            service.State.Opponent.Board.Add(passiveWall);
+            var nextDragon = Card("next-combat-dragon", BoardSide.Player, "NEXT_DRAGON", 1, 1, Tribe.Dragon, 1);
+            nextDragon.CanAttack = false;
+            service.State.Player.Board.Add(nextDragon);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9661, SafetyLimit = 1 }));
+
+            var combatDragon = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == nextDragon.InstanceId);
+            Assert.AreEqual(31, combatDragon.Attack);
+            Assert.AreEqual(16, combatDragon.MaxHealth);
+        }
+
+        [TestCaseSource(nameof(CombatSkippedTaughtSpellIds))]
+        public void TierSixCombatTaughtSpell_UnsafeSpellsSkipBeforeTargetsAndCastAccounting(string spellCardId)
+        {
+            var tavern = new TavernState
+            {
+                TrinketRylakPortraitActive = true,
+                TavernSpellsCastThisTurn = 5,
+                TavernSpellsCastThisGame = 8,
+                LastTavernSpellCardId = "baseline-spell",
+                BackToBackAttackBonus = 7,
+                BackToBackHealthBonus = 9,
+                TemporaryAvengeBeastRewards = 2
+            };
+            var shop = new[]
+            {
+                Card("skip-shop-a", BoardSide.Player, "SKIP_SHOP_A", 2, 3, Tribe.Demon, 1),
+                Card("skip-shop-b", BoardSide.Player, "SKIP_SHOP_B", 4, 5, Tribe.Murloc, 2),
+                Card("skip-shop-c", BoardSide.Player, "SKIP_SHOP_C", 6, 7, Tribe.Elemental, 3)
+            };
+            foreach (var card in shop)
+            {
+                card.PoolCopiesHeld = 1;
+                tavern.Shop.Add(card);
+                tavern.Pool[card.DefinitionId] = 0;
+                tavern.PoolCapacities[card.DefinitionId] = 10;
+            }
+
+            var apprentice = TaughtApprentice("skip-apprentice", spellCardId, true);
+            var wyrm = Card("skip-wyrm", BoardSide.Player, "BG26_801", 0, 20, Tribe.Beast, 4, Keyword.Deathrattle);
+            var brann = Card("skip-brann", BoardSide.Player, "BG_LOE_077", 0, 20, Tribe.None, 5);
+            brann.Golden = true;
+            var belinda = Card("skip-belinda", BoardSide.Player, "BG35_883", 0, 20, Tribe.None, 6);
+            belinda.Golden = true;
+            var demon = Card("skip-demon", BoardSide.Player, "SKIP_DEMON", 3, 11, Tribe.Demon, 1);
+            var evoker = Card("skip-evoker", BoardSide.Player, "BG32_822", 0, 20, Tribe.Dragon, 6);
+            var board = new[] { apprentice, wyrm, brann, belinda, demon, evoker };
+            foreach (var minion in board)
+            {
+                minion.CanAttack = false;
+            }
+
+            var wall = Card("skip-wall", BoardSide.Opponent, "SKIP_WALL", 0, 20, Tribe.None, 1);
+            wall.CanAttack = false;
+
+            var result = CombatEngine.SimulateBasicCombat(
+                board,
+                new[] { wall },
+                9665 + StableNumber(spellCardId),
+                1,
+                tavern,
+                minionCatalog: MinionCatalogLoader.LoadFromResources(),
+                spellCatalog: SpellCatalogLoader.LoadFromResources(),
+                isolateTavernState: true);
+
+            Assert.AreEqual(5, result.FinalPlayerTavern.TavernSpellsCastThisTurn, spellCardId);
+            Assert.AreEqual(8, result.FinalPlayerTavern.TavernSpellsCastThisGame, spellCardId);
+            Assert.AreEqual("baseline-spell", result.FinalPlayerTavern.LastTavernSpellCardId, spellCardId);
+            Assert.AreEqual(7, result.FinalPlayerTavern.BackToBackAttackBonus, spellCardId);
+            Assert.AreEqual(9, result.FinalPlayerTavern.BackToBackHealthBonus, spellCardId);
+            Assert.AreEqual(2, result.FinalPlayerTavern.TemporaryAvengeBeastRewards, spellCardId);
+            Assert.AreEqual(0, result.FinalPlayerTavern.NextCombatTavernSpellCardIds.Count, spellCardId);
+            Assert.AreEqual(0, result.FinalPlayerTavern.NextCombatBoardAttack, spellCardId);
+            Assert.AreEqual(0, result.FinalPlayerTavern.NextCombatBoardHealth, spellCardId);
+            Assert.AreEqual(0, result.FinalPlayerTavern.NextCombatBeetles, spellCardId);
+            Assert.AreEqual(0, result.FinalPlayerTavern.NextCombatEnemyHealthToOne, spellCardId);
+            Assert.IsFalse(result.FinalPlayerTavern.NextCombatLeftmostCopiesNearestEnemyStats, spellCardId);
+            Assert.IsFalse(result.FinalPlayerTavern.NextCombatLeftmostDoubleAttack, spellCardId);
+            Assert.IsFalse(result.FinalPlayerTavern.NextCombatTriggerMixedMechanics, spellCardId);
+            CollectionAssert.AreEquivalent(board.Select(card => card.InstanceId), result.FinalPlayerBoard.Select(card => card.InstanceId), spellCardId);
+            Assert.AreEqual(3, result.FinalPlayerBoard.Single(card => card.InstanceId == demon.InstanceId).Attack, spellCardId);
+            Assert.AreEqual(11, result.FinalPlayerBoard.Single(card => card.InstanceId == demon.InstanceId).MaxHealth, spellCardId);
+            CollectionAssert.AreEquivalent(shop.Select(card => card.InstanceId), result.FinalPlayerTavern.Shop.Where(card => card != null).Select(card => card.InstanceId), spellCardId);
+            Assert.IsTrue(result.FinalPlayerTavern.Pool.All(pair => pair.Value == 0), spellCardId);
+            var finalEvoker = result.FinalPlayerBoard.Single(card => card.InstanceId == evoker.InstanceId);
+            Assert.IsFalse(finalEvoker.Counters.ContainsKey("dragon_spell_attack"), spellCardId);
+            Assert.AreEqual(0, result.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast), spellCardId);
+        }
+
+        [Test]
+        public void TierSixCombatTaughtSpell_OverconfidenceUsesTheCurrentCombatOutcomeAndStacksActualCasts()
+        {
+            var service = CreateCombatTaughtSpellService("105267", 9666, true, true);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9666, SafetyLimit = 1 }));
+
+            Assert.AreEqual(CombatWinner.Player, service.State.LastResult.Winner);
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisGame);
+            Assert.AreEqual(12, service.State.Player.Tavern.NextTurnBonusGold);
+            Assert.AreEqual(0, service.State.Player.Tavern.PendingCombatWinGold);
+            Assert.AreEqual(0, service.State.Player.Tavern.PendingCombatDrawGold);
+            Assert.AreEqual(4, service.State.LastResult.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+        }
+
+        [TestCaseSource(nameof(CombatAutoDiscoverSpellIds))]
+        public void TierSixCombatTaughtSpell_DiscoversChooseSeededOptionsWithoutLeavingPlayerInput(string spellCardId)
+        {
+            var service = CreateCombatTaughtSpellService(spellCardId, 9667 + StableNumber(spellCardId));
+            var startingHeroPower = service.State.Player.HeroPowerCardId;
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions
+            {
+                Seed = 9667 + StableNumber(spellCardId),
+                SafetyLimit = 1
+            }));
+
+            Assert.IsNull(service.State.Player.Tavern.Discover, spellCardId);
+            Assert.AreEqual(0, service.State.Player.Tavern.DiscoverQueue.Count, spellCardId);
+            Assert.AreEqual(1, service.State.Player.Tavern.TavernSpellsCastThisTurn, spellCardId);
+            Assert.AreEqual(1, service.State.LastResult.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast), spellCardId);
+            if (spellCardId == "100910")
+            {
+                Assert.IsNotEmpty(service.State.Player.HeroPowerCardId, spellCardId);
+                Assert.AreNotEqual(startingHeroPower, service.State.Player.HeroPowerCardId, spellCardId);
+            }
+            else
+            {
+                Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count, spellCardId);
+            }
+        }
+
+        [Test]
+        public void TierSixCombatTaughtSpell_GoldenApprenticeAndBrannAutoResolveEveryDiscover()
+        {
+            var service = CreateCombatTaughtSpellService("122864", 9668, true, true);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9668, SafetyLimit = 1 }));
+
+            Assert.IsNull(service.State.Player.Tavern.Discover);
+            Assert.AreEqual(0, service.State.Player.Tavern.DiscoverQueue.Count);
+            Assert.AreEqual(4, service.State.Player.Tavern.Hand.Count);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.All(card => card.CardKind == CardKind.Minion && card.TavernTier == 1));
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(4, service.State.LastResult.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+        }
+
+        [TestCase(9600, true)]
+        [TestCase(9605, false)]
+        public void TierSixCombatTaughtSpell_TimeManagementRandomlyUsesImmediateOrDelayedChoice(int seed, bool expectedDelayed)
+        {
+            var tavern = new TavernState
+            {
+                TrinketRylakPortraitActive = true,
+                TavernSpellBonusAttack = 1,
+                TavernSpellBonusHealth = 3
+            };
+            var apprentice = TaughtApprentice("time-management-apprentice", "117573");
+            var wyrm = Card("time-management-wyrm", BoardSide.Player, "BG26_801", 0, 20, Tribe.Beast, 4, Keyword.Deathrattle);
+            var target = Card("time-management-target", BoardSide.Player, "TIME_MANAGEMENT_TARGET", 3, 7, Tribe.Murloc, 1);
+            var wall = Card("time-management-wall", BoardSide.Opponent, "TIME_MANAGEMENT_WALL", 0, 20, Tribe.None, 1);
+            foreach (var minion in new[] { apprentice, wyrm, target, wall })
+            {
+                minion.CanAttack = false;
+            }
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { apprentice, wyrm, target },
+                new[] { wall },
+                seed,
+                1,
+                tavern,
+                minionCatalog: MinionCatalogLoader.LoadFromResources(),
+                spellCatalog: SpellCatalogLoader.LoadFromResources(),
+                round: 0,
+                isolateTavernState: true);
+            var finalTarget = result.FinalPlayerBoard.Single(card => card.InstanceId == target.InstanceId);
+
+            Assert.AreEqual(expectedDelayed ? 2 : 0, result.FinalPlayerTavern.PendingTimeManagementEnchantments.Count);
+            Assert.AreEqual(expectedDelayed ? 3 : 6, finalTarget.Attack);
+            Assert.AreEqual(expectedDelayed ? 7 : 12, finalTarget.MaxHealth);
+            if (expectedDelayed)
+            {
+                Assert.IsTrue(result.FinalPlayerTavern.PendingTimeManagementEnchantments.All(enchantment =>
+                    enchantment.AttackBonus == 3 && enchantment.HealthBonus == 5));
+            }
+
+            Assert.AreEqual(1, result.FinalPlayerTavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(1, result.Replay.Frames.Count(frame => frame.EventType == CombatEventType.CombatSpellCast));
+        }
+
+        [Test]
         public void TierSixCombatTriggers_AvengeDamageAndDeathrattleRewardsResolve()
         {
             var ruinsLordResult = CombatEngine.SimulateBasicCombat(
@@ -265,6 +708,41 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
         }
 
+        private static GameCommand BuildTavernSpellPlayCommand(MatchService service, int handIndex, MinionInstance spell)
+        {
+            var boardTarget = service.State.Player.Board
+                .Select((card, index) => new { Card = card, Index = index })
+                .FirstOrDefault(item => item.Card != null && TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, item.Card));
+            if (boardTarget != null && TavernSpellEngine.TargetsFriendlyMinion(spell))
+            {
+                return new GameCommand(
+                    GameCommandType.PlayMinion,
+                    handIndex,
+                    boardTarget.Index,
+                    TargetZone.FriendlyBoard,
+                    -1,
+                    TargetZone.Unspecified,
+                    boardTarget.Card.InstanceId);
+            }
+
+            var shopTarget = service.State.Player.Tavern.Shop
+                .Select((card, index) => new { Card = card, Index = index })
+                .FirstOrDefault(item => item.Card != null && TavernSpellEngine.IsLegalFriendlyMinionTarget(spell, item.Card));
+            if (shopTarget != null && TavernSpellEngine.CanTargetTavernMinion(spell))
+            {
+                return new GameCommand(
+                    GameCommandType.PlayMinion,
+                    handIndex,
+                    shopTarget.Index,
+                    TargetZone.TavernShop,
+                    -1,
+                    TargetZone.Unspecified,
+                    shopTarget.Card.InstanceId);
+            }
+
+            return new GameCommand(GameCommandType.PlayMinion, handIndex);
+        }
+
         private static MinionInstance TavernSpell(string id, string cardId, int tier)
         {
             return new MinionInstance
@@ -283,6 +761,86 @@ namespace LearnHearthstone.Tests.EditMode
                 Counters = new Dictionary<string, int>(),
                 Tags = new List<string> { "tavern_spell" }
             };
+        }
+
+        private static bool IsTaughtApprentice(MinionInstance card)
+        {
+            return card != null &&
+                   card.CardId == "TAUGHT_MURLOC" &&
+                   card.Tags != null &&
+                   card.Tags.Any(tag => tag.StartsWith("taught_spell:"));
+        }
+
+        private static MinionInstance TaughtApprentice(string id, string spellCardId, bool golden = false)
+        {
+            var apprentice = Card(id, BoardSide.Player, "TAUGHT_MURLOC", 1, 1, Tribe.Murloc, 1, Keyword.Battlecry);
+            apprentice.DefinitionId = "BG33_890t";
+            apprentice.Golden = golden;
+            apprentice.Tags.Add("generated_minion");
+            apprentice.Tags.Add("taught_spell:" + spellCardId);
+            return apprentice;
+        }
+
+        private static MatchService CreateCombatTaughtSpellService(
+            string spellCardId,
+            int seed,
+            bool goldenApprentice = false,
+            bool includeBrann = false)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(seed, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Tier = 6;
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Shop.Clear();
+            service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId = "BG35_MagicItem_834";
+            service.State.Player.Board.Clear();
+            service.State.Opponent.Board.Clear();
+            service.State.Player.Board.Add(TaughtApprentice("combat-choice-apprentice", spellCardId, goldenApprentice));
+            service.State.Player.Board.Add(Card("combat-choice-wyrm", BoardSide.Player, "BG26_801", 0, 20, Tribe.Beast, 4, Keyword.Deathrattle));
+            service.State.Player.Board.Add(Card("combat-choice-murloc", BoardSide.Player, "COMBAT_CHOICE_MURLOC", 2, 20, Tribe.Murloc, 1));
+            if (includeBrann)
+            {
+                service.State.Player.Board.Add(Card("combat-choice-brann", BoardSide.Player, "BG_LOE_077", 0, 20, Tribe.None, 5));
+            }
+
+            service.State.Opponent.Board.Add(Card("combat-choice-wall", BoardSide.Opponent, "COMBAT_CHOICE_WALL", 0, 20, Tribe.None, 1));
+            foreach (var minion in service.State.Player.Board.Concat(service.State.Opponent.Board))
+            {
+                minion.CanAttack = false;
+            }
+
+            return service;
+        }
+
+        private static void AddRepeaters(
+            MatchService service,
+            int normalBranns,
+            int goldenBranns,
+            int normalBelindas,
+            int goldenBelindas)
+        {
+            for (var index = 0; index < normalBranns; index += 1)
+            {
+                service.State.Player.Board.Add(Card("normal-brann-" + index, BoardSide.Player, "BG_LOE_077", 0, 20, Tribe.None, 5));
+            }
+
+            for (var index = 0; index < goldenBranns; index += 1)
+            {
+                var brann = Card("golden-brann-" + index, BoardSide.Player, "BG_LOE_077", 0, 20, Tribe.None, 5);
+                brann.Golden = true;
+                service.State.Player.Board.Add(brann);
+            }
+
+            for (var index = 0; index < normalBelindas; index += 1)
+            {
+                service.State.Player.Board.Add(Card("normal-belinda-" + index, BoardSide.Player, "BG35_883", 0, 20, Tribe.None, 6));
+            }
+
+            for (var index = 0; index < goldenBelindas; index += 1)
+            {
+                var belinda = Card("golden-belinda-" + index, BoardSide.Player, "BG35_883", 0, 20, Tribe.None, 6);
+                belinda.Golden = true;
+                service.State.Player.Board.Add(belinda);
+            }
         }
 
         private static MinionInstance Card(string id, BoardSide owner, string cardId, int attack, int health, Tribe tribe, int tavernTier, params Keyword[] keywords)
