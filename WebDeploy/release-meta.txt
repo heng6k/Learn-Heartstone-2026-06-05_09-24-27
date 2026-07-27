@@ -1,3 +1,3 @@
 unityVersion=6000.4.10f1
-buildUtc=2026-07-27T07:00:01.0328735Z
-output=C:\Users\wch\AppData\Local\Temp\LearnHearthstoneWebRelease-20260727-143233\BuildCandidate\LearnHeartstone_20260727-143233
+buildUtc=2026-07-27T12:48:45.7707688Z
+output=C:\Users\wch\AppData\Local\Temp\LearnHearthstoneWebRelease-20260727-203541-b362968\BuildCandidate\LearnHeartstone_20260727-203541
