@@ -16,9 +16,17 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+# Explicit release outputs; kept here as the release-boundary contract even
+# though the parent Builds directory is already ignored.
+/Builds/ReleaseCandidate/
+/Builds/ReleaseReceipts/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log
+
+# Python tooling cache
+__pycache__/
+*.py[cod]
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be committed to version control.
 *.blend1

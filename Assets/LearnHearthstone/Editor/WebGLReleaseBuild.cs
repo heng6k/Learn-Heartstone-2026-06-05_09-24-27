@@ -94,11 +94,7 @@ public static class WebGLReleaseBuild
             throw new BuildFailedException($"WebGL 构建失败：{summary.result}");
         }
 
-        File.WriteAllText(
-            Path.Combine(output, "release-meta.txt"),
-            $"unityVersion={Application.unityVersion}{Environment.NewLine}" +
-            $"buildUtc={DateTime.UtcNow:O}{Environment.NewLine}" +
-            $"output={output}{Environment.NewLine}");
+        // Tools/Release owns portable release metadata and candidate assembly.
     }
 
     private static string[] GetEnabledScenes()

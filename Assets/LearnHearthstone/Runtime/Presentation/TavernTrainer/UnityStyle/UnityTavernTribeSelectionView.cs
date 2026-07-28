@@ -2476,6 +2476,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             toggle.interactable = interactable;
             toggle.onValueChanged.AddListener(value =>
             {
+                if (value == isOn)
+                {
+                    return;
+                }
+
                 UnityTavernUiStyle.ConfigureOutline(
                     toggleObject,
                     UnityTavernUiStyle.WithAlpha(value ? UnityTavernUiStyle.FocusRing : UnityTavernUiStyle.Brass, value ? 0.78f : 0.34f),
@@ -2543,7 +2548,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             toggle.graphic = check.GetComponent<Image>();
             toggle.SetIsOnWithoutNotify(isOn);
             toggle.interactable = interactable;
-            toggle.onValueChanged.AddListener(value => changed?.Invoke(value));
+            toggle.onValueChanged.AddListener(value =>
+            {
+                if (value != isOn)
+                {
+                    changed?.Invoke(value);
+                }
+            });
             var colors = toggle.colors;
             colors.normalColor = surface.color;
             colors.highlightedColor = Color.Lerp(surface.color, UnityTavernUiStyle.Gold, 0.18f);

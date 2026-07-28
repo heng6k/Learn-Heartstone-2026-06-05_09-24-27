@@ -57,6 +57,8 @@ flowchart LR
 - `WebDeploy/vercel.json`
 - `WebDeploy/README.md`
 
+其中部署配置的唯一人工真源是 `Deploy/Vercel/vercel.json`；`WebDeploy/vercel.json` 只是迁移期旧 Root Directory 所需的同步副本。
+
 ## 3. 当前固定环境与 Vercel 配置
 
 当前验证环境：
@@ -110,9 +112,9 @@ git remote -v
 
 完整测试分类和运行方式以 [测试套件索引](testing/test-suite-overview.zh-CN.md) 为准。测试失败时不要先构建上线包；先判断是本次回归还是已有基线问题，并把结论记录清楚。
 
-## 5. 构建到带版本号的临时目录
+## 5. 构建 WebGL 并组装 ReleaseCandidate
 
-不要先直接构建进 `WebDeploy`。先生成一个独立、可验收的候选包，只有候选包通过后才替换部署目录。
+不要先直接构建进 `WebDeploy`。Unity 只生成原始 WebGL 站点，再由 `Tools/Release` 复制部署配置并生成跨机器稳定的 `release-meta.json`。
 
 ```powershell
 $project = 'D:\unity project\Learn Heartstone'
@@ -123,26 +125,36 @@ $log = Join-Path $project "Logs\WebGLBuild_$stamp.log"
 
 New-Item -ItemType Directory -Force -Path (Split-Path $log) | Out-Null
 
-& $unity `
-  -batchmode -nographics -quit `
-  -projectPath $project `
-  -executeMethod WebGLReleaseBuild.BuildFromCommandLine `
-  -webglOutput $output `
-  -logFile $log
+$arguments = @(
+    '-batchmode', '-nographics', '-quit',
+    '-projectPath', ('"' + $project + '"'),
+    '-executeMethod', 'WebGLReleaseBuild.BuildFromCommandLine',
+    '-webglOutput', ('"' + $output + '"'),
+    '-logFile', ('"' + $log + '"')
+)
+$process = Start-Process -FilePath $unity -ArgumentList $arguments -Wait -PassThru -WindowStyle Hidden
 
-if ($LASTEXITCODE -ne 0) {
+if ($process.ExitCode -ne 0) {
     throw "WebGL 构建失败，请检查日志：$log"
 }
 
-Write-Output "WebGL 候选包：$output"
+Write-Output "WebGL 原始输出：$output"
+
+$assembly = & node Tools\Release\assemble-release-candidate.mjs --webgl $output
+if ($LASTEXITCODE -ne 0) {
+    throw "ReleaseCandidate 组装失败"
+}
+$assembly | Write-Output
+$candidate = (($assembly | Select-String '^ReleaseCandidate:').Line -replace '^ReleaseCandidate:\s*', '')
 ```
 
-构建后检查：
+组装后检查：
 
 ```powershell
-Get-ChildItem -LiteralPath $output
-Get-ChildItem -LiteralPath (Join-Path $output 'Build')
-Get-Content -LiteralPath (Join-Path $output 'release-meta.txt')
+Get-ChildItem -LiteralPath $candidate
+Get-ChildItem -LiteralPath (Join-Path $candidate 'Build')
+Get-Content -LiteralPath (Join-Path $candidate 'release-meta.json')
+Get-Content -LiteralPath (Join-Path $candidate 'vercel.json')
 ```
 
 候选包至少应包含：
@@ -151,7 +163,8 @@ Get-Content -LiteralPath (Join-Path $output 'release-meta.txt')
 index.html
 Build/
 TemplateData/
-release-meta.txt
+release-meta.json
+vercel.json
 ```
 
 `Build/` 下应同时存在 loader、framework、wasm 和 data 文件。当前发布使用 Brotli 产物，因此通常会看到 `.wasm.br`、`.framework.js.br` 和 `.data.br`。
@@ -170,13 +183,13 @@ Unity WebGL 不能用双击 `index.html` 的方式可靠验收，必须通过 HT
 
 ```powershell
 Set-Location 'D:\unity project\Learn Heartstone'
-python Tools\WebGL\serve_webgl.py "$output" --port 8125
+python Tools\WebGL\serve_webgl.py "$candidate" --port 8125
 ```
 
-若新窗口没有 `$output` 变量，直接填入上一阶段打印出的候选包绝对路径：
+若新窗口没有 `$candidate` 变量，直接填入上一阶段打印出的候选包绝对路径：
 
 ```powershell
-python Tools\WebGL\serve_webgl.py "D:\unity project\Learn Heartstone\Builds\WebGL\LearnHeartstone_20260716-220000" --port 8125
+python Tools\WebGL\serve_webgl.py "D:\unity project\Learn Heartstone\Builds\ReleaseCandidate\CLIENT__BUILD_ID" --port 8125
 ```
 
 然后打开：<http://127.0.0.1:8125/>
@@ -210,12 +223,12 @@ python Tools\WebGL\serve_webgl.py "D:\unity project\Learn Heartstone\Builds\WebG
 
 只有候选包通过本地验收后，才执行本步骤。
 
-下面的 PowerShell 会先备份当前 `WebDeploy`，再做镜像同步，确保旧 Build 文件不会残留。执行前必须再次确认 `$output` 指向刚验收的候选包，`$deploy` 指向本仓库的 `WebDeploy`。
+下面的 PowerShell 会先备份当前 `WebDeploy`，再做镜像同步，确保旧 Build 文件不会残留。执行前必须再次确认 `$candidate` 指向刚验收的 ReleaseCandidate，`$deploy` 指向本仓库的 `WebDeploy`。
 
 ```powershell
 $project = (Resolve-Path 'D:\unity project\Learn Heartstone').Path
-# 把下一行替换为刚才已经验收通过的候选包绝对路径。
-$output = (Resolve-Path 'D:\unity project\Learn Heartstone\Builds\WebGL\LearnHeartstone_YYYYMMDD-HHMMSS').Path
+# 把下一行替换为刚才已经验收通过的 ReleaseCandidate 绝对路径。
+$candidate = (Resolve-Path 'D:\unity project\Learn Heartstone\Builds\ReleaseCandidate\CLIENT__BUILD_ID').Path
 $deploy = Join-Path $project 'WebDeploy'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backup = Join-Path $project "Builds\WebDeployBackup_$stamp"
@@ -224,8 +237,8 @@ if ((Split-Path $deploy -Leaf) -ne 'WebDeploy') {
     throw "部署目标异常：$deploy"
 }
 
-if (-not (Test-Path (Join-Path $output 'index.html'))) {
-    throw "候选包缺少 index.html：$output"
+if (-not (Test-Path (Join-Path $candidate 'index.html'))) {
+    throw "候选包缺少 index.html：$candidate"
 }
 
 New-Item -ItemType Directory -Force -Path $backup | Out-Null
@@ -234,13 +247,12 @@ if ($LASTEXITCODE -ge 8) {
     throw "备份 WebDeploy 失败，robocopy exit code=$LASTEXITCODE"
 }
 
-robocopy $output $deploy /MIR /XF README.md vercel.json
+robocopy $candidate $deploy /MIR /XF README.md
 if ($LASTEXITCODE -ge 8) {
     throw "同步 WebDeploy 失败，robocopy exit code=$LASTEXITCODE"
 }
 
 Copy-Item -LiteralPath (Join-Path $backup 'README.md') -Destination (Join-Path $deploy 'README.md') -Force
-Copy-Item -LiteralPath (Join-Path $backup 'vercel.json') -Destination (Join-Path $deploy 'vercel.json') -Force
 ```
 
 说明：`robocopy` 的退出码 `0` 到 `7` 都可能表示成功或存在已复制差异，`8` 及以上才视为失败。
@@ -248,7 +260,7 @@ Copy-Item -LiteralPath (Join-Path $backup 'vercel.json') -Destination (Join-Path
 同步后立即检查：
 
 ```powershell
-Get-Content -LiteralPath .\WebDeploy\release-meta.txt
+Get-Content -LiteralPath .\WebDeploy\release-meta.json
 Get-Content -LiteralPath .\WebDeploy\vercel.json
 Get-ChildItem -LiteralPath .\WebDeploy\Build
 Select-String -Path .\WebDeploy\index.html -Pattern 'loaderUrl|dataUrl|frameworkUrl|codeUrl'
@@ -257,7 +269,7 @@ Select-String -Path .\WebDeploy\index.html -Pattern 'loaderUrl|dataUrl|framework
 重点确认：
 
 - `index.html` 引用的四个 Build 文件都真实存在。
-- `release-meta.txt` 是本次构建时间和 Unity 版本。
+- `release-meta.json` 对应本次 client/build/source/Unity/UTC 信息，且不包含机器绝对路径。
 - `vercel.json`、`README.md` 仍存在。
 - `Build/` 中没有上一版本遗留的同类文件。
 
@@ -276,7 +288,7 @@ python Tools\WebGL\serve_webgl.py WebDeploy --port 8125
 ```powershell
 git status --short
 git diff --stat
-git diff -- WebDeploy/index.html WebDeploy/TemplateData/style.css WebDeploy/release-meta.txt
+git diff -- WebDeploy/index.html WebDeploy/TemplateData/style.css WebDeploy/release-meta.json
 ```
 
 正常情况下，Build 文件可能表现为旧文件删除、新文件新增，这是版本化文件名带来的预期变化。
@@ -340,7 +352,7 @@ GitHub `main` 更新后，Vercel 会从仓库的 `WebDeploy` 根目录创建新�
 
 1. Vercel Deployment 状态为 Ready，不是 Error 或 Canceled。
 2. 打开 <https://hengheng-one.vercel.app/>，确认加载的是本次 UI。
-3. 打开 `https://hengheng-one.vercel.app/release-meta.txt`，核对 Unity 版本和构建时间；怀疑缓存时附加查询参数。
+3. 打开 `https://hengheng-one.vercel.app/release-meta.json`，核对 client/build/source/Unity/UTC 信息；该文件必须走重新验证缓存。
 4. 在开发者工具 Network 中确认 loader、data、framework 和 wasm 都返回 `200`。
 5. 确认 `.br` 资源具有正确 `Content-Encoding: br` 和 MIME。
 6. 再执行桌面、紧凑横屏、手机竖屏和中英文切换验收。
@@ -436,7 +448,7 @@ Vercel 会根据新的回滚提交自动重新部署。
 
 - [ ] 使用 Unity `6000.4.10f1`。
 - [ ] 构建到新的带时间戳/版本号目录。
-- [ ] loader、data、framework、wasm 和 `release-meta.txt` 完整。
+- [ ] loader、data、framework、wasm、`release-meta.json` 和 `vercel.json` 完整。
 - [ ] 通过 `Tools/WebGL/serve_webgl.py` 预览。
 - [ ] 中文无缺字，英文无重影/截断。
 - [ ] 桌面、紧凑横屏、手机竖屏和手机横屏通过。
@@ -456,7 +468,7 @@ Vercel 会根据新的回滚提交自动重新部署。
 ### 线上
 
 - [ ] Vercel Production Deployment 为 Ready。
-- [ ] 线上 `release-meta.txt` 对应本次构建。
+- [ ] 线上 `release-meta.json` 对应本次构建。
 - [ ] Build 资源返回 200，Brotli/MIME 正确。
 - [ ] 线上多尺寸和中英文验收通过。
 - [ ] 已知问题已记录；出现 P0 问题时已回滚。

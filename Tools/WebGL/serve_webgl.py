@@ -3,7 +3,22 @@ from __future__ import annotations
 import argparse
 import http.server
 import os
+import re
 from pathlib import Path
+
+
+REVALIDATE_CACHE = "public, max-age=0, must-revalidate"
+IMMUTABLE_CACHE = "public, max-age=31536000, immutable"
+VERSIONED_CONTENT_PATH = re.compile(r"^/content/[^/]+\.v[^/]+\.json$")
+
+
+def cache_control_for_path(request_path: str) -> str:
+    request_path = request_path.split("?", 1)[0]
+    if not request_path.startswith("/"):
+        request_path = "/" + request_path
+    if request_path.startswith("/Build/") or VERSIONED_CONTENT_PATH.fullmatch(request_path):
+        return IMMUTABLE_CACHE
+    return REVALIDATE_CACHE
 
 
 class WebGLRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -23,10 +38,7 @@ class WebGLRequestHandler(http.server.SimpleHTTPRequestHandler):
         request_path = self.path.split("?", 1)[0]
         if request_path.endswith(".br"):
             self.send_header("Content-Encoding", "br")
-        if request_path.endswith("index.html") or request_path == "/":
-            self.send_header("Cache-Control", "no-cache")
-        else:
-            self.send_header("Cache-Control", "public, max-age=31536000, immutable")
+        self.send_header("Cache-Control", cache_control_for_path(request_path))
         super().end_headers()
 
 

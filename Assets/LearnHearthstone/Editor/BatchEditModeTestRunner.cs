@@ -21,6 +21,13 @@ namespace LearnHearthstone.Editor
         private const string DefaultResultPath = "TestResults-OfficialConsistency.xml";
         private const string DefaultManifestPath = "Logs/EditModeDefaultManifest.txt";
         private static readonly string[] DefaultExcludedCategories = { "Stress", "Marathon" };
+        private static readonly string[] StressExcludedCategories = { "Marathon" };
+        private static readonly HashSet<string> TestMethodAttributeNames = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "NUnit.Framework.TestAttribute",
+            "NUnit.Framework.TestCaseAttribute",
+            "NUnit.Framework.TestCaseSourceAttribute"
+        };
 
         public static void RunEditMode()
         {
@@ -29,7 +36,7 @@ namespace LearnHearthstone.Editor
 
         public static void RunStressEditMode()
         {
-            RunEditModeWithCategories(new[] { "Stress" }, null);
+            RunEditModeWithCategories(new[] { "Stress" }, StressExcludedCategories);
         }
 
         private static void RunEditModeWithCategories(string[] defaultCategories, string[] defaultExcludedCategories)
@@ -38,35 +45,45 @@ namespace LearnHearthstone.Editor
             var manifestPath = ReadArgument(ManifestPathArg) ?? DefaultManifestPath;
             var categories = ReadListArgument(CategoryArg) ?? defaultCategories;
             var testNames = ReadListArgument(TestNameArg) ?? ReadListFileArgument(TestNameFileArg);
-            var excludedCategories = categories == null && testNames == null
-                ? defaultExcludedCategories
-                : null;
-            if (excludedCategories != null && excludedCategories.Length > 0)
-            {
-                testNames = DiscoverTestNamesExcludingCategories(excludedCategories);
-            }
+            var excludedCategories = defaultExcludedCategories;
 
             var shardCount = ReadIntArgument(ShardCountArg, 1);
             var shardIndex = ReadIntArgument(ShardIndexArg, 0);
-            if (testNames != null && shardCount > 1)
+            ValidateShard(shardIndex, shardCount);
+            if (shardCount > 1)
             {
+                testNames = testNames ?? DiscoverTestMethodNames();
                 testNames = ApplyShard(testNames, shardIndex, shardCount);
             }
 
-            WriteManifest(manifestPath, testNames, categories, excludedCategories, shardIndex, shardCount);
+            WriteManifest(
+                manifestPath,
+                resultPath,
+                testNames,
+                categories,
+                excludedCategories,
+                shardIndex,
+                shardCount,
+                null,
+                null,
+                "Not started");
 
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
-            api.RegisterCallbacks(new ExitOnFinishedCallback(resultPath));
+            api.RegisterCallbacks(new ExitOnFinishedCallback(
+                resultPath,
+                manifestPath,
+                testNames,
+                categories,
+                excludedCategories,
+                shardIndex,
+                shardCount));
 
             var filter = new Filter
             {
                 testMode = TestMode.EditMode,
-                assemblyNames = new[] { "LearnHearthstone.Tests" }
+                assemblyNames = new[] { "LearnHearthstone.Tests" },
+                categoryNames = BuildCategoryFilters(categories, excludedCategories)
             };
-            if (categories != null && categories.Length > 0)
-            {
-                filter.categoryNames = categories;
-            }
 
             if (testNames != null && testNames.Length > 0)
             {
@@ -86,22 +103,38 @@ namespace LearnHearthstone.Editor
             api.Execute(settings);
         }
 
-        private static string[] DiscoverTestNamesExcludingCategories(string[] excludedCategories)
+        private static string[] BuildCategoryFilters(string[] categories, string[] excludedCategories)
         {
-            var excluded = new HashSet<string>(excludedCategories ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            var filters = new List<string>();
+            if (categories != null)
+            {
+                filters.AddRange(categories.Where(category => !string.IsNullOrWhiteSpace(category)));
+            }
+
+            if (excludedCategories != null)
+            {
+                filters.AddRange(excludedCategories
+                    .Where(category => !string.IsNullOrWhiteSpace(category))
+                    .Select(category => category.StartsWith("!", StringComparison.Ordinal) ? category : "!" + category));
+            }
+
+            return filters.Count == 0 ? null : filters.ToArray();
+        }
+
+        private static string[] DiscoverTestMethodNames()
+        {
             var testAssembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(assembly => assembly.GetName().Name == "LearnHearthstone.Tests");
             if (testAssembly == null)
             {
-                Debug.LogWarning("LearnHearthstone.Tests assembly was not loaded; default category exclusion could not be applied.");
-                return null;
+                throw new InvalidOperationException("LearnHearthstone.Tests assembly was not loaded; EditMode tests cannot be sharded safely.");
             }
 
             var tests = new List<string>();
             foreach (var type in testAssembly.GetTypes().OrderBy(type => type.FullName, StringComparer.Ordinal))
             {
-                if (!type.FullName.StartsWith("LearnHearthstone.Tests.EditMode.", StringComparison.Ordinal) ||
-                    HasExcludedCategory(type, excluded))
+                if (string.IsNullOrWhiteSpace(type.FullName) ||
+                    !type.FullName.StartsWith("LearnHearthstone.Tests.EditMode.", StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -109,8 +142,8 @@ namespace LearnHearthstone.Editor
                 foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                              .OrderBy(method => method.Name, StringComparer.Ordinal))
                 {
-                    if (!HasAttribute(method, "NUnit.Framework.TestAttribute") ||
-                        HasExcludedCategory(method, excluded))
+                    if (!method.GetCustomAttributesData()
+                            .Any(attribute => TestMethodAttributeNames.Contains(attribute.AttributeType.FullName)))
                     {
                         continue;
                     }
@@ -119,22 +152,14 @@ namespace LearnHearthstone.Editor
                 }
             }
 
-            Debug.Log("Discovered " + tests.Count + " default EditMode test(s) after excluding categories: " + string.Join(", ", excluded));
-            return tests.ToArray();
-        }
+            var distinctTests = tests.Distinct(StringComparer.Ordinal).ToArray();
+            if (distinctTests.Length == 0)
+            {
+                throw new InvalidOperationException("No EditMode test methods were discovered for sharding.");
+            }
 
-        private static bool HasExcludedCategory(MemberInfo member, HashSet<string> excludedCategories)
-        {
-            return member.GetCustomAttributesData()
-                .Where(attribute => attribute.AttributeType.FullName == "NUnit.Framework.CategoryAttribute")
-                .Select(attribute => attribute.ConstructorArguments.Count > 0 ? attribute.ConstructorArguments[0].Value as string : null)
-                .Any(category => !string.IsNullOrWhiteSpace(category) && excludedCategories.Contains(category));
-        }
-
-        private static bool HasAttribute(MemberInfo member, string attributeTypeName)
-        {
-            return member.GetCustomAttributesData()
-                .Any(attribute => attribute.AttributeType.FullName == attributeTypeName);
+            Debug.Log("Discovered " + distinctTests.Length + " EditMode test method selector(s) for sharding.");
+            return distinctTests;
         }
 
         private static string ReadArgument(string name)
@@ -195,17 +220,71 @@ namespace LearnHearthstone.Editor
                 return testNames;
             }
 
+            var selectedTests = testNames
+                .Where((testName, index) => index % shardCount == shardIndex)
+                .ToArray();
+            if (selectedTests.Length == 0)
+            {
+                throw new InvalidOperationException("The requested shard contains no test selectors.");
+            }
+
+            return selectedTests;
+        }
+
+        private static void ValidateShard(int shardIndex, int shardCount)
+        {
+            if (shardCount < 1)
+            {
+                throw new InvalidOperationException("Shard count must be at least 1.");
+            }
+
             if (shardIndex < 0 || shardIndex >= shardCount)
             {
                 throw new InvalidOperationException("Shard index must be in [0, shardCount).");
             }
-
-            return testNames
-                .Where((testName, index) => index % shardCount == shardIndex)
-                .ToArray();
         }
 
-        private static void WriteManifest(string path, string[] testNames, string[] categories, string[] excludedCategories, int shardIndex, int shardCount)
+        private static string[] GetLeafTestNames(ITestAdaptor test)
+        {
+            var names = new List<string>();
+            AddLeafTestNames(test, names);
+            return names.ToArray();
+        }
+
+        private static void AddLeafTestNames(ITestAdaptor test, List<string> names)
+        {
+            if (test == null)
+            {
+                return;
+            }
+
+            if (!test.HasChildren)
+            {
+                if (!test.IsSuite && !string.IsNullOrWhiteSpace(test.FullName))
+                {
+                    names.Add(test.FullName);
+                }
+
+                return;
+            }
+
+            foreach (var child in test.Children)
+            {
+                AddLeafTestNames(child, names);
+            }
+        }
+
+        private static void WriteManifest(
+            string path,
+            string resultPath,
+            string[] requestedTestNames,
+            string[] categories,
+            string[] excludedCategories,
+            int shardIndex,
+            int shardCount,
+            string[] discoveredTestNames,
+            ITestResultAdaptor result,
+            string executionStatus)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -226,11 +305,34 @@ namespace LearnHearthstone.Editor
                     "# Categories: " + FormatCategories(categories),
                     "# Excluded: " + FormatCategories(excludedCategories),
                     "# Shard: " + FormatShard(shardIndex, shardCount),
-                    "# Count: " + (testNames == null ? "<runner-selected>" : testNames.Length.ToString())
+                    "# Requested selector count: " + (requestedTestNames == null ? "<runner-selected>" : requestedTestNames.Length.ToString()),
+                    "# Execution status: " + executionStatus,
+                    "# Discovered leaf count: " + (discoveredTestNames == null ? "<pending>" : discoveredTestNames.Length.ToString()),
+                    "# Result XML: " + resultPath
                 };
-                if (testNames != null)
+                if (result != null)
                 {
-                    lines.AddRange(testNames);
+                    var executedCount = result.PassCount + result.FailCount + result.SkipCount + result.InconclusiveCount;
+                    lines.Add("# Executed leaf count: " + executedCount);
+                    lines.Add("# Passed: " + result.PassCount);
+                    lines.Add("# Failed: " + result.FailCount);
+                    lines.Add("# Skipped: " + result.SkipCount);
+                    lines.Add("# Inconclusive: " + result.InconclusiveCount);
+                }
+                else
+                {
+                    lines.Add("# Executed leaf count: <pending>");
+                }
+
+                if (requestedTestNames != null)
+                {
+                    lines.AddRange(requestedTestNames.Select(testName => "# Requested selector: " + testName));
+                }
+
+                if (discoveredTestNames != null)
+                {
+                    lines.Add("# Discovered leaf tests follow; non-comment lines remain valid -batchTestNameFile input.");
+                    lines.AddRange(discoveredTestNames);
                 }
 
                 File.WriteAllLines(path, lines);
@@ -255,28 +357,81 @@ namespace LearnHearthstone.Editor
         private sealed class ExitOnFinishedCallback : ICallbacks
         {
             private readonly string resultPath;
+            private readonly string manifestPath;
+            private readonly string[] requestedTestNames;
+            private readonly string[] categories;
+            private readonly string[] excludedCategories;
+            private readonly int shardIndex;
+            private readonly int shardCount;
+            private string[] discoveredTestNames;
 
-            public ExitOnFinishedCallback(string resultPath)
+            public ExitOnFinishedCallback(
+                string resultPath,
+                string manifestPath,
+                string[] requestedTestNames,
+                string[] categories,
+                string[] excludedCategories,
+                int shardIndex,
+                int shardCount)
             {
                 this.resultPath = resultPath;
+                this.manifestPath = manifestPath;
+                this.requestedTestNames = requestedTestNames;
+                this.categories = categories;
+                this.excludedCategories = excludedCategories;
+                this.shardIndex = shardIndex;
+                this.shardCount = shardCount;
             }
 
             public void RunStarted(ITestAdaptor testsToRun)
             {
-                Debug.Log("LearnHearthstone EditMode test run started.");
+                discoveredTestNames = GetLeafTestNames(testsToRun);
+                WriteManifest(
+                    manifestPath,
+                    resultPath,
+                    requestedTestNames,
+                    categories,
+                    excludedCategories,
+                    shardIndex,
+                    shardCount,
+                    discoveredTestNames,
+                    null,
+                    "Running");
+                Debug.Log(
+                    "LearnHearthstone EditMode test run started. NUnit test cases: " + testsToRun.TestCaseCount +
+                    ", manifest leaves: " + discoveredTestNames.Length + ".");
             }
 
             public void RunFinished(ITestResultAdaptor result)
             {
                 TestRunnerApi.SaveResultToFile(result, resultPath);
+                discoveredTestNames = discoveredTestNames ?? GetLeafTestNames(result.Test);
+                WriteManifest(
+                    manifestPath,
+                    resultPath,
+                    requestedTestNames,
+                    categories,
+                    excludedCategories,
+                    shardIndex,
+                    shardCount,
+                    discoveredTestNames,
+                    result,
+                    "Finished");
+                var executedCount = result.PassCount + result.FailCount + result.SkipCount + result.InconclusiveCount;
                 Debug.LogFormat(
-                    "LearnHearthstone EditMode test run finished. Passed: {0}, Failed: {1}, Skipped: {2}, Inconclusive: {3}",
+                    "LearnHearthstone EditMode test run finished. Executed: {0}, Passed: {1}, Failed: {2}, Skipped: {3}, Inconclusive: {4}",
+                    executedCount,
                     result.PassCount,
                     result.FailCount,
                     result.SkipCount,
                     result.InconclusiveCount);
 
-                EditorApplication.Exit(result.FailCount == 0 ? 0 : 1);
+                if (executedCount == 0)
+                {
+                    Debug.LogError("LearnHearthstone EditMode test run selected zero executable test cases.");
+                }
+
+                EditorApplication.Exit(result.FailCount == 0 && executedCount > 0 ? 0 : 1);
             }
 
             public void TestStarted(ITestAdaptor test)
