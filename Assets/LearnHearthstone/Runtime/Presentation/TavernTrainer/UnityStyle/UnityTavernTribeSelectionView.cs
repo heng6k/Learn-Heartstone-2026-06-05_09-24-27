@@ -4,6 +4,7 @@ using System.Linq;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Adapters.Persistence;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -149,20 +150,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             AnomalyCatalog anomalyCatalog = null,
             bool useEnglish = false,
             QuestCatalog questCatalog = null,
-            TrinketCatalog trinketCatalog = null)
+            TrinketCatalog trinketCatalog = null,
+            GameCatalogSet catalogs = null)
         {
             this.root = root;
             this.start = start;
             this.backToHub = backToHub;
             layout = layoutContext ?? UnityTavernLayoutContext.FromRoot(root);
             this.repository = repository ?? new JsonCardPoolVersionRepository();
-            this.minionCatalog = minionCatalog ?? MinionCatalogLoader.LoadFromResources(useEnglish);
-            this.spellCatalog = spellCatalog ?? SpellCatalogLoader.LoadFromResources(useEnglish);
-            this.heroCatalog = heroCatalog ?? HeroCatalogLoader.LoadFromResources();
-            this.anomalyCatalog = anomalyCatalog ?? AnomalyCatalogLoader.LoadFromResources(useEnglish);
-            this.questCatalog = questCatalog ?? QuestCatalogLoader.LoadFromResources(useEnglish);
-            this.trinketCatalog = trinketCatalog ?? TrinketCatalogLoader.LoadFromResources(useEnglish);
-            timewarpedTavernCatalog = TimewarpedTavernCatalogLoader.LoadFromResources();
+            this.minionCatalog = minionCatalog ?? catalogs?.Minions ?? MinionCatalogLoader.LoadFromResources(useEnglish);
+            this.spellCatalog = spellCatalog ?? catalogs?.Spells ?? SpellCatalogLoader.LoadFromResources(useEnglish);
+            this.heroCatalog = heroCatalog ?? catalogs?.Heroes ?? HeroCatalogLoader.LoadFromResources();
+            this.anomalyCatalog = anomalyCatalog ?? catalogs?.Anomalies ?? AnomalyCatalogLoader.LoadFromResources(useEnglish);
+            this.questCatalog = questCatalog ?? catalogs?.Quests ?? QuestCatalogLoader.LoadFromResources(useEnglish);
+            this.trinketCatalog = trinketCatalog ?? catalogs?.Trinkets ?? TrinketCatalogLoader.LoadFromResources(useEnglish);
+            timewarpedTavernCatalog = catalogs?.TimewarpedTavern ?? TimewarpedTavernCatalogLoader.LoadFromResources();
             foreach (var card in timewarpedTavernCatalog.All.Where(card => !string.IsNullOrEmpty(card.CardId)))
             {
                 enabledTimewarpedCardIds.Add(card.CardId);

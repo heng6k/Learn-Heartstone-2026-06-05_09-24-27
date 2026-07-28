@@ -462,7 +462,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private IEnumerable<MinionInstance> BuildAcquisitionMinionChoices()
         {
-            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Where(card => card.InPool && !card.CardId.StartsWith("BGDUO")))
+            foreach (var definition in service.Catalogs.Minions.All.Where(card => card.InPool && !card.CardId.StartsWith("BGDUO")))
             {
                 yield return MinionFactory.Create(definition, BoardSide.Player, "ui-acquisition", false, PoolSource.Debug, 0);
             }
@@ -470,7 +470,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private IEnumerable<MinionInstance> BuildAcquisitionSpellChoices()
         {
-            foreach (var definition in SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.InPool && spell.Category == "TavernSpell" && !spell.CardNumber.StartsWith("BGDUO")))
+            foreach (var definition in service.Catalogs.Spells.All.Where(spell => spell.InPool && spell.Category == "TavernSpell" && !spell.CardNumber.StartsWith("BGDUO")))
             {
                 var spell = MinionFactory.Create(definition, BoardSide.Player, "ui-acquisition");
                 spell.PoolSource = PoolSource.Debug;
@@ -499,12 +499,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer
 
         private IEnumerable<MinionInstance> BuildDebugCardChoices()
         {
-            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Take(6))
+            foreach (var definition in service.Catalogs.Minions.All.Take(6))
             {
                 yield return MinionFactory.Create(definition, BoardSide.Player, "ui-choice", false, PoolSource.Debug, 0);
             }
 
-            foreach (var definition in SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.Category == "TavernSpell").Take(4))
+            foreach (var definition in service.Catalogs.Spells.All.Where(spell => spell.Category == "TavernSpell").Take(4))
             {
                 var spell = MinionFactory.Create(definition, BoardSide.Player, "ui-choice");
                 spell.PoolSource = PoolSource.Debug;
@@ -770,7 +770,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             UiFactory.SetFlexible(row, 1, 1);
             UiFactory.Horizontal(row, 0, 6);
             var index = 0;
-            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Where(card => card.TavernTier <= 2).Take(4))
+            foreach (var definition in service.Catalogs.Minions.All.Where(card => card.TavernTier <= 2).Take(4))
             {
                 var captured = definition;
                 var buttonName = index == 0 ? "AddOpponentButton" : "AddOpponent-" + captured.CardId;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -1164,6 +1165,7 @@ namespace LearnHearthstone.Application.Services
             public int Amount;
         }
 
+        private readonly GameCatalogSet catalogs;
         private readonly MinionCatalog catalog;
         private readonly SpellCatalog spellCatalog;
         private readonly HeroCatalog heroCatalog;
@@ -1209,16 +1211,45 @@ namespace LearnHearthstone.Application.Services
         private CombatExplanation combatExplanation;
         private int automaticTavernSpellCastDepth;
 
-        private MatchService(MinionCatalog catalog, SpellCatalog spellCatalog, HeroCatalog heroCatalog, TrinketCatalog trinketCatalog, QuestCatalog questCatalog, TimewarpedTavernCatalog timewarpedCatalog, AnomalyCatalog anomalyCatalog, DarkmoonPrizeCatalog darkmoonPrizeCatalog, int seed, ITestScenarioRepository scenarioRepository, MatchSetupOptions setup)
+        private MatchService(
+            MinionCatalog catalog,
+            SpellCatalog spellCatalog,
+            HeroCatalog heroCatalog,
+            TrinketCatalog trinketCatalog,
+            QuestCatalog questCatalog,
+            TimewarpedTavernCatalog timewarpedCatalog,
+            AnomalyCatalog anomalyCatalog,
+            DarkmoonPrizeCatalog darkmoonPrizeCatalog,
+            int seed,
+            ITestScenarioRepository scenarioRepository,
+            MatchSetupOptions setup)
+            : this(
+                new GameCatalogSet(
+                    catalog,
+                    spellCatalog,
+                    heroCatalog,
+                    trinketCatalog,
+                    questCatalog,
+                    timewarpedCatalog,
+                    anomalyCatalog,
+                    darkmoonPrizeCatalog),
+                seed,
+                scenarioRepository,
+                setup)
         {
-            this.catalog = catalog;
-            this.spellCatalog = spellCatalog;
-            this.heroCatalog = heroCatalog;
-            this.trinketCatalog = trinketCatalog;
-            this.questCatalog = questCatalog;
-            this.timewarpedCatalog = timewarpedCatalog;
-            this.anomalyCatalog = anomalyCatalog;
-            this.darkmoonPrizeCatalog = darkmoonPrizeCatalog;
+        }
+
+        private MatchService(GameCatalogSet catalogs, int seed, ITestScenarioRepository scenarioRepository, MatchSetupOptions setup)
+        {
+            this.catalogs = catalogs ?? throw new ArgumentNullException(nameof(catalogs));
+            catalog = catalogs.Minions;
+            spellCatalog = catalogs.Spells;
+            heroCatalog = catalogs.Heroes;
+            trinketCatalog = catalogs.Trinkets;
+            questCatalog = catalogs.Quests;
+            timewarpedCatalog = catalogs.TimewarpedTavern;
+            anomalyCatalog = catalogs.Anomalies;
+            darkmoonPrizeCatalog = catalogs.DarkmoonPrizes;
             this.scenarioRepository = scenarioRepository ?? new FileTestScenarioRepository();
             useEnglish = setup?.UseEnglish ?? false;
             activeTribes = TribeAvailabilityRules.Normalize(setup?.ActiveTribes);
@@ -1255,6 +1286,8 @@ namespace LearnHearthstone.Application.Services
         }
 
         public MatchState State { get; private set; }
+
+        public GameCatalogSet Catalogs => catalogs;
 
         public HeroCatalog HeroCatalog => heroCatalog;
 
@@ -1627,18 +1660,25 @@ namespace LearnHearthstone.Application.Services
 
         public static MatchService CreateWithDefaultCatalog(int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
         {
-            return new MatchService(
-                MinionCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
-                SpellCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
-                HeroCatalogLoader.LoadFromResources(),
-                TrinketCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
-                QuestCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
-                TimewarpedTavernCatalogLoader.LoadFromResources(),
-                AnomalyCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
-                DarkmoonPrizeCatalogLoader.LoadFromResources(setup != null && setup.UseEnglish),
+            var useEnglish = setup != null && setup.UseEnglish;
+            return CreateWithCatalogs(
+                new GameCatalogSet(
+                    MinionCatalogLoader.LoadFromResources(useEnglish),
+                    SpellCatalogLoader.LoadFromResources(useEnglish),
+                    HeroCatalogLoader.LoadFromResources(),
+                    TrinketCatalogLoader.LoadFromResources(useEnglish),
+                    QuestCatalogLoader.LoadFromResources(useEnglish),
+                    TimewarpedTavernCatalogLoader.LoadFromResources(),
+                    AnomalyCatalogLoader.LoadFromResources(useEnglish),
+                    DarkmoonPrizeCatalogLoader.LoadFromResources(useEnglish)),
                 seed,
                 scenarios,
                 setup);
+        }
+
+        public static MatchService CreateWithCatalogs(GameCatalogSet catalogs, int seed = 12345, ITestScenarioRepository scenarios = null, MatchSetupOptions setup = null)
+        {
+            return new MatchService(catalogs, seed, scenarios, setup);
         }
 
         private CardPoolVersionSelection CreateCardPoolVersionSelection(MatchSetupOptions setup)

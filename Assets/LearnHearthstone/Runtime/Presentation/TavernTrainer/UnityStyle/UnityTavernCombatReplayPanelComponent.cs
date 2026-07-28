@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Images;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using UnityEngine;
@@ -92,6 +93,34 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             timelineParent = timeline;
             closeButton = close;
             closeButtonText = closeLabel;
+        }
+
+        public void ConfigureCatalogs(GameCatalogSet catalogs)
+        {
+            if (catalogs == null)
+            {
+                return;
+            }
+
+            localizedCombatMinionNamesByCardId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var definition in catalogs.Minions.All)
+            {
+                AddLocalizedCombatMinionName(definition.CardId, definition.Name);
+                if (definition.Golden != null)
+                {
+                    AddLocalizedCombatMinionName(definition.Golden.CardId, definition.Name);
+                }
+            }
+
+            localizedCombatMinionNamesLoaded = true;
+            localizedCombatSpellNamesByCardId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var definition in catalogs.Spells.All)
+            {
+                AddLocalizedCombatSpellName(definition.CardNumber, definition.Name);
+                AddLocalizedCombatSpellName(definition.Id, definition.Name);
+            }
+
+            localizedCombatSpellNamesLoaded = true;
         }
 
         public void Build(CombatReplay replay, int frameIndex, Action<int> setFrame, Action close)

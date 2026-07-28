@@ -495,7 +495,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
             UiFactory.Vertical(source, 8, 6);
             BuildPanelHeader(source.transform, "对手牌源", "1-2 本");
 
-            var choices = MinionCatalogLoader.LoadFromResources().All
+            var choices = service.Catalogs.Minions.All
                 .Where(card => card.InPool && !card.CardId.StartsWith("BGDUO") && card.TavernTier <= 2)
                 .Take(6)
                 .ToList();
@@ -829,12 +829,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
 
         private IEnumerable<MinionInstance> BuildDebugCardChoices()
         {
-            foreach (var definition in MinionCatalogLoader.LoadFromResources().All.Where(card => card.InPool && !card.CardId.StartsWith("BGDUO")).Take(6))
+            foreach (var definition in service.Catalogs.Minions.All.Where(card => card.InPool && !card.CardId.StartsWith("BGDUO")).Take(6))
             {
                 yield return MinionFactory.Create(definition, BoardSide.Player, "ui-choice", false, PoolSource.Debug, 0);
             }
 
-            foreach (var definition in SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.Category == "TavernSpell").Take(4))
+            foreach (var definition in service.Catalogs.Spells.All.Where(spell => spell.Category == "TavernSpell").Take(4))
             {
                 var spell = MinionFactory.Create(definition, BoardSide.Player, "ui-choice");
                 spell.PoolSource = PoolSource.Debug;
@@ -997,7 +997,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
         private void AddDebugCard()
         {
             var tier = service.State.Player.Tavern.Tier;
-            var definition = MinionCatalogLoader.LoadFromResources().All
+            var definition = service.Catalogs.Minions.All
                 .FirstOrDefault(minion => minion.InPool && !minion.CardId.StartsWith("BGDUO") && minion.TavernTier == tier);
             if (definition != null)
             {

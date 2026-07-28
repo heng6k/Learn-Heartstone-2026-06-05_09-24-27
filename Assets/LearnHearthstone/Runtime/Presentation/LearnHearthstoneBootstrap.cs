@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
+using LearnHearthstone.Adapters.Content;
+using LearnHearthstone.Adapters.Persistence;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
@@ -29,6 +32,8 @@ namespace LearnHearthstone.Presentation
         private const string UiFontResourcePath = "Fonts/NotoSansSC-Regular";
 
         private Canvas canvas;
+        private GameCatalogSnapshot catalogSnapshot;
+        private ICardPoolVersionRepository cardPoolVersionRepository;
         private MatchService matchService;
         private IAdvisorService advisor;
         private bool useEnglish;
@@ -51,6 +56,8 @@ namespace LearnHearthstone.Presentation
             ConfigureCanvas(canvas);
             RememberScreenLayout();
 
+            catalogSnapshot = EmbeddedGameCatalogSnapshotLoader.Load(UnityEngine.Application.version);
+            cardPoolVersionRepository = new JsonCardPoolVersionRepository();
             advisor = new LocalAdvisorService();
             ShowHub();
         }
@@ -94,7 +101,13 @@ namespace LearnHearthstone.Presentation
         {
             currentRoute = ViewRoute.Setup;
             ClearCanvas();
-            tribeSelectionView = new UnityTavernTribeSelectionView(canvas.transform, StartUnityTrainer, ShowHub, useEnglish: useEnglish);
+            tribeSelectionView = new UnityTavernTribeSelectionView(
+                canvas.transform,
+                StartUnityTrainer,
+                ShowHub,
+                repository: cardPoolVersionRepository,
+                useEnglish: useEnglish,
+                catalogs: catalogSnapshot.ForLanguage(useEnglish));
             tribeSelectionView.Build();
             AddDebugAspectRatioOverlay();
         }
@@ -114,9 +127,11 @@ namespace LearnHearthstone.Presentation
         {
             currentRoute = ViewRoute.UnityTrainer;
             tribeSelectionView = null;
-            matchService = MatchService.CreateWithDefaultCatalog(
+            var effectiveSetup = setup ?? new MatchSetupOptions();
+            matchService = MatchService.CreateWithCatalogs(
+                catalogSnapshot.ForLanguage(effectiveSetup.UseEnglish),
                 CreateMatchSeed(),
-                setup: setup ?? new MatchSetupOptions());
+                setup: effectiveSetup);
             ClearCanvas();
             new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
             AddDebugAspectRatioOverlay();
@@ -126,7 +141,8 @@ namespace LearnHearthstone.Presentation
         {
             currentRoute = ViewRoute.RealisticTrainer;
             tribeSelectionView = null;
-            matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
+            var setup = new MatchSetupOptions { UseEnglish = useEnglish };
+            matchService = MatchService.CreateWithCatalogs(catalogSnapshot.ForLanguage(useEnglish), CreateMatchSeed(), setup: setup);
             ClearCanvas();
             new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
             AddDebugAspectRatioOverlay();
@@ -136,7 +152,8 @@ namespace LearnHearthstone.Presentation
         {
             currentRoute = ViewRoute.LegacyTrainer;
             tribeSelectionView = null;
-            matchService = MatchService.CreateWithDefaultCatalog(CreateMatchSeed());
+            var setup = new MatchSetupOptions { UseEnglish = useEnglish };
+            matchService = MatchService.CreateWithCatalogs(catalogSnapshot.ForLanguage(useEnglish), CreateMatchSeed(), setup: setup);
             ClearCanvas();
             new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
             AddDebugAspectRatioOverlay();

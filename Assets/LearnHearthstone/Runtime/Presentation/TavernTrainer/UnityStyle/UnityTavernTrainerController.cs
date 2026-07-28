@@ -2645,7 +2645,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ClampReplayFrameIndex();
             var panel = UnityTavernCombatReplayPanelComponent.CreatePanelHost(transform, "UnityCombatReplayPanel");
             panel.transform.SetAsLastSibling();
-            panel.GetComponent<UnityTavernCombatReplayPanelComponent>().Build(
+            var replayPanel = panel.GetComponent<UnityTavernCombatReplayPanelComponent>();
+            replayPanel.ConfigureCatalogs(service.Catalogs);
+            replayPanel.Build(
                 service.State.LastReplay,
                 activeReplayFrameIndex,
                 new UnityCombatReplayPanelOptions
@@ -5904,7 +5906,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private IEnumerable<MinionInstance> BuildToolsAcquisitionMinionChoices()
         {
-            var definitions = MinionCatalogLoader.LoadFromResources(service.UseEnglish).All
+            var definitions = service.Catalogs.Minions.All
                 .Where(card =>
                     (service.IsMinionAllowedByCardPool(card) || card.Tags.Contains("hero_derivative")) &&
                     !card.CardId.StartsWith("BGDUO"));
@@ -5947,7 +5949,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private IEnumerable<MinionInstance> BuildToolsAcquisitionSpellChoices()
         {
-            var definitions = SpellCatalogLoader.LoadFromResources(service.UseEnglish).All
+            var definitions = service.Catalogs.Spells.All
                 .Where(spell => service.IsTavernSpellAllowedByCardPool(spell) && !spell.CardNumber.StartsWith("BGDUO"));
             if (!toolsShowAllCards)
             {
@@ -6221,7 +6223,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void AddFirstMinionToHand()
         {
             var active = ActiveLibraryTribes();
-            var definition = MinionCatalogLoader.LoadFromResources(service.UseEnglish).All.FirstOrDefault(card =>
+            var definition = service.Catalogs.Minions.All.FirstOrDefault(card =>
                 service.IsMinionAllowedByCardPool(card) &&
                 card.TavernTier <= Math.Max(1, service.State.Player.Tavern.Tier) &&
                 TribeAvailabilityRules.IsMinionAvailable(card, active));
@@ -6234,7 +6236,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void AddFirstSpellToHand()
         {
             var active = ActiveLibraryTribes();
-            var definition = SpellCatalogLoader.LoadFromResources(service.UseEnglish).All.FirstOrDefault(spell =>
+            var definition = service.Catalogs.Spells.All.FirstOrDefault(spell =>
                 service.IsTavernSpellAllowedByCardPool(spell) &&
                 TribeAvailabilityRules.IsTavernSpellAvailable(spell, active));
             if (definition != null)
@@ -6246,7 +6248,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void AddFirstOpponentMinion()
         {
             var active = ActiveLibraryTribes();
-            var definition = MinionCatalogLoader.LoadFromResources(service.UseEnglish).All.FirstOrDefault(card =>
+            var definition = service.Catalogs.Minions.All.FirstOrDefault(card =>
                 service.IsMinionAllowedByCardPool(card) &&
                 card.TavernTier <= Math.Max(1, service.State.Player.Tavern.Tier) &&
                 TribeAvailabilityRules.IsMinionAvailable(card, active));
