@@ -129,7 +129,7 @@ namespace LearnHearthstone.Tests.EditMode
                 }));
 
             AssertMatrixCombatCompleted(service, row);
-            Assert.AreSame(pending, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            AssertPendingChoicePreserved(pending, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
 
             if (row.Kind == MatrixCaseKind.HeroPower)
             {
@@ -183,7 +183,7 @@ namespace LearnHearthstone.Tests.EditMode
             var playerFinal = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == "player-control");
             Assert.AreEqual(0, playerFinal.Attack);
             Assert.AreEqual(100, playerFinal.MaxHealth);
-            Assert.AreSame(pending, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            AssertPendingChoicePreserved(pending, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
             Assert.AreEqual(7, service.State.Player.Tavern.Gold);
             Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.Quests.MainQuest);
             Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId);
@@ -1412,6 +1412,18 @@ namespace LearnHearthstone.Tests.EditMode
                 Slot = "Main",
                 Round = 1
             };
+        }
+
+        private static void AssertPendingChoicePreserved(MechanicChoiceRequest expected, MechanicChoiceRequest actual)
+        {
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected.RequestId, actual.RequestId);
+            Assert.AreEqual(expected.Kind, actual.Kind);
+            Assert.AreEqual(expected.Source, actual.Source);
+            Assert.AreEqual(expected.Slot, actual.Slot);
+            Assert.AreEqual(expected.Round, actual.Round);
+            Assert.AreEqual(expected.RemainingPicks, actual.RemainingPicks);
+            Assert.AreEqual(expected.Options?.Count ?? 0, actual.Options?.Count ?? 0);
         }
 
         private static MinionInstance TestCardMinion(

@@ -152,7 +152,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
             Assert.AreEqual(CardKind.Spell, service.State.Player.Tavern.Hand[0].CardKind);
 
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
 
             Assert.AreEqual(source.BaseAttack + 1, service.State.Player.Board[0].Attack);
             Assert.AreEqual(source.BaseHealth + 1, service.State.Player.Board[0].MaxHealth);

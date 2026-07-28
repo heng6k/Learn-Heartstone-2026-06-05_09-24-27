@@ -4,6 +4,7 @@ param(
     [string]$RefreshScope = "all",
     [string]$Compile = "request",
     [switch]$SkipRefresh,
+    [switch]$RefreshOnly,
     [int]$PortStart = 6400,
     [int]$PortEnd = 6410,
     [int]$TimeoutMs = 30000,
@@ -159,6 +160,11 @@ if (-not $SkipRefresh) {
     $port = Wait-UnityIdle -InitialPort $port
 }
 
+if ($RefreshOnly) {
+    Write-Host "Unity refresh completed."
+    exit 0
+}
+
 $start = Invoke-UnityMcpCommand -Port $port -Payload @{
     type = "run_tests"
     params = @{
@@ -171,14 +177,21 @@ $jobId = $start.result.data.job_id
 Write-Host "Started Unity test job $jobId"
 
 for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
-    $job = Invoke-UnityMcpCommand -Port $port -Payload @{
-        type = "get_test_job"
-        params = @{
-            job_id = $jobId
-            include_details = $false
-            include_failed_tests = $true
-        }
-    } -CommandTimeoutMs $TimeoutMs
+    try {
+        $job = Invoke-UnityMcpCommand -Port $port -Payload @{
+            type = "get_test_job"
+            params = @{
+                job_id = $jobId
+                include_details = $false
+                include_failed_tests = $true
+            }
+        } -CommandTimeoutMs $TimeoutMs
+    }
+    catch {
+        Write-Host "Unity test job query failed: $($_.Exception.Message); continuing to poll."
+        Start-Sleep -Seconds $PollSeconds
+        continue
+    }
 
     if ($job.status -eq "error" -and $job.error -like "*timed out*") {
         Write-Host "Unity test job query timed out; continuing to poll."

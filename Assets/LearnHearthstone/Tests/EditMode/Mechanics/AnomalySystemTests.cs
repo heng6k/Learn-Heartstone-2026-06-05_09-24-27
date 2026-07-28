@@ -342,13 +342,16 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRoundKeepingTimewarp(service, 6);
+            tavern = service.State.Player.Tavern;
             Assert.IsTrue(tavern.Timewarp.VisitOpen);
             Assert.AreEqual("turn-schedule", tavern.Timewarp.PendingSource);
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
             AdvanceToRoundKeepingTimewarp(service, 7);
+            tavern = service.State.Player.Tavern;
             Assert.IsFalse(tavern.Timewarp.VisitOpen);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(8, service.State.Round);
             Assert.AreEqual("BG34_HERO_000p", service.State.Player.ExtraHeroPowerCardIds.Single());
@@ -382,9 +385,11 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.AdvancedMechanics.Trinkets.LesserTrinketId = "test-lesser-trinket";
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var request = tavern.AdvancedMechanics.PendingChoice;
             Assert.AreEqual(8, service.State.Round);
@@ -426,9 +431,11 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.AdvancedMechanics.Trinkets.LesserTrinketId = "test-lesser-trinket";
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var request = tavern.AdvancedMechanics.PendingChoice;
             Assert.AreEqual(8, service.State.Round);
@@ -562,9 +569,11 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 4);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var request = tavern.AdvancedMechanics.PendingChoice;
             Assert.AreEqual(5, service.State.Round);
@@ -601,9 +610,11 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRoundKeepingTimewarp(service, 4);
+            tavern = service.State.Player.Tavern;
             Assert.IsFalse(tavern.Timewarp.VisitOpen);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(5, service.State.Round);
             Assert.AreEqual("BG34_HERO_004p", service.State.Player.ExtraHeroPowerCardIds.Single());
@@ -638,9 +649,11 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 4);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var request = tavern.AdvancedMechanics.PendingChoice;
             Assert.AreEqual(5, service.State.Round);
@@ -666,6 +679,7 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 5);
+            tavern = service.State.Player.Tavern;
             var picked = tavern.AdvancedMechanics.PendingChoice.Options[0].SourceId;
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
@@ -681,6 +695,7 @@ namespace LearnHearthstone.Tests.EditMode
                 equipped.DisplayName.Contains("Mystery Cube")));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var nextRequest = tavern.AdvancedMechanics.PendingChoice;
             Assert.AreEqual(6, service.State.Round);
@@ -861,9 +876,11 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
             Assert.AreEqual(0, tavern.Hand.Count(card => card.CardId == "100596"));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var arrow = tavern.Hand.Single(card => card.CardId == "100596");
             Assert.IsTrue(arrow.Golden);
@@ -871,33 +888,13 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("使一个随从获得+8攻击力。", arrow.Text);
             Assert.IsTrue(arrow.Tags.Contains("anomaly_golden_arrow"));
 
-            var target = new MinionInstance
-            {
-                CardKind = CardKind.Minion,
-                InstanceId = "golden-arrow-target",
-                DefinitionId = "golden-arrow-target",
-                CardId = "GOLDEN_ARROW_TARGET",
-                Name = "Golden Arrow Target",
-                BaseAttack = 2,
-                Attack = 2,
-                BaseHealth = 3,
-                Health = 3,
-                MaxHealth = 3,
-                TavernTier = 1,
-                Tribes = new List<Tribe> { Tribe.None },
-                Keywords = new List<Keyword>(),
-                Owner = BoardSide.Player,
-                PoolSource = PoolSource.Copy,
-                PoolCopiesHeld = 0
-            };
-            tavern.Hand.Remove(arrow);
-            tavern.Hand.Add(arrow);
-            service.State.Player.Board.Add(target);
+            var targetIndex = tavern.Shop.FindIndex(card => card != null && card.CardKind == CardKind.Minion);
+            var target = tavern.Shop[targetIndex];
+            var beforeAttack = target.Attack;
 
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(arrow), 0));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(arrow), targetIndex, TargetZone.TavernShop, -1, TargetZone.Unspecified));
 
-            Assert.AreEqual(10, target.Attack);
-            Assert.AreEqual(3, target.MaxHealth);
+            Assert.AreEqual(beforeAttack + 8, target.Attack);
         }
 
         [Test]
@@ -907,9 +904,11 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
             Assert.AreEqual(0, tavern.Hand.Count(card => card.CardId == "FLY_THE_FLAG_SPELL"));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var spell = tavern.Hand.Single(card => card.CardId == "FLY_THE_FLAG_SPELL");
             Assert.AreEqual("升起旗帜", spell.Name);
@@ -922,6 +921,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateAnomalyService("BG35_Anomaly_001");
             var tavern = service.State.Player.Tavern;
             AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
             var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "FLY_THE_FLAG_SPELL");
             tavern.Shop[0] = new MinionInstance
             {
@@ -955,6 +955,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateAnomalyService("BG35_Anomaly_001");
             var tavern = service.State.Player.Tavern;
             AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
             var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "FLY_THE_FLAG_SPELL");
             tavern.Shop[0] = new MinionInstance
             {
@@ -990,6 +991,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateAnomalyService("BG35_Anomaly_001");
             var tavern = service.State.Player.Tavern;
             AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
             var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "FLY_THE_FLAG_SPELL");
             var targetIndex = tavern.Shop.FindIndex(card => card != null && card.CardKind == CardKind.Minion);
             var target = tavern.Shop[targetIndex];
@@ -1090,10 +1092,12 @@ namespace LearnHearthstone.Tests.EditMode
                 .ToList();
 
             AdvanceToRoundKeepingTimewarp(service, 6);
+            tavern = service.State.Player.Tavern;
             Assert.IsFalse(minorIds.Any(id => tavern.Pool.ContainsKey(id)));
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
 
             Assert.Greater(minorIds.Count, 0);
             Assert.IsTrue(minorIds.All(id => tavern.Pool.ContainsKey(id) && tavern.Pool[id] == 1));
@@ -1114,6 +1118,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .ToList();
 
             AdvanceToRound(service, 10);
+            tavern = service.State.Player.Tavern;
 
             Assert.Greater(majorIds.Count, 0);
             Assert.IsTrue(majorIds.All(id => tavern.Pool.ContainsKey(id) && tavern.Pool[id] == 1));
@@ -1155,6 +1160,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .ToList();
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
 
             Assert.Greater(historicalMinorIds.Count, 0);
             Assert.IsTrue(historicalMinorIds.All(id => tavern.Pool.ContainsKey(id) && tavern.Pool[id] == 1));
@@ -1171,6 +1177,7 @@ namespace LearnHearthstone.Tests.EditMode
             var targetId = OathstonePoolId(target.CardId);
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
             tavern.Shop.Clear();
             tavern.ShopSlots.Clear();
             tavern.Tier = 3;
@@ -1229,15 +1236,18 @@ namespace LearnHearthstone.Tests.EditMode
             var timewarp = service.State.Player.Tavern.Timewarp;
 
             AdvanceToRoundKeepingTimewarp(service, 7);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.IsFalse(timewarp.VisitOpen);
 
             AdvanceToRoundKeepingTimewarp(service, 8);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.IsTrue(timewarp.VisitOpen);
             Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
             Assert.AreEqual("anomaly:major-waygate", timewarp.PendingSource);
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
 
             AdvanceToRoundKeepingTimewarp(service, 9);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.IsTrue(timewarp.VisitOpen);
             Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
             Assert.AreEqual("anomaly:major-waygate", timewarp.PendingSource);
@@ -1250,12 +1260,14 @@ namespace LearnHearthstone.Tests.EditMode
             var timewarp = service.State.Player.Tavern.Timewarp;
 
             AdvanceToRoundKeepingTimewarp(service, 6);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.AreEqual(4, timewarp.Chronum);
             timewarp.Chronum = 2;
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
             Assert.AreEqual(2, timewarp.Chronum);
 
             AdvanceToRoundKeepingTimewarp(service, 9);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
             Assert.AreEqual(2, timewarp.Chronum);
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
@@ -1496,18 +1508,22 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(4, service.State.Round);
             AssertDarkmoonPrizeDiscover(tavern, "anomaly-darkmoon-faire-prizes", 1, false);
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
 
             AdvanceToRound(service, 7);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(8, service.State.Round);
             AssertDarkmoonPrizeDiscover(tavern, "anomaly-darkmoon-faire-prizes", 2, false);
@@ -1527,6 +1543,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
 
             AdvanceToRound(service, 4);
+            tavern = service.State.Player.Tavern;
             tavern.Gold = 100;
             service.Apply(new GameCommand(GameCommandType.UpgradeTavern));
 

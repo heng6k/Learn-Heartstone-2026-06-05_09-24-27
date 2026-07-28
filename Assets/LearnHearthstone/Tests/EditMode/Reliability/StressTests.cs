@@ -215,14 +215,16 @@ namespace LearnHearthstone.Tests.EditMode
 
                 var handIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == definition.CardId);
                 Assert.GreaterOrEqual(handIndex, 0, definition.CardId + " should be in hand");
-                if (IsLocked(service.State.Player.Tavern.Hand[handIndex]))
+                var card = service.State.Player.Tavern.Hand[handIndex];
+                if (IsLocked(card))
                 {
                     AssertStateWithinLimits(service.State, definition.CardId + " locked hand state");
                     continue;
                 }
 
+                var targetIndex = ResolvePlayTargetIndex(service, card);
                 Assert.DoesNotThrow(
-                    () => service.Apply(new GameCommand(GameCommandType.PlayMinion, handIndex)),
+                    () => service.Apply(new GameCommand(GameCommandType.PlayMinion, handIndex, targetIndex)),
                     definition.CardId + " " + definition.Name + " play");
                 ResolveRequiredChoices(service);
                 AssertStateWithinLimits(service.State, definition.CardId + " " + definition.Name + " recruit flow");
@@ -242,14 +244,20 @@ namespace LearnHearthstone.Tests.EditMode
                 }
 
                 var card = service.State.Player.Tavern.Hand[handIndex];
-                var targetIndex = card.CardKind == CardKind.Minion ? -1 : 0;
-                if (targetIndex == 0)
-                {
-                    EnsureStressTarget(service);
-                }
-
+                var targetIndex = ResolvePlayTargetIndex(service, card);
                 service.Apply(new GameCommand(GameCommandType.PlayMinion, handIndex, targetIndex));
             }
+        }
+
+        private static int ResolvePlayTargetIndex(MatchService service, MinionInstance card)
+        {
+            if (card.CardKind == CardKind.Minion && !service.RequiresExplicitBattlecryTarget(card))
+            {
+                return -1;
+            }
+
+            EnsureStressTarget(service);
+            return service.State.Player.Board.FindIndex(target => target.InstanceId == StressTargetId);
         }
 
         private static int FindPlayableHandIndex(MatchState state)

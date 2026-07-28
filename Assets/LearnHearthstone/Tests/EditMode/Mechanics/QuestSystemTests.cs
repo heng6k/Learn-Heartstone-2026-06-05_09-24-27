@@ -432,6 +432,8 @@ namespace LearnHearthstone.Tests.EditMode
             ActivateRewardDirectly(service, "BG33_Reward_013");
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            low = service.State.Player.Tavern.Shop.Single(card => card.InstanceId == "low-tier");
+            high = service.State.Player.Tavern.Shop.Single(card => card.InstanceId == "high-tier");
 
             Assert.IsFalse(low.Golden);
             Assert.IsTrue(high.Golden);
@@ -519,6 +521,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(3, frozen.MaxHealth);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            frozen = service.State.Player.Tavern.Shop.Single(card => card.InstanceId == "teal-frozen");
 
             Assert.AreEqual(1, frozen.Attack);
             Assert.AreEqual(1, frozen.MaxHealth);
@@ -1169,7 +1172,13 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Shop.Add(MinionFactory.Create(definition, BoardSide.Player, "kidnap-pool", false, PoolSource.Pool, 1));
             tavern.Pool[definition.Id] = 0;
 
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                0,
+                TargetZone.TavernShop,
+                -1,
+                TargetZone.Unspecified));
 
             var stolen = tavern.Hand.Single(card => card.DefinitionId == definition.Id);
             Assert.AreEqual(PoolSource.Pool, stolen.PoolSource);

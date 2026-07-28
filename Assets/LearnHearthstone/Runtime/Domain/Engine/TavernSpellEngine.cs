@@ -263,7 +263,9 @@ namespace LearnHearthstone.Domain.Engine
 
         public static bool IsLegalFriendlyMinionTarget(MinionInstance spell, MinionInstance target)
         {
-            if (spell == null || target == null || target.CardKind != CardKind.Minion)
+            if (spell == null ||
+                target == null ||
+                (target.CardKind != CardKind.Minion && target.CardKind != CardKind.HeroBuddy))
             {
                 return false;
             }
@@ -1067,9 +1069,9 @@ namespace LearnHearthstone.Domain.Engine
                     state.Player.Tavern.TemporaryAvengeBeastRewards += 1;
                     return "Beast reward: enable temporary Avenge Beast rewards";
                 case "126909":
-                    state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 6, 0, StatMath.MaxStat);
-                    state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 6, 0, StatMath.MaxStat);
-                    return "Easterly Winds: after refresh, a random Tavern minion gets +6/+6";
+                    state.Player.Tavern.RefreshRightmostBuffAttack = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffAttack, 5, 0, StatMath.MaxStat);
+                    state.Player.Tavern.RefreshRightmostBuffHealth = StatMath.SaturatingAdd(state.Player.Tavern.RefreshRightmostBuffHealth, 5, 0, StatMath.MaxStat);
+                    return "Easterly Winds: after refresh, a random Tavern minion gets +5/+5";
                 case "126957":
                     StartTribeDiscoverWithTag(state, minions, rng, Tribe.Undead, "Undead Discover", "discover_then_death");
                     return "Undead Discover: discover an Undead that dies later";

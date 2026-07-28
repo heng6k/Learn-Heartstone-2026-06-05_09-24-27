@@ -53,6 +53,7 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.NextTurnBonusGold = 4;
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(TavernRules.NormalGoldSoftCap, tavern.MaxGold);
             Assert.AreEqual(103, tavern.Gold);
@@ -277,6 +278,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsEmpty(timewarp.Offers);
 
             AdvanceToRound(service, 6);
+            timewarp = service.State.Player.Tavern.Timewarp;
 
             Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
             Assert.AreEqual(3, timewarp.Chronum);
@@ -542,9 +544,11 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Hand.Clear();
 
             AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
 
             AdvanceToRound(service, 4);
+            tavern = service.State.Player.Tavern;
 
             Assert.IsNotNull(tavern.Discover);
             Assert.AreEqual("timewarped-big-winner", tavern.Discover.Source);
@@ -781,6 +785,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(10, tavern.MaxGold);
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(TavernRules.GetMaxGoldForRound(2) + 4, tavern.MaxGold);
             Assert.AreEqual(TavernRules.GetMaxGoldForRound(2) + 4, tavern.Gold);
@@ -973,6 +978,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "TIMEWARPED_EVOLVING_TAVERN_SPELL"));
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "BGS_Treasures_006"));
             Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "TIMEWARPED_EVOLVING_TAVERN_SPELL"));
@@ -1003,6 +1009,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "109230"));
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "109230"));
         }
@@ -1031,6 +1038,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(tavern.Hand.Any(card => card.InstanceId == "lasso-shop"));
 
             AdvanceToRound(service, 2);
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "104502"));
         }
@@ -1259,6 +1267,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
 
             AdvanceToRound(service, 9);
+            timewarp = service.State.Player.Tavern.Timewarp;
 
             Assert.AreEqual(9, service.State.Round);
             Assert.AreEqual(TimewarpTavernPhase.Open, timewarp.Phase);
@@ -1288,6 +1297,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(TimewarpTavernPhase.Idle, timewarp.Phase);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            timewarp = service.State.Player.Tavern.Timewarp;
 
             Assert.AreEqual(5, service.State.Round);
             Assert.AreEqual("BG34_HERO_004p", service.State.Player.HeroPowerCardId);
@@ -1312,14 +1322,15 @@ namespace LearnHearthstone.Tests.EditMode
                     EnableTrinkets = false
                 });
 
-            var timewarp = service.State.Player.Tavern.Timewarp;
             AdvanceToRound(service, 6);
+            var timewarp = service.State.Player.Tavern.Timewarp;
             Assert.IsTrue(timewarp.VisitOpen);
             Assert.AreEqual(TimewarpKind.Minor, timewarp.PendingKind);
             Assert.AreEqual("turn-schedule", timewarp.PendingSource);
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
 
             AdvanceToRound(service, 8);
+            timewarp = service.State.Player.Tavern.Timewarp;
 
             Assert.AreEqual(8, service.State.Round);
             Assert.AreEqual("BG34_HERO_000p", service.State.Player.HeroPowerCardId);
@@ -1334,6 +1345,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.ExitTimewarpedTavern));
             AdvanceToRound(service, 9);
+            timewarp = service.State.Player.Tavern.Timewarp;
             Assert.IsTrue(timewarp.VisitOpen);
             Assert.AreEqual(TimewarpKind.Major, timewarp.PendingKind);
             Assert.AreEqual("turn-schedule", timewarp.PendingSource);
@@ -1418,8 +1430,8 @@ namespace LearnHearthstone.Tests.EditMode
             foreach (var shopCount in new[] { 3, 7 })
             {
                 var service = CreateTimewarpOnlyService(12000 + shopCount);
-                var tavern = service.State.Player.Tavern;
                 AdvanceToRound(service, 6);
+                var tavern = service.State.Player.Tavern;
                 var timewarpedCards = tavern.Timewarp.Offers.Select(offer => offer.CardId).ToList();
                 while (tavern.Shop.Count > shopCount)
                 {
@@ -1925,6 +1937,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(TestBoardMinion("enemy", "Enemy", "TEST_ENEMY", 1, 1, Tribe.None, 1));
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 4, SafetyLimit = 1 }));
+            target = service.State.Player.Tavern.Hand.Single(card => card.InstanceId == "hand-target");
 
             Assert.AreEqual(6, target.Attack);
             Assert.AreEqual(6, target.MaxHealth);
@@ -1946,6 +1959,7 @@ namespace LearnHearthstone.Tests.EditMode
             var spellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "BG34_Giant_212t");
             Assert.GreaterOrEqual(spellIndex, 0);
             service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, 1));
+            target = service.State.Player.Board.Single(card => card.InstanceId == "spell-target");
 
             Assert.AreEqual(14, target.Attack);
 
@@ -2324,6 +2338,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(TestBoardMinion("enemy-scourfin", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 28, SafetyLimit = 1 }));
+            handTarget = service.State.Player.Tavern.Hand.Single(card => card.InstanceId == "scourfin-hand");
 
             var summoned = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId.Contains("scourfin-hand"));
             Assert.AreEqual(9, summoned.Attack);
@@ -3021,6 +3036,7 @@ namespace LearnHearthstone.Tests.EditMode
             var targetIndex = service.State.Player.Board.FindIndex(card => card.InstanceId == target.InstanceId);
 
             service.Apply(new GameCommand(GameCommandType.PlayMinion, spellIndex, targetIndex));
+            target = service.State.Player.Board.Single(card => card.InstanceId == "commander-target");
 
             Assert.AreEqual(1 + expectedNagaCount * 2, target.Attack);
             Assert.AreEqual(1 + expectedNagaCount * 2, target.MaxHealth);
@@ -3357,6 +3373,7 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            lava = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_678");
 
             Assert.AreEqual(beforeAttack + 4, lava.Attack);
             Assert.AreEqual(beforeHealth + 4, lava.MaxHealth);
@@ -3399,6 +3416,7 @@ namespace LearnHearthstone.Tests.EditMode
             var scoutId = service.State.Player.Board.Single(card => card.CardId == "BG34_Giant_333").InstanceId;
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             tavern.Hand.Clear();
             service.Apply(new GameCommand(GameCommandType.SellMinion, scoutId));
 
@@ -4029,6 +4047,7 @@ namespace LearnHearthstone.Tests.EditMode
             winterfinner.Apply(new GameCommand(GameCommandType.UpdateOpponentMinion, winterfinner.State.Opponent.Board[0].InstanceId, new MinionPatch { Attack = 1, Health = 20, MaxHealth = 20 }));
 
             winterfinner.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 71, SafetyLimit = 1 }));
+            handTarget = winterfinner.State.Player.Tavern.Hand.Single(card => card.CardId == "BG26_135");
 
             Assert.AreEqual(beforeAttack + 2, handTarget.Attack);
             Assert.AreEqual(beforeHealth + 1, handTarget.MaxHealth);

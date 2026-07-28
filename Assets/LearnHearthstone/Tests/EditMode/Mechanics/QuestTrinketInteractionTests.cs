@@ -147,6 +147,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponentBassgill);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9011, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
 
             var playerSummonReward = service.State.LastResult.PlayerRewards.Single(reward =>
                 reward.Type == CombatRewardType.FriendlyMinionSummoned &&
@@ -207,6 +208,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9012, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             var deathrattleReward = service.State.LastResult.PlayerRewards.Single(reward =>
                 reward.Type == CombatRewardType.FriendlyDeathrattleTriggered &&
@@ -326,6 +329,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9014, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             var deathrattleReward = PlayerDeathrattleRewardFrom(service, manasaber.InstanceId);
             Assert.AreEqual(2, deathrattleReward.Amount);
@@ -375,6 +380,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9015, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             var deathrattleReward = PlayerDeathrattleRewardFrom(service, manasaber.InstanceId);
             Assert.AreEqual(3, deathrattleReward.Amount);
@@ -458,17 +465,23 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9017, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(4, PlayerSummonRewardsFrom(service, manasaber.InstanceId).Count);
             Assert.AreEqual(4, trinkets.WildfeatherDusterBeastSummons);
             Assert.IsEmpty(tavern.Hand);
 
             service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(4, trinkets.WildfeatherDusterBeastSummons);
             Assert.IsEmpty(tavern.Hand);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9018, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(4, PlayerSummonRewardsFrom(service, manasaber.InstanceId).Count);
             Assert.AreEqual(2, trinkets.WildfeatherDusterBeastSummons);
@@ -499,6 +512,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9019, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             var result = service.State.LastResult;
             Assert.AreEqual(4, PlayerSummonRewardsFrom(service, manasaber.InstanceId).Count);
@@ -511,6 +526,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(HasCountedTribe(tavern.Hand.Single(), Tribe.Beast));
 
             service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
+            tavern = service.State.Player.Tavern;
+            trinkets = tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(3, trinkets.WildfeatherDusterBeastSummons);
             Assert.AreEqual(1, tavern.Hand.Count);
@@ -611,6 +628,7 @@ namespace LearnHearthstone.Tests.EditMode
             ActivateRewardDirectly(service, "BG33_Reward_004", bonusQuest: true);
 
             var frozenBeast = TestMinion("next-turn-frozen-beast", 2, 3, Tribe.Beast);
+            var frozenBeastId = frozenBeast.InstanceId;
             tavern.Shop.Add(frozenBeast);
             TavernShopSlots.Ensure(tavern);
             TavernShopSlots.SetSlotFrozen(tavern, 0, true);
@@ -634,6 +652,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponentKiller);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9010, SafetyLimit = 5 }));
+            tavern = service.State.Player.Tavern;
+            frozenBeast = tavern.Shop.Single(card => card.InstanceId == frozenBeastId);
 
             Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
                 reward.Type == CombatRewardType.AddRandomDemonToHand &&
@@ -659,6 +679,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(tavern.Hand.Any(card => card.CardId == "104436"));
 
             service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
+            tavern = service.State.Player.Tavern;
+            frozenBeast = tavern.Shop.Single(card => card.InstanceId == frozenBeastId);
 
             Assert.AreEqual(2, service.State.Round);
             Assert.AreEqual(MatchPhase.Tavern, service.State.Phase);

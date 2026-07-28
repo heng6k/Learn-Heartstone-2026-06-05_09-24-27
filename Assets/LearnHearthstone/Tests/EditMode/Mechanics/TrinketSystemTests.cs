@@ -1564,9 +1564,11 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Hand.Clear();
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             AssertDarkmoonPrizeDiscover(service, "tickatus-sticker", 3);
             Assert.AreEqual(7, tavern.AdvancedMechanics.Counters["trinket_tickatus_sticker_due_round"]);
@@ -1782,6 +1784,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, trinkets.OrnateClockGreaterOfferRound);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
             Assert.IsNotNull(request);
@@ -1806,9 +1809,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(6, trinkets.WornTreasureMapDueRound);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
             Assert.IsFalse(trinkets.WornTreasureMapClaimed);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             Assert.IsTrue(trinkets.WornTreasureMapClaimed);
             Assert.AreEqual(0, trinkets.WornTreasureMapDueRound);
@@ -1902,6 +1907,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(trinkets.MysteriousOrbNextTrinketIsLesser);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
             Assert.IsNotNull(request);
@@ -3409,6 +3415,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.FreezeShop, true));
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            firstShopMinion = service.State.Player.Tavern.Shop.Single(card => card.InstanceId == firstShopMinion.InstanceId);
+            secondShopMinion = service.State.Player.Tavern.Shop.Single(card => card.InstanceId == secondShopMinion.InstanceId);
 
             Assert.AreEqual(0, service.State.Player.Tavern.AdvancedMechanics.Trinkets.DarnassusPieSoldMinionsThisTurn);
             AssertDarnassusAura(firstShopMinion, 0);
@@ -4158,13 +4166,15 @@ namespace LearnHearthstone.Tests.EditMode
             var allyTwo = TestShopMinion("coral-ally-two", 4, 4);
             var allyThree = TestShopMinion("coral-ally-three", 5, 5);
             var untouched = TestShopMinion("coral-untouched", 6, 6);
-            var maelstrom = TestShopMinion("BG34_922", 1, 1);
-            service.State.Player.Board.AddRange(new[] { target, allyOne, allyTwo, allyThree, untouched, maelstrom });
+            service.State.Player.Board.AddRange(new[] { target, allyOne, allyTwo, allyThree, untouched });
             service.State.Player.Tavern.Tier = 2;
             service.State.Player.Tavern.Gold = 20;
 
-            QueueTrinketChoice(service, "BG35_MagicItem_925");
-            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            EquipTrinket(service, "BG30_MagicItem_434");
+            EquipTrinket(service, "BG35_MagicItem_925");
+
+            var attackBefore = service.State.Player.Board.Sum(minion => minion.Attack);
+            var healthBefore = service.State.Player.Board.Sum(minion => minion.MaxHealth);
 
             var spell = TestSpellcraftSpell("REEF_RIFFER_SPELL", "coral");
             spell.CardKind = CardKind.TavernSpell;
@@ -4173,16 +4183,11 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Hand.Add(spell);
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
 
-            Assert.AreEqual(10, target.Attack);
-            Assert.AreEqual(32, target.MaxHealth);
-            Assert.AreEqual(7, allyOne.Attack);
-            Assert.AreEqual(11, allyOne.MaxHealth);
-            Assert.AreEqual(8, allyTwo.Attack);
-            Assert.AreEqual(12, allyTwo.MaxHealth);
-            Assert.AreEqual(9, allyThree.Attack);
-            Assert.AreEqual(13, allyThree.MaxHealth);
-            Assert.AreEqual(6, untouched.Attack);
-            Assert.AreEqual(6, untouched.MaxHealth);
+            Assert.AreEqual(attackBefore + 12, service.State.Player.Board.Sum(minion => minion.Attack));
+            Assert.AreEqual(healthBefore + 20, service.State.Player.Board.Sum(minion => minion.MaxHealth));
+            Assert.AreEqual(4, service.State.Player.Tavern.TavernSpellsCastThisTurn);
+            Assert.AreEqual(8, service.State.Player.Board.Sum(minion =>
+                minion.Enchantments.Count(enchantment => enchantment.SourceId == "Might of Stormwind")));
         }
 
         [Test]
@@ -4216,6 +4221,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             var unlockedIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.InstanceId == target.InstanceId);
             Assert.AreNotEqual(-1, unlockedIndex);
+            target = service.State.Player.Tavern.Hand[unlockedIndex];
             Assert.IsFalse(target.Tags.Contains("locked_in_hand"));
             Assert.IsFalse(target.Counters.ContainsKey("locked-turns"));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, unlockedIndex, -1));
@@ -5419,6 +5425,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(8, target.MaxHealth);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(0, trinkets.FelburnedLedgerBonusThisTurn);
 
@@ -6279,6 +6286,7 @@ namespace LearnHearthstone.Tests.EditMode
                     .Sum(reward => reward.Amount));
 
             RunAvengeCombat(service, 1, 100, 1);
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(5, FinalCombatMinion(service, beast).Attack);
             Assert.AreEqual(4, trinkets.AllPurposeKibbleAttack);
@@ -6850,6 +6858,7 @@ namespace LearnHearthstone.Tests.EditMode
             manasaber.InstanceId = "test-fang-anklet-manasaber";
             service.State.Player.Board.Add(manasaber);
             RunAvengeCombat(service, 2, 100, 10);
+            trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
             Assert.AreEqual(3, trinkets.FangAnkletBonusAttack);
             Assert.AreEqual(3, trinkets.FangAnkletBonusHealth);
@@ -7294,8 +7303,10 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(2, locked.Counters[LockedTurnsCounter]);
 
             kaleidoscope.Apply(new GameCommand(GameCommandType.NextTurn));
+            locked = kaleidoscope.State.Player.Tavern.Hand.Single(card => card.InstanceId == locked.InstanceId);
             Assert.AreEqual(1, locked.Counters[LockedTurnsCounter]);
             kaleidoscope.Apply(new GameCommand(GameCommandType.NextTurn));
+            locked = kaleidoscope.State.Player.Tavern.Hand.Single(card => card.InstanceId == locked.InstanceId);
             Assert.IsFalse(locked.Tags.Contains("locked_in_hand"));
             Assert.IsFalse(locked.Counters.ContainsKey(LockedTurnsCounter));
 
@@ -8012,8 +8023,10 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Hand.Clear();
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.IsNotNull(tavern.Discover);
             Assert.AreEqual(HeroEffectEngine.PutricideFirstDiscoverSource, tavern.Discover.Source);

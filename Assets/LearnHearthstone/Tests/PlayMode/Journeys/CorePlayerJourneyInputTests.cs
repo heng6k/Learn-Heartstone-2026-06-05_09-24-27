@@ -947,7 +947,12 @@ namespace LearnHearthstone.Tests.PlayMode
             var hits = new List<RaycastResult>();
             scene.Raycaster.Raycast(pointer, hits);
             var hit = hits.FirstOrDefault(result => result.gameObject == expected.gameObject || result.gameObject.transform.IsChildOf(expected));
-            Assert.IsNotNull(hit.gameObject, expected.name + " was not reachable through GraphicRaycaster.");
+            var rect = expected.GetComponent<RectTransform>();
+            Assert.IsNotNull(
+                hit.gameObject,
+                expected.name + " was not reachable through GraphicRaycaster. " +
+                "rect=" + rect.rect + ", screen=" + pointer.position +
+                ", hits=[" + string.Join(", ", hits.Select(result => result.gameObject.name)) + "]");
             return hit.gameObject;
         }
 

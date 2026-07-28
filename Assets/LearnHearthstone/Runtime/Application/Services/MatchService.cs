@@ -10188,7 +10188,7 @@ namespace LearnHearthstone.Application.Services
         private void ApplyBronzebeardPortrait(TrinketDefinition definition)
         {
             AddMinionByCardIdToHand(BrannBronzebeardCardId, definition.Name);
-            AddRandomBattlecryMinionToHand(1, definition.Name);
+            AddRandomBattlecryMinionToHand(1, definition.Name, allowAboveCurrentTavernTier: true);
             ApplyBronzebeardPortraitTribes();
         }
 
@@ -11949,7 +11949,8 @@ namespace LearnHearthstone.Application.Services
                 : definition.SlotKind == TrinketSlotKind.Greater ? 2 : 1;
             var candidates = SelectSupplyMinionDefinitions(
                 Tribe.Mech,
-                predicate: minion => minion.Keywords.Contains(Keyword.Magnetic));
+                predicate: minion => minion.Keywords.Contains(Keyword.Magnetic),
+                allowAboveCurrentTavernTier: true);
             StartBatch4MinionDiscover(
                 definition,
                 "trinket:electromagnetic_device:" + definition.CardId,
@@ -17702,7 +17703,7 @@ namespace LearnHearthstone.Application.Services
 
                 var actualCastCount = 1 + GetTavernSpellExtraCasts(target, targetZone);
                 var results = new List<string>();
-                var castTarget = (TargetIndex: targetIndex, TargetZone: targetZone, TargetInstanceId: targetInstanceId);
+                var castTarget = (TargetIndex: targetIndex, TargetZone: targetZone, TargetInstanceId: spellTargetId);
                 for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
                 {
                     if (actualCast > 0 && !TryResolveRepeatedTavernSpellTarget(
@@ -19072,7 +19073,7 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private bool RequiresExplicitBattlecryTarget(MinionInstance card)
+        public bool RequiresExplicitBattlecryTarget(MinionInstance card)
         {
             return card != null &&
                    (card.CardId == ScrapperCardId ||
@@ -29596,12 +29597,17 @@ namespace LearnHearthstone.Application.Services
             });
         }
 
-        private void AddRandomBattlecryMinionToHand(int count, string source, int maxTier = 0)
+        private void AddRandomBattlecryMinionToHand(
+            int count,
+            string source,
+            int maxTier = 0,
+            bool allowAboveCurrentTavernTier = false)
         {
             var rng = new SeededRng(State.Seed + State.Round * 659 + State.Player.Tavern.RecruitLog.Count);
             var candidates = SelectSupplyMinionDefinitions(
                 maxTier: maxTier > 0 ? Math.Max(1, maxTier) : 0,
-                predicate: minion => minion.Keywords.Contains(Keyword.Battlecry));
+                predicate: minion => minion.Keywords.Contains(Keyword.Battlecry),
+                allowAboveCurrentTavernTier: allowAboveCurrentTavernTier);
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 
@@ -30528,7 +30534,8 @@ namespace LearnHearthstone.Application.Services
             var rng = new SeededRng(State.Seed + State.Round * 601 + State.Player.Tavern.RecruitLog.Count);
             var candidates = SelectSupplyMinionDefinitions(
                 Tribe.Mech,
-                predicate: minion => minion.Keywords.Contains(Keyword.Magnetic));
+                predicate: minion => minion.Keywords.Contains(Keyword.Magnetic),
+                allowAboveCurrentTavernTier: true);
             AddRandomMinionsFromCandidates(candidates, count, source, rng);
         }
 

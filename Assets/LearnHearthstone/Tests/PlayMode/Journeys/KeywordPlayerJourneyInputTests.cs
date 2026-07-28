@@ -37,7 +37,9 @@ namespace LearnHearthstone.Tests.PlayMode
                 var frameIndex = service.State.LastReplay.Frames.FindIndex(frame => frame.EventType == CombatEventType.RebornResolved);
                 Assert.GreaterOrEqual(frameIndex, 0);
                 var frame = service.State.LastReplay.Frames[frameIndex];
-                var snapshot = frame.OpponentBoardSnapshot.Minions.Single(minion => minion.InstanceId == reborn.InstanceId);
+                Assert.AreEqual(reborn.InstanceId, frame.ActorId);
+                Assert.AreNotEqual(reborn.InstanceId, frame.TargetId);
+                var snapshot = frame.OpponentBoardSnapshot.Minions.Single(minion => minion.InstanceId == frame.TargetId);
                 Assert.AreEqual(1, snapshot.Health);
                 Assert.IsFalse(snapshot.Keywords.Contains(Keyword.Reborn));
                 yield return AdvanceReplayToFrame(scene, frameIndex);

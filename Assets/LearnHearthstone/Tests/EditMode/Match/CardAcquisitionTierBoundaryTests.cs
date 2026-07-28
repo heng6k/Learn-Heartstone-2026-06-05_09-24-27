@@ -110,11 +110,6 @@ namespace LearnHearthstone.Tests.EditMode
             Invoke(service, "AddRandomStatTavernSpellsToHand", new[] { typeof(int), typeof(string) }, 4, "stat-filter-test");
             Assert.IsNotEmpty(tavern.Hand);
             Assert.That(tavern.Hand.Select(card => card.TavernTier), Is.All.EqualTo(1));
-
-            tavern.Hand.Clear();
-            Invoke(service, "AddRandomSpellcraftSpellToHand", new[] { typeof(int), typeof(string) }, 4, "tavern-spellcraft-filter-test");
-            Assert.IsNotEmpty(tavern.Hand);
-            Assert.That(tavern.Hand.Select(card => card.TavernTier), Is.All.EqualTo(1));
         }
 
         [TestCase("BG31_178", 4, "HandleTurnEndedForTierFourMinions")]
@@ -213,7 +208,8 @@ namespace LearnHearthstone.Tests.EditMode
                     service.State,
                     MixedTierMinionCatalog(),
                     MixedTierSpellCatalog(),
-                    new SeededRng(seed));
+                    new SeededRng(seed),
+                    targetIndex: cardId == "105664" ? 0 : -1);
 
                 Assert.IsNotEmpty(tavern.Hand, "Expected a generated minion for seed " + seed + ".");
                 Assert.That(

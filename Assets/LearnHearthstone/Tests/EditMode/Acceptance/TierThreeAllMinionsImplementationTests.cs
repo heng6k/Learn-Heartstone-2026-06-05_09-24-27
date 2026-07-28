@@ -47,14 +47,14 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Tavern.BloodGemBonusHealth);
 
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
             Assert.GreaterOrEqual(service.State.Player.Board[0].MaxHealth, service.State.Player.Board[0].BaseHealth + 2);
 
             AddAndPlay(service, "BG26_502");
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             var deepBlueIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "DEEP_BLUE_SPELL");
             Assert.GreaterOrEqual(deepBlueIndex, 0);
-            service.Apply(new GameCommand(GameCommandType.PlayMinion, deepBlueIndex));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, deepBlueIndex, 0));
             Assert.AreEqual(1, service.State.Player.Tavern.DeepBlueBonusAttack);
             Assert.AreEqual(1, service.State.Player.Tavern.DeepBlueBonusHealth);
 

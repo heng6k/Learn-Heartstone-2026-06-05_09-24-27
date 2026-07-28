@@ -60,12 +60,14 @@ namespace LearnHearthstone.Tests.EditMode
                 service.State.Player.Tavern.Gold = 10;
                 service.State.Player.Tavern.Hand.Clear();
                 service.State.Player.Board.Clear();
-                service.State.Player.Board.Add(Card("board-undead", BoardSide.Player, "BOARD_UNDEAD", 3, 3, Tribe.Undead));
+                var spellTarget = Card("board-undead", BoardSide.Player, "BOARD_UNDEAD", 3, 3, Tribe.Undead);
+                spellTarget.Tribes.Add(Tribe.Demon);
+                service.State.Player.Board.Add(spellTarget);
                 service.State.Player.Tavern.Shop.Clear();
                 service.State.Player.Tavern.Shop.Add(Card("shop-a", BoardSide.Player, "SHOP_A", 2, 5, Tribe.Elemental));
                 service.Apply(new GameCommand(GameCommandType.AddCardToHand, spellId, CardKind.TavernSpell));
 
-                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1)), spellId);
+                Assert.DoesNotThrow(() => service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0)), spellId);
                 Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Last().Message.Contains("暂未实现"), spellId);
             }
         }
@@ -83,9 +85,9 @@ namespace LearnHearthstone.Tests.EditMode
 
             AddAndPlay(service, "BGS_116");
 
-            Assert.AreEqual(4, service.State.Player.Tavern.FreeRefreshes);
-            Assert.AreEqual(8, dragon.Attack);
-            Assert.AreEqual(8, dragon.MaxHealth);
+            Assert.AreEqual(6, service.State.Player.Tavern.FreeRefreshes);
+            Assert.AreEqual(10, dragon.Attack);
+            Assert.AreEqual(10, dragon.MaxHealth);
         }
 
         [Test]

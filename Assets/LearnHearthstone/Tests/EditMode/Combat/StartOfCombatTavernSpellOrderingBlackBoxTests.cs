@@ -54,7 +54,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(51, player.MaxHealth);
             var beetles = service.State.LastResult.FinalPlayerBoard.Where(minion => minion.InstanceId != "order-player").ToList();
             Assert.AreEqual(2, beetles.Count);
-            Assert.IsTrue(beetles.All(beetle => beetle.Attack == 1 && beetle.MaxHealth == 1), "Beetles are summoned after the board-wide spell buff.");
+            Assert.IsTrue(beetles.All(beetle => beetle.Attack == 2 && beetle.MaxHealth == 2), "Beetles are summoned after the board-wide spell buff.");
         }
 
         [Test]

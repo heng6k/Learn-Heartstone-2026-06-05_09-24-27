@@ -1329,7 +1329,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static bool UsesContainedFullArtHud(MinionInstance minion, UnityTavernCardMode mode)
         {
-            return mode != UnityTavernCardMode.Detail && !IsSpellLike(minion);
+            return mode != UnityTavernCardMode.Detail &&
+                (!IsSpellLike(minion) ||
+                 minion?.Tags?.Any(tag => string.Equals(tag, "art_display:crop", StringComparison.OrdinalIgnoreCase)) == true);
         }
 
         private static bool UsesCroppedArtViewport(Sprite sprite, MinionInstance minion, UnityTavernCardMode mode)

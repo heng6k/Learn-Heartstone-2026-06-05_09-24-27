@@ -370,9 +370,11 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             Assert.IsNull(tavern.Discover);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             AssertDarkmoonPrizeDiscover(service, "tickatus-prize-wall", 1);
             Assert.AreEqual(4, service.State.Round);
@@ -414,12 +416,14 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(2, service.State.Round);
             Assert.AreEqual(0, tavern.TavernSpellsCastThisGame);
             Assert.IsTrue(string.IsNullOrEmpty(tavern.LastTavernSpellCardId));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(3, service.State.Round);
             Assert.AreEqual(1, tavern.TavernSpellsCastThisGame);
@@ -496,6 +500,7 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 service.Apply(new GameCommand(GameCommandType.NextTurn));
             }
+            tavern = service.State.Player.Tavern;
 
             Assert.IsTrue(tavern.Hand.Any(card => card.CardId == "104436"));
             Assert.IsFalse(tavern.AdvancedMechanics.Selections.ContainsKey("hero:galewing:route"));
@@ -543,6 +548,7 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 service.Apply(new GameCommand(GameCommandType.NextTurn));
             }
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(2, tavern.Hand.Count(card => card.CardId == "104436"));
         }
@@ -583,6 +589,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1901, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
 
             Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card =>
                 card.InstanceId.StartsWith("branns-epic-egg-", System.StringComparison.Ordinal)));
@@ -619,6 +626,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestMinion("cariel-combat", "CARIEL_COMBAT", 4, 4));
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2001, SafetyLimit = 1 }));
+            tavern = service.State.Player.Tavern;
 
             var choice = tavern.AdvancedMechanics.PendingChoice;
             Assert.NotNull(choice);
@@ -693,6 +701,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.IsFalse(selected.Values.Any(cardId => tavern.Hand.Any(card => card.CardId == cardId)));
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             foreach (var tier in new[] { 2, 4, 6 })
             {
                 while (tavern.Tier < tier)
@@ -715,6 +724,7 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
             ResolveDiscoverChoices(service);
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
             tavern.Hand.Clear();
 
             PlayBuddy(service, "BG22_HERO_201_Buddy");
@@ -1077,6 +1087,7 @@ namespace LearnHearthstone.Tests.EditMode
                 service.Apply(new GameCommand(GameCommandType.RerollShop)));
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(3, service.State.Round);
             Assert.IsNotNull(tavern.Discover);
@@ -3305,6 +3316,7 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Tier = 2;
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
+            tavern = service.State.Player.Tavern;
 
             var currentTribe = (Tribe)tavern.HeroEffectCounters["hero:rat_king:current_tribe"];
             Assert.That(currentTribe, Is.Not.EqualTo(Tribe.None));
@@ -3380,6 +3392,7 @@ namespace LearnHearthstone.Tests.EditMode
                 TargetZone.Unspecified,
                 choiceId: "win"));
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2001, SafetyLimit = 5 }));
+            tavern = service.State.Player.Tavern;
 
             Assert.AreEqual(CombatWinner.Player, service.State.LastResult.Winner);
             Assert.AreEqual(3, tavern.Hand.Count(card => card.CardId == "104436" && card.Tags.Contains("tavern_coin")));
