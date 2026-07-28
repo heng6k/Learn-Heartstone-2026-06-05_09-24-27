@@ -1,18 +1,23 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { TextDecoder } from "node:util";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..", "..");
 const releaseRoot = path.join(repositoryRoot, "Builds", "ReleaseCandidate");
 const vercelConfigPath = path.join(repositoryRoot, "Deploy", "Vercel", "vercel.json");
+const minionSourcePath = path.join(repositoryRoot, "Assets", "LearnHearthstone", "Resources", "Data", "battlegroundsMinions.json");
 const legacyRootFiles = new Set(["release-meta.txt", "release-meta.json", "vercel.json"]);
+const strictUtf8 = new TextDecoder("utf-8", { fatal: true });
+const maxContentBytes = 16 * 1024 * 1024;
 
 const usage = `Usage:
-  node Tools/Release/assemble-release-candidate.mjs --webgl <build-directory> [--output <candidate-directory>]
+  node Tools/Release/assemble-release-candidate.mjs --webgl <build-directory> --content-version <version> [--output <candidate-directory>]
 
 The output must stay under Builds/ReleaseCandidate. The command is offline and never deploys.`;
 
@@ -28,14 +33,14 @@ function parseArguments(argv) {
       result.help = true;
       continue;
     }
-    if (argument !== "--webgl" && argument !== "--output") {
+    if (argument !== "--webgl" && argument !== "--content-version" && argument !== "--output") {
       fail(`Unknown argument: ${argument}`);
     }
     const value = argv[index + 1];
     if (!value || value.startsWith("--")) {
       fail(`Missing value for ${argument}`);
     }
-    result[argument.slice(2)] = value;
+    result[argument === "--content-version" ? "contentVersion" : argument.slice(2)] = value;
     index += 1;
   }
   return result;
@@ -59,6 +64,17 @@ function compactUtc(date) {
 
 function safePathSegment(value) {
   return value.replace(/[^A-Za-z0-9._-]+/g, "-");
+}
+
+function validateContentVersion(value) {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value) || value.includes("..")) {
+    fail(`Unsafe content version: ${value}`);
+  }
+  return value;
+}
+
+function sha256Hex(bytes) {
+  return createHash("sha256").update(bytes).digest("hex");
 }
 
 function isInside(parent, candidate) {
@@ -101,7 +117,7 @@ async function validateWebGLSite(sitePath) {
   }
 }
 
-async function verifyCandidate(candidatePath, expectedMetadata) {
+async function verifyCandidate(candidatePath, expectedMetadata, expectedManifest) {
   await validateWebGLSite(candidatePath);
 
   for (const requiredPath of ["vercel.json", "release-meta.json"]) {
@@ -128,6 +144,30 @@ async function verifyCandidate(candidatePath, expectedMetadata) {
   if (/[A-Za-z]:[\\/]/.test(metadataText) || metadataText.includes(repositoryRoot)) {
     fail("release-meta.json contains a machine absolute path");
   }
+
+  const contentPath = path.join(candidatePath, "content");
+  const contentEntries = (await readdir(contentPath)).sort();
+  const expectedEntries = ["content-manifest.json", expectedManifest.minions.fileName].sort();
+  if (JSON.stringify(contentEntries) !== JSON.stringify(expectedEntries)) {
+    fail("ReleaseCandidate content directory contains unexpected files");
+  }
+
+  const manifestText = await readFile(path.join(contentPath, "content-manifest.json"), "utf8");
+  const manifest = JSON.parse(manifestText);
+  if (JSON.stringify(manifest) !== JSON.stringify(expectedManifest)) {
+    fail("ReleaseCandidate content manifest changed after generation");
+  }
+  if (/[A-Za-z]:[\\/]/.test(manifestText) || manifestText.includes(repositoryRoot)) {
+    fail("content-manifest.json contains a machine absolute path");
+  }
+
+  const contentBytes = await readFile(path.join(contentPath, manifest.minions.fileName));
+  if (contentBytes.byteLength !== manifest.minions.bytes) {
+    fail("ReleaseCandidate content byte count does not match its manifest");
+  }
+  if (sha256Hex(contentBytes) !== manifest.minions.sha256) {
+    fail("ReleaseCandidate content SHA-256 does not match its manifest");
+  }
 }
 
 async function main() {
@@ -139,9 +179,13 @@ async function main() {
   if (!args.webgl) {
     fail(`--webgl is required\n\n${usage}`);
   }
+  if (!args.contentVersion) {
+    fail(`--content-version is required\n\n${usage}`);
+  }
 
   const sourcePath = path.resolve(repositoryRoot, args.webgl);
   await validateWebGLSite(sourcePath);
+  const contentVersion = validateContentVersion(args.contentVersion);
 
   const projectSettings = await readFile(path.join(repositoryRoot, "ProjectSettings", "ProjectSettings.asset"), "utf8");
   const projectVersion = await readFile(path.join(repositoryRoot, "ProjectSettings", "ProjectVersion.txt"), "utf8");
@@ -168,11 +212,41 @@ async function main() {
   const metadata = {
     schemaVersion: 1,
     clientVersion,
+    contentVersion,
     buildId,
     sourceCommit,
     sourceDirty,
     unityVersion,
     builtAtUtc: builtAt.toISOString(),
+  };
+  const minionBytes = await readFile(minionSourcePath);
+  if (minionBytes.byteLength === 0 || minionBytes.byteLength > maxContentBytes) {
+    fail("Minion content source size is outside the supported range");
+  }
+  if (minionBytes[0] === 0xef && minionBytes[1] === 0xbb && minionBytes[2] === 0xbf) {
+    fail("Minion content source must not contain a UTF-8 BOM");
+  }
+  let minionPayload;
+  try {
+    minionPayload = JSON.parse(strictUtf8.decode(minionBytes));
+  } catch (error) {
+    fail(`Invalid UTF-8 or JSON in ${minionSourcePath}: ${error.message}`);
+  }
+  if (!Array.isArray(minionPayload.minions)) {
+    fail("Minion content source is missing its minions array");
+  }
+
+  const minionFileName = `battlegroundsMinions.v${contentVersion}.json`;
+  const contentManifest = {
+    protocolVersion: 1,
+    contentVersion,
+    requiredClientVersion: clientVersion,
+    generatedAtUtc: builtAt.toISOString(),
+    minions: {
+      fileName: minionFileName,
+      bytes: minionBytes.byteLength,
+      sha256: sha256Hex(minionBytes),
+    },
   };
 
   await mkdir(releaseRoot, { recursive: true });
@@ -185,8 +259,12 @@ async function main() {
   });
   await cp(vercelConfigPath, path.join(candidatePath, "vercel.json"));
   await writeFile(path.join(candidatePath, "release-meta.json"), `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
+  const contentPath = path.join(candidatePath, "content");
+  await mkdir(contentPath);
+  await writeFile(path.join(contentPath, minionFileName), minionBytes);
+  await writeFile(path.join(contentPath, "content-manifest.json"), `${JSON.stringify(contentManifest, null, 2)}\n`, "utf8");
 
-  await verifyCandidate(candidatePath, metadata);
+  await verifyCandidate(candidatePath, metadata, contentManifest);
   const sourceStatusAfter = runGit(["status", "--porcelain=v1", "--untracked-files=all"]);
   if (sourceStatusAfter !== sourceStatusBefore) {
     fail("Release assembly changed the source working tree");
@@ -194,6 +272,7 @@ async function main() {
 
   console.log(`ReleaseCandidate: ${candidatePath}`);
   console.log(`Build ID: ${buildId}`);
+  console.log(`Content version: ${contentVersion}`);
   console.log(`Source: ${sourceCommit}${sourceDirty ? " (dirty)" : ""}`);
 }
 

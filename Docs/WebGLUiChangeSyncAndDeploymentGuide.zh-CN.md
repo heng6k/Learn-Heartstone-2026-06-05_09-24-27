@@ -140,7 +140,8 @@ if ($process.ExitCode -ne 0) {
 
 Write-Output "WebGL 原始输出：$output"
 
-$assembly = & node Tools\Release\assemble-release-candidate.mjs --webgl $output
+$contentVersion = '20260727'
+$assembly = & node Tools\Release\assemble-release-candidate.mjs --webgl $output --content-version $contentVersion
 if ($LASTEXITCODE -ne 0) {
     throw "ReleaseCandidate 组装失败"
 }
@@ -155,6 +156,7 @@ Get-ChildItem -LiteralPath $candidate
 Get-ChildItem -LiteralPath (Join-Path $candidate 'Build')
 Get-Content -LiteralPath (Join-Path $candidate 'release-meta.json')
 Get-Content -LiteralPath (Join-Path $candidate 'vercel.json')
+Get-Content -LiteralPath (Join-Path $candidate 'content\content-manifest.json')
 ```
 
 候选包至少应包含：
@@ -165,9 +167,14 @@ Build/
 TemplateData/
 release-meta.json
 vercel.json
+content/
+  content-manifest.json
+  battlegroundsMinions.v<contentVersion>.json
 ```
 
 `Build/` 下应同时存在 loader、framework、wasm 和 data 文件。当前发布使用 Brotli 产物，因此通常会看到 `.wasm.br`、`.framework.js.br` 和 `.data.br`。
+
+`contentVersion` 是本次内容包的不可变版本标识。修改 `Assets/LearnHearthstone/Resources/Data/battlegroundsMinions.json` 并准备发布新内容时必须使用新值；同一个版本号不得覆盖为不同字节。组装器会校验文件名、字节数和 SHA-256，并在最后写入 `content-manifest.json`。
 
 ### 为什么输出目录必须带版本号
 
