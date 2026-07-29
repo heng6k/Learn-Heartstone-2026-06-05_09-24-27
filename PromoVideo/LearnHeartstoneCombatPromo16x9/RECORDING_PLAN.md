@@ -1,7 +1,7 @@
 # 真实录屏计划
 
 固定版本：`0bb5b75eea27b44c9fbb139eff9111b63548797f`
-优先入口：`WebDeploy/`；若 WebGL 输入/录制不稳定，使用同 SHA 对应 Windows 构建。
+优先入口：`Builds/ReleaseCandidate/<已验收版本>/`；若 WebGL 输入/录制不稳定，使用同 SHA 对应 Windows 构建。
 录制规格：1920×1080、60fps、H.264；每段操作前后各保留至少 1 秒。
 
 | ID | 前置状态 / fixture | 操作步骤 | 期望结果 | 输出 | 当前状态 |

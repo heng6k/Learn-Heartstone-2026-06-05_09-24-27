@@ -20,6 +20,8 @@
 # though the parent Builds directory is already ignored.
 /Builds/ReleaseCandidate/
 /Builds/ReleaseReceipts/
+# Retired local WebGL deployment mirror. ReleaseCandidate is the deploy input.
+/WebDeploy/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log

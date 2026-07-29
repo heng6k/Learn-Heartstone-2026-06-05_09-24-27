@@ -91,7 +91,7 @@
 | Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |
 | 视频制作/审计 | [HyperframesAuditedVideoProductionSOP.zh-CN.md](HyperframesAuditedVideoProductionSOP.zh-CN.md) | 宣传视频从策划、录制、脚本、分镜、声音和素材冻结，到 HyperFrames 制作、G0–G12 审计、渲染及归档的完整流程 | 后续视频生成与质量审计的默认执行规范 |
 | 发行上线 | [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md) | Alpha 到 1.0 的版本节奏、渠道、发包检查和运营动作 | 当前上线主路线 |
-| 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、WebGL 构建、WebDeploy 同步、GitHub main 与 Vercel 上线的可重复操作流程 | 网页版 UI 日常同步与发布手册 |
+| 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、ReleaseCandidate 组装、Vercel CLI Preview/Promote 与域名验收流程 | 网页版日常构建与发布手册 |
 | 发行上线 | [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md) | WebGL 构建、托管、浏览器验收、玩法回归和回滚门槛 | 网页版发布审计与准入规范 |
 | 发行上线 | [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md) | 官网、服务器、API、分享码、微信小程序和后端路线 | 线上架构主路线 |
 | 英雄/宝宝 | [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md) | 当前英雄、宝宝、公共系统缺陷和解决方向 | 最重要的缺陷追踪表 |

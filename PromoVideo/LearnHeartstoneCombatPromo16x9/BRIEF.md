@@ -59,7 +59,7 @@ language: zh-CN
 
 ## Assets and Evidence
 
-- 当前 WebGL：`WebDeploy/`
+- 当前 WebGL：`Builds/ReleaseCandidate/<已验收版本>/`
 - Windows Alpha：`Builds/BattlegroundsTrainer_v0.1.0-alpha_win/`
 - 现有截图与卡图：`PromoVideo/LearnHeartstoneTestVersion/assets/`
 - 测试基线：EditMode 1336（1335 通过、1 跳过），全部 PlayMode 19/19 通过。
