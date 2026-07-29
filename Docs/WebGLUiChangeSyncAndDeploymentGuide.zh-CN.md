@@ -59,6 +59,21 @@ flowchart LR
 
 其中部署配置的唯一人工真源是 `Deploy/Vercel/vercel.json`；`WebDeploy/vercel.json` 只是迁移期旧 Root Directory 所需的同步副本。
 
+### 2.4 运行时内容选择与回退
+
+WebGL 客户端在创建本次游戏会话前只选择一次内容快照，固定优先级为：
+
+```text
+Remote -> LKG（Last Known Good）-> Embedded Resources
+```
+
+- WebGL 从当前页面同源的 `content/content-manifest.json` 开始下载；版本化 Minion 文件名由 manifest 给出，并继续从同一 `content/` 目录读取。不要把运行时内容 URL 写成某个 Preview 或 Production 域名。
+- Remote 只有在协议版本、客户端版本、文件名、字节数、SHA-256、UTF-8 与中英文 Minion Catalog 解析全部通过，并且成功持久化为 LKG 后，才会进入本次会话。
+- LKG 位于 Unity 的 `Application.persistentDataPath/Content/LKG`。稳定的 `content-manifest.json` 指向版本化内容文件；写入时先落内容文件，最后替换 active manifest。坏包、断网或持久化失败都不能覆盖旧 LKG。
+- `Assets/WebGLTemplates/LearnHeartstone/index.html` 必须保持 `config.autoSyncPersistentDataPath = true`，让 WebGL 的持久化目录同步到浏览器存储并在下次启动恢复。
+- Editor 与非 WebGL 构建不主动联网，只尝试已有 LKG，然后回退到 `Resources/Data/battlegroundsMinions.json`。该 Resources 文件仍是源码仓库内唯一人工内容真源和最终内置回退。
+- 当前版本不做运行中热切换。远程内容发生变化后，新的有效快照只在下一次客户端启动时选择，避免同一对局中内容源漂移。
+
 ## 3. 当前固定环境与 Vercel 配置
 
 当前验证环境：

@@ -62,7 +62,7 @@ namespace LearnHearthstone.Adapters.Content
                 new ContentPackageFile(raw.minions.fileName, raw.minions.bytes, raw.minions.sha256));
         }
 
-        public static string Validate(ContentPackageManifest manifest, byte[] contentBytes, string clientVersion)
+        public static void ValidateManifest(ContentPackageManifest manifest, string clientVersion)
         {
             if (manifest == null)
             {
@@ -106,13 +106,19 @@ namespace LearnHearthstone.Adapters.Content
             {
                 throw Invalid("content byte count is outside the supported range");
             }
-            if (contentBytes == null || contentBytes.Length != manifest.Minions.Bytes)
-            {
-                throw Invalid("content byte count does not match");
-            }
             if (!IsLowerHexSha256(manifest.Minions.Sha256))
             {
                 throw Invalid("content SHA-256 is malformed");
+            }
+        }
+
+        public static string Validate(ContentPackageManifest manifest, byte[] contentBytes, string clientVersion)
+        {
+            ValidateManifest(manifest, clientVersion);
+
+            if (contentBytes == null || contentBytes.Length != manifest.Minions.Bytes)
+            {
+                throw Invalid("content byte count does not match");
             }
 
             string actualSha256;

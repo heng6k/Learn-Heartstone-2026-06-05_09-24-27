@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
@@ -42,6 +44,7 @@ namespace LearnHearthstone.Presentation
         private int lastScreenWidth;
         private int lastScreenHeight;
         private UnityTavernLayoutMode lastLayoutMode;
+        private bool initialized;
 
         private void Awake()
         {
@@ -56,14 +59,44 @@ namespace LearnHearthstone.Presentation
             ConfigureCanvas(canvas);
             RememberScreenLayout();
 
-            catalogSnapshot = EmbeddedGameCatalogSnapshotLoader.Load(UnityEngine.Application.version);
             cardPoolVersionRepository = new JsonCardPoolVersionRepository();
             advisor = new LocalAdvisorService();
+        }
+
+        private IEnumerator Start()
+        {
+            var clientVersion = UnityEngine.Application.version;
+            byte[] remoteManifestBytes = null;
+            byte[] remoteContentBytes = null;
+            string remoteFailureReason = null;
+            var manifestUrl = ResolveContentManifestUrl();
+            if (!string.IsNullOrWhiteSpace(manifestUrl))
+            {
+                yield return new RemoteContentPackageDownloader().Download(
+                    manifestUrl,
+                    clientVersion,
+                    (manifest, content, failure) =>
+                    {
+                        remoteManifestBytes = manifest;
+                        remoteContentBytes = content;
+                        remoteFailureReason = failure;
+                    });
+            }
+
+            catalogSnapshot = new GameCatalogSnapshotResolver(clientVersion).Resolve(
+                remoteManifestBytes,
+                remoteContentBytes,
+                remoteFailureReason);
+            initialized = true;
             ShowHub();
         }
 
         private void Update()
         {
+            if (!initialized)
+            {
+                return;
+            }
             if (Screen.width == lastScreenWidth && Screen.height == lastScreenHeight)
             {
                 return;
@@ -198,6 +231,19 @@ namespace LearnHearthstone.Presentation
         private static int CreateMatchSeed()
         {
             return System.Guid.NewGuid().GetHashCode();
+        }
+
+        private static string ResolveContentManifestUrl()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (Uri.TryCreate(UnityEngine.Application.absoluteURL, UriKind.Absolute, out var pageUri))
+            {
+                return new Uri(pageUri, "content/content-manifest.json").AbsoluteUri;
+            }
+
+            Debug.LogWarning("Remote content disabled because Application.absoluteURL is invalid.");
+#endif
+            return null;
         }
 
         private Canvas CreateCanvas()
