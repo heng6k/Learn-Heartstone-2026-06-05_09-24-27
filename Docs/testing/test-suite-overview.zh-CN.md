@@ -1,7 +1,7 @@
 # Learn Hearthstone 测试套件总览
 
-> 更新日期：2026-07-28
-> 范围：`Assets/LearnHearthstone/Tests` 下全部 55 个 EditMode 与 4 个 PlayMode 测试文件。
+> 更新日期：2026-07-29
+> 范围：`Assets/LearnHearthstone/Tests` 下全部 58 个 EditMode 与 4 个 PlayMode 测试文件。
 
 ## 1. 目录结构
 
@@ -26,7 +26,7 @@ Assets/LearnHearthstone/Tests/
    └─ LearnHearthstone.PlayModeTests.asmdef
 ```
 
-物理目录只表示测试职责。现有 namespace、测试类完整名称和程序集名称保持不变，所以历史命令仍按 `LearnHearthstone.Tests.EditMode.<ClassName>` 或 `LearnHearthstone.Tests.PlayMode.<ClassName>` 运行。
+物理目录只表示测试职责。多数既有 EditMode 类继续使用 `LearnHearthstone.Tests.EditMode.<ClassName>`，M2–M4 内容链测试使用 `LearnHearthstone.Tests.Catalogs.<ClassName>`，PlayMode 使用 `LearnHearthstone.Tests.PlayMode.<ClassName>`。批量门禁应以 Unity 当前发现的 full name 为准，不根据物理目录猜 namespace。
 
 ## 2. 分类职责
 
@@ -110,7 +110,7 @@ Stress（包含 `Stress`，始终排除 `Marathon`）：
 - “Test/UnityTest”统计源码中的 `[Test]` 与 `[UnityTest]` 声明。
 - “TestCase”统计显式 `[TestCase]` 数据行。
 - “TestCaseSource”只统计数据源声明；一个数据源可能在运行时展开成大量测试，因此表内声明数不等于 NUnit 最终发现总数。
-- 当前源码声明总计为 EditMode `[Test]` 1310、`[TestCase]` 85、`[TestCaseSource]` 3，以及 PlayMode `[UnityTest]` 19；权威运行总数以 Unity/NUnit 实际叶级测试树为准。
+- 当前源码声明总计为 EditMode `[Test]` 1321、`[TestCase]` 85、`[TestCaseSource]` 3，以及 PlayMode `[UnityTest]` 19；权威运行总数以 Unity/NUnit 实际叶级测试树为准。
 - `UI` 中的截图验收依赖图形环境；`-nographics` 下的尺寸与渲染结果不能直接代表浏览器或桌面图形环境。
 - `Reliability/StressTests.cs` 及其他 `Stress` 分类用例运行时间较长，日常普通 EditMode 不会误跑；发布门禁应单独执行 Stress 入口。
 
@@ -126,6 +126,9 @@ Stress（包含 `Stress`，始终排除 `Marathon`）：
 | EditMode | Acceptance | [`TierThreeAllMinionsImplementationTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Acceptance/TierThreeAllMinionsImplementationTests.cs) | `TierThreeAllMinionsImplementationTests` | 12 | 0 | 0 | 三本随从实现注册表与覆盖完整性。 |
 | EditMode | Acceptance | [`TierThreeDeathrattleSummonTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Acceptance/TierThreeDeathrattleSummonTests.cs) | `TierThreeDeathrattleSummonTests` | 7 | 0 | 0 | 三本亡语和召唤链路验收。 |
 | EditMode | Acceptance | [`TierThreeReactiveMechanicTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Acceptance/TierThreeReactiveMechanicTests.cs) | `TierThreeReactiveMechanicTests` | 11 | 0 | 0 | 三本响应式、条件式机制验收。 |
+| EditMode | Catalogs | [`ContentPackageProtocolTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/ContentPackageProtocolTests.cs) | `ContentPackageProtocolTests` | 5 | 0 | 0 | manifest、版本、路径、字节数、SHA-256 与严格 UTF-8 协议。 |
+| EditMode | Catalogs | [`ContentSnapshotFallbackTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/ContentSnapshotFallbackTests.cs) | `ContentSnapshotFallbackTests` | 4 | 0 | 0 | Remote、LKG、Embedded 回退和原子提升。 |
+| EditMode | Catalogs | [`GameCatalogSnapshotTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/GameCatalogSnapshotTests.cs) | `GameCatalogSnapshotTests` | 2 | 0 | 0 | 中英双语会话快照、注入与会话稳定性。 |
 | EditMode | Catalogs | [`DesignValidationToolingTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/DesignValidationToolingTests.cs) | `DesignValidationToolingTests` | 8 | 0 | 0 | 设计校验工具、完整回合与时空酒馆流程校验。 |
 | EditMode | Catalogs | [`EffectCatalogTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/EffectCatalogTests.cs) | `EffectCatalogTests` | 3 | 0 | 0 | 效果目录加载、标识与数据约束。 |
 | EditMode | Catalogs | [`GoldenMinionEffectContractTests.cs`](../../Assets/LearnHearthstone/Tests/EditMode/Catalogs/GoldenMinionEffectContractTests.cs) | `GoldenMinionEffectContractTests` | 1 | 0 | 0 | 金色随从效果契约与普通版本映射。 |
@@ -187,7 +190,7 @@ Stress（包含 `Stress`，始终排除 `Marathon`）：
 5. 新增、删除或移动测试文件后，同步更新本文“全部测试索引”。
 6. 修复跨领域缺陷时，至少运行直接相关测试类；涉及共享状态、回合、战斗或 UI 控制器时运行全量 EditMode。
 
-## 7. 2026-07-28 M0 权威基线
+## 7. 2026-07-28 M0 历史红线基线
 
 环境与可追溯信息：
 
@@ -217,3 +220,24 @@ PlayMode：
 - 两项分别隔离复跑仍失败，已排除套件顺序污染。
 
 结论：M0 已建立“发现完整、执行可复核”的可信基线，但当前基线是红色而非全绿。上述失败继续阻断发布绿灯；它们不阻止 M1 的离线发布边界和候选包工程工作。
+
+## 8. 2026-07-29 Phase 6 当前绿线基线
+
+环境与边界：
+
+- Unity：`6000.4.10f1`；单一 Editor PID 30312 与项目内 Unity-MCP 6401 bridge。
+- Source commit：`612e9842ade9a517b85a0333b359d07caacf6561`。
+- Unity 完整分页发现：EditMode 1527/1527 unique、PlayMode 19/19 unique。
+- EditMode 精确分区：普通 1516、Stress 10、唯一显式 Marathon 1；Marathon 本轮排除。
+
+验证结果：
+
+- M2–M4 内容链精确集：11/11 通过，job `b887376f3c924d2599dbf79edbe2ef5d`。
+- 普通 EditMode：shard 0–7 共 1360/1360 通过；shard 8 的 156 项中 152 项直接通过，4 项只触发 NUnit 180 秒 Timeout。
+- 四个 UI Timeout 在正常编译/域重载后的精确联合隔离 job `9b4686dad7a04badb35937841ad0c3cf` 中 4/4 通过；因此普通 EditMode 有效覆盖为 1516/1516。没有提高 Timeout，也没有修改生产代码。
+- Stress：10/10 通过，job `65fbe22d19fb42adb6ec22faff4653da`；唯一 30 分钟 Marathon 未运行。
+- PlayMode：19/19 通过，job `b3c952e0c0ff4c06a2ddcd1f5a800ff8`。
+
+UI 超时根因是大型同步 UI 集合在同一 Editor 域内的累计性能退化，失败仅为 Timeout、无断言或业务异常。后续门禁应让重 UI 分片在干净域运行；若仍只有 Timeout，隔离精确失败项验证，不重复整片、不提高超时。
+
+本节取代 M0 红线作为当前发布绿灯；M0 记录继续保留，用于追溯可靠性收敛前后的差异。

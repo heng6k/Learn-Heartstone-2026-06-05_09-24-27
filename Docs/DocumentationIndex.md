@@ -26,10 +26,11 @@
 
 1. [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md)
 2. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)
-3. [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md)
-4. [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)
-5. [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)
-6. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
+3. [ProjectReliabilityArchitectureCompletion.zh-CN.md](ProjectReliabilityArchitectureCompletion.zh-CN.md)
+4. [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md)
+5. [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)
+6. [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)
+7. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
 
 ### 想继续补英雄、宝宝和英雄技能
 
@@ -114,6 +115,7 @@
 | 数据/API | [TribeDistributionSystemDesign.md](TribeDistributionSystemDesign.md) | 种族分布计算、平局规则和消费者 | 种族统计设计 |
 | 酒馆规则 | [TavernTribeBanSelectionDesign.md](TavernTribeBanSelectionDesign.md) | 酒馆种族 Ban 选、随从池过滤、发现和法术过滤 | 酒馆池规则设计 |
 | Unity 架构 | [UnityMigrationDesign.md](UnityMigrationDesign.md) | 从源项目迁移到 Unity 的目标结构、领域层、UI 和测试策略 | 迁移总设计 |
+| Unity 架构 | [ProjectReliabilityArchitectureCompletion.zh-CN.md](ProjectReliabilityArchitectureCompletion.zh-CN.md) | 当前稳定性收敛、内容快照、Remote/LKG/Embedded、发布边界与下一版规则入口 | M2–M6 架构与运维交接 |
 | Unity UI | [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md) | 当前 UI 审计、问题、原则和目标形态 | UI 重做主文档 |
 | Unity UI | [BattlegroundsUiV2ResearchAndMcpPlan.md](BattlegroundsUiV2ResearchAndMcpPlan.md) | Battlegrounds 风格 UGUI V2 的调研结论、参考来源、skill 组合和 MCP 实施路线 | V2 UI 开工参考 |
 | Unity UI | [TavernTrainerUiSkinAndComponentPlan.md](TavernTrainerUiSkinAndComponentPlan.md) | Tavern Trainer 镜像入口、皮肤素材、开源 UI 组件候选、项目内 UGUI 组件和中文字体决策 | UI 皮肤与组件路线 |
@@ -128,6 +130,7 @@
 ### 最高优先级
 
 - [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md)：决定先发什么版本、发到哪里、每次发行做什么。
+- [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：当前 Production、日常 Preview/Promote、域名、安全头与回滚的执行手册。
 - [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)：决定什么时候加服务器、分享码、小程序和后端能力。
 - [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)：继续补机制或对外说明缺陷时必须看。
 

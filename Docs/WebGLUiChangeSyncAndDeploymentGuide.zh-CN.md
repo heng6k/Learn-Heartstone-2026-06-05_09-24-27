@@ -32,7 +32,10 @@ flowchart LR
 - Root Directory：项目根，即 `null`
 - Git Integration：已断开；源码 push 不会自动部署
 - 稳定 Production：<https://hengheng-one.vercel.app/>
-- 自定义域名：`jsoncool.com`，等待阿里云 DNS A 记录生效后验收
+- 自定义域名：<https://jsoncool.com/>，公共 DNS、HTTPS 与完整 Production smoke 已通过
+- 当前 Production deployment：`dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`
+- 来源 Preview deployment：`dpl_Ps3FHzViFirA15L87jELqP82pbJR`
+- 当前远程内容版本：`20260727`
 
 `WebDeploy/` 已退出发布主链。它只允许作为本机短期保留的旧生成物镜像，已被 Git ignore，不再同步、不再提交，也不再作为 Vercel Root Directory。
 
@@ -69,6 +72,14 @@ git diff --check
 - 相关 EditMode/PlayMode 测试已通过。
 - 内容版本没有复用为不同字节；修改内容真源时必须使用新的 `contentVersion`。
 - 当前项目若已有 Unity Editor，保持该实例并使用 Editor request；禁止启动第二实例。
+
+当前 Phase 6 权威门禁口径：
+
+- M2–M4 内容链精确测试：11 项。
+- 普通 EditMode：1516 个当前 Unity 实际发现的叶级 full name，排除 10 个 Stress 与唯一 Marathon。
+- Stress：10 项，明确排除 `ThirtyMinuteExtremeCombatAndRecruitSoak_MaintainsBounds`。
+- PlayMode：19 项真实输入旅程。
+- 大型 UI 分片若只出现 NUnit Timeout，先正常域重载并隔离精确失败项；不得用整片重跑、提高超时或修改业务逻辑掩盖域内累计退化。
 
 ## 5. 构建 WebGL
 
@@ -186,6 +197,7 @@ python Tools\WebGL\serve_webgl.py "$candidate" --port 8125
 - `.wasm.br`、`.framework.js.br`、`.data.br` 的 MIME 与 `Content-Encoding: br` 正确。
 - 任意深链返回 `index.html`，页面包含 Unity Canvas。
 - 浏览器 Console 没有未解释错误。
+- 根文档、manifest、版本内容、WASM 与深链均带有五个安全头：最小 CSP、Permissions Policy、Referrer Policy、`X-Content-Type-Options: nosniff`、`X-Frame-Options: SAMEORIGIN`。
 
 ## 8. 部署 Vercel Preview
 
@@ -231,6 +243,7 @@ Preview 至少通过以下矩阵：
 | Brotli/MIME | wasm/framework/data 响应头正确 |
 | 缓存 | manifest 可重新验证；版本内容和 Build 长期 immutable |
 | SPA | `/preview/deep-link` 返回 200/index 且包含 Unity Canvas |
+| 安全头 | HTML、JSON、WASM 与 rewrite 响应均包含五个安全头，且不破坏 Unity WebAssembly/Worker |
 | 浏览器 | 无加载超时、page error、严重 Console 或非预期请求失败 |
 
 任一项失败时拒绝该 Preview。修真源、提交配置检查点、重新组装并部署新 Preview；不要原地修改已冻结候选。
@@ -249,9 +262,11 @@ npx --yes vercel@58.0.0 promote <preview-deployment-id-or-url> `
 
 晋升后在 <https://hengheng-one.vercel.app/> 重跑第 9 节完整 smoke，并核对关键资源 ETag/长度与 Preview 一致。
 
+2026-07-29 已验证基线：Preview `dpl_Ps3FHzViFirA15L87jELqP82pbJR` 完成 Remote/LKG/Embedded、Brotli/MIME、缓存、SPA 与安全头 smoke；随后 Promote 为 Production `dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`。两个正式域名的关键资源 ETag 一致，没有重新上传或重建漂移。
+
 ## 11. `jsoncool.com` DNS 与验收
 
-Vercel 项目已经添加 `jsoncool.com`。当前域名使用阿里云 nameserver，推荐保留阿里云 DNS，并在阿里云 DNS 控制台添加：
+Vercel 项目已经添加并验证 `jsoncool.com`。域名继续使用阿里云 nameserver，apex A 记录为：
 
 ```text
 记录类型：A
@@ -267,7 +282,7 @@ npx --yes vercel@58.0.0 domains inspect jsoncool.com `
     --scope heng6ks-projects
 ```
 
-公共 DNS 返回 Vercel 地址且 Vercel 不再报告 misconfigured 后，再访问 <https://jsoncool.com/>，重跑 Production smoke 并确认 HTTPS 证书正常。
+当前公共 DNS、Vercel 域名配置和 HTTPS 证书均已通过，<https://jsoncool.com/> 为正式入口。今后修改 DNS 后仍按上述命令复核，并重跑 Production smoke。
 
 也可以把 nameserver 改成 `ns1.vercel-dns.com` / `ns2.vercel-dns.com`，但这会把整个域名 DNS 托管迁移到 Vercel；除非明确决定迁移，否则优先使用上面的 A 记录。
 
@@ -297,6 +312,8 @@ git commit -m "<清晰的提交说明>"
 
 出现 P0 问题时，在 Vercel Dashboard 选择最近已知良好 deployment 执行回滚，或重新 Promote 该已知良好 deployment。回滚后立即复跑 Production smoke。
 
+当前最近已知良好基线是 `dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`；如果它之后的新 deployment 出现问题，可回滚到该版本。不要删除仍承担回滚职责的历史 deployment。
+
 ### 13.2 内容故障
 
 客户端会自动按 Remote → LKG → Embedded 回退。不要覆盖同一 `contentVersion` 的字节；修复内容必须生成新版本并走完整 Preview/Promote 流程。
@@ -325,7 +342,7 @@ git commit -m "<清晰的提交说明>"
 
 ### `jsoncool.com` 仍不可访问
 
-先看公共 DNS 是否已有 `A 76.76.21.21`，再看 `vercel domains inspect`。域名刚修改时等待 DNS TTL 和证书签发，不要通过反复重新部署解决 DNS 问题。
+先看公共 DNS 是否仍为 `A 76.76.21.21`，再看 `vercel domains inspect` 与证书状态。域名刚修改时等待 DNS TTL 和证书签发，不要通过反复重新部署解决 DNS 问题；当前 2026-07-29 基线已正常访问。
 
 ## 15. 一页式发布检查清单
 
@@ -344,6 +361,7 @@ git commit -m "<清晰的提交说明>"
 - [ ] Preview deployment 为 Ready。
 - [ ] Remote、LKG、Embedded 全部通过。
 - [ ] Brotli、MIME、缓存和 SPA 深链通过。
+- [ ] 五个安全响应头覆盖 HTML、JSON、WASM 与深链，且 Unity 正常启动。
 - [ ] 浏览器无未解释错误。
 
 ### Production 与域名
