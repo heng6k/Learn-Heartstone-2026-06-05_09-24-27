@@ -5,6 +5,7 @@ param(
     [string]$Compile = "request",
     [switch]$SkipRefresh,
     [switch]$RefreshOnly,
+    [switch]$AllTests,
     [int]$PortStart = 6400,
     [int]$PortEnd = 6410,
     [int]$TimeoutMs = 30000,
@@ -165,12 +166,14 @@ if ($RefreshOnly) {
     exit 0
 }
 
+$runParams = @{ mode = $Mode }
+if (-not $AllTests) {
+    $runParams.testNames = $TestName
+}
+
 $start = Invoke-UnityMcpCommand -Port $port -Payload @{
     type = "run_tests"
-    params = @{
-        mode = $Mode
-        testNames = $TestName
-    }
+    params = $runParams
 }
 
 $jobId = $start.result.data.job_id

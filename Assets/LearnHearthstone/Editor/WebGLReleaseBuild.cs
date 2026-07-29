@@ -27,7 +27,8 @@ public static class WebGLReleaseBuild
     [InitializeOnLoadMethod]
     private static void RegisterEditorRequestRunner()
     {
-        EditorApplication.delayCall += TryRunEditorRequest;
+        EditorApplication.update -= TryRunEditorRequest;
+        EditorApplication.update += TryRunEditorRequest;
     }
 
     private static void TryRunEditorRequest()
