@@ -7898,6 +7898,26 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void PromoPortrait_PrizedPromoDrakeFirstStartOfCombatTriggersTwice()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG30_MagicItem_918");
+
+            var promoDrake = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG21_014");
+            service.State.Player.Tavern.Hand.Remove(promoDrake);
+            service.State.Player.Board.Add(promoDrake);
+            var target = TestTribeMinion("promo-portrait-dragon", 2, 3, Tribe.Dragon);
+            service.State.Player.Board.Add(target);
+
+            RunStartOfCombat(service);
+
+            var combatTarget = FinalCombatMinion(service, target);
+            Assert.AreEqual(10, combatTarget.Attack);
+            Assert.AreEqual(11, combatTarget.MaxHealth);
+        }
+
+        [Test]
         public void JarredFrostling_StartOfCombatGrantsElementalDeathrattle()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);

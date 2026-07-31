@@ -15760,6 +15760,9 @@ namespace LearnHearthstone.Application.Services
                     tavern.TrinketEyeOfDalaranActive = true;
                 }
             }
+
+            tavern.TrinketStartOfCombatExtraTriggers = valdrakkenExtraTriggers;
+            tavern.TrinketPromoPortraitExtraTriggers = promoExtraTriggers;
         }
 
         private void ClearTemporaryTrinketBloodGemBonus()

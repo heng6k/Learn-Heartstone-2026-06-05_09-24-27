@@ -994,9 +994,13 @@ namespace LearnHearthstone.Domain.Engine
             foreach (var promo in side.Board.Where(minion => IsAlive(minion) && minion.CardId == PrizedPromoDrakeCardId).ToList())
             {
                 var amount = promo.Golden ? 8 : 4;
-                foreach (var dragon in side.Board.Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Dragon)))
+                var repeats = ConsumeStartOfCombatRepeats(side);
+                for (var repeat = 0; repeat < repeats; repeat += 1)
                 {
-                    BuffMinion(dragon, amount, amount, "Prized Promo-Drake");
+                    foreach (var dragon in side.Board.Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Dragon)))
+                    {
+                        BuffMinion(dragon, amount, amount, "Prized Promo-Drake");
+                    }
                 }
             }
 
@@ -1037,6 +1041,24 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             RefreshDynamicCombatStats(side);
+        }
+
+        private static int ConsumeStartOfCombatRepeats(CombatSideState side)
+        {
+            var tavern = side?.Tavern;
+            if (tavern == null)
+            {
+                return 1;
+            }
+
+            var repeats = 1 + Math.Max(0, tavern.TrinketStartOfCombatExtraTriggers);
+            if (tavern.TrinketPromoPortraitExtraTriggers > 0)
+            {
+                repeats += 1;
+                tavern.TrinketPromoPortraitExtraTriggers -= 1;
+            }
+
+            return repeats;
         }
 
         private static void ApplySideCombatHistoryBonuses(CombatContext context, CombatSideState side)
