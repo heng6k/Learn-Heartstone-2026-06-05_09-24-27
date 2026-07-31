@@ -9426,7 +9426,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFixedSize(pill, 96f, 54f);
             UnityTavernUiStyle.ConfigureOutline(pill, new Color(color.r, color.g, color.b, 0.54f), new Vector2(1f, -1f));
             var layout = pill.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 8, 4, 4);
+            layout.padding = new RectOffset(12, 8, 2, 2);
             layout.spacing = 0;
             layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = true;
@@ -9445,12 +9445,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var labelText = UiFactory.Label("UnityResourceLabel", pill.transform, label, 14, FontStyle.Bold);
             labelText.alignment = TextAnchor.MiddleCenter;
+            labelText.verticalOverflow = VerticalWrapMode.Overflow;
             labelText.color = UnityTavernUiStyle.MutedText;
-            UnityTavernUiStyle.SetPreferredHeight(labelText.gameObject, 18f);
+            UnityTavernUiStyle.SetPreferredHeight(labelText.gameObject, 22f);
             var valueText = UiFactory.Label("UnityResourceValue", pill.transform, value, 18, FontStyle.Bold);
             valueText.alignment = TextAnchor.MiddleCenter;
+            valueText.verticalOverflow = VerticalWrapMode.Overflow;
             valueText.color = color;
-            UnityTavernUiStyle.SetPreferredHeight(valueText.gameObject, 24f);
+            UnityTavernUiStyle.SetPreferredHeight(valueText.gameObject, 26f);
         }
 
         private static Button SmallButton(string name, Transform parent, string text, Action onClick, float width)

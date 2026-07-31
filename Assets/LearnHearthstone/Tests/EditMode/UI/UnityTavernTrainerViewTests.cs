@@ -1692,6 +1692,52 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TavernTable_WebGlNotoFontKeepsWideResourceTextVisible()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var font = Resources.Load<Font>("Fonts/NotoSansSC-Regular");
+                Assert.IsNotNull(font);
+                UiFactory.SetFontOverride(font);
+
+                var rootRect = rootObject.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(2048f, 1152f);
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+                Canvas.ForceUpdateCanvases();
+
+                var resourcePills = FindChildren(rootObject.transform, "UnityResourcePill-");
+                Assert.AreEqual(5, resourcePills.Count);
+                foreach (var resourcePill in resourcePills)
+                {
+                    var label = FindChild(resourcePill, "UnityResourceLabel").GetComponent<Text>();
+                    var value = FindChild(resourcePill, "UnityResourceValue").GetComponent<Text>();
+
+                    Assert.IsNotEmpty(label.text);
+                    Assert.IsNotEmpty(value.text);
+                    Assert.AreEqual(font, label.font);
+                    Assert.AreEqual(font, value.font);
+                    Assert.AreEqual(VerticalWrapMode.Overflow, label.verticalOverflow);
+                    Assert.AreEqual(VerticalWrapMode.Overflow, value.verticalOverflow);
+                    Assert.GreaterOrEqual(label.GetComponent<LayoutElement>().preferredHeight, 22f);
+                    Assert.GreaterOrEqual(value.GetComponent<LayoutElement>().preferredHeight, 26f);
+                    Assert.Greater(label.rectTransform.rect.width, 0f);
+                    Assert.Greater(label.rectTransform.rect.height, 0f);
+                    Assert.Greater(value.rectTransform.rect.width, 0f);
+                    Assert.Greater(value.rectTransform.rect.height, 0f);
+                }
+            }
+            finally
+            {
+                UiFactory.SetFontOverride(null);
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void TavernTable_GoldPillShowsEnglishActualGoldAndRebuildsAfterSpending()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
