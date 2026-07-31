@@ -7985,6 +7985,31 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void SkyGolemPortrait_AddsGolemAndPermanentlyBuffsSurvivorFromGrantedDeathrattle()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG35_MagicItem_740");
+
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BG35_342"));
+            var victim = TestShopMinion("sky-golem-portrait-victim", 1, 1, Keyword.Taunt);
+            var survivor = TestShopMinion("sky-golem-portrait-survivor", 3, 20);
+            service.State.Player.Board.Add(victim);
+            service.State.Player.Board.Add(survivor);
+
+            RunAvengeCombat(service, 2, 100, 1);
+
+            Assert.AreEqual(5, survivor.Attack);
+            Assert.AreEqual(22, survivor.MaxHealth);
+            Assert.AreEqual(5, FinalCombatMinion(service, survivor).Attack);
+            Assert.AreEqual(22, FinalCombatMinion(service, survivor).MaxHealth);
+            Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>
+                reward.Type == CombatRewardType.BuffOriginalFriendlyMinion &&
+                reward.SourceCardId == "BG35_MagicItem_740" &&
+                reward.TargetInstanceId == survivor.InstanceId));
+        }
+
+        [Test]
         public void PromoPortrait_PrizedPromoDrakeFirstStartOfCombatTriggersTwice()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
