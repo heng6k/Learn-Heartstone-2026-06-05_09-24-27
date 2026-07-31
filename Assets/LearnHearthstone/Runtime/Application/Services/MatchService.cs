@@ -18934,6 +18934,7 @@ namespace LearnHearthstone.Application.Services
             if (card.CardId != ScrapperCardId &&
                 card.CardId != MutableBeetleCardId &&
                 card.CardId != DisguisedGraverobberCardId &&
+                card.CardId != FacelessManipulatorCardId &&
                 !IsTaughtSpellBattlecryTargeted(card))
             {
                 return null;
@@ -19118,6 +19119,7 @@ namespace LearnHearthstone.Application.Services
             return card != null &&
                    (card.CardId == ScrapperCardId ||
                     card.CardId == DisguisedGraverobberCardId ||
+                    card.CardId == FacelessManipulatorCardId ||
                     IsTaughtSpellBattlecryTargeted(card));
         }
 
@@ -25034,9 +25036,46 @@ namespace LearnHearthstone.Application.Services
             ResolveClockworkAssistantBattlecry(target);
             ResolveBabyKodoBattlecry(target);
             ResolveSubmersibleChefBattlecry(target);
+            ResolveFacelessManipulatorBattlecry(target, battlecryTargetId);
             ResolveKalecgosBattlecryTrigger(target);
             ResolveTimewarpedBattlecry(target);
             ResolveTaughtSpellBattlecry(target, battlecryTargetId);
+        }
+
+        private void ResolveFacelessManipulatorBattlecry(MinionInstance source, string battlecryTargetId)
+        {
+            if (source == null ||
+                !string.Equals(source.CardId, FacelessManipulatorCardId, StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrEmpty(battlecryTargetId))
+            {
+                return;
+            }
+
+            var board = State.Player.Board;
+            var sourceIndex = board.FindIndex(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, source.InstanceId, StringComparison.OrdinalIgnoreCase));
+            var target = board.FirstOrDefault(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, battlecryTargetId, StringComparison.OrdinalIgnoreCase));
+            if (sourceIndex < 0 || target == null || target.InstanceId == source.InstanceId)
+            {
+                return;
+            }
+
+            var copy = target.Clone();
+            copy.InstanceId = source.InstanceId;
+            copy.Owner = source.Owner;
+            copy.OriginPoolSource = source.OriginPoolSource;
+            copy.CanReturnToPoolAfterAttach = source.CanReturnToPoolAfterAttach;
+            copy.PoolSource = source.PoolSource;
+            copy.PoolCopiesHeld = source.PoolCopiesHeld;
+            board[sourceIndex] = copy;
+            AddRecruitLog(
+                RecruitLogType.Play,
+                Localized("无面操纵者变成了" + target.Name + "的复制。", "Faceless Manipulator became a copy of " + target.Name + "."),
+                State.Player.Tavern.Gold,
+                State.Player.Tavern.Gold);
         }
 
         private void ResolveClockworkAssistantBattlecry(MinionInstance target)

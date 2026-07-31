@@ -2431,6 +2431,86 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void ManipulatorPortrait_FacelessBattlecryBecomesIndependentCopyOfFriendlyMinion()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 20;
+            var target = TestTribeMinion("FACELESS_TARGET", 4, 5, Tribe.Dragon, Keyword.DivineShield);
+            target.InstanceId = "faceless-target";
+            target.Name = "Faceless Target";
+            target.Attack = 11;
+            target.MaxHealth = 13;
+            target.Health = 9;
+            target.Golden = true;
+            target.Enchantments.Add(new Enchantment
+            {
+                Id = "faceless-target-buff",
+                SourceId = "test",
+                AttackBonus = 7,
+                HealthBonus = 8
+            });
+            target.Counters["faceless-target-counter"] = 2;
+            target.EffectIds.Add("faceless-target-effect");
+            target.Tags.Add("faceless-target-tag");
+            target.PoolSource = PoolSource.Pool;
+            target.OriginPoolSource = PoolSource.Pool;
+            target.PoolCopiesHeld = 1;
+            service.State.Player.Board.Add(target);
+
+            QueueTrinketChoice(service, "BG30_MagicItem_876");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+            var faceless = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG_EX1_564");
+
+            Assert.IsTrue(service.RequiresExplicitBattlecryTarget(faceless));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
+
+            var copy = service.State.Player.Board.Single(minion =>
+                minion.CardId == target.CardId &&
+                minion.InstanceId != target.InstanceId);
+            Assert.AreNotSame(target, copy);
+            Assert.AreEqual(target.CardId, copy.CardId);
+            Assert.AreEqual(target.Name, copy.Name);
+            Assert.AreEqual(target.Attack, copy.Attack);
+            Assert.AreEqual(target.Health, copy.Health);
+            Assert.AreEqual(target.MaxHealth, copy.MaxHealth);
+            Assert.AreEqual(target.Golden, copy.Golden);
+            CollectionAssert.AreEqual(target.Keywords, copy.Keywords);
+            Assert.AreEqual(target.Counters["faceless-target-counter"], copy.Counters["faceless-target-counter"]);
+            CollectionAssert.AreEqual(target.EffectIds, copy.EffectIds);
+            CollectionAssert.AreEqual(target.Tags, copy.Tags);
+            Assert.AreNotSame(target.Enchantments, copy.Enchantments);
+            Assert.AreNotSame(target.Counters, copy.Counters);
+            Assert.AreEqual(PoolSource.Copy, copy.PoolSource);
+            Assert.AreEqual(PoolSource.Copy, copy.OriginPoolSource);
+            Assert.AreEqual(0, copy.PoolCopiesHeld);
+
+            target.Attack += 1;
+            target.Enchantments[0].AttackBonus += 1;
+            Assert.AreEqual(11, copy.Attack);
+            Assert.AreEqual(7, copy.Enchantments[0].AttackBonus);
+        }
+
+        [Test]
+        public void ManipulatorPortrait_FacelessRequiresFriendlyBoardTarget()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 20;
+            QueueTrinketChoice(service, "BG30_MagicItem_876");
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            var exception = Assert.Throws<InvalidOperationException>(() =>
+                service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, -1)));
+
+            StringAssert.Contains("needs a friendly board target", exception.Message);
+            Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count);
+            Assert.AreEqual(0, service.State.Player.Board.Count);
+        }
+
+        [Test]
         public void Batch6TribePortraits_TavernPhaseHooksApplyModifiedEffects()
         {
             var surveyor = MatchService.CreateWithDefaultCatalog(12345);
