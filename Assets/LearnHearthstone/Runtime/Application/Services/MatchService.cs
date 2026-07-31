@@ -525,6 +525,7 @@ namespace LearnHearthstone.Application.Services
         private const string MurgletonDaddyCardId = "BG35_141";
         private const string BloodGemBarrageCardNumber = "126676";
         private const string BloodAmuletCardId = "BG35_MagicItem_432";
+        private const string ScrapsmithPortraitCardId = "BG35_MagicItem_430";
         private const string RefreshingAnomalyCardId = "BGS_116";
         private const string TavernTempestCardId = "BGS_123";
         private const string BlueshellTurtleCardId = "BG24_018";
@@ -24185,7 +24186,8 @@ namespace LearnHearthstone.Application.Services
                 attack,
                 health,
                 source,
-                string.Equals(source, BloodAmuletCardId, StringComparison.OrdinalIgnoreCase)
+                string.Equals(source, BloodAmuletCardId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(source, ScrapsmithPortraitCardId, StringComparison.OrdinalIgnoreCase)
                     ? EnchantmentKind.BloodGem
                     : EnchantmentKind.Unspecified);
             AddRecruitLog(

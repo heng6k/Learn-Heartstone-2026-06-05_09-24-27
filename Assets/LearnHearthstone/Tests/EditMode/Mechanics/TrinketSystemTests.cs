@@ -8010,6 +8010,32 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void ScrapsmithPortrait_PermanentlyPlaysBloodGemOnGrantedScrapsmith()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG35_MagicItem_430");
+
+            var scrapsmith = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG24_707");
+            service.State.Player.Tavern.Hand.Remove(scrapsmith);
+            var victim = TestShopMinion("scrapsmith-portrait-victim", 1, 1, Keyword.Taunt);
+            service.State.Player.Board.Add(victim);
+            service.State.Player.Board.Add(scrapsmith);
+            service.State.Player.Tavern.BloodGemBonusAttack = 2;
+            service.State.Player.Tavern.BloodGemBonusHealth = 3;
+
+            RunAvengeCombat(service, 2, 100, 1);
+
+            Assert.AreEqual(7, scrapsmith.Attack);
+            Assert.AreEqual(8, scrapsmith.MaxHealth);
+            Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BRISTLEBACK_BLOOD_GEM"));
+            var permanentGem = scrapsmith.Enchantments.Single(StatMath.IsBloodGemEnchantment);
+            Assert.AreEqual(EnchantmentKind.BloodGem, permanentGem.Kind);
+            Assert.AreEqual(3, permanentGem.AttackBonus);
+            Assert.AreEqual(4, permanentGem.HealthBonus);
+        }
+
+        [Test]
         public void PromoPortrait_PrizedPromoDrakeFirstStartOfCombatTriggersTwice()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
