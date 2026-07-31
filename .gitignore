@@ -98,6 +98,9 @@ crashlytics-build.properties
 InitTestScene*.unity*
 TestResults*.xml
 Unity*.png
+!Assets/WebGLTemplates/LearnHeartstone/TemplateData/unity-logo-dark.png
+!Assets/WebGLTemplates/LearnHeartstone/TemplateData/unity-logo-light.png
+!Assets/WebGLTemplates/LearnHeartstone/TemplateData/unity-logo-title-footer.png
 /Docs/superpowers/
 /[Aa]ssets/Resources/
 /[Aa]ssets/Resources.meta
