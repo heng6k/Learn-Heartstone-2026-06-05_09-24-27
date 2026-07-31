@@ -445,6 +445,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Text;
             UiFactory.Label("UnitySubtitle", titleBlock.transform, T("战术训练桌 · 主题试制", "Tactical Training Table · Theme Prototype"), 14, FontStyle.Normal).color = UnityTavernUiStyle.MutedText;
 
+            var leadingSpacer = new GameObject("UnityTopBarLeadingSpacer", typeof(RectTransform));
+            leadingSpacer.transform.SetParent(bar.transform, false);
+            UnityTavernUiStyle.SetFlexible(leadingSpacer, 1f, 0f);
+
             BuildHeroBadge(bar.transform);
             ResourcePill(bar.transform, "Round", service.UseEnglish ? "Round" : "回合", service.State.Round.ToString(), UnityTavernUiStyle.TableLit);
             ResourcePill(bar.transform, "Gold", service.UseEnglish ? "Gold" : "金币", service.State.Player.Tavern.Gold + "/" + service.State.Player.Tavern.MaxGold, UnityTavernUiStyle.Gold);

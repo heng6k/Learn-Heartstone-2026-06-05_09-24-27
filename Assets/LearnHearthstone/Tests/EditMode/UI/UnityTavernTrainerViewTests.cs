@@ -1539,6 +1539,8 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual("返回", FindChild(rootObject.transform, "UnityBackButtonText").GetComponent<Text>().text);
                 Assert.AreEqual(48f, FindChild(rootObject.transform, "UnityBackButton").GetComponent<LayoutElement>().preferredWidth, 0.001f);
                 Assert.AreEqual(UnityTavernUiStyle.TouchHeight, FindChild(rootObject.transform, "UnityBackButton").GetComponent<LayoutElement>().preferredHeight, 0.001f);
+                Assert.AreEqual(1f, FindChild(rootObject.transform, "UnityTopBarLeadingSpacer").GetComponent<LayoutElement>().flexibleWidth, 0.001f);
+                Assert.AreEqual(0f, FindChild(rootObject.transform, "UnityTopBarLeadingSpacer").GetComponent<LayoutElement>().flexibleHeight, 0.001f);
                 Assert.AreEqual(0f, FindChild(rootObject.transform, "UnityTopBarSpacer").GetComponent<LayoutElement>().flexibleHeight, 0.001f);
                 Assert.IsNull(FindChild(rootObject.transform, "UnityLegacyButton"));
                 var shopZone = FindChild(rootObject.transform, "UnityShopZone");
@@ -1692,6 +1694,32 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TavernTable_WideTopBarCentersHeroAndResourcesBetweenTitleAndBackButton()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var rootRect = rootObject.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(2048f, 1152f);
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+
+                var leading = FindChild(rootObject.transform, "UnityTopBarLeadingSpacer").GetComponent<RectTransform>();
+                var trailing = FindChild(rootObject.transform, "UnityTopBarSpacer").GetComponent<RectTransform>();
+
+                Assert.Greater(leading.rect.width, 0f);
+                Assert.AreEqual(leading.rect.width, trailing.rect.width, 0.5f);
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
         public void TavernTable_GoldPillShowsEnglishActualGoldAndRebuildsAfterSpending()
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
@@ -1764,6 +1792,7 @@ namespace LearnHearthstone.Tests.EditMode
         [Test]
         public void TavernTable_CapturesMainDeskAcceptanceAtTargetResolutions()
         {
+            CaptureAndAssertTavernTable(2048, 1152, "batch0-main-tavern-2048x1152.png");
             CaptureAndAssertTavernTable(1920, 1080, "batch0-main-tavern-1920x1080.png");
             CaptureAndAssertTavernTable(1366, 768, "batch0-main-tavern-1366x768.png");
             CaptureAndAssertTavernTable(1280, 720, "batch0-main-tavern-1280x720.png");
