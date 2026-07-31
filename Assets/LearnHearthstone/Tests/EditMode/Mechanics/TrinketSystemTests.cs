@@ -7949,6 +7949,42 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void FelbatPortrait_AddsFelbatKeepsSevenShopCardsAndDevoursAtTurnEnd()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG30_MagicItem_991");
+
+            var felbat = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG21_005");
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Shop.Count(card => card != null), 7);
+
+            service.State.Player.Tavern.FreeRefreshes = 1;
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.GreaterOrEqual(service.State.Player.Tavern.Shop.Count(card => card != null), 7);
+
+            service.State.Player.Tavern.Hand.Remove(felbat);
+            service.State.Player.Board.Add(felbat);
+            service.State.Player.Tavern.Shop = new List<MinionInstance>
+            {
+                TestShopMinion("felbat-food-high", 4, 9),
+                TestShopMinion("felbat-food-one", 1, 1),
+                TestShopMinion("felbat-food-two", 1, 2),
+                TestShopMinion("felbat-food-three", 1, 3),
+                TestShopMinion("felbat-food-four", 1, 4),
+                TestShopMinion("felbat-food-five", 1, 5),
+                TestShopMinion("felbat-food-six", 1, 6)
+            };
+            var attackBefore = felbat.Attack;
+            var healthBefore = felbat.MaxHealth;
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(attackBefore + 4, felbat.Attack);
+            Assert.AreEqual(healthBefore + 9, felbat.MaxHealth);
+        }
+
+        [Test]
         public void PromoPortrait_PrizedPromoDrakeFirstStartOfCombatTriggersTwice()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
