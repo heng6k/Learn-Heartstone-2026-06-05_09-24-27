@@ -3982,6 +3982,7 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
+            AddKeyword(fish, Keyword.Deathrattle);
             var copy = source.Clone();
             copy.InstanceId = "fish-copy-" + owner.FishyStickerCopiedDeathrattles.Count + "-" + source.InstanceId;
             copy.Owner = owner.Side;

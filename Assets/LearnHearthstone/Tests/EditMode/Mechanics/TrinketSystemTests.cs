@@ -6976,6 +6976,31 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void BeatboxerPortrait_MagnetizesDifferentMechAndBeatboxer()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG35_MagicItem_741");
+
+            var beatboxer = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG26_149");
+            service.State.Player.Tavern.Hand.Remove(beatboxer);
+            service.State.Player.Board.Add(beatboxer);
+            var target = TestTribeMinion("beatboxer-target", 1, 1, Tribe.Mech);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Hand.Add(
+                TestTribeMinion("beatboxer-magnetic", 2, 3, Tribe.Mech, Keyword.Magnetic, Keyword.DivineShield));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
+
+            Assert.AreEqual(3, target.Attack);
+            Assert.AreEqual(4, target.MaxHealth);
+            Assert.IsTrue(target.Keywords.Contains(Keyword.DivineShield));
+            Assert.AreEqual(7, beatboxer.Attack);
+            Assert.AreEqual(13, beatboxer.MaxHealth);
+            Assert.IsTrue(beatboxer.Keywords.Contains(Keyword.DivineShield));
+        }
+
+        [Test]
         public void FishySticker_SummonsGoldenFishAndTriggersCopiedDeathrattles()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
@@ -6995,6 +7020,32 @@ namespace LearnHearthstone.Tests.EditMode
                     frame.EventType == CombatEventType.MinionSummoned &&
                     frame.LogText.Contains("summoned Skeleton")),
                 6);
+        }
+
+        [Test]
+        public void FishPortrait_FishGainsAndTriggersFriendlyDeathrattle()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Tavern.Gold = 20;
+            EquipTrinket(service, "BG30_MagicItem_821");
+
+            var bonehead = TestTribeMinion("BG28_300", 1, 1, Tribe.Undead, Keyword.Taunt, Keyword.Deathrattle);
+            bonehead.InstanceId = "test-fish-portrait-bonehead";
+            service.State.Player.Board.Add(bonehead);
+            var fish = service.State.Player.Tavern.Hand.Single(card => card.CardId == "TB_BaconShop_HP_105t");
+            service.State.Player.Tavern.Hand.Remove(fish);
+            fish.Health = 150;
+            fish.MaxHealth = 150;
+            service.State.Player.Board.Add(fish);
+
+            RunAvengeCombat(service, 100, 1000, 30);
+
+            Assert.AreEqual(
+                4,
+                service.State.LastResult.Replay.Frames.Count(frame =>
+                    frame.EventType == CombatEventType.MinionSummoned &&
+                    frame.LogText.Contains("summoned Skeleton")),
+                "The original Bonehead and Fish of N'Zoth should each summon two Skeletons.");
         }
 
         [Test]
