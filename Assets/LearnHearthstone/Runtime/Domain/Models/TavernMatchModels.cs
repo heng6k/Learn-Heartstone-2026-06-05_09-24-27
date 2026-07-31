@@ -1010,6 +1010,7 @@ namespace LearnHearthstone.Domain.Models
         public List<MinionInstance> Hand = new List<MinionInstance>();
         public Dictionary<string, int> Pool = new Dictionary<string, int>();
         public Dictionary<string, int> PoolCapacities = new Dictionary<string, int>();
+        public List<MinionInstance> DynamicPoolMinionPrototypes = new List<MinionInstance>();
         public Dictionary<string, int> BuddyPool = new Dictionary<string, int>();
         public Dictionary<string, int> BuddyPoolCapacities = new Dictionary<string, int>();
         public Dictionary<string, int> HeroEffectCounters = new Dictionary<string, int>();
@@ -1032,6 +1033,7 @@ namespace LearnHearthstone.Domain.Models
             clone.Hand = (Hand ?? new List<MinionInstance>()).ConvertAll(card => card?.Clone());
             clone.Pool = new Dictionary<string, int>(Pool ?? new Dictionary<string, int>());
             clone.PoolCapacities = new Dictionary<string, int>(PoolCapacities ?? new Dictionary<string, int>());
+            clone.DynamicPoolMinionPrototypes = (DynamicPoolMinionPrototypes ?? new List<MinionInstance>()).ConvertAll(card => card?.Clone());
             clone.BuddyPool = new Dictionary<string, int>(BuddyPool ?? new Dictionary<string, int>());
             clone.BuddyPoolCapacities = new Dictionary<string, int>(BuddyPoolCapacities ?? new Dictionary<string, int>());
             clone.HeroEffectCounters = new Dictionary<string, int>(HeroEffectCounters ?? new Dictionary<string, int>());

@@ -1078,6 +1078,55 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DynamicPoolPrototype_RefreshesAndClonesWithoutSharingState()
+        {
+            var service = CreateAnomalyService("BG35_Anomaly_001");
+            var tavern = service.State.Player.Tavern;
+            var prototype = new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "dynamic-prototype-source",
+                DefinitionId = "DYNAMIC_POOL_TEST",
+                CardId = "DYNAMIC_POOL_TEST",
+                Name = "Dynamic Pool Test",
+                BaseAttack = 3,
+                BaseHealth = 4,
+                Attack = 99,
+                Health = 99,
+                MaxHealth = 99,
+                TavernTier = 1,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Battlecry },
+                OfficialKeywords = new List<Keyword> { Keyword.Battlecry },
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                EffectIds = new List<string> { "dynamic_pool_test_effect" },
+                Tags = new List<string> { "dynamic_pool_test_tag" }
+            };
+            tavern.DynamicPoolMinionPrototypes.Add(prototype);
+
+            var clone = tavern.CloneForCombat();
+            Assert.AreNotSame(prototype, clone.DynamicPoolMinionPrototypes.Single());
+            clone.DynamicPoolMinionPrototypes[0].Name = "Changed Clone";
+            Assert.AreEqual("Dynamic Pool Test", prototype.Name);
+
+            tavern.Shop.Clear();
+            tavern.ShopSlots.Clear();
+            ForceOnlyPoolTarget(tavern, prototype.DefinitionId, 1);
+            tavern.Gold = 10;
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            var offered = tavern.Shop.Single(card => card != null && card.DefinitionId == prototype.DefinitionId);
+            Assert.AreEqual(3, offered.Attack);
+            Assert.AreEqual(4, offered.MaxHealth);
+            Assert.AreEqual(PoolSource.Pool, offered.PoolSource);
+            Assert.AreEqual(1, offered.PoolCopiesHeld);
+            CollectionAssert.Contains(offered.EffectIds, "dynamic_pool_test_effect");
+            CollectionAssert.Contains(offered.Tags, "dynamic_pool_test_tag");
+        }
+
+        [Test]
         public void OathstoneSummoning_TurnSevenInjectsOnlyCurrentMinorTimewarpedMinions()
         {
             var service = CreateAnomalyService("BG34_Anomaly_805");

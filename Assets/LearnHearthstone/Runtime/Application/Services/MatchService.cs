@@ -442,6 +442,7 @@ namespace LearnHearthstone.Application.Services
         private const string FlyTheFlagGeneratedTag = "anomaly_fly_the_flag";
         private const string FlyTheFlagGrantedRoundCounter = "fly_the_flag_granted_round";
         private const int FlyTheFlagPoolCopies = 12;
+        private const string DynamicPoolMinionTag = "dynamic_pool_minion";
         private const string OathstoneSummoningAnomalyCardId = "BG34_Anomaly_805";
         private const string MajorGoldthornPotionAnomalyCardId = "BG34_Anomaly_800";
         private const string MinorGoldthornPotionAnomalyCardId = "BG34_Anomaly_800t";
@@ -32904,12 +32905,30 @@ namespace LearnHearthstone.Application.Services
 
         private IEnumerable<MinionDefinition> CurrentPoolMinionDefinitions()
         {
+            var tavern = State?.Player?.Tavern;
+            var dynamicPrototypes = tavern?.DynamicPoolMinionPrototypes ?? new List<MinionInstance>();
+            var dynamicIds = new HashSet<string>(
+                dynamicPrototypes
+                    .Where(prototype => prototype != null && !string.IsNullOrEmpty(prototype.DefinitionId))
+                    .Select(prototype => prototype.DefinitionId),
+                StringComparer.OrdinalIgnoreCase);
+
             foreach (var definition in catalog.All)
             {
-                yield return definition;
+                if (!dynamicIds.Contains(definition.Id))
+                {
+                    yield return definition;
+                }
             }
 
-            var tavern = State?.Player?.Tavern;
+            foreach (var prototype in dynamicPrototypes)
+            {
+                if (prototype != null && !string.IsNullOrEmpty(prototype.DefinitionId))
+                {
+                    yield return CreateDynamicPoolMinionDefinition(prototype);
+                }
+            }
+
             if (timewarpedCatalog == null || tavern == null)
             {
                 yield break;
@@ -32940,11 +32959,42 @@ namespace LearnHearthstone.Application.Services
                 }
 
                 var id = OathstoneTimewarpedDefinitionId(definition.CardId);
-                if (injectedIds.Contains(id))
+                if (injectedIds.Contains(id) && !dynamicIds.Contains(id))
                 {
                     yield return CreateOathstoneMinionDefinition(definition);
                 }
             }
+        }
+
+        private static MinionDefinition CreateDynamicPoolMinionDefinition(MinionInstance prototype)
+        {
+            var officialKeywords = prototype.OfficialKeywords != null && prototype.OfficialKeywords.Count > 0
+                ? prototype.OfficialKeywords
+                : prototype.Keywords ?? new List<Keyword>();
+            var tags = prototype.Tags == null ? new List<string>() : new List<string>(prototype.Tags);
+            if (!tags.Contains(DynamicPoolMinionTag))
+            {
+                tags.Add(DynamicPoolMinionTag);
+            }
+
+            return new MinionDefinition
+            {
+                Id = prototype.DefinitionId,
+                CardId = string.IsNullOrEmpty(prototype.CardId) ? prototype.DefinitionId : prototype.CardId,
+                Name = prototype.Name,
+                TavernTier = Math.Max(TavernRules.MinTavernTier, prototype.TavernTier),
+                BaseAttack = prototype.BaseAttack,
+                BaseHealth = Math.Max(1, prototype.BaseHealth),
+                Tribes = prototype.Tribes == null ? new List<Tribe> { Tribe.None } : new List<Tribe>(prototype.Tribes),
+                Keywords = new List<Keyword>(officialKeywords),
+                OfficialKeywords = new List<Keyword>(officialKeywords),
+                Text = prototype.Text,
+                InPool = true,
+                PoolCount = 0,
+                ImagePath = prototype.ImagePath,
+                EffectIds = prototype.EffectIds == null ? new List<string>() : new List<string>(prototype.EffectIds),
+                Tags = tags
+            };
         }
 
         private MinionCatalog CurrentMinionCatalog()
@@ -32955,7 +33005,8 @@ namespace LearnHearthstone.Application.Services
         private bool AllowsCurrentPoolMinion(MinionDefinition definition)
         {
             return (AllowsCurrentMaxTavernTier(definition) && cardPoolAvailability.AllowsMinion(definition)) ||
-                (definition?.Tags != null && definition.Tags.Contains("oathstone_summoning"));
+                (definition?.Tags != null &&
+                    (definition.Tags.Contains("oathstone_summoning") || definition.Tags.Contains(DynamicPoolMinionTag)));
         }
 
         private void AddRecruitLog(RecruitLogType type, string message, int goldBefore, int goldAfter)
