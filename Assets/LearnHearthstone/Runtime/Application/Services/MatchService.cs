@@ -19997,31 +19997,23 @@ namespace LearnHearthstone.Application.Services
 
             var targetDefinitionId = target.DefinitionId;
             var targetCardId = target.CardId;
-            definition = catalog.All.FirstOrDefault(minion =>
+            definition = CurrentPoolMinionDefinitions().FirstOrDefault(minion =>
                 string.Equals(minion.Id, targetDefinitionId, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(minion.CardId, targetCardId, StringComparison.OrdinalIgnoreCase));
-            if (definition == null)
+            MinionInstance dynamicPrototype = null;
+            if (definition == null || !definition.InPool || !AllowsCurrentPoolMinion(definition))
             {
-                reason = "target definition is unavailable";
-                return false;
-            }
+                var source = definition == null
+                    ? target
+                    : MinionFactory.Create(definition, BoardSide.Player, "dynamic-pool-prototype", false, PoolSource.Copy, 0);
+                dynamicPrototype = CreateDynamicPoolMinionPrototype(source);
+                if (dynamicPrototype == null)
+                {
+                    reason = "target has no stable minion identity";
+                    return false;
+                }
 
-            if (IsTokenMinionDefinition(definition))
-            {
-                reason = "tokens cannot be added to the Tavern pool";
-                return false;
-            }
-
-            if (!definition.InPool || definition.PoolCount <= 0)
-            {
-                reason = "target is not in the normal Tavern pool";
-                return false;
-            }
-
-            if (!cardPoolAvailability.AllowsMinion(definition))
-            {
-                reason = "target is disabled by the selected card pool";
-                return false;
+                definition = CreateDynamicPoolMinionDefinition(dynamicPrototype);
             }
 
             if (!TribeAvailabilityRules.IsMinionAvailable(definition, CurrentActiveTribes()))
@@ -20030,12 +20022,12 @@ namespace LearnHearthstone.Application.Services
                 return false;
             }
 
-            return true;
-        }
+            if (dynamicPrototype != null)
+            {
+                RegisterDynamicPoolMinionPrototype(dynamicPrototype);
+            }
 
-        private static bool IsTokenMinionDefinition(MinionDefinition definition)
-        {
-            return definition != null && !string.IsNullOrEmpty(definition.TokenId);
+            return true;
         }
 
         private void InjectFlyTheFlagCopies(MinionDefinition definition)
@@ -32995,6 +32987,75 @@ namespace LearnHearthstone.Application.Services
                 EffectIds = prototype.EffectIds == null ? new List<string>() : new List<string>(prototype.EffectIds),
                 Tags = tags
             };
+        }
+
+        private static MinionInstance CreateDynamicPoolMinionPrototype(MinionInstance source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            var definitionId = string.IsNullOrEmpty(source.DefinitionId) ? source.CardId : source.DefinitionId;
+            if (string.IsNullOrEmpty(definitionId))
+            {
+                return null;
+            }
+
+            var hasBaseStats = source.BaseHealth > 0;
+            var baseAttack = hasBaseStats ? source.BaseAttack : source.Attack;
+            var baseHealth = hasBaseStats ? source.BaseHealth : Math.Max(1, source.MaxHealth);
+            var officialKeywords = source.OfficialKeywords != null && source.OfficialKeywords.Count > 0
+                ? source.OfficialKeywords
+                : source.Keywords ?? new List<Keyword>();
+            var prototype = source.Clone();
+            prototype.CardKind = CardKind.Minion;
+            prototype.InstanceId = "dynamic-pool-prototype-" + definitionId;
+            prototype.DefinitionId = definitionId;
+            prototype.CardId = string.IsNullOrEmpty(source.CardId) ? definitionId : source.CardId;
+            prototype.Cost = 3;
+            prototype.BaseAttack = baseAttack;
+            prototype.BaseHealth = baseHealth;
+            prototype.Attack = baseAttack;
+            prototype.Health = baseHealth;
+            prototype.MaxHealth = baseHealth;
+            prototype.Tribes = source.Tribes == null || source.Tribes.Count == 0
+                ? new List<Tribe> { Tribe.None }
+                : new List<Tribe>(source.Tribes);
+            prototype.Keywords = new List<Keyword>(officialKeywords);
+            prototype.OfficialKeywords = new List<Keyword>(officialKeywords);
+            prototype.Golden = false;
+            prototype.Owner = BoardSide.Player;
+            prototype.Enchantments = new List<Enchantment>();
+            prototype.Counters = new Dictionary<string, int>();
+            prototype.CanAttack = true;
+            prototype.AttacksThisCombat = 0;
+            prototype.OriginPoolSource = PoolSource.Copy;
+            prototype.CanReturnToPoolAfterAttach = false;
+            prototype.PoolSource = PoolSource.Copy;
+            prototype.PoolCopiesHeld = 0;
+            return prototype;
+        }
+
+        private void RegisterDynamicPoolMinionPrototype(MinionInstance prototype)
+        {
+            var tavern = State.Player.Tavern;
+            if (tavern.DynamicPoolMinionPrototypes == null)
+            {
+                tavern.DynamicPoolMinionPrototypes = new List<MinionInstance>();
+            }
+
+            var existingIndex = tavern.DynamicPoolMinionPrototypes.FindIndex(existing =>
+                existing != null &&
+                string.Equals(existing.DefinitionId, prototype.DefinitionId, StringComparison.OrdinalIgnoreCase));
+            if (existingIndex >= 0)
+            {
+                tavern.DynamicPoolMinionPrototypes[existingIndex] = prototype;
+            }
+            else
+            {
+                tavern.DynamicPoolMinionPrototypes.Add(prototype);
+            }
         }
 
         private MinionCatalog CurrentMinionCatalog()

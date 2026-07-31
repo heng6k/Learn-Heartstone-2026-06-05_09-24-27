@@ -950,7 +950,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void FlyTheFlag_RejectsMinionsOutsideTheNormalTavernPool()
+        public void FlyTheFlag_RegistersMinionsOutsideTheNormalTavernPool()
         {
             var service = CreateAnomalyService("BG35_Anomaly_001");
             var tavern = service.State.Player.Tavern;
@@ -972,17 +972,124 @@ namespace LearnHearthstone.Tests.EditMode
                 PoolCopiesHeld = 0
             };
 
-            Assert.Throws<System.InvalidOperationException>(() =>
-                service.Apply(new GameCommand(
-                    GameCommandType.PlayMinion,
-                    spellIndex,
-                    0,
-                    TargetZone.TavernShop,
-                    -1,
-                    TargetZone.Unspecified)));
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                spellIndex,
+                0,
+                TargetZone.TavernShop,
+                -1,
+                TargetZone.Unspecified));
 
-            Assert.AreEqual(1, tavern.Hand.Count(card => card.CardId == "FLY_THE_FLAG_SPELL"));
-            Assert.IsFalse(tavern.Pool.ContainsKey("bg26_800"));
+            Assert.AreEqual(12, tavern.Pool["bg26_800"]);
+            Assert.AreEqual(12, tavern.PoolCapacities["bg26_800"]);
+            Assert.IsTrue(tavern.DynamicPoolMinionPrototypes.Any(card => card.DefinitionId == "bg26_800"));
+
+            tavern.Shop.Clear();
+            tavern.ShopSlots.Clear();
+            ForceOnlyPoolTarget(tavern, "bg26_800", 12);
+            tavern.Gold = 10;
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+            var shopIndex = tavern.Shop.FindIndex(card => card != null && card.DefinitionId == "bg26_800");
+            Assert.GreaterOrEqual(shopIndex, 0);
+            var poolBeforeSell = tavern.Pool["bg26_800"];
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, shopIndex));
+            var bought = tavern.Hand.Single(card => card.DefinitionId == "bg26_800");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(bought)));
+            service.Apply(new GameCommand(GameCommandType.SellMinion, bought.InstanceId));
+
+            Assert.AreEqual(poolBeforeSell + 1, tavern.Pool["bg26_800"]);
+        }
+
+        [Test]
+        public void FlyTheFlag_RegistersFacelessProxyAndBoughtCopyKeepsBattlecry()
+        {
+            var service = CreateAnomalyService("BG35_Anomaly_001");
+            var tavern = service.State.Player.Tavern;
+            AdvanceToRound(service, 3);
+            tavern = service.State.Player.Tavern;
+            var spellIndex = tavern.Hand.FindIndex(card => card.CardId == "FLY_THE_FLAG_SPELL");
+            tavern.Shop[0] = new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "fly-the-flag-faceless-proxy",
+                DefinitionId = "BG_EX1_564",
+                CardId = "BG_EX1_564",
+                Name = "Faceless Manipulator",
+                BaseAttack = 3,
+                BaseHealth = 3,
+                Attack = 30,
+                Health = 30,
+                MaxHealth = 30,
+                TavernTier = 1,
+                Tribes = new List<Tribe> { Tribe.None },
+                Keywords = new List<Keyword> { Keyword.Battlecry },
+                OfficialKeywords = new List<Keyword> { Keyword.Battlecry },
+                Text = "Battlecry: Choose a minion and become a copy of it.",
+                Owner = BoardSide.Player,
+                OriginPoolSource = PoolSource.Copy,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0,
+                Tags = new List<string> { "generated_proxy", "portrait_minion" }
+            };
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                spellIndex,
+                0,
+                TargetZone.TavernShop,
+                -1,
+                TargetZone.Unspecified));
+
+            var prototype = tavern.DynamicPoolMinionPrototypes.Single(card => card.DefinitionId == "BG_EX1_564");
+            Assert.AreEqual(3, prototype.Attack);
+            Assert.AreEqual(3, prototype.MaxHealth);
+            Assert.AreEqual(12, tavern.Pool["BG_EX1_564"]);
+
+            tavern.Shop.Clear();
+            tavern.ShopSlots.Clear();
+            ForceOnlyPoolTarget(tavern, "BG_EX1_564", 12);
+            tavern.Gold = 10;
+            service.Apply(new GameCommand(GameCommandType.RerollShop));
+            var shopIndex = tavern.Shop.FindIndex(card => card != null && card.CardId == "BG_EX1_564");
+            Assert.GreaterOrEqual(shopIndex, 0);
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, shopIndex));
+            var faceless = tavern.Hand.Single(card => card.CardId == "BG_EX1_564");
+            Assert.IsTrue(service.RequiresExplicitBattlecryTarget(faceless));
+            Assert.AreEqual(PoolSource.Pool, faceless.PoolSource);
+            Assert.AreEqual(1, faceless.PoolCopiesHeld);
+
+            service.State.Player.Board.Clear();
+            service.State.Player.Board.Add(new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                InstanceId = "fly-the-flag-copy-target",
+                DefinitionId = "FLY_THE_FLAG_COPY_TARGET",
+                CardId = "FLY_THE_FLAG_COPY_TARGET",
+                Name = "Copy Target",
+                BaseAttack = 4,
+                BaseHealth = 5,
+                Attack = 9,
+                Health = 10,
+                MaxHealth = 10,
+                TavernTier = 1,
+                Tribes = new List<Tribe> { Tribe.Dragon },
+                Keywords = new List<Keyword> { Keyword.DivineShield },
+                OfficialKeywords = new List<Keyword> { Keyword.DivineShield },
+                Owner = BoardSide.Player,
+                PoolSource = PoolSource.Copy,
+                PoolCopiesHeld = 0
+            });
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, tavern.Hand.IndexOf(faceless), 0));
+
+            var transformed = service.State.Player.Board.Single(card =>
+                card.CardId == "FLY_THE_FLAG_COPY_TARGET" &&
+                card.InstanceId != "fly-the-flag-copy-target");
+            Assert.AreEqual("FLY_THE_FLAG_COPY_TARGET", transformed.CardId);
+            Assert.AreEqual(9, transformed.Attack);
+            Assert.AreEqual(10, transformed.MaxHealth);
+            Assert.AreEqual(PoolSource.Pool, transformed.PoolSource);
+            Assert.AreEqual(1, transformed.PoolCopiesHeld);
         }
 
         [Test]
