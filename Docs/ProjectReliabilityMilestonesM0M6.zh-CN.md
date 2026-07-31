@@ -142,6 +142,13 @@ manifest 当前包含：
 
 2026-07-29 已验 Preview：`dpl_Ps3FHzViFirA15L87jELqP82pbJR`。
 
+2026-07-31 发布复验：
+
+- 冻结候选：`Builds/ReleaseCandidate/0.1.0-alpha__20260731T051628Z-80337cf-dirty/`，`buildId=20260731T051628Z-80337cf-dirty`，内容版本 `20260727`。
+- Vercel dry-run 只识别候选目录中的 21 个文件，没有引用 `WebDeploy`；Preview 为 `dpl_75nszvUtzRmwesW7zcoZQLNHpd48`。
+- Preview 已通过 2048×1152 桌面和 994×384、DPR=3 手机横屏实测；手机 Canvas 的 CSS 尺寸为 682×384，渲染缓冲为 2046×1152。
+- Preview 已实测 `Remote -> LastKnownGood -> Embedded` 三条内容路径，以及 Brotli/MIME、缓存、SPA 深链、五个安全头和浏览器错误门禁。
+
 ### M6：Production 与 WebDeploy 退役
 
 实现方式：
@@ -153,6 +160,8 @@ manifest 当前包含：
 - `jsoncool.com` 使用 apex A 记录 `76.76.21.21`，Vercel 域名与 HTTPS 已验证。
 
 2026-07-29 已验 Production：`dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`，由上述 Preview Promote 得到。
+
+2026-07-31 发布复验：Production `dpl_BJVDixx8pK8hnh4xgEo4ZGjizEQa` 由 Preview `dpl_75nszvUtzRmwesW7zcoZQLNHpd48` Promote 得到，`https://jsoncool.com/` 已重跑与 Preview 相同的完整 smoke。Preview 与 Production 的 `.data.br`、`.framework.js.br`、`.wasm.br` 和版本化内容 ETag 一致；冻结候选在发布前后均为 21 个文件，目录聚合 SHA-256 为 `f9e12d39c1a704d0ace5be981925bf8ae7e2410bc544d9dc96aa93c4dccd8f50`。
 
 ## 6. 日常修复时不需要重做什么
 
