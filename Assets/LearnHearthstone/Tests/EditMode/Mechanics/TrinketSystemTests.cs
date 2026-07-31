@@ -2431,6 +2431,29 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void MacawPortrait_TriggersLeftmostBattlecryOnAttackNotWhenPlayed()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Tavern.Gold = 20;
+            service.State.Player.Board.Add(TestTribeMinion(RazorfenGeomancerCardId, 1, 20, Tribe.Quilboar, Keyword.Battlecry));
+
+            EquipTrinket(service, "BG32_MagicItem_803");
+            var macaw = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BGS_078");
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.IndexOf(macaw), -1));
+
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "BLOOD_GEM"));
+
+            macaw = service.State.Player.Board.Single(card => card.CardId == "BGS_078");
+            service.State.Player.Board.Remove(macaw);
+            service.State.Player.Board.Insert(0, macaw);
+            RunAvengeCombat(service, 1, 100, 1);
+
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BLOOD_GEM"));
+        }
+
+        [Test]
         public void ManipulatorPortrait_FacelessBattlecryBecomesIndependentCopyOfFriendlyMinion()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);

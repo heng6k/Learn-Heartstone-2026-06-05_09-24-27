@@ -14877,17 +14877,6 @@ namespace LearnHearthstone.Application.Services
                     DamagePlayerHero(1);
                 }
 
-                if (definition.EffectIds.Contains(MacawPortraitEffectId) && played.CardId == MonstrousMacawCardId)
-                {
-                    var leftBattlecry = State.Player.Board
-                        .Where(minion => minion.InstanceId != played.InstanceId && minion.Keywords.Contains(Keyword.Battlecry))
-                        .OrderBy(minion => State.Player.Board.IndexOf(minion))
-                        .FirstOrDefault();
-                    if (leftBattlecry != null)
-                    {
-                        ResolveMinionBattlecry(leftBattlecry);
-                    }
-                }
             }
 
             if (refreshBoardAuras)
@@ -15643,6 +15632,11 @@ namespace LearnHearthstone.Application.Services
                 if (definition.EffectIds.Contains("rylak_portrait"))
                 {
                     tavern.TrinketRylakPortraitActive = true;
+                }
+
+                if (definition.EffectIds.Contains(MacawPortraitEffectId))
+                {
+                    tavern.TrinketMacawPortraitActive = true;
                 }
 
                 if (definition.EffectIds.Contains("divine_signet"))
@@ -23119,6 +23113,7 @@ namespace LearnHearthstone.Application.Services
             tavern.TrinketDeathlyPhylacteryExtraDeathrattles = 0;
             tavern.TrinketHeraldStickerActive = false;
             tavern.TrinketRylakPortraitActive = false;
+            tavern.TrinketMacawPortraitActive = false;
             tavern.TrinketDivineSignetUses = 0;
             tavern.TrinketMechagonAdapterUses = 0;
             tavern.TrinketDeathtouchAppleUses = 0;

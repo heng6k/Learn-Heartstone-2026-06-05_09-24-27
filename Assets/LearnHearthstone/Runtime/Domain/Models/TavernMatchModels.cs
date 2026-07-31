@@ -936,6 +936,7 @@ namespace LearnHearthstone.Domain.Models
         public int TrinketDeathlyPhylacteryExtraDeathrattles;
         public bool TrinketHeraldStickerActive;
         public bool TrinketRylakPortraitActive;
+        public bool TrinketMacawPortraitActive;
         public int TrinketDivineSignetUses;
         public int TrinketMechagonAdapterUses;
         public int TrinketDeathtouchAppleUses;

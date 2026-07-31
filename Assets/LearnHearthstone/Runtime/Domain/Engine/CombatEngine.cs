@@ -6000,6 +6000,18 @@ namespace LearnHearthstone.Domain.Engine
             if (attacker.CardId == MonstrousMacawCardId)
             {
                 TriggerLeftmostOtherDeathrattle(context, owner, attacker);
+                if (owner.Tavern != null && owner.Tavern.TrinketMacawPortraitActive)
+                {
+                    var battlecryTarget = owner.Board.FirstOrDefault(minion =>
+                        minion.InstanceId != attacker.InstanceId &&
+                        IsAlive(minion) &&
+                        minion.Keywords.Contains(Keyword.Battlecry));
+                    if (battlecryTarget != null)
+                    {
+                        TriggerBattlecryResource(context, owner, attacker, battlecryTarget);
+                        AddLog(context.Log, "RallyResolved", attacker.InstanceId + " triggered " + battlecryTarget.InstanceId + " battlecry", attacker.InstanceId, battlecryTarget.InstanceId, LogSeverity.Good);
+                    }
+                }
             }
 
             if (attacker.CardId == TopperTheThiefCardId)
