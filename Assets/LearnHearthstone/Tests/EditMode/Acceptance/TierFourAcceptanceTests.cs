@@ -25,8 +25,8 @@ namespace LearnHearthstone.Tests.EditMode
             var minions = MinionCatalogLoader.LoadFromResources().All.Where(minion => minion.InPool && minion.TavernTier == 4).ToList();
             var spells = SpellCatalogLoader.LoadFromResources().All.Where(spell => spell.InPool && spell.Category == "TavernSpell" && spell.TavernTier == 4).ToList();
 
-            Assert.AreEqual(60, minions.Count);
-            Assert.AreEqual(53, minions.Count(minion => !minion.CardId.StartsWith("BGDUO")));
+            Assert.AreEqual(59, minions.Count);
+            Assert.AreEqual(52, minions.Count(minion => !minion.CardId.StartsWith("BGDUO")));
             Assert.AreEqual(7, minions.Count(minion => minion.CardId.StartsWith("BGDUO")));
             Assert.AreEqual(17, spells.Count);
             Assert.AreEqual(TierFourSpellIds.OrderBy(id => id).ToList(), spells.Select(spell => spell.CardNumber).OrderBy(id => id).ToList());
@@ -43,7 +43,7 @@ namespace LearnHearthstone.Tests.EditMode
             var registeredIds = TierFourMinionImplementationRegistry.All.Select(entry => entry.CardId).OrderBy(id => id).ToList();
 
             Assert.AreEqual(tierFourIds, registeredIds);
-            Assert.AreEqual(60, registeredIds.Distinct().Count());
+            Assert.AreEqual(59, registeredIds.Distinct().Count());
             Assert.IsTrue(TierFourMinionImplementationRegistry.All.All(entry => !string.IsNullOrWhiteSpace(entry.Area)));
             Assert.IsFalse(TierFourMinionImplementationRegistry.All.Any(entry => entry.Status == TierFourImplementationStatus.SoloApproximation));
             Assert.IsFalse(TierFourMinionImplementationRegistry.All.Any(entry => entry.Status == TierFourImplementationStatus.KeywordOnly));
@@ -166,23 +166,24 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "VOLCANIC_VISITOR_ATTACK_SPELL"));
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "VOLCANIC_VISITOR_HEALTH_SPELL"));
+            Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count(card => card.CardId == "VOLCANIC_VISITOR_CHOICE_SPELL"));
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "VOLCANIC_VISITOR_ATTACK_SPELL"));
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardId == "VOLCANIC_VISITOR_HEALTH_SPELL"));
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == "FROSTLING_PRIESTESS_SPELL"));
 
             var volcanic = service.State.Player.Board.First(card => card.CardId == "BG30_117");
             var attackBefore = volcanic.Attack;
-            var attackSpellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "VOLCANIC_VISITOR_ATTACK_SPELL");
+            var other = service.State.Player.Board.First(card => card.InstanceId != volcanic.InstanceId);
+            var otherAttackBefore = other.Attack;
+            var attackSpellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "VOLCANIC_VISITOR_CHOICE_SPELL");
             service.Apply(new GameCommand(
                 GameCommandType.PlayMinion,
                 attackSpellIndex,
-                service.State.Player.Board.IndexOf(volcanic),
-                TargetZone.FriendlyBoard,
-                -1,
-                TargetZone.Unspecified,
-                volcanic.InstanceId));
+                PlayIntent.Unspecified,
+                choiceId: "attack"));
 
             Assert.AreEqual(attackBefore + 4, volcanic.Attack);
+            Assert.AreEqual(otherAttackBefore + 4, other.Attack);
             Assert.IsTrue(volcanic.Tags.Contains("temporary_spellcraft"));
 
             var frostlingSpellIndex = service.State.Player.Tavern.Hand.FindIndex(card => card.CardId == "FROSTLING_PRIESTESS_SPELL");

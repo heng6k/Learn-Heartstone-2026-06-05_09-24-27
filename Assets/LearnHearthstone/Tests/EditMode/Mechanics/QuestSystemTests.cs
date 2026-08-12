@@ -4,6 +4,7 @@ using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
@@ -72,7 +73,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
 
             service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual(3, request.Options.Count);
@@ -87,7 +88,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
             var quests = service.State.Player.Tavern.AdvancedMechanics.Quests;
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             Assert.IsNotNull(quests.MainQuest);
             Assert.AreEqual(selected.SourceId, quests.MainQuest.QuestCardId);
             Assert.AreEqual(selected.RewardId, quests.MainQuest.RewardId);
@@ -114,7 +115,7 @@ namespace LearnHearthstone.Tests.EditMode
                 new InMemoryTestScenarioRepository(),
                 new MatchSetupOptions { AdvancedMechanicMode = AdvancedMechanicMode.Quests });
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual("quest-mode-opening", request.Source);
@@ -139,7 +140,7 @@ namespace LearnHearthstone.Tests.EditMode
                     EnableQuests = false
                 });
 
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
         }
 
         [Test]
@@ -154,7 +155,7 @@ namespace LearnHearthstone.Tests.EditMode
                     EnableQuestRewards = false
                 });
 
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
         }
 
         [Test]
@@ -175,7 +176,7 @@ namespace LearnHearthstone.Tests.EditMode
                     EnabledQuestRewardCardIds = new List<string> { reward.CardId }
                 });
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
 
             Assert.IsNotNull(request);
             Assert.AreEqual(1, request.Options.Count);
@@ -200,7 +201,7 @@ namespace LearnHearthstone.Tests.EditMode
                     EnabledQuestCardIds = new List<string> { quest.CardId }
                 });
 
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             CollectionAssert.AreEquivalent(new[] { quest.CardId }, service.State.EnabledQuestCardIds);
             Assert.AreEqual(0, service.State.EnabledQuestRewardCardIds.Count);
         }
@@ -647,7 +648,10 @@ namespace LearnHearthstone.Tests.EditMode
             var snapshot = service.State.LastReplay.InitialSnapshot.Player.Minions;
             Assert.AreEqual(3, snapshot.Count);
             Assert.AreEqual(2, snapshot.Count(minion => minion.CardId == "evil-high"));
-            Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("邪恶双子") && entry.Message.Contains("召唤")));
+            Assert.IsTrue(
+                service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("邪恶双子") && entry.Message.Contains("召唤")),
+                "Evil Twin must add a localized summon entry to the recruit log: " +
+                string.Join(" | ", service.State.Player.Tavern.RecruitLog.Select(entry => entry.Message)));
             Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Evil Twin:")));
         }
 
@@ -913,7 +917,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual("Lesser", request.Slot);
@@ -931,7 +935,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual("Greater", request.Slot);
@@ -1215,7 +1219,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual("quest-ethereal-evidence", request.Source);
@@ -1372,7 +1376,7 @@ namespace LearnHearthstone.Tests.EditMode
                 new InMemoryTestScenarioRepository(),
                 new MatchSetupOptions { SelectedHeroCardId = "BG24_HERO_100" });
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual("sire-denathrius", request.Source);
@@ -1392,7 +1396,7 @@ namespace LearnHearthstone.Tests.EditMode
                     AdvancedMechanicMode = AdvancedMechanicMode.Quests
                 });
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual("sire-denathrius", request.Source);
@@ -1411,7 +1415,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.SellMinion, instance.InstanceId));
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Quest, request.Kind);
             Assert.AreEqual("shady-aristocrat", request.Source);
@@ -1550,7 +1554,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
             service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
-            var missingArtOption = service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options[0];
+            var missingArtOption = service.State.ChoiceQueue.ActiveChoice.Options[0];
             var sourceId = missingArtOption.SourceId;
             var rewardId = missingArtOption.RewardId;
             missingArtOption.ImagePath = "CardImages/does-not-exist-quest";
@@ -1592,13 +1596,14 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var quest = service.QuestCatalog.GetQuestByCardId(questCardId);
             var reward = service.QuestCatalog.GetRewardById(rewardId);
-            service.State.Player.Tavern.AdvancedMechanics.PendingChoice = new MechanicChoiceRequest
+            service.State.ChoiceQueue = new ChoiceQueueState();
+            ChoiceQueueService.Enqueue(service.State.ChoiceQueue, new ChoiceQueueItem
             {
-                RequestId = "test-quest-" + questCardId,
-                Kind = AdvancedMechanicKind.Quest,
+                Kind = ChoiceRequestKind.Quest,
                 Source = "test",
-                Slot = "Main",
-                Round = service.State.Round,
+                CreatedRound = service.State.Round,
+                Priority = 100,
+                Blocking = true,
                 RemainingPicks = 1,
                 Options = new List<MechanicChoiceOption>
                 {
@@ -1619,7 +1624,7 @@ namespace LearnHearthstone.Tests.EditMode
                         Tags = new List<string>(quest.Tags)
                     }
                 }
-            };
+            });
         }
 
         private static ActiveQuestState ActivateRewardDirectly(MatchService service, string rewardId)

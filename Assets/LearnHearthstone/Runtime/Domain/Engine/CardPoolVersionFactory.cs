@@ -10,7 +10,7 @@ namespace LearnHearthstone.Domain.Engine
     {
         public const int MaxCustomVersions = 10;
         public const string DefaultVersionId = "default";
-        public const string DefaultVersionName = "默认版本";
+        public const string DefaultVersionName = "默认方案";
 
         public static CardPoolVersionSelection CreateDefaultSelection(MinionCatalog minions, SpellCatalog spells)
         {
@@ -42,7 +42,7 @@ namespace LearnHearthstone.Domain.Engine
             return new CardPoolVersionSelection
             {
                 VersionId = profile.Id,
-                VersionName = string.IsNullOrEmpty(profile.Name) ? "自定义版本" : profile.Name,
+                VersionName = string.IsNullOrEmpty(profile.Name) ? "自定义方案" : profile.Name,
                 IsDefault = false,
                 EnabledMinionCardIds = ToMinionSet(profile.EnabledMinionCardIds),
                 EnabledTavernSpellCardNumbers = ToSet(profile.EnabledTavernSpellCardNumbers),
@@ -60,7 +60,7 @@ namespace LearnHearthstone.Domain.Engine
             return new CardPoolVersionProfile
             {
                 Id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString("N") : id,
-                Name = string.IsNullOrEmpty(name) ? "自定义版本" : name,
+                Name = string.IsNullOrEmpty(name) ? "自定义方案" : name,
                 CreatedAtUnixSeconds = now,
                 UpdatedAtUnixSeconds = now,
                 EnabledMinionCardIds = OrderedMinions(selection?.EnabledMinionCardIds),
@@ -76,6 +76,7 @@ namespace LearnHearthstone.Domain.Engine
         public static CardPoolVersionStore NormalizeStore(CardPoolVersionStore store)
         {
             var normalized = store ?? new CardPoolVersionStore();
+            normalized.SchemaVersion = CardPoolVersionStore.CurrentSchemaVersion;
             normalized.Versions = normalized.Versions ?? new List<CardPoolVersionProfile>();
             normalized.Versions = normalized.Versions
                 .Where(version => version != null && !string.IsNullOrEmpty(version.Id))
@@ -95,6 +96,18 @@ namespace LearnHearthstone.Domain.Engine
 
         public static CardPoolVersionProfile NormalizeProfile(CardPoolVersionProfile profile)
         {
+            var legacyProfile = string.IsNullOrWhiteSpace(profile.BaseGameVersionId);
+            if (legacyProfile)
+            {
+                profile.BaseGameVersionId = GameVersionIds.LegacyCompositeSandbox;
+                if (profile.ValidationState == CardPoolPresetValidationState.Unknown)
+                {
+                    profile.ValidationState = CardPoolPresetValidationState.Valid;
+                }
+            }
+
+            profile.CreatedAgainstContentFingerprint = profile.CreatedAgainstContentFingerprint ?? string.Empty;
+            profile.IncompatibleEntityIds = Ordered(profile.IncompatibleEntityIds);
             profile.EnabledMinionCardIds = OrderedMinions(profile.EnabledMinionCardIds);
             profile.EnabledTavernSpellCardNumbers = Ordered(profile.EnabledTavernSpellCardNumbers);
             profile.EnabledQuestCardIds = Ordered(profile.EnabledQuestCardIds);
@@ -104,7 +117,7 @@ namespace LearnHearthstone.Domain.Engine
             profile.EnabledAnomalyCardIds = Ordered(profile.EnabledAnomalyCardIds);
             if (string.IsNullOrEmpty(profile.Name))
             {
-                profile.Name = "自定义版本";
+                profile.Name = "自定义方案";
             }
 
             return profile;
@@ -145,6 +158,25 @@ namespace LearnHearthstone.Domain.Engine
         private static bool IsDuoCardId(string value)
         {
             return !string.IsNullOrEmpty(value) && value.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public static class CardPoolPresetAdapter
+    {
+        public static CardPoolPresetProfile FromLegacy(CardPoolVersionProfile profile)
+        {
+            return new CardPoolPresetProfile(CardPoolVersionFactory.NormalizeProfile(
+                profile ?? throw new ArgumentNullException(nameof(profile))));
+        }
+
+        public static CardPoolVersionProfile ToLegacy(CardPoolPresetProfile preset)
+        {
+            if (preset == null)
+            {
+                throw new ArgumentNullException(nameof(preset));
+            }
+
+            return CardPoolVersionFactory.NormalizeProfile(preset.LegacyProfile);
         }
     }
 }

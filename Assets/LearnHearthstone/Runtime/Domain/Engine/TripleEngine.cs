@@ -8,6 +8,7 @@ namespace LearnHearthstone.Domain.Engine
     public sealed class TripleResult
     {
         public List<MinionInstance> Remaining = new List<MinionInstance>();
+        public List<string> ConsumedInstanceIds = new List<string>();
         public MinionInstance Golden;
     }
 
@@ -49,7 +50,12 @@ namespace LearnHearthstone.Domain.Engine
 
             var golden = CreateGoldenFromMaterials(materials, definitionId, owner, suffix);
 
-            return new TripleResult { Remaining = remaining, Golden = golden };
+            return new TripleResult
+            {
+                Remaining = remaining,
+                ConsumedInstanceIds = materials.Select(item => item.InstanceId).ToList(),
+                Golden = golden
+            };
         }
 
         public static MinionInstance CreateGoldenFromMaterials(IReadOnlyList<MinionInstance> materials, string definitionId, BoardSide owner, string suffix = "triple")

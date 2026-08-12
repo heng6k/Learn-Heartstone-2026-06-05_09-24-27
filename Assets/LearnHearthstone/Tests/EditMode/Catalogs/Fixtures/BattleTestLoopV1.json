@@ -1,0 +1,35 @@
+{
+  "Version": "battle-test-loop-v1",
+  "Name": "P1 v1 baseline fixture",
+  "SavedAtRound": 4,
+  "Seed": 17,
+  "Phase": 0,
+  "Player": {
+    "HeroId": "TB_BaconShop_HERO_01",
+    "Health": 36,
+    "Armor": 2
+  },
+  "Opponent": {
+    "Name": "Legacy Opponent",
+    "HeroId": "TB_BaconShop_HERO_02",
+    "Health": 31,
+    "Armor": 1,
+    "TavernTier": 3,
+    "Editable": true
+  },
+  "Tavern": {
+    "Tier": 3,
+    "Gold": 7,
+    "MaxGold": 7,
+    "UpgradeCost": 6,
+    "TavernSpellBonusAttack": 5,
+    "UndeadAttackBonus": 3,
+    "EternalKnightDeaths": 2
+  },
+  "PlayerCombatModifiersAreAuthoritative": false,
+  "Shop": [],
+  "Hand": [],
+  "OpponentHand": [],
+  "PlayerBoard": [],
+  "OpponentBoard": []
+}

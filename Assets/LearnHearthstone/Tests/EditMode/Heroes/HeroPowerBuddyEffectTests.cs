@@ -483,7 +483,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
-            var choice = tavern.AdvancedMechanics.PendingChoice;
+            var choice = service.GetActiveMechanicChoice();
             Assert.NotNull(choice);
             Assert.AreEqual("hero:galewing", choice.Source);
             Assert.AreEqual(3, choice.Options.Count);
@@ -507,7 +507,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
-            Assert.IsFalse(tavern.AdvancedMechanics.PendingChoice.Options.Any(option => option.RewardId == "westfall"));
+            Assert.IsFalse(service.GetActiveMechanicChoice().Options.Any(option => option.RewardId == "westfall"));
         }
 
         [Test]
@@ -519,7 +519,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
 
-            var choice = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var choice = service.GetActiveMechanicChoice();
             Assert.AreEqual("Westfall", choice.Options.Single(option => option.RewardId == "westfall").DisplayName);
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Dungar's Gryphon: choose a flightpath.")));
             Assert.IsFalse(service.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("丹加尔的狮鹫")));
@@ -540,7 +540,7 @@ namespace LearnHearthstone.Tests.EditMode
             tavern.Hand.Clear();
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
-            var westfallIndex = tavern.AdvancedMechanics.PendingChoice.Options.FindIndex(option => option.RewardId == "westfall");
+            var westfallIndex = service.GetActiveMechanicChoice().Options.FindIndex(option => option.RewardId == "westfall");
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, westfallIndex));
             var expectedDueRound = tavern.AdvancedMechanics.Counters["hero:galewing:due_round"];
 
@@ -628,7 +628,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2001, SafetyLimit = 1 }));
             tavern = service.State.Player.Tavern;
 
-            var choice = tavern.AdvancedMechanics.PendingChoice;
+            var choice = service.GetActiveMechanicChoice();
             Assert.NotNull(choice);
             Assert.AreEqual("hero:cariel", choice.Source);
             Assert.AreEqual(3, choice.Options.Count);
@@ -3642,10 +3642,12 @@ namespace LearnHearthstone.Tests.EditMode
             akazamzarak.Apply(new GameCommand(GameCommandType.UseHeroPower));
             Assert.IsNotNull(akazamzarak.State.Player.Tavern.Discover);
             Assert.AreEqual(4, akazamzarak.State.Player.Tavern.Discover.Options.Count);
-            Assert.IsTrue(akazamzarak.State.Player.Tavern.Discover.Options.All(card => card.Tags.Contains("better_secret")));
+            Assert.IsTrue(
+                akazamzarak.State.Player.Tavern.Discover.Options.All(card => card.Tags.Contains("better_secret")),
+                "Akazamzarak's buddy must upgrade every discovered Secret.");
             akazamzarak.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
             Assert.AreEqual(1, akazamzarak.State.Player.Tavern.Secrets.Count);
-            Assert.IsTrue(akazamzarak.State.Player.Tavern.Secrets[0].Better);
+            Assert.IsTrue(akazamzarak.State.Player.Tavern.Secrets[0].Better, "The selected Secret must retain the upgraded marker.");
             Assert.IsFalse(akazamzarak.State.Player.Tavern.Hand.Any(card => card.CardId == "BETTER_SECRET_PROXY"));
 
             var putricide = CreateHeroService("BG25_HERO_100");
@@ -3676,15 +3678,15 @@ namespace LearnHearthstone.Tests.EditMode
             var creation = putricide.State.Player.Tavern.Hand.Single(card => card.CardId == "BG25_HERO_100pt");
             Assert.AreEqual(expectedAttack, creation.Attack);
             Assert.AreEqual(expectedHealth, creation.MaxHealth);
-            Assert.IsTrue(creation.Tags.Contains(HeroEffectEngine.PutricideCreationTag));
+            Assert.IsTrue(creation.Tags.Contains(HeroEffectEngine.PutricideCreationTag), "Putricide's combined creation tag is missing.");
             Assert.AreEqual(2, creation.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)));
             Assert.IsFalse(creation.Tags.Contains("putricide_creation_component_pending"));
             putricide.State.Player.Tavern.Hand.Clear();
             PlayBuddy(putricide, "BG25_HERO_100_Buddy");
             var festergut = putricide.State.Player.Board.Single(card => card.CardId == "BG25_HERO_100_Buddy");
             putricide.Apply(new GameCommand(GameCommandType.SellMinion, festergut.InstanceId));
-            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
-            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2));
+            Assert.IsTrue(putricide.State.Player.Board.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2), "Festergut must summon one complete creation to the board.");
+            Assert.IsTrue(putricide.State.Player.Tavern.Hand.Any(card => card.CardId == "BG25_HERO_100pt" && card.Tags.Contains("undead_creation") && card.Tags.Count(tag => tag.StartsWith(HeroEffectEngine.PutricideComponentTagPrefix)) == 2), "Festergut must add one complete creation to hand.");
 
             var raynor = CreateHeroService("BG31_HERO_801");
             raynor.State.Player.Tavern.Hand.Clear();
@@ -3692,13 +3694,13 @@ namespace LearnHearthstone.Tests.EditMode
                 card.CardId == "BG31_HERO_801pt" &&
                 card.Attack == 2 &&
                 card.MaxHealth == 2 &&
-                card.Tags.Contains("hero_start:raynor_battlecruiser")));
+                card.Tags.Contains("hero_start:raynor_battlecruiser")), "Raynor must start with the visible 2/2 Battlecruiser proxy.");
             PlayBuddy(raynor, "BG31_HERO_801_Buddy");
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-1", "MUKLA_BANANA", 0));
             raynor.State.Player.Tavern.Hand.Add(TestTavernSpell("ty-spell-2", "MUKLA_BANANA", 0));
             raynor.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
             raynor.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
-            Assert.IsTrue(raynor.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("battlecruiser_upgrade") && card.CardId.StartsWith("BG31_HERO_801pt")));
+            Assert.IsTrue(raynor.State.Player.Tavern.Hand.Any(card => card.Tags.Contains("battlecruiser_upgrade") && card.CardId.StartsWith("BG31_HERO_801pt")), "Two Tavern spells must create a Battlecruiser upgrade.");
 
             var artanis = CreateHeroService("BG31_HERO_802");
             Assert.AreEqual(HeroEffectEngine.ArtanisProtossDiscoverSource, artanis.State.Player.Tavern.Discover.Source);
@@ -3711,7 +3713,7 @@ namespace LearnHearthstone.Tests.EditMode
             artanis.State.Player.Board.Add(TestMinion("probius-target", "PROBIUS_TARGET", 2, 2, new System.Collections.Generic.List<Tribe> { Tribe.Mech }));
             artanis.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_HERO_802_Buddy", CardKind.HeroBuddy));
             artanis.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 0));
-            Assert.IsTrue(artanis.State.Player.Board[0].Golden);
+            Assert.IsTrue(artanis.State.Player.Board[0].Golden, "Probius must make the selected friendly Protoss target Golden.");
 
             var kerrigan = CreateHeroService("BG31_HERO_811");
             kerrigan.State.Player.Tavern.Hand.Clear();
@@ -3719,14 +3721,14 @@ namespace LearnHearthstone.Tests.EditMode
             var brokenHorn = kerrigan.State.Player.Board.Single(card => card.CardId == "BG31_HERO_811_Buddy");
             kerrigan.Apply(new GameCommand(GameCommandType.SellMinion, brokenHorn.InstanceId));
             Assert.IsNotNull(kerrigan.State.Player.Tavern.Discover);
-            Assert.IsTrue(kerrigan.State.Player.Tavern.Discover.Options.All(card => card.CardId.StartsWith("BG31_HERO_811t") && card.CardId != "ZERG_MINION_PROXY" && card.Attack == 6 && card.MaxHealth == 6 && card.Tags.Contains("does_not_morph")));
+            Assert.IsTrue(kerrigan.State.Player.Tavern.Discover.Options.All(card => card.CardId.StartsWith("BG31_HERO_811t") && card.CardId != "ZERG_MINION_PROXY" && card.Attack == 6 && card.MaxHealth == 6 && card.Tags.Contains("does_not_morph")), "Kerrigan must discover only concrete 6/6 non-morphing Zerg options.");
 
             var tess = CreateHeroService("TB_BaconShop_HERO_50");
             tess.State.Player.Tavern.Hand.Clear();
             tess.State.Opponent.HeroId = "TB_BaconShop_HERO_90";
             PlayBuddy(tess, "TB_BaconShop_HERO_50_Buddy");
             tess.Apply(new GameCommand(GameCommandType.NextTurn));
-            Assert.IsTrue(tess.State.Player.Tavern.Hand.Any(card => card.CardId == "TB_BaconShop_HERO_90_Buddy"));
+            Assert.IsTrue(tess.State.Player.Tavern.Hand.Any(card => card.CardId == "TB_BaconShop_HERO_90_Buddy"), "Tess must copy the last opponent's Buddy at turn start.");
         }
 
         [Test]
@@ -3939,7 +3941,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Opponent.Board.Add(opponent);
 
             service.Apply(new GameCommand(GameCommandType.UseHeroPower));
-            var choice = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var choice = service.GetActiveMechanicChoice();
             Assert.NotNull(choice);
             Assert.AreEqual("hero:brukan", choice.Source);
             Assert.AreEqual(4, choice.Options.Count);

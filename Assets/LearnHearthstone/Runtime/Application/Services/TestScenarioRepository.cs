@@ -98,7 +98,30 @@ namespace LearnHearthstone.Application.Services
 
             try
             {
-                return TestScenarioMigration.MigrateToCurrent(JsonUtility.FromJson<TestScenarioDefinition>(File.ReadAllText(path)));
+                var json = File.ReadAllText(path);
+                var sourceVersion = ReadSourceVersion(json);
+                var scenario = JsonUtility.FromJson<TestScenarioDefinition>(json);
+                if (scenario == null)
+                {
+                    throw new InvalidOperationException("Scenario JSON did not contain an object.");
+                }
+
+                scenario.Version = sourceVersion;
+                scenario.IsStateTemplate = false;
+                var migrated = TestScenarioMigration.MigrateToCurrent(scenario);
+                migrated.IsStateTemplate = false;
+
+                if (!string.Equals(sourceVersion, TestScenarioMigration.CurrentVersion, StringComparison.OrdinalIgnoreCase))
+                {
+                    migrated.Name = Path.GetFileNameWithoutExtension(path) + "-migrated-v3";
+                    var migratedPath = PathFor(migrated.Name);
+                    if (!File.Exists(migratedPath))
+                    {
+                        File.WriteAllText(migratedPath, JsonUtility.ToJson(migrated, true));
+                    }
+                }
+
+                return migrated;
             }
             catch (Exception exception)
             {
@@ -126,6 +149,20 @@ namespace LearnHearthstone.Application.Services
             var invalid = Path.GetInvalidFileNameChars();
             var chars = name.Select(character => invalid.Contains(character) ? '-' : character).ToArray();
             return new string(chars).Trim();
+        }
+
+        private static string ReadSourceVersion(string json)
+        {
+            var probe = JsonUtility.FromJson<ScenarioVersionProbe>(json);
+            return string.IsNullOrWhiteSpace(probe?.Version)
+                ? TestScenarioMigration.LegacyVersion
+                : probe.Version;
+        }
+
+        [Serializable]
+        private sealed class ScenarioVersionProbe
+        {
+            public string Version;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace LearnHearthstone.Domain.Models
     public sealed class CombatOutput
     {
         public CombatWinner Winner;
+        public HeroDamageResolution HeroDamage;
         public List<MinionInstance> FinalPlayerBoard = new List<MinionInstance>();
         public List<MinionInstance> FinalOpponentBoard = new List<MinionInstance>();
         public List<CombatLogEntry> Log = new List<CombatLogEntry>();
@@ -37,10 +38,40 @@ namespace LearnHearthstone.Domain.Models
         public CombatBoardPairSnapshot InitialSnapshot = new CombatBoardPairSnapshot();
         public List<CombatFrame> Frames = new List<CombatFrame>();
         public CombatWinner Result;
+        public HeroDamageResolution HeroDamage;
         public List<CombatReward> PlayerRewards = new List<CombatReward>();
         public List<CombatReward> OpponentRewards = new List<CombatReward>();
         public int Steps;
         public bool SafetyStopped;
+    }
+
+    public enum HeroDamageCapPolicy
+    {
+        TrainingRound12Approximation,
+        OfficialTopFour
+    }
+
+    [Serializable]
+    public sealed class HeroDamageResolution
+    {
+        public CombatWinner Winner;
+        public BoardSide DamagedSide;
+        public HeroDamageCapPolicy CapPolicy;
+        public int Round;
+        public int TavernTierDamage;
+        public int SurvivingMinionTierDamage;
+        public int RawDamage;
+        public int DamageCap;
+        public int AppliedDamage;
+        public int ArmorBefore;
+        public int ArmorAbsorbed;
+        public int ArmorAfter;
+        public int HealthBefore;
+        public int HealthDamage;
+        public int HealthAfter;
+        public bool CapRemoved;
+        public bool UsesApproximation;
+        public bool Applied;
     }
 
     [Serializable]
@@ -94,6 +125,8 @@ namespace LearnHearthstone.Domain.Models
         public int Position;
         public string InstanceId;
         public string CardId;
+        public CardKind CardKind = CardKind.Minion;
+        public string ImagePath;
         public string Name;
         public int Attack;
         public int Health;
@@ -145,6 +178,7 @@ namespace LearnHearthstone.Domain.Models
         public BoardSide Side;
         public string SourceCardId;
         public string SourceInstanceId;
+        public string RallyOccurrenceId;
         public string TargetInstanceId;
         public string CardId;
         public int Amount;
@@ -170,6 +204,7 @@ namespace LearnHearthstone.Domain.Models
         BuffHandMinion,
         ImproveBloodGemAttack,
         ImproveElementalHealth,
+        ImproveElementalStats,
         ImproveRefreshBuff,
         AddTavernSpellToHand,
         AddRandomBeastToHand,
@@ -184,6 +219,7 @@ namespace LearnHearthstone.Domain.Models
         AddRandomElementalToHand,
         AddRandomDemonToHand,
         AddRandomBattlecryMinionToHand,
+        AddRandomChooseOneMinionToHand,
         AddBountyToHand,
         ImproveElementalShopStats,
         ImproveTavernMinionStats,
@@ -210,6 +246,7 @@ namespace LearnHearthstone.Domain.Models
         AddRandomGoldenBeastToHand,
         AddKeywordToOriginalFriendlyMinion,
         ImproveShopStats,
-        ImproveFireforgedEvoker
+        ImproveFireforgedEvoker,
+        Season14MinionDamageDealt
     }
 }

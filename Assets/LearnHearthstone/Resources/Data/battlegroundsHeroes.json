@@ -3,10 +3,10 @@
   "mainBundleSource": "https://www.firestoneapp.com/main.d11d28f54fb2e2d6.js",
   "cardsSource": "https://static.zerotoheroes.com/data/cards/cards_enUS.gz.json",
   "generatedAt": "2026-06-15T07:08:23.053Z",
-  "count": 117,
-  "heroPowerCount": 72,
+  "count": 119,
+  "heroPowerCount": 74,
   "buddyCount": 108,
-  "missingBuddyCount": 9,
+  "missingBuddyCount": 11,
   "missingHeroPowerCount": 45,
   "heroes": [
     {
@@ -5248,6 +5248,74 @@
         "totalOffered": 0,
         "averagePosition": 0
       },
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG36_HERO_105",
+      "researchKey": "HERO-R01",
+      "revisionId": "preview-s14-hero-nightmare-lord-xavius@36.2-preview-v1",
+      "effectRevision": "hero-power.feel-devastation@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "heroDbfId": 132608,
+      "name": "Nightmare Lord Xavius",
+      "health": 30,
+      "armor": 12,
+      "inPool": 0,
+      "imagePath": "CardImages/Heroes/Season14/NightmareLordXavius",
+      "imageSource": "https://bnetcmsus-a.akamaihd.net/cms/content_entry_media/VJ2370VSTEVA1784661997170.png",
+      "imageSha256": "3e4d5d3713dfca689b6f4751f508af5e8d31c3178d8629a17ead4a318c3dec7f",
+      "heroPower": {
+        "cardId": "BG36_HERO_105p",
+        "dbfId": 134010,
+        "name": "Feel Devastation",
+        "cost": 0,
+        "text": "Every 4 turns, Discover a minion with a Dark Gift.",
+        "imagePath": "",
+        "primaryCategory": "Passive",
+        "tags": [
+          "passive",
+          "dark-gift",
+          "season14-preview"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": null,
+      "missingBuddyMapping": true,
+      "missingHeroPowerMapping": false
+    },
+    {
+      "heroCardId": "BG36_HERO_101",
+      "researchKey": "HERO-R02",
+      "revisionId": "preview-s14-hero-trastath-soul-parasite@36.2-preview-v1",
+      "effectRevision": "hero-power.void-power@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "heroDbfId": 132578,
+      "name": "Tras'tath, Soul Parasite",
+      "health": 30,
+      "armor": 10,
+      "inPool": 0,
+      "imagePath": "CardImages/Heroes/Season14/TrastathSoulParasite",
+      "imageSource": "https://bnetcmsus-a.akamaihd.net/cms/content_entry_media/KM79VR79Z0GL1784661997244.png",
+      "imageSha256": "59d0cb04e2b1f000d550a2b620728874d12e7b4c653d00015bb67a7d9fafa194",
+      "heroPower": {
+        "cardId": "BG36_HERO_101p",
+        "dbfId": 132581,
+        "name": "Void Power",
+        "cost": 0,
+        "text": "At the start of the game, Discover a Tier 5 minion with a Dark Gift. It unlocks on Turn 7.",
+        "imagePath": "",
+        "primaryCategory": "Passive",
+        "tags": [
+          "passive",
+          "dark-gift",
+          "season14-preview"
+        ],
+        "replacementEligibility": "InitialOnly"
+      },
+      "buddy": null,
       "missingBuddyMapping": true,
       "missingHeroPowerMapping": false
     }

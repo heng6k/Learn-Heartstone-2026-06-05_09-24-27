@@ -126,7 +126,7 @@ namespace LearnHearthstone.Tests.EditMode
                 BoardSide.Player,
                 "tier-boundary-end-turn"));
 
-            Invoke(service, handlerName, Type.EmptyTypes);
+            Invoke(service, handlerName, new[] { typeof(string) }, (string)null);
 
             Assert.IsNotEmpty(tavern.Hand);
             Assert.That(tavern.Hand.Select(card => card.CardKind), Is.All.EqualTo(CardKind.TavernSpell));
@@ -310,7 +310,11 @@ namespace LearnHearthstone.Tests.EditMode
                     typeof(DarkmoonPrizeCatalog),
                     typeof(int),
                     typeof(ITestScenarioRepository),
-                    typeof(MatchSetupOptions)
+                    typeof(MatchSetupOptions),
+                    typeof(RecruitActionResolverRegistry),
+                    typeof(DelayedObjectResolverRegistry),
+                    typeof(IEnumerable<DarkGiftDefinition>),
+                    typeof(DarkGiftResolverRegistry)
                 },
                 null);
             Assert.IsNotNull(constructor);
@@ -335,7 +339,11 @@ namespace LearnHearthstone.Tests.EditMode
                     EnablePlayerDirectedChoices = false,
                     EnableTimewarpedTavern = false,
                     EnableAnomalies = false
-                }
+                },
+                new RecruitActionResolverRegistry(),
+                new DelayedObjectResolverRegistry(),
+                Array.Empty<DarkGiftDefinition>(),
+                new DarkGiftResolverRegistry()
             });
         }
 

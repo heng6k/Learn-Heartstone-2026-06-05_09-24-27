@@ -153,8 +153,7 @@ namespace LearnHearthstone.Tests.EditMode
                 "DEEP_BLUE_SPELL",
                 "REEF_RIFFER_SPELL",
                 "SURF_N_SURF_SPELL",
-                "VOLCANIC_VISITOR_ATTACK_SPELL",
-                "VOLCANIC_VISITOR_HEALTH_SPELL",
+                "VOLCANIC_VISITOR_CHOICE_SPELL",
                 "FROSTLING_PRIESTESS_SPELL"
             };
             var observed = new HashSet<string>(StringComparer.Ordinal);
@@ -1314,13 +1313,10 @@ namespace LearnHearthstone.Tests.EditMode
                     Assert.AreEqual(2, card.Counters["deep_blue_health"]);
                     Assert.AreEqual(1, card.Counters["deep_blue_growth"]);
                     break;
-                case "VOLCANIC_VISITOR_ATTACK_SPELL":
+                case "VOLCANIC_VISITOR_CHOICE_SPELL":
                     Assert.AreEqual(4, card.Counters["spellcraft_amount"]);
-                    CollectionAssert.Contains(card.Tags, "attack_buff_spell");
-                    break;
-                case "VOLCANIC_VISITOR_HEALTH_SPELL":
-                    Assert.AreEqual(4, card.Counters["spellcraft_amount"]);
-                    CollectionAssert.Contains(card.Tags, "health_buff_spell");
+                    CollectionAssert.Contains(card.Tags, "choose_one");
+                    CollectionAssert.Contains(card.Tags, "board_buff_spell");
                     break;
                 case "FROSTLING_PRIESTESS_SPELL":
                     Assert.AreEqual(1, card.Counters["spellcraft_multiplier"]);

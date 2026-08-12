@@ -23,6 +23,7 @@ namespace LearnHearthstone.Domain.Models
         MinionDied,
         DeathrattleQueued,
         DeathrattleResolved,
+        RallyResolved,
         RebornResolved,
         AvengeCounterChanged,
         MinionSummoned,

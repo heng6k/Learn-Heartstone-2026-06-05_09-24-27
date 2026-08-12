@@ -109,14 +109,17 @@ namespace LearnHearthstone.Domain.Engine
         private const string YseraPowerId = "TB_BaconShop_HP_062";
         private const string ValithriaDreamwalkerCardId = "TB_BaconShop_HERO_53_Buddy";
         private const string EnhanceOMechanoPowerId = "BG24_HERO_204p";
+        private const string EnhanceOMechanoSeason14EffectRevision = "hero-power.enhancification@36.2-preview-community-p1a";
         private const string EnhanceOMedicoCardId = "BG24_HERO_204_Buddy";
         private const string KurtrusPowerId = "BG20_HERO_280p5";
         private const string LivingNightmareCardId = "BG20_HERO_280_Buddy";
         private const string FlurglPowerId = "TB_BaconShop_HP_056";
         private const string SparkfinSoothsayerCardId = "TB_BaconShop_HERO_55_Buddy";
         private const string SaurfangPowerId = "BG20_HERO_102p";
+        private const string SaurfangSeason14EffectRevision = "hero-power.for-the-horde@36.2-preview-community-p1a";
         private const string DranoshSaurfangCardId = "BG20_HERO_102_Buddy";
         private const string EdwinPowerId = "TB_BaconShop_HP_001";
+        private const string EdwinSeason14EffectRevision = "hero-power.sharpen-blades@36.2-preview-community-p1a";
         private const string SI7ScoutCardId = "TB_BaconShop_HERO_01_Buddy";
         private const string KraggPowerId = "TB_BaconShop_HP_076";
         private const string SharkbaitCardId = "TB_BaconShop_HERO_68_Buddy";
@@ -135,6 +138,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string LichBazHialPowerId = "TB_BaconShop_HP_049";
         private const string UnearthedUnderlingCardId = "TB_BaconShop_HERO_25_Buddy";
         private const string RakanishuPowerId = "TB_BaconShop_HP_085";
+        private const string RakanishuSeason14EffectRevision = "hero-power.rakanishu-tavern-spell-growth@36.2-preview-community-p1a";
         private const string LanternTenderCardId = "TB_BaconShop_HERO_75_Buddy";
         private const string LanternLightCardId = "RAKANISHU_LANTERN_LIGHT";
         private const string RenoPowerId = "TB_BaconShop_HP_046";
@@ -190,6 +194,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string DerylPowerId = "TB_BaconShop_HP_042";
         private const string AsherHaberdasherCardId = "TB_BaconShop_HERO_36_Buddy";
         private const string RagnarosPowerId = "TB_BaconShop_HP_087";
+        private const string RagnarosSeason14EffectRevision = "hero-power.buy-insect@36.2-preview-community-p1a";
         private const string LucifronCardId = "TB_BaconShop_HERO_11_Buddy";
         private const string ChromieTwisterPowerId = "BG34_HERO_001p";
         private const string SindragosaPowerId = "TB_BaconShop_HP_014";
@@ -319,6 +324,7 @@ namespace LearnHearthstone.Domain.Engine
         private const string SaurfangHealthBonusCounter = "hero:saurfang:health_bonus";
         private const string EdwinBoughtCounter = "hero:edwin:cards_bought";
         private const string EdwinBuffAmountCounter = "hero:edwin:buff_amount";
+        private const string RakanishuTavernSpellBonusCounter = "hero:rakanishu:tavern_spell_bonus";
         private const string KraggUsedCounter = "hero:kragg:piggy_bank_used";
         private const string NobundoHeroPowerDiscountCounter = "hero:nobundo:hero_power_discount";
         private const string NineFrogsRemainingCounter = "hero:hollidae:nine_frogs_remaining";
@@ -535,6 +541,29 @@ namespace LearnHearthstone.Domain.Engine
             DispatchHeroPower(context, result);
             DispatchBuddies(context, result);
             return result;
+        }
+
+        public static bool IsSeason14PassiveRakanishu(HeroCatalog heroes, string heroPowerCardId)
+        {
+            return IsHeroEffectRevision(heroes, heroPowerCardId, RakanishuSeason14EffectRevision);
+        }
+
+        public static int GetSeason14RakanishuTavernSpellBonus(
+            MatchState state,
+            HeroCatalog heroes,
+            string heroPowerCardId)
+        {
+            if (state?.Player?.Tavern == null ||
+                !IsSeason14PassiveRakanishu(heroes, heroPowerCardId))
+            {
+                return 0;
+            }
+
+            EnsureCounters(state.Player.Tavern);
+            return Math.Max(1, GetCounterOrDefault(
+                state.Player.Tavern,
+                RakanishuTavernSpellBonusCounter,
+                1));
         }
 
         public static HeroEffectResult ApplyCombatStartEffects(HeroCombatEffectContext context)
@@ -783,7 +812,16 @@ namespace LearnHearthstone.Domain.Engine
                     }
                     if (IsPower(powerId, EnhanceOMechanoPowerId))
                     {
-                        ResolveEnhanceOMechanoRefresh(context, result);
+                        var repetitions = HasHeroEffectRevision(
+                            context,
+                            powerId,
+                            EnhanceOMechanoSeason14EffectRevision)
+                            ? 2
+                            : 1;
+                        for (var repetition = 0; repetition < repetitions; repetition += 1)
+                        {
+                            ResolveEnhanceOMechanoRefresh(context, result);
+                        }
                     }
                     if (IsPower(powerId, SaurfangPowerId))
                     {
@@ -1324,6 +1362,11 @@ namespace LearnHearthstone.Domain.Engine
 
             if (IsPower(powerId, RakanishuPowerId))
             {
+                if (HasHeroEffectRevision(context, powerId, RakanishuSeason14EffectRevision))
+                {
+                    throw new InvalidOperationException("This revision of Tavern Lighting is passive.");
+                }
+
                 SpendGold(context.State.Player.Tavern, 1);
                 if (AddLanternLightToHand(context))
                 {
@@ -1861,7 +1904,8 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, SaurfangPowerId) && card.CardKind == CardKind.Minion)
             {
                 var bought = IncrementCounter(tavern, SaurfangBoughtCounter, 1);
-                if (bought >= 4)
+                var threshold = HasHeroEffectRevision(context, powerId, SaurfangSeason14EffectRevision) ? 3 : 4;
+                if (bought >= threshold)
                 {
                     tavern.HeroEffectCounters[SaurfangBoughtCounter] = 0;
                     var bonus = GetCounterOrDefault(tavern, SaurfangHealthBonusCounter, 1) + 1;
@@ -1874,7 +1918,8 @@ namespace LearnHearthstone.Domain.Engine
             if (IsPower(powerId, EdwinPowerId))
             {
                 var bought = IncrementCounter(tavern, EdwinBoughtCounter, 1);
-                if (bought >= 5)
+                var threshold = HasHeroEffectRevision(context, powerId, EdwinSeason14EffectRevision) ? 4 : 5;
+                if (bought >= threshold)
                 {
                     tavern.HeroEffectCounters[EdwinBoughtCounter] = 0;
                     var amount = GetCounterOrDefault(tavern, EdwinBuffAmountCounter, 1) + 1;
@@ -1885,8 +1930,13 @@ namespace LearnHearthstone.Domain.Engine
 
             if (IsPower(powerId, RagnarosPowerId))
             {
+                var threshold = HasHeroEffectRevision(context, powerId, RagnarosSeason14EffectRevision) ? 12 : 16;
+                var prior = Math.Min(
+                    GetCounterOrDefault(tavern, RagnarosBoughtCounter, 0),
+                    threshold - 1);
+                tavern.HeroEffectCounters[RagnarosBoughtCounter] = prior;
                 var bought = IncrementCounter(tavern, RagnarosBoughtCounter, 1);
-                if (bought >= 16 && GetCounterOrDefault(tavern, RagnarosUnlockedCounter, 0) == 0)
+                if (bought >= threshold && GetCounterOrDefault(tavern, RagnarosUnlockedCounter, 0) == 0)
                 {
                     tavern.HeroEffectCounters[RagnarosUnlockedCounter] = 1;
                     result.Messages.Add("BUY, INSECT!: Sulfuras unlocked; end of turn buffs are active.");
@@ -1968,6 +2018,18 @@ namespace LearnHearthstone.Domain.Engine
         {
             ClearTemporaryRebornRites(context.State);
             ClearVoljinTemporarySwaps(context.State);
+
+            if (HasHeroEffectRevision(context, powerId, RakanishuSeason14EffectRevision) &&
+                context.State.Round > 0 &&
+                context.State.Round % 3 == 0)
+            {
+                var bonus = GetCounterOrDefault(
+                    context.State.Player.Tavern,
+                    RakanishuTavernSpellBonusCounter,
+                    1) + 1;
+                context.State.Player.Tavern.HeroEffectCounters[RakanishuTavernSpellBonusCounter] = bonus;
+                result.Messages.Add("Tavern Lighting: Tavern Spell bonus improved to +" + bonus + "/+" + bonus + ".");
+            }
 
             if (IsPower(powerId, MillificentPowerId))
             {
@@ -5660,14 +5722,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            if (!target.Golden)
+            if (GoldenMinionTransformer.MakeGoldenInPlace(target, catalog))
             {
-                target.Golden = true;
-                StatMath.DoubleCurrentStats(target, false);
                 target.Counters["triple-reward-granted"] = 1;
             }
-
-            catalog?.TrySyncGoldenText(target);
         }
 
         private static void AddTavernCoinToHand(HeroEffectContext context, string source)
@@ -6447,6 +6505,25 @@ namespace LearnHearthstone.Domain.Engine
         private static bool HasBuddy(MatchState state, string cardId)
         {
             return MatchingBoardBuddies(state, cardId).Any();
+        }
+
+        private static bool HasHeroEffectRevision(
+            HeroEffectContext context,
+            string heroPowerCardId,
+            string expectedEffectRevision)
+        {
+            return context != null &&
+                   IsHeroEffectRevision(context.Heroes, heroPowerCardId, expectedEffectRevision);
+        }
+
+        private static bool IsHeroEffectRevision(
+            HeroCatalog heroes,
+            string heroPowerCardId,
+            string expectedEffectRevision)
+        {
+            return heroes != null &&
+                   heroes.TryGetHeroByHeroPowerCardId(heroPowerCardId, out var hero) &&
+                   string.Equals(hero.EffectRevision, expectedEffectRevision, StringComparison.Ordinal);
         }
 
         private static bool IsPower(string currentPowerId, string expectedPowerId)

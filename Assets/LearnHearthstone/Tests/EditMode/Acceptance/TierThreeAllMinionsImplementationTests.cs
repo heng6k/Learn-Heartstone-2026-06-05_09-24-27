@@ -26,9 +26,9 @@ namespace LearnHearthstone.Tests.EditMode
                 .OrderBy(id => id)
                 .ToList();
 
-            Assert.AreEqual(48, tierThreeIds.Count);
+            Assert.AreEqual(49, tierThreeIds.Count);
             Assert.AreEqual(tierThreeIds, registeredIds);
-            Assert.AreEqual(48, registeredIds.Distinct().Count());
+            Assert.AreEqual(49, registeredIds.Distinct().Count());
             Assert.IsTrue(TierThreeMinionImplementationRegistry.All.All(entry => !string.IsNullOrWhiteSpace(entry.Area)));
             Assert.IsTrue(TierThreeMinionImplementationRegistry.All.All(entry => !string.IsNullOrWhiteSpace(entry.Note)));
             Assert.IsTrue(TierThreeMinionImplementationRegistry.All

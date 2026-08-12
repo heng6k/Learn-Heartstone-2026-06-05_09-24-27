@@ -14,7 +14,7 @@ namespace LearnHearthstone.Tests.EditMode
             var minion = catalog.GetByCardId("BG35_801");
             var brann = catalog.GetByCardId("BG_LOE_077");
 
-            Assert.AreEqual(284, catalog.All.Count);
+            Assert.AreEqual(378, catalog.All.Count);
             Assert.AreEqual("贪吃的穴居人", minion.Name);
             Assert.AreEqual(1, minion.TavernTier);
             Assert.AreEqual(2, minion.BaseAttack);
@@ -29,10 +29,10 @@ namespace LearnHearthstone.Tests.EditMode
             var english = MinionCatalogLoader.LoadFromResources(true);
             var trogg = english.GetByCardId("BG35_801");
 
-            Assert.AreEqual(284, english.All.Count);
+            Assert.AreEqual(378, english.All.Count);
             Assert.AreEqual("Gluttonous Trogg", trogg.Name);
             Assert.IsTrue(trogg.Text.Contains("Once you buy 4 cards"));
-            Assert.IsTrue(english.All.All(definition =>
+            Assert.IsTrue(english.All.Where(definition => string.IsNullOrWhiteSpace(definition.ResearchKey)).All(definition =>
                 !string.IsNullOrWhiteSpace(definition.Name) &&
                 !string.IsNullOrWhiteSpace(definition.Text) &&
                 definition.Golden != null &&

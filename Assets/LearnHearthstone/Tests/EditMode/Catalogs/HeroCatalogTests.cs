@@ -4,6 +4,7 @@ using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace LearnHearthstone.Tests.EditMode
 {
@@ -14,8 +15,8 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var catalog = HeroCatalogLoader.LoadFromResources();
 
-            Assert.AreEqual(117, catalog.AllHeroes.Count);
-            Assert.AreEqual(117, catalog.AllHeroPowers.Count);
+            Assert.AreEqual(119, catalog.AllHeroes.Count);
+            Assert.AreEqual(119, catalog.AllHeroPowers.Count);
             Assert.AreEqual(108, catalog.AllBuddies.Count);
             Assert.IsTrue(catalog.AllHeroPowers.All(power => !string.IsNullOrEmpty(power.CardId)));
             Assert.IsTrue(catalog.AllBuddies.All(buddy => !string.IsNullOrEmpty(buddy.CardId)));
@@ -44,6 +45,28 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(patchwerk.HeroPower);
             Assert.AreEqual("TB_BaconShop_HP_035", patchwerk.HeroPower.CardId);
             Assert.AreEqual(HeroPowerReplacementEligibility.InitialOnly, patchwerk.HeroPower.ReplacementEligibility);
+        }
+
+        [Test]
+        public void LoadFromResources_Season14HeroesKeepConfirmedArmorAndBehaviorStatus()
+        {
+            var catalog = HeroCatalogLoader.LoadFromResources();
+
+            var xavius = catalog.GetHeroByCardId("BG36_HERO_105");
+            var trastath = catalog.GetHeroByCardId("BG36_HERO_101");
+
+            Assert.AreEqual(12, xavius.Armor);
+            Assert.AreEqual(10, trastath.Armor);
+            Assert.AreEqual("Implemented", xavius.ImplementationStatus);
+            Assert.AreEqual("Implemented", trastath.ImplementationStatus);
+            Assert.IsFalse(xavius.InPool, "Preview heroes must be enabled by the selected version, not globally.");
+            Assert.IsFalse(trastath.InPool, "Preview heroes must be enabled by the selected version, not globally.");
+            Assert.AreEqual("CardImages/Heroes/Season14/NightmareLordXavius", xavius.ImagePath);
+            Assert.AreEqual("CardImages/Heroes/Season14/TrastathSoulParasite", trastath.ImagePath);
+            StringAssert.StartsWith("https://bnetcmsus-a.akamaihd.net/", xavius.ImageSource);
+            StringAssert.StartsWith("https://bnetcmsus-a.akamaihd.net/", trastath.ImageSource);
+            Assert.IsNotNull(Resources.Load<Texture2D>(xavius.ImagePath));
+            Assert.IsNotNull(Resources.Load<Texture2D>(trastath.ImagePath));
         }
 
         [Test]
@@ -89,7 +112,9 @@ namespace LearnHearthstone.Tests.EditMode
                     "Morchie",
                     "Murozond, Unbounded",
                     "Mystery Cube",
-                    "Time Twister Chromie"
+                    "Nightmare Lord Xavius",
+                    "Time Twister Chromie",
+                    "Tras'tath, Soul Parasite"
                 },
                 missingBuddyHeroes);
         }

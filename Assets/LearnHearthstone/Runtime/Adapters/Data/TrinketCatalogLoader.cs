@@ -111,6 +111,7 @@ namespace LearnHearthstone.Adapters.Data
             {
                 Id = raw.id,
                 CardId = string.IsNullOrEmpty(raw.cardId) ? raw.id : raw.cardId,
+                ResearchKey = raw.researchKey,
                 DbfId = raw.dbfId,
                 SourceName = raw.name,
                 Name = raw.name,
@@ -193,6 +194,7 @@ namespace LearnHearthstone.Adapters.Data
         {
             public string id;
             public string cardId;
+            public string researchKey;
             public int dbfId;
             public string name;
             public string slotKind;

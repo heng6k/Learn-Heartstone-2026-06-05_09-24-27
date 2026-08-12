@@ -766,13 +766,14 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var quest = service.QuestCatalog.GetQuestByCardId(questCardId);
             var reward = service.QuestCatalog.GetRewardById(rewardId);
-            service.State.Player.Tavern.AdvancedMechanics.PendingChoice = new MechanicChoiceRequest
+            service.State.ChoiceQueue = new ChoiceQueueState();
+            ChoiceQueueService.Enqueue(service.State.ChoiceQueue, new ChoiceQueueItem
             {
-                RequestId = "test-quest-" + questCardId + "-" + slot,
-                Kind = AdvancedMechanicKind.Quest,
+                Kind = ChoiceRequestKind.Quest,
                 Source = "test",
-                Slot = slot,
-                Round = service.State.Round,
+                CreatedRound = service.State.Round,
+                Priority = 100,
+                Blocking = true,
                 RemainingPicks = 1,
                 Options = new List<MechanicChoiceOption>
                 {
@@ -793,19 +794,20 @@ namespace LearnHearthstone.Tests.EditMode
                         Tags = new List<string>(quest.Tags)
                     }
                 }
-            };
+            });
         }
 
         private static void QueueTrinketChoice(MatchService service, string cardId)
         {
             var definition = service.TrinketCatalog.GetByCardId(cardId);
-            service.State.Player.Tavern.AdvancedMechanics.PendingChoice = new MechanicChoiceRequest
+            service.State.ChoiceQueue = new ChoiceQueueState();
+            ChoiceQueueService.Enqueue(service.State.ChoiceQueue, new ChoiceQueueItem
             {
-                RequestId = "test-trinket-" + cardId,
-                Kind = AdvancedMechanicKind.Trinket,
+                Kind = ChoiceRequestKind.Trinket,
                 Source = "test",
-                Slot = definition.SlotKind.ToString(),
-                Round = service.State.Round,
+                CreatedRound = service.State.Round,
+                Priority = 100,
+                Blocking = true,
                 RemainingPicks = 1,
                 Options = new List<MechanicChoiceOption>
                 {
@@ -823,7 +825,7 @@ namespace LearnHearthstone.Tests.EditMode
                         Tags = new List<string>(definition.Tags)
                     }
                 }
-            };
+            });
         }
 
         private static MinionInstance TestMinion(string instanceId, int attack, int health, Tribe tribe = Tribe.None, params Keyword[] keywords)

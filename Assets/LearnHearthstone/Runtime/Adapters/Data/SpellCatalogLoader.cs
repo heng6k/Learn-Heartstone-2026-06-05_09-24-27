@@ -43,6 +43,8 @@ namespace LearnHearthstone.Adapters.Data
             var definition = new TavernSpellDefinition
             {
                 Id = raw.id,
+                RevisionId = raw.revisionId,
+                EffectRevision = raw.effectRevision,
                 SourceId = raw.sourceId,
                 CardNumber = raw.cardNumber,
                 Name = Localized(raw.name, raw.englishName, useEnglish, raw.cardNumber + ".name"),
@@ -253,6 +255,8 @@ namespace LearnHearthstone.Adapters.Data
         private sealed class RawSpell
         {
             public string id;
+            public string revisionId;
+            public string effectRevision;
             public int sourceId;
             public string cardNumber;
             public string name;

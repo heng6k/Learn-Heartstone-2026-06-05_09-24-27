@@ -46,7 +46,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = CreateService();
             service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.State.ChoiceQueue.ActiveChoice;
             var round = service.State.Round;
 
             var error = Assert.Throws<InvalidOperationException>(() =>
@@ -54,7 +54,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             StringAssert.Contains("\u4efb\u52a1", error.Message);
             Assert.AreEqual(round, service.State.Round);
-            Assert.AreSame(request, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.AreSame(request, service.State.ChoiceQueue.ActiveChoice);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateService();
             service.State.Player.Tavern.Gold = 10;
             service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.State.ChoiceQueue.ActiveChoice;
             var round = service.State.Round;
 
             var error = Assert.Throws<InvalidOperationException>(() =>
@@ -71,7 +71,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             StringAssert.Contains("\u9970\u54c1", error.Message);
             Assert.AreEqual(round, service.State.Round);
-            Assert.AreSame(request, service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.AreSame(request, service.State.ChoiceQueue.ActiveChoice);
         }
 
         [Test]

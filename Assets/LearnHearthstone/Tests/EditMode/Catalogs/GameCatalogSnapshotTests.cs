@@ -35,5 +35,18 @@ namespace LearnHearthstone.Tests.Catalogs
             Assert.AreSame(snapshot.English.Heroes, service.HeroCatalog);
             Assert.IsTrue(service.UseEnglish);
         }
+
+        [Test]
+        public void MatchService_CreateWithDefaultCatalog_ReusesImmutableCatalogSetPerLanguage()
+        {
+            var chineseFirst = MatchService.CreateWithDefaultCatalog(101);
+            var chineseSecond = MatchService.CreateWithDefaultCatalog(102);
+            var englishFirst = MatchService.CreateWithDefaultCatalog(103, setup: new MatchSetupOptions { UseEnglish = true });
+            var englishSecond = MatchService.CreateWithDefaultCatalog(104, setup: new MatchSetupOptions { UseEnglish = true });
+
+            Assert.AreSame(chineseFirst.Catalogs, chineseSecond.Catalogs);
+            Assert.AreSame(englishFirst.Catalogs, englishSecond.Catalogs);
+            Assert.AreNotSame(chineseFirst.Catalogs, englishFirst.Catalogs);
+        }
     }
 }

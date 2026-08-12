@@ -28,12 +28,20 @@ namespace LearnHearthstone.Domain.Models
     public sealed class HeroDefinition
     {
         public string HeroCardId;
+        public string ResearchKey;
+        public string RevisionId;
+        public string EffectRevision;
+        public string SourceLevel;
+        public string ImplementationStatus;
         public int HeroDbfId;
         public string Name;
         public string ZhName;
         public int Health;
         public int Armor;
+        public bool InPool = true;
         public string ImagePath;
+        public string ImageSource;
+        public string ImageSha256;
         public HeroPowerDefinition HeroPower;
         public HeroBuddyDefinition Buddy;
         public bool MissingBuddyMapping;

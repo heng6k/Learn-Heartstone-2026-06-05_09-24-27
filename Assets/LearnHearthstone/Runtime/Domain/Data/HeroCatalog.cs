@@ -162,6 +162,7 @@ namespace LearnHearthstone.Domain.Data
             return AllHeroes
                 .Where(hero => !string.IsNullOrEmpty(hero.HeroCardId))
                 .Where(hero => hero.Health > 0)
+                .Where(hero => hero.InPool)
                 .ToList();
         }
     }

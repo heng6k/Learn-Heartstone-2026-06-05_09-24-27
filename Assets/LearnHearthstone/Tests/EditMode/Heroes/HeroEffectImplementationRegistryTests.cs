@@ -118,7 +118,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .GroupBy(entry => entry.Status)
                 .ToDictionary(group => group.Key, group => group.Count());
 
-            Assert.AreEqual(113, counts[HeroEffectImplementationStatus.Implemented]);
+            Assert.AreEqual(115, counts[HeroEffectImplementationStatus.Implemented]);
             Assert.AreEqual(1, counts[HeroEffectImplementationStatus.FrameworkFirst]);
             Assert.IsFalse(counts.ContainsKey(HeroEffectImplementationStatus.Planned));
             Assert.IsFalse(counts.ContainsKey(HeroEffectImplementationStatus.Deferred));

@@ -47,6 +47,8 @@ namespace LearnHearthstone.Domain.Models
     public sealed class TavernSpellDefinition
     {
         public string Id { get; set; }
+        public string RevisionId { get; set; }
+        public string EffectRevision { get; set; }
         public int SourceId { get; set; }
         public string CardNumber { get; set; }
         public string Name { get; set; }

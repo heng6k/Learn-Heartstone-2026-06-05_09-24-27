@@ -42,7 +42,6 @@ namespace LearnHearthstone.Domain.Data
             Entry("BG29_807", "CombatPersistentCarryover", TierFourImplementationStatus.Implemented, "Combat health growth is written back after combat."),
             Entry("BG29_813", "CombatPersistentCarryover", TierFourImplementationStatus.Implemented, "Adjacent Dragons retain positive combat stats and new keywords."),
             Entry("BG30_117", "Spellcraft", TierFourImplementationStatus.Implemented, "Generates attack and health Spellcraft choices with temporary buff cleanup."),
-            Entry("BG30_123", "Choose One/Blood Gem", TierFourImplementationStatus.Implemented, "Uses the discover UI to choose Blood Gem quality growth or generated Blood Gems."),
             Entry("BG31_175", "StrikePurgeAndSteal", TierFourImplementationStatus.Implemented, "Strike rewards random magnetic Mech cards."),
             Entry("BG31_178", "End turn", TierFourImplementationStatus.Implemented, "End of turn adds random Tavern spells."),
             Entry("BG31_824", "Gold spent", TierFourImplementationStatus.Implemented, "Every five Gold spent buffs two friendly Pirates."),

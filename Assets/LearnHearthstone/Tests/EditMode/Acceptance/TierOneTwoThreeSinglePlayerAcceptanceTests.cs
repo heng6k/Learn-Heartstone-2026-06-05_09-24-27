@@ -104,7 +104,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .ThenBy(minion => minion.CardId)
                 .ToList();
 
-            Assert.AreEqual(106, minions.Count);
+            Assert.AreEqual(107, minions.Count);
             foreach (var minion in minions)
             {
                 if (minion.CardId.StartsWith("BGDUO", StringComparison.Ordinal))

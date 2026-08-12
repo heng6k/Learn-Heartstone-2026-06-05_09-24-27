@@ -12,6 +12,10 @@ namespace LearnHearthstone.Domain.Models
         public string CardPoolVersionId;
         public string CardPoolVersionName;
         public bool IsDefaultCardPoolVersion = true;
+        public string GameVersionId;
+        public string RulesetId;
+        public string ContentSnapshotId;
+        public string ContentFingerprint;
         public AdvancedMechanicMode AdvancedMechanicMode = AdvancedMechanicMode.None;
         public bool EnableQuests = true;
         public bool EnableTrinkets = true;
@@ -103,13 +107,57 @@ namespace LearnHearthstone.Domain.Models
         public int RemainingPicks;
         public bool AutoResolveRandomly;
         public int AutoResolveSeed;
+        public bool ResolveAllOptions;
+        public List<string> OptionTags = new List<string>();
+        public List<DiscoverOptionCounterState> OptionCounters = new List<DiscoverOptionCounterState>();
         public List<MinionInstance> Options = new List<MinionInstance>();
+
+        public void ApplyOptionMetadata(MinionInstance option)
+        {
+            if (option == null)
+            {
+                return;
+            }
+
+            option.Tags = option.Tags ?? new List<string>();
+            foreach (var tag in OptionTags ?? new List<string>())
+            {
+                if (!string.IsNullOrWhiteSpace(tag) && !option.Tags.Contains(tag))
+                {
+                    option.Tags.Add(tag);
+                }
+            }
+
+            option.Counters = option.Counters ?? new Dictionary<string, int>();
+            foreach (var counter in OptionCounters ?? new List<DiscoverOptionCounterState>())
+            {
+                if (counter != null && !string.IsNullOrWhiteSpace(counter.Key))
+                {
+                    option.Counters[counter.Key] = counter.Value;
+                }
+            }
+        }
 
         public DiscoverState Clone()
         {
             var clone = (DiscoverState)MemberwiseClone();
+            clone.OptionTags = new List<string>(OptionTags ?? new List<string>());
+            clone.OptionCounters = (OptionCounters ?? new List<DiscoverOptionCounterState>())
+                .ConvertAll(counter => counter?.Clone());
             clone.Options = (Options ?? new List<MinionInstance>()).ConvertAll(option => option?.Clone());
             return clone;
+        }
+    }
+
+    [Serializable]
+    public sealed class DiscoverOptionCounterState
+    {
+        public string Key;
+        public int Value;
+
+        public DiscoverOptionCounterState Clone()
+        {
+            return (DiscoverOptionCounterState)MemberwiseClone();
         }
     }
 
@@ -856,8 +904,14 @@ namespace LearnHearthstone.Domain.Models
         public int SpellPower;
         public int TavernSpellsCastThisTurn;
         public int TavernSpellsCastThisGame;
+        public int BattlecriesTriggeredThisGame;
         public int CardsPlayedThisTurn;
         public string LastTavernSpellCardId;
+        public string GuideShapingSpellCardId;
+        public List<string> GuideShapingSpellCardIds = new List<string>();
+        public List<string> GuideCoreSpellCardNumbers = new List<string>();
+        public int GuideShapingSpellRound;
+        public bool GuideShapingSpellConsumed;
         public int GoldSpentThisTurn;
         public int GoldSpentThisGame;
         public int BloodGemBonusAttack;
@@ -1223,6 +1277,13 @@ namespace LearnHearthstone.Domain.Models
     }
 
     [Serializable]
+    public sealed class NextTurnBlockState
+    {
+        public string Code;
+        public string Message;
+    }
+
+    [Serializable]
     public sealed class MatchState
     {
         public MatchMode Mode;
@@ -1230,11 +1291,18 @@ namespace LearnHearthstone.Domain.Models
         public int Round;
         public int PendingTurnStartRound;
         public bool PendingTurnResolvedCombat;
+        public string PendingTurnEndTransitionId;
+        public int PendingTurnEndOccurrenceCount;
+        public int TurnEndTransitionSequence;
         public int Seed;
         public List<Tribe> ActiveTribes = new List<Tribe>();
         public string CardPoolVersionId;
         public string CardPoolVersionName;
         public bool IsDefaultCardPoolVersion = true;
+        public string GameVersionId;
+        public string RulesetId;
+        public string ContentSnapshotId;
+        public string ContentFingerprint;
         public bool TimewarpedTavernEnabled = true;
         public bool UseHistoricalTimewarpedPool = false;
         public TimewarpedPoolVersion TimewarpedPoolVersion = TimewarpedPoolVersion.Current;
@@ -1247,6 +1315,11 @@ namespace LearnHearthstone.Domain.Models
         public List<string> EnabledLesserTrinketCardIds = new List<string>();
         public List<string> EnabledGreaterTrinketCardIds = new List<string>();
         public List<string> EnabledAnomalyCardIds = new List<string>();
+        public ChoiceQueueState ChoiceQueue = new ChoiceQueueState();
+        public List<RecruitActionState> RecruitActionStates = new List<RecruitActionState>();
+        public List<DelayedObjectState> DelayedObjectStates = new List<DelayedObjectState>();
+        public List<MechanicEventRecord> MechanicEvents = new List<MechanicEventRecord>();
+        public PlayerDarkGiftState PlayerDarkGifts = new PlayerDarkGiftState();
         public LocalPlayerState Player = new LocalPlayerState();
         public LocalOpponentState Opponent = new LocalOpponentState();
         public OpponentHistoryState OpponentHistory = new OpponentHistoryState();

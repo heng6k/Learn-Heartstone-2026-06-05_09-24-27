@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "rulesets": [
+    {
+      "id": "ruleset-legacy-composite-v1",
+      "schemaVersion": 1,
+      "ruleFlags": [],
+      "turnSchedule": "legacy-composite",
+      "mechanicProfiles": [],
+      "allowedSetupMechanicIds": [
+        "quests",
+        "quest-rewards",
+        "trinkets",
+        "anomalies",
+        "timewarped-tavern"
+      ],
+      "defaultSetupMechanicIds": [],
+      "compatibilityPolicy": "legacy-composite-v1",
+      "venomousEffectRevision": "keyword.venomous@legacy-single-use"
+    },
+    {
+      "id": "ruleset-36.2-preview-v1",
+      "schemaVersion": 1,
+      "ruleFlags": [
+        "dark-gifts",
+        "activate",
+        "lockbox",
+        "fishbait",
+        "venomous-per-combat",
+        "anomalies-disabled"
+      ],
+      "turnSchedule": "season14-preview",
+      "mechanicProfiles": [
+        "dark-gift-36.2-preview-v1",
+        "activate-36.2-preview-v1",
+        "lockbox-36.2-preview-v1",
+        "fishbait-36.2-preview-v1"
+      ],
+      "allowedSetupMechanicIds": [
+        "dark-gifts",
+        "trinkets"
+      ],
+      "defaultSetupMechanicIds": [
+        "dark-gifts",
+        "trinkets"
+      ],
+      "compatibilityPolicy": "season14-preview-v1",
+      "venomousEffectRevision": "keyword.venomous@36.2-per-combat",
+      "darkGiftProfile": {
+        "id": "dark-gift-36.2-preview-v1",
+        "enabled": true,
+        "normalEntryStartRound": 3,
+        "goldCost": 3,
+        "usesPerTurn": 1,
+        "usesPerGame": 3,
+        "offerCount": 3,
+        "pickCount": 1,
+        "tierRanges": [
+          {
+            "fromRound": 3,
+            "minTier": 2,
+            "maxTier": 2
+          },
+          {
+            "fromRound": 4,
+            "minTier": 2,
+            "maxTier": 3
+          },
+          {
+            "fromRound": 5,
+            "minTier": 3,
+            "maxTier": 3
+          },
+          {
+            "fromRound": 6,
+            "minTier": 3,
+            "maxTier": 4
+          },
+          {
+            "fromRound": 7,
+            "minTier": 4,
+            "maxTier": 4
+          },
+          {
+            "fromRound": 8,
+            "minTier": 4,
+            "maxTier": 5
+          },
+          {
+            "fromRound": 9,
+            "minTier": 4,
+            "maxTier": 6
+          },
+          {
+            "fromRound": 10,
+            "minTier": 5,
+            "maxTier": 6
+          },
+          {
+            "fromRound": 11,
+            "minTier": 5,
+            "maxTier": 6
+          },
+          {
+            "fromRound": 12,
+            "minTier": 6,
+            "maxTier": 6
+          }
+        ],
+        "candidateFilter": {
+          "battlecryAllowedFromRound": 5,
+          "chooseOneAllowedFromRound": 5,
+          "requiredTags": [],
+          "excludedTags": [],
+          "excludedMechanics": [
+            "magnetic",
+            "sell-trigger",
+            "hand-only"
+          ]
+        },
+        "deduplicationPolicy": "distinct-gift-definitions-per-offer",
+        "commonTribeGuarantee": {
+          "enabled": true,
+          "startRound": 3,
+          "minimumOfferCount": 1
+        },
+        "choiceQueuePriority": 0,
+        "choiceQueuePriorityFactStatus": "BlockedByOfficialFact",
+        "autoChoicePolicy": "PlayerChoice",
+      "implementationStatus": "Implemented"
+      }
+    }
+  ]
+}

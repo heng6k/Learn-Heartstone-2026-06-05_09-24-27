@@ -2,7 +2,7 @@
   "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
   "targetReference": "https://hsreplay.net/battlegrounds/minions/",
   "filter": "type=MINION, isBattlegroundsPoolMinion=true, excluding golden cards with battlegroundsNormalDbfId",
-  "count": 284,
+  "count": 378,
   "minions": [
     {
       "id": "tb_baconshop_hp_105t",
@@ -6211,7 +6211,7 @@
       "cardId": "BG30_123",
       "dbfId": 113154,
       "name": "无畏的食客",
-      "tavernTier": 4,
+      "tavernTier": 3,
       "attack": 2,
       "health": 4,
       "tribes": [
@@ -6238,7 +6238,7 @@
       },
       "sourceSet": "BATTLEGROUNDS",
       "inPool": 1,
-      "poolCount": 11,
+      "poolCount": 13,
       "officialKeywords": [
         "BloodGem"
       ],
@@ -10899,6 +10899,4863 @@
       ],
       "englishName": "Obsidian Ravager",
       "englishText": "<b>Rally:</b> Deal damage equal\nto this minion's Attack to\nthe target and an adjacent\nminion."
+    },
+    {
+      "id": "shaman_bg36_701",
+      "cardId": "BG36_701",
+      "researchKey": "ACT-R01N",
+      "revisionId": "SHAMAN_BG36_701@36.2-preview-v1",
+      "effectRevision": "minion-effect-act-r01n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132883,
+      "name": "海藻护工",
+      "englishName": "Kelp Keeper",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "发动（1）：触发一个友方随从的战吼。",
+      "englishText": "Activate (1): Trigger a friendly minion's Battlecry.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_701",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/murloc/132883-kelp-keeper.png; SHAMAN_BG36_701_enUS_KelpKeeper-132883_NORMAL.png；IYD-S14 原图 6c9a9fd8-6b9e-4a50-bf77-e8b688e242df",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:act-r01n",
+        "activate"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:kelp-keeper",
+          "resolverId": "season14.activate.kelp-keeper@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "OtherFriendlyBoardMinion",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "goldenDbfId": 132884,
+      "golden": {
+        "cardId": "BG36_701_G",
+        "dbfId": 132884,
+        "attack": 10,
+        "health": 10,
+        "text": "发动（1）：触发一个友方随从的战吼两次。",
+        "englishText": "Activate (1): Trigger a friendly minion's Battlecry twice.",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "rogue_bg36_509",
+      "cardId": "BG36_509",
+      "researchKey": "ACT-R02N",
+      "revisionId": "ROGUE_BG36_509@36.2-preview-v1",
+      "effectRevision": "minion-effect-act-r02n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132318,
+      "name": "私家调查员",
+      "englishName": "Private Investigator",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "发动（1）：下回合获得 2 枚铸币。",
+      "englishText": "Activate (1): Gain 2 Gold next turn.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_509",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132318-private-investigator.png; ROGUE_BG36_509_enUS_PrivateInvestigator-132318_NORMAL.png；IYD-S14 原图 6c9a9fd8-6b9e-4a50-bf77-e8b688e242df",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:act-r02n",
+        "activate"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:private-investigator",
+          "resolverId": "season14.activate.private-investigator@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "goldenDbfId": 132319,
+      "golden": {
+        "cardId": "BG36_509_G",
+        "dbfId": 132319,
+        "attack": 10,
+        "health": 12,
+        "text": "发动（1）：下回合获得 4 枚铸币。",
+        "englishText": "Activate (1): Gain 4 Gold next turn.",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "warlock_bg36_503",
+      "cardId": "BG36_503",
+      "researchKey": "ACT-R03N",
+      "revisionId": "WARLOCK_BG36_503@36.2-preview-v1",
+      "effectRevision": "minion-effect-act-r03n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132306,
+      "name": "缚魂狱卒",
+      "englishName": "Soulkeeping Jailer",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "吞食"
+      ],
+      "text": "发动（2）：你的恶魔各吞噬酒馆中的一个随机随从，获得其属性值。",
+      "englishText": "Activate (2): Your Demons each consume a random minion in the Tavern to gain its stats.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_503",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/132306-soulkeeping-jailer.png; WARLOCK_BG36_503_enUS_SoulkeepingJailer-132306_NORMAL.png；IYD-DEMON 逐卡原图",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:act-r03n",
+        "activate"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:soulkeeping-jailer",
+          "resolverId": "season14.activate.soulkeeping-jailer@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "goldenDbfId": 132307,
+      "golden": {
+        "cardId": "BG36_503_G",
+        "dbfId": 132307,
+        "attack": 6,
+        "health": 10,
+        "text": "发动（2）：你的恶魔各吞噬酒馆中的一个随机随从，获得其双倍属性值。",
+        "englishText": "Activate (2): Your Demons\neach consume a random\nminion in the Tavern to\ngain double its stats.",
+        "keywords": [
+          "吞食"
+        ],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "rogue_bg36_520",
+      "cardId": "BG36_520",
+      "researchKey": "LOCK-R02N",
+      "revisionId": "ROGUE_BG36_520@36.2-preview-v1",
+      "effectRevision": "minion-effect-lock-r02n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132756,
+      "name": "锈水爆破手",
+      "englishName": "Bilgewater Breakout",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：获取一张上锁宝箱；若已有宝箱，使其提前 1 回合打开。",
+      "englishText": "Battlecry: Get a Lockbox.\nIf you already have one,\nit opens 1 turn sooner.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_520",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132756-bilgewater-breakout.png; ROGUE_BG36_520_enUS_BilgewaterBreakout-132756_NORMAL.png；IYD-PIRATE 逐卡原图",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:lock-r02n",
+        "lockbox"
+      ],
+      "officialKeywords": [
+        "Battlecry"
+      ],
+      "goldenDbfId": 132757,
+      "golden": {
+        "cardId": "BG36_520_G",
+        "dbfId": 132757,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼：获取一张上锁宝箱；若已有宝箱，使其提前 2 回合打开。",
+        "englishText": "Battlecry: Get a Lockbox.\nIf you already have one,\nit opens 2 turns sooner.",
+        "keywords": [
+          "战吼"
+        ],
+        "officialKeywords": [
+          "Battlecry"
+        ]
+      }
+    },
+    {
+      "id": "rogue_bg36_521",
+      "cardId": "BG36_521",
+      "researchKey": "LOCK-R03N",
+      "revisionId": "ROGUE_BG36_521@36.2-preview-v1",
+      "effectRevision": "minion-effect-lock-r03n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132758,
+      "name": "铐住的哗变者",
+      "englishName": "Locked-up Mutineer",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：获取一张上锁宝箱；若已有宝箱，使其提前 1 回合打开。",
+      "englishText": "Deathrattle: Get a Lockbox.\nIf you already have one,\nit opens 1 turn sooner.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_521",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132758-locked-up-mutineer.png; ROGUE_BG36_521_enUS_Locked-upMutineer-132758_NORMAL.png；IYD-PIRATE 逐卡原图",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:lock-r03n",
+        "lockbox"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "goldenDbfId": 132759,
+      "golden": {
+        "cardId": "BG36_521_G",
+        "dbfId": 132759,
+        "attack": 12,
+        "health": 6,
+        "text": "亡语：获取一张上锁宝箱；若已有宝箱，使其提前 2 回合打开。",
+        "englishText": "Deathrattle: Get a Lockbox.\nIf you already have one,\nit opens 2 turns sooner.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      }
+    },
+    {
+      "id": "hunter_bg36_205",
+      "cardId": "BG36_205",
+      "researchKey": "FISH-R01N",
+      "revisionId": "HUNTER_BG36_205@36.2-preview-v1",
+      "effectRevision": "minion-effect-fish-r01n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132802,
+      "name": "鱼饵",
+      "englishName": "Fishbait",
+      "tavernTier": 2,
+      "attack": 0,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "本随从无法获得属性值。亡语：使击杀本随从的随从获得 +5/+5。",
+      "englishText": "This can't gain stats.\nDeathrattle: Give the minion\nthat killed this +5/+5.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_205",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132802-fishbait.png; HUNTER_BG36_205_enUS_Fishbait-132802_NORMAL.png；IYD-S14 原图 f974f614-2862-4741-8918-d954ba3fed79",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:fish-r01n",
+        "fishbait"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "goldenDbfId": 132803,
+      "golden": {
+        "cardId": "BG36_205_G",
+        "dbfId": 132803,
+        "attack": 0,
+        "health": 2,
+        "text": "本随从无法获得属性值。亡语：使击杀本随从的随从获得 +10/+10。",
+        "englishText": "This can't gain stats.\nDeathrattle: Give the minion\nthat killed this +10/+10.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      }
+    },
+    {
+      "id": "hunter_bg36_201",
+      "cardId": "BG36_201",
+      "researchKey": "FISH-R02N",
+      "revisionId": "HUNTER_BG36_201@36.2-preview-v1",
+      "effectRevision": "minion-effect-fish-r02n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132794,
+      "name": "深潜狮子鱼",
+      "englishName": "Lurking Lionfish",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [],
+      "text": "发动（2）：选择酒馆中的一张牌，将其替换为鱼饵，并使你最左边的野兽攻击它。",
+      "englishText": "Activate (2): Choose a card in the Tavern. Replace it with a Fishbait for your left-most Beast to attack.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_201",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132794-lurking-lionfish.png; HUNTER_BG36_201_enUS_LurkingLionfish-132794_NORMAL.png；IYD-BEAST 逐卡原图",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:fish-r02n",
+        "activate",
+        "fishbait"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:lurking-lionfish",
+          "resolverId": "season14.activate.lurking-lionfish@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "TavernMinion",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "goldenDbfId": 132795,
+      "golden": {
+        "cardId": "BG36_201_G",
+        "dbfId": 132795,
+        "attack": 6,
+        "health": 8,
+        "text": "发动（2）：选择酒馆中的一张牌，将其替换为金色鱼饵，并使你最左边的野兽攻击它。",
+        "englishText": "Activate (2): Choose a card in\nthe Tavern. Replace it with a\nGolden Fishbait for your left-\nmost Beast to attack.",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "hunter_bg36_206",
+      "cardId": "BG36_206",
+      "researchKey": "FISH-R03N",
+      "revisionId": "HUNTER_BG36_206@36.2-preview-v1",
+      "effectRevision": "minion-effect-fish-r03n@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132804,
+      "name": "尖利的鲨鱼",
+      "englishName": "Snarky Shark",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [],
+      "text": "当你出售本随从时，刷新酒馆且其中有一个鱼饵，并使你最左边的野兽攻击它。",
+      "englishText": "When you sell this, Refresh the Tavern with a Fishbait. Your left-most Beast attacks it.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_206",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132804-snarky-shark.png; HUNTER_BG36_206_enUS_SnarkyShark-132804_NORMAL.png；IYD-BEAST 逐卡原图",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:fish-r03n",
+        "fishbait"
+      ],
+      "officialKeywords": [
+        "Refresh"
+      ],
+      "goldenDbfId": 132805,
+      "golden": {
+        "cardId": "BG36_206_G",
+        "dbfId": 132805,
+        "attack": 8,
+        "health": 10,
+        "text": "当你出售本随从时，刷新酒馆且其中有一个金色鱼饵，并使你最左边的野兽攻击它。",
+        "englishText": "When you sell this, Refresh\nthe Tavern with a Golden\nFishbait. Your left-most\nBeast attacks it.",
+        "keywords": [],
+        "officialKeywords": [
+          "Refresh"
+        ]
+      }
+    },
+    {
+      "id": "preview-s14-minion-min-r01",
+      "cardId": "BG36_511",
+      "researchKey": "MIN-R01",
+      "revisionId": "preview-s14-minion-min-r01@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r01@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132322,
+      "name": "丧钟死灵",
+      "englishName": "Dead Bellringer",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [],
+      "text": "发动（1）：使一个不同的友方亡灵获得复生，然后消灭该亡灵以获得 +4/+4。",
+      "englishText": "Activate (1): Give a different friendly Undead Reborn. Then destroy it to gain +4/+4.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_511",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/undead/132322-dead-bellringer.png; IYD-UNDEAD cc4d052b-871d-4c51-b0b0-e5c96bdfeb26",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r01",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:deathbell-necromancer",
+          "resolverId": "season14.activate.deathbell-necromancer@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "OtherFriendlyBoardMinion",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_511_G",
+        "dbfId": 132323,
+        "attack": 6,
+        "health": 12,
+        "text": "发动（1）：使一个不同的友方亡灵获得复生，然后消灭该亡灵以获得 +8/+8。",
+        "englishText": "Activate (1): Give a different friendly Undead Reborn. Then destroy it to gain +8/+8.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132323
+    },
+    {
+      "id": "preview-s14-minion-min-r02",
+      "cardId": "BG36_514",
+      "researchKey": "MIN-R02",
+      "revisionId": "preview-s14-minion-min-r02@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r02@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133081,
+      "name": "障蔽女妖",
+      "englishName": "Barrier Banshee",
+      "tavernTier": 5,
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [],
+      "text": "在一个友方随从复生后，获得圣盾和 +7/+7。",
+      "englishText": "After a friendly minion is Reborn, gain Divine Shield and +7/+7.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_514",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/undead/133081-barrier-banshee.png; IYD-UNDEAD ef46e325-99ff-4627-ac55-b00acb17e82f",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r02"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_514_G",
+        "dbfId": 133082,
+        "attack": 14,
+        "health": 14,
+        "text": "在一个友方随从复生后，获得圣盾和 +14/+14。",
+        "englishText": "After a friendly minion is Reborn, gain Divine Shield and +14/+14.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133082
+    },
+    {
+      "id": "preview-s14-minion-min-r03",
+      "cardId": "BG36_515",
+      "researchKey": "MIN-R03",
+      "revisionId": "preview-s14-minion-min-r03@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r03@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133083,
+      "name": "时尚魅影",
+      "englishName": "Snazzy Phantom",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 8,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [],
+      "text": "在一个友方随从复生后，使你最右边的亡灵获得等同于复生随从攻击力的属性值。",
+      "englishText": "After a friendly minion is Reborn, give stats equal to its Attack to your right-most Undead.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_515",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/undead/133083-snazzy-phantom.png; IYD-UNDEAD c70eb6f3-7664-49dd-9838-a082ec8c71e4",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r03"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_515_G",
+        "dbfId": 133084,
+        "attack": 12,
+        "health": 16,
+        "text": "在一个友方随从复生后，使你最右边的亡灵获得等同于复生随从攻击力的属性值。",
+        "englishText": "After a friendly minion is\nReborn, give stats equal to\ndouble its Attack to your\nright-most Undead.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133084
+    },
+    {
+      "id": "preview-s14-minion-min-r04",
+      "cardId": "BG36_921",
+      "researchKey": "MIN-R04",
+      "revisionId": "preview-s14-minion-min-r04@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r04@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133451,
+      "name": "逃窜的纳迦",
+      "englishName": "Fleeing Fugitive",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [],
+      "text": "每当你对本随从施放法术，获得 +1 生命值。",
+      "englishText": "Whenever you cast a spell on this, gain +1 Health.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_921",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/naga/133451-fleeing-fugitive.png; IYD-NAGA b0b4d4ba-bf41-4ecc-9bc1-85b9a7366dc7",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r04"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_921_G",
+        "dbfId": 133452,
+        "attack": 6,
+        "health": 4,
+        "text": "每当你对本随从施放法术，获得 +2 生命值。",
+        "englishText": "Whenever you cast a spell on this, gain +2 Health.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133452
+    },
+    {
+      "id": "preview-s14-minion-min-r05",
+      "cardId": "BG36_508",
+      "researchKey": "MIN-R05",
+      "revisionId": "preview-s14-minion-min-r05@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r05@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132316,
+      "name": "机警的咒术师",
+      "englishName": "Cagey Conjurer",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [],
+      "text": "发动（1）：随机施放一个酒馆法术（尽可能以本随从为目标）。",
+      "englishText": "Activate (1): Cast a\nrandom Tavern spell\n(targets this if possible).",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_508",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/naga/132316-cagey-conjurer.png; IYD-NAGA eb2489a4-88f4-4678-90fe-b97c318fb925",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r05",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r05",
+          "resolverId": "season14.activate.min-r05@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_508_G",
+        "dbfId": 132317,
+        "attack": 12,
+        "health": 8,
+        "text": "发动（1）：随机施放 2 个酒馆法术（尽可能以本随从为目标）。",
+        "englishText": "Activate (1): Cast 2\nrandom Tavern spells\n(targets this if possible).",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132317
+    },
+    {
+      "id": "preview-s14-minion-min-r06",
+      "cardId": "BG36_622",
+      "researchKey": "MIN-R06",
+      "revisionId": "preview-s14-minion-min-r06@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r06@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133707,
+      "name": "涌流毁灭者",
+      "englishName": "Torrential Ruiner",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [],
+      "text": "每当你对纳迦施放法术，使你的随从获得 +3/+3。",
+      "englishText": "Whenever you cast a spell on a Naga, give your minions +3/+3.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_622",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/naga/133707-torrential-ruiner.png; IYD-NAGA 4d48fd11-e567-46c3-9ed4-4b7743af178e",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r06"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_622_G",
+        "dbfId": 133708,
+        "attack": 6,
+        "health": 6,
+        "text": "每当你对纳迦施放法术，使你的随从获得 +6/+6。",
+        "englishText": "Whenever you cast a spell on a Naga, give your minions +6/+6.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133708
+    },
+    {
+      "id": "preview-s14-minion-min-r07",
+      "cardId": "BG36_330",
+      "researchKey": "MIN-R07",
+      "revisionId": "preview-s14-minion-min-r07@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r07@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132630,
+      "name": "狡猾的渗透者",
+      "englishName": "Sly Infiltrator",
+      "tavernTier": 3,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "抉择"
+      ],
+      "text": "抉择：获得 2 次免费刷新；或者获取 3 张鲜血宝石。",
+      "englishText": "Choose One - Gain 2 free Refreshes; or Get 3 Blood Gems.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_330",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132630-sly-infiltrator.png; IYD-QUILBOAR 45d94b8c-433f-4b74-8337-f6b477a88f42",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r07"
+      ],
+      "officialKeywords": [
+        "ChooseOne"
+      ],
+      "golden": {
+        "cardId": "BG36_330_G",
+        "dbfId": 132631,
+        "attack": 8,
+        "health": 10,
+        "text": "抉择：获得 4 次免费的刷新；或者获取 6 张鲜血宝石。",
+        "englishText": "Choose One - Gain 4 free Refreshes; or Get 6 Blood Gems.",
+        "keywords": [],
+        "officialKeywords": [
+          "ChooseOne"
+        ]
+      },
+      "goldenDbfId": 132631
+    },
+    {
+      "id": "preview-s14-minion-min-r08",
+      "cardId": "BG36_331",
+      "researchKey": "MIN-R08",
+      "revisionId": "preview-s14-minion-min-r08@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r08@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132632,
+      "name": "棘刺挖掘工",
+      "englishName": "Bramble Tunneler",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：随机获取一张抉择牌。",
+      "englishText": "Rally: Get a random Choose One card.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_331",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132632-bramble-tunneler.png; IYD-QUILBOAR 8e0661a9-9d6f-4e57-bc69-76e38dce8412",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r08"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_331_G",
+        "dbfId": 132633,
+        "attack": 6,
+        "health": 12,
+        "text": "进击：随机获取 2 张抉择牌。",
+        "englishText": "Rally: Get 2 random Choose One cards.",
+        "keywords": [],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132633
+    },
+    {
+      "id": "preview-s14-minion-min-r09",
+      "cardId": "BG36_332",
+      "researchKey": "MIN-R09",
+      "revisionId": "preview-s14-minion-min-r09@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r09@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132634,
+      "name": "圈套陷阱师",
+      "englishName": "Snare Trapper",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "抉择"
+      ],
+      "text": "抉择：随机获取一张野猪人牌；或者使你的铸币上限提高 1 枚。",
+      "englishText": "Choose One - Get a random Quilboar; or Increase your maximum Gold by 1.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_332",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132634-snare-trapper.png; IYD-QUILBOAR aed33eb8-6bc5-43e7-9c8f-3947198aff13",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r09"
+      ],
+      "officialKeywords": [
+        "ChooseOne"
+      ],
+      "golden": {
+        "cardId": "BG36_332_G",
+        "dbfId": 132635,
+        "attack": 8,
+        "health": 8,
+        "text": "抉择：随机获取 2 张野猪人牌；或者使你的铸币上限提高 2 枚。",
+        "englishText": "Choose One - Get 2 random Quilboar; or Increase your maximum Gold by 2.",
+        "keywords": [],
+        "officialKeywords": [
+          "ChooseOne"
+        ]
+      },
+      "goldenDbfId": 132635
+    },
+    {
+      "id": "preview-s14-minion-min-r10",
+      "cardId": "BG36_510",
+      "researchKey": "MIN-R10",
+      "revisionId": "preview-s14-minion-min-r10@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r10@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132320,
+      "name": "警戒的刺鬃野猪人",
+      "englishName": "Vigilant Bristlemane",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [],
+      "text": "每当你对本随从施放一个法术，本随从对相邻随从各使用一张鲜血宝石。",
+      "englishText": "Whenever you cast a spell\non this, it plays a Blood Gem\non adjacent minions.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_510",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132320-vigilant-bristlemane.png; IYD-QUILBOAR 6ed41fe1-87d6-4648-bc97-4579eaa43949",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r10"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_510_G",
+        "dbfId": 132321,
+        "attack": 6,
+        "health": 10,
+        "text": "每当你对本随从施放一个法术，本随从对相邻的随从各使用 2 张鲜血宝石。",
+        "englishText": "Whenever you cast a spell on\nthis, it plays 2 Blood Gems\non adjacent minions.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132321
+    },
+    {
+      "id": "preview-s14-minion-min-r11",
+      "cardId": "BG36_333",
+      "researchKey": "MIN-R11",
+      "revisionId": "preview-s14-minion-min-r11@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r11@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132636,
+      "name": "囚牢恶霸",
+      "englishName": "Jailbird Juggernaut",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：召唤一个属性值等同于本随从的鲜血宝石的魔像，并使其率先攻击目标。",
+      "englishText": "Rally: Summon a Golem with\nstats equal to this minion's\nBlood Gems to attack the\ntarget first. (0/0)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_333",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132636-jailbird-juggernaut.png; IYD-QUILBOAR 4d8f646c-1aea-4ed8-9060-c286a72c061e",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r11"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_333_G",
+        "dbfId": 132637,
+        "attack": 4,
+        "health": 14,
+        "text": "进击：召唤一个属性值等同于本随从的鲜血宝石两倍的魔像，并使其率先攻击目标。",
+        "englishText": "Rally: Summon a Golem with\nstats equal to double this\nminion's Blood Gems to attack\nthe target first. (0/0)",
+        "keywords": [],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132637
+    },
+    {
+      "id": "preview-s14-minion-min-r12",
+      "cardId": "BG36_341",
+      "researchKey": "MIN-R12",
+      "revisionId": "preview-s14-minion-min-r12@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r12@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132929,
+      "name": "老牌恶匪",
+      "englishName": "Veteran Brigand",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "抉择"
+      ],
+      "text": "抉择：本随从对你的所有随从各使用 3 张鲜血宝石；或者施放 3 次鲜血宝石弹幕。",
+      "englishText": "Choose One - This plays\n3 Blood Gems on all your\nminions; or cast Blood Gem\nBarrage 3 times.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_341",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/quilboar/132929-veteran-brigand.png; IYD-QUILBOAR 2a8204db-6d55-497e-a0cd-3d40ea46fce1",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r12"
+      ],
+      "officialKeywords": [
+        "ChooseOne"
+      ],
+      "golden": {
+        "cardId": "BG36_341_G",
+        "dbfId": 132930,
+        "attack": 16,
+        "health": 16,
+        "text": "抉择：本随从对你的所有随从各使用 6 张鲜血宝石；或者施放 6 次鲜血宝石弹幕。",
+        "englishText": "Choose One - This plays\n6 Blood Gems on all your\nminions; or cast Blood Gem\nBarrage 6 times.",
+        "keywords": [],
+        "officialKeywords": [
+          "ChooseOne"
+        ]
+      },
+      "goldenDbfId": 132930
+    },
+    {
+      "id": "preview-s14-minion-min-r13",
+      "cardId": "BG36_180",
+      "researchKey": "MIN-R13",
+      "revisionId": "preview-s14-minion-min-r13@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r13@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133453,
+      "name": "活体监牢",
+      "englishName": "Living Prison",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "发动（1）：获得你在本回合中购买的下一个随从的属性值。",
+      "englishText": "Activate (1): Gain the stats of the next minion you buy this turn.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_180",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/elemental/133453-living-prison.png; IYD-ELEMENTAL d5daaa46-30bc-4ee5-b717-88c716f33c9b",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r13",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r13",
+          "resolverId": "season14.activate.min-r13@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_180_G",
+        "dbfId": 133454,
+        "attack": 8,
+        "health": 10,
+        "text": "发动（1）：获得你在本回合中购买的下一个随从的双倍属性值。",
+        "englishText": "Activate (1): Gain double the stats of the next minion you buy this turn.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133454
+    },
+    {
+      "id": "mage_bg36_181",
+      "cardId": "BG36_181",
+      "researchKey": "MIN-R14",
+      "revisionId": "MAGE_BG36_181@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r14@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 133455,
+      "name": "空气投球手",
+      "englishName": "Air Baller",
+      "tavernTier": 5,
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "出售本随从时，使你的随从获得 +2/+2，并提升你此后投球手的效果。",
+      "englishText": "When you sell this, give\nyour minions +2/+2.\nImprove your future\nBallers.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_181",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/elemental/133455-air-baller.png; MAGE_BG36_181_enUS_AirBaller-133455_NORMAL.png；IYD-ELEMENTAL ad4ac86d-6af7-4d38-9de5-2d774803570b",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r14"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_181_G",
+        "dbfId": 133456,
+        "attack": 14,
+        "health": 14,
+        "text": "出售本随从时，使你的随从获得 +4/+4，并提升你此后投球手的效果。",
+        "englishText": "When you sell this, give\nyour minions +4/+4.\nImprove your future\nBallers.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133456
+    },
+    {
+      "id": "preview-s14-minion-min-r15",
+      "cardId": "BG36_351",
+      "researchKey": "MIN-R15",
+      "revisionId": "preview-s14-minion-min-r15@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r15@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132981,
+      "name": "沟渠守护元素",
+      "englishName": "Moat Custodian",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 10,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：在本局中，你的元素使随从额外获得 +1/+2。",
+      "englishText": "Rally: Your Elementals\ngive an extra +1/+2\nthis game.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_351",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/elemental/132981-moat-custodian.png; IYD-ELEMENTAL 62027f59-2225-4399-982f-de47935f504c",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r15"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_351_G",
+        "dbfId": 132982,
+        "attack": 8,
+        "health": 20,
+        "text": "进击：在本局中，你的元素使随从额外获得 +2/+4。",
+        "englishText": "Rally: Your Elementals\ngive an extra +2/+4\nthis game.",
+        "keywords": [],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132982
+    },
+    {
+      "id": "preview-s14-minion-min-r16",
+      "cardId": "BG36_352",
+      "researchKey": "MIN-R16",
+      "revisionId": "preview-s14-minion-min-r16@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r16@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132983,
+      "name": "无羁雷暴",
+      "englishName": "Unbound Tempest",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 12,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "在你使用 3 张元素牌后，获得酒馆中生命值最高的随从的属性值。",
+      "englishText": "After you play 3 Elementals,\ngain the stats of the highest-\nHealth minion in the\nTavern. (3 left!)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_352",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/elemental/132983-unbound-tempest.png; IYD-ELEMENTAL 2f167b04-5b42-4e89-b12b-46ec7dcaffe4",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r16"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_352_G",
+        "dbfId": 132984,
+        "attack": 6,
+        "health": 24,
+        "text": "在你使用 3 张元素牌后，获得酒馆中生命值最高的随从的属性值。（还剩 3 张！）",
+        "englishText": "After you play 3 Elementals,\ngain double the stats of the\nhighest-Health minion in\nthe Tavern. (3 left!)",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132984
+    },
+    {
+      "id": "preview-s14-minion-min-r17",
+      "cardId": "BG36_342",
+      "researchKey": "MIN-R17",
+      "revisionId": "preview-s14-minion-min-r17@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r17@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132921,
+      "name": "机智的船难海盗",
+      "englishName": "Clever Castaway",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "发动（2）：发现一张酒馆法术牌。",
+      "englishText": "Activate (2): Discover a Tavern spell.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_342",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132921-clever-castaway.png; IYD-PIRATE 60d76558-29a5-4e81-99ce-cdfc9ff474b9",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r17",
+        "activate"
+      ],
+      "officialKeywords": [
+        "Discover"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r17",
+          "resolverId": "season14.activate.min-r17@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_342_G",
+        "dbfId": 132922,
+        "attack": 4,
+        "health": 6,
+        "text": "发动（2）：发现2张酒馆法术牌。",
+        "englishText": "Activate (2): Discover 2 Tavern spells.",
+        "keywords": [],
+        "officialKeywords": [
+          "Discover"
+        ]
+      },
+      "goldenDbfId": 132922
+    },
+    {
+      "id": "preview-s14-minion-min-r18",
+      "cardId": "BG36_763",
+      "researchKey": "MIN-R18",
+      "revisionId": "preview-s14-minion-min-r18@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r18@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132987,
+      "name": "财宝鹦鹉",
+      "englishName": "Treasure Parrot",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "野兽",
+        "海盗"
+      ],
+      "tribesText": "野兽、海盗",
+      "keywords": [],
+      "text": "一旦本随从造成40点伤害，获取一张点金之触。（还剩40点！）",
+      "englishText": "Once this deals 40 damage,\nget a Golden Touch.\n(40 left!)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_763",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132987-treasure-parrot.png; IYD-PIRATE 698af510-8fbc-447b-99b6-93bb5a4bc3a2；IYD-BEAST 2a70a8d9-dc27-4287-b9bf-c11e76f07b67",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r18"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_763_G",
+        "dbfId": 132988,
+        "attack": 10,
+        "health": 10,
+        "text": "一旦本随从造成40点伤害，获取两张点金之触。（还剩40点！）",
+        "englishText": "Once this deals 40 damage,\nget two Golden Touches.\n(40 left!)",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132988
+    },
+    {
+      "id": "preview-s14-minion-min-r19",
+      "cardId": "BG36_523",
+      "researchKey": "MIN-R19",
+      "revisionId": "preview-s14-minion-min-r19@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r19@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132762,
+      "name": "上进的逃兵",
+      "englishName": "Enterprising Escapee",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "在你花掉5枚铸币后，获取一张上锁宝箱。如果你已有宝箱，使其提前1回合打开。（还剩5枚！）",
+      "englishText": "After you spend 5 Gold,\nget a Lockbox. If you already\nhave one, it opens 1 turn\nsooner. (5 Gold left!)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_523",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132762-enterprising-escapee.png; IYD-PIRATE c6604647-8ea9-4fc1-b767-056c15d1e00c",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r19"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_523_G",
+        "dbfId": 132763,
+        "attack": 12,
+        "health": 12,
+        "text": "在你花掉5枚铸币后，获取一张上锁宝箱。如果你已有宝箱，使其提前2回合打开。（还剩5枚！）",
+        "englishText": "After you spend 5 Gold,\nget a Lockbox. If you already\nhave one, it opens 2 turns\nsooner. (5 Gold left!)",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132763
+    },
+    {
+      "id": "preview-s14-minion-min-r20",
+      "cardId": "BG36_524",
+      "researchKey": "MIN-R20",
+      "revisionId": "preview-s14-minion-min-r20@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r20@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132764,
+      "name": "海上勒索师",
+      "englishName": "Maritime Extortionist",
+      "tavernTier": 4,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "在本局对战中，你每使用一张金色随从牌，便拥有+8/+8。（无论本随从在哪）",
+      "englishText": "Has +8/+8 for each\nGolden minion you've\nplayed this game\n(wherever this is).",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_524",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132764-maritime-extortionist.png; IYD-PIRATE b050c116-7dc7-4d8c-9311-c42bd84017aa",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r20"
+      ],
+      "officialKeywords": [
+        "Aura"
+      ],
+      "golden": {
+        "cardId": "BG36_524_G",
+        "dbfId": 132765,
+        "attack": 16,
+        "health": 16,
+        "text": "在本局对战中，你每使用一张金色随从牌，便拥有+16/+16。（无论本随从在哪）",
+        "englishText": "Has +16/+16 for each\nGolden minion you've\nplayed this game\n(wherever this is).",
+        "keywords": [],
+        "officialKeywords": [
+          "Aura"
+        ]
+      },
+      "goldenDbfId": 132765
+    },
+    {
+      "id": "preview-s14-minion-min-r21",
+      "cardId": "BG36_760",
+      "researchKey": "MIN-R21",
+      "revisionId": "preview-s14-minion-min-r21@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r21@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133075,
+      "name": "“船长”曲奇",
+      "englishName": "Captain Cookie",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 3,
+      "tribes": [
+        "鱼人",
+        "海盗"
+      ],
+      "tribesText": "鱼人、海盗",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：获取一张主厨甄选。",
+      "englishText": "Deathrattle: Get a Chef's Choice.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_760",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/murloc/133075-captain-cookie.png; IYD-PIRATE f6fa72d1-f5e5-4de5-bdfa-f5db902cfdfa；IYD-MURLOC 1a1baa5b-7cab-489a-8fdc-3083573aba4d",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r21"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_760_G",
+        "dbfId": 133076,
+        "attack": 10,
+        "health": 6,
+        "text": "亡语：获取2张主厨甄选。",
+        "englishText": "Deathrattle: Get 2 Chef's Choices.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 133076
+    },
+    {
+      "id": "preview-s14-minion-min-r22",
+      "cardId": "BG36_343",
+      "researchKey": "MIN-R22",
+      "revisionId": "preview-s14-minion-min-r22@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r22@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132923,
+      "name": "安静的投递员",
+      "englishName": "Silent Deliverer",
+      "tavernTier": 6,
+      "attack": 7,
+      "health": 7,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：随机获取一张等级4的金色随从牌，该金色随从牌不会获得三连奖励。",
+      "englishText": "Battlecry: Get a random\nGolden minion from Tier 4.\nIt doesn’t give a Triple\nReward.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_343",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132923-silent-deliverer.png; IYD-PIRATE 6369f447-9199-4059-9074-01bd17e2ab6c",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r22"
+      ],
+      "officialKeywords": [
+        "Battlecry"
+      ],
+      "golden": {
+        "cardId": "BG36_343_G",
+        "dbfId": 132924,
+        "attack": 14,
+        "health": 14,
+        "text": "战吼：随机获取两张等级4的金色随从牌，这些金色随从牌不会获得三连奖励。",
+        "englishText": "Battlecry: Get two random\nGolden minions from Tier 4.\nThey don’t give Triple\nRewards.",
+        "keywords": [
+          "战吼"
+        ],
+        "officialKeywords": [
+          "Battlecry"
+        ]
+      },
+      "goldenDbfId": 132924
+    },
+    {
+      "id": "preview-s14-minion-min-r23",
+      "cardId": "BG36_344",
+      "researchKey": "MIN-R23",
+      "revisionId": "preview-s14-minion-min-r23@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r23@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132925,
+      "name": "掠夺大师钩牙",
+      "englishName": "Hooktusk, Master Marauder",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [],
+      "text": "在你发现一张牌后，使你的其他海盗获得+1/+1。（在本局对战中你每使用过一张金色随从牌都会提升！）",
+      "englishText": "After you Discover a card, give\nyour other Pirates +1/+1.\n(Improved by Golden minions\nyou played this game!)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_344",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/pirate/132925-hooktusk-master-marauder.png; IYD-PIRATE 930aea81-a9f9-4ae0-8f43-4b62030eaa05",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r23"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_344_G",
+        "dbfId": 132926,
+        "attack": 8,
+        "health": 8,
+        "text": "在你发现一张牌后，使你的其他海盗获得+2/+2。（在本局对战中你每使用过一张金色随从牌都会提升！）",
+        "englishText": "After you Discover a card, give\nyour other Pirates +2/+2.\n(Improved by Golden minions\nyou played this game!)",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132926
+    },
+    {
+      "id": "preview-s14-minion-min-r24",
+      "cardId": "BG36_854",
+      "researchKey": "MIN-R24",
+      "revisionId": "preview-s14-minion-min-r24@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r24@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132895,
+      "name": "救援机器人",
+      "englishName": "Rescue Bot",
+      "tavernTier": 3,
+      "attack": 5,
+      "health": 1,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "嘲讽",
+        "亡语"
+      ],
+      "text": "嘲讽。亡语：获取一张维修作业。",
+      "englishText": "Taunt\nDeathrattle: Get a\nRepair Job.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_854",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/mech/132895-rescue-bot.png; IYD-MECH 1ed54adf-65b9-43ae-9ef8-d710353e29d9",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r24"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_854_G",
+        "dbfId": 132896,
+        "attack": 10,
+        "health": 2,
+        "text": "嘲讽。亡语：获取2张维修作业。",
+        "englishText": "Taunt\nDeathrattle: Get\n2 Repair Jobs.",
+        "keywords": [
+          "嘲讽",
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Taunt",
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 132896
+    },
+    {
+      "id": "preview-s14-minion-min-r25",
+      "cardId": "BG36_506",
+      "researchKey": "MIN-R25",
+      "revisionId": "preview-s14-minion-min-r25@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r25@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132312,
+      "name": "复映无人机",
+      "englishName": "Drone Duplicator",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [],
+      "text": "发动（1）：本回合中，对本随从的下一次磁力吸附翻倍。",
+      "englishText": "Activate (1): The next\nMagnetization to this\nminion this turn is\ndoubled.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_506",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/mech/132312-drone-duplicator.png; IYD-MECH ec475cce-7da9-4bcc-9949-71674737e94a",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r25",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r25",
+          "resolverId": "season14.activate.min-r25@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_506_G",
+        "dbfId": 132313,
+        "attack": 8,
+        "health": 8,
+        "text": "发动（1）：本回合中，对本随从的下一次磁力吸附变为三倍。",
+        "englishText": "Activate (1): The next\nMagnetization to this\nminion this turn is\ntripled.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132313
+    },
+    {
+      "id": "preview-s14-minion-min-r26",
+      "cardId": "BG36_851",
+      "researchKey": "MIN-R26",
+      "revisionId": "preview-s14-minion-min-r26@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r26@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132676,
+      "name": "火花破坏机",
+      "englishName": "Spark Snapper",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [],
+      "text": "每当你使用一张机械牌，对其磁力吸附一个 3/3 的卫星并提升此效果。",
+      "englishText": "Whenever you play a Mech,\nMagnetize a 3/3\nSatellite to it and\nimprove this.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_851",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/mech/132676-spark-snapper.png; IYD-MECH c392b337-0015-46f1-80fc-d6a17f2cfee4",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r26"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_851_G",
+        "dbfId": 132677,
+        "attack": 6,
+        "health": 6,
+        "text": "每当你使用一张机械牌，对其磁力吸附一个 6/6 的卫星并提升此效果。",
+        "englishText": "Whenever you play a Mech,\nMagnetize a 6/6\nSatellite to it and\nimprove this.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132677
+    },
+    {
+      "id": "preview-s14-minion-min-r27",
+      "cardId": "BG36_764",
+      "researchKey": "MIN-R27",
+      "revisionId": "preview-s14-minion-min-r27@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r27@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133283,
+      "name": "机鳍鱼人",
+      "englishName": "Gearfin",
+      "tavernTier": 4,
+      "attack": 6,
+      "health": 5,
+      "tribes": [
+        "机械",
+        "鱼人"
+      ],
+      "tribesText": "机械、鱼人",
+      "keywords": [
+        "回合结束时"
+      ],
+      "text": "回合结束时，获取两张消耗为（1）的酒馆法术牌。",
+      "englishText": "At the end of your turn, get two 1-Cost Tavern spells.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_764",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/mech/133283-gearfin.png; IYD-MECH 74b02803-da04-47ad-a994-d3be8481cef3；IYD-MURLOC 768a40cc-aef9-444a-bdba-85b82392eafb",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r27"
+      ],
+      "officialKeywords": [
+        "EndOfTurn"
+      ],
+      "golden": {
+        "cardId": "BG36_764_G",
+        "dbfId": 133284,
+        "attack": 12,
+        "health": 10,
+        "text": "回合结束时，获取四张消耗为（1）的酒馆法术牌。",
+        "englishText": "At the end of your turn, get four 1-Cost Tavern spells.",
+        "keywords": [
+          "回合结束时"
+        ],
+        "officialKeywords": [
+          "EndOfTurn"
+        ]
+      },
+      "goldenDbfId": 133284
+    },
+    {
+      "id": "paladin_bg36_853",
+      "cardId": "BG36_853",
+      "researchKey": "MIN-R28",
+      "revisionId": "PALADIN_BG36_853@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r28@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132893,
+      "name": "炫彩机器人",
+      "englishName": "Glambot",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [],
+      "text": "每当你对机械施放法术，对其磁力吸附一个 6/6 的卫星。",
+      "englishText": "Whenever you cast a spell\non a Mech, Magnetize a\n6/6 Satellite to it.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_853",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/mech/132893-glambot.png; PALADIN_BG36_853_enUS_Glambot-132893_NORMAL.png；IYD-MECH a1236e16-b223-4e9f-ba8f-064f8eb3151d",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r28"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_853_G",
+        "dbfId": 132894,
+        "attack": 12,
+        "health": 12,
+        "text": "每当你对机械施放法术，对其磁力吸附一个 6/6 的卫星。触发两次。",
+        "englishText": "Whenever you cast a spell\non a Mech, Magnetize a\n6/6 Satellite to it\ntwice.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132894
+    },
+    {
+      "id": "preview-s14-minion-min-r29",
+      "cardId": "BG36_200",
+      "researchKey": "MIN-R29",
+      "revisionId": "preview-s14-minion-min-r29@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r29@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132792,
+      "name": "翩飞蝙蝠",
+      "englishName": "Flittering Bat",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 3,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：召唤一只 1/1 的野兽。",
+      "englishText": "Rally: Summon a 1/1 Beast.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_200",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132792-flittering-bat.png; IYD-BEAST a4131ec8-07c1-48f6-8aaa-6e000ddd0bf1",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r29"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_200_G",
+        "dbfId": 132793,
+        "attack": 2,
+        "health": 6,
+        "text": "进击：召唤两只1/1的野兽。",
+        "englishText": "Rally: Summon two\n1/1 Beasts.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132793
+    },
+    {
+      "id": "preview-s14-minion-min-r30",
+      "cardId": "BG36_202",
+      "researchKey": "MIN-R30",
+      "revisionId": "preview-s14-minion-min-r30@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r30@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132796,
+      "name": "美味龙虾",
+      "englishName": "Tasty Lobster",
+      "tavernTier": 3,
+      "attack": 1,
+      "health": 1,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "嘲讽",
+        "亡语"
+      ],
+      "text": "嘲讽。亡语：使两个友方野兽获得 +1/+1，并提升此后美味龙虾的效果。",
+      "englishText": "Taunt. Deathrattle: Give two\n friendly Beasts +1/+1.\nImprove your future\nTasty Lobsters.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_202",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132796-tasty-lobster.png; IYD-BEAST c5ddc093-03e8-4284-a1ea-6172cbe17eca",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r30"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_202_G",
+        "dbfId": 132797,
+        "attack": 2,
+        "health": 2,
+        "text": "嘲讽。亡语：使两个友方野兽获得+2/+2。提升你此后美味龙虾的效果。",
+        "englishText": "Taunt. Deathrattle: Give two\n friendly Beasts +2/+2.\nImprove your future\nTasty Lobsters.",
+        "keywords": [
+          "嘲讽",
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Taunt",
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 132797
+    },
+    {
+      "id": "preview-s14-minion-min-r31",
+      "cardId": "BG36_207",
+      "researchKey": "MIN-R31",
+      "revisionId": "preview-s14-minion-min-r31@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r31@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132806,
+      "name": "狼宝宝",
+      "englishName": "Wolf Pup",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使你的其他随从获得 +4/+2。",
+      "englishText": "Rally: Give your other minions +4/+2.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_207",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132806-wolf-pup.png; IYD-BEAST ebe00417-826a-491a-897d-dd95d98d2ff3",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r31"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_207_G",
+        "dbfId": 132807,
+        "attack": 6,
+        "health": 10,
+        "text": "进击：使你的其他随从获得+8/+4。",
+        "englishText": "Rally: Give your other minions +8/+4.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132807
+    },
+    {
+      "id": "preview-s14-minion-min-r32",
+      "cardId": "BG36_204",
+      "researchKey": "MIN-R32",
+      "revisionId": "preview-s14-minion-min-r32@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r32@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132800,
+      "name": "猎头狮鹫",
+      "englishName": "Headhunter Gryphon",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：随机获取一张野兽牌。",
+      "englishText": "Rally: Get a random Beast.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_204",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132800-headhunter-gryphon.png; IYD-BEAST 013175b6-1615-4986-abed-7f826d7f1adb",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r32"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_204_G",
+        "dbfId": 132801,
+        "attack": 6,
+        "health": 10,
+        "text": "进击：随机获取2张野兽牌。",
+        "englishText": "Rally: Get 2 random Beasts.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132801
+    },
+    {
+      "id": "preview-s14-minion-min-r33",
+      "cardId": "BG36_211",
+      "researchKey": "MIN-R33",
+      "revisionId": "preview-s14-minion-min-r33@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r33@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133041,
+      "name": "啮笼鼠",
+      "englishName": "Cage Gnawer",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [],
+      "text": "每当一个友方野兽攻击，使你的野兽获得 +2/+1。",
+      "englishText": "Whenever a friendly Beast attacks, give your Beasts +2/+1.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_211",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/133041-cage-gnawer.png; IYD-BEAST 7568113a-eca7-464e-9cb3-a19e89df5d28",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r33"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_211_G",
+        "dbfId": 133042,
+        "attack": 4,
+        "health": 14,
+        "text": "每当一只友方野兽攻击，使你的野兽获得+4/+2。",
+        "englishText": "Whenever a friendly Beast attacks, give your Beasts +4/+2.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133042
+    },
+    {
+      "id": "preview-s14-minion-min-r34",
+      "cardId": "BG36_210",
+      "researchKey": "MIN-R34",
+      "revisionId": "preview-s14-minion-min-r34@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r34@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133039,
+      "name": "囤食土狼",
+      "englishName": "Hoarding Hyena",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 6,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：召唤一只美味龙虾。",
+      "englishText": "Rally: Summon a Tasty Lobster.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_210",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/133039-hoarding-hyena.png; IYD-BEAST f25c2039-3210-4f61-ad2d-64136c82d1f1",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r34"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_210_G",
+        "dbfId": 133040,
+        "attack": 10,
+        "health": 12,
+        "text": "进击：召唤一只金色美味龙虾。",
+        "englishText": "Rally: Summon a Golden Tasty Lobster.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 133040
+    },
+    {
+      "id": "preview-s14-minion-min-r35",
+      "cardId": "BG36_208",
+      "researchKey": "MIN-R35",
+      "revisionId": "preview-s14-minion-min-r35@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r35@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132808,
+      "name": "逐亡陆行鸟",
+      "englishName": "Deathstrider",
+      "tavernTier": 6,
+      "attack": 10,
+      "health": 11,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [],
+      "text": "一个友方进击随从攻击后，触发你最左边的亡语。",
+      "englishText": "After a friendly Rally\nminion attacks, trigger your\nleft-most Deathrattle.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_208",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132808-deathstrider.png; IYD-BEAST abcc2e7f-df25-472f-b444-4c93373d9ae3",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r35"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_208_G",
+        "dbfId": 132809,
+        "attack": 20,
+        "health": 22,
+        "text": "在一个友方进击随从攻击后，触发你最左边的亡语，触发两次。",
+        "englishText": "After a friendly Rally\nminion attacks, trigger\nyour left-most Deathrattle\ntwice.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132809
+    },
+    {
+      "id": "preview-s14-minion-min-r36",
+      "cardId": "BG36_209",
+      "researchKey": "MIN-R36",
+      "revisionId": "preview-s14-minion-min-r36@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r36@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132949,
+      "name": "暴虐巨蝎",
+      "englishName": "Ravaging Scorpid",
+      "tavernTier": 6,
+      "attack": 7,
+      "health": 8,
+      "tribes": [
+        "野兽"
+      ],
+      "tribesText": "野兽",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "一个友方随从攻击后，在本局中使你的甲虫拥有 +3/+3。亡语：召唤一只 2/2 甲虫。",
+      "englishText": "After a friendly minion attacks,\nyour Beetles have +3/+3 this\ngame. Deathrattle: Summon\na 2/2 Beetle.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_209",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/beast/132949-ravaging-scorpid.png; IYD-BEAST d11858da-8ad5-4b1e-99d0-6b18a3051c7e",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r36"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_209_G",
+        "dbfId": 132950,
+        "attack": 14,
+        "health": 16,
+        "text": "在一个友方随从攻击后，在本局对战中，你的甲虫拥有+6/+6。亡语：召唤两只2/2的甲虫。",
+        "englishText": "After a friendly minion attacks,\nyour Beetles have +6/+6 this\ngame. Deathrattle: Summon\ntwo 2/2 Beetles.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 132950
+    },
+    {
+      "id": "preview-s14-minion-min-r37",
+      "cardId": "BG36_730",
+      "researchKey": "MIN-R37",
+      "revisionId": "preview-s14-minion-min-r37@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r37@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132897,
+      "name": "受困的钟舌恶魔",
+      "englishName": "Trapped Clapper",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：在你的下 3 次刷新中各添加一个恶魔饲料。",
+      "englishText": "Deathrattle: Add a Fodder to your next 3 Refreshes.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_730",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/132897-trapped-clapper.png; IYD-DEMON fa5b6527-8615-48e9-8d44-0ddb8e5295b7",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r37"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_730_G",
+        "dbfId": 132898,
+        "attack": 4,
+        "health": 4,
+        "text": "亡语：在你的下 3 次刷新中各添加两个恶魔饲料。",
+        "englishText": "Deathrattle: Add two\nFodders to your next\n3 Refreshes.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 132898
+    },
+    {
+      "id": "warlock_bg36_762",
+      "cardId": "BG36_762",
+      "researchKey": "MIN-R38",
+      "revisionId": "WARLOCK_BG36_762@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r38@36.2-preview-v1",
+      "sourceLevel": "OfficialPreview",
+      "implementationStatus": "Implemented",
+      "dbfId": 132901,
+      "name": "恶魔干扰者",
+      "englishName": "Devilish Distractor",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [],
+      "text": "每当你对本随从施放法术，使酒馆中的随从在本局中获得 +2/+2。",
+      "englishText": "Whenever you cast a spell on this, give minions in the Tavern +2/+2 this game.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_762",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/132901-devilish-distractor.png; WARLOCK_BG36_762_enUS_DevilishDistractor-132901_NORMAL.png；IYD-DEMON 83401c5d-024f-4b87-8f78-a410a6df8df1",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r38"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_762_G",
+        "dbfId": 132902,
+        "attack": 6,
+        "health": 12,
+        "text": "每当你对本随从施放法术，使酒馆中的随从在本局中获得 +4/+4。",
+        "englishText": "Whenever you cast a spell on this, give minions in the Tavern +4/+4 this game.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132902
+    },
+    {
+      "id": "preview-s14-minion-min-r39",
+      "cardId": "BG36_731",
+      "researchKey": "MIN-R39",
+      "revisionId": "preview-s14-minion-min-r39@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r39@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132899,
+      "name": "鬼影幻术师",
+      "englishName": "Imp-lusionist",
+      "tavernTier": 5,
+      "attack": 6,
+      "health": 3,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：获取 2 张理性癫狂。",
+      "englishText": "Deathrattle: Get 2 copies of Methodical Madness.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_731",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/132899-imp-lusionist.png; IYD-DEMON 017533f9-6db6-485a-adc1-217869d763f5",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r39"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG36_731_G",
+        "dbfId": 132900,
+        "attack": 12,
+        "health": 6,
+        "text": "亡语：获取 4 张理性癫狂。",
+        "englishText": "Deathrattle: Get 4 copies of Methodical Madness.",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      },
+      "goldenDbfId": 132900
+    },
+    {
+      "id": "preview-s14-minion-min-r40",
+      "cardId": "BG36_621",
+      "researchKey": "MIN-R40",
+      "revisionId": "preview-s14-minion-min-r40@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r40@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133705,
+      "name": "灵巧的逃亡者",
+      "englishName": "Deft Deserter",
+      "tavernTier": 5,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [],
+      "text": "发动（1）：使酒馆中的所有随从获得 +8/+8，以及嘲讽、圣盾或风怒中的一种。",
+      "englishText": "Activate (1): Give all minions in the Tavern +8/+8 and Taunt, Divine Shield, or Windfury.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_621",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/133705-deft-deserter.png; IYD-DEMON 866aca50-8322-4dd6-8e36-851092752988",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r40",
+        "activate"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r40",
+          "resolverId": "season14.activate.min-r40@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_621_G",
+        "dbfId": 133706,
+        "attack": 16,
+        "health": 16,
+        "text": "发动（1）：使酒馆中的所有随从获得 +16/+16，以及嘲讽、圣盾或风怒中的一种。",
+        "englishText": "Activate (1): Give all minions in the Tavern +16/+16 and Taunt, Divine Shield, or Windfury.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133706
+    },
+    {
+      "id": "preview-s14-minion-min-r41",
+      "cardId": "BG36_733",
+      "researchKey": "MIN-R41",
+      "revisionId": "preview-s14-minion-min-r41@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r41@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133028,
+      "name": "艾瑞达逃脱大师",
+      "englishName": "Eredar Escapist",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [],
+      "text": "英雄受到 4 点伤害后，随机获取一张能使随从获得属性值的酒馆法术牌。",
+      "englishText": "After your hero takes\n4 damage, get a random\nTavern spell that gives stats.\n(4 left!)",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_733",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/demon/133028-eredar-escapist.png; IYD-DEMON 57e16afd-41ea-459a-a0ba-4233efa25fc7",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r41"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_733_G",
+        "dbfId": 133029,
+        "attack": 10,
+        "health": 10,
+        "text": "英雄受到 4 点伤害后，随机获取两张能使随从获得属性值的酒馆法术牌。",
+        "englishText": "After your hero takes\n4 damage, get two random\nTavern spells that give stats.\n(4 left!)",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133029
+    },
+    {
+      "id": "preview-s14-minion-min-r42",
+      "cardId": "BG36_507",
+      "researchKey": "MIN-R42",
+      "revisionId": "preview-s14-minion-min-r42@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r42@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132314,
+      "name": "越狱主谋",
+      "englishName": "Breakout Mastermind",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 5,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "发动（2）：随机获取一张鱼人牌。",
+      "englishText": "Activate (2): Get a random Murloc.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_507",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/murloc/132314-breakout-mastermind.png; IYD-MURLOC 056c1c46-af92-4b93-937e-a5cf90ff48f6",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r42",
+        "activate"
+      ],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r42",
+          "resolverId": "season14.activate.min-r42@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_507_G",
+        "dbfId": 132315,
+        "attack": 4,
+        "health": 10,
+        "text": "发动（2）：随机获取2张鱼人牌。",
+        "englishText": "Activate (2): Get 2 random Murlocs.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132315
+    },
+    {
+      "id": "preview-s14-minion-min-r43",
+      "cardId": "BG36_703",
+      "researchKey": "MIN-R43",
+      "revisionId": "preview-s14-minion-min-r43@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r43@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132989,
+      "name": "暮光猎潮者",
+      "englishName": "Twilight Tidehunter",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "每当你对本随从施放法术，使你手牌中最左边的随从获得 +6/+6。",
+      "englishText": "Whenever you cast a spell on this, give the left-most minion in your hand +6/+6.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_703",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/murloc/132989-twilight-tidehunter.png; IYD-MURLOC 55f454f3-edaf-4462-91d0-9e8a7e041238",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r43"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_703_G",
+        "dbfId": 132990,
+        "attack": 6,
+        "health": 12,
+        "text": "每当你对本随从施放法术，使你手牌中最左边的随从获得 +12/+12。",
+        "englishText": "Whenever you cast a spell on this, give the left-most minion in your hand +12/+12.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132990
+    },
+    {
+      "id": "preview-s14-minion-min-r44",
+      "cardId": "BG36_704",
+      "researchKey": "MIN-R44",
+      "revisionId": "preview-s14-minion-min-r44@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r44@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133026,
+      "name": "萨满招潮者",
+      "englishName": "Shamanic Tidecaller",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 7,
+      "tribes": [
+        "鱼人"
+      ],
+      "tribesText": "鱼人",
+      "keywords": [],
+      "text": "每当你对一个鱼人施放法术，使你手牌中和战队中的鱼人获得 +3/+3。",
+      "englishText": "Whenever you cast a spell on a Murloc, give Murlocs in your hand and board +3/+3.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG36_704",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/murloc/133026-shamanic-tidecaller.png; IYD-MURLOC 4235e9ba-454e-4cbe-8bb1-3cdefe88d23c",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r44"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_704_G",
+        "dbfId": 133027,
+        "attack": 10,
+        "health": 14,
+        "text": "每当你对一个鱼人施放法术，使你手牌中和战队中的鱼人获得 +6/+6。",
+        "englishText": "Whenever you cast a spell on a Murloc, give Murlocs in your hand and board +6/+6.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133027
+    },
+    {
+      "id": "preview-s14-minion-min-r45",
+      "cardId": "BG36_240",
+      "researchKey": "MIN-R45",
+      "revisionId": "preview-s14-minion-min-r45@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r45@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132951,
+      "name": "受雇坐骑",
+      "englishName": "Hired Mount",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [],
+      "text": "发动（2）：随机获取一张多彩幼龙。",
+      "englishText": "Activate (2): Get a random Chromadrake.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_240",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/dragon/132951-hired-mount.png; IYD-DRAGON 1465cbd3-0e0d-45f5-8b40-1cc019264377",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r45",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r45",
+          "resolverId": "season14.activate.min-r45@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_240_G",
+        "dbfId": 132952,
+        "attack": 6,
+        "health": 10,
+        "text": "发动（2）：随机获取2张多彩幼龙。",
+        "englishText": "Activate (2): Get 2 random Chromadrakes.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132952
+    },
+    {
+      "id": "preview-s14-minion-min-r46",
+      "cardId": "BG36_242",
+      "researchKey": "MIN-R46",
+      "revisionId": "preview-s14-minion-min-r46@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r46@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132955,
+      "name": "铜时光行者",
+      "englishName": "Bronze Timewalker",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 9,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：随机获取一张多彩幼龙。",
+      "englishText": "Rally: Get a random Chromadrake.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_242",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/dragon/132955-bronze-timewalker.png; IYD-DRAGON 079de3d6-cdc2-4fd4-a1bc-4414ae8d4bd4",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r46"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_242_G",
+        "dbfId": 132956,
+        "attack": 4,
+        "health": 18,
+        "text": "进击：随机获取2张多彩幼龙。",
+        "englishText": "Rally: Get 2 random Chromadrakes.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132956
+    },
+    {
+      "id": "preview-s14-minion-min-r47",
+      "cardId": "BG36_243",
+      "researchKey": "MIN-R47",
+      "revisionId": "preview-s14-minion-min-r47@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r47@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132957,
+      "name": "天诞逃生飞龙",
+      "englishName": "Sky-hatch Runaway",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 7,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [],
+      "text": "发动（1）：触发一个友方随从的进击效果。",
+      "englishText": "Activate (1): Trigger a friendly minion's Rally.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_243",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/dragon/132957-sky-hatch-runaway.png; IYD-DRAGON e24d9234-6b6e-492e-9061-88cb72fcdb97",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r47",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:min-r47",
+          "resolverId": "season14.activate.min-r47@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_243_G",
+        "dbfId": 132958,
+        "attack": 10,
+        "health": 14,
+        "text": "发动（1）：触发一个友方随从的进击效果，触发两次。",
+        "englishText": "Activate (1): Trigger a friendly minion's Rally twice.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132958
+    },
+    {
+      "id": "preview-s14-minion-min-r48",
+      "cardId": "BG36_245",
+      "researchKey": "MIN-R48",
+      "revisionId": "preview-s14-minion-min-r48@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r48@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132985,
+      "name": "符文奥术师",
+      "englishName": "Runic Arcanist",
+      "tavernTier": 4,
+      "attack": 3,
+      "health": 5,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战斗开始时"
+      ],
+      "text": "战斗开始时：施放闪亮的戒指。",
+      "englishText": "Start of Combat: Cast Shiny Ring.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_245",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/dragon/132985-runic-arcanist.png; IYD-DRAGON 6fc1bb25-3307-4d08-81cc-694d6a18bfe0",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r48"
+      ],
+      "officialKeywords": [
+        "StartOfCombat"
+      ],
+      "golden": {
+        "cardId": "BG36_245_G",
+        "dbfId": 132986,
+        "attack": 6,
+        "health": 10,
+        "text": "战斗开始时：施放闪亮的戒指，触发两次。",
+        "englishText": "Start of Combat: Cast Shiny Ring twice.",
+        "keywords": [
+          "战斗开始时"
+        ],
+        "officialKeywords": [
+          "StartOfCombat"
+        ]
+      },
+      "goldenDbfId": 132986
+    },
+    {
+      "id": "preview-s14-minion-min-r49",
+      "cardId": "BG36_241",
+      "researchKey": "MIN-R49",
+      "revisionId": "preview-s14-minion-min-r49@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r49@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132953,
+      "name": "赤红守备巨龙",
+      "englishName": "Crimson Vindicator",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 9,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "圣盾",
+        "进击"
+      ],
+      "text": "圣盾。进击：施放威猛龙息。",
+      "englishText": "Divine Shield\nRally: Cast Mighty Dragonbreath.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_241",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/dragon/132953-crimson-vindicator.png; IYD-DRAGON 8753bcc2-1eca-47b4-b984-21e12f2063ef",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r49"
+      ],
+      "officialKeywords": [
+        "DivineShield",
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG36_241_G",
+        "dbfId": 132954,
+        "attack": 16,
+        "health": 18,
+        "text": "圣盾。进击：施放威猛龙息，触发两次。",
+        "englishText": "Divine Shield\nRally: Cast Mighty Dragonbreath twice.",
+        "keywords": [
+          "圣盾",
+          "进击"
+        ],
+        "officialKeywords": [
+          "DivineShield",
+          "Rally"
+        ]
+      },
+      "goldenDbfId": 132954
+    },
+    {
+      "id": "preview-s14-minion-min-r50",
+      "cardId": "BG36_345",
+      "researchKey": "MIN-R50",
+      "revisionId": "preview-s14-minion-min-r50@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r50@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132915,
+      "name": "可疑的监狱守卫",
+      "englishName": "Suspicious Prisonguard",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [],
+      "text": "发动（1）：使另一个随从获得 +3/+3。",
+      "englishText": "Activate (1): Give another minion +3/+3.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_345",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/neutral/132915-suspicious-prisonguard.png; IYD-NEUTRAL c2f88ba3-dcbc-4faf-b5f3-7463f2940c3c",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r50",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:suspicious-prison-guard",
+          "resolverId": "season14.activate.suspicious-prison-guard@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "OtherFriendlyBoardMinion",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_345_G",
+        "dbfId": 132916,
+        "attack": 6,
+        "health": 6,
+        "text": "发动（1）：使另一个随从获得 +6/+6。",
+        "englishText": "Activate (1): Give another minion +6/+6.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132916
+    },
+    {
+      "id": "preview-s14-minion-min-r51",
+      "cardId": "BG36_354",
+      "researchKey": "MIN-R51",
+      "revisionId": "preview-s14-minion-min-r51@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r51@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133434,
+      "name": "迷诱咒术师",
+      "englishName": "Decoy Conjurer",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [],
+      "text": "发动（2）：偷取酒馆中攻击力最高的随从牌。",
+      "englishText": "Activate (2): Steal the highest-Attack minion in the Tavern.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG36_354",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/neutral/133434-decoy-conjurer.png; IYD-NEUTRAL 4c68b4f6-9f0a-42a7-bdd5-03a5c8e6c723",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r51",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:alluring-spellcaster",
+          "resolverId": "season14.activate.alluring-spellcaster@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_354_G",
+        "dbfId": 133435,
+        "attack": 6,
+        "health": 8,
+        "text": "发动（2）：偷取酒馆中攻击力最高的2张随从牌。",
+        "englishText": "Activate (2): Steal the 2 highest-Attack minions in the Tavern.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133435
+    },
+    {
+      "id": "preview-s14-minion-min-r52",
+      "cardId": "BG36_346",
+      "researchKey": "MIN-R52",
+      "revisionId": "preview-s14-minion-min-r52@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r52@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 132917,
+      "name": "水果商贩",
+      "englishName": "Fruit Vendor",
+      "tavernTier": 3,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [],
+      "text": "发动（1）：获取 2 张香蕉果盘。",
+      "englishText": "Activate (1): Get 2\nTavern Dish Bananas.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG36_346",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/neutral/132917-fruit-vendor.png; IYD-NEUTRAL 016e6ba2-d1c5-4573-9852-3bec566c0e38",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r52",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:fruit-vendor",
+          "resolverId": "season14.activate.fruit-vendor@1",
+          "costSpec": {
+            "gold": 1
+          },
+          "targetSpec": "None",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_346_G",
+        "dbfId": 132918,
+        "attack": 6,
+        "health": 12,
+        "text": "发动（1）：获取 4 张香蕉果盘。",
+        "englishText": "Activate (1): Get 4\nTavern Dish Bananas.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 132918
+    },
+    {
+      "id": "preview-s14-minion-min-r53",
+      "cardId": "BG36_620",
+      "researchKey": "MIN-R53",
+      "revisionId": "preview-s14-minion-min-r53@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r53@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133703,
+      "name": "砰砰箱",
+      "englishName": "Boom-in-a-Box",
+      "tavernTier": 4,
+      "attack": 5,
+      "health": 10,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [
+        "嘲讽",
+        "战斗开始时"
+      ],
+      "text": "嘲讽。战斗开始时：对所有其他随从造成 3 点伤害。",
+      "englishText": "Taunt\nStart of Combat: Deal 3 damage to all other minions.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG36_620",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/neutral/133703-boom-in-a-box.png; IYD-NEUTRAL 050be965-11c1-436e-891f-01f22780b606",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r53"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "StartOfCombat"
+      ],
+      "golden": {
+        "cardId": "BG36_620_G",
+        "dbfId": 133704,
+        "attack": 10,
+        "health": 20,
+        "text": "嘲讽。战斗开始时：对所有其他随从造成 3 点伤害，触发两次。",
+        "englishText": "Taunt\nStart of Combat: Deal 3 damage to all other minions twice.",
+        "keywords": [
+          "嘲讽",
+          "战斗开始时"
+        ],
+        "officialKeywords": [
+          "Taunt",
+          "StartOfCombat"
+        ]
+      },
+      "goldenDbfId": 133704
+    },
+    {
+      "id": "preview-s14-minion-min-r54",
+      "cardId": "BG36_640",
+      "researchKey": "MIN-R54",
+      "revisionId": "preview-s14-minion-min-r54@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r54@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133329,
+      "name": "守门融合怪",
+      "englishName": "Gatekeeper Amalgam",
+      "tavernTier": 6,
+      "attack": 6,
+      "health": 6,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部种族",
+      "keywords": [],
+      "text": "每当你对本随从施放一个法术，本随从施放乱放的茶具。",
+      "englishText": "Whenever you cast a spell on this, it casts Misplaced Tea Set.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_640",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/all/133329-gatekeeper-amalgam.png; IYD-NEUTRAL 5ad3600c-a301-4471-b40d-040f2038e63a",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r54"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG36_640_G",
+        "dbfId": 133330,
+        "attack": 12,
+        "health": 12,
+        "text": "每当你对本随从施放一个法术，本随从施放乱放的茶具，触发两次。",
+        "englishText": "Whenever you cast a spell on this, it casts Misplaced Tea Set twice.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133330
+    },
+    {
+      "id": "preview-s14-minion-min-r55",
+      "cardId": "BG36_356",
+      "researchKey": "MIN-R55",
+      "revisionId": "preview-s14-minion-min-r55@36.2-preview-v1",
+      "effectRevision": "minion-effect-min-r55@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 133438,
+      "name": "泰瑞尔",
+      "englishName": "Tyrael",
+      "tavernTier": 6,
+      "attack": 8,
+      "health": 8,
+      "tribes": [
+        "中立"
+      ],
+      "tribesText": "中立",
+      "keywords": [],
+      "text": "发动（2）：将另一个随从的属性值变为 40/40。",
+      "englishText": "Activate (2): Set another minion's stats to 40/40.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG36_356",
+      "imageSource": "HSBG live-client export https://hsbg.cards/cards/production/pngs/full/minions/neutral/133438-tyrael.png; IYD-NEUTRAL f9c32278-8856-4057-98c8-0d35ce70cb95",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:min-r55",
+        "activate"
+      ],
+      "officialKeywords": [],
+      "recruitActions": [
+        {
+          "actionId": "activate:tyrael",
+          "resolverId": "season14.activate.tyrael@1",
+          "costSpec": {
+            "gold": 2
+          },
+          "targetSpec": "OtherFriendlyBoardMinion",
+          "usesPerTurn": 1,
+          "allowedPhase": "Tavern"
+        }
+      ],
+      "golden": {
+        "cardId": "BG36_356_G",
+        "dbfId": 133439,
+        "attack": 16,
+        "health": 16,
+        "text": "发动（2）：将另一个随从的属性值变为 80/80。",
+        "englishText": "Activate (2): Set another minion's stats to 80/80.",
+        "keywords": [],
+        "officialKeywords": []
+      },
+      "goldenDbfId": 133439
+    },
+    {
+      "id": "season14-return-bg23-000",
+      "cardId": "BG23_000",
+      "researchKey": "POOL-D04",
+      "revisionId": "BG23_000@36.2-preview-v1",
+      "effectRevision": "minion.mini-myrmidon@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 80738,
+      "name": "迷你侍从",
+      "englishName": "Mini-Myrmidon",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得+2攻击力。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG23_000",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG23_000.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d04"
+      ],
+      "officialKeywords": [
+        "Spellcraft"
+      ],
+      "golden": {
+        "cardId": "BG23_000_G",
+        "dbfId": 80757,
+        "attack": 2,
+        "health": 8,
+        "text": "塑造法术：直到下个回合，使一个随从获得+4攻击力。",
+        "englishText": "",
+        "keywords": [
+          "塑造法术"
+        ],
+        "officialKeywords": [
+          "Spellcraft"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg23-007",
+      "cardId": "BG23_007",
+      "researchKey": "POOL-D05",
+      "revisionId": "BG23_007@36.2-preview-v1",
+      "effectRevision": "minion.waverider@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 80745,
+      "name": "乘波骑士",
+      "englishName": "Waverider",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 6,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得+2/+2。如果该随从是纳迦，还会获得风怒。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG23_007",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG23_007.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d05"
+      ],
+      "officialKeywords": [
+        "Spellcraft"
+      ],
+      "golden": {
+        "cardId": "BG23_007_G",
+        "dbfId": 80763,
+        "attack": 4,
+        "health": 12,
+        "text": "塑造法术：直到下个回合，使一个随从获得+4/+4。如果该随从是纳迦，还会获得风怒。",
+        "englishText": "",
+        "keywords": [
+          "塑造法术"
+        ],
+        "officialKeywords": [
+          "Spellcraft"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-924",
+      "cardId": "BG31_924",
+      "researchKey": "POOL-D06A",
+      "revisionId": "BG31_924@36.2-preview-v1",
+      "effectRevision": "minion.thaumaturgist@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 115563,
+      "name": "杂耍奇术师",
+      "englishName": "Thaumaturgist",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "塑造法术"
+      ],
+      "text": "塑造法术：直到下个回合，使一个随从获得+1/+1。（你每施放4个法术都会提升！）",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG31_924",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_924.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d06a"
+      ],
+      "officialKeywords": [
+        "Spellcraft"
+      ],
+      "golden": {
+        "cardId": "BG31_924_G",
+        "dbfId": 115564,
+        "attack": 4,
+        "health": 4,
+        "text": "塑造法术：直到下个回合，使一个随从获得+2/+2。（你每施放4个法术都会提升！）",
+        "englishText": "",
+        "keywords": [
+          "塑造法术"
+        ],
+        "officialKeywords": [
+          "Spellcraft"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-925",
+      "cardId": "BG31_925",
+      "researchKey": "POOL-D06B",
+      "revisionId": "BG31_925@36.2-preview-v1",
+      "effectRevision": "minion.showy-cyclist@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 115565,
+      "name": "显眼的骑手",
+      "englishName": "Showy Cyclist",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 3,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [
+        "亡语"
+      ],
+      "text": "亡语：使你的纳迦获得+2/+2。（你每施放4个法术都会提升！）",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG31_925",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_925.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d06b"
+      ],
+      "officialKeywords": [
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG31_925_G",
+        "dbfId": 115566,
+        "attack": 8,
+        "health": 6,
+        "text": "亡语：使你的纳迦获得+4/+4。（你每施放4个法术都会提升！）",
+        "englishText": "",
+        "keywords": [
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg32-820",
+      "cardId": "BG32_820",
+      "researchKey": "POOL-D06C",
+      "revisionId": "BG32_820@36.2-preview-v1",
+      "effectRevision": "minion.firescale-hoarder@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 120213,
+      "name": "火鳞囤积者",
+      "englishName": "Firescale Hoarder",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "纳迦",
+        "龙"
+      ],
+      "tribesText": "纳迦/龙",
+      "keywords": [
+        "战吼",
+        "亡语"
+      ],
+      "text": "战吼和亡语：获取1张闪亮的戒指。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG32_820",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG32_820.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d06c"
+      ],
+      "officialKeywords": [
+        "Battlecry",
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG32_820_G",
+        "dbfId": 120214,
+        "attack": 10,
+        "health": 10,
+        "text": "战吼和亡语：获取2张闪亮的戒指。",
+        "englishText": "",
+        "keywords": [
+          "战吼",
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Battlecry",
+          "Deathrattle"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg32-837",
+      "cardId": "BG32_837",
+      "researchKey": "POOL-D06D",
+      "revisionId": "BG32_837@36.2-preview-v1",
+      "effectRevision": "minion.fauna-whisperer@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 120905,
+      "name": "动物低语者",
+      "englishName": "Fauna Whisperer",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 9,
+      "tribes": [
+        "纳迦"
+      ],
+      "tribesText": "纳迦",
+      "keywords": [],
+      "text": "在你的回合结束时，对相邻的随从施放一个自然赐福。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG32_837",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG32_837.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d06d"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG32_837_G",
+        "dbfId": 120906,
+        "attack": 8,
+        "health": 18,
+        "text": "在你的回合结束时，对相邻的随从施放一个自然赐福，触发两次。",
+        "englishText": "",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg33-885",
+      "cardId": "BG33_885",
+      "researchKey": "POOL-D08",
+      "revisionId": "BG33_885@36.2-preview-v1",
+      "effectRevision": "minion.sanguine-refiner@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 122566,
+      "name": "鲜血精研者",
+      "englishName": "Sanguine Refiner",
+      "tavernTier": 6,
+      "attack": 3,
+      "health": 10,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：在本局对战中，你的鲜血宝石额外使随从获得+1/+1。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG33_885",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG33_885.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d08"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG33_885_G",
+        "dbfId": 122567,
+        "attack": 6,
+        "health": 20,
+        "text": "进击：在本局对战中，你的鲜血宝石额外使随从获得+2/+2。",
+        "englishText": "",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg20-101",
+      "cardId": "BG20_101",
+      "researchKey": "POOL-D09",
+      "revisionId": "BG20_101@36.2-preview-v1",
+      "effectRevision": "minion.roadboar@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 70157,
+      "name": "路霸野猪人",
+      "englishName": "Roadboar",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 4,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：获取1张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG20_101",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG20_101.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d09"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG20_101_G",
+        "dbfId": 70161,
+        "attack": 4,
+        "health": 8,
+        "text": "进击：获取2张鲜血宝石。",
+        "englishText": "",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-320",
+      "cardId": "BG31_320",
+      "researchKey": "POOL-D10",
+      "revisionId": "BG31_320@36.2-preview-v1",
+      "effectRevision": "minion.crater-miner@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 116182,
+      "name": "坑谷矿工",
+      "englishName": "Crater Miner",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "抉择"
+      ],
+      "text": "抉择：获取2张鲜血宝石；或者获取1张宝石特训。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG31_320",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_320.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d10"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG31_320_G",
+        "dbfId": 116183,
+        "attack": 4,
+        "health": 4,
+        "text": "抉择：获取4张鲜血宝石；或者获取2张宝石特训。",
+        "englishText": "",
+        "keywords": [
+          "抉择"
+        ],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg33-430",
+      "cardId": "BG33_430",
+      "researchKey": "POOL-D11",
+      "revisionId": "BG33_430@36.2-preview-v1",
+      "effectRevision": "minion.prodigious-tusker@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 122098,
+      "name": "惊异长牙猪",
+      "englishName": "Prodigious Tusker",
+      "tavernTier": 2,
+      "attack": 1,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [],
+      "text": "每当另一个友方随从攻击时，对其使用1张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG33_430",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG33_430.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d11"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG33_430_G",
+        "dbfId": 122099,
+        "attack": 2,
+        "health": 6,
+        "text": "每当另一个友方随从攻击时，对其使用2张鲜血宝石。",
+        "englishText": "",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg20-104",
+      "cardId": "BG20_104",
+      "researchKey": "POOL-D12",
+      "revisionId": "BG20_104@36.2-preview-v1",
+      "effectRevision": "minion.bonker@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 70173,
+      "name": "狂棍野猪人",
+      "englishName": "Bonker",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 7,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "风怒",
+        "进击"
+      ],
+      "text": "风怒。进击：对所有其他友方随从使用1张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG20_104",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG20_104.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d12"
+      ],
+      "officialKeywords": [
+        "Windfury",
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG20_104_G",
+        "dbfId": 70174,
+        "attack": 4,
+        "health": 14,
+        "text": "风怒。进击：对所有其他友方随从使用2张鲜血宝石。",
+        "englishText": "",
+        "keywords": [
+          "风怒",
+          "进击"
+        ],
+        "officialKeywords": [
+          "Windfury",
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-327",
+      "cardId": "BG31_327",
+      "researchKey": "POOL-D13",
+      "revisionId": "BG31_327@36.2-preview-v1",
+      "effectRevision": "minion.thorned-trailblazer@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 116190,
+      "name": "刺棘开拓者",
+      "englishName": "Thorned Trailblazer",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [],
+      "text": "每回合中，你使用的第一张抉择牌会同时拥有两种效果。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG31_327",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_327.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d13"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG31_327_G",
+        "dbfId": 116197,
+        "attack": 8,
+        "health": 10,
+        "text": "每回合中，你使用的前2张抉择牌会同时拥有两种效果。",
+        "englishText": "",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg33-886",
+      "cardId": "BG33_886",
+      "researchKey": "POOL-D14A",
+      "revisionId": "BG33_886@36.2-preview-v1",
+      "effectRevision": "minion.tusked-camper@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 122568,
+      "name": "獠牙露营者",
+      "englishName": "Tusked Camper",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：对本随从使用1张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG33_886",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG33_886.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d14a"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG33_886_G",
+        "dbfId": 122569,
+        "attack": 4,
+        "health": 6,
+        "text": "进击：对本随从使用2张鲜血宝石。",
+        "englishText": "",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-326",
+      "cardId": "BG31_326",
+      "researchKey": "POOL-D14B",
+      "revisionId": "BG31_326@36.2-preview-v1",
+      "effectRevision": "minion.gem-rat@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 116434,
+      "name": "健身搏猪",
+      "englishName": "Gem Rat",
+      "tavernTier": 4,
+      "attack": 4,
+      "health": 4,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [],
+      "text": "在你的回合结束时，获取1张宝石特训。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 11,
+      "imagePath": "CardImages/Minions/Season14/BG31_326",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_326.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d14b"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG31_326_G",
+        "dbfId": 116435,
+        "attack": 8,
+        "health": 8,
+        "text": "在你的回合结束时，获取2张宝石特训。",
+        "englishText": "",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg33-883",
+      "cardId": "BG33_883",
+      "researchKey": "POOL-D14C",
+      "revisionId": "BG33_883@36.2-preview-v1",
+      "effectRevision": "minion.razorfen-vineweaver@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 122562,
+      "name": "剃刀沼泽织藤者",
+      "englishName": "Razorfen Vineweaver",
+      "tavernTier": 5,
+      "attack": 5,
+      "health": 5,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：对本随从永久使用3张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG33_883",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG33_883.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d14c"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG33_883_G",
+        "dbfId": 122563,
+        "attack": 10,
+        "health": 10,
+        "text": "进击：对本随从永久使用6张鲜血宝石。",
+        "englishText": "",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-323",
+      "cardId": "BG31_323",
+      "researchKey": "POOL-D14D",
+      "revisionId": "BG31_323@36.2-preview-v1",
+      "effectRevision": "minion.turbo-hogrider@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 116195,
+      "name": "极速野猪骑士",
+      "englishName": "Turbo Hogrider",
+      "tavernTier": 6,
+      "attack": 5,
+      "health": 7,
+      "tribes": [
+        "野猪人"
+      ],
+      "tribesText": "野猪人",
+      "keywords": [],
+      "text": "在你使用一张抉择牌后，对所有其他野猪人使用1张鲜血宝石。",
+      "englishText": "",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG31_323",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_323.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d14d"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG31_323_G",
+        "dbfId": 116196,
+        "attack": 10,
+        "health": 14,
+        "text": "在你使用一张抉择牌后，对所有其他野猪人使用2张鲜血宝石。",
+        "englishText": "",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bgs-127",
+      "cardId": "BGS_127",
+      "researchKey": "POOL-D15A",
+      "revisionId": "BGS_127@36.2-preview-v1",
+      "effectRevision": "minion.molten-rock@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 64296,
+      "name": "熔融岩石",
+      "englishName": "Molten Rock",
+      "tavernTier": 1,
+      "attack": 3,
+      "health": 3,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "在你使用一张元素牌后，获得+1生命值。",
+      "englishText": "After you play an Elemental, gain +1 Health.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BGS_127",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BGS_127.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d15a"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "TB_Baconups_202",
+        "dbfId": 64300,
+        "attack": 6,
+        "health": 6,
+        "text": "在你使用一张元素牌后，获得+1生命值，触发两次。",
+        "englishText": "After you play an Elemental, gain +1 Health twice.",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg31-843",
+      "cardId": "BG31_843",
+      "researchKey": "POOL-D15B",
+      "revisionId": "BG31_843@36.2-preview-v1",
+      "effectRevision": "minion.meteorite-crasher@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 117406,
+      "name": "裂地陨星",
+      "englishName": "Meteorite Crasher",
+      "tavernTier": 3,
+      "attack": 2,
+      "health": 4,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "在你出售一个元素后，获得+2/+2。",
+      "englishText": "After you sell an Elemental, gain +2/+2.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG31_843",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_843.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d15b"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG31_843_G",
+        "dbfId": 117407,
+        "attack": 4,
+        "health": 8,
+        "text": "在你出售一个元素后，获得+2/+2，触发两次。",
+        "englishText": "After you sell an Elemental, gain +2/+2 twice.",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg26-537",
+      "cardId": "BG26_537",
+      "researchKey": "POOL-D15C",
+      "revisionId": "BG26_537@36.2-preview-v1",
+      "effectRevision": "minion.flourishing-frostling@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 101267,
+      "name": "缤纷冰灵",
+      "englishName": "Flourishing Frostling",
+      "tavernTier": 5,
+      "attack": 2,
+      "health": 1,
+      "tribes": [
+        "元素"
+      ],
+      "tribesText": "元素",
+      "keywords": [],
+      "text": "在本局对战中，你每使用过一张元素牌，便拥有+2/+1（无论本随从在哪）。",
+      "englishText": "Has +2/+1 for each Elemental you played this game (wherever this is).",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG26_537",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG26_537.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d15c"
+      ],
+      "officialKeywords": [],
+      "golden": {
+        "cardId": "BG26_537_G",
+        "dbfId": 101268,
+        "attack": 4,
+        "health": 2,
+        "text": "在本局对战中，你每使用过一张元素牌，便拥有+4/+2（无论本随从在哪）。",
+        "englishText": "Has +4/+2 for each Elemental you played this game (wherever this is).",
+        "keywords": [],
+        "officialKeywords": []
+      }
+    },
+    {
+      "id": "season14-return-bg33-830",
+      "cardId": "BG33_830",
+      "researchKey": "POOL-D18",
+      "revisionId": "BG33_830@36.2-preview-v1",
+      "effectRevision": "minion.azsharan-cutlassier@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 123325,
+      "name": "艾萨拉的刀客",
+      "englishName": "Azsharan Cutlassier",
+      "tavernTier": 3,
+      "attack": 6,
+      "health": 4,
+      "tribes": [
+        "海盗"
+      ],
+      "tribesText": "海盗",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：在本局对战中，你的酒馆法术使随从额外获得+1攻击力。",
+      "englishText": "Battlecry: Your Tavern spells give an extra +1 Attack this game.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 13,
+      "imagePath": "CardImages/Minions/Season14/BG33_830",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG33_830.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d18"
+      ],
+      "officialKeywords": [
+        "Battlecry"
+      ],
+      "golden": {
+        "cardId": "BG33_830_G",
+        "dbfId": 123326,
+        "attack": 12,
+        "health": 8,
+        "text": "战吼：在本局对战中，你的酒馆法术使随从额外获得+2攻击力。",
+        "englishText": "Battlecry: Your Tavern spells give an extra +2 Attack this game.",
+        "keywords": [
+          "战吼"
+        ],
+        "officialKeywords": [
+          "Battlecry"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg32-340",
+      "cardId": "BG32_340",
+      "researchKey": "POOL-D02",
+      "revisionId": "BG32_340@36.2-preview-v1",
+      "effectRevision": "minion.maw-caster@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 121508,
+      "name": "噬渊施法者",
+      "englishName": "Maw Caster",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 5,
+      "tribes": [
+        "亡灵"
+      ],
+      "tribesText": "亡灵",
+      "keywords": [
+        "战吼"
+      ],
+      "text": "战吼：消灭一个友方亡灵以发现一张亡灵牌。",
+      "englishText": "Battlecry: Destroy a friendly Undead to Discover an Undead.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG32_340",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG32_340.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d02"
+      ],
+      "officialKeywords": [
+        "Battlecry"
+      ],
+      "golden": {
+        "cardId": "BG32_340_G",
+        "dbfId": 121509,
+        "attack": 8,
+        "health": 10,
+        "text": "战吼：消灭一个友方亡灵以发现2张亡灵牌。",
+        "englishText": "Battlecry: Destroy a friendly Undead to Discover 2 Undead.",
+        "keywords": [
+          "战吼"
+        ],
+        "officialKeywords": [
+          "Battlecry"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg31-177",
+      "cardId": "BG31_177",
+      "researchKey": "POOL-D20A",
+      "revisionId": "BG31_177@36.2-preview-v1",
+      "effectRevision": "minion.mechagnome-interpreter@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Implemented",
+      "dbfId": 115678,
+      "name": "机械侏儒解译者",
+      "englishName": "Mechagnome Interpreter",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 1,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "每当你使用或磁力吸附一个机械时，使其获得+3/+1。",
+      "englishText": "Whenever you play or Magnetize a Mech, give it +3/+1.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG31_177",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG31_177.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d20a"
+      ],
+      "officialKeywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG31_177_G",
+        "dbfId": 115679,
+        "attack": 6,
+        "health": 2,
+        "text": "每当你使用或磁力吸附一个机械时，使其获得+6/+2。",
+        "englishText": "Whenever you play or Magnetize a Mech, give it +6/+2.",
+        "keywords": [
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg26-152",
+      "cardId": "BG26_152",
+      "researchKey": "POOL-D20B",
+      "revisionId": "BG26_152@36.2-preview-v1",
+      "effectRevision": "minion.utility-drone@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 98588,
+      "name": "多面辅助无人机",
+      "englishName": "Utility Drone",
+      "tavernTier": 6,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "回合结束时",
+        "触发效果"
+      ],
+      "text": "在你的回合结束时，你的随从每拥有一个磁力效果，使其获得+4/+4。",
+      "englishText": "At the end of your turn, give your minions +4/+4 for each Magnetization they have.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG26_152",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG26_152.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d20b"
+      ],
+      "officialKeywords": [
+        "END_OF_TURN_TRIGGER",
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG26_152_G",
+        "dbfId": 98591,
+        "attack": 8,
+        "health": 12,
+        "text": "在你的回合结束时，你的随从每拥有一个磁力效果，使其获得+8/+8。",
+        "englishText": "At the end of your turn, give your minions +8/+8 for each Magnetization they have.",
+        "keywords": [
+          "回合结束时",
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "END_OF_TURN_TRIGGER",
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg23-357",
+      "cardId": "BG23_357",
+      "researchKey": "POOL-D23A",
+      "revisionId": "BG23_357@36.2-preview-v1",
+      "effectRevision": "minion.mind-muck@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 93321,
+      "name": "心灵泥魔",
+      "englishName": "Mind Muck",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 2,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "战吼",
+        "吞食"
+      ],
+      "text": "战吼：选择一个友方恶魔，使其吞食酒馆中的一个随机随从，获得其属性值。",
+      "englishText": "Battlecry: Choose a friendly Demon. It consumes a random minion in the Tavern to gain its stats.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG23_357",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG23_357.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d23a"
+      ],
+      "officialKeywords": [
+        "Battlecry",
+        "Devour"
+      ],
+      "golden": {
+        "cardId": "BG23_357_G",
+        "dbfId": 93323,
+        "attack": 6,
+        "health": 4,
+        "text": "战吼：选择一个友方恶魔，使其吞食酒馆中的一个随机随从，获得其双倍属性值。",
+        "englishText": "Battlecry: Choose a friendly Demon. It consumes a random minion in the Tavern to gain double its stats.",
+        "keywords": [
+          "战吼",
+          "吞食"
+        ],
+        "officialKeywords": [
+          "Battlecry",
+          "Devour"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg21-004",
+      "cardId": "BG21_004",
+      "researchKey": "POOL-D23B",
+      "revisionId": "BG21_004@36.2-preview-v1",
+      "effectRevision": "minion.insatiable-urzul@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 72060,
+      "name": "贪食的乌祖尔",
+      "englishName": "Insatiable Ur'zul",
+      "tavernTier": 5,
+      "attack": 4,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "嘲讽",
+        "吞食"
+      ],
+      "text": "嘲讽。在你使用一张恶魔牌后，随机吞食酒馆中的一个随从，获得其属性值。",
+      "englishText": "Taunt. After you play a Demon, consume a random minion in Bob's Tavern to gain its stats.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG21_004",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG21_004.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d23b"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Devour"
+      ],
+      "golden": {
+        "cardId": "BG21_004_G",
+        "dbfId": 72821,
+        "attack": 8,
+        "health": 12,
+        "text": "嘲讽。在你使用一张恶魔牌后，随机吞食酒馆中的一个随从，获得其双倍属性值。",
+        "englishText": "Taunt. After you play a Demon, consume a random minion in Bob's Tavern to gain double its stats.",
+        "keywords": [
+          "嘲讽",
+          "吞食"
+        ],
+        "officialKeywords": [
+          "Taunt",
+          "Devour"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg26-523",
+      "cardId": "BG26_523",
+      "researchKey": "POOL-D23C",
+      "revisionId": "BG26_523@36.2-preview-v1",
+      "effectRevision": "minion.tichondrius@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 99228,
+      "name": "提克迪奥斯",
+      "englishName": "Tichondrius",
+      "tavernTier": 5,
+      "attack": 3,
+      "health": 6,
+      "tribes": [
+        "恶魔"
+      ],
+      "tribesText": "恶魔",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "在你的英雄受到伤害后，使你的恶魔获得+3/+2。",
+      "englishText": "After your hero takes damage, give your Demons +3/+2.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG26_523",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG26_523.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d23c"
+      ],
+      "officialKeywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG26_523_G",
+        "dbfId": 99229,
+        "attack": 6,
+        "health": 12,
+        "text": "在你的英雄受到伤害后，使你的恶魔获得+6/+4。",
+        "englishText": "After your hero takes damage, give your Demons +6/+4.",
+        "keywords": [
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg26-963",
+      "cardId": "BG26_963",
+      "researchKey": "POOL-D25",
+      "revisionId": "BG26_963@36.2-preview-v1",
+      "effectRevision": "minion.electric-synthesizer@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 100026,
+      "name": "电音合成师",
+      "englishName": "Electric Synthesizer",
+      "tavernTier": 2,
+      "attack": 3,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "战吼",
+        "触发效果"
+      ],
+      "text": "战吼、战斗开始时：使你的其他龙获得+1/+1。",
+      "englishText": "Battlecry and Start of Combat: Give your other Dragons +1/+1.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG26_963",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG26_963.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d25"
+      ],
+      "officialKeywords": [
+        "Battlecry",
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG26_963_G",
+        "dbfId": 100029,
+        "attack": 6,
+        "health": 8,
+        "text": "战吼、战斗开始时：使你的其他龙获得+2/+2。",
+        "englishText": "Battlecry and Start of Combat: Give your other Dragons +2/+2.",
+        "keywords": [
+          "战吼",
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "Battlecry",
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg29-888",
+      "cardId": "BG29_888",
+      "researchKey": "POOL-D26A",
+      "revisionId": "BG29_888@36.2-preview-v1",
+      "effectRevision": "minion.glim-guardian@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 113346,
+      "name": "微光护卫者",
+      "englishName": "Glim Guardian",
+      "tavernTier": 1,
+      "attack": 1,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "进击"
+      ],
+      "text": "进击：使本随从获得+2攻击力。",
+      "englishText": "Rally: Give this minion +2 Attack.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG29_888",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG29_888.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d26a"
+      ],
+      "officialKeywords": [
+        "Rally"
+      ],
+      "golden": {
+        "cardId": "BG29_888_G",
+        "dbfId": 113347,
+        "attack": 2,
+        "health": 8,
+        "text": "进击：使本随从获得+4攻击力。",
+        "englishText": "Rally: Give this minion +4 Attack.",
+        "keywords": [
+          "进击"
+        ],
+        "officialKeywords": [
+          "Rally"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg29-810",
+      "cardId": "BG29_810",
+      "researchKey": "POOL-D26B",
+      "revisionId": "BG29_810@36.2-preview-v1",
+      "effectRevision": "minion.thousandth-paper-drake@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 108116,
+      "name": "千纸幼龙",
+      "englishName": "Thousandth Paper Drake",
+      "tavernTier": 2,
+      "attack": 2,
+      "health": 3,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "战斗开始时：使你最左边的龙获得+1/+2和风怒。",
+      "englishText": "Start of Combat: Give your left-most Dragon +1/+2 and Windfury.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 15,
+      "imagePath": "CardImages/Minions/Season14/BG29_810",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG29_810.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d26b"
+      ],
+      "officialKeywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG29_810_G",
+        "dbfId": 108279,
+        "attack": 4,
+        "health": 6,
+        "text": "战斗开始时：使你最左边的两条龙获得+1/+2和风怒。",
+        "englishText": "Start of Combat: Give your two left-most Dragons +1/+2 and Windfury.",
+        "keywords": [
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg24-004",
+      "cardId": "BG24_004",
+      "researchKey": "POOL-D26D",
+      "revisionId": "BG24_004@36.2-preview-v1",
+      "effectRevision": "minion.warpwing@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 92413,
+      "name": "折跃之翼",
+      "englishName": "Warpwing",
+      "tavernTier": 6,
+      "attack": 12,
+      "health": 4,
+      "tribes": [
+        "龙"
+      ],
+      "tribesText": "龙",
+      "keywords": [
+        "触发效果"
+      ],
+      "text": "本随从在攻击时免疫。",
+      "englishText": "Immune while attacking.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 7,
+      "imagePath": "CardImages/Minions/Season14/BG24_004",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG24_004.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d26d"
+      ],
+      "officialKeywords": [
+        "TRIGGER_VISUAL"
+      ],
+      "golden": {
+        "cardId": "BG24_004_G",
+        "dbfId": 92422,
+        "attack": 24,
+        "health": 8,
+        "text": "本随从在攻击时免疫。",
+        "englishText": "Immune while attacking.",
+        "keywords": [
+          "触发效果"
+        ],
+        "officialKeywords": [
+          "TRIGGER_VISUAL"
+        ]
+      }
+    },
+    {
+      "id": "season14-return-bg27-080",
+      "cardId": "BG27_080",
+      "researchKey": "POOL-D27",
+      "revisionId": "BG27_080@36.2-preview-v1",
+      "effectRevision": "minion.motley-phalanx@36.2-preview-v1",
+      "sourceLevel": "CommunityCrossChecked",
+      "implementationStatus": "Partial",
+      "dbfId": 106487,
+      "name": "混编战团",
+      "englishName": "Motley Phalanx",
+      "tavernTier": 4,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "全部种族"
+      ],
+      "tribesText": "全部",
+      "keywords": [
+        "嘲讽",
+        "亡语"
+      ],
+      "text": "嘲讽。亡语：永久使每个类型的一个友方随从获得+2/+2。",
+      "englishText": "Taunt. Deathrattle: Permanently give one friendly minion of each type +2/+2.",
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 0,
+      "poolCount": 9,
+      "imagePath": "CardImages/Minions/Season14/BG27_080",
+      "imageSource": "https://art.hearthstonejson.com/v1/256x/BG27_080.jpg",
+      "effectIds": [],
+      "tags": [
+        "minion",
+        "season14-preview",
+        "research-key:pool-d27"
+      ],
+      "officialKeywords": [
+        "Taunt",
+        "Deathrattle"
+      ],
+      "golden": {
+        "cardId": "BG27_080_G",
+        "dbfId": 106488,
+        "attack": 4,
+        "health": 4,
+        "text": "嘲讽。亡语：永久使每个类型的一个友方随从获得+4/+4。",
+        "englishText": "Taunt. Deathrattle: Permanently give one friendly minion of each type +4/+4.",
+        "keywords": [
+          "嘲讽",
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Taunt",
+          "Deathrattle"
+        ]
+      }
     }
   ]
 }

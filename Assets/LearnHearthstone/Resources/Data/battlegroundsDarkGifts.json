@@ -1,0 +1,1551 @@
+{
+  "schemaVersion": 1,
+  "count": 43,
+  "darkGifts": [
+    {
+      "id": "BG36_MidGameEffect_000t62",
+      "researchKey": "DG-R01",
+      "revisionId": "preview-s14-dark-gift-dg-r01@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r01@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Sunken Persistence",
+      "text": "This minion's Spellcrafts are permanent.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t62",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t62.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "mechanic:spellcraft"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r01@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t62",
+      "dbfId": 133310
+    },
+    {
+      "id": "BG36_MidGameEffect_000t13",
+      "researchKey": "DG-R02",
+      "revisionId": "preview-s14-dark-gift-dg-r02@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r02@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Harpy's Talons",
+      "text": "Divine Shield. Windfury.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t13",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t13.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r02"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t13",
+      "dbfId": 132279
+    },
+    {
+      "id": "BG36_MidGameEffect_000t16",
+      "researchKey": "DG-R03",
+      "revisionId": "preview-s14-dark-gift-dg-r03@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r03@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Jaws of Death",
+      "text": "Start of Combat: Trigger this minion's Deathrattles.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t16",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t16.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "keyword:deathrattle"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "CombatStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r03@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t16",
+      "dbfId": 132443
+    },
+    {
+      "id": "BG36_MidGameEffect_000t73",
+      "researchKey": "DG-R04",
+      "revisionId": "preview-s14-dark-gift-dg-r04@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r04@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Fortitude",
+      "text": "+4/+4.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t73",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t73.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 3,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r04"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t73",
+      "dbfId": 133421
+    },
+    {
+      "id": "BG36_MidGameEffect_000t82",
+      "researchKey": "DG-R05",
+      "revisionId": "preview-s14-dark-gift-dg-r05@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r05@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Affinity",
+      "text": "At the end of every 2 turns, get a random minion of this type.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t82",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t82.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 4,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "TurnEnded",
+      "triggerDelayRounds": 1,
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 2,
+      "effectIds": [
+        "dark-gift-effect-dg-r05@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t82",
+      "dbfId": 133860
+    },
+    {
+      "id": "BG36_MidGameEffect_000t74",
+      "researchKey": "DG-R06",
+      "revisionId": "preview-s14-dark-gift-dg-r06@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r06@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Sharpened Sword",
+      "text": "Whenever you play a card, gain +2 Attack.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t74",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t74.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 5,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "mechanic:avenge"
+      ],
+      "triggerSpec": "CardPlayed",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r06"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t74",
+      "dbfId": 133423
+    },
+    {
+      "id": "BG36_MidGameEffect_000t75",
+      "researchKey": "DG-R07",
+      "revisionId": "preview-s14-dark-gift-dg-r07@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r07@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Toughened Shield",
+      "text": "Whenever you play a card, gain +2 Health.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t75",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t75.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 5,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [
+        "excluded-lobby:quilboar",
+        "excluded-lobby:naga"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "CardPlayed",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r07"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t75",
+      "dbfId": 133424
+    },
+    {
+      "id": "BG36_MidGameEffect_000t51",
+      "researchKey": "DG-R08",
+      "revisionId": "preview-s14-dark-gift-dg-r08@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r08@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Steady Growth",
+      "text": "At the end of your turn, gain +1/+2, +2/+2, +3/+3, or +4/+4 based on the offer round.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t51",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t51.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 6,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "TurnEnded",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r08"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t51",
+      "dbfId": 132733
+    },
+    {
+      "id": "BG36_MidGameEffect_000t21",
+      "researchKey": "DG-R09",
+      "revisionId": "preview-s14-dark-gift-dg-r09@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r09@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Time Turning",
+      "text": "This minion's end-of-turn effects also trigger at the start of your turn.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t21",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t21.png",
+      "earliestOfferRound": 3,
+      "latestOfferRound": 9,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "mechanic:end-of-turn"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "TurnStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r09@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t21",
+      "dbfId": 132448
+    },
+    {
+      "id": "BG36_MidGameEffect_000t79",
+      "researchKey": "DG-R10",
+      "revisionId": "preview-s14-dark-gift-dg-r10@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r10@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Furtiveness",
+      "text": "Stealth.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t79",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t79.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "mechanic:avenge"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r10"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t79",
+      "dbfId": 133472
+    },
+    {
+      "id": "BG36_MidGameEffect_000t80",
+      "researchKey": "DG-R11",
+      "revisionId": "preview-s14-dark-gift-dg-r11@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r11@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Consanguinity",
+      "text": "Rally: Get 2 Blood Gems.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t80",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t80.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 5,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:quilboar"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "RallyResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r11@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t80",
+      "dbfId": 133474
+    },
+    {
+      "id": "BG36_MidGameEffect_000t52",
+      "researchKey": "DG-R12",
+      "revisionId": "preview-s14-dark-gift-dg-r12@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r12@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Fresh Perspective",
+      "text": "Deathrattle: Gain 2 free Refreshes.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t52",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t52.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 5,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "DeathrattleResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r12@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t52",
+      "dbfId": 132734
+    },
+    {
+      "id": "BG36_MidGameEffect_000t18",
+      "researchKey": "DG-R13",
+      "revisionId": "preview-s14-dark-gift-dg-r13@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r13@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Replication",
+      "text": "At the end of every 2 turns, get a plain copy of this minion.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t18",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t18.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 6,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "TurnEnded",
+      "triggerDelayRounds": 1,
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 2,
+      "effectIds": [
+        "dark-gift-effect-dg-r13@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t18",
+      "dbfId": 132445
+    },
+    {
+      "id": "BG36_MidGameEffect_000t28t",
+      "researchKey": "DG-R14",
+      "revisionId": "preview-s14-dark-gift-dg-r14@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r14@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Battle Scars",
+      "text": "Has +2/+2 for each Battlecry triggered this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t28t",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t28t.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 6,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:battlecry"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r14"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t28t",
+      "dbfId": 133476
+    },
+    {
+      "id": "BG36_MidGameEffect_000t29t",
+      "researchKey": "DG-R15",
+      "revisionId": "preview-s14-dark-gift-dg-r15@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r15@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Death's Embrace",
+      "text": "Has +1/+1 for each Deathrattle triggered this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t29t",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t29t.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 6,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:deathrattle"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r15"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t29t",
+      "dbfId": 133478
+    },
+    {
+      "id": "BG36_MidGameEffect_000t30t",
+      "researchKey": "DG-R16",
+      "revisionId": "preview-s14-dark-gift-dg-r16@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r16@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Spell Siphon",
+      "text": "Has +2/+2 for each Tavern spell cast this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t30t",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t30t.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 6,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:tavern-spell"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r16"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t30t",
+      "dbfId": 133480
+    },
+    {
+      "id": "BG36_MidGameEffect_000t14",
+      "researchKey": "DG-R17",
+      "revisionId": "preview-s14-dark-gift-dg-r17@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r17@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Gilding",
+      "text": "This minion is Golden, but does not grant a Triple reward.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t14",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t14.png",
+      "earliestOfferRound": 4,
+      "latestOfferRound": 8,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [
+        "offer-priority:lowest-tier-candidate",
+        "weight:rare"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "mechanic:activate"
+      ],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r17"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t14",
+      "dbfId": 132441
+    },
+    {
+      "id": "BG36_MidGameEffect_000t11",
+      "researchKey": "DG-R18",
+      "revisionId": "preview-s14-dark-gift-dg-r18@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r18@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Double Vision",
+      "text": "Get an extra copy of this minion.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t11",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t11.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r18"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t11",
+      "dbfId": 132485
+    },
+    {
+      "id": "BG36_MidGameEffect_000t15",
+      "researchKey": "DG-R19",
+      "revisionId": "preview-s14-dark-gift-dg-r19@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r19@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Toreth's Blessing",
+      "text": "This minion's Divine Shield takes 2 more hits to break.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t15",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t15.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "keyword:divine-shield"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r19@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t15",
+      "dbfId": 132442
+    },
+    {
+      "id": "BG36_MidGameEffect_000t22",
+      "researchKey": "DG-R20",
+      "revisionId": "preview-s14-dark-gift-dg-r20@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r20@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Amalgamation",
+      "text": "This minion has all minion types.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t22",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t22.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:none"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r20"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t22",
+      "dbfId": 132790
+    },
+    {
+      "id": "BG36_MidGameEffect_000t66",
+      "researchKey": "DG-R21",
+      "revisionId": "preview-s14-dark-gift-dg-r21@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r21@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Demonology",
+      "text": "Rally: Add a Demon Fodder to each of your next 3 Refreshes.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t66",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t66.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 8,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:demon"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "RallyResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r21@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t66",
+      "dbfId": 133351
+    },
+    {
+      "id": "BG36_MidGameEffect_000t65",
+      "researchKey": "DG-R22",
+      "revisionId": "preview-s14-dark-gift-dg-r22@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r22@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Polarization",
+      "text": "At the end of your turn, Magnetize a random Mech to this minion.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t65",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t65.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 8,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "requires-player-tier:3"
+      ],
+      "requiredMinionTags": [
+        "tribe:mech"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "TurnEnded",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r22@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t65",
+      "dbfId": 133344
+    },
+    {
+      "id": "BG36_MidGameEffect_000t5",
+      "researchKey": "DG-R23",
+      "revisionId": "preview-s14-dark-gift-dg-r23@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r23@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Mystic Essence",
+      "text": "Deathrattle: Get a random Tavern spell.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t5",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t5.png",
+      "earliestOfferRound": 5,
+      "latestOfferRound": 8,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "DeathrattleResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r23@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t5",
+      "dbfId": 132203
+    },
+    {
+      "id": "BG36_MidGameEffect_000t50",
+      "researchKey": "DG-R24",
+      "revisionId": "preview-s14-dark-gift-dg-r24@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r24@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Tarecgosa's Blessing",
+      "text": "This minion keeps stats and bonus keywords gained during combat.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t50",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t50.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:dragon"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r24@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t50",
+      "dbfId": 132732
+    },
+    {
+      "id": "BG36_MidGameEffect_000t64",
+      "researchKey": "DG-R25",
+      "revisionId": "preview-s14-dark-gift-dg-r25@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r25@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Dexterity",
+      "text": "Whenever you play a card, gain +2/+2.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t64",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t64.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 7,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "CardPlayed",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r25"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t64",
+      "dbfId": 133361
+    },
+    {
+      "id": "BG36_MidGameEffect_000t4",
+      "researchKey": "DG-R26",
+      "revisionId": "preview-s14-dark-gift-dg-r26@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r26@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Incubation",
+      "text": "+2/+2. In 2 turns, double this minion's stats.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t4",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t4.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 8,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "TurnStarted",
+      "triggerDelayRounds": 2,
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "uses",
+      "durationRounds": 0,
+      "initialUses": 1,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r26"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t4",
+      "dbfId": 132202
+    },
+    {
+      "id": "BG36_MidGameEffect_000t10",
+      "researchKey": "DG-R27",
+      "revisionId": "preview-s14-dark-gift-dg-r27@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r27@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Echoing Voice",
+      "text": "At the end of your turn, trigger this minion's Battlecry.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t10",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t10.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "keyword:battlecry"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "TurnEnded",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r27@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t10",
+      "dbfId": 132208
+    },
+    {
+      "id": "BG36_MidGameEffect_000t",
+      "researchKey": "DG-R28",
+      "revisionId": "preview-s14-dark-gift-dg-r28@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r28@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Offensive Sacrifice",
+      "text": "Deathrattle: Give another friendly minion this minion's Attack.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 9,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "DeathrattleResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r28@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t",
+      "dbfId": 132192
+    },
+    {
+      "id": "BG36_MidGameEffect_000t2",
+      "researchKey": "DG-R29",
+      "revisionId": "preview-s14-dark-gift-dg-r29@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r29@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Defensive Sacrifice",
+      "text": "Deathrattle: Give another friendly minion this minion's maximum Health.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t2",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t2.png",
+      "earliestOfferRound": 6,
+      "latestOfferRound": 9,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "DeathrattleResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r29@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t2",
+      "dbfId": 132200
+    },
+    {
+      "id": "BG36_MidGameEffect_000t81",
+      "researchKey": "DG-R30",
+      "revisionId": "preview-s14-dark-gift-dg-r30@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r30@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Transcendence",
+      "text": "Start of Combat: Triple this minion's stats.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t81",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t81.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:none"
+      ],
+      "excludedMinionTags": [],
+      "triggerSpec": "CombatStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r30@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t81",
+      "dbfId": 133482
+    },
+    {
+      "id": "BG36_MidGameEffect_000t28",
+      "researchKey": "DG-R31",
+      "revisionId": "preview-s14-dark-gift-dg-r31@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r31@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Battle Scars",
+      "text": "Has +3/+3 for each Battlecry triggered this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t28",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t28.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:battlecry"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r31"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t28",
+      "dbfId": 132553
+    },
+    {
+      "id": "BG36_MidGameEffect_000t29",
+      "researchKey": "DG-R32",
+      "revisionId": "preview-s14-dark-gift-dg-r32@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r32@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Death's Embrace",
+      "text": "Has +2/+2 for each Deathrattle triggered this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t29",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t29.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:deathrattle"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r32"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t29",
+      "dbfId": 132554
+    },
+    {
+      "id": "BG36_MidGameEffect_000t30",
+      "researchKey": "DG-R33",
+      "revisionId": "preview-s14-dark-gift-dg-r33@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r33@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Spell Siphon",
+      "text": "Has +3/+3 for each Tavern spell cast this game.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t30",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t30.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "requires-history:tavern-spell"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r33"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t30",
+      "dbfId": 132555
+    },
+    {
+      "id": "BG36_MidGameEffect_000t9",
+      "researchKey": "DG-R34",
+      "revisionId": "preview-s14-dark-gift-dg-r34@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r34@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Admiration",
+      "text": "Start of Combat: Gain the stats of the minion to this minion's left.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t9",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t9.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [],
+      "triggerSpec": "CombatStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r34@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t9",
+      "dbfId": 132207
+    },
+    {
+      "id": "BG36_MidGameEffect_000t69",
+      "researchKey": "DG-R35",
+      "revisionId": "preview-s14-dark-gift-dg-r35@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r35@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Toxicity",
+      "text": "Venomous.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t69",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t69.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:murloc"
+      ],
+      "excludedMinionTags": [
+        "keyword:venomous",
+        "keyword:poisonous"
+      ],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r35"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t69",
+      "dbfId": 133353
+    },
+    {
+      "id": "BG36_MidGameEffect_000t3",
+      "researchKey": "DG-R36",
+      "revisionId": "preview-s14-dark-gift-dg-r36@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r36@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Charisma",
+      "text": "Rally: Get a random minion of your most common minion type.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t3",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t3.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "keyword:taunt",
+        "mechanic:avenge"
+      ],
+      "triggerSpec": "RallyResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r36@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t3",
+      "dbfId": 132201
+    },
+    {
+      "id": "BG36_MidGameEffect_000t7",
+      "researchKey": "DG-R37",
+      "revisionId": "preview-s14-dark-gift-dg-r37@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r37@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Resistance",
+      "text": "Start of Combat: Double this minion's Health.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t7",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t7.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 10,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "tribe:beast",
+        "tribe:undead",
+        "tribe:none"
+      ],
+      "triggerSpec": "CombatStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r37@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t7",
+      "dbfId": 132205
+    },
+    {
+      "id": "BG36_MidGameEffect_000t71",
+      "researchKey": "DG-R38",
+      "revisionId": "preview-s14-dark-gift-dg-r38@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r38@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Hostility",
+      "text": "Start of Combat: Double this minion's Attack.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t71",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t71.png",
+      "earliestOfferRound": 7,
+      "latestOfferRound": 10,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "mechanic:avenge",
+        "tribe:none"
+      ],
+      "triggerSpec": "CombatStarted",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r38@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t71",
+      "dbfId": 133359
+    },
+    {
+      "id": "BG36_MidGameEffect_000t64t",
+      "researchKey": "DG-R39",
+      "revisionId": "preview-s14-dark-gift-dg-r39@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r39@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Dexterity",
+      "text": "Whenever you play a card, gain +4/+4.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t64t",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t64t.png",
+      "earliestOfferRound": 8,
+      "latestOfferRound": 9,
+      "availabilityTags": [
+        "normal-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [
+        "tribe:any"
+      ],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "CardPlayed",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r39"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t64t",
+      "dbfId": 133457
+    },
+    {
+      "id": "BG36_MidGameEffect_000t61",
+      "researchKey": "DG-R40",
+      "revisionId": "preview-s14-dark-gift-dg-r40@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r40@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Golemancy",
+      "text": "Deathrattle: Summon a Golem with this minion's stats.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t61",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t61.png",
+      "earliestOfferRound": 9,
+      "latestOfferRound": 10,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "DeathrattleResolved",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r40@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t61",
+      "dbfId": 132835
+    },
+    {
+      "id": "BG36_MidGameEffect_000t12",
+      "researchKey": "DG-R41",
+      "revisionId": "preview-s14-dark-gift-dg-r41@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r41@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Persisting Horror",
+      "text": "Reborn. This minion is Reborn with all its stats and bonus keywords.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t12",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t12.png",
+      "earliestOfferRound": 10,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "weight:rare"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "tribe:none"
+      ],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r41@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t12",
+      "dbfId": 132276
+    },
+    {
+      "id": "BG36_MidGameEffect_000t72",
+      "researchKey": "DG-R42",
+      "revisionId": "preview-s14-dark-gift-dg-r42@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r42@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Titanic Strength",
+      "text": "+1000 Attack.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t72",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t72.png",
+      "earliestOfferRound": 11,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "weight:rare"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "tribe:dragon"
+      ],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift.dg-r42"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t72",
+      "dbfId": 133363
+    },
+    {
+      "id": "BG36_MidGameEffect_000t60",
+      "researchKey": "DG-R43",
+      "revisionId": "preview-s14-dark-gift-dg-r43@36.2-preview-v1",
+      "effectRevision": "dark-gift-effect-dg-r43@preview-v1",
+      "sourceLevel": "LiveClientCrossChecked",
+      "name": "Invulnerability",
+      "text": "Immune while attacking.",
+      "imagePath": "CardImages/DarkGifts/Season14/BG36_MidGameEffect_000t60",
+      "imageSource": "https://art.hearthstonejson.com/v1/orig/BG36_MidGameEffect_000t60.png",
+      "earliestOfferRound": 12,
+      "latestOfferRound": 0,
+      "availabilityTags": [
+        "normal-pool",
+        "tras-pool"
+      ],
+      "compatibilityTags": [
+        "weight:rare"
+      ],
+      "requiredMinionTags": [],
+      "excludedMinionTags": [
+        "keyword:taunt",
+        "tribe:none"
+      ],
+      "triggerSpec": "",
+      "choiceSpec": "",
+      "stackPolicy": "reject",
+      "maxStacks": 1,
+      "durationPolicy": "persistent",
+      "durationRounds": 0,
+      "initialUses": 0,
+      "cooldownRounds": 0,
+      "effectIds": [
+        "dark-gift-effect-dg-r43@preview-v1"
+      ],
+      "implementationStatus": "Implemented",
+      "cardId": "BG36_MidGameEffect_000t60",
+      "dbfId": 132833
+    }
+  ]
+}

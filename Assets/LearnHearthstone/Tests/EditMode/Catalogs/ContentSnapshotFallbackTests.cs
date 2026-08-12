@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using LearnHearthstone.Adapters.Content;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Content;
+using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Models;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -93,6 +98,81 @@ namespace LearnHearthstone.Tests.Catalogs
                 new LastKnownGoodContentRepository(directory)).Resolve(remoteFailureReason: "offline");
 
             Assert.AreEqual(ContentSnapshotSource.Embedded, snapshot.Info.Source);
+        }
+
+        [Test]
+        public void Resolve_ValidV2RemotePromotesImmutableSnapshotAndRestoresActive()
+        {
+            var repository = new LastKnownGoodContentRepository(directory);
+            var resolver = new GameCatalogSnapshotResolver(ClientVersion, repository);
+            var package = V2Package("snapshot-one", "20260801");
+
+            var remote = resolver.Resolve(package);
+            var restored = new GameCatalogSnapshotResolver(ClientVersion, repository).Resolve();
+
+            Assert.AreEqual(ContentSnapshotSource.Remote, remote.Info.Source);
+            Assert.AreEqual("snapshot-one", remote.Info.SnapshotId);
+            Assert.AreEqual(GameVersionIds.LegacyCompositeSandbox, remote.Info.GameVersionId);
+            Assert.AreEqual(ContentSnapshotSource.LastKnownGood, restored.Info.Source);
+            Assert.AreEqual(remote.Info.SnapshotId, restored.Info.SnapshotId);
+            Assert.AreEqual(remote.Info.ContentFingerprint, restored.Info.ContentFingerprint);
+            Assert.IsTrue(File.Exists(Path.Combine(directory, "Snapshots", "snapshot-one", "content-manifest.json")));
+            Assert.IsTrue(File.Exists(Path.Combine(directory, "active.json")));
+        }
+
+        [Test]
+        public void Resolve_DevelopmentFallbackPrefersEmbeddedOverPersistedLkg()
+        {
+            var repository = new LastKnownGoodContentRepository(directory);
+            var package = V2Package("p2-stale", "20260807");
+            new GameCatalogSnapshotResolver(ClientVersion, repository).Resolve(package);
+
+            var snapshot = new GameCatalogSnapshotResolver(
+                ClientVersion,
+                repository,
+                preferEmbeddedFallback: true).Resolve(remoteFailureReason: "development uses embedded resources");
+
+            Assert.AreEqual(ContentSnapshotSource.Embedded, snapshot.Info.Source);
+            Assert.IsTrue(snapshot.VersionedContent.Versions.Versions.Any(
+                version => version.Id == GameVersionIds.Season14Preview));
+            Assert.IsTrue(snapshot.Chinese.Minions.All.Any(item => item.CardId == "BG36_851"));
+
+            var resolved = snapshot.VersionedContent.CreateResolver().Resolve(
+                GameVersionIds.Season14Preview,
+                snapshot);
+            var guideCatalog = StrategyGuideCatalogLoader.LoadFromResources();
+            foreach (var guide in guideCatalog.Guides)
+            {
+                var validation = StrategyGuideValidator.Validate(guideCatalog, guide, resolved);
+                Assert.IsTrue(validation.IsValid, guide.GuideId + ": " + string.Join(" | ", validation.Errors));
+            }
+        }
+
+        [Test]
+        public void Resolve_InvalidV2ActivationKeepsPreviousActiveSnapshot()
+        {
+            var repository = new LastKnownGoodContentRepository(directory);
+            var resolver = new GameCatalogSnapshotResolver(ClientVersion, repository);
+            var first = resolver.Resolve(V2Package("snapshot-one", "20260801"));
+            var second = V2Package("snapshot-two", "20260802");
+            var corruptedFiles = ContentPackageV2TestData.Clone(second.Files);
+            corruptedFiles["heroes.v20260802.json"][0] ^= 1;
+
+            var fallback = resolver.Resolve(new ContentPackageDownload(second.ManifestBytes, corruptedFiles));
+
+            Assert.AreEqual(ContentSnapshotSource.LastKnownGood, fallback.Info.Source);
+            Assert.AreEqual(first.Info.SnapshotId, fallback.Info.SnapshotId);
+            Assert.IsFalse(Directory.Exists(Path.Combine(directory, "Snapshots", "snapshot-two")));
+            Assert.IsTrue(repository.TryReadPackage(ClientVersion, out var activeManifestBytes, out _, out _));
+            Assert.AreEqual("snapshot-one", ContentPackageValidator.ParseManifest(activeManifestBytes).SnapshotId);
+        }
+
+        private static ContentPackageDownload V2Package(string snapshotId, string contentVersion)
+        {
+            var files = ContentPackageV2TestData.CreateBuiltInFiles(contentVersion);
+            return new ContentPackageDownload(
+                ContentPackageV2TestData.CreateManifestBytes(files, contentVersion, snapshotId),
+                files);
         }
 
         private static byte[] BuiltInMinionBytes()

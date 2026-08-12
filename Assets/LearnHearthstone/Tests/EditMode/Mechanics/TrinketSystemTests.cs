@@ -78,7 +78,7 @@ namespace LearnHearthstone.Tests.EditMode
             var chinese = TrinketCatalogLoader.LoadFromResources(false);
             var english = TrinketCatalogLoader.LoadFromResources(true);
 
-            Assert.AreEqual(330, chinese.All.Count);
+            Assert.AreEqual(377, chinese.All.Count);
             Assert.IsTrue(chinese.All.All(trinket => ContainsChinese(trinket.Name) && ContainsChinese(trinket.Text)));
             Assert.AreEqual("Artanis Sticker", english.GetByCardId("BG32_MagicItem_906").Name);
             Assert.AreEqual("阿塔尼斯标签", chinese.GetByCardId("BG32_MagicItem_906").Name);
@@ -100,10 +100,10 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var catalog = TrinketCatalogLoader.LoadFromResources();
 
-            Assert.AreEqual(330, catalog.All.Count);
-            Assert.AreEqual(157, catalog.Lesser.Count);
-            Assert.AreEqual(173, catalog.Greater.Count);
-            Assert.AreEqual(330, catalog.Implemented.Count);
+            Assert.AreEqual(377, catalog.All.Count);
+            Assert.AreEqual(180, catalog.Lesser.Count);
+            Assert.AreEqual(197, catalog.Greater.Count);
+            Assert.AreEqual(377, catalog.Implemented.Count);
             Assert.AreEqual(329, catalog.Offerable.Count);
             Assert.AreEqual(156, catalog.GetOfferableBySlot(TrinketSlotKind.Lesser).Count);
             Assert.AreEqual(173, catalog.GetOfferableBySlot(TrinketSlotKind.Greater).Count);
@@ -1394,7 +1394,7 @@ namespace LearnHearthstone.Tests.EditMode
                 new MatchSetupOptions { ActiveTribes = new List<Tribe> { Tribe.Murloc } });
 
             service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.IsTrue(request.Options.Count > 0);
@@ -1421,7 +1421,7 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateDirectionalTrinketOfferService(24680);
 
             service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
 
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
@@ -1460,10 +1460,10 @@ namespace LearnHearthstone.Tests.EditMode
             first.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
             second.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
 
-            var firstIds = first.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options
+            var firstIds = first.GetActiveMechanicChoice().Options
                 .Select(option => option.SourceId)
                 .ToList();
-            var secondIds = second.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options
+            var secondIds = second.GetActiveMechanicChoice().Options
                 .Select(option => option.SourceId)
                 .ToList();
 
@@ -1518,8 +1518,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             var trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
             Assert.AreEqual("BG30_MagicItem_880", trinkets.LesserTrinketId);
-            Assert.IsNotNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
-            Assert.AreEqual("BG32_MagicItem_858", service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options[0].SourceId);
+            Assert.IsNotNull(service.GetActiveMechanicChoice());
+            Assert.AreEqual("BG32_MagicItem_858", service.GetActiveMechanicChoice().Options[0].SourceId);
         }
 
         [Test]
@@ -1581,7 +1581,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Gold = 10;
 
             service.Apply(new GameCommand(GameCommandType.DebugOfferLesserTrinkets));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(4, request.Options.Count);
@@ -1597,7 +1597,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
-            var pendingAfterEquip = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var pendingAfterEquip = service.GetActiveMechanicChoice();
             Assert.IsTrue(pendingAfterEquip == null || pendingAfterEquip.RequestId != request.RequestId);
             Assert.AreEqual(expected.CardId, service.State.Player.Tavern.AdvancedMechanics.Trinkets.LesserTrinketId);
             var expectedGold = 10 - expected.Cost;
@@ -1645,7 +1645,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Gold = 10;
 
             service.Apply(new GameCommand(GameCommandType.DebugOfferGreaterTrinkets));
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
 
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
@@ -1786,7 +1786,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(TrinketSlotKind.Greater.ToString(), request.Slot);
@@ -1909,7 +1909,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             trinkets = service.State.Player.Tavern.AdvancedMechanics.Trinkets;
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(TrinketSlotKind.Greater.ToString(), request.Slot);
@@ -3578,8 +3578,8 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == WoodlandDefilerCardId));
-            AssertDefilerAura(cardIdFodder, 10);
-            AssertDefilerAura(taggedFodder, 10);
+            AssertDefilerAura(cardIdFodder, 15);
+            AssertDefilerAura(taggedFodder, 15);
             AssertDefilerAura(plainDemon, 0);
 
             service.State.Player.Tavern.DemonFodderRefreshes = 1;
@@ -3587,7 +3587,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             var refreshedFodder = service.State.Player.Tavern.Shop
                 .Single(card => card != null && card.CardId == DemonFodderCardId);
-            AssertDefilerAura(refreshedFodder, 10);
+            AssertDefilerAura(refreshedFodder, 15);
             foreach (var refreshed in service.State.Player.Tavern.Shop
                 .Where(card => card != null && card.CardKind == CardKind.Minion && card.CardId != DemonFodderCardId))
             {
@@ -3608,12 +3608,12 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
             Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardId == WoodlandDefilerCardId));
-            AssertDefilerAura(taggedFodder, 2);
+            AssertDefilerAura(taggedFodder, 4);
 
             service.Apply(new GameCommand(GameCommandType.FreezeShop, true));
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
-            AssertDefilerAura(taggedFodder, 2);
+            AssertDefilerAura(taggedFodder, 4);
         }
 
         [Test]
@@ -5318,7 +5318,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void SpellPoweredWrench_MagneticHandPlayAddsRandomTavernSpell()
+        public void SpellPoweredWrench_MagneticHandPlayCastsRepairJobOnFriendlyMech()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             var target = TestTribeMinion("wrench-mech-target", 2, 3, Tribe.Mech);
@@ -5332,9 +5332,9 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Tavern.Hand.Add(magnetic);
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
 
-            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
-            Assert.AreEqual(3, target.Attack);
-            Assert.AreEqual(5, target.MaxHealth);
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.CardKind == CardKind.TavernSpell));
+            Assert.AreEqual(7, target.Attack);
+            Assert.AreEqual(13, target.MaxHealth);
         }
 
         [Test]
@@ -8147,7 +8147,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             EquipTrinket(service, "BG30_MagicItem_703");
 
-            var request = service.State.Player.Tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.IsNotNull(request);
             Assert.AreEqual(AdvancedMechanicKind.Trinket, request.Kind);
             Assert.AreEqual(2, request.Options.Count);
@@ -8436,13 +8436,14 @@ namespace LearnHearthstone.Tests.EditMode
         private static void QueueTrinketChoice(MatchService service, string cardId)
         {
             var definition = service.TrinketCatalog.GetByCardId(cardId);
-            service.State.Player.Tavern.AdvancedMechanics.PendingChoice = new MechanicChoiceRequest
+            service.State.ChoiceQueue = new ChoiceQueueState();
+            ChoiceQueueService.Enqueue(service.State.ChoiceQueue, new ChoiceQueueItem
             {
-                RequestId = "test-" + cardId,
-                Kind = AdvancedMechanicKind.Trinket,
+                Kind = ChoiceRequestKind.Trinket,
                 Source = "test",
-                Slot = definition.SlotKind.ToString(),
-                Round = service.State.Round,
+                CreatedRound = service.State.Round,
+                Priority = 100,
+                Blocking = true,
                 RemainingPicks = 1,
                 Options = new List<MechanicChoiceOption>
                 {
@@ -8460,13 +8461,13 @@ namespace LearnHearthstone.Tests.EditMode
                         Tags = new List<string>(definition.Tags)
                     }
                 }
-            };
+            });
         }
 
         private static void QueueTrinketReplacementChoice(MatchService service, string cardId)
         {
             QueueTrinketChoice(service, cardId);
-            service.State.Player.Tavern.AdvancedMechanics.PendingChoice.Source = "trinket-replace:test";
+            service.State.ChoiceQueue.ActiveChoice.Source = "trinket-replace:test";
         }
 
         private static void EquipTrinket(MatchService service, string cardId)

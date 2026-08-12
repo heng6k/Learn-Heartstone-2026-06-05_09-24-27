@@ -14,7 +14,7 @@ namespace LearnHearthstone.Tests.EditMode
             var spell = catalog.GetBySourceId(34597);
             var tierOneSpells = catalog.GetTavernSpellsForTier(1);
 
-            Assert.AreEqual(73, catalog.All.Count);
+            Assert.AreEqual(86, catalog.All.Count);
             Assert.AreEqual(69, catalog.All.Count(candidate => candidate.InPool && candidate.Category == "TavernSpell" && !new[] { "119603", "122489", "123553", "127642" }.Contains(candidate.CardNumber)));
             Assert.AreEqual("\u5c16\u5229\u7bad\u77e2", spell.Name);
             Assert.AreEqual("Pointy Arrow", spell.EnglishName);
@@ -49,7 +49,7 @@ namespace LearnHearthstone.Tests.EditMode
             var catalog = SpellCatalogLoader.LoadFromResources(true);
             var spell = catalog.GetBySourceId(34597);
 
-            Assert.AreEqual(73, catalog.All.Count);
+            Assert.AreEqual(86, catalog.All.Count);
             Assert.AreEqual("Pointy Arrow", spell.Name);
             Assert.AreEqual("Pointy Arrow", spell.EnglishName);
             Assert.IsTrue(spell.Text.Contains("+4 Attack"));
@@ -61,6 +61,24 @@ namespace LearnHearthstone.Tests.EditMode
                 !candidate.Text.StartsWith("[Missing en-US:") &&
                 !ContainsChinese(candidate.Name) &&
                 !ContainsChinese(candidate.Text)));
+        }
+
+        [TestCase("115910")]
+        [TestCase("116596")]
+        [TestCase("116221")]
+        [TestCase("117567")]
+        [TestCase("117584")]
+        [TestCase("132903")]
+        [TestCase("132995")]
+        [TestCase("133369")]
+        [TestCase("133371")]
+        [TestCase("133711")]
+        public void Season14Spell_LocalizedArtIsBundledAtCatalogPath(string cardNumber)
+        {
+            var spell = SpellCatalogLoader.LoadFromResources().All.Single(item => item.CardNumber == cardNumber);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(spell.ImagePath));
+            Assert.IsNotNull(Resources.Load<Texture2D>(spell.ImagePath), spell.EnglishName + " art is missing.");
         }
 
         private static bool ContainsChinese(string value)

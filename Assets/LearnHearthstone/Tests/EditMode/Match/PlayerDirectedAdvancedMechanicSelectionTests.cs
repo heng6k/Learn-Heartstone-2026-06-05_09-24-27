@@ -35,7 +35,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsNotNull(quest);
             Assert.AreEqual(pair.CardId, quest.QuestCardId);
             Assert.AreEqual(pair.SecondaryCardId, quest.RewardCardId);
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             Assert.IsTrue(service.State.Player.Tavern.RecruitLog.Any(entry =>
                 entry.Message.Contains("已定向选择任务：")));
         }

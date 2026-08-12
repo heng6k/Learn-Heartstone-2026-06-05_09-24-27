@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "locale": "zh-CN",
+  "count": 43,
+  "gifts": [
+    {
+      "id": "BG36_MidGameEffect_000t62",
+      "name": "沉没的传承",
+      "text": "本随从的塑造法术永久有效。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t13",
+      "name": "鹰身人之爪",
+      "text": "圣盾。风怒。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t16",
+      "name": "死亡之口",
+      "text": "战斗开始时：触发本随从的亡语。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t73",
+      "name": "坚韧刚毅",
+      "text": "+4/+4。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t82",
+      "name": "同类亲和",
+      "text": "每2个回合，在回合结束时，随机获取一张本随从的类型的随从牌。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t74",
+      "name": "锋锐之剑",
+      "text": "每当你使用一张牌，获得+2攻击力。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t75",
+      "name": "坚实之盾",
+      "text": "每当你使用一张牌，获得+2生命值。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t51",
+      "name": "稳健成长",
+      "text": "回合结束时，根据出现回合获得+1/+2、+2/+2、+3/+3或+4/+4。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t21",
+      "name": "时光倒转",
+      "text": "本随从的回合结束效果还会在回合开始时触发。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t79",
+      "name": "隐秘鬼祟",
+      "text": "潜行。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t80",
+      "name": "鲜血连结",
+      "text": "进击：获取2张鲜血宝石。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t52",
+      "name": "刷新眼界",
+      "text": "亡语：获得2次免费的刷新。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t18",
+      "name": "不断复制",
+      "text": "每2个回合，在回合结束时，获取一张本随从的原始版复制。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t28t",
+      "name": "战争之痕",
+      "text": "本局每触发过一次战吼，便拥有+2/+2。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t29t",
+      "name": "死亡之拥",
+      "text": "本局每触发过一次亡语，便拥有+1/+1。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t30t",
+      "name": "法术虹吸",
+      "text": "本局每施放过一个酒馆法术，便拥有+2/+2。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t14",
+      "name": "镀金随从",
+      "text": "本随从为金色，但不会获得三连奖励。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t11",
+      "name": "双重幻像",
+      "text": "获取一张本随从的额外复制。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t15",
+      "name": "托雷斯的祝福",
+      "text": "本随从的圣盾多承受2次伤害才会破灭。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t22",
+      "name": "融合怪",
+      "text": "拥有全部随从类型。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t66",
+      "name": "恶魔学识",
+      "text": "进击：在你的下3次刷新中各添加一个恶魔饲料。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t65",
+      "name": "磁性极化",
+      "text": "在你的回合结束时，为本随从磁力吸附一个随机机械。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t5",
+      "name": "秘法精华",
+      "text": "亡语：随机获取一张酒馆法术牌。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t50",
+      "name": "泰蕾苟萨的祝福",
+      "text": "可永久保留战斗阶段获得的属性值和额外关键词。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t64",
+      "name": "敏捷灵动",
+      "text": "每当你使用一张牌，获得+2/+2。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t4",
+      "name": "正在孵化",
+      "text": "+2/+2。2回合后，本随从的属性值翻倍。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t10",
+      "name": "吼声回荡",
+      "text": "在你的回合结束时，触发本随从的战吼。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t",
+      "name": "进攻献祭",
+      "text": "亡语：使另一个友方随从获得本随从的攻击力。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t2",
+      "name": "防御献祭",
+      "text": "亡语：使另一个友方随从获得本随从的生命值上限。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t81",
+      "name": "超凡脱俗",
+      "text": "战斗开始时：本随从的属性值变为三倍。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t28",
+      "name": "战争之痕",
+      "text": "本局每触发过一次战吼，便拥有+3/+3。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t29",
+      "name": "死亡之拥",
+      "text": "本局每触发过一次亡语，便拥有+2/+2。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t30",
+      "name": "法术虹吸",
+      "text": "本局每施放过一个酒馆法术，便拥有+3/+3。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t9",
+      "name": "倾心于左",
+      "text": "战斗开始时：获得本随从左边的随从的属性值。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t69",
+      "name": "暴烈毒性",
+      "text": "烈毒。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t3",
+      "name": "魅力感召",
+      "text": "进击：随机获取一张你的多数随从的类型的随从牌。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t7",
+      "name": "顽强抗性",
+      "text": "战斗开始时：本随从的生命值翻倍。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t71",
+      "name": "敌意难息",
+      "text": "战斗开始时：本随从的攻击力翻倍。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t64t",
+      "name": "敏捷灵动",
+      "text": "每当你使用一张牌，获得+4/+4。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t61",
+      "name": "魔像秘术",
+      "text": "亡语：召唤一个具有本随从属性值的魔像。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t12",
+      "name": "回荡恐怖",
+      "text": "复生，且复生时具有所有属性值和额外关键词。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t72",
+      "name": "泰坦之力",
+      "text": "+1000攻击力。"
+    },
+    {
+      "id": "BG36_MidGameEffect_000t60",
+      "name": "无懈可击",
+      "text": "攻击时免疫。"
+    }
+  ]
+}

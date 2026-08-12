@@ -1,5 +1,6 @@
 using System;
 using LearnHearthstone.Domain.Data;
+using LearnHearthstone.Domain.Models;
 
 namespace LearnHearthstone.Application.Content
 {
@@ -13,7 +14,8 @@ namespace LearnHearthstone.Application.Content
             QuestCatalog quests,
             TimewarpedTavernCatalog timewarpedTavern,
             AnomalyCatalog anomalies,
-            DarkmoonPrizeCatalog darkmoonPrizes)
+            DarkmoonPrizeCatalog darkmoonPrizes,
+            DarkGiftCatalog darkGifts = null)
         {
             Minions = minions ?? throw new ArgumentNullException(nameof(minions));
             Spells = spells ?? throw new ArgumentNullException(nameof(spells));
@@ -23,6 +25,7 @@ namespace LearnHearthstone.Application.Content
             TimewarpedTavern = timewarpedTavern ?? throw new ArgumentNullException(nameof(timewarpedTavern));
             Anomalies = anomalies ?? throw new ArgumentNullException(nameof(anomalies));
             DarkmoonPrizes = darkmoonPrizes ?? throw new ArgumentNullException(nameof(darkmoonPrizes));
+            DarkGifts = darkGifts ?? new DarkGiftCatalog(Array.Empty<DarkGiftDefinition>());
         }
 
         public MinionCatalog Minions { get; }
@@ -33,5 +36,6 @@ namespace LearnHearthstone.Application.Content
         public TimewarpedTavernCatalog TimewarpedTavern { get; }
         public AnomalyCatalog Anomalies { get; }
         public DarkmoonPrizeCatalog DarkmoonPrizes { get; }
+        public DarkGiftCatalog DarkGifts { get; }
     }
 }

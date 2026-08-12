@@ -79,6 +79,10 @@ namespace LearnHearthstone.Domain.Engine
             {
                 return;
             }
+            if (FishbaitRecruitAttackService.IsFishbait(target) && (attackDelta > 0 || healthDelta > 0))
+            {
+                return;
+            }
 
             target.Attack = ClampAttack((long)target.Attack + attackDelta);
             target.MaxHealth = ClampMaxHealth((long)target.MaxHealth + healthDelta);
@@ -92,6 +96,10 @@ namespace LearnHearthstone.Domain.Engine
             {
                 return;
             }
+            if (FishbaitRecruitAttackService.IsFishbait(target) && (attackDelta > 0 || maxHealthDelta > 0))
+            {
+                return;
+            }
 
             target.Attack = ClampAttack((long)target.Attack + attackDelta);
             target.MaxHealth = ClampMaxHealth((long)target.MaxHealth + maxHealthDelta);
@@ -101,6 +109,13 @@ namespace LearnHearthstone.Domain.Engine
         public static void ApplyEnchantment(MinionInstance target, Enchantment enchantment)
         {
             if (target == null || enchantment == null)
+            {
+                return;
+            }
+            if (FishbaitRecruitAttackService.IsFishbait(target) &&
+                (enchantment.Kind == EnchantmentKind.SetStats ||
+                 enchantment.AttackBonus > 0 ||
+                 enchantment.HealthBonus > 0))
             {
                 return;
             }

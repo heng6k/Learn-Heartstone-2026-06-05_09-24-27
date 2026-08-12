@@ -24,6 +24,7 @@ namespace LearnHearthstone.Domain.Engine
         private static readonly Dictionary<string, Tribe[]> TavernSpellTribeMap = new Dictionary<string, Tribe[]>
         {
             { "126676", new[] { Tribe.Quilboar } },
+            { "116221", new[] { Tribe.Quilboar } },
             { "110642", new[] { Tribe.Quilboar } },
             { "122182", new[] { Tribe.Pirate } },
             { "122183", new[] { Tribe.Pirate } },

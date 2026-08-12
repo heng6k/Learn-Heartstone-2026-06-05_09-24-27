@@ -9,7 +9,8 @@ namespace LearnHearthstone.Domain.Models
         Quest,
         Anomaly,
         Timewarp,
-        Distortion
+        Distortion,
+        DarkGift
     }
 
     public enum AdvancedMechanicMode
@@ -93,6 +94,9 @@ namespace LearnHearthstone.Domain.Models
         public int DifficultyTier;
         public string RewardPowerLevel;
         public int Cost;
+        public int Attack;
+        public int Health;
+        public List<Tribe> Tribes = new List<Tribe>();
         public string Slot;
         public string ImplementationStatus;
         public List<string> Tags = new List<string>();
@@ -101,6 +105,7 @@ namespace LearnHearthstone.Domain.Models
         {
             var clone = (MechanicChoiceOption)MemberwiseClone();
             clone.Tags = new List<string>(Tags ?? new List<string>());
+            clone.Tribes = new List<Tribe>(Tribes ?? new List<Tribe>());
             return clone;
         }
     }
@@ -121,6 +126,72 @@ namespace LearnHearthstone.Domain.Models
             var clone = (MechanicChoiceRequest)MemberwiseClone();
             clone.Options = (Options ?? new List<MechanicChoiceOption>())
                 .ConvertAll(option => option?.Clone());
+            return clone;
+        }
+    }
+
+    public enum ChoiceRequestKind
+    {
+        Discover,
+        Quest,
+        Trinket,
+        Anomaly,
+        HeroChoice,
+        DarkGift
+    }
+
+    [Serializable]
+    public sealed class ChoiceResolutionMetadataEntry
+    {
+        public string Key;
+        public string Value;
+
+        public ChoiceResolutionMetadataEntry Clone()
+        {
+            return (ChoiceResolutionMetadataEntry)MemberwiseClone();
+        }
+    }
+
+    [Serializable]
+    public sealed class ChoiceQueueItem
+    {
+        public string RequestId;
+        public ChoiceRequestKind Kind;
+        public string Source;
+        public int CreatedRound;
+        public int Sequence;
+        public int Priority;
+        public bool Blocking;
+        public int RemainingPicks = 1;
+        public List<MechanicChoiceOption> Options = new List<MechanicChoiceOption>();
+        public List<ChoiceResolutionMetadataEntry> ResolutionMetadata = new List<ChoiceResolutionMetadataEntry>();
+        public DiscoverState Discover;
+
+        public ChoiceQueueItem Clone()
+        {
+            var clone = (ChoiceQueueItem)MemberwiseClone();
+            clone.Options = (Options ?? new List<MechanicChoiceOption>()).ConvertAll(option => option?.Clone());
+            clone.ResolutionMetadata = (ResolutionMetadata ?? new List<ChoiceResolutionMetadataEntry>())
+                .ConvertAll(entry => entry?.Clone());
+            clone.Discover = Discover?.Clone();
+            return clone;
+        }
+    }
+
+    [Serializable]
+    public sealed class ChoiceQueueState
+    {
+        public ChoiceQueueItem ActiveChoice;
+        public List<ChoiceQueueItem> PendingChoices = new List<ChoiceQueueItem>();
+        public List<string> CompletedRequestIds = new List<string>();
+        public int NextSequence = 1;
+
+        public ChoiceQueueState Clone()
+        {
+            var clone = (ChoiceQueueState)MemberwiseClone();
+            clone.ActiveChoice = ActiveChoice?.Clone();
+            clone.PendingChoices = (PendingChoices ?? new List<ChoiceQueueItem>()).ConvertAll(item => item?.Clone());
+            clone.CompletedRequestIds = new List<string>(CompletedRequestIds ?? new List<string>());
             return clone;
         }
     }

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace LearnHearthstone.Domain.Models
 {
+    public static class MinionEffectIds
+    {
+        public const string AlwaysGoldenNoTripleReward = "minion.always-golden-no-triple-reward";
+    }
+
     [Serializable]
     public sealed class GoldenMinionDefinition
     {
@@ -20,6 +25,11 @@ namespace LearnHearthstone.Domain.Models
     {
         public string Id;
         public string CardId;
+        public string ResearchKey;
+        public string RevisionId;
+        public string EffectRevision;
+        public string SourceLevel;
+        public string ImplementationStatus;
         public int DbfId;
         public string Name;
         public int TavernTier;
@@ -33,8 +43,10 @@ namespace LearnHearthstone.Domain.Models
         public int PoolCount;
         public GoldenMinionDefinition Golden;
         public string ImagePath;
+        public string ImageSource;
         public List<string> EffectIds = new List<string>();
         public List<string> Tags = new List<string>();
+        public List<RecruitActionDefinition> RecruitActions = new List<RecruitActionDefinition>();
         public string TokenId;
     }
 
@@ -144,10 +156,18 @@ namespace LearnHearthstone.Domain.Models
     {
         public static MinionInstance Create(MinionDefinition definition, BoardSide owner, string suffix, bool golden = false, PoolSource source = PoolSource.Pool, int poolCopiesHeld = 1)
         {
-            var attack = golden && definition.Golden != null ? definition.Golden.BaseAttack : definition.BaseAttack;
-            var health = golden && definition.Golden != null ? definition.Golden.BaseHealth : definition.BaseHealth;
-            var keywords = golden && definition.Golden != null ? definition.Golden.Keywords : definition.Keywords;
-            var officialKeywords = golden && definition.Golden != null ? definition.Golden.OfficialKeywords : definition.OfficialKeywords;
+            var alwaysGoldenNoTripleReward = definition.EffectIds != null &&
+                definition.EffectIds.Contains(MinionEffectIds.AlwaysGoldenNoTripleReward);
+            var createGolden = golden || alwaysGoldenNoTripleReward;
+            var attack = createGolden && definition.Golden != null ? definition.Golden.BaseAttack : definition.BaseAttack;
+            var health = createGolden && definition.Golden != null ? definition.Golden.BaseHealth : definition.BaseHealth;
+            var keywords = createGolden && definition.Golden != null ? definition.Golden.Keywords : definition.Keywords;
+            var officialKeywords = createGolden && definition.Golden != null ? definition.Golden.OfficialKeywords : definition.OfficialKeywords;
+            var counters = new Dictionary<string, int>();
+            if (alwaysGoldenNoTripleReward)
+            {
+                counters["triple-reward-granted"] = 1;
+            }
 
             return new MinionInstance
             {
@@ -166,11 +186,11 @@ namespace LearnHearthstone.Domain.Models
                 Tribes = new List<Tribe>(definition.Tribes),
                 Keywords = new List<Keyword>(keywords),
                 OfficialKeywords = new List<Keyword>(officialKeywords),
-                Text = golden && definition.Golden != null ? definition.Golden.Text : definition.Text,
-                Golden = golden,
+                Text = createGolden && definition.Golden != null ? definition.Golden.Text : definition.Text,
+                Golden = createGolden,
                 Owner = owner,
                 Enchantments = new List<Enchantment>(),
-                Counters = new Dictionary<string, int>(),
+                Counters = counters,
                 CanAttack = true,
                 AttacksThisCombat = 0,
                 OriginPoolSource = source,

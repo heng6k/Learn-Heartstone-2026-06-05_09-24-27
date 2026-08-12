@@ -45,6 +45,7 @@ namespace LearnHearthstone.Domain.Data
             Entry("BG28_303", "Battlecry", TierThreeImplementationStatus.Implemented, "Destroys the selected friendly Undead and adds plain copies, with Golden producing two copies."),
             Entry("BG28_309", "Combat deathrattle", TierThreeImplementationStatus.Implemented, "Gives a different friendly Undead Reborn."),
             Entry("BG29_816", "Combat attack trigger", TierThreeImplementationStatus.Implemented, "Buffs attacking Dragons."),
+            Entry("BG30_123", "Choose One/Blood Gem", TierThreeImplementationStatus.Implemented, "Uses the discover UI to choose Blood Gem quality growth or generated Blood Gems."),
             Entry("BG30_125", "Combat deathrattle", TierThreeImplementationStatus.Implemented, "Summons Skeleton tokens."),
             Entry("BG31_859", "Magnetic", TierThreeImplementationStatus.Implemented, "Magnetizes to Mechs and Elementals."),
             Entry("BG32_434", "Combat deathrattle", TierThreeImplementationStatus.Implemented, "Applies Blood Gems to adjacent minions."),

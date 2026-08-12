@@ -44,6 +44,11 @@ namespace LearnHearthstone.Adapters.Data
             {
                 Id = raw.id,
                 CardId = raw.cardId,
+                ResearchKey = raw.researchKey,
+                RevisionId = raw.revisionId,
+                EffectRevision = raw.effectRevision,
+                SourceLevel = raw.sourceLevel,
+                ImplementationStatus = raw.implementationStatus,
                 DbfId = raw.dbfId,
                 Name = Localized(raw.name, raw.englishName, useEnglish, raw.cardId + ".name"),
                 TavernTier = raw.tavernTier,
@@ -55,9 +60,11 @@ namespace LearnHearthstone.Adapters.Data
                 Text = Localized(raw.text, raw.englishText, useEnglish, raw.cardId + ".text"),
                 InPool = raw.inPool == 1,
                 PoolCount = raw.poolCount,
-                ImagePath = "CardImages/" + raw.cardId,
+                ImagePath = string.IsNullOrWhiteSpace(raw.imagePath) ? "CardImages/" + raw.cardId : raw.imagePath,
+                ImageSource = raw.imageSource,
                 EffectIds = raw.effectIds == null ? new List<string>() : new List<string>(raw.effectIds),
-                Tags = raw.tags == null || raw.tags.Count == 0 ? InferTags(raw) : new List<string>(raw.tags)
+                Tags = raw.tags == null || raw.tags.Count == 0 ? InferTags(raw) : new List<string>(raw.tags),
+                RecruitActions = MapRecruitActions(raw.recruitActions)
             };
 
             if (raw.golden != null && !string.IsNullOrEmpty(raw.golden.cardId))
@@ -75,6 +82,45 @@ namespace LearnHearthstone.Adapters.Data
             }
 
             return definition;
+        }
+
+        private static List<RecruitActionDefinition> MapRecruitActions(List<RawRecruitAction> rawActions)
+        {
+            var actions = new List<RecruitActionDefinition>();
+            if (rawActions == null)
+            {
+                return actions;
+            }
+
+            foreach (var raw in rawActions)
+            {
+                if (raw == null)
+                {
+                    continue;
+                }
+
+                var targetSpec = RecruitActionTargetSpec.None;
+                if (!Enum.TryParse(raw.targetSpec, true, out targetSpec))
+                {
+                    targetSpec = RecruitActionTargetSpec.None;
+                }
+                var allowedPhase = MatchPhase.Tavern;
+                if (!Enum.TryParse(raw.allowedPhase, true, out allowedPhase))
+                {
+                    allowedPhase = MatchPhase.Tavern;
+                }
+                actions.Add(new RecruitActionDefinition
+                {
+                    ActionId = raw.actionId,
+                    ResolverId = raw.resolverId,
+                    CostSpec = new RecruitActionCostSpec { Gold = raw.costSpec?.gold ?? 0 },
+                    TargetSpec = targetSpec,
+                    UsesPerTurn = raw.usesPerTurn > 0 ? raw.usesPerTurn : 1,
+                    AllowedPhase = allowedPhase
+                });
+            }
+
+            return actions;
         }
 
         private static string Localized(string chinese, string english, bool useEnglish, string key)
@@ -407,6 +453,11 @@ namespace LearnHearthstone.Adapters.Data
         {
             public string id;
             public string cardId;
+            public string researchKey;
+            public string revisionId;
+            public string effectRevision;
+            public string sourceLevel;
+            public string implementationStatus;
             public int dbfId;
             public string name;
             public string englishName;
@@ -420,9 +471,29 @@ namespace LearnHearthstone.Adapters.Data
             public string englishText;
             public int inPool;
             public int poolCount;
+            public string imagePath;
+            public string imageSource;
             public List<string> effectIds;
             public List<string> tags;
+            public List<RawRecruitAction> recruitActions;
             public RawGolden golden;
+        }
+
+        [Serializable]
+        private sealed class RawRecruitAction
+        {
+            public string actionId;
+            public string resolverId;
+            public RawRecruitActionCost costSpec;
+            public string targetSpec;
+            public int usesPerTurn = 1;
+            public string allowedPhase = "Tavern";
+        }
+
+        [Serializable]
+        private sealed class RawRecruitActionCost
+        {
+            public int gold;
         }
 
         [Serializable]

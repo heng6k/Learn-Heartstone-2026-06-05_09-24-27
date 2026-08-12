@@ -104,12 +104,12 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "已选择畸变：尤格专场。"));
             Assert.IsTrue(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("尤格专场：选择2个奖励中的1个")));
             Assert.IsFalse(chinese.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Implemented")));
-            Assert.IsTrue(chinese.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.All(option =>
+            Assert.IsTrue(chinese.GetActiveMechanicChoice().Options.All(option =>
                 ContainsChinese(option.DisplayName) && ContainsChinese(option.Text)));
 
             Assert.IsTrue(english.State.Player.Tavern.RecruitLog.Any(entry => entry.Message.Contains("Battlegrounds anomaly selected: The Yogg-iseum")));
             Assert.IsTrue(english.State.Player.Tavern.RecruitLog.Any(entry => entry.Message == "The Yogg-iseum: choose 1 of 2 rewards for end of turn."));
-            Assert.IsTrue(english.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.All(option =>
+            Assert.IsTrue(english.GetActiveMechanicChoice().Options.All(option =>
                 !ContainsChinese(option.DisplayName) && !ContainsChinese(option.Text)));
         }
 
@@ -386,12 +386,12 @@ namespace LearnHearthstone.Tests.EditMode
 
             AdvanceToRound(service, 7);
             tavern = service.State.Player.Tavern;
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern = service.State.Player.Tavern;
 
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.AreEqual(8, service.State.Round);
             Assert.AreEqual("BG32_HERO_002p", service.State.Player.ExtraHeroPowerCardIds.Single());
             Assert.AreNotEqual("BG32_HERO_002p", service.State.Player.HeroPowerCardId);
@@ -432,12 +432,12 @@ namespace LearnHearthstone.Tests.EditMode
 
             AdvanceToRound(service, 7);
             tavern = service.State.Player.Tavern;
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern = service.State.Player.Tavern;
 
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.AreEqual(8, service.State.Round);
             Assert.AreEqual("BG30_HERO_304p", service.State.Player.HeroPowerCardId);
             Assert.AreEqual("BG32_HERO_002p", service.State.Player.ExtraHeroPowerCardIds.Single());
@@ -570,12 +570,12 @@ namespace LearnHearthstone.Tests.EditMode
 
             AdvanceToRound(service, 4);
             tavern = service.State.Player.Tavern;
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern = service.State.Player.Tavern;
 
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.AreEqual(5, service.State.Round);
             Assert.AreEqual("BG30_HERO_304p", service.State.Player.ExtraHeroPowerCardIds.Single());
             Assert.AreNotEqual("BG30_HERO_304p", service.State.Player.HeroPowerCardId);
@@ -650,12 +650,12 @@ namespace LearnHearthstone.Tests.EditMode
 
             AdvanceToRound(service, 4);
             tavern = service.State.Player.Tavern;
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern = service.State.Player.Tavern;
 
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
             Assert.AreEqual(5, service.State.Round);
             Assert.AreEqual("BG35_Anomaly_002t", service.State.Player.ExtraHeroPowerCardIds.Single());
             Assert.AreNotEqual("BG35_Anomaly_002t", service.State.Player.HeroPowerCardId);
@@ -680,7 +680,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             AdvanceToRound(service, 5);
             tavern = service.State.Player.Tavern;
-            var picked = tavern.AdvancedMechanics.PendingChoice.Options[0].SourceId;
+            var picked = service.GetActiveMechanicChoice().Options[0].SourceId;
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
             var trinkets = tavern.AdvancedMechanics.Trinkets;
@@ -697,7 +697,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.Apply(new GameCommand(GameCommandType.NextTurn));
             tavern = service.State.Player.Tavern;
 
-            var nextRequest = tavern.AdvancedMechanics.PendingChoice;
+            var nextRequest = service.GetActiveMechanicChoice();
             Assert.AreEqual(6, service.State.Round);
             Assert.IsNotNull(nextRequest);
             Assert.AreEqual("hero-power:mystery-cube", nextRequest.Source);
@@ -1821,7 +1821,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = CreateAnomalyService("BG27_Anomaly_580");
             var tavern = service.State.Player.Tavern;
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
 
             AssertSinglePlayerAnomalyChoice(request, "anomaly-audiences-choice");
             Assert.IsTrue(request.Options.All(option => !string.IsNullOrEmpty(option.RewardId)));
@@ -1830,7 +1830,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             Assert.AreEqual(handBefore, tavern.Hand.Count);
             Assert.AreEqual(selectedCardId, tavern.AdvancedMechanics.Selections["anomaly_audiences_choice_selected_card"]);
 
@@ -1849,13 +1849,13 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = CreateAnomalyService("BG27_Anomaly_580");
             var tavern = service.State.Player.Tavern;
-            AssertSinglePlayerAnomalyChoice(tavern.AdvancedMechanics.PendingChoice, "anomaly-audiences-choice");
+            AssertSinglePlayerAnomalyChoice(service.GetActiveMechanicChoice(), "anomaly-audiences-choice");
             var handBefore = tavern.Hand.Count;
 
             service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
 
             Assert.AreEqual(handBefore, tavern.Hand.Count);
-            AssertSinglePlayerAnomalyChoice(tavern.AdvancedMechanics.PendingChoice, "anomaly-audiences-choice");
+            AssertSinglePlayerAnomalyChoice(service.GetActiveMechanicChoice(), "anomaly-audiences-choice");
             Assert.AreEqual(2, service.State.Round);
         }
 
@@ -1866,7 +1866,7 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = service.State.Player.Tavern;
             service.State.Player.Board.Add(TestMinion("yogg-board", "yogg-board"));
             var boardMinion = service.State.Player.Board.Single();
-            var request = tavern.AdvancedMechanics.PendingChoice;
+            var request = service.GetActiveMechanicChoice();
 
             AssertSinglePlayerAnomalyChoice(request, "anomaly-yogg-iseum");
             var selectedReward = request.Options[0].RewardId;
@@ -1877,7 +1877,7 @@ namespace LearnHearthstone.Tests.EditMode
 
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             Assert.AreEqual(handBefore, tavern.Hand.Count);
             Assert.AreEqual(freeRefreshesBefore, tavern.FreeRefreshes);
             Assert.AreEqual(attackBefore, boardMinion.Attack);
@@ -1896,8 +1896,8 @@ namespace LearnHearthstone.Tests.EditMode
             var second = CreateAnomalyService("BG27_Anomaly_503");
 
             CollectionAssert.AreEqual(
-                first.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.Select(option => option.RewardId).ToList(),
-                second.State.Player.Tavern.AdvancedMechanics.PendingChoice.Options.Select(option => option.RewardId).ToList());
+                first.GetActiveMechanicChoice().Options.Select(option => option.RewardId).ToList(),
+                second.GetActiveMechanicChoice().Options.Select(option => option.RewardId).ToList());
         }
 
         private static MatchService CreateDoubleHeaderService()

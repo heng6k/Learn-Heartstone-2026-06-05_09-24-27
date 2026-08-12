@@ -121,11 +121,19 @@ namespace LearnHearthstone.Adapters.Data
             return new HeroDefinition
             {
                 HeroCardId = raw.heroCardId,
+                ResearchKey = raw.researchKey,
+                RevisionId = raw.revisionId,
+                EffectRevision = raw.effectRevision,
+                SourceLevel = raw.sourceLevel,
+                ImplementationStatus = raw.implementationStatus,
                 HeroDbfId = raw.heroDbfId,
                 Name = raw.name,
                 Health = raw.health > 0 ? raw.health : 30,
                 Armor = Math.Max(0, raw.armor),
+                InPool = raw.inPool != 0,
                 ImagePath = raw.imagePath,
+                ImageSource = raw.imageSource,
+                ImageSha256 = raw.imageSha256,
                 HeroPower = ToHeroPower(raw.heroPower),
                 Buddy = ToBuddy(raw.buddy),
                 MissingBuddyMapping = raw.missingBuddyMapping,
@@ -237,11 +245,19 @@ namespace LearnHearthstone.Adapters.Data
         private sealed class RawHero
         {
             public string heroCardId;
+            public string researchKey;
+            public string revisionId;
+            public string effectRevision;
+            public string sourceLevel;
+            public string implementationStatus;
             public int heroDbfId;
             public string name;
             public int health;
             public int armor;
+            public int inPool = 1;
             public string imagePath;
+            public string imageSource;
+            public string imageSha256;
             public RawHeroPower heroPower;
             public RawBuddy buddy;
             public bool missingBuddyMapping;

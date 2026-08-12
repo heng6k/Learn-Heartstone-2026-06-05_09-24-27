@@ -78,6 +78,7 @@ namespace LearnHearthstone.Domain.Models
     {
         public string Id;
         public string CardId;
+        public string ResearchKey;
         public int DbfId;
         public string SourceName;
         public string Name;

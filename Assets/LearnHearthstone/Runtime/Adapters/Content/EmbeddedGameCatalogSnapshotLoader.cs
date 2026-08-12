@@ -45,27 +45,40 @@ namespace LearnHearthstone.Adapters.Content
         {
             var heroes = HeroCatalogLoader.LoadFromResources();
             var timewarpedTavern = TimewarpedTavernCatalogLoader.LoadFromResources();
+            var chineseDarkGifts = DarkGiftCatalogLoader.LoadFromResources(false);
+            var englishDarkGifts = DarkGiftCatalogLoader.LoadFromResources();
+            var chineseSpells = SpellCatalogLoader.LoadFromResources();
+            var englishSpells = SpellCatalogLoader.LoadFromResources(true);
+            var versionedContent = VersionedContentCatalogLoader.LoadFromResources(
+                englishMinions.All,
+                heroes.AllHeroes,
+                englishSpells.All,
+                englishDarkGifts.All);
             return new GameCatalogSnapshot(
                 info,
-                LoadLanguage(false, chineseMinions, heroes, timewarpedTavern),
-                LoadLanguage(true, englishMinions, heroes, timewarpedTavern));
+                LoadLanguage(false, chineseMinions, chineseSpells, heroes, timewarpedTavern, chineseDarkGifts),
+                LoadLanguage(true, englishMinions, englishSpells, heroes, timewarpedTavern, englishDarkGifts),
+                versionedContent);
         }
 
         private static GameCatalogSet LoadLanguage(
             bool useEnglish,
             MinionCatalog minions,
+            SpellCatalog spells,
             HeroCatalog heroes,
-            TimewarpedTavernCatalog timewarpedTavern)
+            TimewarpedTavernCatalog timewarpedTavern,
+            DarkGiftCatalog darkGifts)
         {
             return new GameCatalogSet(
                 minions,
-                SpellCatalogLoader.LoadFromResources(useEnglish),
+                spells,
                 heroes,
                 TrinketCatalogLoader.LoadFromResources(useEnglish),
                 QuestCatalogLoader.LoadFromResources(useEnglish),
                 timewarpedTavern,
                 AnomalyCatalogLoader.LoadFromResources(useEnglish),
-                DarkmoonPrizeCatalogLoader.LoadFromResources(useEnglish));
+                DarkmoonPrizeCatalogLoader.LoadFromResources(useEnglish),
+                darkGifts);
         }
     }
 }

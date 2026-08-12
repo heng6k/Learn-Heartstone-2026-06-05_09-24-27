@@ -271,6 +271,10 @@ namespace LearnHearthstone.Domain.Data
                             }
                         }
                     }
+                },
+                new MinionEffectDefinition
+                {
+                    Id = MinionEffectIds.AlwaysGoldenNoTripleReward
                 }
             });
         }

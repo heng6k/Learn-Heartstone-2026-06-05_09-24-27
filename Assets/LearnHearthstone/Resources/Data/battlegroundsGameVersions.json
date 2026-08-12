@@ -1,0 +1,4607 @@
+{
+  "schemaVersion": 1,
+  "versions": [
+    {
+      "id": "legacy-composite-sandbox-v1",
+      "displayName": "Legacy Composite Sandbox",
+      "releaseDateUtc": "1970-01-01T00:00:00Z",
+      "officialStatus": "Unofficial",
+      "implementationStatus": "Verified",
+      "rulesetId": "ruleset-legacy-composite-v1",
+      "contentSetId": "content-legacy-composite-v1",
+      "changeSummary": "Fixed compatibility adapter for the pre-versioned composite sandbox."
+    },
+    {
+      "id": "36.2-preview",
+      "displayName": "36.2",
+      "releaseDateUtc": "2026-08-04T17:00:00Z",
+      "officialStatus": "Released",
+      "implementationStatus": "Partial",
+      "rulesetId": "ruleset-36.2-preview-v1",
+      "contentSetId": "content-36.2-preview-v1",
+      "changeSummary": "Season 14: Dark Gifts, Activate, Lockbox, Fishbait, heroes, cards and pool changes. Trainer support remains partial."
+    }
+  ],
+  "contentSets": [
+    {
+      "id": "content-legacy-composite-v1",
+      "heroRevisionIds": [],
+      "minionRevisionIds": [],
+      "tavernSpellRevisionIds": [],
+      "trinketRevisionIds": [],
+      "darkGiftRevisionIds": [],
+      "includeAllDarkGiftRevisions": false,
+      "includeAllVersionedMinionRevisions": false,
+      "includeAllHeroDefinitions": false,
+      "includeAllTavernSpellDefinitions": false,
+      "poolMembership": []
+    },
+    {
+      "id": "content-36.2-preview-v1",
+      "heroRevisionIds": [
+        "preview-s14-hero-nightmare-lord-xavius@36.2-preview-v1",
+        "preview-s14-hero-trastath-soul-parasite@36.2-preview-v1",
+        "hero.edwin-vancleef@36.2-preview-community-p1a",
+        "hero.rakanishu@36.2-preview-community-p1a",
+        "hero.cariel-roame@36.2-preview-community-p1a",
+        "hero.ragnaros@36.2-preview-community-p1a",
+        "hero.overlord-saurfang@36.2-preview-community-p1a",
+        "hero.enhance-o-mechano@36.2-preview-community-p1a"
+      ],
+      "minionRevisionIds": [
+        "BG_DEEP_015@36.2-preview-v1",
+        "BG30_123@36.2-preview-v1",
+        "BG33_155@36.2-preview-v1",
+        "BG27_556@36.2-preview-v1",
+        "BG35_921@36.2-preview-v1",
+        "BG26_810@36.2-preview-v1",
+        "BG31_824@36.2-preview-v1",
+        "BGS_018@36.2-preview-v1",
+        "BG32_236@36.2-preview-v1"
+      ],
+      "tavernSpellRevisionIds": [
+        "132903@36.2-preview-v1",
+        "132995@36.2-preview-v1",
+        "133369@36.2-preview-v1",
+        "133371@36.2-preview-v1",
+        "133711@36.2-preview-v1",
+        "130310@36.2-preview-v1",
+        "130311@36.2-preview-v1",
+        "116596@36.2-preview-v1",
+        "116221@36.2-preview-v1",
+        "100596@36.2-preview-v1",
+        "105665@36.2-preview-v1",
+        "113902@36.2-preview-v1",
+        "131153@36.2-preview-v1",
+        "104445@36.2-preview-v1",
+        "117567@36.2-preview-v1",
+        "117584@36.2-preview-v1",
+        "115910@36.2-preview-v1"
+      ],
+      "trinketRevisionIds": [
+        "preview-s14-trinket-133060@36.2-preview-v1",
+        "preview-s14-trinket-133061@36.2-preview-v1",
+        "preview-s14-trinket-133062@36.2-preview-v1",
+        "preview-s14-trinket-133063@36.2-preview-v1",
+        "preview-s14-trinket-133064@36.2-preview-v1",
+        "preview-s14-trinket-133066@36.2-preview-v1",
+        "preview-s14-trinket-133067@36.2-preview-v1",
+        "preview-s14-trinket-133068@36.2-preview-v1",
+        "preview-s14-trinket-133069@36.2-preview-v1",
+        "preview-s14-trinket-133070@36.2-preview-v1",
+        "preview-s14-trinket-133340@36.2-preview-v1",
+        "preview-s14-trinket-133341@36.2-preview-v1",
+        "preview-s14-trinket-133342@36.2-preview-v1",
+        "preview-s14-trinket-133343@36.2-preview-v1",
+        "preview-s14-trinket-133346@36.2-preview-v1",
+        "preview-s14-trinket-133348@36.2-preview-v1",
+        "preview-s14-trinket-133350@36.2-preview-v1",
+        "preview-s14-trinket-133379@36.2-preview-v1",
+        "preview-s14-trinket-133380@36.2-preview-v1",
+        "preview-s14-trinket-133381@36.2-preview-v1",
+        "preview-s14-trinket-133387@36.2-preview-v1",
+        "preview-s14-trinket-133388@36.2-preview-v1",
+        "preview-s14-trinket-133389@36.2-preview-v1",
+        "preview-s14-trinket-133390@36.2-preview-v1",
+        "preview-s14-trinket-133391@36.2-preview-v1",
+        "preview-s14-trinket-133392@36.2-preview-v1",
+        "preview-s14-trinket-133393@36.2-preview-v1",
+        "preview-s14-trinket-133395@36.2-preview-v1",
+        "preview-s14-trinket-133399@36.2-preview-v1",
+        "preview-s14-trinket-133400@36.2-preview-v1",
+        "preview-s14-trinket-133401@36.2-preview-v1",
+        "preview-s14-trinket-133402@36.2-preview-v1",
+        "preview-s14-trinket-133403@36.2-preview-v1",
+        "preview-s14-trinket-133404@36.2-preview-v1",
+        "preview-s14-trinket-133405@36.2-preview-v1",
+        "preview-s14-trinket-133694@36.2-preview-v1",
+        "preview-s14-trinket-133695@36.2-preview-v1",
+        "preview-s14-trinket-133696@36.2-preview-v1",
+        "preview-s14-trinket-133712@36.2-preview-v1",
+        "preview-s14-trinket-133713@36.2-preview-v1",
+        "preview-s14-trinket-133714@36.2-preview-v1",
+        "preview-s14-trinket-133715@36.2-preview-v1",
+        "preview-s14-trinket-133719@36.2-preview-v1",
+        "preview-s14-trinket-133720@36.2-preview-v1",
+        "preview-s14-trinket-133721@36.2-preview-v1",
+        "preview-s14-trinket-133722@36.2-preview-v1",
+        "preview-s14-trinket-134199@36.2-preview-v1"
+      ],
+      "darkGiftRevisionIds": [],
+      "includeAllDarkGiftRevisions": true,
+      "includeAllVersionedMinionRevisions": true,
+      "includeAllHeroDefinitions": true,
+      "includeAllTavernSpellDefinitions": false,
+      "poolMembership": [
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG_BOT_911"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG_DEEP_015"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG_GVG_085"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG_LOE_077"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG_TTN_401"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG20_100"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG20_101"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG20_104"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG21_004"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG21_015"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_000"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_002"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_004"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_007"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_008"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_009"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_017"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_318"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG23_357"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG24_004"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG24_018"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG24_500"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG24_715"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_001"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_008"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_009"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_010"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_011"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_016"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_022"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_034"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_354"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG25_806"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_135"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_137"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_147"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_148"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_149"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_152"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_162"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_174"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_175"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_354"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_360"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_505"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_523"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_524"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_525"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_537"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_802"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_805"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_810"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_814"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_817"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_963"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG26_ICC_901"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_002"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_005"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_016"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_017"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_080"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_084"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_514"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG27_556"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_300"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_303"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_309"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_550"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_595"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_633"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG28_741"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_300"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_503"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_611"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_810"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_813"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_816"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG29_888"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG30_123"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG30_125"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_035"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_177"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_320"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_323"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_326"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_327"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_330"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_801"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_803"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_809"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_816"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_818"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_824"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_835"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_843"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_924"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_925"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG31_999"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_111"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_170"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_172"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_235"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_236"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_237"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_324"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_330"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_340"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_341"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_433"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_434"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_820"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_822"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_835"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_837"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_841"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_842"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_846"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_873"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG32_880"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_140"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_155"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_318"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_319"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_323"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_430"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_821"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_822"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_823"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_825"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_830"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_883"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_885"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_886"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_891"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG33_893"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_140"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_145"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_319"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_320"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_322"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_500"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_604"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_633"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_682"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_683"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_690"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_692"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_856"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_858"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_865"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_925"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG34_950"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_123"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_140"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_141"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_142"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_143"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_150"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_152"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_155"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_341"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_342"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_432"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_602"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_604"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_700"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_814"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_883"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG35_921"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_100"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_104"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_107"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_108"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_109"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_110"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_111"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_112"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_115"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_117"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_118"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_119"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_120"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_121"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_122"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO_125"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_201"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_202"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_203"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_205"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_207"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_208"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_209"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_211"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO31_212"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO33_140"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGDUO33_150"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_004"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_012"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_018"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_020"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_041"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_071"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_104"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_115"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_116"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_119"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_123"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_126"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_127"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BGS_131"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_201"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_205"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_206"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_181"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_853"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_511"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_514"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_515"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_921"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_508"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_622"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_330"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_331"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_332"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_510"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_333"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_341"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_180"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_351"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_352"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_342"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_763"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_523"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_524"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_760"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_343"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_344"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_854"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_506"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_851"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_764"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_200"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_202"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_207"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_204"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_211"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_210"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_208"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_209"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_730"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_731"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_621"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_733"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_507"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_703"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_704"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_240"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_242"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_243"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_245"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_241"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_345"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_354"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_346"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_620"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_640"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_356"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_509"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_520"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_521"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_701"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_503"
+        },
+        {
+          "kind": "Minion",
+          "stableEntityId": "BG36_762"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "100601"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "100899"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "100910"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "100911"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "103779"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "103785"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "103791"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "103793"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "103796"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104029"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104436"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104445"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104446"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104448"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104472"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104494"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104502"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104559"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104560"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "104601"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105264"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105265"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105267"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105271"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105276"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105664"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105667"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105669"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105752"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "105903"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "109230"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "109232"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110400"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110401"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110406"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110407"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110412"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "110642"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "113901"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "115910"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "116221"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "117567"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "117573"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "117584"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "117670"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "119599"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "119603"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "119718"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "120900"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122182"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122183"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122184"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122185"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122186"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122489"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122862"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122864"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "122899"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "123553"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "126676"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "126909"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "126957"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "127288"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "127503"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "127506"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "127642"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "130312"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "130527"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "130713"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "131152"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "131218"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_001"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_006"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_007"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_009"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_012"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_015"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_017"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_029"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_032"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_034"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_035"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_038"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_039"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_040"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_041"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_042"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_064"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_066"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_067"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_069"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_071"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_072"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_074t"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_078"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_081"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_082"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_088"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_091"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_102"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_110"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_120"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_201"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_202"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_204"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_205"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_206"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_207"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_208"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_209"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_210"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_211"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_212"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_300"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_302"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_304"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_305"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_306"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_309"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_311"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_313"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_314"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_318"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_319"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_320"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_321"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_322"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_323"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_324"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_325"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_327"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_328"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_330"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_331"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_332"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_333"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_342"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_360"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_370"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_580"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_581"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_582"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_583"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_584"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_585"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_586"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_589"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_590"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_591"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_593"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_594"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_595"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_596"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_597"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_598"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_599"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_602"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_604"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_605"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_608"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_609"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_618"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_644"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_654"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_671"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_674"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_675"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_676"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_677"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_678"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_679"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_680"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_683"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_684"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_686"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_687"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_777"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_Giant_801"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_004"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_011"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_013"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_020"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_022"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_031"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_032"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_049"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_058"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_065"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_067"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_076"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_078"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_083"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_091"
+        },
+        {
+          "kind": "TimewarpedTavern",
+          "stableEntityId": "BG34_PreMadeChamp_200"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_301"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_303"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_310"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_403"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_406"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_410"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_410t2"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_411"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_416"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_418"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_420"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_420t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_422"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_422t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_423"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_425"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_426"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_426t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_430"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_434"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_435"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_437"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_439"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_442"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_540"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_541"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_544"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_544t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_545"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_546"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_547"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_547t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_555"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_700"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_701"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_703"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_705"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_706"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_707"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_713"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_801"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_804"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_821"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_841"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_847"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_868"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_876"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_879t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_886"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_888"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_891"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_900"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_902"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_914"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_914t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_917"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_919"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_920"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_924"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_924t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_931"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_942"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_944"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_951"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_952"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_962"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_973"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_981"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_987"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_988"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_988t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_989t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_993"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_994"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_995"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_996"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_998"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG30_MagicItem_999"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG31_MagicItem_903"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_170"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_172"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_200"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_205"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_232"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_270t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_271"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_276"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_278"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_283"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_284"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_286"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_300"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_301"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_306"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_350"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_360"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_361"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_361t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_362t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_363"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_364"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_366"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_367"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_400"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_416"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_428"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_801t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_807"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_808"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_808t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_817"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_821"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_822"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_831"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_844"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_858"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_860"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_860t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_888"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_893"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_894"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_901"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_920"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_922"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_926"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_930"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_931"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_951"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_957"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG32_MagicItem_998"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_150"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_151"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_151t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_152"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_154"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_156"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_300"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_301"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_302"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_305"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_306"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_309"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_434"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_700"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_701"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_710"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_711"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_712"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_713"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_731"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_732"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_733"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_740"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_741"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_742"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_743"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_750"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_752"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_754"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_755"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_801"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_803"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_803t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_812"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_814"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_815"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_816"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_816t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_817"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_818"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_820"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_821"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_821t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_823"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_823t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_838"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_840"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_840t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_850"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_850t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_851"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_861"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_862"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_863"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_871"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_872"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_890"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_920"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_921"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_923"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_924"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_925"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_930"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_931"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG35_MagicItem_931t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_800"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_801"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_810"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_811"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_820"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_830"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_831"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_840"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_841"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_850"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_300"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_301"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_302"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_302t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_303"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_303t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_305"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_307"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_308"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_309"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_200"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_201"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_202"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_203"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_204"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_205"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_206"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_208"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_211"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_212"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_213"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_214"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_215"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_216"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_217"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_810t"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_812"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_220"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_372"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_370"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_363"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_373"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_380"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_361"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_362"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_371"
+        },
+        {
+          "kind": "Trinket",
+          "stableEntityId": "BG36_MagicItem_390"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "132903"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "132995"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "133369"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "133371"
+        },
+        {
+          "kind": "TavernSpell",
+          "stableEntityId": "133711"
+        }
+      ]
+    }
+  ],
+  "entityRevisions": [
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG_DEEP_015",
+      "revisionId": "BG_DEEP_015@36.2-preview-v1",
+      "effectRevision": "minion.prosthetic-hand@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;attack:3;health:1;goldenAttack:6;goldenHealth:2",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D01",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG30_123",
+      "revisionId": "BG30_123@36.2-preview-v1",
+      "effectRevision": "minion.fearless-foodie@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;attack:2;health:4;goldenAttack:4;goldenHealth:8",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D07",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG33_155",
+      "revisionId": "BG33_155@36.2-preview-v1",
+      "effectRevision": "minion.devout-satyress@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;attack:2;health:2;goldenAttack:4;goldenHealth:4",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D22",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG27_556",
+      "revisionId": "BG27_556@36.2-preview-v1",
+      "effectRevision": "minion.hungry-snapjaw@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;attack:4;health:5;goldenAttack:8;goldenHealth:10",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D24",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG35_921",
+      "revisionId": "BG35_921@36.2-preview-v1",
+      "effectRevision": "minion.abyssal-brawler@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:5;attack:2;health:1;goldenAttack:4;goldenHealth:2",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D03",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG26_810",
+      "revisionId": "BG26_810@36.2-preview-v1",
+      "effectRevision": "minion.gunpowder-courier@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;attack:2;health:6;goldenAttack:4;goldenHealth:12",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D16",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG31_824",
+      "revisionId": "BG31_824@36.2-preview-v1",
+      "effectRevision": "minion.dual-wielding-pirate@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:5;attack:4;health:5;goldenAttack:8;goldenHealth:10",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D17",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BGS_018",
+      "revisionId": "BGS_018@36.2-preview-v1",
+      "effectRevision": "minion.goldrinn@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:6;attack:8;health:8;goldenAttack:16;goldenHealth:16",
+      "text": "",
+      "art": "",
+      "tags": [
+        "research-key:POOL-D21",
+        "source-level:CommunityCrossChecked"
+      ],
+      "effectIds": []
+    },
+    {
+      "kind": "Minion",
+      "stableEntityId": "BG32_236",
+      "revisionId": "BG32_236@36.2-preview-v1",
+      "effectRevision": "minion.aureate-laureate@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:1;attack:2;health:2;goldenAttack:2;goldenHealth:2",
+      "text": "<b>Divine Shield</b>\nThis minion is always Golden and doesn't grant a Triple Reward.",
+      "localizedText": "圣盾。该随从始终为金色，且不会提供三连奖励。",
+      "englishText": "<b>Divine Shield</b>\nThis minion is always Golden and doesn't grant a Triple Reward.",
+      "art": "",
+      "tags": [
+        "research-key:P1-D",
+        "source-level:Official"
+      ],
+      "effectIds": [
+        "minion.always-golden-no-triple-reward"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "BG36_HERO_105",
+      "revisionId": "preview-s14-hero-nightmare-lord-xavius@36.2-preview-v1",
+      "effectRevision": "hero-power.feel-devastation@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "health:30;armor:12",
+      "text": "Every 4 turns, Discover a minion with a Dark Gift.",
+      "art": "",
+      "tags": [
+        "research-key:HERO-R01",
+        "source-level:OfficialPreview+CommunityCrossChecked",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "hero-power:feel-devastation"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "BG36_HERO_101",
+      "revisionId": "preview-s14-hero-trastath-soul-parasite@36.2-preview-v1",
+      "effectRevision": "hero-power.void-power@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "health:30;armor:10",
+      "text": "At the start of the game, Discover a Tier 5 minion with a Dark Gift. It unlocks on Turn 7.",
+      "art": "",
+      "tags": [
+        "research-key:HERO-R02",
+        "source-level:OfficialPreview+CommunityCrossChecked",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "hero-power:void-power"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "TB_BaconShop_HERO_01",
+      "revisionId": "hero.edwin-vancleef@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.sharpen-blades@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "",
+      "text": "Give a minion +{1}/+{1}. Improves after you buy 4 cards. <i>({0} left!)</i>",
+      "localizedText": "使一个随从获得+{1}/+{1}。在你购买4张牌后提升。<i>（还剩{0}张！）</i>",
+      "englishText": "Give a minion +{1}/+{1}. Improves after you buy 4 cards. <i>({0} left!)</i>",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen"
+      ],
+      "effectIds": [
+        "hero-power:sharpen-blades"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "TB_BaconShop_HERO_75",
+      "revisionId": "hero.rakanishu@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.rakanishu-tavern-spell-growth@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "powercost:0",
+      "text": "<b>Passive:</b> Your Tavern Spells give an extra +1/+1. At the start of every third turn, improve this.",
+      "localizedText": "<b>被动：</b>你的酒馆法术使随从额外获得+1/+1。每逢第三个回合，在回合开始时提升此效果。",
+      "englishText": "<b>Passive:</b> Your Tavern Spells give an extra +1/+1. At the start of every third turn, improve this.",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen",
+        "hero-power-category:Passive",
+        "hero-power-tag:passive",
+        "hero-power-replacement:InitialOnly"
+      ],
+      "effectIds": [
+        "hero-power:rakanishu-tavern-spell-growth"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "BG21_HERO_000",
+      "revisionId": "hero.cariel-roame@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.conviction@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "powercost:0",
+      "text": "Give {2} random friendly minions +1/+1. <b>Passive:</b> After each combat, choose an improvement.",
+      "localizedText": "使{2}个随机友方随从获得+1/+1。<b>被动：</b>每场战斗后，选择一项强化。",
+      "englishText": "Give {2} random friendly minions +1/+1. <b>Passive:</b> After each combat, choose an improvement.",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen"
+      ],
+      "effectIds": [
+        "hero-power:conviction"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "TB_BaconShop_HERO_11",
+      "revisionId": "hero.ragnaros@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.buy-insect@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "",
+      "text": "After you buy 12 cards, get Sulfuras. <i>(12 left!)</i>",
+      "localizedText": "在你购买12张牌后，获得萨弗拉斯。<i>（还剩12张！）</i>",
+      "englishText": "After you buy 12 cards, get Sulfuras. <i>(12 left!)</i>",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen"
+      ],
+      "effectIds": [
+        "hero-power:buy-insect"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "BG20_HERO_102",
+      "revisionId": "hero.overlord-saurfang@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.for-the-horde@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "",
+      "text": "Minions in the Tavern have +1/+{1}. Improves after you buy 3 minions. <i>(3 left!)</i>",
+      "localizedText": "酒馆中的随从拥有+1/+{1}。在你购买3个随从后提升。<i>（还剩3个！）</i>",
+      "englishText": "Minions in the Tavern have +1/+{1}. Improves after you buy 3 minions. <i>(3 left!)</i>",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen"
+      ],
+      "effectIds": [
+        "hero-power:for-the-horde"
+      ]
+    },
+    {
+      "kind": "Hero",
+      "stableEntityId": "BG24_HERO_204",
+      "revisionId": "hero.enhance-o-mechano@36.2-preview-community-p1a",
+      "effectRevision": "hero-power.enhancification@36.2-preview-community-p1a",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "",
+      "text": "After the Tavern is <b>Refreshed</b>, twice give a random minion in it a random <b>Bonus Keyword</b>.",
+      "localizedText": "酒馆<b>刷新</b>后，触发两次：使其中一个随机随从获得一个随机<b>额外关键词</b>。",
+      "englishText": "After the Tavern is <b>Refreshed</b>, twice give a random minion in it a random <b>Bonus Keyword</b>.",
+      "art": "",
+      "tags": [
+        "source-level:CommunityObserved",
+        "implementation:Preview",
+        "armor-profile:season14-solo-preview-unfrozen"
+      ],
+      "effectIds": [
+        "hero-power:enhancification"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "132903",
+      "revisionId": "132903@36.2-preview-v1",
+      "effectRevision": "tavern-spell.methodical-madness@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:3",
+      "text": "Choose a friendly Demon. It consumes 2 random minions in the Tavern to gain their stats and bonus keywords.",
+      "art": "CardImages/TavernSpells/132903",
+      "tags": [
+        "research-key:SPELL-R01",
+        "source-level:OfficialPreview",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "season14.methodical-madness"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "132995",
+      "revisionId": "132995@36.2-preview-v1",
+      "effectRevision": "tavern-spell.mighty-dragonbreath@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:2",
+      "text": "Give your minions +1/+1. Repeat for your Dragons and again for minions with Divine Shield.",
+      "art": "CardImages/TavernSpells/132995",
+      "tags": [
+        "research-key:SPELL-R02",
+        "source-level:OfficialPreview",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "season14.mighty-dragonbreath"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "133369",
+      "revisionId": "133369@36.2-preview-v1",
+      "effectRevision": "tavern-spell.winners-bread@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:2;cost:2",
+      "text": "Give a minion +2/+3. If you win your next combat, give it +4/+6 at the start of your next turn.",
+      "art": "CardImages/TavernSpells/133369",
+      "tags": [
+        "research-key:SPELL-R03",
+        "source-level:OfficialPreview",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "season14.winners-bread"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "133711",
+      "revisionId": "133711@36.2-preview-v1",
+      "effectRevision": "tavern-spell.repair-job@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;cost:2",
+      "text": "Give a minion +4/+8.",
+      "art": "CardImages/TavernSpells/133711",
+      "tags": [
+        "research-key:SPELL-R04",
+        "source-level:OfficialPreview",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "season14.repair-job"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "133371",
+      "revisionId": "133371@36.2-preview-v1",
+      "effectRevision": "tavern-spell.weapons-forge@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:2",
+      "text": "Get 3 Pointy Arrows.",
+      "art": "CardImages/TavernSpells/133371",
+      "tags": [
+        "research-key:SPELL-R05",
+        "source-level:OfficialPreview",
+        "implementation:Implemented"
+      ],
+      "effectIds": [
+        "season14.weapons-forge"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "130310",
+      "revisionId": "130310@36.2-preview-v1",
+      "effectRevision": "tavern-spell.conflagration@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:2",
+      "text": "Give a minion +4/+4. Improved by each Elemental you played this turn.",
+      "art": "CardImages/TavernSpells/130310",
+      "tags": [
+        "research-key:SPELL-D01",
+        "source-level:CommunityCrossChecked",
+        "pool-action:remove",
+        "tribe:Elemental"
+      ],
+      "effectIds": [
+        "tavern-spell.conflagration"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "130311",
+      "revisionId": "130311@36.2-preview-v1",
+      "effectRevision": "tavern-spell.arcane-absorption@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:1",
+      "text": "Give a friendly Elemental half the stats of the highest-Health minion in the Tavern.",
+      "art": "CardImages/TavernSpells/130311",
+      "tags": [
+        "research-key:SPELL-D02",
+        "source-level:CommunityCrossChecked",
+        "pool-action:remove",
+        "tribe:Elemental"
+      ],
+      "effectIds": [
+        "tavern-spell.arcane-absorption"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "116596",
+      "revisionId": "116596@36.2-preview-v1",
+      "effectRevision": "tavern-spell.gem-day@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;cost:1",
+      "text": "Choose One - Your Blood Gems give an extra +1 Attack this game; or +1 Health.",
+      "localizedText": "抉择：在本局对战中，你的鲜血宝石会使随从额外获得+1攻击力；或者+1生命值。",
+      "englishText": "Choose One - Your Blood Gems give an extra +1 Attack this game; or +1 Health.",
+      "art": "CardImages/TavernSpells/116596",
+      "tags": [
+        "research-key:SPELL-D03",
+        "source-level:CommunityCrossChecked",
+        "pool-action:generated-only",
+        "generated-by:Quilboar"
+      ],
+      "effectIds": [
+        "season14.gem-day"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "116221",
+      "revisionId": "116221@36.2-preview-v1",
+      "effectRevision": "tavern-spell.fandral-fortune@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:6;cost:3",
+      "text": "Discover a Choose One card. It has both effects combined.",
+      "localizedText": "发现一张抉择牌，这张牌会同时拥有两种效果。",
+      "englishText": "Discover a Choose One card. It has both effects combined.",
+      "art": "CardImages/TavernSpells/116221",
+      "tags": [
+        "research-key:SPELL-D04",
+        "research-key:SPELL-D12",
+        "source-level:CommunityCrossChecked",
+        "pool-action:return",
+        "availability:Quilboar"
+      ],
+      "effectIds": [
+        "season14.fandral-fortune"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "100596",
+      "revisionId": "100596@36.2-preview-v1",
+      "effectRevision": "tavern-spell.pointy-arrow@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:1;cost:1",
+      "text": "Give a minion +4 Attack.",
+      "art": "CardImages/TavernSpells/EBG_Spell_014",
+      "tags": [
+        "research-key:SPELL-D05",
+        "source-level:CommunityCrossChecked",
+        "pool-action:generated-only",
+        "generated-by:WeaponsForge"
+      ],
+      "effectIds": [
+        "tavern-spell.pointy-arrow"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "105665",
+      "revisionId": "105665@36.2-preview-v1",
+      "effectRevision": "tavern-spell.fleeting-vigor@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:3;cost:1",
+      "text": "Start of Combat: Give your minions +2/+1.",
+      "art": "CardImages/TavernSpells/BG28_519",
+      "tags": [
+        "research-key:SPELL-D06",
+        "source-level:CommunityCrossChecked",
+        "pool-action:remove"
+      ],
+      "effectIds": [
+        "tavern-spell.fleeting-vigor"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "113902",
+      "revisionId": "113902@36.2-preview-v1",
+      "effectRevision": "tavern-spell.knockoff-wisdomball@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:6;cost:4",
+      "text": "Your next 2 Refreshes are helpful.",
+      "art": "CardImages/TavernSpells/113902",
+      "tags": [
+        "research-key:SPELL-D07",
+        "source-level:CommunityCrossChecked",
+        "pool-action:remove"
+      ],
+      "effectIds": [
+        "tavern-spell.knockoff-wisdomball"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "131153",
+      "revisionId": "131153@36.2-preview-v1",
+      "effectRevision": "tavern-spell.back-to-back@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:1",
+      "text": "Give a minion +4/+4. Your future Back to Backs give an extra +4/+4.",
+      "art": "CardImages/TavernSpells/131153",
+      "tags": [
+        "research-key:SPELL-D08",
+        "source-level:CommunityCrossChecked",
+        "pool-action:remove"
+      ],
+      "effectIds": [
+        "tavern-spell.back-to-back"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "104445",
+      "revisionId": "104445@36.2-preview-v1",
+      "effectRevision": "tavern-spell.defenders-rites@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:2",
+      "text": "Give a friendly minion +7/+7 and Taunt.",
+      "localizedText": "使一个友方随从获得+7/+7和嘲讽。",
+      "englishText": "Give a friendly minion +7/+7 and Taunt.",
+      "art": "CardImages/TavernSpells/BG28_825",
+      "tags": [
+        "research-key:SPELL-D09",
+        "source-level:OfficialPreview",
+        "pool-action:keep"
+      ],
+      "effectIds": [
+        "season14.defenders-rites"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "117567",
+      "revisionId": "117567@36.2-preview-v1",
+      "effectRevision": "tavern-spell.alliance-flag@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:1;cost:1",
+      "text": "Choose One - Give a minion +3/+1; or +1/+3.",
+      "localizedText": "抉择：使一个随从获得+3/+1；或者+1/+3。",
+      "englishText": "Choose One - Give a minion +3/+1; or +1/+3.",
+      "art": "CardImages/TavernSpells/117567",
+      "tags": [
+        "research-key:SPELL-D10",
+        "source-level:OfficialPreview",
+        "pool-action:return"
+      ],
+      "effectIds": [
+        "season14.alliance-flag"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "117584",
+      "revisionId": "117584@36.2-preview-v1",
+      "effectRevision": "tavern-spell.forests-bounty@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:5;cost:2",
+      "text": "Choose One - Give a minion +6/+6, which triggers twice; or give your minions +2/+2.",
+      "localizedText": "抉择：使一个随从获得+6/+6，触发两次；或者使你的随从获得+2/+2。",
+      "englishText": "Choose One - Give a minion +6/+6, which triggers twice; or give your minions +2/+2.",
+      "art": "CardImages/TavernSpells/117584",
+      "tags": [
+        "research-key:SPELL-D11",
+        "source-level:OfficialPreview",
+        "pool-action:return",
+        "repeat:2"
+      ],
+      "effectIds": [
+        "season14.forests-bounty"
+      ]
+    },
+    {
+      "kind": "TavernSpell",
+      "stableEntityId": "115910",
+      "revisionId": "115910@36.2-preview-v1",
+      "effectRevision": "tavern-spell.boundless-potential@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "tier:4;cost:3",
+      "text": "Choose One - Discover a minion of your Tier; or a Tavern spell of your Tier.",
+      "localizedText": "抉择：发现一张你当前等级的随从牌；或者一张你当前等级的酒馆法术牌。",
+      "englishText": "Choose One - Discover a minion of your Tier; or a Tavern spell of your Tier.",
+      "art": "CardImages/TavernSpells/115910",
+      "tags": [
+        "research-key:SPELL-D12",
+        "source-level:OfficialPreview",
+        "pool-action:return"
+      ],
+      "effectIds": [
+        "season14.boundless-potential"
+      ]
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_200",
+      "revisionId": "preview-s14-trinket-133387@36.2-preview-v1",
+      "effectRevision": "trinket.herding_horn@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:1",
+      "text": "Whenever a friendly Rally minion attacks, gain a free Refresh.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_200",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133387"
+      ],
+      "effectIds": [
+        "season14_herding_horn"
+      ],
+      "englishText": "Whenever a friendly Rally minion attacks, gain a free Refresh."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_201",
+      "revisionId": "preview-s14-trinket-133388@36.2-preview-v1",
+      "effectRevision": "trinket.lionfish_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Get a Lurking Lionfish.\nWhenever a friendly Beast\nattacks, give it +2/+2.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_201",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133388"
+      ],
+      "effectIds": [
+        "season14_lionfish_portrait"
+      ],
+      "englishText": "Get a Lurking Lionfish.\nWhenever a friendly Beast\nattacks, give it +2/+2."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_800",
+      "revisionId": "preview-s14-trinket-133060@36.2-preview-v1",
+      "effectRevision": "trinket.demonic_bloodletter@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Whenever you cast a Tavern\nspell, give minions in the\nTavern +1/+1 this game.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_800",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133060"
+      ],
+      "effectIds": [
+        "season14_demonic_bloodletter"
+      ],
+      "englishText": "Whenever you cast a Tavern\nspell, give minions in the\nTavern +1/+1 this game."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_801",
+      "revisionId": "preview-s14-trinket-133061@36.2-preview-v1",
+      "effectRevision": "trinket.consuming_claw@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:0",
+      "text": "Whenever a friendly\nDemon consumes a\nminion, it also gains its\nBonus Keywords.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_801",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133061"
+      ],
+      "effectIds": [
+        "season14_consuming_claw"
+      ],
+      "englishText": "Whenever a friendly\nDemon consumes a\nminion, it also gains its\nBonus Keywords."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_202",
+      "revisionId": "preview-s14-trinket-133389@36.2-preview-v1",
+      "effectRevision": "trinket.warcry_totem@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "The first two Battlecry\nminions you buy each turn\ncost (2) less. (2 left!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_202",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133389"
+      ],
+      "effectIds": [
+        "season14_warcry_totem"
+      ],
+      "englishText": "The first two Battlecry\nminions you buy each turn\ncost (2) less. (2 left!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_203",
+      "revisionId": "preview-s14-trinket-133390@36.2-preview-v1",
+      "effectRevision": "trinket.dragon_skull@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Whenever you trigger a\nBattlecry, give your left-\nand right-most minions\n+3/+3.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_203",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133390"
+      ],
+      "effectIds": [
+        "season14_dragon_skull"
+      ],
+      "englishText": "Whenever you trigger a\nBattlecry, give your left-\nand right-most minions\n+3/+3."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_300",
+      "revisionId": "preview-s14-trinket-133340@36.2-preview-v1",
+      "effectRevision": "trinket.frigid_blossom@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "After you Refresh, reduce\nthe cost of upgrading\nthe Tavern by (1).",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_300",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133340"
+      ],
+      "effectIds": [
+        "season14_frigid_blossom"
+      ],
+      "englishText": "After you Refresh, reduce\nthe cost of upgrading\nthe Tavern by (1)."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_390",
+      "revisionId": "preview-s14-trinket-134199@36.2-preview-v1",
+      "effectRevision": "trinket.baller_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Get a Fire Baller or a\nSnow Baller. At the start\nof each turn, repeat this.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_390",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:134199"
+      ],
+      "effectIds": [
+        "season14_baller_portrait"
+      ],
+      "englishText": "Get a Fire Baller or a\nSnow Baller. At the start\nof each turn, repeat this."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_810",
+      "revisionId": "preview-s14-trinket-133062@36.2-preview-v1",
+      "effectRevision": "trinket.inductive_gyroblade@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn, get a\n4/4 Magnetic Satellite.\n(Improved by each Tavern\nspell you've cast this turn!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_810",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133062"
+      ],
+      "effectIds": [
+        "season14_inductive_gyroblade"
+      ],
+      "englishText": "At the end of your turn, get a\n4/4 Magnetic Satellite.\n(Improved by each Tavern\nspell you've cast this turn!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_812",
+      "revisionId": "preview-s14-trinket-133695@36.2-preview-v1",
+      "effectRevision": "trinket.emergency_gearblade@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn, cast Repair Job on your left-most Mech.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_812",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133695"
+      ],
+      "effectIds": [
+        "season14_emergency_gearblade"
+      ],
+      "englishText": "At the end of your turn, cast Repair Job on your left-most Mech."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_820",
+      "revisionId": "preview-s14-trinket-133064@36.2-preview-v1",
+      "effectRevision": "trinket.flighty_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Get a Flighty Scout. After\nyou cast a Tavern spell, give\nFlighty Scouts in your hand\nand warband +3/+3.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_820",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133064"
+      ],
+      "effectIds": [
+        "season14_flighty_portrait"
+      ],
+      "englishText": "Get a Flighty Scout. After\nyou cast a Tavern spell, give\nFlighty Scouts in your hand\nand warband +3/+3."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_307",
+      "revisionId": "preview-s14-trinket-133379@36.2-preview-v1",
+      "effectRevision": "trinket.wand_of_divination@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:0",
+      "text": "After you cast 3 spells on\nminions, gain 1 Gold.\n(3 left!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_307",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133379"
+      ],
+      "effectIds": [
+        "season14_wand_of_divination"
+      ],
+      "englishText": "After you cast 3 spells on\nminions, gain 1 Gold.\n(3 left!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_305",
+      "revisionId": "preview-s14-trinket-133350@36.2-preview-v1",
+      "effectRevision": "trinket.rune_of_transmutation@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:0",
+      "text": "After you cast 15 spells,\nreplace this with a random\nGreater Naga Trinket.\n(15 left!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_305",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133350"
+      ],
+      "effectIds": [
+        "season14_rune_of_transmutation"
+      ],
+      "englishText": "After you cast 15 spells,\nreplace this with a random\nGreater Naga Trinket.\n(15 left!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_301",
+      "revisionId": "preview-s14-trinket-133341@36.2-preview-v1",
+      "effectRevision": "trinket.lockbox_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Get a Lockbox. If you\nalready have one, it opens\n2 turns sooner. At the start\nof each turn, repeat this.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_301",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133341"
+      ],
+      "effectIds": [
+        "season14_lockbox_portrait"
+      ],
+      "englishText": "Get a Lockbox. If you\nalready have one, it opens\n2 turns sooner. At the start\nof each turn, repeat this."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_302",
+      "revisionId": "preview-s14-trinket-133342@36.2-preview-v1",
+      "effectRevision": "trinket.gold_mallet@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn, give\nyour minions +2/+2.\n(Improved by Golden minions\nyou've played this game!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_302",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133342"
+      ],
+      "effectIds": [
+        "season14_gold_mallet"
+      ],
+      "englishText": "At the end of your turn, give\nyour minions +2/+2.\n(Improved by Golden minions\nyou've played this game!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_303",
+      "revisionId": "preview-s14-trinket-133346@36.2-preview-v1",
+      "effectRevision": "trinket.glass_of_perspective@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Get a random Choose One card. At the start of each turn, get another.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_303",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133346"
+      ],
+      "effectIds": [
+        "season14_glass_of_perspective"
+      ],
+      "englishText": "Get a random Choose One card. At the start of each turn, get another."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_204",
+      "revisionId": "preview-s14-trinket-133391@36.2-preview-v1",
+      "effectRevision": "trinket.plaguerunner_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Get a Plaguerunner.\nAfter you destroy a\nPlaguerunner outside\ncombat, get a plain copy.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_204",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133391"
+      ],
+      "effectIds": [
+        "season14_plaguerunner_portrait"
+      ],
+      "englishText": "Get a Plaguerunner.\nAfter you destroy a\nPlaguerunner outside\ncombat, get a plain copy."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_205",
+      "revisionId": "preview-s14-trinket-133392@36.2-preview-v1",
+      "effectRevision": "trinket.deathwhisper_sticker@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "After a friendly minion is Reborn, give your minions +2/+2.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_205",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133392"
+      ],
+      "effectIds": [
+        "season14_deathwhisper_sticker"
+      ],
+      "englishText": "After a friendly minion is Reborn, give your minions +2/+2."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_206",
+      "revisionId": "preview-s14-trinket-133393@36.2-preview-v1",
+      "effectRevision": "trinket.ominous_stone@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:0",
+      "text": "Discover a Tier 4 minion\nof your most common\ntype with a Dark Gift.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_206",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133393"
+      ],
+      "effectIds": [
+        "season14_ominous_stone"
+      ],
+      "englishText": "Discover a Tier 4 minion\nof your most common\ntype with a Dark Gift."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_208",
+      "revisionId": "preview-s14-trinket-133395@36.2-preview-v1",
+      "effectRevision": "trinket.floating_candle_set@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Spellcraft: Trigger a friendly minion's Deathrattle.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_208",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133395"
+      ],
+      "effectIds": [
+        "season14_floating_candle_set"
+      ],
+      "englishText": "Spellcraft: Trigger a friendly minion's Deathrattle."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_811",
+      "revisionId": "preview-s14-trinket-133063@36.2-preview-v1",
+      "effectRevision": "trinket.defensive_shell@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "The first minion you\nplay each turn gains\nDivine Shield.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_811",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133063"
+      ],
+      "effectIds": [
+        "season14_defensive_shell"
+      ],
+      "englishText": "The first minion you\nplay each turn gains\nDivine Shield."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_211",
+      "revisionId": "preview-s14-trinket-133399@36.2-preview-v1",
+      "effectRevision": "trinket.lovely_locket@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:0",
+      "text": "After you cast a spell on\na friendly minion, this\ncasts it on another\nfriendly minion.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_211",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133399"
+      ],
+      "effectIds": [
+        "season14_lovely_locket"
+      ],
+      "englishText": "After you cast a spell on\na friendly minion, this\ncasts it on another\nfriendly minion."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_220",
+      "revisionId": "preview-s14-trinket-133696@36.2-preview-v1",
+      "effectRevision": "trinket.glowing_crystal@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "At the start of your turn, gain 1 Gold for each different friendly minion type.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_220",
+      "tags": [
+        "trinket",
+        "lesser_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133696"
+      ],
+      "effectIds": [
+        "season14_glowing_crystal"
+      ],
+      "englishText": "At the start of your turn, gain 1 Gold for each different friendly minion type."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_212",
+      "revisionId": "preview-s14-trinket-133400@36.2-preview-v1",
+      "effectRevision": "trinket.wolfhead_flail@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "At the end of your turn, trigger all friendly Deathrattles.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_212",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133400"
+      ],
+      "effectIds": [
+        "season14_wolfhead_flail"
+      ],
+      "englishText": "At the end of your turn, trigger all friendly Deathrattles."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_213",
+      "revisionId": "preview-s14-trinket-133401@36.2-preview-v1",
+      "effectRevision": "trinket.lightfeather_sticker@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:1",
+      "text": "Start of Combat: Give your Rally minions Divine Shield.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_213",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133401"
+      ],
+      "effectIds": [
+        "season14_lightfeather_sticker"
+      ],
+      "englishText": "Start of Combat: Give your Rally minions Divine Shield."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_830",
+      "revisionId": "preview-s14-trinket-133066@36.2-preview-v1",
+      "effectRevision": "trinket.bloodfury_shield@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Whenever you cast a Tavern spell, add a Fodder to your next Refresh.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_830",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133066"
+      ],
+      "effectIds": [
+        "season14_bloodfury_shield"
+      ],
+      "englishText": "Whenever you cast a Tavern spell, add a Fodder to your next Refresh."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_831",
+      "revisionId": "preview-s14-trinket-133067@36.2-preview-v1",
+      "effectRevision": "trinket.felsteel_cleaver@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "After you cast a spell on a\nTavern minion, a random\nfriendly minion consumes\nit to gain its stats.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_831",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133067"
+      ],
+      "effectIds": [
+        "season14_felsteel_cleaver"
+      ],
+      "englishText": "After you cast a spell on a\nTavern minion, a random\nfriendly minion consumes\nit to gain its stats."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_214",
+      "revisionId": "preview-s14-trinket-133402@36.2-preview-v1",
+      "effectRevision": "trinket.insurrectionist_s_blade@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "At the end of your turn, trigger all friendly Rallies.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_214",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133402"
+      ],
+      "effectIds": [
+        "season14_insurrectionist_s_blade"
+      ],
+      "englishText": "At the end of your turn, trigger all friendly Rallies."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_215",
+      "revisionId": "preview-s14-trinket-133403@36.2-preview-v1",
+      "effectRevision": "trinket.dragon_s_eye@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Your Dragons' Battlecries trigger an extra time.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_215",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133403"
+      ],
+      "effectIds": [
+        "season14_dragon_s_eye"
+      ],
+      "englishText": "Your Dragons' Battlecries trigger an extra time."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_380",
+      "revisionId": "preview-s14-trinket-133719@36.2-preview-v1",
+      "effectRevision": "trinket.amplifying_essence@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Your Elementals give an\nextra +1/+1. After you\nplay 5 Elementals,\nimprove this. (5 left!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_380",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133719"
+      ],
+      "effectIds": [
+        "season14_amplifying_essence"
+      ],
+      "englishText": "Your Elementals give an\nextra +1/+1. After you\nplay 5 Elementals,\nimprove this. (5 left!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_840",
+      "revisionId": "preview-s14-trinket-133068@36.2-preview-v1",
+      "effectRevision": "trinket.secret_schematic@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "After you buy a Mech,\nget a random Tavern\nspell.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_840",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133068"
+      ],
+      "effectIds": [
+        "season14_secret_schematic"
+      ],
+      "englishText": "After you buy a Mech,\nget a random Tavern\nspell."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_841",
+      "revisionId": "preview-s14-trinket-133069@36.2-preview-v1",
+      "effectRevision": "trinket.assembler_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Start of Combat:\nMagnetize an Auto\nAssembler to all your\nMechs.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_841",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133069"
+      ],
+      "effectIds": [
+        "season14_assembler_portrait"
+      ],
+      "englishText": "Start of Combat:\nMagnetize an Auto\nAssembler to all your\nMechs."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_810t",
+      "revisionId": "preview-s14-trinket-133694@36.2-preview-v1",
+      "effectRevision": "trinket.inductive_gyroblade@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn, get a\n8/8 Magnetic Satellite.\n(Improved by each Tavern\nspell you've cast this turn!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_810t",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133694"
+      ],
+      "effectIds": [
+        "season14_inductive_gyroblade"
+      ],
+      "englishText": "At the end of your turn, get a\n8/8 Magnetic Satellite.\n(Improved by each Tavern\nspell you've cast this turn!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_850",
+      "revisionId": "preview-s14-trinket-133070@36.2-preview-v1",
+      "effectRevision": "trinket.cookie_s_stirring_rod@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "After you play 5 Murlocs, get two random Tavern spells. (5 left!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_850",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133070"
+      ],
+      "effectIds": [
+        "season14_cookie_s_stirring_rod"
+      ],
+      "englishText": "After you play 5 Murlocs, get two random Tavern spells. (5 left!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_361",
+      "revisionId": "preview-s14-trinket-133720@36.2-preview-v1",
+      "effectRevision": "trinket.myrmidon_sticker@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:1",
+      "text": "Start of Combat: Double your left and right-most Naga's stats.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_361",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133720"
+      ],
+      "effectIds": [
+        "season14_myrmidon_sticker"
+      ],
+      "englishText": "Start of Combat: Double your left and right-most Naga's stats."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_362",
+      "revisionId": "preview-s14-trinket-133721@36.2-preview-v1",
+      "effectRevision": "trinket.cyclist_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Get a Showy Cyclist.\nYour Showy Cyclists'\nDeathrattles give\npermanent stats.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_362",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133721"
+      ],
+      "effectIds": [
+        "season14_cyclist_portrait"
+      ],
+      "englishText": "Get a Showy Cyclist.\nYour Showy Cyclists'\nDeathrattles give\npermanent stats."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_363",
+      "revisionId": "preview-s14-trinket-133714@36.2-preview-v1",
+      "effectRevision": "trinket.escapee_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Get a Golden Enterprising\nEscapee. Your Lockboxes\nopen 2 turns sooner.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_363",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133714"
+      ],
+      "effectIds": [
+        "season14_escapee_portrait"
+      ],
+      "englishText": "Get a Golden Enterprising\nEscapee. Your Lockboxes\nopen 2 turns sooner."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_302t",
+      "revisionId": "preview-s14-trinket-133343@36.2-preview-v1",
+      "effectRevision": "trinket.gold_mallet@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn, give\nyour minions +4/+4.\n(Improved by Golden minions\nyou've played this game!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_302t",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133343"
+      ],
+      "effectIds": [
+        "season14_gold_mallet"
+      ],
+      "englishText": "At the end of your turn, give\nyour minions +4/+4.\n(Improved by Golden minions\nyou've played this game!)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_303t",
+      "revisionId": "preview-s14-trinket-133348@36.2-preview-v1",
+      "effectRevision": "trinket.glass_of_perspective@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Get 2 random Choose One cards. At the start of each turn, get 2 more.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_303t",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133348"
+      ],
+      "effectIds": [
+        "season14_glass_of_perspective"
+      ],
+      "englishText": "Get 2 random Choose One cards. At the start of each turn, get 2 more."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_308",
+      "revisionId": "preview-s14-trinket-133380@36.2-preview-v1",
+      "effectRevision": "trinket.trailblazer_sticker@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "Your Choose One cards have both effects combined.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_308",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133380"
+      ],
+      "effectIds": [
+        "season14_trailblazer_sticker"
+      ],
+      "englishText": "Your Choose One cards have both effects combined."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_216",
+      "revisionId": "preview-s14-trinket-133404@36.2-preview-v1",
+      "effectRevision": "trinket.eternal_portrait@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Get a Golden Eternal Knight.\nAfter a friendly Undead dies,\nyour Eternal Knights have\n+4/+2 this game.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_216",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133404"
+      ],
+      "effectIds": [
+        "season14_eternal_portrait"
+      ],
+      "englishText": "Get a Golden Eternal Knight.\nAfter a friendly Undead dies,\nyour Eternal Knights have\n+4/+2 this game."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_217",
+      "revisionId": "preview-s14-trinket-133405@36.2-preview-v1",
+      "effectRevision": "trinket.funeral_wreath@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "After a friendly minion is\nReborn, get a plain\ncopy of it. (3 times\nper combat.)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_217",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133405"
+      ],
+      "effectIds": [
+        "season14_funeral_wreath"
+      ],
+      "englishText": "After a friendly minion is\nReborn, get a plain\ncopy of it. (3 times\nper combat.)"
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_309",
+      "revisionId": "preview-s14-trinket-133381@36.2-preview-v1",
+      "effectRevision": "trinket.wax_lance@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Discover a Tier 7 minion with a Dark Gift.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_309",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133381"
+      ],
+      "effectIds": [
+        "season14_wax_lance"
+      ],
+      "englishText": "Discover a Tier 7 minion with a Dark Gift."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_370",
+      "revisionId": "preview-s14-trinket-133713@36.2-preview-v1",
+      "effectRevision": "trinket.maldraxxus_dagger@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:6",
+      "text": "Discover a plain copy of a\nminion in your warband\nwith a Dark Gift. At the start\nof each turn, repeat this.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_370",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133713"
+      ],
+      "effectIds": [
+        "season14_maldraxxus_dagger"
+      ],
+      "englishText": "Discover a plain copy of a\nminion in your warband\nwith a Dark Gift. At the start\nof each turn, repeat this."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_371",
+      "revisionId": "preview-s14-trinket-133722@36.2-preview-v1",
+      "effectRevision": "trinket.honeycomb_ring@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:3",
+      "text": "Your Tavern spells give an\nextra +1/+1. After you\ncast a spell on a minion,\nimprove for this turn only.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_371",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133722"
+      ],
+      "effectIds": [
+        "season14_honeycomb_ring"
+      ],
+      "englishText": "Your Tavern spells give an\nextra +1/+1. After you\ncast a spell on a minion,\nimprove for this turn only."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_372",
+      "revisionId": "preview-s14-trinket-133712@36.2-preview-v1",
+      "effectRevision": "trinket.sphere_of_memory@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:2",
+      "text": "At the end of your turn,\nget 2 copies of the last\nTavern spell you cast.",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_372",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133712"
+      ],
+      "effectIds": [
+        "season14_sphere_of_memory"
+      ],
+      "englishText": "At the end of your turn,\nget 2 copies of the last\nTavern spell you cast."
+    },
+    {
+      "kind": "Trinket",
+      "stableEntityId": "BG36_MagicItem_373",
+      "revisionId": "preview-s14-trinket-133715@36.2-preview-v1",
+      "effectRevision": "trinket.multilayered_shield@36.2-preview-v1",
+      "effectiveVersionId": "36.2-preview",
+      "stats": "cost:4",
+      "text": "Your Tavern spells give an\nextra +1/+2.\n(Improved by each different\nfriendly minion type!)",
+      "art": "CardImages/Trinkets/Season14/BG36_MagicItem_373",
+      "tags": [
+        "trinket",
+        "greater_trinket",
+        "season14",
+        "36.2-preview",
+        "source-dbf:133715"
+      ],
+      "effectIds": [
+        "season14_multilayered_shield"
+      ],
+      "englishText": "Your Tavern spells give an\nextra +1/+2.\n(Improved by each different\nfriendly minion type!)"
+    }
+  ]
+}

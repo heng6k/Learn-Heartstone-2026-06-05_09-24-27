@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -186,7 +187,8 @@ namespace LearnHearthstone.Tests.EditMode
         [Category("Stress")]
         public void SoloMinionCatalog_AllInPoolTierOneToSevenMinionsCanEnterRecruitFlow()
         {
-            var definitions = MinionCatalogLoader.LoadFromResources().All
+            var catalogs = LoadDefaultCatalogs();
+            var definitions = catalogs.Minions.All
                 .Where(minion => minion.InPool)
                 .Where(minion => minion.TavernTier >= TavernRules.MinTavernTier && minion.TavernTier <= TavernRules.MaxTavernTier)
                 .Where(minion => !minion.CardId.StartsWith("BGDUO"))
@@ -199,7 +201,7 @@ namespace LearnHearthstone.Tests.EditMode
             for (var index = 0; index < definitions.Count; index += 1)
             {
                 var definition = definitions[index];
-                var service = MatchService.CreateWithDefaultCatalog(890000 + index, new InMemoryTestScenarioRepository());
+                var service = MatchService.CreateWithCatalogs(catalogs, 890000 + index, new InMemoryTestScenarioRepository());
                 service.State.Player.Tavern.Tier = TavernRules.MaxTavernTier;
                 service.State.Player.Tavern.Gold = 30;
                 service.State.Player.Tavern.MaxGold = 30;
@@ -335,7 +337,7 @@ namespace LearnHearthstone.Tests.EditMode
                     continue;
                 }
 
-                if (tavern.AdvancedMechanics?.PendingChoice != null)
+                if (service.GetActiveMechanicChoice() != null)
                 {
                     service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
                     continue;
@@ -345,7 +347,7 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             Assert.IsNull(service.State.Player.Tavern.Discover, "discover chain should resolve within guard");
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics?.PendingChoice, "advanced choice chain should resolve within guard");
+            Assert.IsNull(service.GetActiveMechanicChoice(), "advanced choice chain should resolve within guard");
         }
 
         private static void MakeHandRoom(MatchService service)
@@ -367,7 +369,7 @@ namespace LearnHearthstone.Tests.EditMode
         {
             EnsureStressTarget(service);
             TrimHandToRoom(service, HandLimit - 2);
-            while (service.State.Player.Board.Count >= BoardLimit)
+            for (var guard = 0; guard < BoardLimit && service.State.Player.Board.Count >= BoardLimit; guard += 1)
             {
                 var candidate = service.State.Player.Board.LastOrDefault(card => card.InstanceId != StressTargetId);
                 if (candidate == null)
@@ -375,8 +377,15 @@ namespace LearnHearthstone.Tests.EditMode
                     return;
                 }
 
+                var boardCountBeforeSell = service.State.Player.Board.Count;
                 service.Apply(new GameCommand(GameCommandType.SellMinion, candidate.InstanceId));
+                Assert.Less(
+                    service.State.Player.Board.Count,
+                    boardCountBeforeSell,
+                    "selling " + candidate.InstanceId + " must make board room instead of stalling the stress run");
             }
+
+            Assert.Less(service.State.Player.Board.Count, BoardLimit, "board room should resolve within the bounded sell guard");
         }
 
         private static void EnsureStressTarget(MatchService service)
@@ -541,6 +550,19 @@ namespace LearnHearthstone.Tests.EditMode
                 Tribe.Naga,
                 Tribe.All
             };
+        }
+
+        private static GameCatalogSet LoadDefaultCatalogs()
+        {
+            return new GameCatalogSet(
+                MinionCatalogLoader.LoadFromResources(),
+                SpellCatalogLoader.LoadFromResources(),
+                HeroCatalogLoader.LoadFromResources(),
+                TrinketCatalogLoader.LoadFromResources(),
+                QuestCatalogLoader.LoadFromResources(),
+                TimewarpedTavernCatalogLoader.LoadFromResources(),
+                AnomalyCatalogLoader.LoadFromResources(),
+                DarkmoonPrizeCatalogLoader.LoadFromResources());
         }
     }
 }

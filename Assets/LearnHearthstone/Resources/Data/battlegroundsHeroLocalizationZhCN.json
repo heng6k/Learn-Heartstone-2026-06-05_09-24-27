@@ -1,7 +1,7 @@
 {
     "source":  "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
     "generatedAt":  "2026-07-22T09:11:01.823Z",
-    "count":  339,
+    "count":  343,
     "cards":  [
                   {
                       "cardId":  "TB_BaconShop_HERO_35",
@@ -2036,6 +2036,30 @@
                       "kind":  "buddy",
                       "name":  "巴罗夫的扈从",
                       "text":  "在你使用一张“铸币”后，获得1枚铸币。"
+                  },
+                  {
+                      "cardId":  "BG36_HERO_105",
+                      "kind":  "hero",
+                      "name":  "梦魇之王萨维斯",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG36_HERO_105p",
+                      "kind":  "heroPower",
+                      "name":  "感受毁灭",
+                      "text":  "每4个回合，发现一张具有黑暗之赐的随从牌。"
+                  },
+                  {
+                      "cardId":  "BG36_HERO_101",
+                      "kind":  "hero",
+                      "name":  "特莱斯塔斯，寄生之魂",
+                      "text":  ""
+                  },
+                  {
+                      "cardId":  "BG36_HERO_101p",
+                      "kind":  "heroPower",
+                      "name":  "虚空能量",
+                      "text":  "对战开始时，发现一张具有黑暗之赐的5星随从牌。该牌在第7回合解锁。"
                   }
               ]
 }

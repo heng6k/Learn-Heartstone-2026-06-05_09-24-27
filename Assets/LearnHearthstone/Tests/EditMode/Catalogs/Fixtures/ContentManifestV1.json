@@ -1,0 +1,11 @@
+{
+  "protocolVersion": 1,
+  "contentVersion": "20260727",
+  "requiredClientVersion": "0.1.0-alpha",
+  "generatedAtUtc": "2026-07-29T15:01:09.810Z",
+  "minions": {
+    "fileName": "battlegroundsMinions.v20260727.json",
+    "bytes": 317324,
+    "sha256": "04569e5f7f821d1d5ccdfa08f35a04a0e656167bcd20b582cef2f21b3ab63d8f"
+  }
+}

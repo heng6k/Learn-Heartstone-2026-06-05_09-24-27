@@ -1,0 +1,655 @@
+{
+  "SchemaVersion": 2,
+  "CatalogRevisionId": "strategy-guides-36.2-preview-20260809-r6",
+  "Guides": [
+    {
+      "GuideId": "GUIDE-S14-BEAST-LOBSTER-RALLY",
+      "RevisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@7b95ddb536f5765d",
+      "GameVersionId": "36.2-preview",
+      "Title": "龙虾进击亡语",
+      "EnglishTitle": "Lobster Rally Deathrattles",
+      "Summary": "用复生保护龙虾，以进击召唤和左侧亡语串起完整野兽阵容。",
+      "EnglishSummary": "Protect the Lobster with Reborn, then connect Rally summons and left-most Deathrattles.",
+      "Archetype": "DeathrattleSummonChain",
+      "HeroCardId": "TB_BaconShop_HERO_95",
+      "LesserTrinketCardId": "BG36_MagicItem_201",
+      "GreaterTrinketCardId": "BG36_MagicItem_212",
+      "RequiredTribes": ["Beast"],
+      "ActiveTribes": ["Beast", "Mech", "Demon", "Naga", "Quilboar"],
+      "CoreMinionCardIds": ["BG36_202", "BG36_210", "BG36_208", "BG36_211"],
+      "CoreSpellCardNumbers": [],
+      "FinalComposition": [
+        {"PlacementId":"final-beast-lobster","CardKind":"Minion","CardId":"BG36_202","Golden":false,"MinimumAttack":9,"MinimumHealth":9,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-hyena","CardKind":"Minion","CardId":"BG36_210","Golden":true,"MinimumAttack":10,"MinimumHealth":12,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-deathstrider-a","CardKind":"Minion","CardId":"BG36_208","Golden":true,"MinimumAttack":20,"MinimumHealth":22,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-cage","CardKind":"Minion","CardId":"BG36_211","Golden":false,"MinimumAttack":2,"MinimumHealth":7,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-wolf","CardKind":"Minion","CardId":"BG36_207","Golden":true,"MinimumAttack":6,"MinimumHealth":10,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-deathstrider-b","CardKind":"Minion","CardId":"BG36_208","Golden":true,"MinimumAttack":20,"MinimumHealth":22,"Provenance":"NormalPool"},
+        {"PlacementId":"final-beast-scorpion","CardKind":"Minion","CardId":"BG36_209","Golden":true,"MinimumAttack":14,"MinimumHealth":16,"Provenance":"NormalPool"}
+      ],
+      "EntryProfiles": [{
+        "ProfileId": "showcase",
+        "Difficulty": "Showcase",
+        "Title": "简单模式",
+        "EnglishTitle": "Showcase",
+        "LearningGoal": "认识复生、左侧亡语与进击召唤的基本配合。",
+        "EnglishLearningGoal": "Learn the basic link between Reborn, the left-most Deathrattle, and Rally summons.",
+        "KeyDecisions": ["先给美味龙虾复生，再补齐成型随从。","美味龙虾始终保持在最左侧。"],
+        "EnglishKeyDecisions": ["Grant Reborn to Tasty Lobster before completing the lineup.","Keep Tasty Lobster in the left-most slot."],
+        "StartRound": 10,
+        "TavernTier": 6,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3620101,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"beast-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-hyena","Zone":"Board","CardKind":"Minion","CardId":"BG36_210","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-cage","Zone":"Board","CardKind":"Minion","CardId":"BG36_211","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-wolf","Zone":"Board","CardKind":"Minion","CardId":"BG36_207","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-deathstrider-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-deathstrider-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-scorpion","Zone":"Hand","CardKind":"Minion","CardId":"BG36_209","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-scarab","Zone":"Shop","CardKind":"Minion","CardId":"BG27_084","Golden":false,"Provenance":"NormalPool"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"beast-jaws-v1","TargetPlacementId":"beast-lobster","GiftResearchKey":"DG-R03","AcquiredRound":3,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [],
+        "RequiredActions": [
+          {"ActionId":"buy-scarab","Kind":"Buy","SourcePlacementId":"beast-scarab","Count":1,"Instruction":"购买机变甲虫","EnglishInstruction":"Buy Sprightly Scarab"},
+          {"ActionId":"play-scarab","Kind":"Play","SourcePlacementId":"beast-scarab","TargetPlacementId":"beast-lobster","ChoiceId":"Reborn","Count":1,"Instruction":"打出机变甲虫，为最左美味龙虾选择复生","EnglishInstruction":"Play Sprightly Scarab and grant Reborn to the left-most Tasty Lobster"},
+          {"ActionId":"sell-scarab","Kind":"Sell","SourcePlacementId":"beast-scarab","Count":1,"Instruction":"卖出完成教学的机变甲虫","EnglishInstruction":"Sell the tutorial Sprightly Scarab"},
+          {"ActionId":"play-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["beast-deathstrider-a","beast-deathstrider-b","beast-scorpion"],"Count":3,"Instruction":"打出两张逐亡陆行鸟和暴虐巨蝎","EnglishInstruction":"Play both Deathstriders and Tyrant Scorpion"},
+          {"ActionId":"keep-lobster-left","Kind":"BoardOrder","TargetPlacementId":"beast-lobster","ChoiceId":"LeftMost","Count":1,"Instruction":"保持美味龙虾位于战队最左侧","EnglishInstruction":"Keep Tasty Lobster in the left-most warband slot"}
+        ],
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":1,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "guided",
+        "Difficulty": "GuidedDiscover",
+        "Title": "初级模式",
+        "EnglishTitle": "Guided Discover",
+        "LearningGoal": "用塑造法术主动触发战吼和亡语，累计美味龙虾成长，并在受控三连后完成七格阵容。",
+        "EnglishLearningGoal": "Use shaping spells to trigger Battlecries and Deathrattles, grow Tasty Lobster, and finish the seven-slot lineup after the controlled Triple.",
+        "KeyDecisions": ["先用战吼塑造补好美味龙虾的复生。","亡语塑造优先选择最左侧美味龙虾，至少累计3层成长。","三连奖励优先补齐逐亡陆行鸟，成型时不要改变最左站位。"],
+        "EnglishKeyDecisions": ["Use Battlecry Shaping to secure Reborn on Tasty Lobster first.","Target the left-most Tasty Lobster with Deathrattle Shaping until it reaches at least 3 growth.","Use the Triple reward to finish Deathstrider without moving the Lobster from the left-most slot."],
+        "StartRound": 10,
+        "TavernTier": 6,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3621101,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"beast-guided-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-cage","Zone":"Board","CardKind":"Minion","CardId":"BG36_211","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-wolf","Zone":"Board","CardKind":"Minion","CardId":"BG36_207","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-deathstrider-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-deathstrider-pair-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-deathstrider-pair-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-scorpion","Zone":"Hand","CardKind":"Minion","CardId":"BG36_209","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-hyena-pair-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_210","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-hyena-pair-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_210","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-hyena-third","Zone":"Shop","CardKind":"Minion","CardId":"BG36_210","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-guided-scarab","Zone":"Shop","CardKind":"Minion","CardId":"BG27_084","Golden":false,"Provenance":"NormalPool"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"beast-guided-jaws-v1","TargetPlacementId":"beast-guided-lobster","GiftResearchKey":"DG-R03","AcquiredRound":3,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"beast.lobsterGrowth","Value":3}],
+        "RequiredActions": [
+          {"ActionId":"guided-buy-hyena","Kind":"Buy","SourcePlacementId":"beast-guided-hyena-third","Count":1,"Instruction":"购买第三张囤食土狼，合成金色并获得六星三连奖励","EnglishInstruction":"Buy the third Food Hoarder Hyena to form a Golden and earn a Tier 6 Triple Reward"},
+          {"ActionId":"guided-buy-scarab","Kind":"Buy","SourcePlacementId":"beast-guided-scarab","Count":1,"Instruction":"购买机变甲虫，并为美味龙虾选择复生","EnglishInstruction":"Buy Sprightly Scarab and choose Reborn for Tasty Lobster"},
+          {"ActionId":"guided-play-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["beast-guided-deathstrider-a","beast-guided-scorpion"],"Count":2,"Instruction":"完成发现后，摆出两张金色逐亡陆行鸟和暴虐巨蝎","EnglishInstruction":"After the Discover, field both Golden Deathstriders and Tyrant Scorpion"},
+          {"ActionId":"guided-keep-lobster-left","Kind":"BoardOrder","TargetPlacementId":"beast-guided-lobster","ChoiceId":"LeftMost","Count":1,"Instruction":"保持美味龙虾位于战队最左侧","EnglishInstruction":"Keep Tasty Lobster in the left-most warband slot"}
+        ],
+        "AcquisitionPlan": {
+          "DiscloseControlledOffers": true,
+          "OfferSchedules": [{
+            "ScheduleId":"beast-guided-deathstrider",
+            "Source":"TripleRewardDiscover",
+            "TriggerOccurrence":1,
+            "Policy":"MustInclude",
+            "CardKind":"Minion",
+            "TavernTier":6,
+            "OptionCount":3,
+            "TargetCardIds":["BG36_208"],
+            "Label":"受控三连：六星奖励必定包含逐亡陆行鸟（实际游戏以正常概率为准）",
+            "EnglishLabel":"Controlled Triple: the Tier 6 reward must include Deathstrider (normal games use normal odds)"
+          }]
+        },
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "difficult",
+        "Difficulty": "OpenBuild",
+        "Title": "困难模式",
+        "EnglishTitle": "Difficult",
+        "LearningGoal": "在更早的开放局面中自行安排大型饰品、塑造法术与站位，完成龙虾亡语成长链。",
+        "EnglishLearningGoal": "Plan the Greater Trinket, shaping spells, and board order from an earlier open state to complete the Lobster Deathrattle chain.",
+        "KeyDecisions": ["第8回合结束前保持至少3只野兽以拿到狼首连枷。","根据机变甲虫是否已上场，决定战吼塑造或亡语塑造的使用时机。","最终仍要让美味龙虾在最左侧并达到3层成长。"],
+        "EnglishKeyDecisions": ["Keep at least three Beasts before ending turn 8 to access Wolfhead Flail.","Choose between Battlecry and Deathrattle Shaping based on whether Sprightly Scarab is already in play.","Finish with Tasty Lobster left-most and at 3 or more growth."],
+        "StartRound": 8,
+        "TavernTier": 4,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3622101,
+        "InitialTripleRewardCount": 2,
+        "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "UnequippedTrinketSlots": ["Greater"],
+        "Placements": [
+          {"PlacementId":"beast-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-hyena","Zone":"Board","CardKind":"Minion","CardId":"BG36_210","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-cage","Zone":"Board","CardKind":"Minion","CardId":"BG36_211","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-wolf","Zone":"Board","CardKind":"Minion","CardId":"BG36_207","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-filler-bird","Zone":"Board","CardKind":"Minion","CardId":"BG26_805","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-filler-rover","Zone":"Board","CardKind":"Minion","CardId":"BG31_801","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-filler-shark","Zone":"Board","CardKind":"Minion","CardId":"BG36_206","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-deathstrider-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-deathstrider-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_208","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-scorpion","Zone":"Hand","CardKind":"Minion","CardId":"BG36_209","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-scarab","Zone":"Shop","CardKind":"Minion","CardId":"BG27_084","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-shop-raptor","Zone":"Shop","CardKind":"Minion","CardId":"BG25_806","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-shop-fishbait","Zone":"Shop","CardKind":"Minion","CardId":"BG36_205","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-shop-parrot","Zone":"Shop","CardKind":"Minion","CardId":"BG36_763","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"beast-shop-gryphon","Zone":"Shop","CardKind":"Minion","CardId":"BG36_204","Golden":false,"Provenance":"NormalPool"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"beast-jaws-v1","TargetPlacementId":"beast-lobster","GiftResearchKey":"DG-R03","AcquiredRound":3,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"beast.lobsterGrowth","Value":3}],
+        "RequiredActions": [
+          {"ActionId":"choose-wolfhead-flail","Kind":"ChooseTrinket","ChoiceId":"BG36_MagicItem_212","Count":1,"Instruction":"结束第8回合，在大饰品候选中选择狼首连枷","EnglishInstruction":"End turn 8 and choose Wolfhead Flail from the Greater Trinket offer"},
+          {"ActionId":"buy-scarab","Kind":"Buy","SourcePlacementId":"beast-scarab","Count":1,"Instruction":"购买机变甲虫","EnglishInstruction":"Buy Sprightly Scarab"},
+          {"ActionId":"play-scarab","Kind":"Play","SourcePlacementId":"beast-scarab","TargetPlacementId":"beast-lobster","ChoiceId":"Reborn","Count":1,"Instruction":"打出机变甲虫，为最左美味龙虾选择复生","EnglishInstruction":"Play Sprightly Scarab and grant Reborn to the left-most Tasty Lobster"},
+          {"ActionId":"sell-scarab","Kind":"Sell","SourcePlacementId":"beast-scarab","Count":1,"Instruction":"卖出完成教学的机变甲虫","EnglishInstruction":"Sell the tutorial Sprightly Scarab"},
+          {"ActionId":"play-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["beast-deathstrider-a","beast-deathstrider-b","beast-scorpion"],"Count":3,"Instruction":"打出两张逐亡陆行鸟和暴虐巨蝎","EnglishInstruction":"Play both Deathstriders and Tyrant Scorpion"},
+          {"ActionId":"keep-lobster-left","Kind":"BoardOrder","TargetPlacementId":"beast-lobster","ChoiceId":"LeftMost","Count":1,"Instruction":"保持美味龙虾位于战队最左侧","EnglishInstruction":"Keep Tasty Lobster in the left-most warband slot"}
+        ],
+        "AcquisitionPlan": {"DiscloseControlledOffers":true,"OfferSchedules":[{
+          "ScheduleId":"beast-difficult-tier-four-refresh-core","Source":"ShopRefresh","TriggerTavernTier":4,"TriggerOccurrence":2,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":3,"OptionCount":5,"TargetCardIds":["BG36_202"],
+          "Label":"困难教学：四本酒馆第二次刷新必含美味龙虾（实际游戏以正常概率为准）","EnglishLabel":"Difficult lesson: the second Tier 4 refresh includes Tasty Lobster (normal games use normal odds)"
+        },{
+          "ScheduleId":"beast-difficult-tier-five-core","Source":"TripleRewardDiscover","TriggerTavernTier":4,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":5,"OptionCount":3,"TargetCardIds":["BG36_210"],
+          "Label":"困难教学：四本三连发现必含五本核心贪食的瞪羚","EnglishLabel":"Difficult lesson: the Tier 4 Triple Reward includes Ravenous Hyena"
+        },{
+          "ScheduleId":"beast-difficult-tier-six-core","Source":"TripleRewardDiscover","TriggerTavernTier":5,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":6,"OptionCount":3,"TargetCardIds":["BG36_208"],
+          "Label":"困难教学：升到五本后的三连发现必含六本核心逐亡陆行鸟","EnglishLabel":"Difficult lesson: the Tier 5 Triple Reward includes Deathstrider"
+        },{
+          "ScheduleId":"beast-difficult-greater-trinket","Source":"GreaterTrinketChoice","TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Trinket","OptionCount":4,"TargetCardIds":["BG36_MagicItem_212"],
+          "RequiredTribe":"Beast","MinimumRequiredTribeMinions":3,
+          "Label":"大饰品池教学：战队至少3只野兽时必含狼首连枷（实际游戏以正常概率为准）",
+          "EnglishLabel":"Greater Trinket lesson: include Wolfhead Flail with at least 3 Beasts (normal games use normal odds)"
+        }]},
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }]
+    },
+    {
+      "GuideId": "GUIDE-S14-MECH-SPELL-SATELLITE",
+      "RevisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@8ec65b2762878f4b",
+      "GameVersionId": "36.2-preview",
+      "Title": "法术磁力卫星",
+      "EnglishTitle": "Spell-Magnetic Satellites",
+      "Summary": "用酒馆法术推动机械成长，再以发动和磁力卫星完成阵容。",
+      "EnglishSummary": "Grow Mechs with Tavern spells, then finish through Activate and Magnetic Satellites.",
+      "Archetype": "SpellEconomyGrowth",
+      "HeroCardId": "BG31_HERO_006",
+      "LesserTrinketCardId": "BG36_MagicItem_810",
+      "GreaterTrinketCardId": "BG36_MagicItem_840",
+      "RequiredTribes": ["Mech"],
+      "ActiveTribes": ["Mech", "Murloc", "Demon", "Elemental", "Dragon"],
+      "CoreMinionCardIds": ["BG36_506", "BG36_851", "BG36_853", "BG36_764"],
+      "CoreSpellCardNumbers": ["100596", "104445", "133711"],
+      "FinalComposition": [
+        {"PlacementId":"final-mech-drone","CardKind":"Minion","CardId":"BG36_506","Golden":true,"MinimumAttack":8,"MinimumHealth":8,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-spark","CardKind":"Minion","CardId":"BG36_851","Golden":true,"MinimumAttack":6,"MinimumHealth":6,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-glambot-a","CardKind":"Minion","CardId":"BG36_853","Golden":true,"MinimumAttack":12,"MinimumHealth":12,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-glambot-b","CardKind":"Minion","CardId":"BG36_853","Golden":true,"MinimumAttack":12,"MinimumHealth":12,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-gearfin","CardKind":"Minion","CardId":"BG36_764","Golden":true,"MinimumAttack":12,"MinimumHealth":10,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-rescue-a","CardKind":"Minion","CardId":"BG36_854","Golden":false,"MinimumAttack":5,"MinimumHealth":1,"Provenance":"NormalPool"},
+        {"PlacementId":"final-mech-rescue-b","CardKind":"Minion","CardId":"BG36_854","Golden":false,"MinimumAttack":5,"MinimumHealth":1,"Provenance":"NormalPool"}
+      ],
+      "EntryProfiles": [{
+        "ProfileId": "showcase",
+        "Difficulty": "Showcase",
+        "Title": "简单模式",
+        "EnglishTitle": "Showcase",
+        "LearningGoal": "认识施法、卫星磁力与复映无人机发动的基本顺序。",
+        "EnglishLearningGoal": "Learn the basic order of spell casts, Satellite Magnetics, and Drone Duplicator's Activate.",
+        "KeyDecisions": ["先打出复映无人机和炫彩机器人，再施放增益法术。","发动复映无人机后再安排关键磁力。"],
+        "EnglishKeyDecisions": ["Play Drone Duplicator and Glambot before casting the buff spells.","Activate Drone Duplicator before committing the key Magnetic."],
+        "StartRound": 10,
+        "TavernTier": 5,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3620102,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"mech-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-gearfin","Zone":"Board","CardKind":"Minion","CardId":"BG36_764","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-rescue-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-drone","Zone":"Hand","CardKind":"Minion","CardId":"BG36_506","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-glambot-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-glambot-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-rescue-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-arrow","Zone":"Shop","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"mech-defenders-rites","Zone":"Shop","CardKind":"TavernSpell","CardId":"104445","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-repair-job","Zone":"Shop","CardKind":"TavernSpell","CardId":"133711","Golden":false,"Provenance":"GuideTutorial"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"mech-polarization-v1","TargetPlacementId":"mech-drone","GiftResearchKey":"DG-R22","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [],
+        "RequiredActions": [
+          {"ActionId":"play-drone","Kind":"Play","SourcePlacementId":"mech-drone","Count":1,"Instruction":"打出复映无人机","EnglishInstruction":"Play Drone Duplicator"},
+          {"ActionId":"play-glambot","Kind":"Play","SourcePlacementId":"mech-glambot-a","Count":1,"Instruction":"打出一张炫彩机器人","EnglishInstruction":"Play one Glambot"},
+          {"ActionId":"activate-drone","Kind":"Activate","SourcePlacementId":"mech-drone","Count":1,"Instruction":"发动复映无人机","EnglishInstruction":"Activate Drone Duplicator"},
+          {"ActionId":"cast-repair","Kind":"Cast","SourcePlacementId":"mech-repair-job","TargetPlacementId":"mech-drone","Count":1,"Instruction":"对复映无人机施放维修作业","EnglishInstruction":"Cast Repair Job on Drone Duplicator"},
+          {"ActionId":"cast-second-spell","Kind":"Cast","SourcePlacementId":"mech-defenders-rites","TargetPlacementId":"mech-glambot-a","Count":1,"Instruction":"对炫彩机器人施放防御者的仪式","EnglishInstruction":"Cast Defender's Rites on Glambot"}
+        ],
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":1,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "guided",
+        "Difficulty": "GuidedDiscover",
+        "Title": "初级模式",
+        "EnglishTitle": "Guided Discover",
+        "LearningGoal": "用回合结束和亡语塑造补充酒馆法术，把至少3次施法转化为卫星磁力并完成双炫彩核心。",
+        "EnglishLearningGoal": "Use end-of-turn and Deathrattle Shaping to generate Tavern Spells, convert at least three casts into Satellite Magnetics, and finish the double-Glambot core.",
+        "KeyDecisions": ["回合结束塑造优先触发机鳍鱼人补充两张法术。","手牌缺维修作业时，用亡语塑造触发救援机器人。","施法前确认炫彩机器人已在场，并让总施法次数达到3。"],
+        "EnglishKeyDecisions": ["Use End-of-Turn Shaping on Gearfin to generate two spells.","Use Deathrattle Shaping on Rescue Bot when Repair Job is missing.","Have Glambot in play before casting and reach three total Tavern Spell casts."],
+        "StartRound": 10,
+        "TavernTier": 5,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3621102,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"mech-guided-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-gearfin","Zone":"Board","CardKind":"Minion","CardId":"BG36_764","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-rescue-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-drone","Zone":"Hand","CardKind":"Minion","CardId":"BG36_506","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-glambot-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-glambot-pair-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-glambot-pair-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-rescue-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-boundless","Zone":"Hand","CardKind":"TavernSpell","CardId":"115910","Golden":false,"Provenance":"Generated"},
+          {"PlacementId":"mech-guided-arrow","Zone":"Shop","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"mech-guided-defenders-rites","Zone":"Shop","CardKind":"TavernSpell","CardId":"104445","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-guided-repair-job","Zone":"Shop","CardKind":"TavernSpell","CardId":"133711","Golden":false,"Provenance":"GuideTutorial"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"mech-guided-polarization-v1","TargetPlacementId":"mech-guided-drone","GiftResearchKey":"DG-R22","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"tavern.spellsCastThisGame","Value":3}],
+        "RequiredActions": [
+          {"ActionId":"guided-cast-boundless","Kind":"Cast","SourcePlacementId":"mech-guided-boundless","ChoiceId":"minion","Count":1,"Instruction":"施放无限潜力并选择发现当前等级随从","EnglishInstruction":"Cast Boundless Potential and choose the current-Tier minion Discover"},
+          {"ActionId":"guided-play-mech-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["mech-guided-drone","mech-guided-glambot-a","mech-guided-rescue-b"],"Count":3,"Instruction":"完成发现后，摆出第二张金色炫彩机器人及其余成型随从","EnglishInstruction":"After the Discover, field the second Golden Glambot and the remaining final minions"}
+        ],
+        "AcquisitionPlan": {
+          "DiscloseControlledOffers": true,
+          "OfferSchedules": [{
+            "ScheduleId":"mech-guided-glambot",
+            "Source":"TavernSpellDiscover",
+            "TriggerCardId":"115910",
+            "TriggerOccurrence":1,
+            "Policy":"MustInclude",
+            "CardKind":"Minion",
+            "TavernTier":5,
+            "OptionCount":3,
+            "TargetCardIds":["BG36_853"],
+            "Label":"受控法术发现：无限潜力必定包含炫彩机器人（实际游戏以正常概率为准）",
+            "EnglishLabel":"Controlled spell Discover: Boundless Potential must include Glambot (normal games use normal odds)"
+          }]
+        },
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "difficult",
+        "Difficulty": "OpenBuild",
+        "Title": "困难模式",
+        "EnglishTitle": "Difficult",
+        "LearningGoal": "在开放局面中自行管理秘密蓝图、塑造法术与磁力落点，让施法成长和七格阵容同时达标。",
+        "EnglishLearningGoal": "Manage Secret Schematic, shaping spells, and Magnetic targets from an open state so spell growth and the seven-slot lineup complete together.",
+        "KeyDecisions": ["第8回合结束前保持至少3个机械属性以拿到秘密蓝图。","先用塑造效果补法术，再决定法术施放和磁力落点。","至少完成3次酒馆法术施放，并保留两个炫彩机器人核心位。"],
+        "EnglishKeyDecisions": ["Keep at least three Mechs before ending turn 8 to access Secret Schematic.","Generate spells through shaping before choosing cast and Magnetic targets.","Reach three Tavern Spell casts while preserving both Glambot core slots."],
+        "StartRound": 8,
+        "TavernTier": 4,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3622102,
+        "InitialTripleRewardCount": 2,
+        "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "UnequippedTrinketSlots": ["Greater"],
+        "Placements": [
+          {"PlacementId":"mech-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-gearfin","Zone":"Board","CardKind":"Minion","CardId":"BG36_764","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-rescue-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-filler-automaton","Zone":"Board","CardKind":"Minion","CardId":"BG_TTN_401","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-filler-deflecto","Zone":"Board","CardKind":"Minion","CardId":"BGS_071","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-filler-module","Zone":"Board","CardKind":"Minion","CardId":"BG_BOT_911","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-filler-assembler","Zone":"Board","CardKind":"Minion","CardId":"BG32_172","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-drone","Zone":"Hand","CardKind":"Minion","CardId":"BG36_506","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-glambot-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-glambot-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_853","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-rescue-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-arrow","Zone":"Hand","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"mech-defenders-rites","Zone":"Hand","CardKind":"TavernSpell","CardId":"104445","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-repair-job","Zone":"Hand","CardKind":"TavernSpell","CardId":"133711","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"mech-shop-interpreter","Zone":"Shop","CardKind":"Minion","CardId":"BG31_177","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-shop-rescue","Zone":"Shop","CardKind":"Minion","CardId":"BG36_854","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-shop-drone","Zone":"Shop","CardKind":"Minion","CardId":"BG36_506","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-shop-spark","Zone":"Shop","CardKind":"Minion","CardId":"BG36_851","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"mech-shop-gearfin","Zone":"Shop","CardKind":"Minion","CardId":"BG36_764","Golden":false,"Provenance":"NormalPool"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"mech-polarization-v1","TargetPlacementId":"mech-drone","GiftResearchKey":"DG-R22","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"tavern.spellsCastThisGame","Value":3}],
+        "RequiredActions": [
+          {"ActionId":"choose-secret-schematic","Kind":"ChooseTrinket","ChoiceId":"BG36_MagicItem_840","Count":1,"Instruction":"结束第8回合，在大饰品候选中选择秘密蓝图","EnglishInstruction":"End turn 8 and choose Secret Schematic from the Greater Trinket offer"},
+          {"ActionId":"play-drone","Kind":"Play","SourcePlacementId":"mech-drone","Count":1,"Instruction":"打出复映无人机","EnglishInstruction":"Play Drone Duplicator"},
+          {"ActionId":"play-glambot","Kind":"Play","SourcePlacementId":"mech-glambot-a","Count":1,"Instruction":"打出一张炫彩机器人","EnglishInstruction":"Play one Glambot"},
+          {"ActionId":"activate-drone","Kind":"Activate","SourcePlacementId":"mech-drone","Count":1,"Instruction":"发动复映无人机","EnglishInstruction":"Activate Drone Duplicator"},
+          {"ActionId":"cast-repair","Kind":"Cast","SourcePlacementId":"mech-repair-job","TargetPlacementId":"mech-drone","Count":1,"Instruction":"对复映无人机施放维修作业","EnglishInstruction":"Cast Repair Job on Drone Duplicator"},
+          {"ActionId":"cast-second-spell","Kind":"Cast","SourcePlacementId":"mech-defenders-rites","TargetPlacementId":"mech-glambot-a","Count":1,"Instruction":"对炫彩机器人施放防御者的仪式","EnglishInstruction":"Cast Defender's Rites on Glambot"}
+        ],
+        "AcquisitionPlan": {"DiscloseControlledOffers":true,"OfferSchedules":[{
+          "ScheduleId":"mech-difficult-tier-four-refresh-core","Source":"ShopRefresh","TriggerTavernTier":4,"TriggerOccurrence":2,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":4,"OptionCount":5,"TargetCardIds":["BG36_506"],
+          "Label":"困难教学：四本酒馆第二次刷新必含复映无人机（实际游戏以正常概率为准）","EnglishLabel":"Difficult lesson: the second Tier 4 refresh includes Drone Duplicator (normal games use normal odds)"
+        },{
+          "ScheduleId":"mech-difficult-tier-five-core","Source":"TripleRewardDiscover","TriggerTavernTier":4,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":5,"OptionCount":3,"TargetCardIds":["BG36_853"],
+          "Label":"困难教学：四本三连发现必含五本核心霓彩机器人","EnglishLabel":"Difficult lesson: the Tier 4 Triple Reward includes Glambot"
+        },{
+          "ScheduleId":"mech-difficult-tier-six-core","Source":"TripleRewardDiscover","TriggerTavernTier":5,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":6,"OptionCount":3,"TargetCardIds":["BG26_152"],
+          "Label":"困难教学：升到五本后的三连发现必含六本核心效用无人机","EnglishLabel":"Difficult lesson: the Tier 5 Triple Reward includes Utility Drone"
+        },{
+          "ScheduleId":"mech-difficult-greater-trinket","Source":"GreaterTrinketChoice","TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Trinket","OptionCount":4,"TargetCardIds":["BG36_MagicItem_840"],
+          "RequiredTribe":"Mech","MinimumRequiredTribeMinions":3,
+          "Label":"大饰品池教学：战队至少3个机械属性时必含秘密蓝图（实际游戏以正常概率为准）",
+          "EnglishLabel":"Greater Trinket lesson: include Secret Schematic with at least 3 Mechs (normal games use normal odds)"
+        }]},
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }]
+    },
+    {
+      "GuideId": "GUIDE-S14-DEMON-TAVERN-CONSUME",
+      "RevisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@7b30b26b78fb172f",
+      "GameVersionId": "36.2-preview",
+      "Title": "酒馆成长吞噬",
+      "EnglishTitle": "Tavern-Growth Devour",
+      "Summary": "强化酒馆中的恶魔，利用吞噬和发动把酒馆属性转移到战队。",
+      "EnglishSummary": "Buff Tavern Demons, then move their stats into the warband through Devour and Activate.",
+      "Archetype": "StatGrowth",
+      "HeroCardId": "BG20_HERO_301",
+      "LesserTrinketCardId": "BG36_MagicItem_800",
+      "GreaterTrinketCardId": "BG36_MagicItem_831",
+      "RequiredTribes": ["Demon"],
+      "ActiveTribes": ["Demon", "Quilboar", "Beast", "Undead", "Pirate"],
+      "CoreMinionCardIds": ["BG36_503", "BG36_762", "BG36_621", "BG36_731"],
+      "CoreSpellCardNumbers": ["100596", "132903"],
+      "FinalComposition": [
+        {"PlacementId":"final-demon-jailer","CardKind":"Minion","CardId":"BG36_503","Golden":true,"MinimumAttack":6,"MinimumHealth":10,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-distractor-a","CardKind":"Minion","CardId":"BG36_762","Golden":true,"MinimumAttack":6,"MinimumHealth":12,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-distractor-b","CardKind":"Minion","CardId":"BG36_762","Golden":true,"MinimumAttack":6,"MinimumHealth":12,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-deserter","CardKind":"Minion","CardId":"BG36_621","Golden":true,"MinimumAttack":16,"MinimumHealth":16,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-illusionist","CardKind":"Minion","CardId":"BG36_731","Golden":true,"MinimumAttack":10,"MinimumHealth":8,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-eredar","CardKind":"Minion","CardId":"BG36_733","Golden":true,"MinimumAttack":10,"MinimumHealth":10,"Provenance":"NormalPool"},
+        {"PlacementId":"final-demon-clapper","CardKind":"Minion","CardId":"BG36_730","Golden":false,"MinimumAttack":2,"MinimumHealth":2,"Provenance":"NormalPool"}
+      ],
+      "EntryProfiles": [{
+        "ProfileId": "showcase",
+        "Difficulty": "Showcase",
+        "Title": "简单模式",
+        "EnglishTitle": "Showcase",
+        "LearningGoal": "认识酒馆永久成长、吞噬与发动的基本先后顺序。",
+        "EnglishLearningGoal": "Learn the basic order of permanent Tavern growth, Devour, and Activate.",
+        "KeyDecisions": ["先把法术施放到恶魔干扰者，再进行吞噬。","酒馆属性提高后再发动缚魂狱卒。"],
+        "EnglishKeyDecisions": ["Cast the spell on Devilish Distractor before Devouring.","Activate Soulkeeping Jailer after the Tavern stats have grown."],
+        "StartRound": 10,
+        "TavernTier": 6,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3620103,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"demon-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-distractor-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-clapper","Zone":"Board","CardKind":"Minion","CardId":"BG36_730","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-distractor-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-deserter","Zone":"Hand","CardKind":"Minion","CardId":"BG36_621","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-illusionist","Zone":"Hand","CardKind":"Minion","CardId":"BG36_731","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-eredar","Zone":"Hand","CardKind":"Minion","CardId":"BG36_733","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-a","Zone":"Shop","CardKind":"Minion","CardId":"BG36_730","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-b","Zone":"Shop","CardKind":"Minion","CardId":"BG36_621","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-c","Zone":"Shop","CardKind":"Minion","CardId":"BG36_733","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-arrow","Zone":"Shop","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"demon-methodical-madness","Zone":"Shop","CardKind":"TavernSpell","CardId":"132903","Golden":false,"Provenance":"GuideTutorial"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"demon-demonology-v1","TargetPlacementId":"demon-jailer","GiftResearchKey":"DG-R21","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [],
+        "RequiredActions": [
+          {"ActionId":"cast-on-distractor","Kind":"Cast","SourcePlacementId":"demon-methodical-madness","TargetPlacementId":"demon-distractor-a","Count":1,"Instruction":"对恶魔干扰者施放理性癫狂","EnglishInstruction":"Cast Methodical Madness on Devilish Distractor"},
+          {"ActionId":"cast-on-tavern","Kind":"Cast","SourcePlacementId":"demon-arrow","TargetPlacementId":"demon-shop-food-a","Count":1,"Instruction":"对酒馆恶魔施放尖利箭矢并触发吞噬","EnglishInstruction":"Cast Pointy Arrow on a Tavern Demon to trigger Devour"},
+          {"ActionId":"activate-jailer","Kind":"Activate","SourcePlacementId":"demon-jailer","Count":1,"Instruction":"发动缚魂狱卒","EnglishInstruction":"Activate Soulkeeping Jailer"},
+          {"ActionId":"play-demon-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["demon-distractor-b","demon-deserter","demon-illusionist","demon-eredar"],"Count":4,"Instruction":"打出手牌中的四张成型恶魔","EnglishInstruction":"Play the four finishing Demons from hand"}
+        ],
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":1,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "guided",
+        "Difficulty": "GuidedDiscover",
+        "Title": "初级模式",
+        "EnglishTitle": "Guided Discover",
+        "LearningGoal": "用亡语塑造获取理性癫狂，把酒馆永久成长提升到+8/+8，再通过吞噬转移到最终恶魔阵容。",
+        "EnglishLearningGoal": "Use Deathrattle Shaping to obtain Methodical Madness, raise permanent Tavern growth to +8/+8, then transfer it into the final Demon lineup through Devour.",
+        "KeyDecisions": ["亡语塑造优先选择鬼影幻术师，补充理性癫狂。","生成的理性癫狂全部优先施放到金色恶魔干扰者。","酒馆成长达到+8/+8后，再刷新找牌并发动缚魂狱卒。"],
+        "EnglishKeyDecisions": ["Target Imp-lusionist with Deathrattle Shaping to generate Methodical Madness.","Cast the generated copies on the Golden Devilish Distractor first.","Reach +8/+8 permanent Tavern growth before refreshing and activating Soulkeeping Jailer."],
+        "StartRound": 10,
+        "TavernTier": 6,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3621103,
+        "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","RerollShop","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "Placements": [
+          {"PlacementId":"demon-guided-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-distractor-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-clapper","Zone":"Board","CardKind":"Minion","CardId":"BG36_730","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-distractor-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-deserter","Zone":"Hand","CardKind":"Minion","CardId":"BG36_621","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-illusionist","Zone":"Hand","CardKind":"Minion","CardId":"BG36_731","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-eredar-pair-a","Zone":"Hand","CardKind":"Minion","CardId":"BG36_733","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-eredar-pair-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_733","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-shop-food-a","Zone":"Shop","CardKind":"Minion","CardId":"BG36_730","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-shop-food-b","Zone":"Shop","CardKind":"Minion","CardId":"BG36_621","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-guided-arrow","Zone":"Shop","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"demon-guided-methodical-madness","Zone":"Shop","CardKind":"TavernSpell","CardId":"132903","Golden":false,"Provenance":"GuideTutorial"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"demon-guided-demonology-v1","TargetPlacementId":"demon-guided-jailer","GiftResearchKey":"DG-R21","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"demon.tavernBonusAttack","Value":8},{"Key":"demon.tavernBonusHealth","Value":8}],
+        "RequiredActions": [
+          {"ActionId":"guided-refresh-tier-six","Kind":"Buy","Count":1,"Instruction":"在六级酒馆刷新一次，受控酒馆必定出现艾瑞达逃脱大师；购买后完成金色","EnglishInstruction":"Refresh once at Tavern Tier 6; the controlled shop must offer Eredar Escapist, then buy it to complete the Golden"},
+          {"ActionId":"guided-play-demon-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["demon-guided-distractor-b","demon-guided-deserter","demon-guided-illusionist"],"Count":3,"Instruction":"摆出金色艾瑞达逃脱大师及其余成型恶魔","EnglishInstruction":"Field the Golden Eredar Escapist and the remaining final Demons"}
+        ],
+        "AcquisitionPlan": {
+          "DiscloseControlledOffers": true,
+          "OfferSchedules": [{
+            "ScheduleId":"demon-guided-tier-six-eredar",
+            "Source":"ShopRefresh",
+            "TriggerTavernTier":6,
+            "TriggerOccurrence":1,
+            "Policy":"MustInclude",
+            "CardKind":"Minion",
+            "TavernTier":6,
+            "OptionCount":3,
+            "TargetCardIds":["BG36_733"],
+            "Label":"受控刷新：六级酒馆第一次刷新必定出现艾瑞达逃脱大师（实际游戏以正常概率为准）",
+            "EnglishLabel":"Controlled refresh: the first Tier 6 refresh must offer Eredar Escapist (normal games use normal odds)"
+          }]
+        },
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }, {
+        "ProfileId": "difficult",
+        "Difficulty": "OpenBuild",
+        "Title": "困难模式",
+        "EnglishTitle": "Difficult",
+        "LearningGoal": "在更早的开放局面中安排邪钢切肉斧、亡语塑造和吞噬时机，把酒馆成长完整转移到七格阵容。",
+        "EnglishLearningGoal": "From an earlier open state, plan Felsteel Cleaver, Deathrattle Shaping, and Devour timing to transfer Tavern growth into the seven-slot lineup.",
+        "KeyDecisions": ["第8回合结束前保持至少3个恶魔属性以拿到邪钢切肉斧。","用亡语塑造补充理性癫狂，并把酒馆永久成长推进到+8/+8。","只有在酒馆目标足够强时才发动缚魂狱卒完成属性转移。"],
+        "EnglishKeyDecisions": ["Keep at least three Demons before ending turn 8 to access Felsteel Cleaver.","Use Deathrattle Shaping for Methodical Madness and push permanent Tavern growth to +8/+8.","Activate Soulkeeping Jailer only after the Tavern targets are strong enough."],
+        "StartRound": 8,
+        "TavernTier": 4,
+        "Gold": 10,
+        "MaxGold": 10,
+        "Seed": 3622103,
+        "InitialTripleRewardCount": 2,
+        "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+        "UnequippedTrinketSlots": ["Greater"],
+        "Placements": [
+          {"PlacementId":"demon-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-distractor-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-clapper","Zone":"Board","CardKind":"Minion","CardId":"BG36_730","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-filler-assistant","Zone":"Board","CardKind":"Minion","CardId":"BG35_150","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-filler-rewinder","Zone":"Board","CardKind":"Minion","CardId":"BG26_174","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-filler-malchezaar","Zone":"Board","CardKind":"Minion","CardId":"BG26_524","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-filler-enforcer","Zone":"Board","CardKind":"Minion","CardId":"BG34_500","Golden":false,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-distractor-b","Zone":"Hand","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-deserter","Zone":"Hand","CardKind":"Minion","CardId":"BG36_621","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-illusionist","Zone":"Hand","CardKind":"Minion","CardId":"BG36_731","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-eredar","Zone":"Hand","CardKind":"Minion","CardId":"BG36_733","Golden":true,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-a","Zone":"Shop","CardKind":"Minion","CardId":"BG36_730","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-b","Zone":"Shop","CardKind":"Minion","CardId":"BG26_524","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-c","Zone":"Shop","CardKind":"Minion","CardId":"BG34_500","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-d","Zone":"Shop","CardKind":"Minion","CardId":"BG26_525","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-shop-food-e","Zone":"Shop","CardKind":"Minion","CardId":"BG33_155","Golden":false,"AttackOverride":35,"HealthOverride":35,"Provenance":"NormalPool"},
+          {"PlacementId":"demon-arrow","Zone":"Shop","CardKind":"TavernSpell","CardId":"100596","Golden":false,"Provenance":"GuideTutorial"},
+          {"PlacementId":"demon-methodical-madness","Zone":"Shop","CardKind":"TavernSpell","CardId":"132903","Golden":false,"Provenance":"GuideTutorial"}
+        ],
+        "DarkGiftAttachments": [
+          {"AttachmentId":"demon-demonology-v1","TargetPlacementId":"demon-jailer","GiftResearchKey":"DG-R21","AcquiredRound":8,"Source":"strategy-guide"}
+        ],
+        "GrowthQuality": [{"Key":"demon.tavernBonusAttack","Value":8},{"Key":"demon.tavernBonusHealth","Value":8}],
+        "RequiredActions": [
+          {"ActionId":"choose-felsteel-cleaver","Kind":"ChooseTrinket","ChoiceId":"BG36_MagicItem_831","Count":1,"Instruction":"结束第8回合，在大饰品候选中选择邪钢切肉斧","EnglishInstruction":"End turn 8 and choose Felsteel Cleaver from the Greater Trinket offer"},
+          {"ActionId":"cast-on-distractor","Kind":"Cast","SourcePlacementId":"demon-methodical-madness","TargetPlacementId":"demon-distractor-a","Count":1,"Instruction":"对恶魔干扰者施放理性癫狂","EnglishInstruction":"Cast Methodical Madness on Devilish Distractor"},
+          {"ActionId":"cast-on-tavern","Kind":"Cast","SourcePlacementId":"demon-arrow","TargetPlacementId":"demon-shop-food-a","Count":1,"Instruction":"对酒馆恶魔施放尖利箭矢并触发吞噬","EnglishInstruction":"Cast Pointy Arrow on a Tavern Demon to trigger Devour"},
+          {"ActionId":"activate-jailer","Kind":"Activate","SourcePlacementId":"demon-jailer","Count":1,"Instruction":"发动缚魂狱卒","EnglishInstruction":"Activate Soulkeeping Jailer"},
+          {"ActionId":"play-demon-finishers","Kind":"PlayFinalCards","SourcePlacementIds":["demon-distractor-b","demon-deserter","demon-illusionist","demon-eredar"],"Count":4,"Instruction":"打出手牌中的四张成型恶魔","EnglishInstruction":"Play the four finishing Demons from hand"}
+        ],
+        "AcquisitionPlan": {"DiscloseControlledOffers":true,"OfferSchedules":[{
+          "ScheduleId":"demon-difficult-tier-four-refresh-core","Source":"ShopRefresh","TriggerTavernTier":4,"TriggerOccurrence":2,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":4,"OptionCount":5,"TargetCardIds":["BG36_503"],
+          "Label":"困难教学：四本酒馆第二次刷新必含缚魂狱卒（实际游戏以正常概率为准）","EnglishLabel":"Difficult lesson: the second Tier 4 refresh includes Soulkeeping Jailer (normal games use normal odds)"
+        },{
+          "ScheduleId":"demon-difficult-tier-five-core","Source":"TripleRewardDiscover","TriggerTavernTier":4,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":5,"OptionCount":3,"TargetCardIds":["BG36_621"],
+          "Label":"困难教学：四本三连发现必含五本核心灵巧的逃亡者","EnglishLabel":"Difficult lesson: the Tier 4 Triple Reward includes Deft Deserter"
+        },{
+          "ScheduleId":"demon-difficult-tier-six-core","Source":"TripleRewardDiscover","TriggerTavernTier":5,"TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Minion","TavernTier":6,"OptionCount":3,"TargetCardIds":["BG36_733"],
+          "Label":"困难教学：升到五本后的三连发现必含六本核心艾瑞达逃亡者","EnglishLabel":"Difficult lesson: the Tier 5 Triple Reward includes Eredar Escapist"
+        },{
+          "ScheduleId":"demon-difficult-greater-trinket","Source":"GreaterTrinketChoice","TriggerOccurrence":1,
+          "Policy":"MustInclude","CardKind":"Trinket","OptionCount":4,"TargetCardIds":["BG36_MagicItem_831"],
+          "RequiredTribe":"Demon","MinimumRequiredTribeMinions":3,
+          "Label":"大饰品池教学：战队至少3个恶魔属性时必含邪钢切肉斧（实际游戏以正常概率为准）",
+          "EnglishLabel":"Greater Trinket lesson: include Felsteel Cleaver with at least 3 Demons (normal games use normal odds)"
+        }]},
+        "Opponent": {"StrengthRound":10,"RequiredTag":"SimpleBalanced"},
+        "Victory": {"RequireFinalComposition":true,"RequireCombatWin":true,"PostWinChoices":["FreeExplore","Restart","Return"]},
+        "Undo": {"UsesPerRun":0,"RestoreRng":true,"LockAfterTurnEnd":true,"LockAfterCombat":true,"LockDuringFreeExplore":true}
+      }]
+    }
+  ],
+  "Opponents": [
+    {
+      "OpponentId":"s14-simple-balanced-alpha-r10",
+      "RevisionId":"s14-simple-balanced-alpha-r10@v1",
+      "GameVersionId":"36.2-preview",
+      "StrengthRound":10,
+      "Tags":["SimpleBalanced"],
+      "HeroCardId":"TB_BaconShop_HERO_34",
+      "TavernTier":5,
+      "Board":[
+        {"PlacementId":"alpha-1","CardKind":"Minion","CardId":"BG36_200","Golden":true,"AttackOverride":28,"HealthOverride":32,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-2","CardKind":"Minion","CardId":"BG36_202","Golden":false,"AttackOverride":18,"HealthOverride":24,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-3","CardKind":"Minion","CardId":"BG36_207","Golden":true,"AttackOverride":34,"HealthOverride":30,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-4","CardKind":"Minion","CardId":"BG36_211","Golden":false,"AttackOverride":25,"HealthOverride":38,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-5","CardKind":"Minion","CardId":"BG36_854","Golden":false,"AttackOverride":22,"HealthOverride":26,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-6","CardKind":"Minion","CardId":"BG36_730","Golden":false,"AttackOverride":24,"HealthOverride":24,"Provenance":"NormalPool"},
+        {"PlacementId":"alpha-7","CardKind":"Minion","CardId":"BG36_621","Golden":false,"AttackOverride":36,"HealthOverride":36,"Provenance":"NormalPool"}
+      ],
+      "GrowthQuality":[{"Key":"beast.lobsterGrowth","Value":4}]
+    },
+    {
+      "OpponentId":"s14-simple-balanced-beta-r10",
+      "RevisionId":"s14-simple-balanced-beta-r10@v1",
+      "GameVersionId":"36.2-preview",
+      "StrengthRound":10,
+      "Tags":["SimpleBalanced"],
+      "HeroCardId":"TB_BaconShop_HERO_34",
+      "TavernTier":5,
+      "Board":[
+        {"PlacementId":"beta-1","CardKind":"Minion","CardId":"BG36_506","Golden":false,"AttackOverride":26,"HealthOverride":30,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-2","CardKind":"Minion","CardId":"BG36_851","Golden":true,"AttackOverride":32,"HealthOverride":32,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-3","CardKind":"Minion","CardId":"BG36_853","Golden":false,"AttackOverride":28,"HealthOverride":28,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-4","CardKind":"Minion","CardId":"BG36_764","Golden":false,"AttackOverride":30,"HealthOverride":30,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-5","CardKind":"Minion","CardId":"BG36_503","Golden":false,"AttackOverride":26,"HealthOverride":34,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-6","CardKind":"Minion","CardId":"BG36_762","Golden":false,"AttackOverride":28,"HealthOverride":36,"Provenance":"NormalPool"},
+        {"PlacementId":"beta-7","CardKind":"Minion","CardId":"BG36_733","Golden":false,"AttackOverride":34,"HealthOverride":34,"Provenance":"NormalPool"}
+      ],
+      "GrowthQuality":[{"Key":"tavern.spellsCastThisGame","Value":8}]
+    },
+    {
+      "OpponentId":"s14-simple-balanced-gamma-r10",
+      "RevisionId":"s14-simple-balanced-gamma-r10@v1",
+      "GameVersionId":"36.2-preview",
+      "StrengthRound":10,
+      "Tags":["SimpleBalanced"],
+      "HeroCardId":"TB_BaconShop_HERO_34",
+      "TavernTier":5,
+      "Board":[
+        {"PlacementId":"gamma-1","CardKind":"Minion","CardId":"BG36_730","Golden":true,"AttackOverride":30,"HealthOverride":30,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-2","CardKind":"Minion","CardId":"BG36_503","Golden":false,"AttackOverride":34,"HealthOverride":40,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-3","CardKind":"Minion","CardId":"BG36_762","Golden":true,"AttackOverride":38,"HealthOverride":42,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-4","CardKind":"Minion","CardId":"BG36_621","Golden":false,"AttackOverride":36,"HealthOverride":36,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-5","CardKind":"Minion","CardId":"BG36_731","Golden":false,"AttackOverride":30,"HealthOverride":30,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-6","CardKind":"Minion","CardId":"BG36_733","Golden":true,"AttackOverride":42,"HealthOverride":42,"Provenance":"NormalPool"},
+        {"PlacementId":"gamma-7","CardKind":"Minion","CardId":"BG36_202","Golden":false,"AttackOverride":20,"HealthOverride":20,"Provenance":"NormalPool"}
+      ],
+      "GrowthQuality":[{"Key":"demon.tavernBonusAttack","Value":12},{"Key":"demon.tavernBonusHealth","Value":12}]
+    }
+  ]
+}

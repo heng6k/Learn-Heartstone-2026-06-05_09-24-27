@@ -36,6 +36,8 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
             BuildSimpleBattle(service);
+            var healthBefore = service.State.Player.Health;
+            var armorBefore = service.State.Player.Armor;
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 777, SafetyLimit = 20 }));
 
@@ -45,6 +47,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(777, service.LastCombatTestSnapshot.Options.Seed);
             Assert.AreEqual("CombatStarted", service.State.CombatLog.First().Title);
             Assert.AreEqual("CombatEnded", service.State.CombatLog.Last().Title);
+            Assert.AreEqual(healthBefore, service.State.Player.Health, "Debug-only combat must not settle hero damage.");
+            Assert.AreEqual(armorBefore, service.State.Player.Armor, "Debug-only combat must not settle hero damage.");
 
             service.Apply(new GameCommand(GameCommandType.ResetCombatTestSnapshot));
 
@@ -54,6 +58,34 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, service.State.Player.Board.Count);
             Assert.AreEqual("player-attacker", service.State.Player.Board[0].InstanceId);
             Assert.AreEqual(1, service.State.Opponent.Board.Count);
+        }
+
+        [Test]
+        public void Apply_SimulateCombatSettlesHeroDamageBeforeStartingNextTurn()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            BuildSimpleBattle(service);
+            service.State.Round = 4;
+            service.State.Player.Tavern.Tier = 3;
+            service.State.Player.Board[0].TavernTier = 2;
+            service.State.Opponent.Health = 30;
+            service.State.Opponent.Armor = 1;
+
+            service.Apply(new GameCommand(
+                GameCommandType.SimulateCombat,
+                new CombatTestOptions { Seed = 777, SafetyLimit = 20 }));
+
+            Assert.AreEqual(5, service.State.Round);
+            Assert.AreEqual(CombatWinner.Player, service.State.LastResult.Winner);
+            Assert.IsNotNull(service.State.LastResult.HeroDamage);
+            Assert.AreEqual(HeroDamageCapPolicy.TrainingRound12Approximation, service.State.LastResult.HeroDamage.CapPolicy);
+            Assert.AreEqual(3, service.State.LastResult.HeroDamage.TavernTierDamage);
+            Assert.AreEqual(2, service.State.LastResult.HeroDamage.SurvivingMinionTierDamage);
+            Assert.AreEqual(5, service.State.LastResult.HeroDamage.RawDamage);
+            Assert.AreEqual(1, service.State.LastResult.HeroDamage.ArmorAbsorbed);
+            Assert.AreEqual(4, service.State.LastResult.HeroDamage.HealthDamage);
+            Assert.AreEqual(0, service.State.Opponent.Armor);
+            Assert.AreEqual(26, service.State.Opponent.Health);
         }
 
         [Test]
@@ -88,8 +120,11 @@ namespace LearnHearthstone.Tests.EditMode
                 GameCommandType.FreezeShop,
                 GameCommandType.UpgradeTavern,
                 GameCommandType.PlayMinion,
+                GameCommandType.UseGuideShapingSpell,
                 GameCommandType.DiscardCardFromHand,
                 GameCommandType.UseHeroPower,
+                GameCommandType.UseRecruitAction,
+                GameCommandType.UseNormalDarkGift,
                 GameCommandType.NextTurn,
                 GameCommandType.BeginNextTurnTransition,
                 GameCommandType.SimulateCombat
@@ -111,6 +146,8 @@ namespace LearnHearthstone.Tests.EditMode
         [TestCase(GameCommandType.PlayMinion)]
         [TestCase(GameCommandType.DiscardCardFromHand)]
         [TestCase(GameCommandType.UseHeroPower)]
+        [TestCase(GameCommandType.UseRecruitAction)]
+        [TestCase(GameCommandType.UseNormalDarkGift)]
         [TestCase(GameCommandType.NextTurn)]
         [TestCase(GameCommandType.BeginNextTurnTransition)]
         [TestCase(GameCommandType.SimulateCombat)]

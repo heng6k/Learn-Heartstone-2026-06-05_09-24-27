@@ -72,6 +72,22 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, returned.Enchantments.Count(enchantment => enchantment.Id.StartsWith("combat-tribe-bonus-")));
         }
 
+        [Test]
+        public void CombatEngine_ReplaySnapshotsPreserveMinionArtMetadata()
+        {
+            var attacker = TestMinion("p1", 5, 5);
+            attacker.CardId = "BG36_514";
+            attacker.CardKind = CardKind.Minion;
+            attacker.ImagePath = "CardImages/Minions/Season14/BG36_514";
+            var target = TestMinion("o1", 1, 1);
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { target }, 1, 1);
+            var snapshot = result.Replay.InitialSnapshot.Player.Minions.Single();
+
+            Assert.AreEqual(attacker.CardKind, snapshot.CardKind);
+            Assert.AreEqual(attacker.ImagePath, snapshot.ImagePath);
+        }
+
         private static MinionInstance TestMinion(string id, int attack, int health)
         {
             return new MinionInstance

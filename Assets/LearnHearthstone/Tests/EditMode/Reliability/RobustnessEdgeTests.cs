@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -111,9 +113,10 @@ namespace LearnHearthstone.Tests.EditMode
         [Category("Stress")]
         public void RecruitAndStatMutationAcrossManySeeds_MaintainsBounds()
         {
+            var catalogs = LoadDefaultCatalogs();
             for (var seedIndex = 0; seedIndex < 96; seedIndex += 1)
             {
-                RunRecruitScenario(920000 + seedIndex, 10);
+                RunRecruitScenario(920000 + seedIndex, 10, catalogs);
             }
         }
 
@@ -130,6 +133,7 @@ namespace LearnHearthstone.Tests.EditMode
             var iterations = 0;
             var combatRuns = 0;
             var recruitRuns = 0;
+            var catalogs = LoadDefaultCatalogs();
 
             while (stopwatch.Elapsed < duration)
             {
@@ -139,7 +143,7 @@ namespace LearnHearthstone.Tests.EditMode
 
                 if (iterations % 8 == 0)
                 {
-                    RunRecruitScenario(seed, 6);
+                    RunRecruitScenario(seed, 6, catalogs);
                     recruitRuns += 1;
                 }
 
@@ -184,9 +188,10 @@ namespace LearnHearthstone.Tests.EditMode
             return result;
         }
 
-        private static void RunRecruitScenario(int seed, int turns)
+        private static void RunRecruitScenario(int seed, int turns, GameCatalogSet catalogs)
         {
-            var service = MatchService.CreateWithDefaultCatalog(
+            var service = MatchService.CreateWithCatalogs(
+                catalogs,
                 seed,
                 new InMemoryTestScenarioRepository(),
                 new MatchSetupOptions { EnableTimewarpedTavern = false });
@@ -251,6 +256,19 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.GreaterOrEqual(target.Attack, 0);
             Assert.GreaterOrEqual(target.MaxHealth, 1);
             Assert.LessOrEqual(target.Health, target.MaxHealth);
+        }
+
+        private static GameCatalogSet LoadDefaultCatalogs()
+        {
+            return new GameCatalogSet(
+                MinionCatalogLoader.LoadFromResources(),
+                SpellCatalogLoader.LoadFromResources(),
+                HeroCatalogLoader.LoadFromResources(),
+                TrinketCatalogLoader.LoadFromResources(),
+                QuestCatalogLoader.LoadFromResources(),
+                TimewarpedTavernCatalogLoader.LoadFromResources(),
+                AnomalyCatalogLoader.LoadFromResources(),
+                DarkmoonPrizeCatalogLoader.LoadFromResources());
         }
 
         private static List<MinionInstance> CreateExtremeBoard(int seed, BoardSide side)
@@ -389,7 +407,7 @@ namespace LearnHearthstone.Tests.EditMode
                     continue;
                 }
 
-                if (tavern.AdvancedMechanics?.PendingChoice != null)
+                if (service.GetActiveMechanicChoice() != null)
                 {
                     service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
                     continue;
@@ -399,7 +417,7 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             Assert.IsNull(service.State.Player.Tavern.Discover, "discover chain should resolve within guard");
-            Assert.IsNull(service.State.Player.Tavern.AdvancedMechanics?.PendingChoice, "advanced choice chain should resolve within guard");
+            Assert.IsNull(service.GetActiveMechanicChoice(), "advanced choice chain should resolve within guard");
         }
 
         private static void AssertStateWithinLimits(MatchState state, string context)

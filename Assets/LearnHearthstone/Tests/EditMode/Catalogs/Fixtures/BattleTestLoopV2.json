@@ -1,0 +1,32 @@
+{
+  "Version": "battle-test-loop-v2",
+  "Name": "P1 baseline fixture",
+  "SavedAtRound": 1,
+  "Seed": 42,
+  "Phase": 0,
+  "Player": {
+    "HeroId": "TB_BaconShop_HERO_01",
+    "Health": 40,
+    "Armor": 0
+  },
+  "Opponent": {
+    "Name": "Training Opponent",
+    "HeroId": "TB_BaconShop_HERO_02",
+    "Health": 40,
+    "Armor": 0,
+    "TavernTier": 1,
+    "Editable": true
+  },
+  "Tavern": {
+    "Tier": 1,
+    "Gold": 3,
+    "MaxGold": 3,
+    "UpgradeCost": 5
+  },
+  "PlayerCombatModifiersAreAuthoritative": true,
+  "Shop": [],
+  "Hand": [],
+  "OpponentHand": [],
+  "PlayerBoard": [],
+  "OpponentBoard": []
+}

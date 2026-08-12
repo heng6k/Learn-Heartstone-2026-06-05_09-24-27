@@ -1,0 +1,18 @@
+{
+  "SelectedVersionId": "legacy-user-preset",
+  "Versions": [
+    {
+      "Id": "legacy-user-preset",
+      "Name": "旧卡池",
+      "CreatedAtUnixSeconds": 1700000000,
+      "UpdatedAtUnixSeconds": 1700000100,
+      "EnabledMinionCardIds": ["BG_TEST_MINION"],
+      "EnabledTavernSpellCardNumbers": ["100001"],
+      "EnabledQuestCardIds": ["BG_TEST_QUEST"],
+      "EnabledQuestRewardCardIds": ["BG_TEST_REWARD"],
+      "EnabledLesserTrinketCardIds": ["BG_TEST_LESSER"],
+      "EnabledGreaterTrinketCardIds": ["BG_TEST_GREATER"],
+      "EnabledAnomalyCardIds": ["BG_TEST_ANOMALY"]
+    }
+  ]
+}

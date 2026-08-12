@@ -73,6 +73,66 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void GoldenCaptainSanders_RequiresTwoDifferentSelectedTargetsAndOnlyGoldensThoseTargets()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9606, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var untouched = Card("untouched", BoardSide.Player, "UNTOUCHED", 2, 2, Tribe.Pirate, 4);
+            var first = Card("sandres-first", BoardSide.Player, "FIRST", 3, 3, Tribe.Pirate, 6);
+            var second = Card("sandres-second", BoardSide.Player, "SECOND", 4, 4, Tribe.Pirate, 5);
+            service.State.Player.Board.Add(untouched);
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG25_034", CardKind.Minion));
+            var sanders = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG25_034");
+            sanders.Golden = true;
+
+            Assert.IsTrue(service.RequiresExplicitBattlecryTarget(sanders));
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                service.State.Player.Tavern.Hand.IndexOf(sanders),
+                1,
+                TargetZone.FriendlyBoard,
+                2,
+                TargetZone.FriendlyBoard,
+                first.InstanceId,
+                second.InstanceId));
+
+            Assert.IsFalse(untouched.Golden);
+            Assert.IsTrue(first.Golden);
+            Assert.IsTrue(second.Golden);
+        }
+
+        [Test]
+        public void GoldenCaptainSanders_DuplicateSecondTargetFailsBeforeTheCardIsPlayed()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9609, new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var target = Card("sandres-duplicate", BoardSide.Player, "DUPLICATE", 3, 3, Tribe.Pirate, 6);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG25_034", CardKind.Minion));
+            var sanders = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG25_034");
+            sanders.Golden = true;
+
+            var error = Assert.Throws<System.InvalidOperationException>(() => service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                service.State.Player.Tavern.Hand.IndexOf(sanders),
+                0,
+                TargetZone.FriendlyBoard,
+                0,
+                TargetZone.FriendlyBoard,
+                target.InstanceId,
+                target.InstanceId)));
+
+            StringAssert.Contains("two different", error.Message);
+            Assert.IsFalse(target.Golden);
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Contains(sanders));
+            Assert.IsFalse(service.State.Player.Board.Contains(sanders));
+        }
+
+        [Test]
         public void TierSixSevenTavernSpells_AllResolveWithoutFallingThroughDefault()
         {
             foreach (var spellId in TierSixSpellIds.Concat(TierSevenSpellIds))

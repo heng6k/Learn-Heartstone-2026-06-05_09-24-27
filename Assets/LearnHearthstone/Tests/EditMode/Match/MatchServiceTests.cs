@@ -1704,18 +1704,68 @@ namespace LearnHearthstone.Tests.EditMode
             AdvanceToRound(service, 6);
 
             var tavern = service.State.Player.Tavern;
-            Assert.IsNotNull(tavern.AdvancedMechanics.PendingChoice);
-            Assert.AreEqual(AdvancedMechanicKind.Trinket, tavern.AdvancedMechanics.PendingChoice.Kind);
+            Assert.IsNotNull(service.GetActiveMechanicChoice());
+            Assert.AreEqual(AdvancedMechanicKind.Trinket, service.GetActiveMechanicChoice().Kind);
             Assert.AreEqual(TimewarpTavernPhase.BlockedByTrinketChoice, tavern.Timewarp.Phase);
             Assert.AreEqual(TimewarpKind.Minor, tavern.Timewarp.PendingKind);
 
             tavern.Gold = 100;
             service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
 
-            Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
+            Assert.IsNull(service.GetActiveMechanicChoice());
             Assert.IsTrue(tavern.Timewarp.VisitOpen);
             Assert.AreEqual(TimewarpTavernPhase.Open, tavern.Timewarp.Phase);
             Assert.AreEqual(TimewarpKind.Minor, tavern.Timewarp.PendingKind);
+        }
+
+        [Test]
+        public void TimewarpedTavern_WaitsForEntireQueuedChoiceChainBeforeOpening()
+        {
+            var service = CreateTimewarpOnlyService(24680);
+            AdvanceToRound(service, 5);
+            service.Apply(new GameCommand(GameCommandType.DebugOfferQuests));
+            var tavern = service.State.Player.Tavern;
+            tavern.QueueDiscover(new DiscoverState
+            {
+                Source = "timewarp-wait-test",
+                RewardTier = 1,
+                Options = new List<MinionInstance>
+                {
+                    new MinionInstance
+                    {
+                        InstanceId = "timewarp-wait-option",
+                        DefinitionId = "TIMEWARP_WAIT_OPTION",
+                        CardId = "TIMEWARP_WAIT_OPTION",
+                        Name = "Timewarp Wait Option",
+                        Attack = 1,
+                        Health = 1,
+                        MaxHealth = 1,
+                        TavernTier = 1,
+                        Tribes = new List<Tribe> { Tribe.None },
+                        Keywords = new List<Keyword>(),
+                        Tags = new List<string>(),
+                        Counters = new Dictionary<string, int>()
+                    }
+                }
+            });
+
+            service.Apply(new GameCommand(GameCommandType.DebugSkipToNextTurn));
+
+            Assert.AreEqual(6, service.State.Round);
+            Assert.AreEqual(ChoiceRequestKind.Quest, service.State.ChoiceQueue.ActiveChoice.Kind);
+            Assert.AreEqual(TimewarpTavernPhase.BlockedByTrinketChoice, tavern.Timewarp.Phase);
+            Assert.IsFalse(tavern.Timewarp.VisitOpen);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            Assert.AreEqual(ChoiceRequestKind.Discover, service.State.ChoiceQueue.ActiveChoice.Kind);
+            Assert.AreEqual(TimewarpTavernPhase.BlockedByTrinketChoice, tavern.Timewarp.Phase);
+            Assert.IsFalse(tavern.Timewarp.VisitOpen);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseDiscover, 0));
+
+            Assert.IsTrue(tavern.Timewarp.VisitOpen);
+            Assert.AreEqual(TimewarpTavernPhase.Open, tavern.Timewarp.Phase);
         }
 
         [Test]
@@ -4382,20 +4432,156 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void RequiresPlayerTarget_CoversAllExplicitBattlecriesAndUntaggedTargetedSpells()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var battlecryIds = new[] { "BG29_503", "BG28_303", "BG32_340", "BG23_357", "BG_EX1_564" };
+            foreach (var cardId in battlecryIds)
+            {
+                Assert.IsTrue(service.RequiresPlayerTarget(new MinionInstance
+                {
+                    CardKind = CardKind.Minion,
+                    CardId = cardId
+                }), cardId);
+            }
+
+            var spellIds = new[] { "100601", "100899", "100911", "104601", "110407", "113901", "119603", "122862", "110412" };
+            foreach (var cardId in spellIds)
+            {
+                Assert.IsTrue(service.RequiresPlayerTarget(new MinionInstance
+                {
+                    CardKind = CardKind.TavernSpell,
+                    CardId = cardId,
+                    Tags = new List<string>()
+                }), cardId);
+            }
+        }
+
+        [Test]
+        public void ChinesePlayerMessageBoundary_HidesRawEnglishAndKnownMojibake()
+        {
+            var chinese = MatchService.CreateWithDefaultCatalog(12345);
+            Assert.AreEqual(
+                "\u8fd9\u5f20\u624b\u724c\u5df2\u4e0d\u5b58\u5728\u3002",
+                chinese.LocalizePlayerMessage("Target hand card does not exist."));
+            Assert.AreEqual(
+                "\u8bf7\u9009\u62e9\u4e00\u4e2a\u5408\u6cd5\u76ee\u6807\u3002",
+                chinese.LocalizePlayerMessage("Scrapper needs a friendly Mech target."));
+
+            var sanitized = chinese.LocalizePlayerMessage("\u9359\u6220\u5e47 proxy placeholder-debug");
+            Assert.IsFalse(sanitized.Any(character => character == '\ufffd'));
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(sanitized, @"[A-Za-z]{3,}"));
+
+            var english = MatchService.CreateWithDefaultCatalog(
+                12345,
+                null,
+                new MatchSetupOptions { UseEnglish = true });
+            Assert.AreEqual(
+                "Target hand card does not exist.",
+                english.LocalizePlayerMessage("Target hand card does not exist."));
+        }
+
+        [Test]
+        public void Apply_PlayIntentSeparatesPlaceFromMagnetize()
+        {
+            var placeService = MatchService.CreateWithDefaultCatalog(12345);
+            placeService.State.Player.Board.Clear();
+            placeService.State.Player.Tavern.Hand.Clear();
+            var placeTarget = TestBoardMinion("place-target", "Place Target", "PLACE_TARGET", 5, 6, Tribe.Mech, 2);
+            var placedMagnetic = TestBoardMinion("placed-magnetic", "Placed Magnetic", "PLACED_MAGNETIC", 2, 3, Tribe.Mech, 2);
+            placedMagnetic.Keywords.Add(Keyword.Magnetic);
+            placeService.State.Player.Board.Add(placeTarget);
+            placeService.State.Player.Tavern.Hand.Add(placedMagnetic);
+
+            placeService.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                PlayIntent.Place,
+                boardInsertIndex: 0));
+
+            Assert.AreEqual(2, placeService.State.Player.Board.Count);
+            Assert.AreEqual("PLACED_MAGNETIC", placeService.State.Player.Board[0].CardId);
+            Assert.AreEqual(5, placeService.State.Player.Board[1].Attack);
+
+            var magnetizeService = MatchService.CreateWithDefaultCatalog(12345);
+            magnetizeService.State.Player.Board.Clear();
+            magnetizeService.State.Player.Tavern.Hand.Clear();
+            var magnetizeTarget = TestBoardMinion("magnetize-target", "Magnetize Target", "MAGNETIZE_TARGET", 5, 6, Tribe.Mech, 2);
+            var magnetic = TestBoardMinion("magnetic", "Magnetic", "MAGNETIC", 2, 3, Tribe.Mech, 2);
+            magnetic.Keywords.Add(Keyword.Magnetic);
+            magnetizeService.State.Player.Board.Add(magnetizeTarget);
+            magnetizeService.State.Player.Tavern.Hand.Add(magnetic);
+
+            magnetizeService.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                PlayIntent.Magnetize,
+                targetIndex: 0,
+                targetZone: TargetZone.FriendlyBoard,
+                targetInstanceId: magnetizeTarget.InstanceId));
+
+            Assert.AreEqual(1, magnetizeService.State.Player.Board.Count);
+            Assert.AreEqual(7, magnetizeService.State.Player.Board[0].Attack);
+            Assert.AreEqual(9, magnetizeService.State.Player.Board[0].MaxHealth);
+        }
+
+        [Test]
+        public void Apply_TargetedBattlecryKeepsEffectTargetIndependentFromBoardInsertIndex()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var beast = TestBoardMinion("independent-beast", "Beast", "INDEPENDENT_BEAST", 3, 4, Tribe.Beast, 2);
+            var mech = TestBoardMinion("independent-mech", "Mech", "INDEPENDENT_MECH", 4, 5, Tribe.Mech, 2);
+            service.State.Player.Board.Add(beast);
+            service.State.Player.Board.Add(mech);
+            service.State.Player.Tavern.Hand.Add(new MinionInstance
+            {
+                CardKind = CardKind.Minion,
+                CardId = "BG29_503",
+                DefinitionId = "phase18-scrapper",
+                InstanceId = "phase18-scrapper-hand",
+                Name = "废料回收者",
+                Attack = 4,
+                Health = 4,
+                MaxHealth = 4,
+                TavernTier = 4,
+                Keywords = new List<Keyword> { Keyword.Battlecry },
+                Tribes = new List<Tribe> { Tribe.Pirate }
+            });
+
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                PlayIntent.Target,
+                boardInsertIndex: 0,
+                targetIndex: 1,
+                targetZone: TargetZone.FriendlyBoard,
+                targetInstanceId: mech.InstanceId));
+
+            Assert.AreEqual("BG29_503", service.State.Player.Board[0].CardId);
+            Assert.AreEqual(mech.InstanceId, service.State.Player.Tavern.Discover.TargetInstanceId);
+        }
+
+        [Test]
         public void Apply_TargetedSpellRecordsExplicitTargetAndBuffsThatMinion()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);
             service.State.Player.Board.Clear();
             service.State.Player.Tavern.Hand.Clear();
-            service.State.Player.Board.Add(TestBoardMinion("alpha", "Alpha", "ALPHA", 4, 4, Tribe.None, 1));
-            service.State.Player.Board.Add(TestBoardMinion("beta", "Beta", "BETA", 5, 5, Tribe.Quilboar, 1));
+            var alpha = TestBoardMinion("alpha", "Alpha", "ALPHA", 4, 4, Tribe.None, 1);
+            alpha.ZhName = "阿尔法";
+            var beta = TestBoardMinion("beta", "Beta", "BETA", 5, 5, Tribe.Quilboar, 1);
+            beta.ZhName = "贝塔";
+            service.State.Player.Board.Add(alpha);
+            service.State.Player.Board.Add(beta);
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BLOOD_GEM", CardKind.Spell));
 
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, 1));
 
             Assert.AreEqual(4, service.State.Player.Board[0].Attack);
             Assert.AreEqual(6, service.State.Player.Board[1].Attack);
-            Assert.That(service.State.Player.Tavern.RecruitLog.Last().Message, Does.Contain("-> Beta"));
+            Assert.That(service.State.Player.Tavern.RecruitLog.Last().Message, Does.Contain("-> 贝塔"));
         }
 
         [Test]

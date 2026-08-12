@@ -108,6 +108,40 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void GoldenMinionTransformer_DoublesOnlyBaseStatsAndPreservesDamageAndBuffs()
+        {
+            var definition = TestMinion("golden-base", 3, 3, 6, 1);
+            definition.Golden = new GoldenMinionDefinition
+            {
+                CardId = "golden-base-g",
+                BaseAttack = 6,
+                BaseHealth = 6,
+                Text = "Golden"
+            };
+            var catalog = new LearnHearthstone.Domain.Data.MinionCatalog(new[] { definition });
+            var target = MinionFactory.Create(definition, BoardSide.Player, "direct-golden", false, PoolSource.Copy, 0);
+            StatMath.ApplyEnchantment(target, new Enchantment
+            {
+                Id = "existing-buff",
+                SourceId = "existing-buff",
+                AttackBonus = 5,
+                HealthBonus = 5
+            });
+            target.Health -= 2;
+
+            Assert.IsTrue(GoldenMinionTransformer.MakeGoldenInPlace(target, catalog));
+
+            Assert.IsTrue(target.Golden);
+            Assert.AreEqual(6, target.BaseAttack);
+            Assert.AreEqual(6, target.BaseHealth);
+            Assert.AreEqual(11, target.Attack);
+            Assert.AreEqual(11, target.MaxHealth);
+            Assert.AreEqual(9, target.Health, "Existing damage must be preserved instead of doubled or healed.");
+            Assert.IsFalse(GoldenMinionTransformer.MakeGoldenInPlace(target, catalog), "Pointing a Golden minion again must be idempotent.");
+            Assert.AreEqual(11, target.Attack);
+        }
+
+        [Test]
         public void MatchServiceRecruitCheckpoint_SixSkeletonsCreateTwoGoldenTriplesAndFreeBoardSpace()
         {
             var service = (MatchService)FormatterServices.GetUninitializedObject(typeof(MatchService));
@@ -219,6 +253,27 @@ namespace LearnHearthstone.Tests.EditMode
 
             Assert.AreEqual(0, result.FinalOpponentBoard.Count);
             Assert.IsFalse(result.FinalPlayerBoard[0].Keywords.Contains(Keyword.Venomous));
+            Assert.IsTrue(attacker.Keywords.Contains(Keyword.Venomous), "Recruit-phase original must keep Venomous after its combat clone consumes it.");
+
+            var nextCombatDefender = TestInstance("o2", "next-defender", 0);
+            nextCombatDefender.Attack = 0;
+            nextCombatDefender.Health = 10;
+            nextCombatDefender.MaxHealth = 10;
+            var nextCombat = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { nextCombatDefender }, 2, 1);
+
+            Assert.AreEqual(0, nextCombat.FinalOpponentBoard.Count, "Venomous must be available again on the next combat clone.");
+            Assert.IsFalse(nextCombat.FinalPlayerBoard[0].Keywords.Contains(Keyword.Venomous));
+
+            var shieldedDefender = TestInstance("o3", "shielded-defender", 0);
+            shieldedDefender.Attack = 0;
+            shieldedDefender.Health = 10;
+            shieldedDefender.MaxHealth = 10;
+            shieldedDefender.Keywords.Add(Keyword.DivineShield);
+            var shieldCombat = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { shieldedDefender }, 3, 1);
+
+            Assert.AreEqual(1, shieldCombat.FinalOpponentBoard.Count);
+            Assert.IsFalse(shieldCombat.FinalOpponentBoard[0].Keywords.Contains(Keyword.DivineShield));
+            Assert.IsTrue(shieldCombat.FinalPlayerBoard[0].Keywords.Contains(Keyword.Venomous), "Breaking Divine Shield is not actual combat damage and must not consume Venomous.");
         }
 
         [Test]

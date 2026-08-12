@@ -12,7 +12,24 @@ namespace LearnHearthstone.Adapters.Images
         private const string ArtDisplayContainTag = "art_display:contain";
         private const string ArtDisplayCropTag = "art_display:crop";
         private static readonly Dictionary<string, Sprite> fullTextureSpriteCache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, Sprite> resourceSpriteCache = new Dictionary<string, Sprite>();
         private readonly Sprite fallback;
+
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void RegisterEditorCacheInvalidation()
+        {
+            UnityEditor.EditorApplication.projectChanged -= ClearCaches;
+            UnityEditor.EditorApplication.projectChanged += ClearCaches;
+        }
+#endif
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ClearCaches()
+        {
+            fullTextureSpriteCache.Clear();
+            resourceSpriteCache.Clear();
+        }
 
         public CardImageProvider(Sprite fallback = null)
         {
@@ -62,13 +79,7 @@ namespace LearnHearthstone.Adapters.Images
                     }
                 }
 
-                var sprite = Resources.Load<Sprite>(candidate);
-                if (sprite != null)
-                {
-                    return sprite;
-                }
-
-                sprite = Resources.LoadAll<Sprite>(candidate).FirstOrDefault();
+                var sprite = LoadResourceSprite(candidate);
                 if (sprite != null)
                 {
                     return sprite;
@@ -104,23 +115,18 @@ namespace LearnHearthstone.Adapters.Images
 
             if (fullTextureSpriteCache.TryGetValue(path, out var cached))
             {
-                if (cached != null)
-                {
-                    return cached;
-                }
-
-                fullTextureSpriteCache.Remove(path);
+                return cached;
             }
 
             var texture = Resources.Load<Texture2D>(path);
             if (texture == null)
             {
-                texture = Resources.Load<Sprite>(path)?.texture
-                    ?? Resources.LoadAll<Sprite>(path).FirstOrDefault()?.texture;
+                texture = LoadResourceSprite(path)?.texture;
             }
 
             if (texture == null)
             {
+                fullTextureSpriteCache[path] = null;
                 return null;
             }
 
@@ -133,6 +139,24 @@ namespace LearnHearthstone.Adapters.Images
                 SpriteMeshType.FullRect);
             sprite.name = texture.name + "_FullCard";
             fullTextureSpriteCache[path] = sprite;
+            return sprite;
+        }
+
+        private static Sprite LoadResourceSprite(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return null;
+            }
+
+            if (resourceSpriteCache.TryGetValue(path, out var cached))
+            {
+                return cached;
+            }
+
+            var sprite = Resources.Load<Sprite>(path)
+                ?? Resources.LoadAll<Sprite>(path).FirstOrDefault();
+            resourceSpriteCache[path] = sprite;
             return sprite;
         }
 

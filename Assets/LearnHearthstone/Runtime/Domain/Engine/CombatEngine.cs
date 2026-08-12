@@ -8,6 +8,17 @@ namespace LearnHearthstone.Domain.Engine
 {
     public static class CombatEngine
     {
+        internal const string Season14GoldrinnUntilNextTurnTag = "season14_goldrinn_until_next_turn";
+        internal const string Season14ReturnedNagaPreviewTag = "season14_returned_naga_preview";
+        internal const string Season14AutoAssemblerAttachmentTag = "season14_auto_assembler_attachment";
+        internal const string Season14HerdingHornAttackTag = "season14_herding_horn_attack";
+        internal const string Season14LionfishPortraitAttackTag = "season14_lionfish_portrait_attack";
+        internal const string Season14DeathwhisperStickerTag = "season14_deathwhisper_sticker";
+        internal const string Season14FuneralWreathTag = "season14_funeral_wreath";
+        internal const string Season14CyclistPortraitTag = "season14_cyclist_portrait";
+        internal const string Season14ReturnedQuilboarPreviewTag = "season14_returned_quilboar_preview";
+        internal const string Season14ReturnedDragonPreviewTag = "season14_returned_dragon_preview";
+        internal const string Season14ReturnedNeutralPreviewTag = "season14_returned_neutral_preview";
         private const int BoardLimit = 7;
         private const string CordPullerCardId = "BG29_611";
         private const string HarmlessBoneheadCardId = "BG28_300";
@@ -47,6 +58,12 @@ namespace LearnHearthstone.Domain.Engine
         private const string AncestralAutomatonCardId = "BG_TTN_401";
         private const string VeryHungryWinterfinnerCardId = "BG29_300";
         private const string BloodGemCardId = "BLOOD_GEM";
+        private const string SanguineRefinerCardId = "BG33_885";
+        private const string RoadboarCardId = "BG20_101";
+        private const string ProdigiousTuskerCardId = "BG33_430";
+        private const string BonkerCardId = "BG20_104";
+        private const string TuskedCamperCardId = "BG33_886";
+        private const string RazorfenVineweaverCardId = "BG33_883";
         private const string BristlebackBloodGemCardId = "BRISTLEBACK_BLOOD_GEM";
         private const string PointyArrowCardId = "100596";
         private const string BloodGemBarrageCardNumber = "126676";
@@ -177,6 +194,9 @@ namespace LearnHearthstone.Domain.Engine
         private const string LastOfItsKindCardId = "BG34_320";
         private const string TenaciousKodoCardId = "BG34_322";
         private const string GoldrinnCardId = "BGS_018";
+        private const string ShowyCyclistCardId = "BG31_925";
+        private const string FirescaleHoarderCardId = "BG32_820";
+        private const string AllSpellsCastThisGameCounter = "all_spells_cast_this_game";
         private const string TimewarpedAlleycatCardId = "BG34_Giant_009";
         private const string TimewarpedBuskerCardId = "BG34_Giant_001";
         private const string TimewarpedBoarCardId = "BG34_Giant_201";
@@ -240,6 +260,12 @@ namespace LearnHearthstone.Domain.Engine
         private const string TimewarpedTricksterCardId = "BG34_Giant_010";
         private const string TimewarpedUltraliskCardId = "BG34_Treasure_994";
         private const string TimewarpedViperCardId = "BG34_Treasure_990";
+        private const string KerriganViperCardId = "BG31_HERO_811t8";
+        private const string ReturnedElectricSynthesizerCardId = "BG26_963";
+        private const string ReturnedGlimGuardianCardId = "BG29_888";
+        private const string ReturnedThousandthPaperDrakeCardId = "BG29_810";
+        private const string ReturnedWarpwingCardId = "BG24_004";
+        private const string ReturnedMotleyPhalanxCardId = "BG27_080";
         private const string TimewarpedStoneshellRallyTagPrefix = "timewarped_stoneshell_rally:";
         private const string DeepBlueSpellCardId = "DEEP_BLUE_SPELL";
         private const string EyesOfTheEarthMotherCardNumber = "100601";
@@ -356,6 +382,33 @@ namespace LearnHearthstone.Domain.Engine
         private const string ProtossVoidRayCardId = "BG31_HERO_802pt5";
         private const string ProtossMothershipCardId = "BG31_HERO_802pt7";
         private const string ProtossInterceptorTokenId = "PROTOSS_INTERCEPTOR";
+        private const string Season14BoomBoxCardId = "BG36_620";
+        private const string Season14ShieldedBansheeCardId = "BG36_514";
+        private const string Season14StylishPhantomCardId = "BG36_515";
+        private const string Season14SpinyExcavatorCardId = "BG36_331";
+        private const string Season14ImprisonedBullyCardId = "BG36_333";
+        private const string Season14GutterGuardianCardId = "BG36_351";
+        private const string Season14TreasureParrotCardId = "BG36_763";
+        private const string Season14FlutteringBatCardId = "BG36_200";
+        private const string Season14DeliciousLobsterCardId = "BG36_202";
+        private const string Season14WolfPupCardId = "BG36_207";
+        private const string Season14HeadhunterGryphonCardId = "BG36_204";
+        private const string Season14CageGnawerCardId = "BG36_211";
+        private const string Season14FoodHoardingHyenaCardId = "BG36_210";
+        private const string Season14DeathChasingRoadrunnerCardId = "BG36_208";
+        private const string Season14TyrantScorpionCardId = "BG36_209";
+        private const string Season14TrappedDemonCardId = "BG36_730";
+        private const string Season14GhostlyIllusionistCardId = "BG36_731";
+        private const string Season14BronzeTimewalkerCardId = "BG36_242";
+        private const string Season14RunicArcanistCardId = "BG36_245";
+        private const string Season14CrimsonGuardDragonCardId = "BG36_241";
+        private const string Season14DeliciousLobsterGrowthCounter = "season14_min_r30_lobster_growth";
+        private const string Season14MinR37FodderRefreshOneCounter = "season14_min_r37_fodder_refresh_1";
+        private const string Season14MinR37FodderRefreshTwoCounter = "season14_min_r37_fodder_refresh_2";
+        private const string Season14MinR37FodderRefreshThreeCounter = "season14_min_r37_fodder_refresh_3";
+        private const string MethodicalMadnessCardNumber = "132903";
+        private const string ShinyRingCardNumber = "109230";
+        private const string MightyDragonbreathCardNumber = "132995";
         private const string FishyStickerFishTag = "trinket_fishy_sticker_fish";
         private const string WingmenImmediateAttackPendingTag = "wingmen_immediate_attack_pending";
         private const string EclipsionFirstAttackImmunePendingTag = "eclipsion_first_attack_immune_pending";
@@ -387,7 +440,8 @@ namespace LearnHearthstone.Domain.Engine
             IEnumerable<Tribe> activeTribes = null,
             int round = 0,
             bool isolateTavernState = false,
-            Func<string, BoardSide, string, MinionInstance> taughtSpellFactory = null)
+            Func<string, BoardSide, string, MinionInstance> taughtSpellFactory = null,
+            string venomousEffectRevision = VenomousEffectRevisions.LegacySingleUse)
         {
             var combatPlayerTavern = isolateTavernState ? playerTavern?.CloneForCombat() : playerTavern;
             var combatOpponentTavern = isolateTavernState ? opponentTavern?.CloneForCombat() : opponentTavern;
@@ -427,17 +481,22 @@ namespace LearnHearthstone.Domain.Engine
                 darkmoonPrizeCatalog: darkmoonPrizeCatalog,
                 activeTribes: activeTribes,
                 round: round,
-                taughtSpellFactory: taughtSpellFactory);
+                taughtSpellFactory: taughtSpellFactory,
+                venomousEffectRevision: venomousEffectRevision);
             var attackerSide = context.Player.Board.Count >= context.Opponent.Board.Count ? BoardSide.Player : BoardSide.Opponent;
             var steps = 0;
             context.Replay.InitialSnapshot = CreateBoardPairSnapshot(context);
             AddLog(context.Log, "CombatStarted", "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count, null, null, LogSeverity.Normal);
             RecordFrame(context, CombatEventType.CombatStarted, "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count);
 
+            var startOfCombatSides = StartOfCombatSides(context, startOfCombatFirstSide).ToList();
             ResolveHeroStartOfCombatEffects(context, ref steps, safetyLimit);
+            foreach (var side in startOfCombatSides)
+            {
+                ResolveDarkGiftStartOfCombat(context, side);
+            }
             var preCombatImmediateSide = QueueTaggedImmediateAttacks(context);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
-            var startOfCombatSides = StartOfCombatSides(context, startOfCombatFirstSide).ToList();
             foreach (var side in startOfCombatSides)
             {
                 ResolveTrinketStartOfCombatEffects(context, side);
@@ -576,6 +635,217 @@ namespace LearnHearthstone.Domain.Engine
             });
             ResolveRecruitPhaseDeaths(context, BoardSide.Player);
             return context.Player.Rewards;
+        }
+
+        public static List<CombatReward> ResolveRecruitPhaseRally(
+            List<MinionInstance> board,
+            MinionInstance target,
+            TavernState tavern,
+            List<MinionInstance> hand,
+            int seed,
+            int triggers,
+            Action recruitMutationCheckpoint = null)
+        {
+            if (board == null ||
+                target == null ||
+                target.Health <= 0 ||
+                !(target.Keywords ?? new List<Keyword>()).Contains(Keyword.Rally) ||
+                !board.Any(minion => minion.InstanceId == target.InstanceId))
+            {
+                return new List<CombatReward>();
+            }
+
+            var context = new CombatContext(
+                board,
+                new List<MinionInstance>(),
+                tavern,
+                null,
+                hand ?? new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                seed,
+                true,
+                recruitMutationCheckpoint);
+            for (var trigger = 0; trigger < Math.Max(0, triggers); trigger += 1)
+            {
+                ResolveRally(context, BoardSide.Player, target.InstanceId, true);
+            }
+
+            return context.Player.Rewards;
+        }
+
+        public static List<CombatReward> ResolveRecruitPhaseDeathrattle(
+            List<MinionInstance> board,
+            MinionInstance target,
+            TavernState tavern,
+            List<MinionInstance> hand,
+            int seed,
+            string sourceName,
+            Action recruitMutationCheckpoint = null)
+        {
+            if (board == null ||
+                target == null ||
+                target.Health <= 0 ||
+                !(target.Keywords ?? new List<Keyword>()).Contains(Keyword.Deathrattle) ||
+                !board.Any(minion => minion.InstanceId == target.InstanceId))
+            {
+                return new List<CombatReward>();
+            }
+
+            var context = new CombatContext(
+                board,
+                new List<MinionInstance>(),
+                tavern,
+                null,
+                hand ?? new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                seed,
+                true,
+                recruitMutationCheckpoint);
+            ResolveDeathrattleEffect(
+                context,
+                context.Player,
+                target,
+                Math.Min(board.Count, board.IndexOf(target) + 1),
+                new List<string>(),
+                false,
+                sourceName ?? target.InstanceId);
+            ResolveRecruitPhaseDeaths(context, BoardSide.Player);
+            return context.Player.Rewards;
+        }
+
+        public static RecruitPhaseAttackResult ResolveRecruitPhaseAttack(
+            MatchState state,
+            RecruitPhaseAttackContext attack,
+            int seed,
+            Action recruitMutationCheckpoint = null,
+            string venomousEffectRevision = VenomousEffectRevisions.LegacySingleUse)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+            if (attack == null)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.request.missing", "Recruit-phase attack request is required.");
+            }
+            if (state.Phase != MatchPhase.Tavern)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.phase.invalid", "Recruit-phase attack is only allowed during the Tavern phase.");
+            }
+
+            var board = state.Player?.Board;
+            var shop = state.Player?.Tavern?.Shop;
+            var attackerIndex = board?.FindIndex(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, attack.AttackerInstanceId, StringComparison.Ordinal)) ?? -1;
+            if (attackerIndex < 0)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.attacker.missing", "Recruit-phase attacker is no longer on the player board.");
+            }
+            if (board[attackerIndex].Health <= 0)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.attacker.invalid", "Recruit-phase attacker is not alive.");
+            }
+
+            var targetIndex = shop?.FindIndex(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, attack.TavernTargetInstanceId, StringComparison.Ordinal)) ?? -1;
+            if (targetIndex < 0)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.target.missing", "Recruit-phase Tavern target does not exist.");
+            }
+            if (shop[targetIndex].Health <= 0)
+            {
+                return RecruitPhaseAttackFailure("recruit-attack.target.invalid", "Recruit-phase Tavern target is not alive.");
+            }
+
+            var attackerBefore = board[attackerIndex];
+            var targetBefore = shop[targetIndex];
+            var attackCounts = board
+                .Where(minion => minion != null && !string.IsNullOrWhiteSpace(minion.InstanceId))
+                .GroupBy(minion => minion.InstanceId, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First().AttacksThisCombat, StringComparer.Ordinal);
+            var defender = targetBefore.Clone();
+            defender.Owner = BoardSide.Opponent;
+            var defenders = new List<MinionInstance> { defender };
+            var context = new CombatContext(
+                board,
+                defenders,
+                state.Player.Tavern,
+                null,
+                state.Player.Tavern.Hand,
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                new List<MinionInstance>(),
+                seed,
+                true,
+                recruitMutationCheckpoint,
+                venomousEffectRevision: venomousEffectRevision);
+            context.AttackSequence = Math.Max(0, attack.Sequence);
+
+            PerformAttack(context, BoardSide.Player, attackerIndex, Math.Max(1, attack.Sequence), true);
+
+            foreach (var minion in board.Where(minion => minion != null))
+            {
+                if (attackCounts.TryGetValue(minion.InstanceId, out var attacksThisCombat))
+                {
+                    minion.AttacksThisCombat = attacksThisCombat;
+                }
+            }
+
+            var attackerAfter = board.FirstOrDefault(minion =>
+                minion != null &&
+                string.Equals(minion.InstanceId, attack.AttackerInstanceId, StringComparison.Ordinal));
+            var targetAfter = defenders.FirstOrDefault(minion =>
+                minion != null &&
+                minion.Health > 0 &&
+                string.Equals(minion.InstanceId, attack.TavernTargetInstanceId, StringComparison.Ordinal));
+            shop.RemoveAt(targetIndex);
+            if (targetAfter != null)
+            {
+                targetAfter.Owner = BoardSide.Player;
+                targetAfter.AttacksThisCombat = targetBefore.AttacksThisCombat;
+                shop.Insert(targetIndex, targetAfter);
+            }
+
+            var result = new RecruitPhaseAttackResult
+            {
+                Succeeded = true,
+                Code = "recruit-attack.resolved",
+                Message = string.Empty,
+                AttackerInstanceId = attack.AttackerInstanceId,
+                TavernTargetInstanceId = attack.TavernTargetInstanceId,
+                AttackerDamage = Math.Max(0, targetBefore.Attack),
+                TargetDamage = Math.Max(0, attackerBefore.Attack),
+                AttackerDied = attackerAfter == null,
+                TargetDied = targetAfter == null,
+                Rewards = new List<CombatReward>(context.Player.Rewards)
+            };
+            MechanicEventLog.Append(
+                state,
+                "recruit-attack.resolved",
+                attack.RewardSource,
+                new[] { attack.AttackerInstanceId, attack.TavernTargetInstanceId },
+                (attack.DamageContext ?? "damage") + "/" + (attack.DeathContext ?? "death") +
+                ";attackerDied=" + result.AttackerDied +
+                ";targetDied=" + result.TargetDied,
+                "recruit-attack:" + Math.Max(0, attack.Sequence));
+            return result;
+        }
+
+        private static RecruitPhaseAttackResult RecruitPhaseAttackFailure(string code, string message)
+        {
+            return new RecruitPhaseAttackResult
+            {
+                Succeeded = false,
+                Code = code,
+                Message = message,
+                Rewards = new List<CombatReward>()
+            };
         }
 
         private static IEnumerable<CombatSideState> StartOfCombatSides(CombatContext context, BoardSide firstSide)
@@ -967,6 +1237,9 @@ namespace LearnHearthstone.Domain.Engine
             ResolveTimewarpedWhirlOTronStartOfCombat(context, side);
             ResolveTimewarpedStoneshellStartOfCombat(context, side);
             ResolveTimewarpedUltraliskStartOfCombat(context, side);
+            ResolveSeason14BoomBoxesAtCombatStart(context, side);
+            ResolveSeason14RunicArcanistsAtCombatStart(context, side);
+            ResolveSeason14ReturnedDragonsAtCombatStart(side);
 
             foreach (var mrrrglr in side.Board.Where(minion => IsAlive(minion) && minion.CardId == ChoralMrrrglrCardId).ToList())
             {
@@ -1041,6 +1314,110 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             RefreshDynamicCombatStats(side);
+        }
+
+        private static void ResolveDarkGiftStartOfCombat(CombatContext context, CombatSideState side)
+        {
+            foreach (var source in side.Board.Where(IsAlive).ToList())
+            {
+                if (source.Tags == null)
+                {
+                    continue;
+                }
+
+                var resolved = false;
+                if (source.Tags.Contains("dark-gift.dg-r03") && source.Keywords.Contains(Keyword.Deathrattle))
+                {
+                    TriggerStartOfCombatDeathrattle(context, side, source.InstanceId, "Jaws of Death");
+                    resolved = true;
+                }
+
+                if (!IsAlive(source))
+                {
+                    continue;
+                }
+
+                if (source.Tags.Contains("dark-gift.dg-r30"))
+                {
+                    BuffMinion(
+                        source,
+                        StatMath.SaturatingMultiply(source.Attack, 2, 0, StatMath.MaxStat),
+                        StatMath.SaturatingMultiply(source.MaxHealth, 2, 0, StatMath.MaxStat),
+                        "Transcendence");
+                    resolved = true;
+                }
+
+                if (source.Tags.Contains("dark-gift.dg-r34"))
+                {
+                    var index = side.Board.IndexOf(source);
+                    if (index > 0 && IsAlive(side.Board[index - 1]))
+                    {
+                        var left = side.Board[index - 1];
+                        BuffMinion(source, Math.Max(0, left.Attack), Math.Max(0, left.MaxHealth), "Admiration");
+                        resolved = true;
+                    }
+                }
+
+                if (source.Tags.Contains("dark-gift.dg-r37"))
+                {
+                    BuffMinion(source, 0, Math.Max(0, source.MaxHealth), "Resistance");
+                    resolved = true;
+                }
+
+                if (source.Tags.Contains("dark-gift.dg-r38"))
+                {
+                    BuffMinion(source, Math.Max(0, source.Attack), 0, "Hostility");
+                    resolved = true;
+                }
+
+                if (resolved)
+                {
+                    AddLog(context.Log, "StartOfCombat", "Dark Gift resolved on " + source.InstanceId, source.InstanceId, null, LogSeverity.Good);
+                }
+            }
+        }
+
+        private static void ResolveSeason14ReturnedDragonsAtCombatStart(CombatSideState side)
+        {
+            foreach (var source in side.Board
+                         .Where(minion => IsAlive(minion) &&
+                             minion.Tags != null &&
+                             minion.Tags.Contains(Season14ReturnedDragonPreviewTag) &&
+                             (string.Equals(minion.CardId, ReturnedElectricSynthesizerCardId, StringComparison.Ordinal) ||
+                              string.Equals(minion.CardId, ReturnedThousandthPaperDrakeCardId, StringComparison.Ordinal)))
+                         .ToList())
+            {
+                var repeats = ConsumeStartOfCombatRepeats(side);
+                for (var repeat = 0; repeat < repeats; repeat += 1)
+                {
+                    if (string.Equals(source.CardId, ReturnedElectricSynthesizerCardId, StringComparison.Ordinal))
+                    {
+                        var amount = source.Golden ? 2 : 1;
+                        foreach (var dragon in side.Board
+                                     .Where(minion => IsAlive(minion) &&
+                                         !string.Equals(minion.InstanceId, source.InstanceId, StringComparison.Ordinal) &&
+                                         minion.Tribes.Contains(Tribe.Dragon))
+                                     .ToList())
+                        {
+                            BuffMinion(dragon, amount, amount, "Electric Synthesizer");
+                        }
+
+                        continue;
+                    }
+
+                    foreach (var dragon in side.Board
+                                 .Where(minion => IsAlive(minion) && minion.Tribes.Contains(Tribe.Dragon))
+                                 .Take(source.Golden ? 2 : 1)
+                                 .ToList())
+                    {
+                        BuffMinion(dragon, 1, 2, "Thousandth Paper Drake");
+                        if (!dragon.Keywords.Contains(Keyword.Windfury))
+                        {
+                            dragon.Keywords.Add(Keyword.Windfury);
+                        }
+                    }
+                }
+            }
         }
 
         private static int ConsumeStartOfCombatRepeats(CombatSideState side)
@@ -1371,6 +1748,69 @@ namespace LearnHearthstone.Domain.Engine
 
                 ResolveDeaths(context, opponent.Side);
             }
+        }
+
+        private static void ResolveSeason14BoomBoxesAtCombatStart(CombatContext context, CombatSideState side)
+        {
+            foreach (var source in side.Board
+                         .Where(minion => IsAlive(minion) && minion.CardId == Season14BoomBoxCardId)
+                         .ToList())
+            {
+                var repeats = source.Golden ? 2 : 1;
+                for (var repeat = 0; repeat < repeats; repeat += 1)
+                {
+                    DealAreaDamage(
+                        context,
+                        side,
+                        source,
+                        3,
+                        target => !string.Equals(target.InstanceId, source.InstanceId, StringComparison.Ordinal));
+                    ResolveDeaths(context, side.Side);
+                    ResolveDeaths(context, side.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                }
+            }
+        }
+
+        private static void ResolveSeason14RunicArcanistsAtCombatStart(CombatContext context, CombatSideState side)
+        {
+            foreach (var source in side.Board.Where(minion =>
+                IsAlive(minion) && minion.CardId == Season14RunicArcanistCardId).ToList())
+            {
+                var casts = (source.Golden ? 2 : 1) * ConsumeStartOfCombatRepeats(side);
+                for (var cast = 0; cast < casts; cast += 1)
+                {
+                    CastCombatTavernSpell(context, side, source, ShinyRingCardNumber, "Shiny Ring", cast);
+                }
+            }
+        }
+
+        private static void CastCombatTavernSpell(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            string cardNumber,
+            string name,
+            int cast)
+        {
+            var spellState = new MatchState
+            {
+                Seed = context.Seed
+            };
+            spellState.Player.Board = owner.Board;
+            spellState.Player.Tavern = owner.Tavern ?? new TavernState();
+            TavernSpellEngine.Cast(
+                new MinionInstance
+                {
+                    CardKind = CardKind.TavernSpell,
+                    CardId = cardNumber,
+                    InstanceId = source.InstanceId + "-combat-spell-" + cast,
+                    Name = name
+                },
+                spellState,
+                null,
+                null,
+                new SeededRng(context.Seed + context.AttackSequence * 1309 + context.Log.Count * 47 + cast));
+            AddLog(context.Log, "CombatSpellCast", source.InstanceId + " cast " + name, source.InstanceId, null, LogSeverity.Good);
         }
 
         private static void ApplyDelayedTavernSpellCombatAuras(CombatContext context, CombatSideState side)
@@ -1949,11 +2389,17 @@ namespace LearnHearthstone.Domain.Engine
                 0,
                 triggeredAttack);
             ResolveAttackDeclarationTriggers(context, attackers, attacker, defenders, defender, triggeredAttack);
-            var attackerVenomous = attacker.Keywords.Contains(Keyword.Venomous) || attacker.CardId == TimewarpedViperCardId;
-            var defenderVenomous = defender.Keywords.Contains(Keyword.Venomous);
+            var venomousCanTrigger = !context.IsRecruitPhase ||
+                !string.Equals(
+                    context.VenomousEffectRevision,
+                    VenomousEffectRevisions.PerCombat,
+                    StringComparison.Ordinal);
+            var attackerVenomous = venomousCanTrigger &&
+                (attacker.Keywords.Contains(Keyword.Venomous) || attacker.CardId == TimewarpedViperCardId);
+            var defenderVenomous = venomousCanTrigger && defender.Keywords.Contains(Keyword.Venomous);
             var attackerPoison = attacker.Keywords.Contains(Keyword.Poisonous) || attackerVenomous;
             var defenderPoison = defender.Keywords.Contains(Keyword.Poisonous) || defenderVenomous;
-            var attackerImmuneWhileAttacking = SideHasTag(attackers, EclipsionFirstAttackImmunePendingTag) || attacker.CardId == TimewarpedViperCardId;
+            var attackerImmuneWhileAttacking = IsImmuneWhileAttacking(attackers, attacker);
             var defenderDamage = DealDamage(defender, attacker.Attack, attackerPoison);
             var attackerDamage = attackerImmuneWhileAttacking
                 ? new DamageResult(attacker.Clone(), false)
@@ -2009,6 +2455,7 @@ namespace LearnHearthstone.Domain.Engine
             ResolveReckoningSecret(context, attackers, damagedDefender, attackerDamage.CombatDamageDealt, defender.Attack);
             ResolveOverkillTriggers(context, attackers, damagedAttacker, defenders, defenderIndex, defenderHealthBeforeDamage, defenderDamage);
             QueueFriendlyAttackReward(context, attackers, damagedAttacker, damagedDefender, triggeredAttack);
+            QueueSeason14PirateDamageReward(context, attackers, damagedAttacker, damagedDefender, defenderDamage.CombatDamageDealt);
             QueueDamagedMinionRewards(context.Log, attackers, attacker, attackerDamage.CombatDamageDealt);
             QueueDamagedMinionRewards(context.Log, defenders, defender, defenderDamage.CombatDamageDealt);
             context.AttackSequence += 1;
@@ -2112,6 +2559,7 @@ namespace LearnHearthstone.Domain.Engine
 
             ResolveAllDeaths(context, attackers.Side);
             ResolveRally(context, attackers.Side, attacker.InstanceId, triggeredAttack);
+            ResolveSeason14FriendlyAttackObservers(context, attackers, attacker);
 
             var attackerSurvived = attackers.Board.Any(minion => minion.InstanceId == attacker.InstanceId && IsAlive(minion));
             return new AttackResult(
@@ -2185,7 +2633,15 @@ namespace LearnHearthstone.Domain.Engine
                 var newEntityCountBeforeDeathEffects = newEntityIds.Count;
                 inserted += ResolveRedemptionSecret(context, owner, minion, index + inserted, newEntityIds);
                 inserted += ResolveDeathSecretTriggers(context, owner, minion, index + inserted, newEntityIds);
-                AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
+                AddReward(
+                    context.Log,
+                    owner,
+                    CombatRewardType.FriendlyMinionDied,
+                    minion.CardId,
+                    null,
+                    1,
+                    minion.InstanceId,
+                    minion.Tribes);
                 ResolveTavishCrabbyReward(context, owner, minion);
             ResolveShadowyConstructDeath(owner, minion);
             ResolveTamsinMonstrosityDeath(context, owner, minion);
@@ -2231,6 +2687,8 @@ namespace LearnHearthstone.Domain.Engine
                         owner.Board.Insert(Math.Min(index + inserted, owner.Board.Count), reborn);
                         ResolveFriendlySummonTriggers(context, owner, reborn, minion);
                         ResolveTimewarpedJellyBellyReborn(context, owner, reborn);
+                        ResolveSeason14UndeadRebornTriggers(context, owner, reborn);
+                        ResolveSeason14TrinketReborn(context, owner, reborn);
                         inserted += 1;
                         newEntityIds.Add(reborn.InstanceId);
                         AddLog(context.Log, "RebornResolved", minion.InstanceId + " reborn", minion.InstanceId, null, LogSeverity.Good);
@@ -2292,8 +2750,17 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             context.RecruitDeathSteps += 1;
+            ResolveFishbaitDeathrattle(context, owner, minion);
             owner.Board.RemoveAt(index);
-            AddReward(context.Log, owner, CombatRewardType.FriendlyMinionDied, minion.CardId, null, 1, minion.InstanceId);
+            AddReward(
+                context.Log,
+                owner,
+                CombatRewardType.FriendlyMinionDied,
+                minion.CardId,
+                null,
+                1,
+                minion.InstanceId,
+                minion.Tribes);
             var inserted = 0;
             var newEntityIds = new List<string>();
             if (minion.Keywords.Contains(Keyword.Deathrattle))
@@ -2319,6 +2786,8 @@ namespace LearnHearthstone.Domain.Engine
             ApplySummonAuras(owner, reborn);
             owner.Board.Insert(Math.Min(index + inserted, owner.Board.Count), reborn);
             ResolveFriendlySummonTriggers(context, owner, reborn, minion);
+            ResolveSeason14UndeadRebornTriggers(context, owner, reborn);
+            ResolveSeason14TrinketReborn(context, owner, reborn);
             ResolveRecruitPhaseDeaths(context, owner.Side);
         }
 
@@ -2327,7 +2796,8 @@ namespace LearnHearthstone.Domain.Engine
             var reborn = dead.Clone();
             reborn.InstanceId = dead.InstanceId + "-reborn-" + context.RecruitSummonSequence;
             context.RecruitSummonSequence += 1;
-            reborn.Health = dead.Tags != null && dead.Tags.Contains("battlecruiser_full_health_reborn")
+            reborn.Health = dead.Tags != null &&
+                (dead.Tags.Contains("battlecruiser_full_health_reborn") || dead.Tags.Contains("dark-gift.dg-r41"))
                 ? Math.Max(1, reborn.MaxHealth)
                 : 1;
             reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
@@ -2355,6 +2825,90 @@ namespace LearnHearthstone.Domain.Engine
                 }
 
                 AddLog(context.Log, "RebornResolved", source.InstanceId + " buffed friendly minions after " + reborn.InstanceId + " was Reborn", source.InstanceId, reborn.InstanceId, LogSeverity.Good);
+            }
+        }
+
+        private static void ResolveSeason14UndeadRebornTriggers(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance reborn)
+        {
+            foreach (var source in owner.Board.Where(IsAlive).ToList())
+            {
+                if (source.CardId == Season14ShieldedBansheeCardId)
+                {
+                    var bansheeAmount = source.Golden ? 14 : 7;
+                    AddKeyword(source, Keyword.DivineShield);
+                    BuffMinion(source, bansheeAmount, bansheeAmount, Season14ShieldedBansheeCardId);
+                    AddLog(
+                        context.Log,
+                        "Season14BansheeRebornTriggered",
+                        source.InstanceId + " gained Divine Shield and stats after " + reborn.InstanceId + " was Reborn",
+                        source.InstanceId,
+                        reborn.InstanceId,
+                        LogSeverity.Good);
+                    continue;
+                }
+
+                if (source.CardId != Season14StylishPhantomCardId)
+                {
+                    continue;
+                }
+
+                var target = owner.Board.LastOrDefault(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Undead));
+                if (target == null)
+                {
+                    continue;
+                }
+
+                var phantomAmount = Math.Max(0, reborn.Attack);
+                BuffMinion(target, phantomAmount, phantomAmount, Season14StylishPhantomCardId);
+                AddLog(
+                    context.Log,
+                    "Season14PhantomRebornTriggered",
+                    source.InstanceId + " gave " + target.InstanceId + " stats after " + reborn.InstanceId + " was Reborn",
+                    source.InstanceId,
+                    target.InstanceId,
+                    LogSeverity.Good);
+            }
+        }
+
+        private static void ResolveSeason14TrinketReborn(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance reborn)
+        {
+            if (context == null || owner == null || reborn == null)
+            {
+                return;
+            }
+
+            var tags = reborn.Tags ?? new List<string>();
+            if (tags.Contains(Season14DeathwhisperStickerTag))
+            {
+                foreach (var target in owner.Board.Where(IsAlive).ToList())
+                {
+                    BuffMinion(target, 2, 2, "Deathwhisper Sticker");
+                }
+            }
+
+            if (!context.IsRecruitPhase && tags.Contains(Season14FuneralWreathTag))
+            {
+                var copiesQueued = owner.Rewards.Count(reward =>
+                    reward != null &&
+                    reward.Type == CombatRewardType.AddPlainCopyOfKilledEnemyToHand &&
+                    string.Equals(reward.SourceCardId, "Funeral Wreath", StringComparison.Ordinal));
+                if (copiesQueued < 3)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddPlainCopyOfKilledEnemyToHand,
+                        "Funeral Wreath",
+                        reborn.CardId,
+                        1,
+                        reborn.InstanceId);
+                }
             }
         }
 
@@ -2851,6 +3405,13 @@ namespace LearnHearthstone.Domain.Engine
             var inserted = 0;
             for (var repeat = 0; repeat < deathrattleRepeats; repeat += 1)
             {
+                inserted += ResolveDarkGiftDeathrattle(
+                    context,
+                    owner,
+                    minion,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    repeat);
                 inserted += ResolveDeathrattleSummons(context, owner, minion, insertIndex + inserted, newEntityIds, sourceRemoved);
                 if (!context.IsRecruitPhase)
                 {
@@ -2866,6 +3427,60 @@ namespace LearnHearthstone.Domain.Engine
             ResolveTrinketDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
             ResolveTimewarpedDeathrattleTriggered(context, owner, minion, deathrattleRepeats);
             return inserted;
+        }
+
+        private static int ResolveDarkGiftDeathrattle(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            int insertIndex,
+            List<string> newEntityIds,
+            int repeat)
+        {
+            if (source?.Tags == null)
+            {
+                return 0;
+            }
+
+            var candidates = owner.Board
+                .Where(minion => IsAlive(minion) && minion.InstanceId != source.InstanceId)
+                .ToList();
+            if (source.Tags.Contains("dark-gift.dg-r28") && candidates.Count > 0)
+            {
+                var target = new SeededRng(context.Seed + context.AttackSequence * 4211 + context.Log.Count + repeat).Pick(candidates);
+                BuffMinion(target, Math.Max(0, source.Attack), 0, "Offensive Sacrifice");
+                AddLog(context.Log, "DeathrattleResolved", "Offensive Sacrifice buffed " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
+            }
+
+            if (source.Tags.Contains("dark-gift.dg-r29") && candidates.Count > 0)
+            {
+                var target = new SeededRng(context.Seed + context.AttackSequence * 4217 + context.Log.Count + repeat).Pick(candidates);
+                BuffMinion(target, 0, Math.Max(0, source.MaxHealth), "Defensive Sacrifice");
+                AddLog(context.Log, "DeathrattleResolved", "Defensive Sacrifice buffed " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
+            }
+
+            if (!source.Tags.Contains("dark-gift.dg-r40"))
+            {
+                return 0;
+            }
+
+            var golem = AddToken(
+                context,
+                owner,
+                source,
+                insertIndex,
+                "dark-gift-r40-golem",
+                "Golem",
+                Math.Max(0, source.Attack),
+                Math.Max(1, source.MaxHealth),
+                Tribe.None);
+            if (golem == null)
+            {
+                return 0;
+            }
+
+            newEntityIds?.Add(golem.InstanceId);
+            return 1;
         }
 
         private static void ResolveTamsinPhylacteryDeathrattle(CombatContext context, CombatSideState owner, MinionInstance source)
@@ -3255,6 +3870,26 @@ namespace LearnHearthstone.Domain.Engine
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "cubling", "Cubling", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "cubling", "Cubling", 0, minion.Golden ? 2 : 1, Tribe.Beast, Keyword.Taunt);
                     break;
+                case Season14TrappedDemonCardId:
+                    QueueSeason14DemonFodderRefreshes(owner, minion.Golden ? 2 : 1);
+                    break;
+                case Season14DeliciousLobsterCardId:
+                    ResolveSeason14DeliciousLobsterDeathrattle(context, owner, minion);
+                    break;
+                case ReturnedMotleyPhalanxCardId:
+                    ResolveReturnedMotleyPhalanxDeathrattle(context, owner, minion);
+                    break;
+                case Season14GhostlyIllusionistCardId:
+                    AddReward(context.Log, owner, CombatRewardType.AddTavernSpellToHand, minion.CardId, MethodicalMadnessCardNumber, minion.Golden ? 4 : 2);
+                    break;
+                case Season14TyrantScorpionCardId:
+                    var beetleCount = minion.Golden ? 2 : 1;
+                    for (var summonIndex = 0; summonIndex < beetleCount; summonIndex += 1)
+                    {
+                        inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
+                    }
+
+                    break;
                 case BuzzingVerminCardId:
                     inserted += AddTokenAndTrack(context, owner, minion, insertIndex + inserted, newEntityIds, "beetle", "Beetle", 2, 2, Tribe.Beast);
                     if (minion.Golden)
@@ -3396,6 +4031,22 @@ namespace LearnHearthstone.Domain.Engine
                     break;
                 case FriendlyFelboarCardId:
                     AddReward(context.Log, owner, CombatRewardType.ImproveTavernSpellAttack, minion.CardId, null, minion.Golden ? 2 : 1);
+                    break;
+                case ShowyCyclistCardId:
+                    ResolveSeason14ShowyCyclistDeathrattle(context, owner, minion);
+                    break;
+                case FirescaleHoarderCardId:
+                    if (minion.Tags != null && minion.Tags.Contains(Season14ReturnedNagaPreviewTag))
+                    {
+                        AddReward(
+                            context.Log,
+                            owner,
+                            CombatRewardType.AddTavernSpellToHand,
+                            minion.CardId,
+                            ShinyRingCardNumber,
+                            minion.Golden ? 2 : 1);
+                    }
+
                     break;
                 case DeepwaterChieftainCardId:
                     AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, minion.CardId, DeepwaterSchoolCardId, minion.Golden ? 2 : 1);
@@ -3610,13 +4261,29 @@ namespace LearnHearthstone.Domain.Engine
                     AddReward(context.Log, owner, CombatRewardType.AddRandomTierSixMinionToHand, minion.CardId, null, minion.Golden ? 2 : 1);
                     break;
                 case GoldrinnCardId:
+                    var goldrinnBonus = minion.Golden ? 16 : 8;
                     GrantPersistentCombatTribeBonus(
                         owner,
                         Tribe.Beast,
-                        minion.Golden ? 16 : 8,
-                        minion.Golden ? 16 : 8,
+                        goldrinnBonus,
+                        goldrinnBonus,
                         "Goldrinn",
                         minion.InstanceId);
+                    if (minion.Tags != null && minion.Tags.Contains(Season14GoldrinnUntilNextTurnTag))
+                    {
+                        owner.Rewards.Add(new CombatReward
+                        {
+                            Type = CombatRewardType.BuffFriendlyTribe,
+                            Side = owner.Side,
+                            SourceCardId = minion.CardId,
+                            SourceInstanceId = minion.InstanceId,
+                            Amount = 1,
+                            Attack = goldrinnBonus,
+                            Health = goldrinnBonus,
+                            Tribes = new List<Tribe> { Tribe.Beast }
+                        });
+                        AddLog(context.Log, "CombatRewardQueued", "Goldrinn's Beast buff lasts until the next turn", minion.InstanceId, null, LogSeverity.Good);
+                    }
                     break;
                 case StitchedReclaimerCardId:
                     foreach (var stored in owner.StitchedCopies.Where(pair => pair.Key.StartsWith(minion.InstanceId + ":", StringComparison.Ordinal)).Select(pair => pair.Value).ToList())
@@ -3637,6 +4304,21 @@ namespace LearnHearthstone.Domain.Engine
 
                     break;
                 }
+            }
+
+            if (minion.Tags.Contains(Season14AutoAssemblerAttachmentTag))
+            {
+                inserted += AddTokenAndTrack(
+                    context,
+                    owner,
+                    minion,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    "ancestral-automaton",
+                    "Ancestral Automaton",
+                    3,
+                    4,
+                    Tribe.Mech);
             }
 
             if (minion.Tags.Contains("surf_n_surf_crab"))
@@ -3661,6 +4343,53 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             return inserted;
+        }
+
+        private static void ResolveSeason14ShowyCyclistDeathrattle(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source)
+        {
+            if (owner == null ||
+                source?.Tags == null ||
+                !source.Tags.Contains(Season14ReturnedNagaPreviewTag))
+            {
+                return;
+            }
+
+            var spellsCast = Math.Max(0, owner.Tavern?.TavernSpellsCastThisGame ?? 0);
+            if (owner.Tavern?.AdvancedMechanics?.Counters != null &&
+                owner.Tavern.AdvancedMechanics.Counters.TryGetValue(AllSpellsCastThisGameCounter, out var allSpellsCast))
+            {
+                spellsCast = Math.Max(0, allSpellsCast);
+            }
+
+            var amount = StatMath.SaturatingMultiply(
+                2 + (spellsCast >> 2),
+                source.Golden ? 2 : 1,
+                0,
+                StatMath.MaxStat);
+            var targets = owner.Board.Where(minion =>
+                    minion != null &&
+                    (minion.Tribes.Contains(Tribe.Naga) || minion.Tribes.Contains(Tribe.All)))
+                .ToList();
+            BuffAll(targets, amount, amount, "Showy Cyclist");
+            if (source.Tags.Contains(Season14CyclistPortraitTag))
+            {
+                foreach (var target in targets)
+                {
+                    AddTargetedReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.BuffOriginalFriendlyMinion,
+                        source.CardId,
+                        target.InstanceId,
+                        1,
+                        amount,
+                        amount,
+                        source.InstanceId);
+                }
+            }
         }
 
         private static bool IsCombatOnlyDeathrattle(string cardId)
@@ -5445,7 +6174,19 @@ namespace LearnHearthstone.Domain.Engine
             var repeats = hasRally ? GetRallyRepeats(owner) : 1;
             if (hasRally)
             {
-                AddReward(context.Log, owner, CombatRewardType.FriendlyRallyTriggered, attacker.CardId, null, repeats, attacker.InstanceId);
+                var rallyOrdinal = owner.Rewards.Count(reward =>
+                    reward != null &&
+                    reward.Type == CombatRewardType.FriendlyRallyTriggered &&
+                    string.Equals(reward.SourceInstanceId, attacker.InstanceId, StringComparison.Ordinal));
+                AddReward(
+                    context.Log,
+                    owner,
+                    CombatRewardType.FriendlyRallyTriggered,
+                    attacker.CardId,
+                    null,
+                    repeats,
+                    sourceInstanceId: attacker.InstanceId,
+                    rallyOccurrenceId: "rally:" + Math.Max(0, context.AttackSequence) + ":" + rallyOrdinal);
             }
 
             for (var repeat = 0; repeat < repeats; repeat += 1)
@@ -5485,6 +6226,115 @@ namespace LearnHearthstone.Domain.Engine
                     ResolveTimewarpedStoneshellCopiedRallies(context, owner, attacker, attackerIndex, triggeredAttack);
                 }
 
+                if (attacker.CardId == Season14SpinyExcavatorCardId)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddRandomChooseOneMinionToHand,
+                        attacker.CardId,
+                        null,
+                        attacker.Golden ? 2 : 1,
+                        attacker.InstanceId);
+                }
+
+                if (attacker.CardId == Season14GutterGuardianCardId)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.ImproveElementalStats,
+                        attacker.CardId,
+                        null,
+                        1,
+                        attacker.Golden ? 2 : 1,
+                        attacker.Golden ? 4 : 2,
+                        attacker.InstanceId);
+                }
+
+                if (attacker.CardId == Season14ImprisonedBullyCardId)
+                {
+                    ResolveSeason14ImprisonedBullyRally(context, owner, attacker, attackerIndex);
+                }
+
+                if (attacker.CardId == Season14FlutteringBatCardId)
+                {
+                    var summonedIds = new List<string>();
+                    var inserted = 0;
+                    var summonCount = attacker.Golden ? 2 : 1;
+                    for (var summonIndex = 0; summonIndex < summonCount; summonIndex += 1)
+                    {
+                        inserted += AddTokenAndTrack(
+                            context,
+                            owner,
+                            attacker,
+                            attackerIndex + 1 + inserted,
+                            summonedIds,
+                            "season14-r29-beast",
+                            "Fluttering Beast",
+                            1,
+                            1,
+                            Tribe.Beast);
+                    }
+                }
+
+                if (attacker.CardId == Season14WolfPupCardId)
+                {
+                    var attack = attacker.Golden ? 8 : 4;
+                    var health = attacker.Golden ? 4 : 2;
+                    foreach (var buffTarget in owner.Board.Where(minion => IsAlive(minion) && minion.InstanceId != attacker.InstanceId).ToList())
+                    {
+                        BuffMinion(buffTarget, attack, health, "Wolf Pup");
+                    }
+                }
+
+                if (attacker.CardId == Season14HeadhunterGryphonCardId)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddRandomBeastToHand,
+                        attacker.CardId,
+                        null,
+                        attacker.Golden ? 2 : 1,
+                        attacker.InstanceId);
+                }
+
+                if (attacker.CardId == Season14BronzeTimewalkerCardId)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddRandomChromawhelpToHand,
+                        attacker.CardId,
+                        null,
+                        attacker.Golden ? 2 : 1,
+                        attacker.InstanceId);
+                }
+
+                if (attacker.CardId == Season14CrimsonGuardDragonCardId)
+                {
+                    var casts = attacker.Golden ? 2 : 1;
+                    for (var cast = 0; cast < casts; cast += 1)
+                    {
+                        CastCombatTavernSpell(context, owner, attacker, MightyDragonbreathCardNumber, "Mighty Dragonbreath", cast);
+                    }
+                }
+
+                if (attacker.CardId == Season14FoodHoardingHyenaCardId)
+                {
+                    SummonSeason14DeliciousLobster(context, owner, attacker, attackerIndex + 1, new List<string>(), attacker.Golden);
+                }
+
+                if (attacker.CardId == ReturnedGlimGuardianCardId &&
+                    attacker.Tags != null &&
+                    attacker.Tags.Contains(Season14ReturnedDragonPreviewTag))
+                {
+                    BuffMinion(attacker, attacker.Golden ? 4 : 2, 0, "Glim Guardian");
+                }
+
+                ResolveSeason14ReturnedQuilboarRally(context, owner, attacker);
+
                 ResolveHighTierRally(context, owner, attacker, attackerIndex);
                 ResolveBattlecruiserBallisticsRally(context, owner, attacker);
                 ResolveZergRally(context, owner, attacker);
@@ -5518,6 +6368,322 @@ namespace LearnHearthstone.Domain.Engine
                     null,
                     new[] { attacker.InstanceId });
             }
+        }
+
+        private static void ResolveSeason14ReturnedQuilboarRally(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance attacker)
+        {
+            if (attacker?.Tags == null || !attacker.Tags.Contains(Season14ReturnedQuilboarPreviewTag))
+            {
+                return;
+            }
+
+            var multiplier = attacker.Golden ? 2 : 1;
+            switch (attacker.CardId)
+            {
+                case SanguineRefinerCardId:
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.ImproveBloodGemStats,
+                        attacker.CardId,
+                        null,
+                        multiplier,
+                        1,
+                        1,
+                        attacker.InstanceId);
+                    break;
+                case RoadboarCardId:
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddGeneratedSpellToHand,
+                        attacker.CardId,
+                        BloodGemCardId,
+                        multiplier,
+                        attacker.InstanceId);
+                    break;
+                case BonkerCardId:
+                    foreach (var target in owner.Board
+                                 .Where(minion => IsAlive(minion) && minion.InstanceId != attacker.InstanceId)
+                                 .ToList())
+                    {
+                        for (var gem = 0; gem < multiplier; gem += 1)
+                        {
+                            ApplyBloodGem(target, owner.Tavern);
+                        }
+                    }
+
+                    break;
+                case TuskedCamperCardId:
+                    for (var gem = 0; gem < multiplier; gem += 1)
+                    {
+                        ApplyBloodGem(attacker, owner.Tavern);
+                    }
+
+                    break;
+                case RazorfenVineweaverCardId:
+                    for (var gem = 0; gem < 3 * multiplier; gem += 1)
+                    {
+                        ApplyBloodGem(attacker, owner.Tavern);
+                    }
+
+                    break;
+            }
+        }
+
+        private static void ResolveSeason14DeliciousLobsterDeathrattle(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source)
+        {
+            Dictionary<string, int> counters = null;
+            if (owner.Tavern != null)
+            {
+                if (owner.Tavern.AdvancedMechanics == null)
+                {
+                    owner.Tavern.AdvancedMechanics = new AdvancedMechanicState();
+                }
+
+                if (owner.Tavern.AdvancedMechanics.Counters == null)
+                {
+                    owner.Tavern.AdvancedMechanics.Counters = new Dictionary<string, int>();
+                }
+
+                counters = owner.Tavern.AdvancedMechanics.Counters;
+            }
+
+            var growth = 0;
+            if (counters != null)
+            {
+                counters.TryGetValue(Season14DeliciousLobsterGrowthCounter, out growth);
+            }
+            var multiplier = source.Golden ? 2 : 1;
+            var amount = StatMath.SaturatingMultiply(
+                StatMath.SaturatingAdd(1, growth, 1, StatMath.MaxStat),
+                multiplier,
+                0,
+                StatMath.MaxStat);
+            var candidates = owner.Board
+                .Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast))
+                .ToList();
+            var rng = new SeededRng(context.Seed + context.AttackSequence * 1433 + context.Log.Count * 47);
+            var targetCount = Math.Min(2, candidates.Count);
+            for (var targetIndex = 0; targetIndex < targetCount; targetIndex += 1)
+            {
+                var target = rng.Pick(candidates);
+                candidates.Remove(target);
+                BuffMinion(target, amount, amount, "Delicious Lobster");
+            }
+
+            if (counters != null)
+            {
+                counters[Season14DeliciousLobsterGrowthCounter] = StatMath.SaturatingAdd(
+                    growth,
+                    multiplier,
+                    0,
+                    StatMath.MaxStat);
+            }
+        }
+
+        private static void QueueSeason14DemonFodderRefreshes(CombatSideState owner, int amount)
+        {
+            if (owner?.Tavern == null)
+            {
+                return;
+            }
+
+            if (owner.Tavern.AdvancedMechanics == null)
+            {
+                owner.Tavern.AdvancedMechanics = new AdvancedMechanicState();
+            }
+
+            if (owner.Tavern.AdvancedMechanics.Counters == null)
+            {
+                owner.Tavern.AdvancedMechanics.Counters = new Dictionary<string, int>();
+            }
+
+            var counters = owner.Tavern.AdvancedMechanics.Counters;
+            foreach (var key in new[]
+            {
+                Season14MinR37FodderRefreshOneCounter,
+                Season14MinR37FodderRefreshTwoCounter,
+                Season14MinR37FodderRefreshThreeCounter
+            })
+            {
+                counters.TryGetValue(key, out var queued);
+                counters[key] = StatMath.SaturatingAdd(queued, amount, 0, StatMath.MaxStat);
+            }
+        }
+
+        private static int SummonSeason14DeliciousLobster(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            int insertIndex,
+            List<string> newEntityIds,
+            bool golden)
+        {
+            var boardCountBefore = owner.Board.Count;
+            var stats = golden ? 2 : 1;
+            var lobster = AddToken(
+                context,
+                owner,
+                source,
+                insertIndex,
+                "season14-delicious-lobster",
+                "Delicious Lobster",
+                stats,
+                stats,
+                Tribe.Beast,
+                Keyword.Taunt,
+                golden,
+                Season14DeliciousLobsterCardId);
+            if (lobster == null)
+            {
+                return 0;
+            }
+
+            if (!lobster.Keywords.Contains(Keyword.Deathrattle))
+            {
+                lobster.Keywords.Add(Keyword.Deathrattle);
+            }
+
+            lobster.OfficialKeywords.Add(Keyword.Taunt);
+            lobster.OfficialKeywords.Add(Keyword.Deathrattle);
+            if (owner.Board.Any(minion => minion.InstanceId == lobster.InstanceId))
+            {
+                newEntityIds?.Add(lobster.InstanceId);
+            }
+
+            return owner.Board.Count - boardCountBefore;
+        }
+
+        private static void ResolveSeason14FriendlyAttackObservers(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance attacker)
+        {
+            if (attacker == null)
+            {
+                return;
+            }
+
+            if (HasCountedTribe(attacker, Tribe.Beast))
+            {
+                foreach (var source in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == Season14CageGnawerCardId).ToList())
+                {
+                    var attack = source.Golden ? 4 : 2;
+                    var health = source.Golden ? 2 : 1;
+                    foreach (var target in owner.Board.Where(minion => IsAlive(minion) && HasCountedTribe(minion, Tribe.Beast)).ToList())
+                    {
+                        BuffMinion(target, attack, health, "Cage Gnawer");
+                    }
+                }
+            }
+
+            foreach (var source in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == Season14TyrantScorpionCardId).ToList())
+            {
+                ImproveBeetleStatsForCombatAndGame(
+                    context,
+                    owner,
+                    source.Golden ? 6 : 3,
+                    source.Golden ? 6 : 3,
+                    source.CardId,
+                    source.InstanceId);
+            }
+
+            foreach (var source in owner.Board.Where(minion =>
+                         IsAlive(minion) &&
+                         minion.CardId == ProdigiousTuskerCardId &&
+                         minion.InstanceId != attacker.InstanceId &&
+                         minion.Tags != null &&
+                         minion.Tags.Contains(Season14ReturnedQuilboarPreviewTag)).ToList())
+            {
+                var currentAttacker = owner.Board.FirstOrDefault(minion =>
+                    IsAlive(minion) && minion.InstanceId == attacker.InstanceId);
+                if (currentAttacker == null)
+                {
+                    continue;
+                }
+
+                var gems = source.Golden ? 2 : 1;
+                for (var gem = 0; gem < gems; gem += 1)
+                {
+                    ApplyBloodGem(currentAttacker, owner.Tavern);
+                }
+            }
+
+            if (!attacker.Keywords.Contains(Keyword.Rally))
+            {
+                return;
+            }
+
+            foreach (var source in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == Season14DeathChasingRoadrunnerCardId).ToList())
+            {
+                var target = owner.Board.FirstOrDefault(minion => IsAlive(minion) && minion.Keywords.Contains(Keyword.Deathrattle));
+                if (target == null)
+                {
+                    continue;
+                }
+
+                var targetIndex = owner.Board.FindIndex(minion => minion.InstanceId == target.InstanceId);
+                var repeats = source.Golden ? 2 : 1;
+                for (var repeat = 0; repeat < repeats; repeat += 1)
+                {
+                    ResolveDeathrattleEffect(
+                        context,
+                        owner,
+                        target,
+                        Math.Min(targetIndex + 1, owner.Board.Count),
+                        new List<string>(),
+                        false,
+                        source.InstanceId);
+                    ResolveAllDeaths(context, owner.Side);
+                }
+            }
+        }
+
+        private static void ResolveSeason14ImprisonedBullyRally(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source,
+            int sourceIndex)
+        {
+            var stats = GetBloodGemStats(source);
+            var multiplier = source.Golden ? 2 : 1;
+            var token = AddToken(
+                context,
+                owner,
+                source,
+                sourceIndex + 1,
+                BloodGolemTokenId,
+                "Blood Golem",
+                StatMath.SaturatingMultiply(stats.Attack, multiplier, 0, StatMath.MaxStat),
+                StatMath.SaturatingMultiply(stats.Health, multiplier, 0, StatMath.MaxStat),
+                Tribe.None);
+            if (token == null || !IsAlive(token))
+            {
+                return;
+            }
+
+            context.ImmediateAttacks.Enqueue(new ImmediateAttackRequest(owner.Side, token.InstanceId));
+            AddLog(context.Log, "ImmediateAttackQueued", token.InstanceId + " queued", token.InstanceId, null, LogSeverity.Good);
+            RecordFrame(
+                context,
+                CombatEventType.ImmediateAttackQueued,
+                token.InstanceId + " queued",
+                owner.Side,
+                token.InstanceId,
+                owner.Side,
+                null,
+                new[] { source.InstanceId, token.InstanceId },
+                null,
+                null,
+                null,
+                new[] { source.InstanceId });
         }
 
         private static void ResolveTimewarpedStoneshellCopiedRallies(CombatContext context, CombatSideState owner, MinionInstance attacker, int attackerIndex, bool triggeredAttack)
@@ -5820,6 +6986,17 @@ namespace LearnHearthstone.Domain.Engine
             if (tavern == null || attacker == null)
             {
                 return;
+            }
+
+            if ((attacker.Tags ?? new List<string>()).Contains(Season14LionfishPortraitAttackTag))
+            {
+                BuffMinion(attacker, 2, 2, "Lionfish Portrait");
+                AddLog(context.Log, "TrinketAttackTriggered", "Lionfish Portrait gave +2/+2 to " + attacker.InstanceId, null, attacker.InstanceId, LogSeverity.Good);
+            }
+
+            if ((attacker.Tags ?? new List<string>()).Contains(Season14HerdingHornAttackTag))
+            {
+                AddReward(context.Log, owner, CombatRewardType.GainFreeRefresh, "Herding Horn", null, 1, attacker.InstanceId);
             }
 
             if (tavern.TrinketCeremonialSwordAttack != 0)
@@ -7808,12 +8985,32 @@ namespace LearnHearthstone.Domain.Engine
             AddLog(log, "CombatRewardQueued", "ImproveShopStats +" + attack + "/+" + health + " for " + tribe + " from " + sourceCardId, sourceCardId, null, LogSeverity.Good);
         }
 
-        private static void AddReward(List<CombatLogEntry> log, CombatSideState owner, CombatRewardType type, string sourceCardId, string cardId, int amount, string sourceInstanceId = null)
+        private static void AddReward(
+            List<CombatLogEntry> log,
+            CombatSideState owner,
+            CombatRewardType type,
+            string sourceCardId,
+            string cardId,
+            int amount,
+            string sourceInstanceId = null,
+            IEnumerable<Tribe> tribes = null,
+            string rallyOccurrenceId = null)
         {
-            AddReward(log, owner, type, sourceCardId, cardId, amount, 0, 0, sourceInstanceId);
+            AddReward(log, owner, type, sourceCardId, cardId, amount, 0, 0, sourceInstanceId, tribes, rallyOccurrenceId);
         }
 
-        private static void AddReward(List<CombatLogEntry> log, CombatSideState owner, CombatRewardType type, string sourceCardId, string cardId, int amount, int attack, int health, string sourceInstanceId = null)
+        private static void AddReward(
+            List<CombatLogEntry> log,
+            CombatSideState owner,
+            CombatRewardType type,
+            string sourceCardId,
+            string cardId,
+            int amount,
+            int attack,
+            int health,
+            string sourceInstanceId = null,
+            IEnumerable<Tribe> tribes = null,
+            string rallyOccurrenceId = null)
         {
             if (amount <= 0)
             {
@@ -7826,10 +9023,12 @@ namespace LearnHearthstone.Domain.Engine
                 Side = owner.Side,
                 SourceCardId = sourceCardId,
                 SourceInstanceId = sourceInstanceId,
+                RallyOccurrenceId = rallyOccurrenceId,
                 CardId = cardId,
                 Amount = amount,
                 Attack = attack,
-                Health = health
+                Health = health,
+                Tribes = tribes == null ? new List<Tribe>() : tribes.Distinct().ToList()
             });
             AddLog(log, "CombatRewardQueued", type + " x" + amount + " from " + sourceCardId, sourceCardId, cardId, LogSeverity.Good);
         }
@@ -8075,6 +9274,33 @@ namespace LearnHearthstone.Domain.Engine
             return BoardTribeAnalyzer.HasTribe(minion, tribe);
         }
 
+        private static void ResolveReturnedMotleyPhalanxDeathrattle(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance source)
+        {
+            if (source?.Tags == null || !source.Tags.Contains(Season14ReturnedNeutralPreviewTag))
+            {
+                return;
+            }
+
+            var amount = source.Golden ? 4 : 2;
+            foreach (var target in SelectOneOfEachFriendlyCombatType(owner))
+            {
+                BuffMinion(target, amount, amount, "Motley Phalanx");
+                AddTargetedReward(
+                    context.Log,
+                    owner,
+                    CombatRewardType.BuffOriginalFriendlyMinion,
+                    source.CardId,
+                    target.InstanceId,
+                    1,
+                    amount,
+                    amount,
+                    source.InstanceId);
+            }
+        }
+
         private static List<MinionInstance> SelectOneOfEachFriendlyCombatType(CombatSideState owner)
         {
             return BoardTribeAnalyzer.SelectOneOfEachTribe(owner?.Board?.Where(IsAlive));
@@ -8174,10 +9400,11 @@ namespace LearnHearthstone.Domain.Engine
             var health = source.BaseHealth > 0 ? source.BaseHealth : source.MaxHealth;
             return new MinionInstance
             {
-                CardKind = CardKind.Minion,
+                CardKind = source.CardKind,
                 InstanceId = instanceId,
                 DefinitionId = source.DefinitionId,
                 CardId = source.CardId,
+                ImagePath = source.ImagePath,
                 Name = source.Name,
                 BaseAttack = attack,
                 BaseHealth = health,
@@ -8249,6 +9476,54 @@ namespace LearnHearthstone.Domain.Engine
             QueueTimewarpedHenchmanReward(context, rewardOwner, killer, defeated);
         }
 
+        private static void ResolveFishbaitDeathrattle(
+            CombatContext context,
+            CombatSideState defeatedOwner,
+            MinionInstance defeated)
+        {
+            if (context == null ||
+                !context.IsRecruitPhase ||
+                defeatedOwner?.Side != BoardSide.Opponent ||
+                !FishbaitRecruitAttackService.IsFishbait(defeated) ||
+                defeated.Keywords == null ||
+                !defeated.Keywords.Contains(Keyword.Deathrattle))
+            {
+                return;
+            }
+
+            var killerId = GetKillerId(defeated);
+            var killerSide = GetKillerSide(defeated);
+            var killer = killerSide.HasValue
+                ? FindMinionByInstanceId(context, killerSide.Value, killerId)
+                : FindMinionByInstanceId(context, killerId);
+            if (killer == null || killer.Health <= 0)
+            {
+                return;
+            }
+
+            var amount = defeated.Golden ? 10 : 5;
+            BuffMinion(killer, amount, amount, defeated.CardId, "fishbait-reward");
+            var rewardOwner = context.Get(killerSide ?? killer.Owner);
+            rewardOwner.Rewards.Add(new CombatReward
+            {
+                Type = CombatRewardType.BuffOriginalFriendlyMinion,
+                Side = rewardOwner.Side,
+                SourceCardId = defeated.CardId,
+                SourceInstanceId = defeated.InstanceId,
+                TargetInstanceId = killer.InstanceId,
+                Amount = 1,
+                Attack = amount,
+                Health = amount
+            });
+            AddLog(
+                context.Log,
+                "FishbaitDeathrattle",
+                defeated.InstanceId + " gave " + killer.InstanceId + " +" + amount + "/+" + amount,
+                defeated.InstanceId,
+                killer.InstanceId,
+                LogSeverity.Good);
+        }
+
         private static void ResolveMutaliskFriendlyKill(CombatContext context, CombatSideState rewardOwner, MinionInstance defeated)
         {
             foreach (var mutalisk in rewardOwner.Board.Where(minion => IsAlive(minion) && minion.CardId == MutaliskCardId).ToList())
@@ -8258,6 +9533,41 @@ namespace LearnHearthstone.Domain.Engine
                 AddTargetedReward(context.Log, rewardOwner, CombatRewardType.BuffOriginalFriendlyMinion, mutalisk.CardId, mutalisk.InstanceId, 1, amount, 0, defeated?.InstanceId);
                 AddLog(context.Log, "CombatRewardQueued", "Mutalisk permanently gained Attack after a friendly kill", mutalisk.InstanceId, defeated?.InstanceId, LogSeverity.Good);
             }
+        }
+
+        private static void QueueSeason14PirateDamageReward(
+            CombatContext context,
+            CombatSideState attackers,
+            MinionInstance attacker,
+            MinionInstance defender,
+            bool dealtDamage)
+        {
+            if (context == null ||
+                attackers == null ||
+                attacker == null ||
+                !dealtDamage ||
+                !string.Equals(attacker.CardId, Season14TreasureParrotCardId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            attackers.Rewards.Add(new CombatReward
+            {
+                Type = CombatRewardType.Season14MinionDamageDealt,
+                Side = attackers.Side,
+                SourceCardId = attacker.CardId,
+                SourceInstanceId = attacker.InstanceId,
+                TargetInstanceId = defender?.InstanceId,
+                CardId = defender?.CardId,
+                Amount = Math.Max(0, attacker.Attack)
+            });
+            AddLog(
+                context.Log,
+                "CombatRewardQueued",
+                "Treasure Parrot dealt " + Math.Max(0, attacker.Attack) + " damage",
+                attacker.InstanceId,
+                defender?.InstanceId,
+                LogSeverity.Good);
         }
 
         private static void QueueFriendlyAttackReward(
@@ -9416,6 +10726,10 @@ namespace LearnHearthstone.Domain.Engine
             {
                 return;
             }
+            if (FishbaitRecruitAttackService.IsFishbait(target))
+            {
+                return;
+            }
 
             BuffMinion(
                 target,
@@ -9579,6 +10893,8 @@ namespace LearnHearthstone.Domain.Engine
                     Position = index,
                     InstanceId = minion.InstanceId,
                     CardId = minion.CardId,
+                    CardKind = minion.CardKind,
+                    ImagePath = minion.ImagePath,
                     Name = minion.Name,
                     Attack = minion.Attack,
                     Health = minion.Health,
@@ -9618,6 +10934,7 @@ namespace LearnHearthstone.Domain.Engine
                     Side = reward.Side,
                     SourceCardId = reward.SourceCardId,
                     SourceInstanceId = reward.SourceInstanceId,
+                    RallyOccurrenceId = reward.RallyOccurrenceId,
                     TargetInstanceId = reward.TargetInstanceId,
                     CardId = reward.CardId,
                     Amount = reward.Amount,
@@ -9712,12 +11029,41 @@ namespace LearnHearthstone.Domain.Engine
 
             if (next.Keywords.Contains(Keyword.DivineShield))
             {
+                const string extraShieldHitsCounter = "dark-gift.dg-r19-extra-shield-hits";
+                if (next.Tags != null && next.Tags.Contains("dark-gift.dg-r19"))
+                {
+                    next.Counters = next.Counters ?? new Dictionary<string, int>();
+                    if (!next.Counters.TryGetValue(extraShieldHitsCounter, out var hitsLeft))
+                    {
+                        hitsLeft = 2;
+                    }
+                    if (hitsLeft > 0)
+                    {
+                        next.Counters[extraShieldHitsCounter] = hitsLeft - 1;
+                        return new DamageResult(next, false);
+                    }
+
+                    next.Counters.Remove(extraShieldHitsCounter);
+                }
+
                 next.Keywords.Remove(Keyword.DivineShield);
                 return new DamageResult(next, false, true);
             }
 
+            next.Counters?.Remove("dark-gift.dg-r19-extra-shield-hits");
+
             next.Health = poison ? 0 : StatMath.DamageHealth(next.Health, amount);
             return new DamageResult(next, true, false);
+        }
+
+        private static bool IsImmuneWhileAttacking(CombatSideState attackers, MinionInstance attacker)
+        {
+            return attacker != null &&
+                (SideHasTag(attackers, EclipsionFirstAttackImmunePendingTag) ||
+                 string.Equals(attacker.CardId, KerriganViperCardId, StringComparison.Ordinal) ||
+                 string.Equals(attacker.CardId, TimewarpedViperCardId, StringComparison.Ordinal) ||
+                 string.Equals(attacker.CardId, ReturnedWarpwingCardId, StringComparison.Ordinal) ||
+                 attacker.Tags != null && attacker.Tags.Contains("dark-gift.dg-r43"));
         }
 
         private static bool SideHasTag(CombatSideState side, string tag)
@@ -9765,7 +11111,8 @@ namespace LearnHearthstone.Domain.Engine
                 DarkmoonPrizeCatalog darkmoonPrizeCatalog = null,
                 IEnumerable<Tribe> activeTribes = null,
                 int round = 0,
-                Func<string, BoardSide, string, MinionInstance> taughtSpellFactory = null)
+                Func<string, BoardSide, string, MinionInstance> taughtSpellFactory = null,
+                string venomousEffectRevision = VenomousEffectRevisions.LegacySingleUse)
             {
                 Player = new CombatSideState(BoardSide.Player, player, playerTavern, playerHand, playerCombatSummonPool, isRecruitPhase);
                 Opponent = new CombatSideState(BoardSide.Opponent, opponent, opponentTavern, opponentHand, opponentCombatSummonPool, isRecruitPhase);
@@ -9778,6 +11125,9 @@ namespace LearnHearthstone.Domain.Engine
                 DarkmoonPrizeCatalog = darkmoonPrizeCatalog;
                 ActiveTribes = (activeTribes ?? Enumerable.Empty<Tribe>()).ToList();
                 Round = round;
+                VenomousEffectRevision = string.IsNullOrWhiteSpace(venomousEffectRevision)
+                    ? VenomousEffectRevisions.LegacySingleUse
+                    : venomousEffectRevision;
                 TaughtSpellFactory = taughtSpellFactory;
                 Replay = new CombatReplay { Seed = seed };
             }
@@ -9793,6 +11143,7 @@ namespace LearnHearthstone.Domain.Engine
             public DarkmoonPrizeCatalog DarkmoonPrizeCatalog { get; }
             public List<Tribe> ActiveTribes { get; }
             public int Round { get; }
+            public string VenomousEffectRevision { get; }
             public Func<string, BoardSide, string, MinionInstance> TaughtSpellFactory { get; }
             public int AttackSequence { get; set; }
             public int CombatSpellSequence { get; set; }
