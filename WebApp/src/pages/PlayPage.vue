@@ -174,10 +174,6 @@ onBeforeUnmount(() => {
             <dd>{{ currentVersion.label }}</dd>
           </div>
           <div>
-            <dt>内容快照</dt>
-            <dd>{{ currentVersion.contentSnapshotId }}</dd>
-          </div>
-          <div>
             <dt>资源规模</dt>
             <dd>{{ unityRelease.sourceDataLabel }}</dd>
           </div>
@@ -199,10 +195,6 @@ onBeforeUnmount(() => {
           decoding="async"
           alt="Learn Heartstone 大厅界面预览"
         />
-        <div>
-          <strong>门外只加载轻量页面</strong>
-          <p>选择进入前，不会请求 Unity loader、WASM 或数据分块。</p>
-        </div>
       </aside>
     </section>
 

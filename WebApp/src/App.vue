@@ -77,10 +77,6 @@ watch(
         <strong>Learn Heartstone</strong>
         <p>规则训练与版本差异验证工具，不代表暴雪或旅法师营地。</p>
       </div>
-      <div class="footer-meta">
-        <span>36.2 Preview</span>
-        <span>Cloudflare · Unity</span>
-      </div>
     </div>
   </footer>
 </template>

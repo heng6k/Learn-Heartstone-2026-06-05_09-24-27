@@ -33,6 +33,15 @@ import { currentVersion, windowsRelease } from '../data/site-content.js'
           下载 Windows 版
         </a>
         <p id="download-help" class="helper-text">压缩包约 180 MB，下载后解压即可运行。</p>
+
+        <div class="download-steps" aria-labelledby="download-steps-title">
+          <h3 id="download-steps-title">下载后怎么打开</h3>
+          <ol>
+            <li>在下载文件夹找到 ZIP 压缩包，右键选择“全部解压”。</li>
+            <li>打开解压后的文件夹，双击 <strong>Learn Heartstone.exe</strong>。</li>
+            <li>保留文件夹里的全部文件，不要只移动或复制 EXE。</li>
+          </ol>
+        </div>
       </div>
     </section>
 

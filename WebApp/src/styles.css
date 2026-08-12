@@ -303,8 +303,7 @@ a:focus-visible,
 .news-heading,
 .unity-toolbar,
 .toolbar-actions,
-.footer-inner,
-.footer-meta {
+.footer-inner {
   display: flex;
   align-items: center;
 }
@@ -1124,7 +1123,7 @@ a:focus-visible,
 
 .preflight-facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 26px;
   border-top: 1px solid var(--color-border);
   border-left: 1px solid var(--color-border);
@@ -1162,15 +1161,6 @@ a:focus-visible,
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-bottom: 1px solid var(--color-border);
-}
-
-.preflight-aside > div {
-  padding: 22px;
-}
-
-.preflight-aside p {
-  margin-top: 7px;
-  font-size: 0.94rem;
 }
 
 .inline-error {
@@ -1356,6 +1346,32 @@ a:focus-visible,
   margin-top: 24px;
 }
 
+.download-steps {
+  max-width: 720px;
+  margin-top: 26px;
+  padding: 20px 22px;
+  background: rgba(8, 13, 22, 0.5);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.download-steps h3 {
+  color: var(--color-warm);
+  font-size: 1rem;
+}
+
+.download-steps ol {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 1.35rem;
+  color: var(--color-muted-text);
+}
+
+.download-steps strong {
+  color: var(--color-text);
+}
+
 .not-found {
   display: grid;
   place-content: center;
@@ -1382,8 +1398,6 @@ a:focus-visible,
 }
 
 .footer-inner {
-  justify-content: space-between;
-  gap: 32px;
   min-height: 150px;
   padding-block: 32px;
 }
@@ -1395,19 +1409,6 @@ a:focus-visible,
 .footer-inner p {
   margin-top: 5px;
   font-size: 0.76rem;
-}
-
-.footer-meta {
-  gap: 10px;
-  color: var(--color-muted-text);
-  font-family: var(--font-data);
-  font-size: 0.7rem;
-}
-
-.footer-meta span + span::before {
-  content: "·";
-  margin-right: 10px;
-  color: #475569;
 }
 
 .reveal {
@@ -1692,9 +1693,6 @@ a:focus-visible,
     padding: 26px;
   }
 
-  .footer-meta {
-    flex-wrap: wrap;
-  }
 }
 
 @media (max-width: 420px) {
@@ -1735,9 +1733,6 @@ a:focus-visible,
     grid-column: 1;
   }
 
-  .footer-meta span + span::before {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

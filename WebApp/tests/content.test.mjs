@@ -14,6 +14,7 @@ import {
 } from '../src/data/site-content.js'
 
 const testRoot = path.dirname(fileURLToPath(import.meta.url))
+const appSource = await readFile(path.resolve(testRoot, '../src/App.vue'), 'utf8')
 const routerSource = await readFile(path.resolve(testRoot, '../src/router.js'), 'utf8')
 const guidesPageSource = await readFile(path.resolve(testRoot, '../src/pages/GuidesPage.vue'), 'utf8')
 const downloadPageSource = await readFile(path.resolve(testRoot, '../src/pages/DownloadPage.vue'), 'utf8')
@@ -93,6 +94,14 @@ test('the player download page hides release engineering details', () => {
   ]) {
     assert.doesNotMatch(downloadPageSource, new RegExp(technicalDetail))
   }
+  assert.match(downloadPageSource, /全部解压/)
+  assert.match(downloadPageSource, /Learn Heartstone\.exe/)
+  assert.match(downloadPageSource, /不要只移动或复制 EXE/)
+})
+
+test('player-facing play gate and footer omit release engineering metadata', () => {
+  assert.doesNotMatch(playPageSource, /内容快照|contentSnapshotId|门外只加载轻量页面|Unity loader/)
+  assert.doesNotMatch(appSource, /36\.2 Preview|Cloudflare · Unity|footer-meta/)
 })
 
 test('play gate defers Unity and offers browser and mobile fullscreen paths', () => {
