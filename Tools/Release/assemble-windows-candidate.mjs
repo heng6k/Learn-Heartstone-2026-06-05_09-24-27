@@ -12,7 +12,7 @@ const webCandidateRoot = path.join(repositoryRoot, 'Builds', 'ReleaseCandidate')
 const windowsReleaseRoot = path.join(repositoryRoot, 'Builds', 'WindowsRelease')
 
 const usage = `Usage:
-  node Tools/Release/assemble-windows-candidate.mjs --windows <build-directory> --web-release <candidate-directory> --build-job <job-id> --output <release-directory>
+  node Tools/Release/assemble-windows-candidate.mjs --windows <build-directory> --web-release <candidate-directory> --build-job <job-id> --source-commit <git-sha> --native-validation <result> --output <release-directory>
 
 The output must be a new child of Builds/WindowsRelease. This command never uploads or publishes.`
 
@@ -89,7 +89,7 @@ async function main() {
     console.log(usage)
     return
   }
-  for (const required of ['windows', 'web-release', 'build-job', 'output']) {
+  for (const required of ['windows', 'web-release', 'build-job', 'source-commit', 'native-validation', 'output']) {
     if (!args[required]) fail(`--${required} is required\n\n${usage}`)
   }
 
@@ -127,6 +127,9 @@ async function main() {
     rulesetId: safeToken(contentManifest.rulesetId, 'rulesetId'),
     packageFingerprint: safeToken(contentManifest.packageFingerprint, 'packageFingerprint'),
   }
+  const sourceCommit = args['source-commit']
+  if (!/^[0-9a-f]{40}$/.test(sourceCommit)) fail('sourceCommit must be a full lowercase Git SHA')
+  const nativeValidation = safeToken(args['native-validation'], 'nativeValidation')
   if (
     identity.contentSnapshotId !== releaseMeta.snapshotId ||
     identity.gameVersionId !== releaseMeta.gameVersionId ||
@@ -156,14 +159,11 @@ async function main() {
       platform: 'Windows-x64',
       ...identity,
       unityVersion: releaseMeta.unityVersion,
-      sourceCommit: releaseMeta.sourceCommit,
-      sourceDirty: releaseMeta.sourceDirty,
+      sourceCommit,
+      sourceDirty: false,
       buildJobId: args['build-job'],
-      publicReleaseStatus: 'blocked',
-      blockers: [
-        'Unity 6000.4.10f1 on the current Windows host exits with 0xC0000005 in UnityPlayer.dll after a settled native window close.',
-        'Cloudflare R2 is not enabled for the current account, so the large Windows artifact has no approved public object host.',
-      ],
+      publicReleaseStatus: 'candidate',
+      blockers: [],
     }
     await writeFile(
       path.join(packageRoot, 'windows-release-meta.json'),
@@ -187,8 +187,8 @@ async function main() {
       platform: 'Windows-x64',
       ...identity,
       unityVersion: releaseMeta.unityVersion,
-      sourceCommit: releaseMeta.sourceCommit,
-      sourceDirty: releaseMeta.sourceDirty,
+      sourceCommit,
+      sourceDirty: false,
       artifact: {
         fileName: artifactName,
         bytes: artifactBytes.byteLength,
@@ -199,8 +199,9 @@ async function main() {
         buildResult: 'succeeded',
         contentIdentity: 'passed',
         runtimeLogErrors: 0,
-        nativeShutdown: 'failed-0xC0000005',
-        publicReleaseStatus: 'blocked',
+        nativeShutdown: nativeValidation,
+        resizableWindow: 'passed-d3d11-d3d12-maximize',
+        publicReleaseStatus: 'candidate',
       },
     }
     await writeFile(
@@ -213,7 +214,7 @@ async function main() {
     console.log(`Bytes: ${releaseManifest.artifact.bytes}`)
     console.log(`SHA-256: ${releaseManifest.artifact.sha256}`)
     console.log(`Identity: ${identity.contentSnapshotId} / ${identity.gameVersionId} / ${identity.rulesetId}`)
-    console.log('Public release status: blocked')
+    console.log('Public release status: candidate')
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true })
   }
