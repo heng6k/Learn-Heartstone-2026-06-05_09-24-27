@@ -87,7 +87,9 @@ namespace LearnHearthstone.Tests.EditMode
             StringAssert.Contains("window.visualViewport.addEventListener(\"resize\", resizeUnityCanvas)", template);
             StringAssert.Contains("resolveChunkedDataUrl(config.dataUrl", template);
             StringAssert.Contains("data.br.chunks.json", template);
-            StringAssert.Contains("var workerCount = Math.min(12, manifest.chunks.length)", template);
+            StringAssert.Contains("var workerCount = Math.min(6, manifest.chunks.length)", template);
+            StringAssert.Contains("var maxChunkRetries = 3", template);
+            StringAssert.Contains("750 * Math.pow(2, attempt)", template);
             StringAssert.Contains("await Promise.all(chunkWorkers)", template);
             StringAssert.Contains("chunkBuffers[index] = chunkBuffer", template);
             StringAssert.Contains("new Blob(chunkBuffers", template);

@@ -165,16 +165,27 @@
         var chunkBuffers = new Array(manifest.chunks.length);
         var loadedBytes = 0;
         var nextChunkIndex = 0;
+        var maxChunkRetries = 3;
+        async function fetchChunk(chunk) {
+          for (var attempt = 0; attempt <= maxChunkRetries; attempt += 1) {
+            try {
+              var response = await fetch(new URL(chunk.file, manifestResponse.url), { cache: "force-cache" });
+              if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+              }
+              return await response.arrayBuffer();
+            } catch (error) {
+              if (attempt === maxChunkRetries) throw error;
+              await new Promise((resolve) => setTimeout(resolve, 750 * Math.pow(2, attempt)));
+            }
+          }
+        }
         async function loadNextChunk() {
           while (nextChunkIndex < manifest.chunks.length) {
             var index = nextChunkIndex;
             nextChunkIndex += 1;
             var chunk = manifest.chunks[index];
-            var chunkResponse = await fetch(new URL(chunk.file, manifestResponse.url), { cache: "force-cache" });
-            if (!chunkResponse.ok) {
-              throw new Error("Data chunk request failed: " + chunk.file + " (" + chunkResponse.status + ")");
-            }
-            var chunkBuffer = await chunkResponse.arrayBuffer();
+            var chunkBuffer = await fetchChunk(chunk);
             if (chunkBuffer.byteLength !== chunk.uncompressedBytes) {
               throw new Error("Data chunk size mismatch: " + chunk.file);
             }
@@ -185,7 +196,7 @@
         }
 
         var chunkWorkers = [];
-        var workerCount = Math.min(12, manifest.chunks.length);
+        var workerCount = Math.min(6, manifest.chunks.length);
         for (var workerIndex = 0; workerIndex < workerCount; workerIndex += 1) {
           chunkWorkers.push(loadNextChunk());
         }
