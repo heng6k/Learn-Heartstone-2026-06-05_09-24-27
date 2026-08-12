@@ -185,7 +185,7 @@
         }
 
         var chunkWorkers = [];
-        var workerCount = Math.min(8, manifest.chunks.length);
+        var workerCount = Math.min(12, manifest.chunks.length);
         for (var workerIndex = 0; workerIndex < workerCount; workerIndex += 1) {
           chunkWorkers.push(loadNextChunk());
         }
