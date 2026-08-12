@@ -22,6 +22,11 @@
 /Builds/ReleaseReceipts/
 # Retired local WebGL deployment mirror. ReleaseCandidate is the deploy input.
 /WebDeploy/
+/WebApp/node_modules/
+/WebApp/dist/
+/WebApp/.wrangler/
+/.wrangler/
+/Tools/WindowsExitGuard/build/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log

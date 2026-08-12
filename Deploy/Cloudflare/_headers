@@ -1,0 +1,52 @@
+/*
+  Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'self'
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/TemplateData/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/release-meta.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/content/content-manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/content/:asset.v:version.json
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.loader.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.wasm.br
+  Content-Type: application/wasm
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.framework.js.br
+  Content-Type: application/javascript
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.data.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.data.br.chunks.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/Build/*.data-chunk.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
