@@ -24,7 +24,7 @@
 
 ### 想了解当前产品怎么上线
 
-1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：以后统一拆分“手机版轻量网页、完整 Unity 网页版、网页下载包”；微信渠道仅在纳入范围时追加。
+1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：现行上传总入口；统一拆分“手机版轻量网页、完整 Unity 网页版、网页下载包”，并固定 Git 先行、干净候选、Cloudflare Preview/Production、ZIP 与证据提交顺序。
 2. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)
 3. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)
 4. [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md)
@@ -39,7 +39,7 @@
 
 1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：先确定本轮交付面，再按共享内容、手机版网页、完整网页版、打包配置和发布记录分块提交。
 2. [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md)：已上线的手机版/完整 Unity 网页、手机与电脑全屏、最终 Git/Cloudflare 身份、下载包哈希与回滚证据；旧 dirty 和中间候选不得复用。
-3. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 Unity ReleaseCandidate、Cloudflare Preview、Production 晋升和正式域名复验。
+3. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 Unity ReleaseCandidate、Cloudflare Pages Preview、同一冻结 `dist` 的 Production 部署和正式域名复验。
 4. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：判断变更类型、版本号、测试门禁与回滚级别。
 
 ### 想处理线上补丁或规划下一阶段
@@ -48,7 +48,7 @@
 2. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：再判断是内容、Web、Unity 客户端、重大功能还是线上事故，并确定版本、门禁和回滚方式。
 3. [Season14ProductizationImplementationPlan.zh-CN.md](Season14ProductizationImplementationPlan.zh-CN.md)：按玩法硬缺口、Vue3/Windows、R2 一图流、移动分发四阶段实施当前 36.2 产品化路线。
 4. [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md)：查看新规则、新手一图流、纯残局、肉鸽爬塔和在线 1v1 的依赖顺序。
-5. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 ReleaseCandidate、Preview、Promote 和 Production 复验。
+5. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 ReleaseCandidate、本地 Pages 门禁、Preview、Production 和正式域名复验。
 6. [ProjectReliabilityArchitectureCompletion.zh-CN.md](ProjectReliabilityArchitectureCompletion.zh-CN.md)：核对内容回退、生成物边界和新规则接入位置。
 7. [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)：进入分享后端或在线 1v1 前核对服务端边界。
 
@@ -113,12 +113,12 @@
 | 视频制作/审计 | [HyperframesAuditedVideoProductionSOP.zh-CN.md](HyperframesAuditedVideoProductionSOP.zh-CN.md) | 宣传视频从策划、录制、脚本、分镜、声音和素材冻结，到 HyperFrames 制作、G0–G12 审计、渲染及归档的完整流程 | 后续视频生成与质量审计的默认执行规范 |
 | 当前计划 | [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md) | 新规则、新手一图流、纯残局、肉鸽爬塔和在线 1v1 的阶段依赖与退出条件 | 当前上线后产品主路线 |
 | 当前计划 | [Season14ProductizationImplementationPlan.zh-CN.md](Season14ProductizationImplementationPlan.zh-CN.md) | 36.2 玩法收口、Vue3/Windows、R2 一图流和移动分发的工作包、规则契约与验收门 | 当前四阶段实施基线 |
-| 发行上线 | [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) | 手机版轻量网页、完整 Unity 网页版、下载包与可选微信渠道的分块提交、验收矩阵、发布模板和回滚规则 | 后续网页提交与发布记录的统一入口 |
+| 发行上线 | [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) | 手机版轻量网页、完整 Unity 网页版、下载包与可选微信渠道的分块提交；Git 先行、Cloudflare Preview/Production、发布模板和回滚规则 | 后续所有网页上传的唯一总入口 |
 | 发行记录 | [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md) | 手机版/完整 Unity 网页、全屏入口、干净 WebGL 候选、Cloudflare Preview/Production、下载包与回滚证据 | 2026-08-12 已上线版本的最终发布证据 |
-| 发行上线 | [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md) | 补丁分类、版本、测试门禁、不停服升级、Preview/Promote 与事故回滚 | 所有线上变更的决策规范 |
+| 发行上线 | [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md) | 补丁分类、版本、测试门禁、不停服升级、Cloudflare Preview/Production 与事故回滚 | 所有线上变更的决策规范 |
 | 发行上线 | [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md) | Alpha 到 1.0 的早期版本节奏、渠道、发包检查和运营动作 | 早期渠道与产品假设历史参考 |
-| 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、ReleaseCandidate 组装、Vercel CLI Preview/Promote 与域名验收流程 | 网页版日常构建与发布手册 |
-| 发行上线 | [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md) | WebGL 构建、托管、浏览器验收、玩法回归和回滚门槛 | 网页版发布审计与准入规范 |
+| 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、ReleaseCandidate 组装、Cloudflare Pages 本地验收、Preview/Production 与 `jsoncool.com` 复验 | 网页版日常构建与发布手册 |
+| 历史审计 | [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md) | 2026-07-16 平台未定阶段的 WebGL 构建、托管和浏览器准入审计 | 仅作历史依据；当前上传使用三渠道规范与 Cloudflare Pages 指南 |
 | 发行上线 | [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md) | 官网、API、分享码、教程/题库和一般后端路线 | 分享与一般后端基础；实时权威 1v1 待 R5 前扩展 |
 | 发行上线 | [../MiniProgram/README.md](../MiniProgram/README.md) | 原生微信小程序 MVP、本地运行、共享场景契约、API 适配和明确边界 | Phase 12 可运行交接入口 |
 | 英雄/宝宝 | [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md) | 当前英雄、宝宝、公共系统缺陷和解决方向 | 最重要的缺陷追踪表 |
@@ -160,7 +160,7 @@
 - [Season14ProductizationImplementationPlan.zh-CN.md](Season14ProductizationImplementationPlan.zh-CN.md)：当前下一步编码顺序、玩法硬缺口、Cloudflare 产品壳与一图流场景底座的统一实施入口。
 - [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md)：决定社交发布后先更新规则，再依次推进新手、残局、肉鸽和联机。
 - [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：决定每个 Bug、内容更新或大版本如何分类、测试、上线和回滚。
-- [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：当前 Production、日常 Preview/Promote、域名、安全头与回滚的执行手册。
+- [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：当前 Production、日常 Cloudflare Preview/Production、域名、安全头、慢网诊断与回滚的执行手册。
 - [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)：决定什么时候加服务器、分享码、小程序和后端能力。
 - [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)：继续补机制或对外说明缺陷时必须看。
 

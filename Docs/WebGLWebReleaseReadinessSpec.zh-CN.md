@@ -2,11 +2,13 @@
 
 ## 文档状态
 
-- 状态：WebGL 发布前审计完成，构建与浏览器验收待执行。
+- 状态：历史发布前审计；其中“平台未定、构建待执行”的结论已于 2026-08-12 关闭，不再作为当前上传操作规范。
 - 日期：2026-07-16。
 - 受众：项目负责人、Unity 工程、网页托管和测试人员。
 - 目标：明确当前项目从 Unity 运行时代码到浏览器可访问作品之间还缺少什么，并建立可重复的 WebGL 发布门禁。
 - 关联代码提交：`614fdd3 feat: complete recruit deathrattle and reborn pipeline`。
+
+> 当前上传必须先阅读 [三渠道统一上传要求](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) 和 [Cloudflare Pages WebGL 发布指南](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)。现行平台为 Cloudflare Pages 项目 `learn-heartstone`，正式域名为 [https://jsoncool.com](https://jsoncool.com)；本文件保留 2026-07-16 当时的审计上下文，不得用其中“托管未确定”“压缩关闭”“浏览器验收未执行”等历史状态覆盖 2026-08-12 已上线基准。
 
 ## 结论摘要
 

@@ -1,94 +1,116 @@
-# Unity WebGL ReleaseCandidate 与 Vercel 发布指南
+# Unity WebGL ReleaseCandidate 与 Cloudflare Pages 发布指南
+
+> 状态：当前执行规范
+>
+> 基准日期：2026-08-12
+>
+> 发布平台：Cloudflare Pages 直传
 
 ## 1. 文档目的
 
-本文说明如何把 Unity、Prefab、浏览器外壳或内容真源的修改，构建为可审计的 WebGL ReleaseCandidate，并按 Preview → smoke → Promote 的顺序发布到 Vercel。
+本文说明如何把 Unity、Prefab、浏览器外壳或内容真源的修改，构建为可审计的 WebGL ReleaseCandidate，并按“干净 Git 源 → 本地 Pages 验收 → Cloudflare Preview → Production → 正式域名复验”的顺序发布。
 
-固定发布链如下：
+后续发布以本文和 [三渠道统一上传要求](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) 为准。2026-08-12 的 [已上线发布记录](Releases/2026-08-12-web-release.md) 是第一份完整样例；其中的 SHA、deployment ID、候选目录和 ZIP 哈希只能作为历史证据，不能复用为下一版本身份。
 
 ```mermaid
 flowchart LR
-    A["修改源码真源"] --> B["Unity 测试与编译门禁"]
-    B --> C["构建 Builds/WebGL"]
+    A["分块提交并 push"] --> B["从最终 SHA 创建干净工作树"]
+    B --> C["Unity 测试与完整 WebGL 构建"]
     C --> D["组装 ReleaseCandidate"]
-    D --> E["本地 HTTP 验收"]
-    E --> F["Vercel Preview"]
-    F --> G["线上 smoke"]
-    G --> H["Promote 同一 Deployment"]
-    H --> I["Production smoke"]
-    I --> J["自定义域名验收"]
+    D --> E["构建唯一 WebApp/dist"]
+    E --> F["wrangler pages dev 本地验收"]
+    F --> G["Cloudflare Preview"]
+    G --> H["记录旧 Production 回滚点"]
+    H --> I["同一 dist 部署 main"]
+    I --> J["jsoncool.com Production 复验"]
+    J --> K["同候选 ZIP 与发布记录"]
 ```
 
-禁止把 Unity 工程、`WebDeploy/` 或重新组装的另一份候选直接作为 Production 输入。
+## 2. 当前平台边界
 
-## 2. 当前发布边界
+| 项目 | 当前值 |
+| --- | --- |
+| Cloudflare Pages 项目 | `learn-heartstone` |
+| Production 分支 | `main` |
+| Pages 默认域名 | `learn-heartstone.pages.dev` |
+| 正式域名 | [https://jsoncool.com](https://jsoncool.com) |
+| 发布方式 | `wrangler pages deploy` 直传 |
+| Git 集成 | 不作为发布触发器；push 不等于部署 |
+| 网站发布输入 | 附加候选后的 `WebApp/dist` |
+| 完整 Unity 路径 | `/unity/`，只在用户确认后加载 |
 
-当前 Vercel 配置：
+Cloudflare 直传的 Preview 和 Production 是两个 deployment。它们必须使用同一最终源 SHA 和同一个冻结 `dist`，但 deployment ID 不会相同。旧文档中的 Vercel Preview/Promote、Vercel DNS 和 `vercel.json` 已退出当前主链。
 
-- Team：`heng6ks-projects`
-- Project：`hengheng`
-- Project ID：`prj_Zp39f5gUOYF0DMWsyllfu7bEdRov`
-- Framework Preset：`Other`
-- Root Directory：项目根，即 `null`
-- Git Integration：已断开；源码 push 不会自动部署
-- 稳定 Production：<https://hengheng-one.vercel.app/>
-- 自定义域名：<https://jsoncool.com/>，公共 DNS、HTTPS 与完整 Production smoke 已通过
-- 当前 Production deployment：`dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`
-- 来源 Preview deployment：`dpl_Ps3FHzViFirA15L87jELqP82pbJR`
-- 当前远程内容版本：`20260727`
+## 3. 真源、生成物与响应头职责
 
-`WebDeploy/` 已退出发布主链。它只允许作为本机短期保留的旧生成物镜像，已被 Git ignore，不再同步、不再提交，也不再作为 Vercel Root Directory。
+提交到 Git 的真源包括：
 
-## 3. 真源与生成物
+- Unity：`Assets/LearnHearthstone/`、`ProjectSettings/` 和受影响测试；
+- Unity WebGL 模板：`Assets/WebGLTemplates/LearnHeartstone/`；
+- 候选组装：`Tools/Release/assemble-release-candidate.mjs`、`Tools/Release/webgl-data-chunks.mjs`；
+- 独立候选/下载包响应头：`Deploy/Cloudflare/_headers`；
+- 产品站响应头：`WebApp/public/_headers`；
+- Brotli 透传：`WebApp/functions/unity/Build/_middleware.js`；
+- 产品站与 Unity 附加逻辑：`WebApp/src/`、`WebApp/scripts/attach-unity.mjs`、`WebApp/wrangler.toml`。
 
-| 类型 | 路径 | 责任 |
-| --- | --- | --- |
-| Unity/C#、场景、Prefab、测试 | `Assets/LearnHearthstone/` | 游戏与 UI 源码真源 |
-| 浏览器外壳 | `Assets/WebGLTemplates/LearnHeartstone/` | HTML、Canvas 容器、响应式样式真源 |
-| Vercel 配置 | `Deploy/Vercel/vercel.json` | MIME、Brotli、缓存和 SPA rewrite 唯一真源 |
-| 发布工具 | `Tools/Release/` | 组装并校验 ReleaseCandidate |
-| 内容真源 | `Assets/LearnHearthstone/Resources/Data/` | 唯一人工编辑内容真源与内置回退 |
-| Unity WebGL 输出 | `Builds/WebGL/<版本>/` | 生成物，不进源码 Git |
-| 发布候选包 | `Builds/ReleaseCandidate/<版本>/` | Preview 与 Production 的唯一部署输入，不进源码 Git |
-| 旧部署镜像 | `WebDeploy/` | 已退役生成物，本地可暂留但不跟踪 |
+生成物不得进入 Git：
 
-长期修改必须回到对应真源。不要直接修改 ReleaseCandidate 或 `WebDeploy` 来代替源码修复。
+- `Builds/WebGL/**`；
+- `Builds/ReleaseCandidate/**`；
+- `Builds/DownloadPackage/**`；
+- `WebApp/dist/**`、`WebApp/.wrangler/**`；
+- `Library/**`、`Temp/**`、日志、Token、AppSecret 和平台缓存。
 
-## 4. 发布前门禁
+`Deploy/Cloudflare/_headers` 进入独立候选；候选附加到产品站时，`attach-unity.mjs` 会移除候选根部 `_headers`，最终 `dist` 使用 `WebApp/public/_headers` 的 `/unity/**` 规则。预压缩 Build 文件的 `Content-Encoding: br` 由 Pages Function 手动透传，静态 `_headers` 不重复声明该字段。
 
-以下命令默认从项目根目录执行：
+## 4. 发布前 Git 门禁
+
+正式构建必须从已经 push 的提交产生，而不是从带有其他未提交工作的主工作区产生。
 
 ```powershell
-Set-Location 'D:\unity project\Learn Heartstone'
-git status --short --branch
-git branch --show-current
+git status --short
 git diff --check
+git add -- <本提交块明确文件列表>
+git diff --cached --check
+git diff --cached --stat
+git commit -m "<本提交块主题>"
+git push origin <source-branch>
+
+$sourceCommit = git rev-parse HEAD
+$remoteCommit = git rev-parse "origin/<source-branch>"
+if ($sourceCommit -ne $remoteCommit) {
+    throw "本地与远端源提交不一致，禁止构建正式候选。"
+}
 ```
 
-开始构建前确认：
+固定规则：
 
-- 当前改动范围清楚，没有覆盖其他未完成工作。
-- Unity 使用项目固定版本，脚本编译成功且 Console 没有未解释错误。
-- 相关 EditMode/PlayMode 测试已通过。
-- 内容版本没有复用为不同字节；修改内容真源时必须使用新的 `contentVersion`。
-- 当前项目若已有 Unity Editor，保持该实例并使用 Editor request；禁止启动第二实例。
+- 不使用 `git add .`；主工作区的无关修改属于用户，不能混入发布。
+- 产品源码可由多个分块提交组成；最终构建身份是完成所有本轮源码块后的 SHA。
+- 发布证据文档允许在 Production 之后形成单独的后续提交；它不改变已发布产物的 `sourceCommit`。
+- 普通 `git push` 因 TLS/连接重置失败时，不得假装已 push。只有已认证的 GitHub Git Database API 仍可达、能够保持准确 parent/tree，并能在完成后 fetch 校验远端提交和本地引用完全一致时，才允许作为故障回退；发布记录必须注明。否则停止发布。
 
-当前 Phase 6 权威门禁口径：
+建议从最终 SHA 创建独立工作树：
 
-- M2–M4 内容链精确测试：11 项。
-- 普通 EditMode：1516 个当前 Unity 实际发现的叶级 full name，排除 10 个 Stress 与唯一 Marathon。
-- Stress：10 项，明确排除 `ThirtyMinuteExtremeCombatAndRecruitSoak_MaintainsBounds`。
-- PlayMode：19 项真实输入旅程。
-- 大型 UI 分片若只出现 NUnit Timeout，先正常域重载并隔离精确失败项；不得用整片重跑、提高超时或修改业务逻辑掩盖域内累计退化。
+```powershell
+$releaseRoot = 'D:\unity project\Learn Heartstone\Builds\ReleaseWorktree'
+$releaseName = '<yyyyMMdd-shortSha>'
+$releaseWorktree = Join-Path $releaseRoot $releaseName
+git worktree add --detach $releaseWorktree $sourceCommit
+```
 
-## 5. 构建 WebGL
+候选组装前，工作树 `git status --porcelain=v1 --untracked-files=all` 必须为空。
+
+## 5. Unity 测试与 WebGL 构建
+
+先运行受影响的 EditMode/PlayMode 测试和编译门禁。C#、Prefab、场景、Unity UI、序列化资源或玩法内容变化时必须重新构建 WebGL；纯 Vue/CSS/Pages 配置变化可以复用已验 Unity 二进制，但必须在发布记录中写明复用的原始构建，并从最终 SHA 生成新候选和新 `dist`。
 
 ### 5.1 已有 Unity Editor 正在运行
 
-使用项目内 `WebGLReleaseBuild` request runner，让现有 Editor 执行构建：
+不要启动第二个 Editor。使用项目内 request runner：
 
 ```powershell
-$project = 'D:\unity project\Learn Heartstone'
+$project = '<干净发布工作树绝对路径>'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $output = Join-Path $project "Builds\WebGL\LearnHeartstone_$stamp"
 $request = Join-Path $project 'Temp\WebGLReleaseBuild.request'
@@ -99,16 +121,12 @@ if (Test-Path -LiteralPath $request) {
 }
 
 Remove-Item -LiteralPath $result -ErrorAction SilentlyContinue
-[System.IO.File]::WriteAllText(
-    $request,
-    $output,
-    [System.Text.UTF8Encoding]::new($false)
-)
+[System.IO.File]::WriteAllText($request, $output, [System.Text.UTF8Encoding]::new($false))
 
 $deadline = (Get-Date).AddMinutes(40)
 while (-not (Test-Path -LiteralPath $result)) {
     if ((Get-Date) -gt $deadline) {
-        throw "等待 WebGL 构建结果超时；检查 Unity Console 和 Editor.log，不要重复创建 request。"
+        throw "等待 WebGL 构建结果超时；检查 Unity Console 和 Editor.log。"
     }
     Start-Sleep -Seconds 2
 }
@@ -116,14 +134,14 @@ while (-not (Test-Path -LiteralPath $result)) {
 Get-Content -LiteralPath $result
 ```
 
-结果第一行必须为 `success`，第二行是最终输出绝对路径。失败时先读取异常和 Editor.log；不要重复启动同一构建。
+第一行必须是 `success`。失败时读取异常和 Editor.log，不重复提交同一 request。
 
 ### 5.2 没有 Unity Editor 正在运行
 
-只有确认项目没有其他 Editor 实例后，才使用批处理入口：
+确认没有其他 Editor 实例后，使用批处理入口：
 
 ```powershell
-$project = 'D:\unity project\Learn Heartstone'
+$project = '<干净发布工作树绝对路径>'
 $unity = 'D:\unity hub Editor\6000.4.10f1\Editor\Unity.exe'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $output = Join-Path $project "Builds\WebGL\LearnHeartstone_$stamp"
@@ -142,238 +160,236 @@ if ($LASTEXITCODE -ne 0) {
 }
 ```
 
-## 6. 组装 ReleaseCandidate
+`WebGLReleaseBuild` 必须保持完整构建：`EditorUserBuildSettings.buildScriptsOnly = false`、Brotli、无 decompression fallback。不要通过脚本增量构建掩盖未更新的 IL2CPP 内容。
+
+## 6. 组装并冻结 ReleaseCandidate
 
 ```powershell
-$contentVersion = '20260727' # 内容真源变化时改为新版本
+$contentVersion = '<本轮内容版本>'
 node Tools\Release\assemble-release-candidate.mjs `
     --webgl $output `
     --content-version $contentVersion
 ```
 
-脚本只允许输出到 `Builds/ReleaseCandidate/`，且不会联网或部署。把输出中的 `ReleaseCandidate:` 路径保存为 `$candidate`。
-
-候选包至少包含：
+把命令输出的 `ReleaseCandidate:` 路径保存为 `$candidate`。候选至少包含：
 
 ```text
 index.html
 Build/
 TemplateData/
-release-meta.json
-vercel.json
 content/
-  content-manifest.json
-  battlegroundsMinions.v<contentVersion>.json
+release-meta.json
+_headers
 ```
 
-复核：
+组装器会把 WebGL data 拆成不超过 Cloudflare Pages 单文件限制的 Brotli 分片，并校验分片哈希。复核：
 
 ```powershell
-Get-ChildItem -LiteralPath $candidate
-Get-ChildItem -LiteralPath (Join-Path $candidate 'Build')
 Get-Content -LiteralPath (Join-Path $candidate 'release-meta.json')
-Get-Content -LiteralPath (Join-Path $candidate 'vercel.json')
-Get-Content -LiteralPath (Join-Path $candidate 'content\content-manifest.json')
+Get-ChildItem -LiteralPath (Join-Path $candidate 'Build') `
+    -Filter '*.data.br.chunks.json' | Get-Content
 git check-ignore -v -- $candidate
 git ls-files -- $candidate
 ```
 
-最后一条命令必须没有输出。ReleaseCandidate 一旦完成本地验收就冻结；后续 Preview 和 Production 必须使用同一目录、同一 deployment，不得重新组装。
+放行条件：
 
-## 7. 本地 HTTP 验收
+- `sourceCommit` 等于已 push 的最终 SHA；
+- `sourceDirty` 为 `false`；
+- `buildId`、`contentVersion`、`packageFingerprint` 已记录；
+- `git ls-files -- $candidate` 没有输出；
+- 所有分片小于 25 MiB，清单与实际文件一一对应；
+- `_headers` 与 `Deploy/Cloudflare/_headers` 一致。
 
-Unity WebGL 不能通过双击 `index.html` 验收。使用支持 Brotli 响应头的本地服务器：
+候选通过本地验收后立即冻结。后续修复必须形成新提交、新候选和新 `dist`，不得原地替换字节。
 
-```powershell
-python Tools\WebGL\serve_webgl.py "$candidate" --port 8125
-```
-
-至少检查：
-
-- 主大厅能加载，中文和英文没有缺字、重影或截断。
-- 桌面、紧凑横屏、手机横屏和竖屏提示正常。
-- `Remote -> LKG -> Embedded Resources` 三条内容路径符合预期。
-- `content-manifest.json` 不长期缓存；版本化内容和 Build 资源为 immutable。
-- `.wasm.br`、`.framework.js.br`、`.data.br` 的 MIME 与 `Content-Encoding: br` 正确。
-- 任意深链返回 `index.html`，页面包含 Unity Canvas。
-- 浏览器 Console 没有未解释错误。
-- 根文档、manifest、版本内容、WASM 与深链均带有五个安全头：最小 CSP、Permissions Policy、Referrer Policy、`X-Content-Type-Options: nosniff`、`X-Frame-Options: SAMEORIGIN`。
-
-## 8. 部署 Vercel Preview
-
-使用已登录的 Vercel CLI，或通过进程环境变量提供凭据。禁止把 token 放入 `--token`、日志、文件或命令输出。
-
-先做无部署 dry-run，确认项目设置不会追加旧 `WebDeploy` 路径：
+## 7. 构建唯一产品站 `dist`
 
 ```powershell
-npx --yes vercel@58.0.0 "$candidate" `
-    --dry `
-    --project hengheng `
-    --scope heng6ks-projects
+Push-Location WebApp
+npm ci
+npm test
+npm run build:with-unity -- "$candidate"
+Pop-Location
 ```
 
-然后只创建 Preview：
+最终部署输入是 `WebApp/dist`，不是候选目录。构建后检查：
+
+- `dist/unity/release-meta.json` 与候选一致；
+- `/play` 确认前不创建 Unity iframe、不请求 `/unity/Build/**`；
+- `dist/_headers` 来自 `WebApp/public/_headers`；
+- `WebApp/functions/unity/Build/_middleware.js` 仍参与 Pages 本地和线上运行；
+- 构建后不再修改 `dist`。如果修改了源码、模板、响应头或 Function，重新执行本节并重跑所有后续门禁。
+
+## 8. 本地 Cloudflare Pages 验收
+
+Vite preview 不会完整模拟 Pages Functions。最终本地门禁必须使用：
 
 ```powershell
-npx --yes vercel@58.0.0 "$candidate" `
-    --archive=tgz `
-    --project hengheng `
-    --scope heng6ks-projects `
-    --yes
+Push-Location WebApp
+npx wrangler pages dev dist --port 4180
+Pop-Location
 ```
 
-记录 CLI 返回的 Preview URL 与 deployment ID，再检查：
+至少完成以下矩阵：
 
-```powershell
-npx --yes vercel@58.0.0 inspect <preview-url-or-deployment-id> `
-    --scope heng6ks-projects
-```
-
-Preview 必须为 Ready。若 Deployment Protection 开启，自动化验收只能使用项目现有 Automation Bypass，并且 secret 只允许留在单次父/子进程内存中；不要输出或写盘。
-
-## 9. Preview 线上 smoke
-
-Preview 至少通过以下矩阵：
-
-| 用例 | 期望 |
+| 范围 | 必查项 |
 | --- | --- |
-| Remote | 选择当前远程内容版本，manifest 和版本文件成功请求 |
-| LKG | 同一浏览器存储已有有效包，阻断 `content/**` 后选择 Last Known Good |
-| Embedded | 全新浏览器存储首次启动即阻断 `content/**`，选择内置 Resources |
-| Brotli/MIME | wasm/framework/data 响应头正确 |
-| 缓存 | manifest 可重新验证；版本内容和 Build 长期 immutable |
-| SPA | `/preview/deep-link` 返回 200/index 且包含 Unity Canvas |
-| 安全头 | HTML、JSON、WASM 与 rewrite 响应均包含五个安全头，且不破坏 Unity WebAssembly/Worker |
-| 浏览器 | 无加载超时、page error、严重 Console 或非预期请求失败 |
+| 手机版轻量页 | 390×844 和 430×932；`/`、`/guides`、攻略深链；0 横向溢出；0 Unity 请求 |
+| 桌面网页 | 1280×720 和 1600×900；入口层级、产品壳、网页全屏进入/退出 |
+| 手机试玩入口 | 文案清晰；沉浸式/PWA 引导可见；不支持原生全屏时有明确回退 |
+| 完整 Unity | `/play` 确认后 loader、WASM、framework 和全部 data 分片成功；0 page error、0 request failure |
+| 一图流 | 查看、创建、阵容码导入、档位试玩和 1600×900 PNG 浏览器下载 |
+| 响应头 | Brotli 文件 MIME、`Content-Encoding: br`、immutable/no-transform；HTML/manifest 可重新验证 |
+| 路由 | 首页和直接打开的深链均为 200，不返回错误页面 |
+| 版本身份 | `release-meta.json` 的 SHA、dirty 状态、buildId 和 fingerprint 与候选一致 |
 
-任一项失败时拒绝该 Preview。修真源、提交配置检查点、重新组装并部署新 Preview；不要原地修改已冻结候选。
+2026-08-12 的本地 Pages 完整 Unity 启动基线为 6.8 秒。加载器当时使用 12 个数据分片、6 路并发、每片最多 3 次重试和退避；这些是已验现状，不是可以跳过性能验证的永久常量。
 
-## 10. 晋升 Production
+## 9. 部署 Cloudflare Preview
 
-只有 Preview 全部通过后，才晋升同一个 deployment：
-
-```powershell
-npx --yes vercel@58.0.0 promote <preview-deployment-id-or-url> `
-    --scope heng6ks-projects `
-    --yes
-```
-
-不要从另一个目录执行 `deploy --prod`，也不要为 Production 重新构建或重新组装。
-
-晋升后在 <https://hengheng-one.vercel.app/> 重跑第 9 节完整 smoke，并核对关键资源 ETag/长度与 Preview 一致。
-
-2026-07-29 已验证基线：Preview `dpl_Ps3FHzViFirA15L87jELqP82pbJR` 完成 Remote/LKG/Embedded、Brotli/MIME、缓存、SPA 与安全头 smoke；随后 Promote 为 Production `dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`。两个正式域名的关键资源 ETag 一致，没有重新上传或重建漂移。
-
-## 11. `jsoncool.com` DNS 与验收
-
-Vercel 项目已经添加并验证 `jsoncool.com`。域名继续使用阿里云 nameserver，apex A 记录为：
-
-```text
-记录类型：A
-主机记录：@
-记录值：76.76.21.21
-```
-
-不要同时添加冲突的 apex A/AAAA/CNAME。保存后检查：
+先记录当前 Production，再部署 Preview：
 
 ```powershell
-Resolve-DnsName jsoncool.com -Type A
-npx --yes vercel@58.0.0 domains inspect jsoncool.com `
-    --scope heng6ks-projects
+Push-Location WebApp
+npx wrangler pages deployment list --project-name learn-heartstone
+
+npx wrangler pages deploy dist `
+    --project-name learn-heartstone `
+    --branch <preview-branch> `
+    --commit-hash <sourceCommit> `
+    --commit-message "<版本与 Preview 说明>"
+Pop-Location
 ```
 
-当前公共 DNS、Vercel 域名配置和 HTTPS 证书均已通过，<https://jsoncool.com/> 为正式入口。今后修改 DNS 后仍按上述命令复核，并重跑 Production smoke。
+记录 CLI 返回的 Preview URL 和 deployment ID。在线至少检查：
 
-也可以把 nameserver 改成 `ns1.vercel-dns.com` / `ns2.vercel-dns.com`，但这会把整个域名 DNS 托管迁移到 Vercel；除非明确决定迁移，否则优先使用上面的 A 记录。
+- 根页面、`/guides`、攻略深链、`/play`、`/download`、`/versions` 为 200；
+- 390×844 与 1440×900 无横向溢出；
+- `/play` 点击确认前 Unity 请求为 0；
+- 桌面全屏可进入和退出，手机回退文案清楚；
+- `unity/release-meta.json` 是本轮源身份；
+- manifest、loader、WASM、framework 和 data 分片响应头正确；
+- 浏览器无未解释的 Console/page error/request failure。
 
-## 12. Git 与发布分离
+Preview 失败时修真源并创建新提交、新候选和新 Preview。禁止在 Cloudflare 或本地 `dist` 中直接热改。
 
-源码 Git 只保存真源、测试和发布配置：
+## 10. 慢网与断连诊断
+
+必须区分三种时间：Wrangler 上传耗时、浏览器下载约 120 MB Unity 资源的耗时、特定机器到 Cloudflare 的网络故障。Cloudflare 增量上传可因文件复用只需数秒；这不代表用户完整冷启动也只需数秒。
+
+稳定链路上的完整 Unity 冷启动目标为 300s 内。出现超时或 `ERR_SSL_PROTOCOL_ERROR`、`ERR_CONNECTION_CLOSED` 时：
+
+1. 记录失败 URL、响应状态、传输字节、吞吐和浏览器错误；
+2. 检查是否存在 4xx/5xx、哈希不一致、加载器异常或稳定网络可复现；任一成立都阻断发布；
+3. 用同一 `dist` 的 `wrangler pages dev` 做完整 Unity 启动，确认产物本身；
+4. 在线复核路由、版本身份、响应头、移动/桌面门禁和至少一个交叉网络；
+5. 只有证据表明是特定客户端链路故障时，才可在保留回滚点的前提下继续，并在发布记录明确写出限制。
+
+不得用无限重试、取消并发上限或直接调大超时来掩盖产品故障。
+
+## 11. 部署 Production
+
+Preview 放行后，不修改、不重建 `dist`。再次记录旧 Production deployment，然后从同一目录执行：
 
 ```powershell
-git status --short
-git diff --check
-git add -- <本次源码和文档文件>
-git diff --cached --check
-git diff --cached --stat
-git commit -m "<清晰的提交说明>"
+Push-Location WebApp
+npx wrangler pages deployment list --project-name learn-heartstone
+
+npx wrangler pages deploy dist `
+    --project-name learn-heartstone `
+    --branch main `
+    --commit-hash <sourceCommit> `
+    --commit-message "<版本与 Production 说明>"
+
+npx wrangler pages deployment list --project-name learn-heartstone
+Pop-Location
 ```
 
-固定规则：
+Cloudflare 会创建新的 Production deployment；不要把它写成“Promote 了同一个 Preview ID”。完成后在 [https://jsoncool.com](https://jsoncool.com) 重跑第 9 节用户路径，并确认：
 
-- 不使用 `git add .` 混入无关工作。
-- `Builds/**`、`WebDeploy/`、日志、临时文件和 `.vercel/` 不进入源码提交。
-- Git push 需要单独确认；push 只发布源码，不触发 Vercel 部署。
-- Vercel 发布只接受已冻结 ReleaseCandidate，并始终先 Preview 后 Promote。
+- Production deployment 环境为 Production、分支为 `main`、源 SHA 正确；
+- `jsoncool.com/unity/release-meta.json` 为本轮候选且 `sourceDirty: false`；
+- 正式域名 HTTPS、路由、响应头、手机/电脑 UI 和全屏都正常；
+- 上一 Production deployment ID 已作为回滚点写入发布记录。
+
+## 12. 生成网页下载包
+
+下载包必须来自同一个已验 ReleaseCandidate，不重新构建 Unity：
+
+```powershell
+$candidate = '<已验 ReleaseCandidate 绝对路径>'
+$version = '<buildId>'
+$outputRoot = 'Builds\DownloadPackage'
+$zip = Join-Path $outputRoot "LearnHeartstone-Web-$version.zip"
+$packageFiles = @(
+    $candidate,
+    'Tools\WebGL\serve_webgl.py',
+    'Tools\Release\WebGLDownloadPackage-README.zh-CN.txt'
+)
+
+New-Item -ItemType Directory -Force -Path $outputRoot | Out-Null
+Compress-Archive -LiteralPath $packageFiles -DestinationPath $zip -CompressionLevel Optimal
+Get-FileHash -LiteralPath $zip -Algorithm SHA256
+```
+
+把 ZIP 解压到新临时目录，使用包内 `serve_webgl.py` 做 HTTP smoke。记录文件名、绝对路径或下载 URL、字节数、SHA-256、文件数和解压验收结果。
 
 ## 13. 回滚
 
-### 13.1 Production 回滚
+Production 前必须记录最近已知良好 deployment ID、源 SHA 和可复现产物。出现 P0 时优先在 Cloudflare Dashboard 回滚到该 deployment；如果控制台回滚不可用，则从冻结的已知良好 `dist` 或候选重新部署，并立即复跑 Production smoke。
 
-出现 P0 问题时，在 Vercel Dashboard 选择最近已知良好 deployment 执行回滚，或重新 Promote 该已知良好 deployment。回滚后立即复跑 Production smoke。
+固定规则：
 
-当前最近已知良好基线是 `dpl_GBFSeFEwnjN3XEYqaPeFkt92X6pV`；如果它之后的新 deployment 出现问题，可回滚到该版本。不要删除仍承担回滚职责的历史 deployment。
+- 不删除仍承担回滚职责的历史 deployment；
+- 内容字节变化必须生成新 `contentVersion`，不覆盖旧版本；
+- 源码撤销使用可审计的 revert 提交，不使用破坏性 reset；
+- DNS、证书和客户端网络故障分层诊断，不通过重复构建 Unity 解决。
 
-### 13.2 内容故障
+## 14. 2026-08-12 已验证样例
 
-客户端会自动按 Remote → LKG → Embedded 回退。不要覆盖同一 `contentVersion` 的字节；修复内容必须生成新版本并走完整 Preview/Promote 流程。
+以下是本流程的首个正式基准，只作历史核对：
 
-### 13.3 源码回滚
+| 身份 | 已验证值 |
+| --- | --- |
+| 最终源提交 | `b96d5441e7ed1dce0afae16248fe2e6857944b07` |
+| `buildId` | `20260812T082640Z-b96d544` |
+| `sourceDirty` | `false` |
+| `packageFingerprint` | `8f98bc12a2d8580adebc07c5f07ed490f206889a6dbc62a35053ef1a3934a3af` |
+| Preview | `5caa5210-8cb6-46f5-afb4-8de58aaf36b7` |
+| Production | `4cb42d49-f32b-4069-8510-56e3bc315af1` |
+| 当时回滚目标 | `c9ae9e3a-69f4-4a4a-b919-9f9cb7219a0a` |
+| ZIP | `LearnHeartstone-Web-20260812T082640Z-b96d544.zip` |
+| ZIP SHA-256 | `5063257066232BB3B793759DAB7137EAE1AFF3CA533DA7345965E424214F24B5` |
 
-源码历史与线上 deployment 分离。需要撤销源码时使用可审计的新 revert 提交，不要用破坏性 reset 覆盖本地或他人工作。
+当时本机到 `*.pages.dev` 单分片约 348 KiB/s，并出现 TLS/连接重置；同一 `dist` 在本地 Pages 6.8 秒完整启动，Production 路由、身份、响应头、手机/桌面 UI 和全屏在正式域名通过。此记录确立了“先诊断网络层级，再决定是否阻断”的证据要求，不是放宽真实资源错误。
 
-## 14. 常见问题
+## 15. 一页式检查清单
 
-### Preview 寻找 `<candidate>/WebDeploy`
+### 源码与候选
 
-说明 Vercel 项目 Root Directory 又被设置为 `WebDeploy`。先停止部署，检查项目设置；正确值为项目根 `null`。
+- [ ] 已按交付块提交并 push，远端 SHA 与本地一致。
+- [ ] 正式工作树干净，候选 `sourceDirty: false`。
+- [ ] Unity 变化已做完整、非 scripts-only 的 WebGL 构建。
+- [ ] 新 ReleaseCandidate 的 buildId、contentVersion、fingerprint 已记录。
+- [ ] 候选分片、哈希、单文件大小和 `_headers` 校验通过。
 
-### Git push 后没有自动部署
+### 本地与 Preview
 
-这是当前预期行为。Git Integration 已主动断开，发布必须从 ReleaseCandidate 使用 Vercel CLI 创建 Preview。
+- [ ] `npm test` 与 `npm run build:with-unity` 通过。
+- [ ] `wrangler pages dev` 的手机、桌面、全屏和完整 Unity 门禁通过。
+- [ ] Preview 来自同一冻结 `dist`，deployment ID 已记录。
+- [ ] Preview 路由、版本身份、Brotli/MIME、缓存和浏览器错误通过。
+- [ ] 慢网或断连已经分层归因，没有用无限重试或调大超时掩盖。
 
-### 页面 404 或深链失败
+### Production、下载包与记录
 
-确认候选中的 `vercel.json` 与 `Deploy/Vercel/vercel.json` 字节一致，并包含 SPA rewrite：`/(.*) -> /index.html`。
+- [ ] 旧 Production deployment 已记录为回滚点。
+- [ ] `main` Production 来自同一 `dist` 和同一源 SHA。
+- [ ] `jsoncool.com` 手机/桌面路径、全屏、HTTPS 和版本身份通过。
+- [ ] ZIP 来自同一候选，解压 HTTP smoke、字节数和 SHA-256 已记录。
+- [ ] 发布记录和文档索引已更新并形成独立证据提交。
 
-### 页面白屏或一直加载
+## 16. Vercel 历史说明
 
-检查 Build 文件引用、Brotli/MIME 响应头、浏览器 Console、Unity loader 错误以及缓存是否仍命中旧文件。
-
-### `jsoncool.com` 仍不可访问
-
-先看公共 DNS 是否仍为 `A 76.76.21.21`，再看 `vercel domains inspect` 与证书状态。域名刚修改时等待 DNS TTL 和证书签发，不要通过反复重新部署解决 DNS 问题；当前 2026-07-29 基线已正常访问。
-
-## 15. 一页式发布检查清单
-
-### 源码与构建
-
-- [ ] 修改落在 Unity、WebGL Template、内容或 Vercel 配置真源。
-- [ ] Unity 编译和相关测试通过。
-- [ ] 没有启动第二个 Unity Editor。
-- [ ] WebGL 输出使用新的版本/时间戳目录。
-- [ ] ReleaseCandidate 组装成功、被 Git ignore 且 0 tracked 文件。
-- [ ] 内容版本、字节数和 SHA-256 正确。
-
-### Preview
-
-- [ ] Vercel dry-run 不再寻找 `WebDeploy`。
-- [ ] Preview deployment 为 Ready。
-- [ ] Remote、LKG、Embedded 全部通过。
-- [ ] Brotli、MIME、缓存和 SPA 深链通过。
-- [ ] 五个安全响应头覆盖 HTML、JSON、WASM 与深链，且 Unity 正常启动。
-- [ ] 浏览器无未解释错误。
-
-### Production 与域名
-
-- [ ] Promote 的是同一已验 Preview deployment。
-- [ ] Production smoke 与 Preview 一致。
-- [ ] `jsoncool.com` 公共 DNS 已指向 `76.76.21.21`。
-- [ ] 自定义域名 HTTPS 与完整 smoke 通过。
-
-### Git
-
-- [ ] `WebDeploy/` 和 `Builds/**` 未进入索引。
-- [ ] 只暂存本次源码、配置和文档。
-- [ ] `git diff --cached --check` 通过。
-- [ ] push 前已取得单独确认。
+Vercel 是 2026-07 的历史发布平台，不再是默认目标。除非先形成明确的平台迁移决策并同步修改本文、三渠道规范、补丁策略和索引，否则不得继续使用旧的 `vercel deploy`、`vercel promote`、Vercel deployment ID、旧 DNS 值或 `Deploy/Vercel` 配置发布当前产品。
