@@ -2,7 +2,7 @@
 
 本文件是 Learn Heartstone 后续网页版本提交、验收与发布记录的统一入口。默认路线先交付不加载 Unity 的手机版轻量网页，再验收完整 Unity 网页版，最后从同一候选生成下载包；微信小程序和微信小游戏仅在版本范围明确包含时执行。
 
-> **现行基准（2026-08-12 起）**：网页统一发布到 Cloudflare Pages 项目 `learn-heartstone`，Production 分支为 `main`，正式域名为 [https://jsoncool.com](https://jsoncool.com)。以后每次上传都以 [2026-08-12 已上线发布记录](Releases/2026-08-12-web-release.md) 的证据结构为模板，但必须生成新的 Git SHA、`buildId`、ReleaseCandidate、Preview/Production deployment ID、ZIP 和 SHA-256；不得复制该记录中的旧身份冒充新版本。
+> **现行基准（2026-08-12 起）**：网页统一发布到 Cloudflare Pages 项目 `learn-heartstone`，Production 分支为 `main`，正式域名为 [https://jsoncool.com](https://jsoncool.com)。以后每次上传以 [Windows 下载与网页文案热修发布记录](Releases/2026-08-12-windows-download-hotfix.md) 为最新操作基准，并沿用 [首轮完整网页发布记录](Releases/2026-08-12-web-release.md) 的证据结构；每次必须生成新的 Git SHA、构建身份、Preview/Production deployment ID、ZIP 和 SHA-256，不得复制历史身份冒充新版本。
 
 ## 0. 后续上传必须遵守的顺序
 
@@ -20,6 +20,8 @@
 10. 在 `jsoncool.com` 复验版本身份、手机/电脑入口、路由、Brotli/MIME、缓存和全屏。
 11. 从同一 ReleaseCandidate 生成 ZIP，解压后重新 HTTP 验收并记录字节数与 SHA-256。
 12. 更新本轮发布记录和本文档索引，单独提交并 push 文档证据。
+
+如果本轮同时更换 Windows 桌面下载包，必须在第 6 步之后、Pages Preview 之前额外执行：从已 push 的干净 SHA 构建 Windows x64；验证可缩放边框、最大化按钮、实际最大化、D3D11/D3D12 正常退出与无新增转储；将与 WebGL 相同的内容清单合入候选；生成新 ZIP 并解压复验；上传到新的 R2 不可变对象键；从 R2 完整下载回读并核对字节数和 SHA-256；最后才修改 WebApp 下载清单。不得先切网页链接再补传文件。
 
 Cloudflare Pages 直传会为 Preview 和 Production 各创建一个 deployment；“同源发布”指两者使用同一个最终 Git SHA 和同一份冻结 `dist`，不是要求两个 deployment ID 相同。
 
@@ -248,6 +250,19 @@ Get-FileHash -LiteralPath $zip -Algorithm SHA256
 
 微信渠道纳入范围时，继续按 [原生小程序交接文档](../MiniProgram/README.md) 和对应 Unity 微信渠道计划验收。它们不能继承网页状态，也不能把开发版上传写成正式发布。
 
+### 9.1 Windows 桌面下载包补充门禁
+
+Windows 原生包不继承 WebGL 的“浏览器可运行”结论，至少需要以下独立证据：
+
+1. 构建源 SHA 已 push，工作树干净，`sourceDirty` 为 `false`。
+2. ZIP 内的内容清单与当前上线 WebGL ReleaseCandidate 字节一致。
+3. 标题栏最大化按钮可用，窗口边框可拖动，实际最大化会改变窗口尺寸。
+4. D3D11、D3D12 均能正常开窗并从标题栏关闭，Exit 0、无强制终止、无新增 dump。
+5. ZIP 解压后重复启动/退出 smoke，不能只验证打包前目录。
+6. R2 使用新对象键和 immutable 缓存；上传后从 R2 完整下载回读并重算 SHA-256。
+7. 正式域名的下载按钮、公开 manifest、Content-Length、Content-Type 与下载文件名全部一致。
+8. CDN 长链路受本机网络影响时，如实记录已通过的范围和失败现象；可用 R2 管理端完整回读作为对象完整性证据，但不得虚写未完成的公网分段数量。
+
 ## 10. 复制发布记录模板
 
 每次交付把以下模板复制到版本记录或本轮计划目录。保留所有交付面；未包含的交付面填写 `not-in-scope`。
@@ -376,6 +391,7 @@ Get-FileHash -LiteralPath $zip -Algorithm SHA256
 
 ## 14. 当前发布记录
 
+- [2026-08-12 Windows 下载与网页文案热修发布记录](Releases/2026-08-12-windows-download-hotfix.md)
 - [2026-08-12 手机版网页、完整 Unity 网页版与下载包发布记录](Releases/2026-08-12-web-release.md)
-- 本轮必须从记录中的 Git 源提交创建干净工作树并构建；不得从主工作区的未提交文件或第 12 节旧候选上传。
+- 后续操作以 Windows 热修记录为最新基准，并从对应 Git 源提交创建干净工作树；不得从主工作区的未提交文件或第 12 节旧候选上传。
 - Preview、Production、下载包和发布后复验结果统一回填到该记录，后续发布沿用同一结构新建文件。
