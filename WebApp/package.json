@@ -1,0 +1,25 @@
+{
+  "name": "learn-heartstone-web",
+  "private": true,
+  "version": "0.1.0-alpha",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:with-unity": "vite build && node scripts/attach-unity.mjs",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "vue": "3.5.41",
+    "vue-router": "4.6.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "vite": "8.2.1",
+    "wrangler": "^4.119.0"
+  }
+}
