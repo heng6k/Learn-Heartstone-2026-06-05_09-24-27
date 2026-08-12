@@ -79,9 +79,9 @@ export const communityNews = Object.freeze([
 
 export const unityRelease = Object.freeze({
   path: '/unity/',
-  sourceDataBytes: 102697948,
-  sourceDataLabel: '约 97.9 MiB 压缩数据',
-  chunkCount: 11,
+  sourceDataBytes: 107314429,
+  sourceDataLabel: '约 102.3 MiB 压缩数据',
+  chunkCount: 12,
   recommendedMemory: '建议桌面浏览器、8 GB 及以上内存',
 })
 

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import AppIcon from '../components/AppIcon.vue'
 import { currentVersion, unityRelease } from '../data/site-content.js'
@@ -10,6 +10,10 @@ const frameKey = ref(0)
 let loadTimer
 const unityUrl = import.meta.env.VITE_UNITY_URL || unityRelease.path
 const requestedGuide = computed(() => String(route.query.guide ?? ''))
+const isFullscreen = ref(false)
+const isStandalone = ref(false)
+const fullscreenAvailable = ref(false)
+const fullscreenNotice = ref('')
 
 const stateLabel = computed(() => ({
   idle: '等待确认',
@@ -27,6 +31,57 @@ function startUnity() {
   }, 90000)
 }
 
+function fullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null
+}
+
+function syncFullscreenState() {
+  isFullscreen.value = Boolean(fullscreenElement())
+}
+
+async function requestGameFullscreen() {
+  const root = document.documentElement
+  const request = root.requestFullscreen || root.webkitRequestFullscreen
+  if (!request) {
+    fullscreenNotice.value = isStandalone.value
+      ? '当前已由主屏幕全屏运行。'
+      : '当前浏览器不开放网页全屏。iPhone / iPad 可用“添加到主屏幕”后全屏打开。'
+    return false
+  }
+
+  try {
+    await request.call(root, { navigationUI: 'hide' })
+    fullscreenNotice.value = '已进入全屏；按 Esc 或再次点击全屏按钮即可退出。'
+    if (screen.orientation?.lock) {
+      await screen.orientation.lock('landscape').catch(() => {})
+    }
+    return true
+  } catch {
+    fullscreenNotice.value = '浏览器没有允许全屏。可继续使用窗口模式，或从浏览器菜单添加到主屏幕。'
+    return false
+  }
+}
+
+async function exitGameFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen
+  if (fullscreenElement() && exit) {
+    await exit.call(document).catch(() => {})
+  }
+}
+
+async function startFullscreen() {
+  await requestGameFullscreen()
+  startUnity()
+}
+
+async function toggleFullscreen() {
+  if (isFullscreen.value) {
+    await exitGameFullscreen()
+    return
+  }
+  await requestGameFullscreen()
+}
+
 function handleLoaded() {
   clearTimeout(loadTimer)
   state.value = 'ready'
@@ -40,18 +95,33 @@ function handleFailed() {
 function exitUnity() {
   clearTimeout(loadTimer)
   state.value = 'idle'
+  if (isFullscreen.value) {
+    void exitGameFullscreen()
+  }
 }
 
-onBeforeUnmount(() => clearTimeout(loadTimer))
+onMounted(() => {
+  fullscreenAvailable.value = Boolean(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)
+  isStandalone.value = window.matchMedia?.('(display-mode: fullscreen), (display-mode: standalone)').matches || window.navigator.standalone === true
+  document.addEventListener('fullscreenchange', syncFullscreenState)
+  document.addEventListener('webkitfullscreenchange', syncFullscreenState)
+  syncFullscreenState()
+})
+
+onBeforeUnmount(() => {
+  clearTimeout(loadTimer)
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
+  document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
+})
 </script>
 
 <template>
-  <div class="page play-page">
+  <div class="page play-page" :class="{ 'play-page--running': state === 'loading' || state === 'ready' }">
     <header class="page-hero shell play-hero">
       <div>
-        <span class="section-kicker">WEBGL TRAINING</span>
-        <h1>开始试玩</h1>
-        <p>游戏不会自动加载。确认版本、下载量与设备条件后，再进入 Unity 训练场。</p>
+        <span class="section-kicker">TAVERN GATE · WEBGL</span>
+        <h1>推开酒馆的门</h1>
+        <p>先选择显示方式，再加载训练场。手机版与电脑浏览器都不会在你确认前下载 Unity。</p>
       </div>
       <span class="load-state" :data-state="state">
         <span aria-hidden="true"></span>
@@ -60,9 +130,9 @@ onBeforeUnmount(() => clearTimeout(loadTimer))
     </header>
 
     <section v-if="state === 'idle' || state === 'failed'" class="shell play-preflight" aria-labelledby="preflight-title">
-      <div class="preflight-main">
-        <span class="card-kicker">BEFORE YOU ENTER</span>
-        <h2 id="preflight-title">加载前确认</h2>
+      <div class="preflight-main tavern-gate-panel">
+        <span class="card-kicker">CHOOSE YOUR TABLE</span>
+        <h2 id="preflight-title">选择进入方式</h2>
         <p>
           本次会加载 {{ unityRelease.chunkCount }} 个数据分块，合计 {{ unityRelease.sourceDataLabel }}。移动设备可能出现较长加载或内存压力。
         </p>
@@ -75,6 +145,28 @@ onBeforeUnmount(() => clearTimeout(loadTimer))
             <span>检查网络与内存后，可以主动重试；页面不会在后台循环请求。</span>
           </div>
         </div>
+
+        <div class="entry-mode-grid" aria-label="游戏显示方式">
+          <button class="entry-mode-card entry-mode-card--primary" type="button" @click="startFullscreen">
+            <span class="entry-mode-icon" aria-hidden="true"><AppIcon name="fullscreen" :size="28" /></span>
+            <span>
+              <strong>全屏进入训练场</strong>
+              <small>{{ fullscreenAvailable || isStandalone ? '手机沉浸显示 · 电脑网页全屏' : '不支持时自动使用窗口模式' }}</small>
+            </span>
+            <span class="entry-mode-action">进入</span>
+          </button>
+
+          <button class="entry-mode-card" type="button" @click="startUnity">
+            <span class="entry-mode-icon" aria-hidden="true"><AppIcon name="window" :size="28" /></span>
+            <span>
+              <strong>窗口模式进入</strong>
+              <small>保留浏览器导航，适合电脑多任务</small>
+            </span>
+            <span class="entry-mode-action">进入</span>
+          </button>
+        </div>
+
+        <p v-if="fullscreenNotice" class="fullscreen-notice" role="status">{{ fullscreenNotice }}</p>
 
         <dl class="preflight-facts">
           <div>
@@ -95,11 +187,7 @@ onBeforeUnmount(() => clearTimeout(loadTimer))
           </div>
         </dl>
 
-        <button class="button button-primary start-game-button" type="button" @click="startUnity">
-          <AppIcon name="play" :size="22" />
-          {{ state === 'failed' ? '重新加载训练场' : '确认并加载 Unity' }}
-        </button>
-        <RouterLink class="button button-quiet play-back-to-guides" to="/guides">返回轻量一图流</RouterLink>
+        <RouterLink class="button button-quiet play-back-to-guides" to="/guides">暂不加载，返回轻量一图流</RouterLink>
       </div>
 
       <aside class="preflight-aside">
@@ -112,8 +200,8 @@ onBeforeUnmount(() => clearTimeout(loadTimer))
           alt="Learn Heartstone 大厅界面预览"
         />
         <div>
-          <strong>静态内容已经就绪</strong>
-          <p>此刻网络面板中没有 Unity loader、WASM 或数据分块请求。</p>
+          <strong>门外只加载轻量页面</strong>
+          <p>选择进入前，不会请求 Unity loader、WASM 或数据分块。</p>
         </div>
       </aside>
     </section>
@@ -125,6 +213,10 @@ onBeforeUnmount(() => clearTimeout(loadTimer))
           <strong>{{ stateLabel }}</strong>
         </div>
         <div class="toolbar-actions">
+          <button class="button button-quiet fullscreen-button" type="button" @click="toggleFullscreen">
+            <AppIcon :name="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" :size="19" />
+            {{ isFullscreen ? '退出全屏' : '进入全屏' }}
+          </button>
           <button class="button button-quiet" type="button" @click="startUnity">重新加载</button>
           <button class="button button-secondary" type="button" @click="exitUnity">退出试玩</button>
         </div>

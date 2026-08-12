@@ -10,12 +10,19 @@ import {
   knownDifferences,
   mechanics,
   windowsRelease,
+  unityRelease,
 } from '../src/data/site-content.js'
 
 const testRoot = path.dirname(fileURLToPath(import.meta.url))
 const routerSource = await readFile(path.resolve(testRoot, '../src/router.js'), 'utf8')
 const guidesPageSource = await readFile(path.resolve(testRoot, '../src/pages/GuidesPage.vue'), 'utf8')
 const downloadPageSource = await readFile(path.resolve(testRoot, '../src/pages/DownloadPage.vue'), 'utf8')
+const playPageSource = await readFile(path.resolve(testRoot, '../src/pages/PlayPage.vue'), 'utf8')
+const indexSource = await readFile(path.resolve(testRoot, '../index.html'), 'utf8')
+const webManifest = JSON.parse(await readFile(
+  path.resolve(testRoot, '../public/manifest.webmanifest'),
+  'utf8',
+))
 const guideCatalog = JSON.parse(await readFile(
   path.resolve(testRoot, '../public/data/guides.json'),
   'utf8',
@@ -86,4 +93,26 @@ test('the player download page hides release engineering details', () => {
   ]) {
     assert.doesNotMatch(downloadPageSource, new RegExp(technicalDetail))
   }
+})
+
+test('play gate defers Unity and offers browser and mobile fullscreen paths', () => {
+  assert.equal(unityRelease.chunkCount, 12)
+  assert.equal(unityRelease.sourceDataBytes, 107314429)
+  assert.match(playPageSource, /state === 'idle' \|\| state === 'failed'/)
+  assert.match(playPageSource, /requestFullscreen \|\| document\.documentElement\.webkitRequestFullscreen/)
+  assert.match(playPageSource, /全屏进入训练场/)
+  assert.match(playPageSource, /窗口模式进入/)
+  assert.match(playPageSource, /添加到主屏幕/)
+  assert.match(playPageSource, /screen\.orientation\?\.lock/)
+  assert.match(playPageSource, /screen\.orientation\.lock\('landscape'\)/)
+  assert.match(playPageSource, /allow="autoplay; fullscreen; gamepad"/)
+})
+
+test('web app manifest enables installed mobile fullscreen without changing the lightweight start path', () => {
+  assert.equal(webManifest.start_url, '/play')
+  assert.equal(webManifest.display, 'fullscreen')
+  assert.equal(webManifest.orientation, 'landscape')
+  assert.ok(webManifest.icons.some(icon => icon.purpose.includes('maskable')))
+  assert.match(indexSource, /rel="manifest" href="\/manifest\.webmanifest"/)
+  assert.match(indexSource, /apple-mobile-web-app-capable/)
 })

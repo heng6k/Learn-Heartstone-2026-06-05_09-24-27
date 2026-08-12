@@ -36,6 +36,16 @@ defineProps({
       <path d="M12 3v12m0 0 4-4m-4 4-4-4" />
       <path d="M4 19h16" />
     </template>
+    <template v-else-if="name === 'fullscreen'">
+      <path d="M8 4H4v4M16 4h4v4M20 16v4h-4M4 16v4h4" />
+    </template>
+    <template v-else-if="name === 'fullscreen-exit'">
+      <path d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5" />
+    </template>
+    <template v-else-if="name === 'window'">
+      <rect x="3.5" y="5" width="17" height="14" rx="1.5" />
+      <path d="M4 9h16M7 7h.01M10 7h.01" />
+    </template>
     <template v-else-if="name === 'external'">
       <path d="M14 4h6v6M20 4l-9 9" />
       <path d="M18 13v6H5V6h6" />
