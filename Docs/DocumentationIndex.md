@@ -38,7 +38,7 @@
 ### 想提交手机版网页或完整网页版
 
 1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：先确定本轮交付面，再按共享内容、手机版网页、完整网页版、打包配置和发布记录分块提交。
-2. [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md)：本轮正确 Git 提交链、干净构建身份、Cloudflare 部署与下载包证据；旧 dirty 候选不得复用。
+2. [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md)：已上线的手机版/完整 Unity 网页、手机与电脑全屏、最终 Git/Cloudflare 身份、下载包哈希与回滚证据；旧 dirty 和中间候选不得复用。
 3. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 Unity ReleaseCandidate、Cloudflare Preview、Production 晋升和正式域名复验。
 4. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：判断变更类型、版本号、测试门禁与回滚级别。
 
@@ -114,7 +114,7 @@
 | 当前计划 | [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md) | 新规则、新手一图流、纯残局、肉鸽爬塔和在线 1v1 的阶段依赖与退出条件 | 当前上线后产品主路线 |
 | 当前计划 | [Season14ProductizationImplementationPlan.zh-CN.md](Season14ProductizationImplementationPlan.zh-CN.md) | 36.2 玩法收口、Vue3/Windows、R2 一图流和移动分发的工作包、规则契约与验收门 | 当前四阶段实施基线 |
 | 发行上线 | [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) | 手机版轻量网页、完整 Unity 网页版、下载包与可选微信渠道的分块提交、验收矩阵、发布模板和回滚规则 | 后续网页提交与发布记录的统一入口 |
-| 发行记录 | [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md) | 本轮四块 Git 提交、干净 WebGL 候选、Cloudflare Preview/Production 与下载包哈希 | 2026-08-12 正确版本发布证据 |
+| 发行记录 | [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md) | 手机版/完整 Unity 网页、全屏入口、干净 WebGL 候选、Cloudflare Preview/Production、下载包与回滚证据 | 2026-08-12 已上线版本的最终发布证据 |
 | 发行上线 | [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md) | 补丁分类、版本、测试门禁、不停服升级、Preview/Promote 与事故回滚 | 所有线上变更的决策规范 |
 | 发行上线 | [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md) | Alpha 到 1.0 的早期版本节奏、渠道、发包检查和运营动作 | 早期渠道与产品假设历史参考 |
 | 发行上线 | [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md) | Unity/UI 修改、ReleaseCandidate 组装、Vercel CLI Preview/Promote 与域名验收流程 | 网页版日常构建与发布手册 |
