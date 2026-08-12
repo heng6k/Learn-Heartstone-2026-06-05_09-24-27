@@ -7,10 +7,32 @@ using LearnHearthstone.Application.Content;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 {
+    public enum UnityReplayTimelineFilter
+    {
+        All,
+        Choice,
+        DarkGift,
+        RecruitAction,
+        DelayedObject,
+        Combat
+    }
+
+    public sealed class UnityCombatTrinketDisplay
+    {
+        public TrinketSlotKind SlotKind;
+        public string Name;
+        public string Description;
+        public string CardId;
+        public string ImagePath;
+        public string Status;
+        public bool Active = true;
+    }
+
     public sealed class UnityCombatReplayPanelOptions
     {
         public bool ReplayPlaying;
@@ -19,7 +41,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public string StatsText;
         public string StatsMetaText;
         public bool TimelineOpen;
+        public float ViewportWidth = 1920f;
+        public float ViewportHeight = 1080f;
+        public string PlayerHeroName;
+        public string PlayerHeroCardId;
+        public string PlayerHeroImagePath;
+        public int PlayerHealth;
+        public int PlayerArmor;
+        public string OpponentHeroName;
+        public string OpponentHeroCardId;
+        public string OpponentHeroImagePath;
+        public int OpponentHealth;
+        public int OpponentArmor;
+        public IReadOnlyList<UnityCombatTrinketDisplay> PlayerTrinkets;
+        public IReadOnlyList<UnityCombatTrinketDisplay> OpponentTrinkets;
+        public string GameVersionId;
+        public string ContentSnapshotId;
+        public IReadOnlyList<MechanicEventRecord> MechanicEvents;
+        public UnityReplayTimelineFilter TimelineFilter;
         public Action<int> SetFrame;
+        public Action<UnityReplayTimelineFilter> SetTimelineFilter;
         public Action TogglePlayback;
         public Action CycleSpeed;
         public Action ToggleTimeline;
@@ -37,6 +78,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private static bool localizedCombatMinionNamesLoaded;
         private static Dictionary<string, string> localizedCombatSpellNamesByCardId;
         private static bool localizedCombatSpellNamesLoaded;
+        private static Sprite battlefieldBackdropSprite;
+        private static Sprite combatTokenOvalSprite;
+        private GameObject combatTrinketTooltip;
+        private bool combatTrinketTooltipPinned;
+        private string combatTrinketTooltipKey;
 
         [SerializeField] private Text titleText;
         [SerializeField] private Text summaryText;
@@ -355,6 +401,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildGenerated(CombatReplay replay, int frameIndex, UnityCombatReplayPanelOptions options)
         {
             ClearChildren(transform);
+            combatTrinketTooltip = null;
+            combatTrinketTooltipPinned = false;
+            combatTrinketTooltipKey = null;
             var hasFrames = replay != null && replay.Frames != null && replay.Frames.Count > 0;
             var clampedIndex = hasFrames ? Mathf.Clamp(frameIndex, 0, replay.Frames.Count - 1) : 0;
             var frame = hasFrames ? replay.Frames[clampedIndex] : null;
@@ -376,18 +425,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             safeArea.transform.SetParent(root.transform, false);
             ConfigureTitleSafeArea(safeArea);
 
-            var safeLayout = safeArea.AddComponent<VerticalLayoutGroup>();
-            safeLayout.spacing = 10;
-            safeLayout.childControlWidth = true;
-            safeLayout.childControlHeight = true;
-            safeLayout.childForceExpandWidth = true;
-            safeLayout.childForceExpandHeight = false;
-
-            BuildHudHeader(safeArea.transform, replay, clampedIndex, options);
-
             var battlefield = new GameObject("UnityCombatBattlefield", typeof(RectTransform), typeof(Image));
             battlefield.transform.SetParent(safeArea.transform, false);
             ConfigureBattlefieldLayout(battlefield);
+
+            BuildCombatHeroAnchor(battlefield.transform, root.transform, BoardSide.Opponent, options);
 
             BuildCombatSide(
                 battlefield.transform,
@@ -395,22 +437,28 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 "Opponent",
                 frame == null ? null : frame.OpponentBoardSnapshot,
                 previousFrame == null ? null : previousFrame.OpponentBoardSnapshot,
-                frame);
-            BuildCenterEventBand(battlefield.transform, frame, hasFrames, clampedIndex, replay);
+                frame,
+                options);
+            BuildCenterEventBand(battlefield.transform, frame, hasFrames, clampedIndex, replay, options);
             BuildCombatSide(
                 battlefield.transform,
                 BoardSide.Player,
                 "Player",
                 frame == null ? null : frame.PlayerBoardSnapshot,
                 previousFrame == null ? null : previousFrame.PlayerBoardSnapshot,
-                frame);
-            BuildReplayTargetingConnector(root.transform, frame);
+                frame,
+                options);
+            BuildCombatHeroAnchor(battlefield.transform, root.transform, BoardSide.Player, options);
+            BuildPlaybackBar(battlefield.transform, replay, clampedIndex, options);
+            BuildReplayTargetingConnector(battlefield.transform, frame);
 
-            BuildCombatRewardDiagnostics(safeArea.transform, replay);
-            BuildPlaybackBar(safeArea.transform, replay, clampedIndex, options);
             if (options.TimelineOpen)
             {
                 BuildTimelineDrawer(root.transform, replay, clampedIndex, options);
+            }
+            else
+            {
+                BuildAnalysisPeek(root.transform, frame, hasFrames, clampedIndex, replay, options);
             }
         }
 
@@ -486,6 +534,58 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             image.raycastTarget = true;
         }
 
+        private static bool IsCompact(UnityCombatReplayPanelOptions options)
+        {
+            return options != null && (options.ViewportWidth < 1100f || options.ViewportHeight < 600f);
+        }
+
+        private static float DrawerWidth(UnityCombatReplayPanelOptions options)
+        {
+            var viewportWidth = options == null || options.ViewportWidth <= 0f ? 1920f : options.ViewportWidth;
+            var compact = IsCompact(options);
+            return Mathf.Clamp(viewportWidth * (compact ? 0.78f : 0.34f), 340f, compact ? 780f : 480f);
+        }
+
+        private static Sprite CombatTokenOvalSprite()
+        {
+            return LoadUiSprite("UI/Combat/CombatTokenOval", ref combatTokenOvalSprite);
+        }
+
+        private static Sprite BattlefieldBackdropSprite()
+        {
+            return LoadUiSprite("UI/Combat/BattlegroundsBattlefieldAtmosphere-v2", ref battlefieldBackdropSprite);
+        }
+
+        private static Sprite LoadUiSprite(string resourcePath, ref Sprite cache)
+        {
+            if (cache != null)
+            {
+                return cache;
+            }
+
+            cache = Resources.Load<Sprite>(resourcePath);
+            if (cache != null)
+            {
+                return cache;
+            }
+
+            var texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            cache = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f,
+                0,
+                SpriteMeshType.FullRect);
+            cache.name = texture.name + "-RuntimeSprite";
+            return cache;
+        }
+
         private static void ConfigureBattlefieldRoot(GameObject target)
         {
             UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
@@ -496,7 +596,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private static void ConfigureBattlefieldBackdrop(GameObject target)
         {
             UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
-            var image = UnityTavernUiStyle.ConfigureSurface(target, new Color(0.12f, 0.15f, 0.14f, 1f));
+            var image = UnityTavernUiStyle.ConfigureSurface(target, Color.white);
+            image.sprite = BattlefieldBackdropSprite();
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
             image.raycastTarget = false;
         }
 
@@ -543,47 +646,35 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureBattlefieldLayout(GameObject target)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, new Color(UnityTavernUiStyle.TableDark.r, UnityTavernUiStyle.TableDark.g, UnityTavernUiStyle.TableDark.b, 0.78f));
-            UnityTavernUiStyle.ConfigureOutline(target, new Color(0f, 0f, 0f, 0.24f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetFlexible(target, 1f, 1f);
-
-            var layout = target.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 12, 10, 10);
-            layout.spacing = 8;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
+            var image = UnityTavernUiStyle.ConfigureSurface(target, new Color(0.06f, 0.045f, 0.03f, 0.08f));
+            image.raycastTarget = false;
         }
 
-        private static void ConfigureCombatSide(GameObject target, BoardSide side)
+        private static void ConfigureCombatSide(GameObject target, BoardSide side, bool compact)
         {
-            var baseColor = side == BoardSide.Player
-                ? new Color(UnityTavernUiStyle.Blue.r * 0.45f, UnityTavernUiStyle.Blue.g * 0.45f, UnityTavernUiStyle.Blue.b * 0.45f, 0.88f)
-                : new Color(UnityTavernUiStyle.Red.r * 0.45f, UnityTavernUiStyle.Red.g * 0.45f, UnityTavernUiStyle.Red.b * 0.45f, 0.88f);
-            UnityTavernUiStyle.ConfigureSurface(target, baseColor);
-            UnityTavernUiStyle.ConfigureOutline(target, new Color(0f, 0f, 0f, 0.26f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetFlexible(target, 1f, 1f);
-
-            var layout = target.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 7, 9);
-            layout.spacing = 6;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            var rect = target.GetComponent<RectTransform>();
+            rect.anchorMin = side == BoardSide.Opponent
+                ? new Vector2(0.07f, compact ? 0.55f : 0.57f)
+                : new Vector2(0.07f, compact ? 0.28f : 0.23f);
+            rect.anchorMax = side == BoardSide.Opponent
+                ? new Vector2(0.93f, compact ? 0.79f : 0.82f)
+                : new Vector2(0.93f, compact ? 0.50f : 0.48f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            var image = UnityTavernUiStyle.ConfigureSurface(target, new Color(0f, 0f, 0f, 0.04f));
+            image.raycastTarget = false;
         }
 
         private static void ConfigureCombatBoard(GameObject target, BoardSide side)
         {
-            UnityTavernUiStyle.ConfigureSurface(target, new Color(0f, 0f, 0f, 0.18f));
-            var accent = side == BoardSide.Player ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Red;
-            UnityTavernUiStyle.ConfigureOutline(target, new Color(accent.r, accent.g, accent.b, 0.42f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetFlexible(target, 1f, 1f);
+            UnityTavernUiStyle.Stretch(target.GetComponent<RectTransform>());
+            var image = UnityTavernUiStyle.ConfigureSurface(target, new Color(0f, 0f, 0f, 0.06f));
+            image.raycastTarget = false;
 
             var layout = target.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 8, 8);
-            layout.spacing = 8;
+            layout.padding = new RectOffset(8, 8, 2, 2);
+            layout.spacing = 10;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
@@ -593,11 +684,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private static void ConfigureCombatSlot(GameObject target, BoardSide side, int slot, CombatFrame frame)
         {
             var image = target.GetComponent<Image>();
+            image.sprite = CombatTokenOvalSprite();
+            image.preserveAspect = false;
             image.color = IsAttackPointer(side, slot, frame)
-                ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.26f)
-                : new Color(0f, 0f, 0f, 0.16f);
+                ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.22f)
+                : new Color(0.04f, 0.03f, 0.02f, 0.18f);
             image.raycastTarget = false;
-            UnityTavernUiStyle.ConfigureOutline(target, IsAttackPointer(side, slot, frame) ? UnityTavernUiStyle.Gold : new Color(1f, 1f, 1f, 0.08f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.ConfigureOutline(target, IsAttackPointer(side, slot, frame) ? UnityTavernUiStyle.Gold : new Color(0.12f, 0.08f, 0.04f, 0.10f), new Vector2(1f, -1f));
 
             var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(target);
             element.flexibleWidth = 1f;
@@ -610,7 +703,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             UnityTavernUiStyle.ConfigureSurface(target, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.86f));
             UnityTavernUiStyle.ConfigureOutline(target, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.26f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetPreferredHeight(target, 64f);
+            var rect = target.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.18f, 0.495f);
+            rect.anchorMax = new Vector2(0.82f, 0.565f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(target).ignoreLayout = true;
 
             var layout = target.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(12, 12, 8, 8);
@@ -625,7 +723,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             UnityTavernUiStyle.ConfigureSurface(target, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.94f));
             UnityTavernUiStyle.ConfigureOutline(target, new Color(0f, 0f, 0f, 0.34f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetPreferredHeight(target, 66f);
+            var rect = target.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.08f, 0.005f);
+            rect.anchorMax = new Vector2(0.92f, 0.075f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(target).ignoreLayout = true;
 
             var layout = target.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 7, 7);
@@ -638,22 +741,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureRewardDiagnostics(GameObject target)
         {
-            UnityTavernUiStyle.SetPreferredHeight(target, 94f);
-
-            var layout = target.AddComponent<HorizontalLayoutGroup>();
+            var layout = target.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(0, 0, 0, 0);
-            layout.spacing = 10;
+            layout.spacing = 6;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = true;
+            layout.childForceExpandHeight = false;
+
+            var fitter = target.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
         }
 
         private static void ConfigureRewardInfoPanel(GameObject target, Color accent)
         {
             UnityTavernUiStyle.ConfigureSurface(target, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.9f));
             UnityTavernUiStyle.ConfigureOutline(target, new Color(accent.r, accent.g, accent.b, 0.42f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.SetFlexible(target, 1f, 0f);
 
             var layout = target.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(10, 10, 6, 6);
@@ -679,16 +783,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layout.childForceExpandHeight = true;
         }
 
-        private static void ConfigureTimelineDrawer(GameObject target)
+        private static void ConfigureTimelineDrawer(GameObject target, UnityCombatReplayPanelOptions options)
         {
             var rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.72f, 0.13f);
-            rect.anchorMax = new Vector2(0.95f, 0.86f);
+            var width = DrawerWidth(options);
+            var compact = IsCompact(options);
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = new Vector2(1f, 1f);
             rect.pivot = new Vector2(1f, 0.5f);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            rect.offsetMin = new Vector2(-(width + (compact ? 10f : 18f)), compact ? 10f : 18f);
+            rect.offsetMax = new Vector2(-(compact ? 10f : 18f), compact ? -10f : -18f);
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(target).ignoreLayout = true;
             UnityTavernUiStyle.ConfigureSurface(target, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.96f), true);
             UnityTavernUiStyle.ConfigureOutline(target, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.42f), new Vector2(1.2f, -1.2f));
+            var shadow = UnityTavernUiStyle.EnsureComponent<Shadow>(target);
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
+            shadow.effectDistance = new Vector2(-8f, -8f);
+            shadow.useGraphicAlpha = true;
+            UnityTavernUiStyle.EnsureComponent<UnityCombatDrawerAnimator>(target).Configure(width);
 
             var layout = target.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 8, 8);
@@ -750,6 +862,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             statsMeta.alignment = TextAnchor.MiddleCenter;
             UnityTavernUiStyle.SetPreferredHeight(statsMeta.gameObject, 18f);
 
+            var versionBadge = UiFactory.Label("UnityCombatReplayVersionBadge", badge.transform, LockedVersionText(options), 14, FontStyle.Bold);
+            versionBadge.color = UnityTavernUiStyle.MutedText;
+            versionBadge.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetPreferredHeight(versionBadge.gameObject, 18f);
+
             var playerStatus = UiFactory.Label("UnityCombatPlayerHeroStatus", header.transform, SideStatusText(BoardSide.Player, replay, frameIndex), 15, FontStyle.Bold);
             playerStatus.color = UnityTavernUiStyle.Text;
             playerStatus.alignment = TextAnchor.MiddleRight;
@@ -759,7 +876,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             closeButtonText = closeButton.GetComponentInChildren<Text>();
         }
 
-        private void BuildCenterEventBand(Transform parent, CombatFrame frame, bool hasFrames, int frameIndex, CombatReplay replay)
+        private void BuildCenterEventBand(Transform parent, CombatFrame frame, bool hasFrames, int frameIndex, CombatReplay replay, UnityCombatReplayPanelOptions options)
         {
             var band = new GameObject("UnityCombatCenterEventBand", typeof(RectTransform), typeof(Image));
             band.transform.SetParent(parent, false);
@@ -771,11 +888,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             frameText.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetFlexible(frameText.gameObject, 1f, 0f);
 
-            eventHighlightParent = new GameObject("UnityCombatEventChips", typeof(RectTransform)).transform;
-            eventHighlightParent.SetParent(band.transform, false);
-            UnityTavernUiStyle.SetFixedSize(eventHighlightParent.gameObject, 560f, 42f);
-            ConfigureEventHighlightsLayout(eventHighlightParent.gameObject);
-            BuildEventHighlights(eventHighlightParent, frame);
+            if (!IsCompact(options))
+            {
+                eventHighlightParent = new GameObject("UnityCombatEventChips", typeof(RectTransform)).transform;
+                eventHighlightParent.SetParent(band.transform, false);
+                UnityTavernUiStyle.SetFixedSize(eventHighlightParent.gameObject, 560f, 42f);
+                ConfigureEventHighlightsLayout(eventHighlightParent.gameObject);
+                BuildEventHighlights(eventHighlightParent, frame);
+            }
         }
 
         private void BuildCombatRewardDiagnostics(Transform parent, CombatReplay replay)
@@ -784,21 +904,70 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             diagnostics.transform.SetParent(parent, false);
             ConfigureRewardDiagnostics(diagnostics);
 
-            BuildRewardInfoPanel(
+            var toggleBar = new GameObject("UnityCombatRewardDiagnosticToggles", typeof(RectTransform), typeof(Image));
+            toggleBar.transform.SetParent(diagnostics.transform, false);
+            UnityTavernUiStyle.ConfigureSurface(toggleBar, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.SetPreferredHeight(toggleBar, 44f);
+            var toggleLayout = toggleBar.AddComponent<HorizontalLayoutGroup>();
+            toggleLayout.padding = new RectOffset(4, 4, 2, 2);
+            toggleLayout.spacing = 6f;
+            toggleLayout.childControlWidth = true;
+            toggleLayout.childControlHeight = true;
+            toggleLayout.childForceExpandWidth = true;
+            toggleLayout.childForceExpandHeight = true;
+
+            var rewardPanel = BuildRewardInfoPanel(
                 diagnostics.transform,
                 "UnityCombatRewardReceiptPanel",
                 "奖励结算收据",
                 RewardReceiptLines(replay),
                 UnityTavernUiStyle.Gold);
-            BuildRewardInfoPanel(
+            var triggerPanel = BuildRewardInfoPanel(
                 diagnostics.transform,
                 "UnityCombatTriggerChainPanel",
                 "触发链",
                 TriggerChainLines(replay),
                 UnityTavernUiStyle.Blue);
+            rewardPanel.SetActive(false);
+            triggerPanel.SetActive(false);
+
+            Action<GameObject, GameObject> toggle = (show, hide) =>
+            {
+                var active = !show.activeSelf;
+                hide.SetActive(false);
+                show.SetActive(active);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(diagnostics.GetComponent<RectTransform>());
+                if (diagnostics.transform.parent is RectTransform drawer)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(drawer);
+                }
+            };
+
+            var rewardCount = replay?.PlayerRewards?.Count ?? 0;
+            var rewardToggle = CreateButton(
+                "UnityCombatRewardToggleButton",
+                toggleBar.transform,
+                "奖励 " + rewardCount,
+                () => toggle(rewardPanel, triggerPanel),
+                0f,
+                40f,
+                UnityTavernUiStyle.PanelRaised,
+                false);
+            UnityTavernUiStyle.SetFlexible(rewardToggle.gameObject, 1f, 0f);
+
+            var triggerToggle = CreateButton(
+                "UnityCombatTriggerToggleButton",
+                toggleBar.transform,
+                "触发链 " + rewardCount,
+                () => toggle(triggerPanel, rewardPanel),
+                0f,
+                40f,
+                UnityTavernUiStyle.PanelRaised,
+                false);
+            UnityTavernUiStyle.SetFlexible(triggerToggle.gameObject, 1f, 0f);
         }
 
-        private static void BuildRewardInfoPanel(Transform parent, string name, string title, IReadOnlyList<string> lines, Color accent)
+        private static GameObject BuildRewardInfoPanel(Transform parent, string name, string title, IReadOnlyList<string> lines, Color accent)
         {
             var panel = new GameObject(name, typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(parent, false);
@@ -819,16 +988,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 line.alignment = TextAnchor.MiddleLeft;
                 line.horizontalOverflow = HorizontalWrapMode.Wrap;
                 line.verticalOverflow = VerticalWrapMode.Truncate;
-                UnityTavernUiStyle.SetPreferredHeight(line.gameObject, 16f);
+                UnityTavernUiStyle.SetPreferredHeight(line.gameObject, 28f);
             }
 
+            var extraHeight = 0f;
             if (lines != null && lines.Count > visibleLines.Count)
             {
                 var extra = UiFactory.Label(name + "More", panel.transform, "+ " + (lines.Count - visibleLines.Count) + " 条已结算", 14, FontStyle.Bold);
                 extra.color = UnityTavernUiStyle.MutedText;
                 extra.alignment = TextAnchor.MiddleLeft;
-                UnityTavernUiStyle.SetPreferredHeight(extra.gameObject, 16f);
+                UnityTavernUiStyle.SetPreferredHeight(extra.gameObject, 22f);
+                extraHeight = 25f;
             }
+
+            UnityTavernUiStyle.SetPreferredHeight(panel, 38f + visibleLines.Count * 31f + extraHeight);
+            return panel;
         }
 
         private void BuildPlaybackBar(Transform parent, CombatReplay replay, int frameIndex, UnityCombatReplayPanelOptions options)
@@ -837,57 +1011,660 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             bar.transform.SetParent(parent, false);
             ConfigurePlaybackBar(bar);
 
-            var maxSteps = new GameObject("UnityCombatMaxStepsGroup", typeof(RectTransform), typeof(Image));
-            maxSteps.transform.SetParent(bar.transform, false);
-            ConfigureInlineControlGroup(maxSteps, 270f);
-            CreateButton("UnityCombatMaxStepsDownButton", maxSteps.transform, "-", () => options.DecreaseMaxSteps?.Invoke(), 46f, 50f).interactable = options.DecreaseMaxSteps != null;
-            var maxLabel = UiFactory.Label("UnityCombatMaxStepsLabel", maxSteps.transform, "\u6700\u5927\u8f6e\u6b21 " + Mathf.Max(1, options.MaxSteps), 15, FontStyle.Bold);
-            maxLabel.color = UnityTavernUiStyle.Text;
-            maxLabel.alignment = TextAnchor.MiddleCenter;
-            UnityTavernUiStyle.SetFlexible(maxLabel.gameObject, 1f, 0f);
-            CreateButton("UnityCombatMaxStepsUpButton", maxSteps.transform, "+", () => options.IncreaseMaxSteps?.Invoke(), 46f, 50f).interactable = options.IncreaseMaxSteps != null;
-
             controlParent = new GameObject("UnityCombatReplayControls", typeof(RectTransform)).transform;
             controlParent.SetParent(bar.transform, false);
             UnityTavernUiStyle.SetFlexible(controlParent.gameObject, 1f, 0f);
             BuildControls(controlParent, replay, frameIndex, options.ReplayPlaying, options.SpeedLabel, options.SetFrame, options.TogglePlayback, options.CycleSpeed, 50f);
 
-            CreateButton("UnityCombatStatsButton", bar.transform, "\u7edf\u8ba1100\u573a", () => options.RunStatistics?.Invoke(), 104f, 50f, UnityTavernUiStyle.TableLit, false).interactable = options.RunStatistics != null;
-            CreateButton("UnityCombatTimelineToggleButton", bar.transform, options.TimelineOpen ? "\u6536\u8d77\u65e5\u5fd7" : "\u65e5\u5fd7", () => options.ToggleTimeline?.Invoke(), 98f, 50f, UnityTavernUiStyle.PanelRaised, false).interactable = options.ToggleTimeline != null;
+            CreateButton("UnityCombatTimelineToggleButton", bar.transform, options.TimelineOpen ? "收起分析" : "战斗分析", () => options.ToggleTimeline?.Invoke(), 108f, 50f, UnityTavernUiStyle.TableLit, options.TimelineOpen).interactable = options.ToggleTimeline != null;
             CreateButton("UnityCombatReturnButton", bar.transform, "\u8fd4\u56de", () => options.Close?.Invoke(), 82f, 50f, UnityTavernUiStyle.PanelRaised, false);
+        }
+
+        private void BuildCombatHeroAnchor(Transform parent, Transform tooltipLayer, BoardSide side, UnityCombatReplayPanelOptions options)
+        {
+            var player = side == BoardSide.Player;
+            var compact = IsCompact(options);
+            var anchor = new GameObject(
+                player ? "UnityCombatPlayerHeroAnchor" : "UnityCombatOpponentHeroAnchor",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(LayoutElement));
+            anchor.transform.SetParent(parent, false);
+
+            var rect = anchor.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, player ? 0f : 1f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(0.5f, player ? 0f : 1f);
+            rect.sizeDelta = new Vector2(compact ? 244f : 304f, compact ? 52f : 68f);
+            rect.anchoredPosition = new Vector2(0f, player ? (compact ? 48f : 72f) : (compact ? -4f : -8f));
+            anchor.GetComponent<LayoutElement>().ignoreLayout = true;
+
+            var accent = player ? UnityTavernUiStyle.Blue : UnityTavernUiStyle.Red;
+            UnityTavernUiStyle.ConfigureSurface(anchor, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.90f));
+            UnityTavernUiStyle.ConfigureOutline(anchor, new Color(accent.r, accent.g, accent.b, 0.66f), new Vector2(2f, -2f));
+            var layout = anchor.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(7, 10, 5, 5);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var portrait = new GameObject((player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroPortrait", typeof(RectTransform), typeof(Image));
+            portrait.transform.SetParent(anchor.transform, false);
+            UnityTavernUiStyle.SetFixedSize(portrait, compact ? 42f : 54f, compact ? 42f : 54f);
+            var portraitImage = portrait.GetComponent<Image>();
+            portraitImage.sprite = CardImageProvider.LoadSprite(
+                player ? options.PlayerHeroImagePath : options.OpponentHeroImagePath,
+                player ? options.PlayerHeroCardId : options.OpponentHeroCardId,
+                CardKind.Hero);
+            portraitImage.color = portraitImage.sprite == null ? UnityTavernUiStyle.PanelQuiet : Color.white;
+            portraitImage.preserveAspect = true;
+            portraitImage.raycastTarget = false;
+            UnityTavernUiStyle.ConfigureOutline(portrait, new Color(0f, 0f, 0f, 0.48f), new Vector2(1f, -1f));
+            if (portraitImage.sprite == null)
+            {
+                var heroName = player ? options.PlayerHeroName : options.OpponentHeroName;
+                var fallback = UiFactory.Label(
+                    (player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroPortraitFallback",
+                    portrait.transform,
+                    UnityTavernUiStyle.ArtFallbackText(heroName, player ? "\u6211\u65b9" : "\u654c\u65b9"),
+                    compact ? 14 : 16,
+                    FontStyle.Bold);
+                fallback.alignment = TextAnchor.MiddleCenter;
+                fallback.color = UnityTavernUiStyle.Text;
+                fallback.raycastTarget = false;
+                UnityTavernUiStyle.ConfigureOutline(fallback.gameObject, new Color(0f, 0f, 0f, 0.78f), new Vector2(1f, -1f));
+                UnityTavernUiStyle.Stretch(fallback.rectTransform);
+            }
+
+            var stack = new GameObject((player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroText", typeof(RectTransform));
+            stack.transform.SetParent(anchor.transform, false);
+            UnityTavernUiStyle.SetFlexible(stack, 1f, 0f);
+            var stackLayout = stack.AddComponent<VerticalLayoutGroup>();
+            stackLayout.spacing = 1;
+            stackLayout.childControlWidth = true;
+            stackLayout.childControlHeight = true;
+            stackLayout.childForceExpandWidth = true;
+            stackLayout.childForceExpandHeight = false;
+
+            var name = UiFactory.Label(
+                (player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroName",
+                stack.transform,
+                string.IsNullOrWhiteSpace(player ? options.PlayerHeroName : options.OpponentHeroName)
+                    ? (player ? "我方英雄" : "敌方英雄")
+                    : (player ? options.PlayerHeroName : options.OpponentHeroName),
+                compact ? 14 : 16,
+                FontStyle.Bold);
+            name.color = UnityTavernUiStyle.Text;
+            name.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(name.gameObject, compact ? 19f : 25f);
+
+            var stats = new GameObject((player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroStats", typeof(RectTransform));
+            stats.transform.SetParent(stack.transform, false);
+            UnityTavernUiStyle.SetPreferredHeight(stats, compact ? 19f : 25f);
+            var statsLayout = stats.AddComponent<HorizontalLayoutGroup>();
+            statsLayout.spacing = 8;
+            statsLayout.childControlWidth = true;
+            statsLayout.childControlHeight = true;
+            statsLayout.childForceExpandWidth = false;
+            statsLayout.childForceExpandHeight = true;
+
+            var health = UiFactory.Label(
+                (player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroHealth",
+                stats.transform,
+                "生命 " + Mathf.Max(0, player ? options.PlayerHealth : options.OpponentHealth),
+                compact ? 13 : 15,
+                FontStyle.Bold);
+            health.color = UnityTavernUiStyle.Red;
+            health.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(health.gameObject).preferredWidth = compact ? 72f : 88f;
+
+            var armor = UiFactory.Label(
+                (player ? "UnityCombatPlayer" : "UnityCombatOpponent") + "HeroArmor",
+                stats.transform,
+                "护甲 " + Mathf.Max(0, player ? options.PlayerArmor : options.OpponentArmor),
+                compact ? 13 : 15,
+                FontStyle.Bold);
+            armor.color = UnityTavernUiStyle.Blue;
+            armor.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.EnsureComponent<LayoutElement>(armor.gameObject).preferredWidth = compact ? 72f : 88f;
+
+            BuildCombatTrinketRack(parent, tooltipLayer, side, options, rect.sizeDelta.x, rect.anchoredPosition.y);
+        }
+
+        private void BuildCombatTrinketRack(
+            Transform parent,
+            Transform tooltipLayer,
+            BoardSide side,
+            UnityCombatReplayPanelOptions options,
+            float heroWidth,
+            float heroOffsetY)
+        {
+            var displays = (side == BoardSide.Player ? options.PlayerTrinkets : options.OpponentTrinkets)
+                ?? Array.Empty<UnityCombatTrinketDisplay>();
+            var visible = displays
+                .Where(item => item != null)
+                .OrderBy(item => item.SlotKind)
+                .Take(2)
+                .ToList();
+            if (visible.Count == 0)
+            {
+                return;
+            }
+
+            var player = side == BoardSide.Player;
+            var sideName = player ? "Player" : "Opponent";
+            var compact = IsCompact(options);
+            var iconSize = compact ? 44f : 48f;
+            var rack = new GameObject(
+                "UnityCombat" + sideName + "TrinketRack",
+                typeof(RectTransform),
+                typeof(LayoutElement));
+            rack.transform.SetParent(parent, false);
+
+            var rect = rack.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, player ? 0f : 1f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(player ? 0f : 1f, player ? 0f : 1f);
+            rect.sizeDelta = new Vector2(4f + visible.Count * iconSize + Mathf.Max(0, visible.Count - 1) * 8f, iconSize + 4f);
+            rect.anchoredPosition = new Vector2(
+                player ? heroWidth * 0.5f + 8f : -(heroWidth * 0.5f + 8f),
+                heroOffsetY);
+            rack.GetComponent<LayoutElement>().ignoreLayout = true;
+
+            var layout = rack.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(2, 2, 2, 2);
+            layout.spacing = 8f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+
+            foreach (var display in visible)
+            {
+                BuildCombatTrinketIcon(rack.transform, tooltipLayer, side, display, options, iconSize);
+            }
+        }
+
+        private void BuildCombatTrinketIcon(
+            Transform parent,
+            Transform tooltipLayer,
+            BoardSide side,
+            UnityCombatTrinketDisplay display,
+            UnityCombatReplayPanelOptions options,
+            float size)
+        {
+            var sideName = side == BoardSide.Player ? "Player" : "Opponent";
+            var suffix = display.SlotKind.ToString();
+            var icon = new GameObject(
+                "UnityCombat" + sideName + "Trinket-" + suffix,
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button),
+                typeof(LayoutElement));
+            icon.transform.SetParent(parent, false);
+            UnityTavernUiStyle.SetFixedSize(icon, size, size);
+
+            var accent = display.SlotKind == TrinketSlotKind.Greater
+                ? UnityTavernUiStyle.Gold
+                : UnityTavernUiStyle.Blue;
+            var image = icon.GetComponent<Image>();
+            image.sprite = CardImageProvider.LoadSprite(display.ImagePath, display.CardId, CardKind.Trinket);
+            image.preserveAspect = true;
+            image.raycastTarget = true;
+            image.color = image.sprite == null
+                ? new Color(UnityTavernUiStyle.PanelQuiet.r, UnityTavernUiStyle.PanelQuiet.g, UnityTavernUiStyle.PanelQuiet.b, display.Active ? 0.96f : 0.42f)
+                : new Color(1f, 1f, 1f, display.Active ? 1f : 0.38f);
+            UnityTavernUiStyle.ConfigureOutline(icon, new Color(accent.r, accent.g, accent.b, display.Active ? 0.72f : 0.36f), new Vector2(1f, -1f));
+
+            if (image.sprite == null)
+            {
+                var fallback = UiFactory.Label(
+                    "UnityCombat" + sideName + "TrinketFallback-" + suffix,
+                    icon.transform,
+                    display.SlotKind == TrinketSlotKind.Greater ? "\u5927" : "\u5c0f",
+                    16,
+                    FontStyle.Bold);
+                fallback.color = UnityTavernUiStyle.Text;
+                fallback.alignment = TextAnchor.MiddleCenter;
+                fallback.raycastTarget = false;
+                UnityTavernUiStyle.Stretch(fallback.rectTransform);
+            }
+
+            var slotBadge = UiFactory.Label(
+                "UnityCombat" + sideName + "TrinketSlotBadge-" + suffix,
+                icon.transform,
+                display.SlotKind == TrinketSlotKind.Greater ? "\u5927" : "\u5c0f",
+                14,
+                FontStyle.Bold);
+            slotBadge.color = accent;
+            slotBadge.alignment = TextAnchor.LowerLeft;
+            slotBadge.raycastTarget = false;
+            slotBadge.rectTransform.anchorMin = Vector2.zero;
+            slotBadge.rectTransform.anchorMax = Vector2.one;
+            slotBadge.rectTransform.offsetMin = new Vector2(3f, 2f);
+            slotBadge.rectTransform.offsetMax = new Vector2(-3f, -2f);
+            UnityTavernUiStyle.ConfigureOutline(slotBadge.gameObject, new Color(0f, 0f, 0f, 0.8f), new Vector2(1f, -1f));
+
+            if (!display.Active)
+            {
+                var activeRound = display.SlotKind == TrinketSlotKind.Greater ? 9 : 6;
+                var lockBadge = UiFactory.Label(
+                    "UnityCombat" + sideName + "TrinketLockBadge-" + suffix,
+                    icon.transform,
+                    "R" + activeRound,
+                    14,
+                    FontStyle.Bold);
+                lockBadge.color = UnityTavernUiStyle.Text;
+                lockBadge.alignment = TextAnchor.UpperRight;
+                lockBadge.raycastTarget = false;
+                lockBadge.rectTransform.anchorMin = Vector2.zero;
+                lockBadge.rectTransform.anchorMax = Vector2.one;
+                lockBadge.rectTransform.offsetMin = new Vector2(3f, 2f);
+                lockBadge.rectTransform.offsetMax = new Vector2(-3f, -2f);
+                UnityTavernUiStyle.ConfigureOutline(lockBadge.gameObject, new Color(0f, 0f, 0f, 0.86f), new Vector2(1f, -1f));
+            }
+
+            var button = icon.GetComponent<Button>();
+            button.targetGraphic = image;
+            UnityTavernUiStyle.TintSelectable(
+                button,
+                Color.white,
+                new Color(1f, 0.94f, 0.72f, 1f),
+                new Color(0.82f, 0.76f, 0.62f, 1f));
+            icon.AddComponent<UnitySelectableFocusRing>();
+
+            var key = sideName + "-" + suffix;
+            var anchor = icon.GetComponent<RectTransform>();
+            button.onClick.AddListener(() => ToggleCombatTrinketTooltip(tooltipLayer, anchor, side, display, options, key));
+
+            var trigger = icon.AddComponent<EventTrigger>();
+            AddCombatEventTrigger(trigger, EventTriggerType.PointerEnter, _ =>
+            {
+                if (!combatTrinketTooltipPinned)
+                {
+                    ShowCombatTrinketTooltip(tooltipLayer, anchor, side, display, options, key);
+                }
+            });
+            AddCombatEventTrigger(trigger, EventTriggerType.PointerExit, _ =>
+            {
+                if (!combatTrinketTooltipPinned)
+                {
+                    HideCombatTrinketTooltip();
+                }
+            });
+            AddCombatEventTrigger(trigger, EventTriggerType.Select, _ =>
+            {
+                if (!combatTrinketTooltipPinned)
+                {
+                    ShowCombatTrinketTooltip(tooltipLayer, anchor, side, display, options, key);
+                }
+            });
+            AddCombatEventTrigger(trigger, EventTriggerType.Deselect, _ =>
+            {
+                if (!combatTrinketTooltipPinned)
+                {
+                    HideCombatTrinketTooltip();
+                }
+            });
+        }
+
+        private void ToggleCombatTrinketTooltip(
+            Transform tooltipLayer,
+            RectTransform anchor,
+            BoardSide side,
+            UnityCombatTrinketDisplay display,
+            UnityCombatReplayPanelOptions options,
+            string key)
+        {
+            if (combatTrinketTooltipPinned && string.Equals(combatTrinketTooltipKey, key, StringComparison.Ordinal))
+            {
+                combatTrinketTooltipPinned = false;
+                HideCombatTrinketTooltip();
+                return;
+            }
+
+            combatTrinketTooltipPinned = true;
+            ShowCombatTrinketTooltip(tooltipLayer, anchor, side, display, options, key);
+        }
+
+        private void ShowCombatTrinketTooltip(
+            Transform tooltipLayer,
+            RectTransform anchor,
+            BoardSide side,
+            UnityCombatTrinketDisplay display,
+            UnityCombatReplayPanelOptions options,
+            string key)
+        {
+            HideCombatTrinketTooltip();
+            var root = tooltipLayer as RectTransform ?? transform as RectTransform;
+            if (root == null || display == null)
+            {
+                return;
+            }
+
+            combatTrinketTooltipKey = key;
+            combatTrinketTooltip = new GameObject(
+                "UnityCombatTrinketTooltip",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(LayoutElement));
+            combatTrinketTooltip.transform.SetParent(root, false);
+            combatTrinketTooltip.transform.SetAsLastSibling();
+            combatTrinketTooltip.GetComponent<LayoutElement>().ignoreLayout = true;
+
+            var accent = display.SlotKind == TrinketSlotKind.Greater
+                ? UnityTavernUiStyle.Gold
+                : UnityTavernUiStyle.Blue;
+            var tooltipImage = UnityTavernUiStyle.ConfigureSurface(
+                combatTrinketTooltip,
+                new Color(UnityTavernUiStyle.SurfaceDark.r, UnityTavernUiStyle.SurfaceDark.g, UnityTavernUiStyle.SurfaceDark.b, 0.98f));
+            tooltipImage.raycastTarget = false;
+            UnityTavernUiStyle.ConfigureOutline(combatTrinketTooltip, new Color(accent.r, accent.g, accent.b, 0.76f), new Vector2(1f, -1f));
+
+            var rect = combatTrinketTooltip.GetComponent<RectTransform>();
+            var compact = IsCompact(options);
+            var rootWidth = root.rect.width >= 320f ? root.rect.width : Mathf.Max(320f, options.ViewportWidth);
+            var rootHeight = root.rect.height >= 200f ? root.rect.height : Mathf.Max(200f, options.ViewportHeight);
+            var xMin = root.rect.width >= 320f ? root.rect.xMin : -rootWidth * 0.5f;
+            var xMax = root.rect.width >= 320f ? root.rect.xMax : rootWidth * 0.5f;
+            var yMin = root.rect.height >= 200f ? root.rect.yMin : -rootHeight * 0.5f;
+            var yMax = root.rect.height >= 200f ? root.rect.yMax : rootHeight * 0.5f;
+            var drawerReservation = options.TimelineOpen ? DrawerWidth(options) + (compact ? 20f : 36f) : 0f;
+            var availableLeft = xMin + 10f;
+            var availableRight = xMax - drawerReservation - 10f;
+            var availableWidth = Mathf.Max(160f, availableRight - availableLeft);
+            var width = Mathf.Min(compact ? 280f : 320f, availableWidth);
+            var height = compact ? 192f : 184f;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, side == BoardSide.Player ? 0f : 1f);
+            rect.sizeDelta = new Vector2(width, height);
+
+            var local = root.InverseTransformPoint(anchor.position);
+            var x = availableRight - availableLeft <= width
+                ? (availableLeft + availableRight) * 0.5f
+                : Mathf.Clamp(local.x, availableLeft + width * 0.5f, availableRight - width * 0.5f);
+            var desiredY = local.y + (side == BoardSide.Player ? 30f : -30f);
+            var y = side == BoardSide.Player
+                ? Mathf.Clamp(desiredY, yMin + 10f, yMax - height - 10f)
+                : Mathf.Clamp(desiredY, yMin + height + 10f, yMax - 10f);
+            rect.anchoredPosition = new Vector2(x, y);
+
+            var layout = combatTrinketTooltip.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(12, 12, 10, 10);
+            layout.spacing = 4f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var kind = UiFactory.Label(
+                "UnityCombatTrinketTooltipKind",
+                combatTrinketTooltip.transform,
+                display.SlotKind == TrinketSlotKind.Greater ? "\u5927\u9970\u54c1" : "\u5c0f\u9970\u54c1",
+                14,
+                FontStyle.Bold);
+            kind.color = accent;
+            kind.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(kind.gameObject, 20f);
+
+            var title = UiFactory.Label("UnityCombatTrinketTooltipTitle", combatTrinketTooltip.transform, display.Name ?? string.Empty, 16, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            title.alignment = TextAnchor.MiddleLeft;
+            title.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 24f);
+
+            var description = UiFactory.Label("UnityCombatTrinketTooltipDescription", combatTrinketTooltip.transform, display.Description ?? string.Empty, 14, FontStyle.Normal);
+            description.color = UnityTavernUiStyle.Text;
+            description.alignment = TextAnchor.UpperLeft;
+            description.horizontalOverflow = HorizontalWrapMode.Wrap;
+            description.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(description.gameObject, compact ? 82f : 74f);
+
+            var status = UiFactory.Label(
+                "UnityCombatTrinketTooltipStatus",
+                combatTrinketTooltip.transform,
+                "\u72b6\u6001\uff1a" + (display.Status ?? string.Empty),
+                14,
+                FontStyle.Bold);
+            status.color = display.Active ? accent : UnityTavernUiStyle.MutedText;
+            status.alignment = TextAnchor.UpperLeft;
+            status.horizontalOverflow = HorizontalWrapMode.Wrap;
+            status.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 38f);
+        }
+
+        private void HideCombatTrinketTooltip()
+        {
+            if (combatTrinketTooltip == null)
+            {
+                return;
+            }
+
+            if (UnityEngine.Application.isPlaying)
+            {
+                Destroy(combatTrinketTooltip);
+            }
+            else
+            {
+                DestroyImmediate(combatTrinketTooltip);
+            }
+
+            combatTrinketTooltip = null;
+            if (!combatTrinketTooltipPinned)
+            {
+                combatTrinketTooltipKey = null;
+            }
+        }
+
+        private static void AddCombatEventTrigger(EventTrigger trigger, EventTriggerType type, Action<BaseEventData> callback)
+        {
+            if (trigger.triggers == null)
+            {
+                trigger.triggers = new List<EventTrigger.Entry>();
+            }
+
+            var entry = new EventTrigger.Entry { eventID = type };
+            entry.callback.AddListener(data => callback?.Invoke(data));
+            trigger.triggers.Add(entry);
+        }
+
+        private static void BuildAnalysisPeek(
+            Transform parent,
+            CombatFrame frame,
+            bool hasFrames,
+            int frameIndex,
+            CombatReplay replay,
+            UnityCombatReplayPanelOptions options)
+        {
+            var peek = new GameObject("UnityCombatAnalysisPeek", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+            peek.transform.SetParent(parent, false);
+            var compact = IsCompact(options);
+            var rect = peek.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(1f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.sizeDelta = new Vector2(compact ? 290f : 390f, compact ? 48f : 58f);
+            rect.anchoredPosition = new Vector2(compact ? -10f : -18f, compact ? -62f : -92f);
+            peek.GetComponent<LayoutElement>().ignoreLayout = true;
+            UnityTavernUiStyle.ConfigureSurface(peek, new Color(UnityTavernUiStyle.Panel.r, UnityTavernUiStyle.Panel.g, UnityTavernUiStyle.Panel.b, 0.88f));
+            UnityTavernUiStyle.ConfigureOutline(peek, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.34f), new Vector2(1f, -1f));
+
+            var layout = peek.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(10, 6, 5, 5);
+            layout.spacing = 8;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            var text = UiFactory.Label("UnityCombatAnalysisPeekText", peek.transform, CurrentEventText(frame, hasFrames, frameIndex, replay), compact ? 13 : 14, FontStyle.Bold);
+            text.color = UnityTavernUiStyle.Text;
+            text.alignment = TextAnchor.MiddleLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetFlexible(text.gameObject, 1f, 0f);
+            CreateButton("UnityCombatAnalysisPeekOpenButton", peek.transform, "展开", () => options.ToggleTimeline?.Invoke(), compact ? 66f : 76f, compact ? 38f : 46f, UnityTavernUiStyle.TableLit, false).interactable = options.ToggleTimeline != null;
+        }
+
+        private void BuildAnalysisSummary(Transform parent, CombatReplay replay, UnityCombatReplayPanelOptions options)
+        {
+            var summary = new GameObject("UnityCombatAnalysisSummary", typeof(RectTransform), typeof(Image));
+            summary.transform.SetParent(parent, false);
+            UnityTavernUiStyle.ConfigureSurface(summary, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.ConfigureOutline(summary, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.24f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetPreferredHeight(summary, IsCompact(options) ? 78f : 86f);
+
+            var layout = summary.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(10, 10, 7, 7);
+            layout.spacing = 10;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            titleText = UiFactory.Label("UnityCombatResultText", summary.transform, ResultText(replay), 18, FontStyle.Bold);
+            titleText.color = UnityTavernUiStyle.Text;
+            titleText.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(titleText.gameObject, IsCompact(options) ? 76f : 88f, IsCompact(options) ? 64f : 72f);
+
+            var stack = new GameObject("UnityCombatAnalysisSummaryDetails", typeof(RectTransform));
+            stack.transform.SetParent(summary.transform, false);
+            UnityTavernUiStyle.SetFlexible(stack, 1f, 0f);
+            var stackLayout = stack.AddComponent<VerticalLayoutGroup>();
+            stackLayout.spacing = 2f;
+            stackLayout.childControlWidth = true;
+            stackLayout.childControlHeight = true;
+            stackLayout.childForceExpandWidth = true;
+            stackLayout.childForceExpandHeight = false;
+
+            summaryText = UiFactory.Label("UnityCombatStatsText", stack.transform, StatsText(options, replay), 14, FontStyle.Bold);
+            summaryText.color = UnityTavernUiStyle.Gold;
+            summaryText.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(summaryText.gameObject, 22f);
+
+            var statsMeta = UiFactory.Label("UnityCombatStatsMetaText", stack.transform, StatsMetaText(options, replay), 14, FontStyle.Normal);
+            statsMeta.color = UnityTavernUiStyle.MutedText;
+            statsMeta.alignment = TextAnchor.MiddleLeft;
+            UnityTavernUiStyle.SetPreferredHeight(statsMeta.gameObject, 19f);
+
+            var versionBadge = UiFactory.Label("UnityCombatReplayVersionBadge", stack.transform, LockedVersionText(options), 14, FontStyle.Bold);
+            versionBadge.color = UnityTavernUiStyle.MutedText;
+            versionBadge.alignment = TextAnchor.MiddleLeft;
+            versionBadge.horizontalOverflow = HorizontalWrapMode.Wrap;
+            versionBadge.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(versionBadge.gameObject, 19f);
+        }
+
+        private static void BuildAnalysisTools(Transform parent, UnityCombatReplayPanelOptions options)
+        {
+            var controls = new GameObject("UnityCombatAnalysisTools", typeof(RectTransform), typeof(Image));
+            controls.transform.SetParent(parent, false);
+            UnityTavernUiStyle.ConfigureSurface(controls, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.ConfigureOutline(controls, new Color(0f, 0f, 0f, 0.24f), new Vector2(1f, -1f));
+            UnityTavernUiStyle.SetPreferredHeight(controls, 48f);
+            var controlsLayout = controls.AddComponent<HorizontalLayoutGroup>();
+            controlsLayout.padding = new RectOffset(4, 4, 3, 3);
+            controlsLayout.spacing = 6;
+            controlsLayout.childControlWidth = true;
+            controlsLayout.childControlHeight = true;
+            controlsLayout.childForceExpandWidth = false;
+            controlsLayout.childForceExpandHeight = true;
+
+            CreateButton("UnityCombatMaxStepsDownButton", controls.transform, "-", () => options.DecreaseMaxSteps?.Invoke(), 40f, 42f).interactable = options.DecreaseMaxSteps != null;
+            var maxLabel = UiFactory.Label("UnityCombatMaxStepsLabel", controls.transform, "最大轮次 " + Mathf.Max(1, options.MaxSteps), 14, FontStyle.Bold);
+            maxLabel.color = UnityTavernUiStyle.Text;
+            maxLabel.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFlexible(maxLabel.gameObject, 1f, 0f);
+            CreateButton("UnityCombatMaxStepsUpButton", controls.transform, "+", () => options.IncreaseMaxSteps?.Invoke(), 40f, 42f).interactable = options.IncreaseMaxSteps != null;
+            CreateButton("UnityCombatStatsButton", controls.transform, "统计100场", () => options.RunStatistics?.Invoke(), 96f, 42f, UnityTavernUiStyle.TableLit, false).interactable = options.RunStatistics != null;
         }
 
         private void BuildTimelineDrawer(Transform parent, CombatReplay replay, int frameIndex, UnityCombatReplayPanelOptions options)
         {
             var drawer = new GameObject("UnityCombatTimelineDrawer", typeof(RectTransform), typeof(Image));
             drawer.transform.SetParent(parent, false);
-            ConfigureTimelineDrawer(drawer);
+            ConfigureTimelineDrawer(drawer, options);
 
             var header = new GameObject("UnityCombatTimelineDrawerHeader", typeof(RectTransform), typeof(Image));
             header.transform.SetParent(drawer.transform, false);
             ConfigureTimelineDrawerHeader(header);
 
-            var title = UiFactory.Label("UnityCombatTimelineDrawerTitle", header.transform, "\u6218\u6597\u65e5\u5fd7", 16, FontStyle.Bold);
+            var title = UiFactory.Label("UnityCombatTimelineDrawerTitle", header.transform, "战斗分析", 16, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
             title.alignment = TextAnchor.MiddleLeft;
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
-            CreateButton("UnityCombatTimelineCloseButton", header.transform, "\u6536\u8d77", () => options.ToggleTimeline?.Invoke(), 78f, 42f);
+            var pauseBadge = UiFactory.Label("UnityCombatTimelinePauseBadge", header.transform, "已暂停", 14, FontStyle.Bold);
+            pauseBadge.color = UnityTavernUiStyle.Gold;
+            pauseBadge.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetFixedSize(pauseBadge.gameObject, 62f, 40f);
+            CreateButton("UnityCombatTimelineCloseButton", header.transform, "收起", () => options.ToggleTimeline?.Invoke(), 78f, 42f);
+
+            BuildAnalysisSummary(drawer.transform, replay, options);
+            BuildTimelineFilters(drawer.transform, options);
+            BuildCombatRewardDiagnostics(drawer.transform, replay);
 
             timelineParent = UiFactory.ScrollView("UnityCombatTimeline", drawer.transform, UnityTavernUiStyle.PanelQuiet, out _);
-            BuildTimeline(timelineParent, replay, frameIndex, options.SetFrame);
+            BuildFilteredTimeline(timelineParent, replay, frameIndex, options);
+            BuildAnalysisTools(drawer.transform, options);
         }
 
-        private void BuildCombatSide(Transform parent, BoardSide side, string title, CombatBoardSnapshot snapshot, CombatBoardSnapshot previousSnapshot, CombatFrame frame)
+        private static void BuildTimelineFilters(Transform parent, UnityCombatReplayPanelOptions options)
+        {
+            var filters = new GameObject("UnityCombatTimelineFilters", typeof(RectTransform), typeof(Image));
+            filters.transform.SetParent(parent, false);
+            UnityTavernUiStyle.ConfigureSurface(filters, UnityTavernUiStyle.PanelQuiet);
+            UnityTavernUiStyle.SetPreferredHeight(filters, 48f);
+
+            var row = filters.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(4, 4, 2, 2);
+            row.spacing = 4f;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = true;
+            row.childForceExpandHeight = true;
+
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.All, "全部");
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.Choice, "选择");
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.DarkGift, "黑暗");
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.RecruitAction, "招募");
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.DelayedObject, "延迟");
+            AddTimelineFilterButton(filters.transform, options, UnityReplayTimelineFilter.Combat, "战斗");
+        }
+
+        private static void AddTimelineFilterButton(
+            Transform parent,
+            UnityCombatReplayPanelOptions options,
+            UnityReplayTimelineFilter filter,
+            string label)
+        {
+            var selected = options.TimelineFilter == filter;
+            var button = CreateButton(
+                "UnityCombatTimelineFilter-" + filter,
+                parent,
+                (selected ? "✓ " : string.Empty) + label,
+                () => options.SetTimelineFilter?.Invoke(filter),
+                0f,
+                selected ? UnityTavernUiStyle.TableLit : UnityTavernUiStyle.PanelRaised,
+                selected);
+            button.interactable = options.SetTimelineFilter != null;
+            var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(button.gameObject);
+            element.minWidth = 48f;
+            element.flexibleWidth = 1f;
+            var text = button.GetComponentInChildren<Text>();
+            text.resizeTextForBestFit = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+        }
+
+        private void BuildCombatSide(Transform parent, BoardSide side, string title, CombatBoardSnapshot snapshot, CombatBoardSnapshot previousSnapshot, CombatFrame frame, UnityCombatReplayPanelOptions options)
         {
             var sideName = side == BoardSide.Player ? "Player" : "Opponent";
             var sideObject = new GameObject("UnityCombat" + sideName + "Side", typeof(RectTransform), typeof(Image));
             sideObject.transform.SetParent(parent, false);
-            ConfigureCombatSide(sideObject, side);
-
-            var status = UiFactory.Label("UnityCombat" + sideName + "Status", sideObject.transform, BoardTitleText(title) + " " + (snapshot == null ? "0/7" : snapshot.Minions.Count + "/7"), 15, FontStyle.Bold);
-            status.color = UnityTavernUiStyle.Gold;
-            status.alignment = side == BoardSide.Player ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight;
-            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 24f);
+            ConfigureCombatSide(sideObject, side, IsCompact(options));
 
             var board = new GameObject("UnityCombat" + sideName + "Board", typeof(RectTransform), typeof(Image));
             board.transform.SetParent(sideObject.transform, false);
@@ -907,10 +1684,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 else if (deaths.TryGetValue(slot, out var deadMinion))
                 {
                     BuildDeathMarker(slotObject.transform, side, deadMinion);
-                }
-                else
-                {
-                    BuildEmptySlot(slotObject.transform, side, slot, frame);
                 }
             }
         }
@@ -1106,14 +1879,17 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.Stretch(tile.GetComponent<RectTransform>());
             var tileColor = ReplayHighlightColor(side, minion.Position, minion.InstanceId, frame);
             var tileImage = tile.GetComponent<Image>();
+            tileImage.sprite = CombatTokenOvalSprite();
+            tileImage.preserveAspect = false;
             tileImage.color = tileColor;
             tileImage.raycastTarget = false;
             ConfigureTileOutline(tile, tileColor);
             ConfigureReplayTargetingOutline(tile, minion.InstanceId, frame);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
 
-            BuildCombatCardFace(tile.transform, minion, tileColor, false);
+            BuildCombatCardFace(tile.transform, side, minion, tileColor, false);
             BuildReplayTargetingLabel(tile.transform, minion.InstanceId, frame);
+            BuildCombatDamageFeedback(tile.transform, minion.InstanceId, frame);
             ConfigureTileMotion(tile, side, minion.InstanceId, tileColor, frame);
         }
 
@@ -1254,12 +2030,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.Stretch(tile.GetComponent<RectTransform>());
             var tileColor = new Color(0.24f, 0.08f, 0.08f, 0.92f);
             var tileImage = tile.GetComponent<Image>();
+            tileImage.sprite = CombatTokenOvalSprite();
+            tileImage.preserveAspect = false;
             tileImage.color = tileColor;
             tileImage.raycastTarget = false;
             ConfigureTileOutline(tile, UnityTavernUiStyle.Red);
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
 
-            BuildCombatCardFace(tile.transform, minion, tileColor, true);
+            BuildCombatCardFace(tile.transform, side, minion, tileColor, true);
             UnityTavernUiStyle.EnsureComponent<UnityTavernReplayTileAnimator>(tile)
                 .Configure(UnityTavernReplayTileMotion.Death, tileColor, MotionDirection(side));
         }
@@ -1269,14 +2047,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var tile = new GameObject("UnityReplayEmptySlot-" + side + "-" + slot, typeof(RectTransform), typeof(Image));
             tile.transform.SetParent(parent, false);
             UnityTavernUiStyle.Stretch(tile.GetComponent<RectTransform>());
-            tile.GetComponent<Image>().color = IsAttackPointer(side, slot, frame)
+            var image = tile.GetComponent<Image>();
+            image.sprite = CombatTokenOvalSprite();
+            image.preserveAspect = false;
+            image.color = IsAttackPointer(side, slot, frame)
                 ? new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.36f)
-                : UnityTavernUiStyle.PanelQuiet;
-            ConfigureTileOutline(tile, IsAttackPointer(side, slot, frame) ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.PanelRaised);
+                : new Color(0.04f, 0.03f, 0.02f, 0.18f);
+            image.raycastTarget = false;
+            ConfigureTileOutline(tile, IsAttackPointer(side, slot, frame) ? UnityTavernUiStyle.Gold : new Color(0.12f, 0.08f, 0.04f, 0.10f));
             UnityTavernUiStyle.SetFlexible(tile, 1f, 1f);
         }
 
-        private static void BuildCombatCardFace(Transform parent, CombatMinionSnapshot minion, Color accentColor, bool defeated)
+        private static void BuildCombatCardFace(Transform parent, BoardSide side, CombatMinionSnapshot minion, Color accentColor, bool defeated)
         {
             var face = new GameObject("UnityCombatCardFace-" + minion.InstanceId, typeof(RectTransform), typeof(Image));
             face.transform.SetParent(parent, false);
@@ -1286,52 +2068,62 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             faceRect.offsetMax = new Vector2(-4f, -4f);
 
             var faceImage = face.GetComponent<Image>();
+            faceImage.sprite = CombatTokenOvalSprite();
+            faceImage.preserveAspect = false;
             faceImage.color = minion.Golden
                 ? new Color(0.48f, 0.35f, 0.13f, defeated ? 0.72f : 0.96f)
                 : new Color(0.12f, 0.10f, 0.09f, defeated ? 0.72f : 0.96f);
             faceImage.raycastTarget = false;
             ConfigureTileOutline(face, minion.Golden ? UnityTavernUiStyle.Gold : accentColor);
 
-            var artViewport = new GameObject("UnityCombatCardArtViewport-" + minion.InstanceId, typeof(RectTransform), typeof(RectMask2D));
+            var artViewport = new GameObject("UnityCombatCardArtViewport-" + minion.InstanceId, typeof(RectTransform), typeof(Image), typeof(Mask), typeof(RectMask2D));
             artViewport.transform.SetParent(face.transform, false);
-            SetAnchored(artViewport.GetComponent<RectTransform>(), new Vector2(0.14f, 0.30f), new Vector2(0.86f, 0.84f), Vector2.zero, Vector2.zero);
+            var viewportImage = artViewport.GetComponent<Image>();
+            viewportImage.sprite = CombatTokenOvalSprite();
+            viewportImage.color = Color.white;
+            viewportImage.raycastTarget = false;
+            artViewport.GetComponent<Mask>().showMaskGraphic = false;
+            SetAnchored(artViewport.GetComponent<RectTransform>(), new Vector2(0.08f, 0.12f), new Vector2(0.92f, 0.96f), Vector2.zero, Vector2.zero);
 
             var artObject = new GameObject("UnityCombatCardArt-" + minion.InstanceId, typeof(RectTransform), typeof(Image));
             artObject.transform.SetParent(artViewport.transform, false);
             var artImage = artObject.GetComponent<Image>();
-            artImage.sprite = CardImageProvider.LoadSprite(null, minion.CardId, CardKind.Minion);
+            artImage.sprite = CardImageProvider.LoadSprite(minion.ImagePath, minion.CardId, minion.CardKind);
             artImage.preserveAspect = true;
             artImage.raycastTarget = false;
             artImage.color = artImage.sprite == null
                 ? CombatCardFallbackColor(minion, defeated)
                 : new Color(1f, 1f, 1f, defeated ? 0.42f : 0.92f);
             var cropArt = CardImageProvider.ShouldCropToPortrait(artImage.sprite);
+            artImage.preserveAspect = !cropArt;
             SetAnchored(
                 artImage.rectTransform,
-                cropArt ? new Vector2(0f, -1f) : Vector2.zero,
-                Vector2.one,
+                cropArt ? new Vector2(-0.20f, -1.22f) : Vector2.zero,
+                cropArt ? new Vector2(1.20f, 1.05f) : Vector2.one,
                 Vector2.zero,
                 Vector2.zero);
-            artImage.rectTransform.pivot = new Vector2(0.5f, 1f);
+            artImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
 
             if (artImage.sprite == null)
             {
-                var fallback = AddCombatCardLabel("UnityCombatCardArtFallbackText-" + minion.InstanceId, artObject.transform, CombatCardFallbackText(minion), 14, FontStyle.Bold, UnityTavernUiStyle.MutedText, TextAnchor.MiddleCenter);
+                var fallback = AddCombatCardLabel("UnityCombatCardArtFallbackText-" + minion.InstanceId, artObject.transform, CombatCardFallbackText(minion), 20, FontStyle.Bold, UnityTavernUiStyle.Text, TextAnchor.MiddleCenter);
                 UnityTavernUiStyle.Stretch(fallback.rectTransform);
             }
 
+            UnityTavernKeywordVisuals.Rebuild(face.transform, minion.Keywords, true, false);
+
             var header = AddCombatCardLabel("UnityCombatCardHeader-" + minion.InstanceId, face.transform, HeaderText(minion), 14, FontStyle.Bold, UnityTavernUiStyle.Gold, TextAnchor.MiddleCenter);
-            SetAnchored(header.rectTransform, new Vector2(0.08f, 0.84f), new Vector2(0.92f, 0.99f), Vector2.zero, Vector2.zero);
+            SetAnchored(header.rectTransform, new Vector2(0.16f, 0.82f), new Vector2(0.84f, 0.98f), Vector2.zero, Vector2.zero);
 
             var name = AddCombatCardLabel("UnityCombatCardName-" + minion.InstanceId, face.transform, CombatCardDisplayName(minion), 14, FontStyle.Bold, UnityTavernUiStyle.Text, TextAnchor.MiddleCenter);
             name.horizontalOverflow = HorizontalWrapMode.Wrap;
-            SetAnchored(name.rectTransform, new Vector2(0.18f, 0.12f), new Vector2(0.82f, 0.30f), Vector2.zero, Vector2.zero);
+            SetAnchored(name.rectTransform, new Vector2(0.14f, 0.10f), new Vector2(0.86f, 0.26f), Vector2.zero, Vector2.zero);
 
             var keywordText = KeywordsText(minion);
             if (!string.IsNullOrEmpty(keywordText))
             {
                 var keywords = AddCombatCardLabel("UnityCombatCardKeywords-" + minion.InstanceId, face.transform, keywordText, 14, FontStyle.Bold, UnityTavernUiStyle.MutedText, TextAnchor.MiddleCenter);
-                SetAnchored(keywords.rectTransform, new Vector2(0.18f, 0.01f), new Vector2(0.82f, 0.14f), Vector2.zero, Vector2.zero);
+                SetAnchored(keywords.rectTransform, new Vector2(0.20f, 0.01f), new Vector2(0.80f, 0.12f), Vector2.zero, Vector2.zero);
             }
 
             AddCombatStatBadge(face.transform, "UnityCombatCardAttack", minion.InstanceId, TavernNumberFormatter.CompactStat(minion.Attack), UnityTavernUiStyle.ColorFromHex(0xBA6A31), new Vector2(0f, 0f), new Vector2(19f, 18f));
@@ -1342,6 +2134,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var overlay = new GameObject("UnityCombatCardDeathOverlay-" + minion.InstanceId, typeof(RectTransform), typeof(Image));
                 overlay.transform.SetParent(face.transform, false);
                 var overlayImage = overlay.GetComponent<Image>();
+                overlayImage.sprite = CombatTokenOvalSprite();
+                overlayImage.preserveAspect = false;
                 overlayImage.color = new Color(0.18f, 0.02f, 0.03f, 0.54f);
                 overlayImage.raycastTarget = false;
                 UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
@@ -1349,6 +2143,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var defeatedLabel = AddCombatCardLabel("UnityCombatCardDeathText-" + minion.InstanceId, overlay.transform, "阵亡", 16, FontStyle.Bold, UnityTavernUiStyle.Red, TextAnchor.MiddleCenter);
                 UnityTavernUiStyle.Stretch(defeatedLabel.rectTransform);
             }
+
+            ApplyCombatTokenPose(faceRect, side, minion.Position);
         }
 
         private static Text AddCombatCardLabel(string name, Transform parent, string text, int size, FontStyle style, Color color, TextAnchor alignment)
@@ -1371,6 +2167,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var badge = new GameObject(prefix + "-" + instanceId, typeof(RectTransform), typeof(Image));
             badge.transform.SetParent(parent, false);
             var badgeImage = badge.GetComponent<Image>();
+            badgeImage.sprite = CombatTokenOvalSprite();
+            badgeImage.preserveAspect = false;
             badgeImage.color = new Color(color.r, color.g, color.b, 0.96f);
             badgeImage.raycastTarget = false;
 
@@ -1396,6 +2194,56 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.offsetMax = offsetMax;
         }
 
+        private static void ApplyCombatTokenPose(RectTransform rect, BoardSide side, int slot)
+        {
+            if (rect == null)
+            {
+                return;
+            }
+
+            var normalizedSlot = Mathf.Clamp(slot, 0, 6) - 3f;
+            var centerLift = (3f - Mathf.Abs(normalizedSlot)) * 2.6f;
+            var vertical = (side == BoardSide.Player ? 1f : -1f) * centerLift;
+            rect.offsetMin += new Vector2(2f, 3f + vertical);
+            rect.offsetMax += new Vector2(-2f, -3f + vertical);
+            rect.localRotation = Quaternion.Euler(0f, 0f, normalizedSlot * (side == BoardSide.Player ? 1.25f : -1.25f));
+        }
+
+        private static void BuildCombatDamageFeedback(Transform parent, string instanceId, CombatFrame frame)
+        {
+            if (parent == null || frame == null || string.IsNullOrEmpty(instanceId))
+            {
+                return;
+            }
+
+            var damage = string.Equals(frame.TargetId, instanceId, StringComparison.OrdinalIgnoreCase)
+                ? frame.TargetDamageAmount
+                : string.Equals(frame.ActorId, instanceId, StringComparison.OrdinalIgnoreCase)
+                    ? frame.ActorDamageAmount
+                    : 0;
+            if (damage > 0)
+            {
+                var labelObject = new GameObject("UnityCombatDamageNumber-" + instanceId, typeof(RectTransform), typeof(CanvasGroup));
+                labelObject.transform.SetParent(parent, false);
+                var rect = labelObject.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0.5f, 0.88f);
+                rect.anchorMax = rect.anchorMin;
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(88f, 42f);
+                rect.anchoredPosition = Vector2.zero;
+
+                var label = AddCombatCardLabel("UnityCombatDamageNumberText-" + instanceId, labelObject.transform, "-" + damage, 24, FontStyle.Bold, UnityTavernUiStyle.Red, TextAnchor.MiddleCenter);
+                UnityTavernUiStyle.Stretch(label.rectTransform);
+                UnityTavernUiStyle.EnsureComponent<UnityCombatFloatingLabelAnimator>(labelObject).Configure(28f);
+            }
+
+            if (frame.DivineShieldBreakCount > 0 && string.Equals(frame.TargetId, instanceId, StringComparison.OrdinalIgnoreCase))
+            {
+                var shield = AddCombatCardLabel("UnityCombatShieldBreak-" + instanceId, parent, "圣盾破裂", 14, FontStyle.Bold, UnityTavernUiStyle.Gold, TextAnchor.MiddleCenter);
+                SetAnchored(shield.rectTransform, new Vector2(0.12f, 0.68f), new Vector2(0.88f, 0.82f), Vector2.zero, Vector2.zero);
+            }
+        }
+
         private static void ConfigureTileMotion(GameObject tile, BoardSide side, string instanceId, Color tileColor, CombatFrame frame)
         {
             var motion = TileMotionFor(instanceId, frame);
@@ -1405,7 +2253,31 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             UnityTavernUiStyle.EnsureComponent<UnityTavernReplayTileAnimator>(tile)
-                .Configure(motion, tileColor, MotionDirection(side));
+                .Configure(motion, tileColor, MotionDirection(side), StrikeOffset(side, instanceId, frame));
+        }
+
+        private static Vector2 StrikeOffset(BoardSide side, string instanceId, CombatFrame frame)
+        {
+            if (frame == null || !string.Equals(frame.ActorId, instanceId, StringComparison.OrdinalIgnoreCase))
+            {
+                return Vector2.zero;
+            }
+
+            var actor = FindCombatMinion(frame, frame.ActorSide, frame.ActorId);
+            var target = FindCombatMinion(frame, frame.TargetSide, frame.TargetId);
+            var horizontal = actor == null || target == null ? 0f : (target.Position - actor.Position) * 12f;
+            return new Vector2(horizontal, side == BoardSide.Player ? 72f : -72f);
+        }
+
+        private static CombatMinionSnapshot FindCombatMinion(CombatFrame frame, BoardSide side, string instanceId)
+        {
+            if (frame == null || string.IsNullOrEmpty(instanceId))
+            {
+                return null;
+            }
+
+            var snapshot = side == BoardSide.Player ? frame.PlayerBoardSnapshot : frame.OpponentBoardSnapshot;
+            return snapshot?.Minions?.FirstOrDefault(item => item != null && string.Equals(item.InstanceId, instanceId, StringComparison.OrdinalIgnoreCase));
         }
 
         private static UnityTavernReplayTileMotion TileMotionFor(string instanceId, CombatFrame frame)
@@ -1428,6 +2300,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (frame.ActorId == instanceId)
             {
                 return UnityTavernReplayTileMotion.Strike;
+            }
+
+            if (frame.EventType == CombatEventType.RebornResolved &&
+                (Contains(frame.SummonedEntityIds, instanceId) || Contains(frame.RelatedEntityIds, instanceId)))
+            {
+                return UnityTavernReplayTileMotion.Reborn;
             }
 
             if (Contains(frame.SummonedEntityIds, instanceId))
@@ -1512,10 +2390,68 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             ClearChildren(parent);
             ConfigureTimelineLayout(parent.gameObject);
+            AppendCombatTimeline(parent, replay, frameIndex, setFrame, true);
+        }
+
+        private static void BuildFilteredTimeline(
+            Transform parent,
+            CombatReplay replay,
+            int frameIndex,
+            UnityCombatReplayPanelOptions options)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            ClearChildren(parent);
+            ConfigureTimelineLayout(parent.gameObject);
+            var added = false;
+            if (options.TimelineFilter != UnityReplayTimelineFilter.Combat)
+            {
+                var mechanicEvents = options.MechanicEvents ?? Array.Empty<MechanicEventRecord>();
+                foreach (var mechanicEvent in mechanicEvents
+                    .Where(item => item != null && MatchesTimelineFilter(item, options.TimelineFilter))
+                    .OrderBy(item => item.Sequence))
+                {
+                    AddTimelineLine(
+                        parent,
+                        MechanicTimelineMetaText(mechanicEvent),
+                        MechanicTimelineDetailText(mechanicEvent),
+                        false,
+                        MechanicTimelineColor(mechanicEvent),
+                        () => { });
+                    added = true;
+                }
+            }
+
+            if (options.TimelineFilter == UnityReplayTimelineFilter.All
+                || options.TimelineFilter == UnityReplayTimelineFilter.Combat)
+            {
+                added |= AppendCombatTimeline(parent, replay, frameIndex, options.SetFrame, false);
+            }
+
+            if (!added)
+            {
+                AddTimelineLine(parent, "暂无事件", "该分类当前没有可显示的记录。", false, UnityTavernUiStyle.PanelRaised, () => { });
+            }
+        }
+
+        private static bool AppendCombatTimeline(
+            Transform parent,
+            CombatReplay replay,
+            int frameIndex,
+            Action<int> setFrame,
+            bool showEmpty)
+        {
             if (replay == null || replay.Frames == null || replay.Frames.Count == 0)
             {
-                AddTimelineLine(parent, "暂无回放帧。", false, UnityTavernUiStyle.PanelRaised, () => { });
-                return;
+                if (showEmpty)
+                {
+                    AddTimelineLine(parent, "暂无回放帧", "运行战斗后可查看逐帧记录。", false, UnityTavernUiStyle.PanelRaised, () => { });
+                }
+
+                return false;
             }
 
             var windowStart = replay.Frames.Count <= 16 ? 0 : Mathf.Clamp(frameIndex - 7, 0, replay.Frames.Count - 16);
@@ -1526,20 +2462,122 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 var target = item.Index;
                 AddTimelineLine(
                     parent,
-                    (target + 1) + ". " + EventTypeText(item.EventType) + "  " + FrameLogText(item),
+                    "帧 " + (target + 1) + "/" + replay.Frames.Count + " · " + EventTypeText(item.EventType),
+                    FrameLogText(item),
                     target == frameIndex,
                     EventTypeColor(item.EventType),
                     () => setFrame?.Invoke(target));
             }
+
+            return true;
         }
 
-        private static void AddTimelineLine(Transform parent, string text, bool selected, Color eventColor, Action onClick)
+        private static bool MatchesTimelineFilter(MechanicEventRecord mechanicEvent, UnityReplayTimelineFilter filter)
+        {
+            if (filter == UnityReplayTimelineFilter.All)
+            {
+                return true;
+            }
+
+            var type = mechanicEvent.Type ?? string.Empty;
+            switch (filter)
+            {
+                case UnityReplayTimelineFilter.Choice:
+                    return type.StartsWith("choice.", StringComparison.Ordinal);
+                case UnityReplayTimelineFilter.DarkGift:
+                    return type.StartsWith("dark-gift.", StringComparison.Ordinal);
+                case UnityReplayTimelineFilter.RecruitAction:
+                    return type.StartsWith("recruit-action.", StringComparison.Ordinal)
+                        || type.StartsWith("fishbait.", StringComparison.Ordinal);
+                case UnityReplayTimelineFilter.DelayedObject:
+                    return type.StartsWith("delayed-object.", StringComparison.Ordinal)
+                        || type.StartsWith("lockbox.", StringComparison.Ordinal);
+                default:
+                    return false;
+            }
+        }
+
+        private static string MechanicTimelineMetaText(MechanicEventRecord mechanicEvent)
+        {
+            return "#" + mechanicEvent.Sequence
+                + " · R" + mechanicEvent.Round
+                + " · " + mechanicEvent.Phase;
+        }
+
+        private static string MechanicTimelineDetailText(MechanicEventRecord mechanicEvent)
+        {
+            var source = string.IsNullOrEmpty(mechanicEvent.Source) ? "系统" : mechanicEvent.Source;
+            var type = string.IsNullOrEmpty(mechanicEvent.Type) ? "mechanic.unknown" : mechanicEvent.Type;
+            var result = string.IsNullOrEmpty(mechanicEvent.Result) ? "无结果" : mechanicEvent.Result;
+            return source
+                + " → " + type
+                + " → " + result;
+        }
+
+        private static Color MechanicTimelineColor(MechanicEventRecord mechanicEvent)
+        {
+            var type = mechanicEvent.Type ?? string.Empty;
+            if (type.StartsWith("dark-gift.", StringComparison.Ordinal))
+            {
+                return new Color(0.42f, 0.25f, 0.54f, 1f);
+            }
+
+            if (type.StartsWith("delayed-object.", StringComparison.Ordinal)
+                || type.StartsWith("lockbox.", StringComparison.Ordinal))
+            {
+                return UnityTavernUiStyle.Gold;
+            }
+
+            return UnityTavernUiStyle.ArcaneBlue;
+        }
+
+        private static string LockedVersionText(UnityCombatReplayPanelOptions options)
+        {
+            var version = string.IsNullOrEmpty(options.GameVersionId) ? "未锁定版本" : options.GameVersionId;
+            var snapshot = string.IsNullOrEmpty(options.ContentSnapshotId) ? "无快照" : options.ContentSnapshotId;
+            return "只读 · " + version + " · " + snapshot;
+        }
+
+        private static void AddTimelineLine(
+            Transform parent,
+            string metadata,
+            string detail,
+            bool selected,
+            Color eventColor,
+            Action onClick)
         {
             var lineColor = selected ? UnityTavernUiStyle.Blue : new Color(eventColor.r, eventColor.g, eventColor.b, 0.56f);
-            var button = CreateButton("UnityReplayEventLine", parent, text, onClick, 0f, lineColor, selected);
-            UnityTavernUiStyle.SetPreferredHeight(button.gameObject, UnityTavernUiStyle.TouchHeight);
-            var image = button.GetComponent<Image>();
+            var line = new GameObject("UnityReplayEventLine", typeof(RectTransform), typeof(Image), typeof(Button));
+            line.transform.SetParent(parent, false);
+            var image = ConfigureButtonChrome(line, lineColor, selected);
             image.color = lineColor;
+            var button = line.GetComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.AddListener(() => onClick?.Invoke());
+            UnityTavernUiStyle.ConfigureButton(button, selected ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ArcaneBlue, selected);
+            UnityTavernUiStyle.SetPreferredHeight(line, 58f);
+
+            var layout = line.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(9, 9, 5, 5);
+            layout.spacing = 2f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            var metaLabel = UiFactory.Label("UnityReplayEventLineMeta", line.transform, metadata ?? string.Empty, 14, FontStyle.Bold);
+            metaLabel.color = UnityTavernUiStyle.Text;
+            metaLabel.alignment = TextAnchor.MiddleLeft;
+            metaLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+            metaLabel.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(metaLabel.gameObject, 20f);
+
+            var detailLabel = UiFactory.Label("UnityReplayEventLineDetail", line.transform, detail ?? string.Empty, 14, FontStyle.Normal);
+            detailLabel.color = UnityTavernUiStyle.MutedText;
+            detailLabel.alignment = TextAnchor.MiddleLeft;
+            detailLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+            detailLabel.verticalOverflow = VerticalWrapMode.Truncate;
+            UnityTavernUiStyle.SetPreferredHeight(detailLabel.gameObject, 22f);
         }
 
         private static void AddEventChip(Transform parent, string suffix, string text, Color color)
@@ -2062,9 +3100,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureTileOutline(GameObject tile, Color color)
         {
+            var alpha = color.a > 0f ? Mathf.Min(0.42f, color.a) : 0.42f;
             UnityTavernUiStyle.ConfigureOutline(
                 tile,
-                new Color(color.r, color.g, color.b, 0.42f),
+                new Color(color.r, color.g, color.b, alpha),
                 new Vector2(1f, -1f));
         }
 
@@ -2423,8 +3462,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return "卡牌";
             }
 
-            var tribes = TribesText(minion);
-            return string.IsNullOrEmpty(tribes) ? "卡牌" : tribes;
+            return UnityTavernUiStyle.ArtFallbackText(CombatCardDisplayName(minion), TribesText(minion));
         }
 
         private static Color CombatCardFallbackColor(CombatMinionSnapshot minion, bool defeated)

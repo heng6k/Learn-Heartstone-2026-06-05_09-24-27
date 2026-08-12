@@ -62,6 +62,8 @@ public static class WebGLReleaseBuild
         output = Path.GetFullPath(output);
         Directory.CreateDirectory(output);
 
+        ConfigureBrowserReleaseSettings();
+
         if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
         {
             throw new BuildFailedException("Unity WebGL 模块未安装或不可用。");
@@ -96,6 +98,18 @@ public static class WebGLReleaseBuild
         }
 
         // Tools/Release owns portable release metadata and candidate assembly.
+    }
+
+    private static void ConfigureBrowserReleaseSettings()
+    {
+        EditorUserBuildSettings.buildScriptsOnly = false;
+        PlayerSettings.stripEngineCode = false;
+        PlayerSettings.WebGL.template = "PROJECT:LearnHeartstone";
+        PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+        PlayerSettings.WebGL.dataCaching = true;
+        PlayerSettings.WebGL.debugSymbolMode = WebGLDebugSymbolMode.Off;
+        PlayerSettings.WebGL.emscriptenArgs = string.Empty;
+        PlayerSettings.WebGL.decompressionFallback = false;
     }
 
     private static string[] GetEnabledScenes()

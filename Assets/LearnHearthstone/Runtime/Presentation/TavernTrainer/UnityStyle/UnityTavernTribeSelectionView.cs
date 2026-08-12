@@ -9,6 +9,7 @@ using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
+using LearnHearthstone.Presentation.MainHub;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +17,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 {
     public sealed class UnityTavernTribeSelectionView
     {
-        private const int CardPoolLoadStep = 100;
+        private const int CardPoolLoadStep = 48;
         private const float CardPoolLoadMoreThreshold = 0.02f;
 
         private enum CardPoolTab
@@ -53,18 +54,35 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             English
         }
 
+        private enum SetupStep
+        {
+            GameVersion,
+            HeroAndTribes,
+            VersionMechanics,
+            CardPool
+        }
+
         private readonly Transform root;
         private readonly Action<MatchSetupOptions> start;
         private readonly Action backToHub;
         private UnityTavernLayoutContext layout;
         private readonly ICardPoolVersionRepository repository;
-        private readonly MinionCatalog minionCatalog;
-        private readonly SpellCatalog spellCatalog;
-        private readonly HeroCatalog heroCatalog;
-        private readonly AnomalyCatalog anomalyCatalog;
-        private readonly QuestCatalog questCatalog;
-        private readonly TrinketCatalog trinketCatalog;
-        private readonly TimewarpedTavernCatalog timewarpedTavernCatalog;
+        private MinionCatalog minionCatalog;
+        private SpellCatalog spellCatalog;
+        private HeroCatalog heroCatalog;
+        private AnomalyCatalog anomalyCatalog;
+        private QuestCatalog questCatalog;
+        private TrinketCatalog trinketCatalog;
+        private TimewarpedTavernCatalog timewarpedTavernCatalog;
+        private readonly GameCatalogSnapshot catalogSnapshot;
+        private readonly GameCatalogSnapshot versionResolutionSnapshot;
+        private readonly GameVersionResolver gameVersionResolver;
+        private ResolvedGameVersion selectedGameVersion;
+        private string selectedGameVersionId;
+        private SetupStep setupStep;
+        private ResolvedGameVersion pendingGameVersion;
+        private List<string> pendingGameVersionConflicts = new List<string>();
+        private bool pendingCardPoolNeedsRepair;
         private readonly HashSet<Tribe> selected = new HashSet<Tribe>();
         private readonly HashSet<string> enabledMinionCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> enabledTavernSpellCardNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -76,11 +94,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly HashSet<string> enabledTimewarpedCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Transform cardPoolListContent;
         private ScrollRect cardPoolScrollRect;
+        private ScrollRect setupStepScrollRect;
         private Text versionSummaryText;
         private Text versionModalSummaryText;
         private Button versionSaveButton;
         private float cardPoolScrollPosition = 1f;
         private bool restoreCardPoolScrollPosition;
+        private float setupStepScrollPosition = 1f;
+        private bool restoreSetupStepScrollPosition;
         private CardPoolVersionStore store;
         private string selectedVersionId;
         private CardPoolTab activeTab = CardPoolTab.Minions;
@@ -113,7 +134,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private bool showHiddenEffectOnly;
         private bool showDisabled;
         private bool enablePlayerDirectedChoices = true;
-        private bool enableTimewarpedTavern = true;
+        private bool enableTimewarpedTavern;
         private TimewarpedPoolVersion timewarpedPoolVersion = TimewarpedPoolVersion.Current;
         private SetupLanguage setupLanguage = SetupLanguage.Chinese;
         private GameObject shell;
@@ -151,13 +172,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             bool useEnglish = false,
             QuestCatalog questCatalog = null,
             TrinketCatalog trinketCatalog = null,
-            GameCatalogSet catalogs = null)
+            GameCatalogSet catalogs = null,
+            GameCatalogSnapshot catalogSnapshot = null)
         {
             this.root = root;
             this.start = start;
             this.backToHub = backToHub;
             layout = layoutContext ?? UnityTavernLayoutContext.FromRoot(root);
             this.repository = repository ?? new JsonCardPoolVersionRepository();
+            this.catalogSnapshot = catalogSnapshot;
+            if (HasVersionedSetup)
+            {
+                versionResolutionSnapshot = catalogSnapshot.AsVersionResolutionSource();
+                gameVersionResolver = catalogSnapshot.VersionedContent.CreateResolver();
+                selectedGameVersionId = ResolveInitialGameVersionId();
+                selectedGameVersion = gameVersionResolver.Resolve(selectedGameVersionId, versionResolutionSnapshot);
+                catalogs = selectedGameVersion.Snapshot.ForLanguage(useEnglish);
+            }
+
             this.minionCatalog = minionCatalog ?? catalogs?.Minions ?? MinionCatalogLoader.LoadFromResources(useEnglish);
             this.spellCatalog = spellCatalog ?? catalogs?.Spells ?? SpellCatalogLoader.LoadFromResources(useEnglish);
             this.heroCatalog = heroCatalog ?? catalogs?.Heroes ?? HeroCatalogLoader.LoadFromResources();
@@ -177,6 +209,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private bool UseEnglish => setupLanguage == SetupLanguage.English;
 
+        private bool HasVersionedSetup => catalogSnapshot?.VersionedContent != null;
+
+        private SetupSelectionPolicy SelectionPolicy => selectedGameVersion == null
+            ? SetupSelectionPolicy.CreateLegacyCompatible(TribeAvailabilityRules.PlayableTribes.Length)
+            : SetupSelectionPolicy.FromRuleset(
+                selectedGameVersion.Ruleset,
+                TribeAvailabilityRules.PlayableTribes.Length);
+
+        private bool UsesDarkGiftSetup => SelectionPolicy.AllowsMechanic(SetupMechanicIds.DarkGifts);
+
         private string T(string chinese, string english)
         {
             return UseEnglish ? english : chinese;
@@ -185,6 +227,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public void Build()
         {
             cardPoolScrollRect = null;
+            setupStepScrollRect = null;
             versionSummaryText = null;
             versionModalSummaryText = null;
             versionSaveButton = null;
@@ -196,6 +239,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             else
             {
                 ClearChildren(shell.transform);
+            }
+
+            if (HasVersionedSetup)
+            {
+                BuildVersionedSetupPage();
+                BuildOpenOverlays();
+                RestoreSetupStepScrollPosition();
+                RestoreCardPoolScrollPosition();
+                return;
             }
 
             var page = UiFactory.Panel("UnityTribeSelectionPage", shell.transform, UnityTavernUiStyle.Panel);
@@ -230,6 +282,314 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             BuildTribeGrid(left.transform);
             BuildVersionSummaryStrip(left.transform);
             BuildQuickActions(left.transform);
+            BuildOpenOverlays();
+
+            RestoreCardPoolScrollPosition();
+        }
+
+        public void RebuildForLayout(UnityTavernLayoutContext nextLayout)
+        {
+            layout = nextLayout;
+            Build();
+        }
+
+        private string ResolveInitialGameVersionId()
+        {
+            var versions = catalogSnapshot.VersionedContent.Versions;
+            var snapshotVersionId = catalogSnapshot.Info.GameVersionId;
+            return versions.Versions.Any(version => string.Equals(version.Id, snapshotVersionId, StringComparison.OrdinalIgnoreCase))
+                ? snapshotVersionId
+                : versions.Default.Id;
+        }
+
+        private void BuildVersionedSetupPage()
+        {
+            var page = UiFactory.Panel("UnityTribeSelectionPage", shell.transform, UnityTavernUiStyle.Panel);
+            var pageRect = page.GetComponent<RectTransform>();
+            pageRect.anchorMin = layout.IsCompact ? new Vector2(0.02f, 0.03f) : new Vector2(0.04f, 0.06f);
+            pageRect.anchorMax = layout.IsCompact ? new Vector2(0.98f, 0.97f) : new Vector2(0.96f, 0.94f);
+            pageRect.offsetMin = Vector2.zero;
+            pageRect.offsetMax = Vector2.zero;
+            UnityTavernUiStyle.ConfigureOutline(page, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.52f), new Vector2(2f, -2f));
+            UnityTavernUiStyle.AddStarLanternRail(page.transform, "UnitySetupStarLantern", UnityTavernUiStyle.ArcaneBlue);
+
+            var pageLayout = page.AddComponent<VerticalLayoutGroup>();
+            pageLayout.padding = new RectOffset(layout.IsCompact ? 8 : 16, layout.IsCompact ? 8 : 16, layout.IsCompact ? 8 : 14, layout.IsCompact ? 8 : 14);
+            pageLayout.spacing = layout.IsCompact ? 7 : 10;
+            pageLayout.childControlWidth = true;
+            pageLayout.childControlHeight = true;
+            pageLayout.childForceExpandWidth = true;
+            pageLayout.childForceExpandHeight = false;
+
+            BuildSetupStepper(page.transform);
+            BuildCurrentGameVersionSummary(page.transform);
+
+            var content = UiFactory.ScrollView("UnitySetupStepScroll", page.transform, UnityTavernUiStyle.PanelQuiet, out var scrollRect, layout);
+            setupStepScrollRect = scrollRect;
+            scrollRect.onValueChanged.AddListener(position => setupStepScrollPosition = position.y);
+            var contentLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            contentLayout.padding = new RectOffset(layout.IsCompact ? 8 : 12, layout.IsCompact ? 8 : 12, layout.IsCompact ? 8 : 12, layout.IsCompact ? 8 : 12);
+            contentLayout.spacing = layout.IsCompact ? 8 : 12;
+            contentLayout.childControlWidth = true;
+            contentLayout.childControlHeight = true;
+            contentLayout.childForceExpandWidth = true;
+            contentLayout.childForceExpandHeight = false;
+
+            switch (setupStep)
+            {
+                case SetupStep.HeroAndTribes:
+                    BuildHeroAndTribesStep(content);
+                    break;
+                case SetupStep.VersionMechanics:
+                    BuildVersionMechanicsStep(content);
+                    break;
+                case SetupStep.CardPool:
+                    BuildCardPoolStep(content);
+                    break;
+                default:
+                    BuildGameVersionStep(content);
+                    break;
+            }
+
+            BuildSetupNavigation(page.transform);
+        }
+
+        private void BuildSetupStepper(Transform parent)
+        {
+            var stepper = UiFactory.Panel("UnitySetupStepper", parent, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.SetPreferredHeight(stepper, layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 56f : 60f));
+            var stepperLayout = ConfigureButtonRow(stepper, layout.IsCompact ? 4 : 6, layout.IsCompact ? 4 : 7);
+            stepperLayout.childAlignment = TextAnchor.MiddleCenter;
+            stepperLayout.childForceExpandWidth = false;
+            stepperLayout.childForceExpandHeight = false;
+
+            BuildSetupStepButton(stepper.transform, SetupStep.GameVersion, T("游戏版本", "Version"));
+            BuildSetupStepButton(stepper.transform, SetupStep.HeroAndTribes, T("英雄与种族", "Hero & Tribes"));
+            BuildSetupStepButton(stepper.transform, SetupStep.VersionMechanics, T("版本机制", "Mechanics"));
+            BuildSetupStepButton(stepper.transform, SetupStep.CardPool, T("高级卡池", "Card Pool"));
+        }
+
+        private void BuildSetupStepButton(Transform parent, SetupStep step, string title)
+        {
+            var stepNumber = (int)step + 1;
+            var state = step < setupStep ? "✓ " : step == setupStep ? "● " : string.Empty;
+            var button = ActionButton(
+                "UnitySetupStepButton-" + step,
+                parent,
+                state + stepNumber + ". " + title,
+                step <= setupStep,
+                () =>
+                {
+                    setupStep = step;
+                    Build();
+                });
+            EnsureSetupPhysicalButton(button);
+            SetCompactActionWidth(
+                button,
+                layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 132f : 156f));
+            UnityTavernUiStyle.ConfigureButton(
+                button,
+                step == setupStep ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Brass,
+                step == setupStep,
+                step < setupStep);
+        }
+
+        private void BuildCurrentGameVersionSummary(Transform parent)
+        {
+            var panel = UiFactory.Panel("UnitySetupCurrentGameVersionPanel", parent, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.SetPreferredHeight(panel, layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 54f : 62f));
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(10, 10, 5, 5);
+            panelLayout.spacing = 2;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var version = selectedGameVersion.GameVersion;
+            var summary = UiFactory.Label(
+                "UnitySetupCurrentGameVersionSummary",
+                panel.transform,
+                T("当前版本：", "Current version: ") + GameVersionUiText.DisplayName(version, UseEnglish),
+                layout.IsCompact ? 15 : 18,
+                FontStyle.Bold);
+            summary.color = UnityTavernUiStyle.Gold;
+            UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 23f : 28f);
+
+            var status = UiFactory.Label(
+                "UnitySetupCurrentGameVersionStatus",
+                panel.transform,
+                GameVersionUiText.OfficialStatus(version.OfficialStatus, UseEnglish) + " · " +
+                GameVersionUiText.ImplementationStatus(version.ImplementationStatus, UseEnglish),
+                14,
+                FontStyle.Bold);
+            status.color = UnityTavernUiStyle.MutedText;
+            UnityTavernUiStyle.SetPreferredHeight(status.gameObject, 22f);
+        }
+
+        private void BuildGameVersionStep(Transform parent)
+        {
+            var panel = UiFactory.Panel("UnitySetupGameVersionStep", parent, UnityTavernUiStyle.Panel);
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(10, 10, 10, 10);
+            panelLayout.spacing = 8;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnitySetupGameVersionTitle", panel.transform, T("1. 选择游戏版本", "1. Choose Game Version"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 30f : 36f);
+
+            foreach (var version in catalogSnapshot.VersionedContent.Versions.Versions.OrderByDescending(item => item.ReleaseDateUtc))
+            {
+                var isSelected = string.Equals(version.Id, selectedGameVersionId, StringComparison.OrdinalIgnoreCase);
+                var label = (isSelected ? "✓ " : string.Empty) + GameVersionUiText.DisplayName(version, UseEnglish) + "\n" +
+                    GameVersionUiText.OfficialStatus(version.OfficialStatus, UseEnglish) + " · " +
+                    GameVersionUiText.ImplementationStatus(version.ImplementationStatus, UseEnglish);
+                var button = ActionButton(
+                    "UnitySetupGameVersionButton-" + version.Id,
+                    panel.transform,
+                    label,
+                    !isSelected,
+                    () => RequestGameVersionChange(version.Id));
+                EnsureSetupPhysicalButton(button, 64f);
+                UnityTavernUiStyle.ConfigureButton(button, isSelected ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ArcaneBlue, isSelected, isSelected);
+            }
+        }
+
+        private void BuildHeroAndTribesStep(Transform parent)
+        {
+            var marker = UiFactory.Label("UnitySetupHeroAndTribesStep", parent, T("2. 英雄与种族", "2. Hero & Tribes"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
+            marker.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetPreferredHeight(marker.gameObject, layout.IsCompact ? 28f : 34f);
+            BuildHeroSummaryStrip(parent);
+            BuildHeader(parent);
+            BuildTribeGrid(parent);
+        }
+
+        private void BuildVersionMechanicsStep(Transform parent)
+        {
+            pendingStartTribes = SelectedTribesForStart();
+            BuildAdvancedMechanicsHeader(parent);
+            if (UsesDarkGiftSetup)
+            {
+                BuildSeason14MechanicsStrip(parent);
+                return;
+            }
+
+            BuildAdvancedMechanicsStrip(parent);
+        }
+
+        private void BuildCardPoolStep(Transform parent)
+        {
+            var title = UiFactory.Label("UnitySetupCardPoolStep", parent, T("4. 高级卡池方案", "4. Advanced Card Pool"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Text;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 28f : 34f);
+            var hintText = UsesDarkGiftSetup
+                ? T("36.2 仅纳入黑暗之赐与饰品；黑暗之赐由版本锁定，饰品池沿用上一步设置。", "36.2 includes only Dark Gifts and Trinkets. Dark Gifts are version-locked; the Trinket pool keeps the previous-step settings.")
+                : T("卡池方案会记录基础游戏版本；任务、奖励、饰品与畸变池沿用上一步设置。", "The preset records its base game version; quest, reward, trinket and anomaly pools keep the previous step settings.");
+            var hint = UiFactory.Label(
+                "UnitySetupCardPoolHint",
+                parent,
+                hintText,
+                14,
+                FontStyle.Bold);
+            hint.color = UnityTavernUiStyle.MutedText;
+            hint.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(hint.gameObject, layout.IsCompact ? 42f : 28f);
+            BuildVersionSummaryStrip(parent);
+        }
+
+        private void BuildSetupNavigation(Transform parent)
+        {
+            var navigation = UiFactory.Panel("UnitySetupNavigation", parent, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.SetPreferredHeight(navigation, layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 58f : 60f));
+            var navigationLayout = ConfigureButtonRow(navigation, layout.IsCompact ? 4 : 7, layout.IsCompact ? 6 : 8);
+            navigationLayout.childAlignment = TextAnchor.MiddleRight;
+            navigationLayout.childForceExpandWidth = false;
+            navigationLayout.childForceExpandHeight = false;
+
+            var back = ActionButton(
+                "UnitySetupBackButton",
+                navigation.transform,
+                setupStep == SetupStep.GameVersion ? T("返回大厅", "Back to Hub") : T("返回上一步", "Back"),
+                true,
+                () =>
+                {
+                    if (setupStep == SetupStep.GameVersion)
+                    {
+                        backToHub?.Invoke();
+                        return;
+                    }
+
+                    setupStep -= 1;
+                    Build();
+                });
+            EnsureSetupPhysicalButton(back);
+            SetCompactActionWidth(
+                back,
+                layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 112f : 132f));
+            UnityTavernUiStyle.ConfigureButton(back, UnityTavernUiStyle.Brass);
+
+            if (setupStep == SetupStep.CardPool)
+            {
+                var startButton = ActionButton("UnitySetupStartButton", navigation.transform, T("开始训练", "Start"), true, () => StartTrainer(SelectedTribesForStart()));
+                EnsureSetupPhysicalButton(startButton);
+                SetCompactActionWidth(
+                    startButton,
+                    layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 120f : 140f));
+                UnityTavernUiStyle.ConfigureButton(startButton, UnityTavernUiStyle.Gold, true);
+                return;
+            }
+
+            var policy = SelectionPolicy;
+            var canContinue = setupStep != SetupStep.HeroAndTribes || policy.IsCustomTribeCountValid(selected.Count);
+            var remainingSelections = Math.Max(0, SetupSelectionPolicy.MinCustomTribeCount - selected.Count);
+            var continueText = canContinue
+                ? T("继续", "Continue")
+                : policy.HasCompletePlayableTribeCatalog
+                    ? T("还需选择 " + remainingSelections + " 个种族", "Choose " + remainingSelections + " more tribes")
+                    : T(
+                        "版本包可玩种族不足 " + SetupSelectionPolicy.MinCustomTribeCount + " 个",
+                        "Version package has fewer than " + SetupSelectionPolicy.MinCustomTribeCount + " playable tribes");
+            var continueButton = ActionButton("UnitySetupContinueButton", navigation.transform, continueText, canContinue, () =>
+            {
+                setupStep += 1;
+                Build();
+            });
+            EnsureSetupPhysicalButton(continueButton);
+            SetCompactActionWidth(
+                continueButton,
+                layout.CanvasUnitsForPhysicalPixels(canContinue
+                    ? layout.IsCompact ? 120f : 140f
+                    : layout.IsCompact ? 210f : 240f));
+            UnityTavernUiStyle.ConfigureButton(continueButton, UnityTavernUiStyle.Gold, true);
+        }
+
+        private void EnsureSetupPhysicalButton(Button button, float physicalHeight = 48f)
+        {
+            var element = UnityTavernUiStyle.EnsureComponent<LayoutElement>(button.gameObject);
+            var height = layout.CanvasUnitsForPhysicalPixels(physicalHeight);
+            element.minHeight = Mathf.Max(element.minHeight, height);
+            element.preferredHeight = Mathf.Max(element.preferredHeight, height);
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f));
+                label.resizeTextMaxSize = Mathf.Max(label.resizeTextMaxSize, label.resizeTextMinSize);
+            }
+        }
+
+        private List<Tribe> SelectedTribesForStart()
+        {
+            return TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList();
+        }
+
+        private void BuildOpenOverlays()
+        {
             if (heroSelectionOpen)
             {
                 BuildHeroSelectionOverlay();
@@ -250,13 +610,191 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 BuildAdvancedPoolEditorOverlay();
             }
 
-            RestoreCardPoolScrollPosition();
+            if (pendingGameVersion != null)
+            {
+                BuildGameVersionConflictOverlay();
+            }
         }
 
-        public void RebuildForLayout(UnityTavernLayoutContext nextLayout)
+        private void RequestGameVersionChange(string versionId)
         {
-            layout = nextLayout;
+            if (string.Equals(versionId, selectedGameVersionId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var target = gameVersionResolver.Resolve(versionId, versionResolutionSnapshot);
+            pendingGameVersionConflicts = FindGameVersionConflicts(target, out pendingCardPoolNeedsRepair);
+            if (pendingGameVersionConflicts.Count == 0)
+            {
+                ApplyResolvedGameVersion(target, false);
+                Build();
+                return;
+            }
+
+            pendingGameVersion = target;
             Build();
+        }
+
+        private List<string> FindGameVersionConflicts(ResolvedGameVersion target, out bool cardPoolNeedsRepair)
+        {
+            var conflicts = new List<string>();
+            var targetCatalogs = target.Snapshot.ForLanguage(UseEnglish);
+            var hero = targetCatalogs.Heroes.AllHeroes.FirstOrDefault(item => string.Equals(item.HeroCardId, selectedHeroCardId, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(selectedHeroCardId) && (hero == null || !hero.InPool))
+            {
+                conflicts.Add(T("英雄：", "Hero: ") + (CurrentHero() == null ? selectedHeroCardId : HeroName(CurrentHero())));
+            }
+
+            foreach (var tribe in selected)
+            {
+                var hasCards = targetCatalogs.Minions.All.Any(minion =>
+                    minion.InPool &&
+                    minion.Tribes != null &&
+                    (minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All)));
+                if (!hasCards)
+                {
+                    conflicts.Add(T("种族：", "Tribe: ") + TribeName(tribe));
+                }
+            }
+
+            cardPoolNeedsRepair = false;
+            var selection = CurrentSelection();
+            if (!selection.IsDefault)
+            {
+                var profile = store.Versions.FirstOrDefault(item => string.Equals(item.Id, selectedVersionId, StringComparison.OrdinalIgnoreCase));
+                var wrongBase = !string.IsNullOrWhiteSpace(profile?.BaseGameVersionId) &&
+                    !string.Equals(profile.BaseGameVersionId, target.GameVersion.Id, StringComparison.OrdinalIgnoreCase);
+                var availability = new CardPoolAvailability(selection, target.ContentSet);
+                var incompatibleMinions = targetCatalogs.Minions.All
+                    .Where(item => selection.EnabledMinionCardIds.Contains(item.CardId) && !availability.AllowsMinion(item))
+                    .Select(item => item.CardId);
+                var incompatibleSpells = targetCatalogs.Spells.All
+                    .Where(item => selection.EnabledTavernSpellCardNumbers.Contains(item.CardNumber) && !availability.AllowsTavernSpell(item))
+                    .Select(item => item.CardNumber);
+                cardPoolNeedsRepair = wrongBase || incompatibleMinions.Concat(incompatibleSpells).Any();
+                if (cardPoolNeedsRepair)
+                {
+                    conflicts.Add(T("卡池方案：", "Card pool: ") + selection.VersionName);
+                }
+            }
+
+            return conflicts;
+        }
+
+        private void BuildGameVersionConflictOverlay()
+        {
+            var overlay = UiFactory.Panel("UnityGameVersionConflictOverlay", shell.transform, UnityTavernUiStyle.WithAlpha(Color.black, 0.72f));
+            overlay.transform.SetAsLastSibling();
+            UnityTavernUiStyle.Stretch(overlay.GetComponent<RectTransform>());
+            UnityTavernUiStyle.EnsureComponent<Image>(overlay).raycastTarget = true;
+
+            var panel = UiFactory.Panel("UnityGameVersionConflictDialog", overlay.transform, UnityTavernUiStyle.PanelRaised);
+            var rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = layout.IsCompact ? new Vector2(0.06f, 0.08f) : new Vector2(0.25f, 0.24f);
+            rect.anchorMax = layout.IsCompact ? new Vector2(0.94f, 0.92f) : new Vector2(0.75f, 0.76f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            UnityTavernUiStyle.ConfigureOutline(panel, UnityTavernUiStyle.Gold, new Vector2(2f, -2f));
+
+            var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
+            panelLayout.padding = new RectOffset(16, 16, 14, 14);
+            panelLayout.spacing = 10;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnityGameVersionConflictTitle", panel.transform, T("切换版本前需要处理冲突", "Resolve Conflicts Before Switching"), layout.IsCompact ? 19 : 23, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Gold;
+            title.alignment = TextAnchor.MiddleCenter;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 34f : 40f);
+
+            var targetName = GameVersionUiText.DisplayName(pendingGameVersion.GameVersion, UseEnglish);
+            var summary = UiFactory.Label(
+                "UnityGameVersionConflictSummary",
+                panel.transform,
+                T("目标版本：", "Target: ") + targetName + "\n" + string.Join("\n", pendingGameVersionConflicts.Select(item => "• " + item).ToArray()),
+                14,
+                FontStyle.Bold);
+            summary.color = UnityTavernUiStyle.Text;
+            summary.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(summary.gameObject, 1f, 0f);
+
+            var actions = UiFactory.Panel("UnityGameVersionConflictActions", panel.transform, Color.clear);
+            UnityTavernUiStyle.SetPreferredHeight(actions, layout.CanvasUnitsForPhysicalPixels(58f));
+            ConfigureButtonRow(actions, 0, 8);
+            var cancel = ActionButton("UnityGameVersionConflictCancelButton", actions.transform, T("返回修改", "Back to Edit"), true, CancelGameVersionChange);
+            EnsureSetupPhysicalButton(cancel);
+            var apply = ActionButton("UnityGameVersionConflictApplyButton", actions.transform, T("应用版本并自动修复", "Apply Version & Auto-fix"), true, ApplyPendingGameVersion);
+            EnsureSetupPhysicalButton(apply);
+            UnityTavernUiStyle.ConfigureButton(apply, UnityTavernUiStyle.Gold, true);
+            panel.AddComponent<UnityFocusTrap>().Activate(cancel.gameObject);
+        }
+
+        private void CancelGameVersionChange()
+        {
+            pendingGameVersion = null;
+            pendingGameVersionConflicts.Clear();
+            pendingCardPoolNeedsRepair = false;
+            Build();
+        }
+
+        private void ApplyPendingGameVersion()
+        {
+            var target = pendingGameVersion;
+            if (target == null)
+            {
+                return;
+            }
+
+            ApplyResolvedGameVersion(target, true);
+            pendingGameVersion = null;
+            pendingGameVersionConflicts.Clear();
+            pendingCardPoolNeedsRepair = false;
+            Build();
+        }
+
+        private void ApplyResolvedGameVersion(ResolvedGameVersion target, bool autoRepair)
+        {
+            var targetCatalogs = target.Snapshot.ForLanguage(UseEnglish);
+            var unavailableTribes = selected.Where(tribe => !targetCatalogs.Minions.All.Any(minion =>
+                minion.InPool &&
+                minion.Tribes != null &&
+                (minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All)))).ToArray();
+
+            selectedGameVersion = target;
+            selectedGameVersionId = target.GameVersion.Id;
+            minionCatalog = targetCatalogs.Minions;
+            spellCatalog = targetCatalogs.Spells;
+            heroCatalog = targetCatalogs.Heroes;
+            anomalyCatalog = targetCatalogs.Anomalies;
+            questCatalog = targetCatalogs.Quests;
+            trinketCatalog = targetCatalogs.Trinkets;
+            timewarpedTavernCatalog = targetCatalogs.TimewarpedTavern;
+
+            var hero = CurrentHero();
+            if (autoRepair && (hero == null || !hero.InPool))
+            {
+                selectedHeroCardId = ResolveDefaultHero()?.HeroCardId;
+            }
+
+            if (autoRepair)
+            {
+                foreach (var tribe in unavailableTribes)
+                {
+                    selected.Remove(tribe);
+                }
+            }
+
+            if (string.IsNullOrEmpty(selectedVersionId))
+            {
+                SelectVersion(null, false);
+            }
+            else if (autoRepair && pendingCardPoolNeedsRepair)
+            {
+                SelectVersion(null);
+            }
         }
 
         private void BuildHeader(Transform parent)
@@ -278,20 +816,27 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 30f : 40f);
 
-            var count = selected.Count + "/5";
+            var policy = SelectionPolicy;
+            var count = selected.Count + "/" + policy.MaxCustomTribeCount;
             var names = selected.Count == 0 ? T("尚未选择", "None selected") : string.Join(" / ", TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).Select(TribeName).ToArray());
             var summary = UiFactory.Label("UnityTribeSelectionSummary", header.transform, T("已选 ", "Selected ") + count + "  " + names, layout.IsCompact ? 14 : 16, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleCenter;
-            summary.color = selected.Count == 5 ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
+            summary.color = policy.IsCustomTribeCountValid(selected.Count) ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 28f : 34f);
 
             var excluded = TribeAvailabilityRules.PlayableTribes.Where(tribe => !selected.Contains(tribe)).Select(TribeName).ToArray();
-            var exclusionText = selected.Count == 5
-                ? T("本局排除：", "Excluded: ") + string.Join(" / ", excluded)
-                : T("还需选择 " + (5 - selected.Count) + " 个；选满后其余种族将排除", "Choose " + (5 - selected.Count) + " more; remaining tribes will be excluded");
+            var excludedNames = excluded.Length == 0 ? T("无", "None") : string.Join(" / ", excluded);
+            var remainingSelections = Math.Max(0, SetupSelectionPolicy.MinCustomTribeCount - selected.Count);
+            var exclusionText = policy.IsCustomTribeCountValid(selected.Count)
+                ? T("本局排除：", "Excluded: ") + excludedNames
+                : policy.HasCompletePlayableTribeCatalog
+                    ? T("还需选择 " + remainingSelections + " 个；当前未启用：", "Choose " + remainingSelections + " more; currently inactive: ") + excludedNames
+                    : T(
+                        "版本包可玩种族不足 " + SetupSelectionPolicy.MinCustomTribeCount + " 个，无法开局",
+                        "Version package has fewer than " + SetupSelectionPolicy.MinCustomTribeCount + " playable tribes; setup is blocked");
             var exclusion = UiFactory.Label("UnityTribeSelectionExclusionSummary", header.transform, exclusionText, 14, FontStyle.Bold);
             exclusion.alignment = TextAnchor.MiddleCenter;
-            exclusion.color = selected.Count == 5 ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Blue;
+            exclusion.color = policy.IsCustomTribeCountValid(selected.Count) ? UnityTavernUiStyle.MutedText : UnityTavernUiStyle.Blue;
             exclusion.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetPreferredHeight(exclusion.gameObject, layout.IsCompact ? 24f : 28f);
         }
@@ -305,7 +850,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             grid.spacing = layout.IsCompact ? new Vector2(8f, 8f) : new Vector2(10f, 10f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = layout.IsCompact ? 2 : 5;
-            grid.cellSize = layout.IsCompact ? new Vector2(210f, 54f) : new Vector2(145f, 66f);
+            grid.cellSize = layout.IsCompact ? new Vector2(210f, 74f) : new Vector2(145f, 84f);
 
             foreach (var tribe in TribeAvailabilityRules.PlayableTribes)
             {
@@ -316,7 +861,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildTribeButton(Transform parent, Tribe tribe)
         {
             var isSelected = selected.Contains(tribe);
-            var canSelect = isSelected || selected.Count < 5;
+            var policy = SelectionPolicy;
+            var canSelect = isSelected || policy.CanSelectAnotherTribe(selected.Count);
             var buttonObject = new GameObject("UnityTribeSelection" + tribe + "Button", typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
             var button = buttonObject.GetComponent<Button>();
@@ -324,24 +870,42 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             button.onClick.AddListener(() =>
             {
                 ToggleTribe(tribe);
-                Build();
+                RebuildPreservingSetupStepScroll();
             });
             UnityTavernUiStyle.ConfigureButton(button, TribeAccent(tribe), isSelected, isSelected);
 
+            var poolCount = TribePoolCount(tribe);
             var stateText = isSelected
-                ? "\n" + T("已选", "Selected")
-                : selected.Count == 5
-                    ? "\n" + T("排除", "Excluded")
-                    : string.Empty;
-            var label = UiFactory.Label(buttonObject.name + "Text", buttonObject.transform, TribeName(tribe) + stateText, stateText.Length == 0 ? (layout.IsCompact ? 15 : 17) : 14, FontStyle.Bold);
+                ? T("已选", "Selected")
+                : !policy.CanSelectAnotherTribe(selected.Count)
+                    ? T("排除", "Excluded")
+                    : T("可选", "Available");
+            var countText = UseEnglish ? poolCount + " in pool" : poolCount + " 张可用";
+            var label = UiFactory.Label(
+                buttonObject.name + "Text",
+                buttonObject.transform,
+                TribeName(tribe) + "\n" + countText + " · " + stateText,
+                14,
+                FontStyle.Bold);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.Stretch(label.rectTransform);
         }
 
+        private int TribePoolCount(Tribe tribe)
+        {
+            return minionCatalog?.All.Count(minion =>
+                minion != null &&
+                minion.InPool &&
+                !IsDuoMinion(minion) &&
+                minion.Tribes != null &&
+                (minion.Tribes.Contains(tribe) || minion.Tribes.Contains(Tribe.All))) ?? 0;
+        }
+
         private void BuildQuickActions(Transform parent)
         {
-            var remainingSelections = Math.Max(0, 5 - selected.Count);
+            var policy = SelectionPolicy;
+            var remainingSelections = Math.Max(0, SetupSelectionPolicy.MinCustomTribeCount - selected.Count);
             var row = UiFactory.Panel("UnityTribeSelectionActions", parent, UnityTavernUiStyle.PanelRaised);
             UnityTavernUiStyle.SetPreferredHeight(row, layout.IsCompact ? 56f : 62f);
             var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
@@ -349,32 +913,36 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rowLayout.spacing = 8;
             rowLayout.childControlWidth = true;
             rowLayout.childControlHeight = true;
-            rowLayout.childForceExpandWidth = true;
+            rowLayout.childForceExpandWidth = false;
             rowLayout.childForceExpandHeight = true;
 
             var back = ActionButton("UnityTribeSelectionBackButton", row.transform, T("返回", "Back"), true, backToHub);
+            SetCompactActionWidth(back, 84f);
             UnityTavernUiStyle.ConfigureButton(back, UnityTavernUiStyle.Brass);
             var random = ActionButton(
                 "UnityTribeSelectionRandomButton",
                 row.transform,
-                selected.Count == 0 ? T("随机选择5个", "Random 5") : T("重新随机5个", "Reroll 5"),
-                true,
+                RandomSelectionButtonText(),
+                policy.PlayableTribeCount >= SetupSelectionPolicy.DefaultRandomTribeCount,
                 () =>
             {
-                SelectRandomFive();
-                Build();
+                SelectRandomTribes();
+                RebuildPreservingSetupStepScroll();
             });
+            SetCompactActionWidth(random, 132f);
             UnityTavernUiStyle.ConfigureButton(random, UnityTavernUiStyle.ArcaneBlue);
-            var all = ActionButton("UnityTribeSelectionAllButton", row.transform, T("快速配置：全部种族", "Quick Setup: All Tribes"), true, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
+            var all = ActionButton("UnityTribeSelectionAllButton", row.transform, T("快速配置：全部种族", "Quick Setup: All Tribes"), policy.CanSelectAllPlayableTribes, () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.AllPlayableTribes()));
+            SetCompactActionWidth(all, 176f);
             UnityTavernUiStyle.ConfigureButton(all, UnityTavernUiStyle.Brass);
             var enter = ActionButton(
                 "UnityTribeSelectionEnterButton",
                 row.transform,
-                selected.Count == 5
+                policy.IsCustomTribeCountValid(selected.Count)
                     ? T("自定义下一步", "Continue Custom Setup")
                     : T("自定义：还需选择 " + remainingSelections + " 个", "Custom: choose " + remainingSelections + " more"),
-                selected.Count == 5,
+                policy.IsCustomTribeCountValid(selected.Count),
                 () => OpenAdvancedMechanicsPage(TribeAvailabilityRules.PlayableTribes.Where(selected.Contains).ToList()));
+            SetCompactActionWidth(enter, 188f);
             UnityTavernUiStyle.ConfigureButton(enter, UnityTavernUiStyle.Gold, true);
         }
 
@@ -420,7 +988,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.childForceExpandWidth = true;
             headerLayout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityAdvancedMechanicsSetupPageTitle", header.transform, T("高级机制配置", "Advanced Mechanics"), layout.IsCompact ? 20 : 24, FontStyle.Bold);
+            var title = UiFactory.Label(
+                "UnityAdvancedMechanicsSetupPageTitle",
+                header.transform,
+                UsesDarkGiftSetup ? T("36.2 版本机制", "36.2 Version Mechanics") : T("高级机制配置", "Advanced Mechanics"),
+                layout.IsCompact ? 20 : 24,
+                FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 30f : 36f);
@@ -428,7 +1001,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var tribeText = pendingStartTribes == null || pendingStartTribes.Count == 0
                 ? T("全部可用种族", "All available tribes")
                 : string.Join(" / ", pendingStartTribes.Select(TribeName).ToArray());
-            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupPageSummary", header.transform, tribeText + "  " + AdvancedMechanicsSummaryText(), 14, FontStyle.Bold);
+            var mechanicSummary = UsesDarkGiftSetup
+                ? T("黑暗之赐：版本锁定 · 饰品：可配置", "Dark Gifts: version-locked · Trinkets: configurable")
+                : AdvancedMechanicsSummaryText();
+            var summary = UiFactory.Label("UnityAdvancedMechanicsSetupPageSummary", header.transform, tribeText + "  " + mechanicSummary, 14, FontStyle.Bold);
             summary.alignment = TextAnchor.MiddleCenter;
             summary.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(summary.gameObject, layout.IsCompact ? 24f : 28f);
@@ -467,7 +1043,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void OpenAdvancedMechanicsPage(List<Tribe> activeTribes)
         {
-            pendingStartTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList();
+            var tribes = activeTribes == null ? new List<Tribe>() : activeTribes.Distinct().ToList();
+            if (!SelectionPolicy.IsCustomTribeCountValid(tribes.Count))
+            {
+                Debug.LogWarning("Setup tribe selection rejected by policy: " + tribes.Count + " selected.");
+                return;
+            }
+
+            pendingStartTribes = tribes;
             heroSelectionOpen = false;
             versionModalOpen = false;
             advancedPoolEditorOpen = false;
@@ -478,7 +1061,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void BuildAdvancedMechanicsStrip(Transform parent)
         {
             var strip = UiFactory.Panel("UnityAdvancedMechanicsSetupPanel", parent, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 500f : 330f);
+            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? (HasVersionedSetup ? 620f : 500f) : 330f);
             UnityTavernUiStyle.SetFlexible(strip, 1f, 1f);
             UnityTavernUiStyle.ConfigureOutline(strip, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.28f), new Vector2(1f, -1f));
             var stripLayout = strip.AddComponent<HorizontalLayoutGroup>();
@@ -514,7 +1097,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             grid.spacing = layout.IsCompact ? new Vector2(7f, 7f) : new Vector2(8f, 8f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = layout.IsCompact ? 2 : 4;
-            grid.cellSize = layout.IsCompact ? new Vector2(150f, 112f) : new Vector2(176f, 112f);
+            grid.cellSize = layout.IsCompact
+                ? new Vector2(HasVersionedSetup ? 260f : 150f, HasVersionedSetup ? 148f : 112f)
+                : new Vector2(176f, 112f);
 
             BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedQuestRewardPoolCard", T("任务/奖励池", "Quest / Reward Pool"), QuestRewardPoolSummaryText(), QuestPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.QuestRewards), () => OpenAdvancedPoolEditor(AdvancedPoolTab.QuestRewards));
             BuildAdvancedPoolSummaryCard(gridObject.transform, "UnityAdvancedTrinketPoolCard", T("饰品池", "Trinket Pool"), TrinketPoolSummaryText(), TrinketPoolsEnabled(), () => QuickEnableAdvancedPool(AdvancedPoolTab.Trinkets), () => OpenAdvancedPoolEditor(AdvancedPoolTab.Trinkets));
@@ -552,6 +1137,73 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             });
         }
 
+        private void BuildSeason14MechanicsStrip(Transform parent)
+        {
+            var strip = UiFactory.Panel("UnityAdvancedMechanicsSetupPanel", parent, UnityTavernUiStyle.PanelRaised);
+            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 390f : 250f);
+            UnityTavernUiStyle.SetFlexible(strip, 1f, 1f);
+            UnityTavernUiStyle.ConfigureOutline(strip, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.28f), new Vector2(1f, -1f));
+
+            var grid = strip.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(12, 12, 12, 12);
+            grid.spacing = new Vector2(12f, 12f);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = layout.IsCompact ? 1 : 2;
+            grid.cellSize = layout.IsCompact ? new Vector2(300f, 170f) : new Vector2(360f, 190f);
+
+            BuildSeason14DarkGiftCard(strip.transform);
+            BuildAdvancedPoolSummaryCard(
+                strip.transform,
+                "UnityAdvancedTrinketPoolCard",
+                T("饰品", "Trinkets"),
+                TrinketPoolSummaryText(),
+                TrinketPoolsEnabled(),
+                () => QuickEnableAdvancedPool(AdvancedPoolTab.Trinkets),
+                () => OpenAdvancedPoolEditor(AdvancedPoolTab.Trinkets));
+        }
+
+        private void BuildSeason14DarkGiftCard(Transform parent)
+        {
+            var card = UiFactory.Panel("UnitySeason14DarkGiftCard", parent, Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.12f));
+            UnityTavernUiStyle.ConfigureOutline(card, new Color(UnityTavernUiStyle.Gold.r, UnityTavernUiStyle.Gold.g, UnityTavernUiStyle.Gold.b, 0.42f), new Vector2(1f, -1f));
+            var cardLayout = card.AddComponent<VerticalLayoutGroup>();
+            cardLayout.padding = new RectOffset(10, 10, 8, 8);
+            cardLayout.spacing = 5;
+            cardLayout.childControlWidth = true;
+            cardLayout.childControlHeight = true;
+            cardLayout.childForceExpandWidth = true;
+            cardLayout.childForceExpandHeight = false;
+
+            var title = UiFactory.Label("UnitySeason14DarkGiftCardTitle", card.transform, T("黑暗之赐", "Dark Gifts"), 16, FontStyle.Bold);
+            title.color = UnityTavernUiStyle.Gold;
+            UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 24f);
+
+            var rule = UiFactory.Label(
+                "UnitySeason14DarkGiftCardRule",
+                card.transform,
+                T("第 3 回合起 · 3 金币 · 每回合 1 次 · 每局至多 3 次", "From turn 3 · 3 Gold · once per turn · up to 3 per game"),
+                14,
+                FontStyle.Bold);
+            rule.color = UnityTavernUiStyle.Text;
+            rule.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(rule.gameObject, 42f);
+
+            var tiers = UiFactory.Label(
+                "UnitySeason14DarkGiftCardTiers",
+                card.transform,
+                T("档位独立于酒馆等级；第 12 回合后固定为等级 6。", "Gift tiers are independent of Tavern Tier; turn 12+ is fixed at tier 6."),
+                14,
+                FontStyle.Normal);
+            tiers.color = UnityTavernUiStyle.MutedText;
+            tiers.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetFlexible(tiers.gameObject, 1f, 0f);
+
+            var locked = UiFactory.Label("UnitySeason14DarkGiftCardLocked", card.transform, T("版本锁定 · 始终启用", "Version-locked · Always on"), 14, FontStyle.Bold);
+            locked.alignment = TextAnchor.MiddleCenter;
+            locked.color = UnityTavernUiStyle.Blue;
+            UnityTavernUiStyle.SetPreferredHeight(locked.gameObject, UnityTavernUiStyle.TouchHeight);
+        }
+
         private void BuildAdvancedPoolSummaryCard(Transform parent, string name, string titleText, string detailText, bool active, Action quickEnable, Action edit)
         {
             var card = UiFactory.Panel(name, parent, active ? Color.Lerp(UnityTavernUiStyle.PanelRaised, UnityTavernUiStyle.Gold, 0.12f) : UnityTavernUiStyle.PanelQuiet);
@@ -569,12 +1221,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             layoutGroup.childForceExpandWidth = true;
             layoutGroup.childForceExpandHeight = false;
 
-            var title = UiFactory.Label(name + "Title", card.transform, titleText, layout.IsCompact ? 10 : 12, FontStyle.Bold);
+            var title = UiFactory.Label(name + "Title", card.transform, titleText, HasVersionedSetup ? 14 : (layout.IsCompact ? 10 : 12), FontStyle.Bold);
             title.color = active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
             title.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 18f : 20f);
 
-            var detail = UiFactory.Label(name + "Summary", card.transform, detailText, layout.IsCompact ? 9 : 10, FontStyle.Bold);
+            var detail = UiFactory.Label(name + "Summary", card.transform, detailText, HasVersionedSetup ? 14 : (layout.IsCompact ? 9 : 10), FontStyle.Bold);
             detail.color = UnityTavernUiStyle.MutedText;
             detail.horizontalOverflow = HorizontalWrapMode.Wrap;
             UnityTavernUiStyle.SetFlexible(detail.gameObject, 1f, 0f);
@@ -582,8 +1234,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var actions = UiFactory.Panel(name + "Actions", card.transform, Color.clear);
             UnityTavernUiStyle.SetPreferredHeight(actions, UnityTavernUiStyle.TouchHeight);
             ConfigureButtonRow(actions, 0, 4);
-            ActionButton(name + "EnableButton", actions.transform, active ? T("已开启", "On") : T("一键开启", "Enable"), !active, quickEnable);
-            ActionButton(name + "EditButton", actions.transform, T("编辑", "Edit"), true, edit);
+            var enableButton = ActionButton(name + "EnableButton", actions.transform, active ? T("已开启", "On") : T("一键开启", "Enable"), !active, quickEnable);
+            var editButton = ActionButton(name + "EditButton", actions.transform, T("编辑", "Edit"), true, edit);
+            if (HasVersionedSetup)
+            {
+                EnsureSetupPhysicalButton(enableButton);
+                EnsureSetupPhysicalButton(editButton);
+            }
         }
 
         private void QuickEnableAdvancedPool(AdvancedPoolTab tab)
@@ -1274,7 +1931,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             titleLayout.childForceExpandWidth = true;
             titleLayout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityCardPoolVersionTitle", titleBlock.transform, T("卡池版本", "Card Pool"), layout.IsCompact ? 16 : 18, FontStyle.Bold);
+            var title = UiFactory.Label("UnityCardPoolVersionTitle", titleBlock.transform, T("卡池方案", "Card Pool Preset"), layout.IsCompact ? 16 : 18, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 24f : 28f);
 
@@ -1404,7 +2061,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var hero = CurrentHero();
             var strip = UiFactory.Panel("UnityTribeSelectionHeroPanel", parent, UnityTavernUiStyle.PanelRaised);
-            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 56f : 74f);
+            UnityTavernUiStyle.SetPreferredHeight(strip, layout.IsCompact ? 126f : 138f);
             UnityTavernUiStyle.ConfigureOutline(strip, new Color(UnityTavernUiStyle.Blue.r, UnityTavernUiStyle.Blue.g, UnityTavernUiStyle.Blue.b, 0.30f), new Vector2(1f, -1f));
             var stripLayout = strip.AddComponent<HorizontalLayoutGroup>();
             stripLayout.padding = new RectOffset(10, 10, layout.IsCompact ? 6 : 7, layout.IsCompact ? 6 : 7);
@@ -1414,7 +2071,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             stripLayout.childForceExpandWidth = false;
             stripLayout.childForceExpandHeight = true;
 
-            BuildHeroIcon(strip.transform, "UnityTribeSelectionHeroImage", hero, layout.IsCompact ? 44f : 60f);
+            BuildHeroIcon(strip.transform, "UnityTribeSelectionHeroImage", hero, layout.IsCompact ? 62f : 72f);
 
             var textBlock = UiFactory.Panel("UnityTribeSelectionHeroTextBlock", strip.transform, Color.clear);
             UnityTavernUiStyle.SetFlexible(textBlock, 1f, 0f);
@@ -1425,29 +2082,57 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             textLayout.childForceExpandWidth = true;
             textLayout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityTribeSelectionHeroName", textBlock.transform, hero == null ? T("未设置英雄", "No hero set") : HeroName(hero), layout.IsCompact ? 15 : 17, FontStyle.Bold);
+            var title = UiFactory.Label("UnityTribeSelectionHeroName", textBlock.transform, hero == null ? T("未设置英雄", "No hero set") : HeroName(hero), layout.IsCompact ? 16 : 18, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, layout.IsCompact ? 22f : 25f);
 
             var power = hero?.HeroPower;
             var powerText = power == null ? T("技能：未设置", "Power: not set") : T("技能：", "Power: ") + HeroPowerName(power) + T(" / 费用 ", " / Cost ") + power.Cost;
-            var detail = UiFactory.Label("UnityTribeSelectionHeroPower", textBlock.transform, powerText, layout.IsCompact ? 11 : 12, FontStyle.Bold);
+            var detail = UiFactory.Label("UnityTribeSelectionHeroPower", textBlock.transform, powerText, 14, FontStyle.Bold);
             detail.color = UnityTavernUiStyle.Gold;
-            UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, layout.IsCompact ? 18f : 21f);
+            UnityTavernUiStyle.SetPreferredHeight(detail.gameObject, 21f);
 
-            if (!layout.IsCompact)
-            {
-                var stats = UiFactory.Label("UnityTribeSelectionHeroStats", textBlock.transform, hero == null ? T("进入酒馆时由对局兜底", "Match will use fallback hero") : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor, 14, FontStyle.Normal);
-                stats.color = UnityTavernUiStyle.MutedText;
-                UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 18f);
-            }
+            var powerDescription = UiFactory.Label(
+                "UnityTribeSelectionHeroPowerText",
+                textBlock.transform,
+                HeroPowerDescription(power),
+                14,
+                FontStyle.Normal);
+            powerDescription.color = UnityTavernUiStyle.Text;
+            powerDescription.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UnityTavernUiStyle.SetPreferredHeight(powerDescription.gameObject, 40f);
+
+            var statusText = hero == null
+                ? T("进入酒馆时由对局兜底", "Match will use fallback hero")
+                : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor + " · " + (hero.ImplementationStatus ?? T("状态未知", "Unknown status"));
+            var stats = UiFactory.Label("UnityTribeSelectionHeroStats", textBlock.transform, statusText, 14, FontStyle.Normal);
+            stats.color = UnityTavernUiStyle.MutedText;
+            UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 19f);
 
             var choose = ActionButton("UnityTribeSelectionChooseHeroButton", strip.transform, layout.IsCompact ? T("选择", "Choose") : T("选择英雄", "Choose Hero"), true, () =>
             {
                 heroSelectionOpen = true;
                 Build();
             });
-            UnityTavernUiStyle.SetFixedSize(choose.gameObject, layout.IsCompact ? 74f : 104f, layout.IsCompact ? 40f : 46f);
+            UnityTavernUiStyle.SetFixedSize(choose.gameObject, layout.IsCompact ? 84f : 112f, 48f);
+        }
+
+        private string HeroPowerDescription(HeroPowerDefinition power)
+        {
+            if (power == null)
+            {
+                return T("尚无英雄技能说明。", "No hero power description is available.");
+            }
+
+            var text = UseEnglish ? power.Text : power.ZhText;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                text = UseEnglish ? power.ZhText : power.Text;
+            }
+
+            return string.IsNullOrWhiteSpace(text)
+                ? T("尚无英雄技能说明。", "No hero power description is available.")
+                : text;
         }
 
         private void BuildHeroSelectionOverlay()
@@ -1552,7 +2237,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 UnityTavernUiStyle.SetFixedSize(timewarpedTab.gameObject, UseEnglish ? 96f : 72f, UnityTavernUiStyle.TouchHeight);
             }
 
-            var title = UiFactory.Label("UnityCardPoolVersionModalTitle", header.transform, T("卡池版本", "Card Pool"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
+            var title = UiFactory.Label("UnityCardPoolVersionModalTitle", header.transform, T("卡池方案", "Card Pool Preset"), layout.IsCompact ? 18 : 22, FontStyle.Bold);
             title.alignment = TextAnchor.MiddleCenter;
             title.color = UnityTavernUiStyle.Text;
             UnityTavernUiStyle.SetFlexible(title.gameObject, 1f, 0f);
@@ -1603,8 +2288,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 "UnityCardPoolVersionUnsavedBody",
                 dialog.transform,
                 UseEnglish
-                    ? "Before switching to \"" + VersionNameFor(pendingVersionSwitchId) + "\", choose what to do with the current version changes."
-                    : "切换到“" + VersionNameFor(pendingVersionSwitchId) + "”前，请选择如何处理当前版本的勾选改动。",
+                        ? "Before switching to \"" + VersionNameFor(pendingVersionSwitchId) + "\", choose what to do with the current preset changes."
+                        : "切换到“" + VersionNameFor(pendingVersionSwitchId) + "”前，请选择如何处理当前方案的勾选改动。",
                 14,
                 FontStyle.Bold);
             body.alignment = TextAnchor.MiddleCenter;
@@ -1635,7 +2320,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             sideLayout.childForceExpandWidth = true;
             sideLayout.childForceExpandHeight = false;
 
-            var title = UiFactory.Label("UnityCardPoolVersionSideTitle", side.transform, T("版本", "Versions"), 16, FontStyle.Bold);
+            var title = UiFactory.Label("UnityCardPoolVersionSideTitle", side.transform, T("方案", "Presets"), 16, FontStyle.Bold);
             title.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.SetPreferredHeight(title.gameObject, 26f);
 
@@ -1666,6 +2351,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var savedState = hasUnsavedCardPoolChanges ? T("  未保存", "  Unsaved") : string.Empty;
             var timewarpedCount = timewarpedTavernCatalog == null ? 0 : timewarpedTavernCatalog.All.Count;
+            var profile = selection.IsDefault
+                ? null
+                : store.Versions.FirstOrDefault(item => string.Equals(item.Id, selection.VersionId, StringComparison.OrdinalIgnoreCase));
+            var baseGameVersionId = string.IsNullOrWhiteSpace(profile?.BaseGameVersionId)
+                ? selectedGameVersionId
+                : profile.BaseGameVersionId;
+            var baseGameVersion = string.IsNullOrWhiteSpace(baseGameVersionId)
+                ? string.Empty
+                : T(" / 基础游戏版本 ", " / Base Version ") + GameVersionDisplayName(baseGameVersionId);
             return selection.VersionName +
                 "  " +
                 (selection.IsDefault ? T("默认", "Default") : T("自定义", "Custom")) +
@@ -1675,6 +2369,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 enabledTavernSpellCardNumbers.Count +
                 T(" / 时空 ", " / Timewarp ") +
                 timewarpedCount +
+                baseGameVersion +
                 savedState;
         }
 
@@ -1700,7 +2395,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             headerLayout.childForceExpandWidth = false;
             headerLayout.childForceExpandHeight = true;
 
-            var label = UiFactory.Label("UnityCardPoolVersionNameLabel", header.transform, T("版本名称", "Version Name"), 14, FontStyle.Bold);
+            var label = UiFactory.Label("UnityCardPoolVersionNameLabel", header.transform, T("方案名称", "Preset Name"), 14, FontStyle.Bold);
             label.color = UnityTavernUiStyle.Gold;
             UnityTavernUiStyle.EnsureComponent<LayoutElement>(label.gameObject).flexibleWidth = 1f;
 
@@ -1743,7 +2438,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             input.placeholder = UiFactory.Label(
                 "UnityCardPoolVersionNamePlaceholder",
                 inputObject.transform,
-                selection.IsDefault ? T("默认版本不可改名", "Default version cannot be renamed") : T("输入版本名称", "Enter version name"),
+                selection.IsDefault ? T("默认方案不可改名", "Default preset cannot be renamed") : T("输入方案名称", "Enter preset name"),
                 14);
             UnityTavernUiStyle.Stretch(input.placeholder.rectTransform);
             input.placeholder.color = UnityTavernUiStyle.MutedText;
@@ -2251,6 +2946,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Build();
         }
 
+        private void RebuildPreservingSetupStepScroll()
+        {
+            if (setupStepScrollRect != null)
+            {
+                setupStepScrollPosition = setupStepScrollRect.verticalNormalizedPosition;
+                restoreSetupStepScrollPosition = true;
+            }
+
+            Build();
+        }
+
+        private void RestoreSetupStepScrollPosition()
+        {
+            if (setupStepScrollRect == null)
+            {
+                restoreSetupStepScrollPosition = false;
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            setupStepScrollRect.verticalNormalizedPosition = restoreSetupStepScrollPosition
+                ? Mathf.Clamp01(setupStepScrollPosition)
+                : 1f;
+            restoreSetupStepScrollPosition = false;
+        }
+
         private void RestoreCardPoolScrollPosition()
         {
             if (cardPoolScrollRect == null)
@@ -2563,7 +3284,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             colors.pressedColor = Color.Lerp(surface.color, Color.black, 0.18f);
             colors.selectedColor = colors.highlightedColor;
             colors.disabledColor = new Color(surface.color.r, surface.color.g, surface.color.b, 0.42f);
-            colors.fadeDuration = 0.08f;
+            colors.fadeDuration = UnityUiMotionSettings.Duration(0.08f);
             toggle.colors = colors;
             UnityTavernUiStyle.ConfigureOutline(
                 toggleObject,
@@ -2664,6 +3385,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 enabledAnomalyCardIds.Add(cardId);
             }
 
+            if (selection.IsDefault)
+            {
+                ApplyDefaultMechanicPools();
+            }
+
             SyncAdvancedMechanicFlagsFromPools();
 
             hasUnsavedCardPoolChanges = false;
@@ -2674,6 +3400,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             {
                 store.SelectedVersionId = selectedVersionId;
                 repository.Save(store);
+            }
+        }
+
+        private void ApplyDefaultMechanicPools()
+        {
+            if (!SelectionPolicy.DefaultMechanicIds.Contains(SetupMechanicIds.Trinkets, StringComparer.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            foreach (var trinket in (trinketCatalog?.All ?? new List<TrinketDefinition>()).Where(item =>
+                         item != null &&
+                         !string.IsNullOrWhiteSpace(item.CardId) &&
+                         item.ImplementationStatus == TrinketImplementationStatus.Implemented &&
+                         item.OfferPoolStatus == TrinketOfferPoolStatus.Offerable))
+            {
+                var pool = trinket.SlotKind == TrinketSlotKind.Greater
+                    ? enabledGreaterTrinketCardIds
+                    : enabledLesserTrinketCardIds;
+                pool.Add(trinket.CardId);
             }
         }
 
@@ -2773,6 +3519,10 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 },
                 Guid.NewGuid().ToString("N"),
                 name);
+            profile.BaseGameVersionId = selectedGameVersionId;
+            profile.CreatedAgainstContentFingerprint = selectedGameVersion?.ContentFingerprint ?? string.Empty;
+            profile.ValidationState = CardPoolPresetValidationState.Valid;
+            profile.IncompatibleEntityIds = new List<string>();
             store.Versions.Add(profile);
             selectedVersionId = profile.Id;
             SaveCurrentVersion();
@@ -2797,6 +3547,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             profile.EnabledLesserTrinketCardIds = enabledLesserTrinketCardIds.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).ToList();
             profile.EnabledGreaterTrinketCardIds = enabledGreaterTrinketCardIds.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).ToList();
             profile.EnabledAnomalyCardIds = enabledAnomalyCardIds.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).ToList();
+            if (HasVersionedSetup)
+            {
+                profile.BaseGameVersionId = selectedGameVersionId;
+                profile.CreatedAgainstContentFingerprint = selectedGameVersion.ContentFingerprint;
+                profile.ValidationState = CardPoolPresetValidationState.Valid;
+                profile.IncompatibleEntityIds = new List<string>();
+            }
             profile.UpdatedAtUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             store.SelectedVersionId = selectedVersionId;
             repository.Save(store);
@@ -2841,6 +3598,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void StartTrainer(List<Tribe> activeTribes)
         {
+            var policy = SelectionPolicy;
+            var tribes = activeTribes == null ? new List<Tribe>() : activeTribes.Distinct().ToList();
+            if (!policy.IsCustomTribeCountValid(tribes.Count))
+            {
+                Debug.LogWarning("Setup tribe selection rejected by policy: " + tribes.Count + " selected.");
+                return;
+            }
+
             SyncAdvancedMechanicFlagsFromPools();
             var selection = CurrentSelection();
             if (!selection.IsDefault)
@@ -2848,23 +3613,32 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SaveCurrentVersion();
             }
 
-            var resolvedSelectedAnomalyCardId = enableAnomalies && enabledAnomalyCardIds.Count == 1
+            var effectiveEnableQuests = ResolveRequestedMechanic(policy, SetupMechanicIds.Quests, enableQuests);
+            var effectiveEnableQuestRewards = ResolveRequestedMechanic(policy, SetupMechanicIds.QuestRewards, enableQuestRewards);
+            var effectiveEnableTrinkets = ResolveRequestedMechanic(policy, SetupMechanicIds.Trinkets, enableTrinkets);
+            var effectiveEnableAnomalies = ResolveRequestedMechanic(policy, SetupMechanicIds.Anomalies, enableAnomalies);
+            var effectiveEnableTimewarpedTavern = ResolveRequestedMechanic(policy, SetupMechanicIds.TimewarpedTavern, enableTimewarpedTavern);
+            var resolvedSelectedAnomalyCardId = effectiveEnableAnomalies && enabledAnomalyCardIds.Count == 1
                 ? enabledAnomalyCardIds.First()
                 : null;
-            var shouldRandomizeAnomaly = enableAnomalies && string.IsNullOrEmpty(resolvedSelectedAnomalyCardId);
+            var shouldRandomizeAnomaly = effectiveEnableAnomalies && string.IsNullOrEmpty(resolvedSelectedAnomalyCardId);
 
             start?.Invoke(new MatchSetupOptions
             {
                 UseEnglish = UseEnglish,
-                ActiveTribes = activeTribes == null ? new List<Tribe>() : activeTribes.ToList(),
+                GameVersionId = selectedGameVersion?.GameVersion.Id,
+                RulesetId = selectedGameVersion?.Ruleset.Id,
+                ContentSnapshotId = selectedGameVersion?.ContentSnapshotId,
+                ContentFingerprint = selectedGameVersion?.ContentFingerprint,
+                ActiveTribes = tribes,
                 SelectedHeroCardId = selectedHeroCardId,
                 CardPoolVersionId = selection.VersionId,
                 CardPoolVersionName = selection.VersionName,
                 IsDefaultCardPoolVersion = selection.IsDefault,
-                EnableQuests = enableQuests,
-                EnableTrinkets = enableTrinkets,
-                EnableQuestRewards = enableQuestRewards,
-                EnableAnomalies = enableAnomalies,
+                EnableQuests = effectiveEnableQuests,
+                EnableTrinkets = effectiveEnableTrinkets,
+                EnableQuestRewards = effectiveEnableQuestRewards,
+                EnableAnomalies = effectiveEnableAnomalies,
                 RandomizeAnomaly = shouldRandomizeAnomaly,
                 SelectedAnomalyCardId = resolvedSelectedAnomalyCardId,
                 AnomalyPoolVersion = anomalyPoolVersion,
@@ -2873,18 +3647,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 ShowHiddenEffectOnly = showHiddenEffectOnly,
                 ShowDisabled = showDebugOnly && showDisabled,
                 EnablePlayerDirectedChoices = enablePlayerDirectedChoices,
-                EnableTimewarpedTavern = enableTimewarpedTavern,
+                EnableTimewarpedTavern = effectiveEnableTimewarpedTavern,
                 TimewarpedPoolVersion = timewarpedPoolVersion,
-                UseHistoricalTimewarpedPool = timewarpedPoolVersion != TimewarpedPoolVersion.Current,
-                UseExplicitTimewarpedPool = true,
-                EnabledTimewarpedCardIds = enabledTimewarpedCardIds.ToList(),
+                UseHistoricalTimewarpedPool = effectiveEnableTimewarpedTavern && timewarpedPoolVersion != TimewarpedPoolVersion.Current,
+                UseExplicitTimewarpedPool = effectiveEnableTimewarpedTavern,
+                EnabledTimewarpedCardIds = effectiveEnableTimewarpedTavern ? enabledTimewarpedCardIds.ToList() : new List<string>(),
                 EnabledMinionCardIds = enabledMinionCardIds.Where(value => !IsDuoCardId(value)).ToList(),
                 EnabledTavernSpellCardNumbers = enabledTavernSpellCardNumbers.ToList(),
-                EnabledQuestCardIds = enabledQuestCardIds.ToList(),
-                EnabledQuestRewardCardIds = enabledQuestRewardCardIds.ToList(),
+                EnabledQuestCardIds = effectiveEnableQuests ? enabledQuestCardIds.ToList() : new List<string>(),
+                EnabledQuestRewardCardIds = effectiveEnableQuestRewards ? enabledQuestRewardCardIds.ToList() : new List<string>(),
                 EnabledLesserTrinketCardIds = enabledLesserTrinketCardIds.ToList(),
                 EnabledGreaterTrinketCardIds = enabledGreaterTrinketCardIds.ToList(),
-                EnabledAnomalyCardIds = enabledAnomalyCardIds.ToList()
+                EnabledAnomalyCardIds = effectiveEnableAnomalies ? enabledAnomalyCardIds.ToList() : new List<string>()
             });
         }
 
@@ -2993,6 +3767,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             image.raycastTarget = false;
         }
 
+        private bool ResolveRequestedMechanic(SetupSelectionPolicy policy, string mechanicId, bool requested)
+        {
+            if (!requested || policy.AllowsMechanic(mechanicId))
+            {
+                return requested;
+            }
+
+            Debug.LogWarning("Setup mechanic preference ignored by ruleset: " + mechanicId);
+            return false;
+        }
+
+        private string RandomSelectionButtonText()
+        {
+            var count = SetupSelectionPolicy.DefaultRandomTribeCount;
+            return UseEnglish
+                ? (selected.Count == 0 ? "Random " : "Reroll ") + count
+                : (selected.Count == 0 ? "随机选择" : "重新随机") + count + "个";
+        }
+
         private void ToggleTribe(Tribe tribe)
         {
             if (selected.Contains(tribe))
@@ -3001,17 +3794,19 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            if (selected.Count < 5)
+            if (SelectionPolicy.CanSelectAnotherTribe(selected.Count))
             {
                 selected.Add(tribe);
             }
         }
 
-        private void SelectRandomFive()
+        private void SelectRandomTribes()
         {
             selected.Clear();
             var rng = new System.Random(Environment.TickCount);
-            foreach (var tribe in TribeAvailabilityRules.PlayableTribes.OrderBy(_ => rng.Next()).Take(5))
+            foreach (var tribe in TribeAvailabilityRules.PlayableTribes
+                         .OrderBy(_ => rng.Next())
+                         .Take(SetupSelectionPolicy.DefaultRandomTribeCount))
             {
                 selected.Add(tribe);
             }
@@ -3179,7 +3974,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return button;
         }
 
-        private static void ConfigureButtonRow(GameObject row, int padding, int spacing)
+        private static void SetCompactActionWidth(Button button, float preferredWidth)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            var element = button.GetComponent<LayoutElement>() ?? button.gameObject.AddComponent<LayoutElement>();
+            element.minWidth = preferredWidth;
+            element.preferredWidth = preferredWidth;
+            element.flexibleWidth = 0f;
+        }
+
+        private static HorizontalLayoutGroup ConfigureButtonRow(GameObject row, int padding, int spacing)
         {
             var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
             rowLayout.padding = new RectOffset(padding, padding, padding, padding);
@@ -3188,6 +3996,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rowLayout.childControlHeight = true;
             rowLayout.childForceExpandWidth = true;
             rowLayout.childForceExpandHeight = true;
+            return rowLayout;
         }
 
         private string ShortLabel(string value)
@@ -3219,6 +4028,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var profile = store.Versions.FirstOrDefault(version => string.Equals(version.Id, versionId, StringComparison.OrdinalIgnoreCase));
             return string.IsNullOrEmpty(profile?.Name) ? T("自定义版本", "Custom Version") : profile.Name;
+        }
+
+        private string GameVersionDisplayName(string versionId)
+        {
+            if (HasVersionedSetup)
+            {
+                var version = catalogSnapshot.VersionedContent.Versions.Versions.FirstOrDefault(item =>
+                    string.Equals(item.Id, versionId, StringComparison.OrdinalIgnoreCase));
+                if (version != null)
+                {
+                    return GameVersionUiText.DisplayName(version, UseEnglish);
+                }
+            }
+
+            return versionId ?? string.Empty;
         }
 
         private string AnomalyChoiceSummaryText()

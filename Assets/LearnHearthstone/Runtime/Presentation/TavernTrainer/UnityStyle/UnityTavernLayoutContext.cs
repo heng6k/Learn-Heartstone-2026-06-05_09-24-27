@@ -15,6 +15,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public const float CompactHeight = 650f;
         public const float WideWidth = 1400f;
         public const float WideHeight = 800f;
+        public const float CanvasReferenceWidth = 1920f;
+        public const float CanvasReferenceHeight = 1080f;
 
         public UnityTavernLayoutContext(float width, float height)
         {
@@ -34,6 +36,25 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public bool IsWide => Mode == UnityTavernLayoutMode.Wide;
 
         public float ZoneStackSpacing => IsCompact ? 6f : 10f;
+
+        public float CanvasMatchWidthOrHeight => IsCompact ? 0f : 0.5f;
+
+        public float CanvasScaleFactor
+        {
+            get
+            {
+                var widthScale = Mathf.Max(Width / CanvasReferenceWidth, 0.0001f);
+                var heightScale = Mathf.Max(Height / CanvasReferenceHeight, 0.0001f);
+                var logWidth = Mathf.Log(widthScale, 2f);
+                var logHeight = Mathf.Log(heightScale, 2f);
+                return Mathf.Pow(2f, Mathf.Lerp(logWidth, logHeight, CanvasMatchWidthOrHeight));
+            }
+        }
+
+        public float CanvasUnitsForPhysicalPixels(float physicalPixels)
+        {
+            return Mathf.Max(0f, physicalPixels) / Mathf.Max(0.01f, CanvasScaleFactor);
+        }
 
         public static UnityTavernLayoutContext Current()
         {
@@ -88,6 +109,23 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return IsWide ? WideZoneMetrics(kind, cardMode) : StandardZoneMetrics(kind, cardMode);
         }
 
+        public float HandZoneHeight(int handCount)
+        {
+            var expandedHeight = ZoneMetrics(UnityTavernZoneKind.Hand, UnityTavernCardMode.Hand).Height;
+            var collapsedPhysicalHeight = IsCompact ? 48f : 56f;
+            var collapsedHeight = Mathf.Min(
+                expandedHeight - 12f,
+                CanvasUnitsForPhysicalPixels(collapsedPhysicalHeight));
+            if (handCount <= 0)
+            {
+                return collapsedHeight;
+            }
+
+            var firstCardHeight = Mathf.Max(collapsedHeight, expandedHeight * (IsCompact ? 0.70f : 0.68f));
+            var density = Mathf.Clamp01((Mathf.Clamp(handCount, 1, 10) - 1f) / 9f);
+            return Mathf.Lerp(firstCardHeight, expandedHeight, density);
+        }
+
         private static UnityTavernLayoutMode ResolveMode(float width, float height)
         {
             if (width < CompactWidth || height < CompactHeight)
@@ -108,13 +146,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (kind)
             {
                 case UnityTavernZoneKind.OpponentBoard:
-                    return new UnityTavernZoneMetrics(112f, new Vector2(86f, 96f), 6f, 0.72f);
+                    return new UnityTavernZoneMetrics(118f, new Vector2(110f, 122f), 5f, 1.05f);
                 case UnityTavernZoneKind.PlayerBoard:
-                    return new UnityTavernZoneMetrics(136f, new Vector2(98f, 110f), 6f, 0.78f);
+                    return new UnityTavernZoneMetrics(200f, new Vector2(168f, 184f), 5f, 1.25f);
                 case UnityTavernZoneKind.Hand:
-                    return new UnityTavernZoneMetrics(144f, new Vector2(92f, 130f), 6f, 0.84f);
+                    return new UnityTavernZoneMetrics(140f, new Vector2(100f, 142f), 4f, 1.05f);
                 default:
-                    return new UnityTavernZoneMetrics(176f, new Vector2(108f, 150f), 6f, 0.8f);
+                    return new UnityTavernZoneMetrics(240f, new Vector2(188f, 252f), 8f, 1.35f);
             }
         }
 
@@ -123,13 +161,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (kind)
             {
                 case UnityTavernZoneKind.Hand:
-                    return new UnityTavernZoneMetrics(176f, new Vector2(104f, 144f), 0f, 0.9f);
+                    return new UnityTavernZoneMetrics(156f, new Vector2(112f, 154f), 0f, 1f);
                 case UnityTavernZoneKind.PlayerBoard:
-                    return new UnityTavernZoneMetrics(158f, new Vector2(108f, 120f), 10f, 0.9f);
+                    return new UnityTavernZoneMetrics(218f, new Vector2(154f, 170f), 10f, 1.2f);
                 case UnityTavernZoneKind.OpponentBoard:
-                    return new UnityTavernZoneMetrics(150f, new Vector2(102f, 114f), 8f, 0.86f);
+                    return new UnityTavernZoneMetrics(170f, new Vector2(130f, 145f), 8f, 1.08f);
                 default:
-                    return new UnityTavernZoneMetrics(212f, new Vector2(118f, 164f), 12f, 0.88f);
+                    return new UnityTavernZoneMetrics(250f, new Vector2(168f, 236f), 14f, 1.25f);
             }
         }
 
@@ -138,12 +176,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             switch (kind)
             {
                 case UnityTavernZoneKind.Hand:
-                    return new UnityTavernZoneMetrics(196f, new Vector2(118f, 164f), 0f, 1f);
+                    return new UnityTavernZoneMetrics(198f, new Vector2(120f, 166f), 0f, 1f);
                 case UnityTavernZoneKind.PlayerBoard:
                 case UnityTavernZoneKind.OpponentBoard:
-                    return new UnityTavernZoneMetrics(172f, new Vector2(118f, 132f), 12f, 1f);
+                    return new UnityTavernZoneMetrics(206f, new Vector2(142f, 158f), 12f, 1.1f);
                 default:
-                    return new UnityTavernZoneMetrics(232f, new Vector2(136f, 190f), 14f, 1f);
+                    return new UnityTavernZoneMetrics(250f, new Vector2(154f, 216f), 14f, 1.12f);
             }
         }
     }

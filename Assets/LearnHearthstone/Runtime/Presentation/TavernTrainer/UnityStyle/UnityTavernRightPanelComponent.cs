@@ -113,7 +113,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<Transform> buildActions,
             Action<Transform> buildDetail,
             Action<Transform> buildAdvisor,
-            Action<Transform> buildLog)
+            Action<Transform> buildLog,
+            bool useEnglish = false)
         {
             ConfigurePanelChrome();
 
@@ -122,8 +123,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 SetText(titleText, title);
                 UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
                 ConfigureHeader(ResolveHeaderTransform());
-                ConfigureFloatingToggle(floating, toggleFloating);
-                BuildTabRow(activeTab, changeTab);
+                ConfigureFloatingToggle(floating, toggleFloating, useEnglish);
+                BuildTabRow(activeTab, changeTab, useEnglish);
                 BuildTabbedSection(actionParent, activeTab == UnityTavernInspectorTab.Actions, buildActions);
                 BuildTabbedSection(detailParent, activeTab == UnityTavernInspectorTab.Details, buildDetail);
                 BuildTabbedSection(advisorParent, activeTab == UnityTavernInspectorTab.Advice, buildAdvisor);
@@ -131,7 +132,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
-            BuildGeneratedTabbed(title, floating, toggleFloating, activeTab, changeTab, buildActions, buildDetail, buildAdvisor, buildLog);
+            BuildGeneratedTabbed(title, floating, toggleFloating, activeTab, changeTab, buildActions, buildDetail, buildAdvisor, buildLog, useEnglish);
         }
 
         private void BuildGenerated(
@@ -178,7 +179,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             Action<Transform> buildActions,
             Action<Transform> buildDetail,
             Action<Transform> buildAdvisor,
-            Action<Transform> buildLog)
+            Action<Transform> buildLog,
+            bool useEnglish)
         {
             ClearChildren(transform);
             var layout = UnityTavernUiStyle.EnsureComponent<VerticalLayoutGroup>(gameObject);
@@ -198,9 +200,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             UnityTavernUiStyle.SetFlexible(titleLabel.gameObject, 1f, 0f);
 
             floatingToggleButton = CreateFloatingToggle(header.transform, out floatingToggleText);
-            ConfigureFloatingToggle(floating, toggleFloating);
+            ConfigureFloatingToggle(floating, toggleFloating, useEnglish);
 
-            BuildTabRow(activeTab, changeTab);
+            BuildTabRow(activeTab, changeTab, useEnglish);
 
             var activeHost = new GameObject("UnityRightPanelActiveHost", typeof(RectTransform));
             activeHost.transform.SetParent(transform, false);
@@ -224,7 +226,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private void ConfigureFloatingToggle(bool floating, Action toggleFloating)
+        private void ConfigureFloatingToggle(bool floating, Action toggleFloating, bool useEnglish = false)
         {
             if (floatingToggleButton == null)
             {
@@ -240,8 +242,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             floatingToggleButton.interactable = toggleFloating != null;
+            UnityTavernUiStyle.EnsureComponent<UnitySelectableFocusRing>(floatingToggleButton.gameObject);
             UnityTavernUiStyle.ConfigureLabel(floatingToggleText, UnityTavernUiStyle.TextLight, 14);
-            SetText(floatingToggleText, floating ? "收起" : "展开");
+            SetText(floatingToggleText, useEnglish ? (floating ? "Collapse" : "Expand") : (floating ? "收起" : "展开"));
         }
 
         private static void BuildSection(Transform parent, Action<Transform> build)
@@ -273,7 +276,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        private void BuildTabRow(UnityTavernInspectorTab activeTab, Action<UnityTavernInspectorTab> changeTab)
+        private void BuildTabRow(UnityTavernInspectorTab activeTab, Action<UnityTavernInspectorTab> changeTab, bool useEnglish)
         {
             RemoveTabRow();
 
@@ -289,16 +292,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureTabRow(tabRow);
             var layout = tabRow.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(4, 4, 4, 4);
-            layout.spacing = 5;
+            layout.spacing = 8;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = true;
 
-            AddTabButton(tabRow.transform, "UnityRightPanelTab-Actions", "操作", UnityTavernInspectorTab.Actions, activeTab, changeTab);
-            AddTabButton(tabRow.transform, "UnityRightPanelTab-Details", "详情", UnityTavernInspectorTab.Details, activeTab, changeTab);
-            AddTabButton(tabRow.transform, "UnityRightPanelTab-Advice", "建议", UnityTavernInspectorTab.Advice, activeTab, changeTab);
-            AddTabButton(tabRow.transform, "UnityRightPanelTab-Logs", "日志", UnityTavernInspectorTab.Logs, activeTab, changeTab);
+            AddTabButton(tabRow.transform, "UnityRightPanelTab-Actions", useEnglish ? "Actions" : "操作", UnityTavernInspectorTab.Actions, activeTab, changeTab);
+            AddTabButton(tabRow.transform, "UnityRightPanelTab-Details", useEnglish ? "Details" : "详情", UnityTavernInspectorTab.Details, activeTab, changeTab);
+            AddTabButton(tabRow.transform, "UnityRightPanelTab-Advice", useEnglish ? "Advice" : "建议", UnityTavernInspectorTab.Advice, activeTab, changeTab);
+            AddTabButton(tabRow.transform, "UnityRightPanelTab-Logs", useEnglish ? "Logs" : "日志", UnityTavernInspectorTab.Logs, activeTab, changeTab);
         }
 
         private void RemoveTabRow()
@@ -335,6 +338,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var selected = tab == activeTab;
             var image = buttonObject.GetComponent<Image>();
             var button = buttonObject.GetComponent<Button>();
+            buttonObject.AddComponent<UnitySelectableFocusRing>();
             button.targetGraphic = image;
             button.onClick.AddListener(() => changeTab?.Invoke(tab));
             UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, selected: selected);

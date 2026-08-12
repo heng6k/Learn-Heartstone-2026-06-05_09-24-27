@@ -151,16 +151,28 @@ namespace LearnHearthstone.Presentation.TavernTrainer.Realistic
         public void OnPointerEnter(PointerEventData eventData)
         {
             targetScale = hoverScale;
+            ApplyReducedMotionTarget();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             targetScale = 1f;
+            ApplyReducedMotionTarget();
         }
 
         private void Update()
         {
-            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.one * targetScale, Time.unscaledDeltaTime * 12f);
+            transform.localScale = LearnHearthstone.Presentation.Common.UnityUiMotionSettings.ReduceMotion
+                ? Vector3.one * targetScale
+                : Vector3.Lerp(transform.localScale, Vector3.one * targetScale, Time.unscaledDeltaTime * 12f);
+        }
+
+        private void ApplyReducedMotionTarget()
+        {
+            if (LearnHearthstone.Presentation.Common.UnityUiMotionSettings.ReduceMotion)
+            {
+                transform.localScale = Vector3.one * targetScale;
+            }
         }
     }
 }

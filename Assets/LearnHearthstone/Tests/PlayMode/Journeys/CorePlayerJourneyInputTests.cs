@@ -51,8 +51,8 @@ namespace LearnHearthstone.Tests.PlayMode
                     openSetup,
                     UnityTavernLayoutContext.ForSize(1366f, 768f)).Build();
 
-                yield return WaitForChild(scene.Root, "酒馆训练器Button");
-                Click(scene, FindChild(scene.Root, "酒馆训练器Button"));
+                yield return WaitForChild(scene.Root, "MainHubPrimaryStartButton");
+                Click(scene, FindChild(scene.Root, "MainHubPrimaryStartButton"));
                 yield return WaitForChild(scene.Root, "UnityTribeSelectionAllButton");
 
                 Assert.AreEqual("选择本局种族", FindChild(scene.Root, "UnityTribeSelectionTitle").GetComponent<Text>().text);
@@ -92,11 +92,11 @@ namespace LearnHearthstone.Tests.PlayMode
                     yield return WaitForChild(scene.Root, buttonName);
                 }
 
-                StringAssert.Contains("5/5", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
+                StringAssert.Contains("5/10", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
                 StringAssert.Contains("\u5df2\u9009", FindChild(scene.Root, "UnityTribeSelection" + selectedTribes[0] + "Button").GetComponentInChildren<Text>(true).text);
                 var excludedButton = FindChild(scene.Root, "UnityTribeSelection" + excludedTribe + "Button");
-                StringAssert.Contains("\u6392\u9664", excludedButton.GetComponentInChildren<Text>(true).text);
-                Assert.IsFalse(excludedButton.GetComponent<Button>().interactable);
+                StringAssert.Contains("\u53ef\u9009", excludedButton.GetComponentInChildren<Text>(true).text);
+                Assert.IsTrue(excludedButton.GetComponent<Button>().interactable);
                 StringAssert.Contains("\u672c\u5c40\u6392\u9664", FindChild(scene.Root, "UnityTribeSelectionExclusionSummary").GetComponent<Text>().text);
 
                 Click(scene, FindChild(scene.Root, "UnityTribeSelectionEnterButton"));
@@ -125,7 +125,7 @@ namespace LearnHearthstone.Tests.PlayMode
 
                 Click(scene, FindChild(scene.Root, "UnityAdvancedMechanicsBackButton"));
                 yield return WaitForChild(scene.Root, "UnityTribeSelectionSummary");
-                StringAssert.Contains("5/5", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
+                StringAssert.Contains("5/10", FindChild(scene.Root, "UnityTribeSelectionSummary").GetComponent<Text>().text);
                 foreach (var tribe in selectedTribes)
                 {
                     StringAssert.Contains("\u5df2\u9009", FindChild(scene.Root, "UnityTribeSelection" + tribe + "Button").GetComponentInChildren<Text>(true).text);
@@ -349,7 +349,9 @@ namespace LearnHearthstone.Tests.PlayMode
 
                 Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceCloseButton"));
                 yield return WaitForMissing(scene.Root, "UnityPlayerDirectedChoiceOverlay");
-                Assert.IsNotNull(service.State.Player.Tavern.AdvancedMechanics.PendingChoice);
+                Assert.IsNotNull(
+                    service.GetActiveMechanicChoice(),
+                    "Closing the player-directed overlay must preserve the unresolved mechanic choice.");
 
                 Click(scene, FindChild(scene.Root, "UnityPlayerDirectedChoiceButton-Quest"));
                 yield return WaitForChild(scene.Root, "UnityPlayerDirectedChoiceSearchInput");
@@ -565,6 +567,117 @@ namespace LearnHearthstone.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator PlayMode_OrdinaryMinion_PurchasesAndPlaysWithPhysicalDrag()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(24680, new InMemoryTestScenarioRepository());
+                service.State.Player.Tavern.Gold = 20;
+                service.State.Player.Tavern.MaxGold = 20;
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityShopZone");
+
+                var shopCard = service.State.Player.Tavern.Shop.First(card =>
+                    card != null &&
+                    card.CardKind == CardKind.Minion &&
+                    !service.RequiresPlayerTarget(card) &&
+                    !UnityTavernDragController.IsMagnetic(card));
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + shopCard.InstanceId),
+                    FindChild(scene.Root, "UnityHandBuyDropZone").GetComponent<UnityTavernDropTargetBehaviour>());
+                yield return WaitForState(
+                    () => service.State.Player.Tavern.Hand.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "ordinary minion purchase");
+                yield return WaitForChild(scene.Root, "UnityCard-" + shopCard.InstanceId);
+
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + shopCard.InstanceId),
+                    DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoardInsert, 0),
+                    0);
+
+                yield return WaitForState(
+                    () => service.State.Player.Board.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "physical ordinary minion play");
+                Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == shopCard.InstanceId));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_WideLowerPurchaseZone_AcceptsLeftCenterAndRightDrops()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(24681, new InMemoryTestScenarioRepository());
+                service.State.Player.Tavern.Gold = 30;
+                service.State.Player.Tavern.MaxGold = 30;
+                service.State.Player.Tavern.Hand.Clear();
+                var cards = service.State.Player.Tavern.Shop.Where(card => card != null).Take(3).ToArray();
+                Assert.AreEqual(3, cards.Length, "The fixture needs three shop cards.");
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityShopZone");
+
+                var targets = new[]
+                {
+                    new { Name = "UnityHandBuyDropZone", Point = new Vector2(0.03f, 0.5f) },
+                    new { Name = "UnityBoardBuyDropZone", Point = new Vector2(0.50f, 0.5f) },
+                    new { Name = "UnityHandBuyDropZone", Point = new Vector2(0.97f, 0.5f) }
+                };
+                for (var index = 0; index < cards.Length; index += 1)
+                {
+                    var card = cards[index];
+                    yield return Drag(
+                        scene,
+                        FindChild(scene.Root, "UnityCard-" + card.InstanceId),
+                        FindChild(scene.Root, targets[index].Name).GetComponent<UnityTavernDropTargetBehaviour>(),
+                        targetNormalized: targets[index].Point);
+                    yield return WaitForState(
+                        () => service.State.Player.Tavern.Hand.Any(candidate => candidate.InstanceId == card.InstanceId),
+                        "wide purchase drop " + index);
+                }
+
+                Assert.AreEqual(3, service.State.Player.Tavern.Hand.Count);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_ShopMinionAndTavernSpell_ReorderWithoutBuying()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(24682, new InMemoryTestScenarioRepository());
+                var shop = service.State.Player.Tavern.Shop;
+                var cards = shop.Where(card => card != null).Take(3).ToArray();
+                Assert.AreEqual(3, cards.Length, "The fixture needs three shop cards.");
+                cards[2].CardKind = CardKind.TavernSpell;
+                cards[2].Name = "试玩换位酒馆法术";
+                var spell = cards[2];
+                var goldBefore = service.State.Player.Tavern.Gold;
+                var handBefore = service.State.Player.Tavern.Hand.Select(card => card.InstanceId).ToArray();
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityShopPhysicalDropZone");
+
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + spell.InstanceId),
+                    FindChild(scene.Root, "UnityShopPhysicalDropZone").GetComponent<UnityTavernDropTargetBehaviour>(),
+                    targetNormalized: new Vector2(0.01f, 0.5f));
+                Assert.AreEqual(spell.InstanceId, shop[0].InstanceId);
+
+                var minion = shop.First(card => card.CardKind == CardKind.Minion);
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + minion.InstanceId),
+                    FindChild(scene.Root, "UnityShopPhysicalDropZone").GetComponent<UnityTavernDropTargetBehaviour>(),
+                    targetNormalized: new Vector2(0.99f, 0.5f));
+                Assert.AreEqual(minion.InstanceId, shop[shop.Count - 1].InstanceId);
+                Assert.AreEqual(goldBefore, service.State.Player.Tavern.Gold);
+                CollectionAssert.AreEqual(handBefore, service.State.Player.Tavern.Hand.Select(card => card.InstanceId).ToArray());
+            }
+        }
+
+        [UnityTest]
         public IEnumerator PlayMode_PJ02_BasicRecruitActionsCompleteThroughRealInput()
         {
             using (var scene = new JourneyScene())
@@ -588,23 +701,29 @@ namespace LearnHearthstone.Tests.PlayMode
                     "shop refresh");
 
                 var firstShopCard = service.State.Player.Tavern.Shop.First(card => card != null && card.CardKind == CardKind.Minion);
-                Click(scene, FindChild(scene.Root, "UnityCardAction-" + firstShopCard.InstanceId));
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + firstShopCard.InstanceId),
+                    FindChild(scene.Root, "UnityHandBuyDropZone").GetComponent<UnityTavernDropTargetBehaviour>());
                 yield return WaitForState(() => service.State.Player.Tavern.Hand.Any(card => card.InstanceId == firstShopCard.InstanceId), "first purchase");
                 yield return WaitForChild(scene.Root, "UnityCard-" + firstShopCard.InstanceId);
-                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + firstShopCard.InstanceId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoard, 0));
+                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + firstShopCard.InstanceId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoardInsert, 0), 0);
                 yield return WaitForState(() => service.State.Player.Board.Any(card => card.InstanceId == firstShopCard.InstanceId), "first play");
 
                 var secondShopCard = service.State.Player.Tavern.Shop.First(card => card != null && card.CardKind == CardKind.Minion);
-                yield return WaitForChild(scene.Root, "UnityCardAction-" + secondShopCard.InstanceId);
-                Click(scene, FindChild(scene.Root, "UnityCardAction-" + secondShopCard.InstanceId));
+                yield return WaitForChild(scene.Root, "UnityCard-" + secondShopCard.InstanceId);
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + secondShopCard.InstanceId),
+                    FindChild(scene.Root, "UnityHandBuyDropZone").GetComponent<UnityTavernDropTargetBehaviour>());
                 yield return WaitForState(() => service.State.Player.Tavern.Hand.Any(card => card.InstanceId == secondShopCard.InstanceId), "second purchase");
                 yield return WaitForChild(scene.Root, "UnityCard-" + secondShopCard.InstanceId);
-                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + secondShopCard.InstanceId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoard, 1));
+                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + secondShopCard.InstanceId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoardInsert, 0), 1);
                 yield return WaitForState(() => service.State.Player.Board.Count >= 2, "second play");
 
                 var movedId = service.State.Player.Board[1].InstanceId;
                 yield return WaitForChild(scene.Root, "UnityCard-" + movedId);
-                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + movedId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoard, 0));
+                yield return Drag(scene, FindChild(scene.Root, "UnityCard-" + movedId), DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoardInsert, 0), 0);
                 yield return WaitForState(() => service.State.Player.Board[0].InstanceId == movedId, "board reorder");
 
                 var soldId = service.State.Player.Board[0].InstanceId;
@@ -627,6 +746,100 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.IsTrue(recruitMessages.Any(message => message.StartsWith("出售 ", StringComparison.Ordinal)));
                 Assert.IsTrue(recruitMessages.Any(message => message.StartsWith("升级到酒馆等级 ", StringComparison.Ordinal)));
                 Assert.IsFalse(recruitMessages.Any(message => message.Contains("璐") || message.Contains("鎵") || message.Contains("鍑") || message.Contains("閰")));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_PhysicalPurchasePlayAndSell_UseHeroBoardAndBobAnchors()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(97531, new InMemoryTestScenarioRepository());
+                service.State.Player.Tavern.Gold = 20;
+                service.State.Player.Tavern.MaxGold = 20;
+                service.State.Player.Board.Clear();
+                service.State.Player.Tavern.Hand.Clear();
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityShopZone");
+
+                var shopCard = service.State.Player.Tavern.Shop.First(card =>
+                    card != null &&
+                    card.CardKind == CardKind.Minion &&
+                    !service.RequiresPlayerTarget(card) &&
+                    !UnityTavernDragController.IsMagnetic(card));
+                var goldBeforePurchase = service.State.Player.Tavern.Gold;
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + shopCard.InstanceId),
+                    FindChild(scene.Root, "UnityHandBuyDropZone").GetComponent<UnityTavernDropTargetBehaviour>());
+
+                Assert.IsTrue(
+                    service.State.Player.Tavern.Hand.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "purchase commit should move the selected shop card into hand.");
+                Assert.Less(
+                    service.State.Player.Tavern.Gold,
+                    goldBeforePurchase,
+                    "purchase commit should deduct gold before the next action.");
+                Assert.IsFalse(scene.Root.GetComponentsInChildren<Canvas>(true).Any(canvas =>
+                {
+                    var cardComponent = canvas.GetComponent<UnityTavernCardComponent>();
+                    return canvas.sortingOrder == 5000 &&
+                           cardComponent != null &&
+                           cardComponent.Card != null &&
+                           cardComponent.Card.InstanceId == shopCard.InstanceId;
+                }), "purchase commit should remove the physical drag ghost before the next action.");
+
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + shopCard.InstanceId),
+                    DropTarget(scene.Root, UnityTavernDropTarget.PlayerBoardInsert, 0),
+                    0);
+                Assert.IsTrue(
+                    service.State.Player.Board.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "play commit should insert the selected card onto the board.");
+                Assert.IsFalse(
+                    service.State.Player.Tavern.Hand.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "play commit should remove the selected card from hand.");
+
+                var goldBeforeSell = service.State.Player.Tavern.Gold;
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + shopCard.InstanceId),
+                    DropTarget(scene.Root, UnityTavernDropTarget.SellZone, -1));
+                Assert.IsFalse(
+                    service.State.Player.Board.Any(card => card.InstanceId == shopCard.InstanceId),
+                    "sell commit should remove the selected card from the board.");
+                Assert.Greater(
+                    service.State.Player.Tavern.Gold,
+                    goldBeforeSell,
+                    "sell commit should grant the configured sale gold.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_DirectTavernSpell_DragsFromHandIntoCastZone()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(86420, new InMemoryTestScenarioRepository());
+                service.State.Player.Tavern.Hand.Clear();
+                service.Apply(new GameCommand(GameCommandType.AddCardToHand, "104436", CardKind.TavernSpell));
+                var spell = service.State.Player.Tavern.Hand.Single(card => card.CardId == "104436");
+                var goldBefore = service.State.Player.Tavern.Gold;
+
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityCard-" + spell.InstanceId);
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityCardAction-" + spell.InstanceId));
+
+                yield return Drag(
+                    scene,
+                    FindChild(scene.Root, "UnityCard-" + spell.InstanceId),
+                    DropTarget(scene.Root, UnityTavernDropTarget.CastZone, 0));
+
+                yield return WaitForState(
+                    () => service.State.Player.Tavern.Hand.All(card => card.InstanceId != spell.InstanceId),
+                    "direct tavern spell cast");
+                Assert.AreEqual(goldBefore + 1, service.State.Player.Tavern.Gold);
             }
         }
 
@@ -676,8 +889,8 @@ namespace LearnHearthstone.Tests.PlayMode
                 yield return null;
                 yield return WaitForChild(scene.Root, "UnityReplayLastButton");
                 Click(scene, FindChild(scene.Root, "UnityReplayLastButton"));
-                yield return WaitForChild(scene.Root, "UnityCombatCloseButton");
-                Click(scene, FindChild(scene.Root, "UnityCombatCloseButton"));
+                yield return WaitForChild(scene.Root, "UnityCombatReturnButton");
+                Click(scene, FindChild(scene.Root, "UnityCombatReturnButton"));
                 yield return WaitForChild(scene.Root, "UnityBackButton");
                 Assert.IsNotNull(service.State.LastReplay);
 
@@ -765,6 +978,61 @@ namespace LearnHearthstone.Tests.PlayMode
             }
         }
 
+        [UnityTest]
+        public IEnumerator PlayMode_RightClickCancelsBeforeFirstTargetButCannotUndoLockedTargetOne()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var service = MatchService.CreateWithDefaultCatalog(
+                    86421,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions { SelectedHeroCardId = "BG20_HERO_201" });
+                service.State.Player.Board.Clear();
+                var template = service.State.Player.Tavern.Shop.First(card => card != null && card.CardKind == CardKind.Minion);
+                var first = template.Clone();
+                first.InstanceId = "right-click-target-one";
+                first.Owner = BoardSide.Player;
+                first.Attack = first.BaseAttack = 2;
+                first.Health = first.MaxHealth = first.BaseHealth = 4;
+                var second = template.Clone();
+                second.InstanceId = "right-click-target-two";
+                second.Owner = BoardSide.Player;
+                second.Attack = second.BaseAttack = 5;
+                second.Health = second.MaxHealth = second.BaseHealth = 4;
+                service.State.Player.Board.Add(first);
+                service.State.Player.Board.Add(second);
+
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+                yield return WaitForChild(scene.Root, "UnityQuickHeroPowerButton");
+
+                Click(scene, FindChild(scene.Root, "UnityQuickHeroPowerButton"));
+                yield return WaitForChild(scene.Root, "UnityTargetingCancelButton");
+                RightClick(scene, FindChild(scene.Root, "UnityCard-" + first.InstanceId));
+                yield return WaitForMissing(scene.Root, "UnityTargetingCancelButton");
+                Assert.AreEqual(UnityTavernTargetingState.None, FindChild(scene.Root, "UnityCard-" + first.InstanceId).GetComponent<UnityTavernCardComponent>().TargetingState);
+                Assert.AreEqual(2, first.Attack);
+                Assert.AreEqual(5, second.Attack);
+
+                Click(scene, FindChild(scene.Root, "UnityQuickHeroPowerButton"));
+                yield return WaitForChild(scene.Root, "UnityTargetingCancelButton");
+                Click(scene, FindChild(scene.Root, "UnityCard-" + first.InstanceId));
+                yield return WaitForMissing(scene.Root, "UnityTargetingCancelButton");
+                var firstCard = FindChild(scene.Root, "UnityCard-" + first.InstanceId).GetComponent<UnityTavernCardComponent>();
+                Assert.AreEqual(UnityTavernTargetingState.ConfirmedTarget, firstCard.TargetingState);
+
+                RightClick(scene, firstCard.transform);
+                yield return null;
+                Assert.AreEqual(UnityTavernTargetingState.ConfirmedTarget, firstCard.TargetingState);
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityMinionEditOverlay"));
+                Assert.IsNull(FindChildOrNull(scene.Root, "UnityTargetingCancelButton"));
+
+                Click(scene, FindChild(scene.Root, "UnityCard-" + second.InstanceId));
+                yield return WaitForState(() => first.Attack == 7 && second.Attack == 7, "locked two-target Hero Power resolution");
+                Assert.AreEqual(7, first.Attack);
+                Assert.AreEqual(7, second.Attack);
+            }
+        }
+
         private sealed class JourneyScene : IDisposable
         {
             private readonly GameObject canvasObject;
@@ -803,6 +1071,14 @@ namespace LearnHearthstone.Tests.PlayMode
             var hit = Raycast(scene, pointer, target);
             ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerDownHandler);
             ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerUpHandler);
+            ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerClickHandler);
+        }
+
+        private static void RightClick(JourneyScene scene, Transform target)
+        {
+            var pointer = PointerAt(scene, target.GetComponent<RectTransform>());
+            pointer.button = PointerEventData.InputButton.Right;
+            var hit = Raycast(scene, pointer, target);
             ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerClickHandler);
         }
 
@@ -912,7 +1188,12 @@ namespace LearnHearthstone.Tests.PlayMode
             ExecuteEvents.ExecuteHierarchy(hit, pointer, ExecuteEvents.pointerClickHandler);
         }
 
-        private static IEnumerator Drag(JourneyScene scene, Transform source, UnityTavernDropTargetBehaviour target)
+        private static IEnumerator Drag(
+            JourneyScene scene,
+            Transform source,
+            UnityTavernDropTargetBehaviour target,
+            int boardInsertIndex = -1,
+            Vector2? targetNormalized = null)
         {
             var sourcePointer = PointerAt(scene, source.GetComponent<RectTransform>());
             var sourceHit = Raycast(scene, sourcePointer, source);
@@ -921,9 +1202,30 @@ namespace LearnHearthstone.Tests.PlayMode
             yield return null;
             Canvas.ForceUpdateCanvases();
 
-            Assert.IsTrue(target.gameObject.activeInHierarchy, target.name + " did not become visible after drag began.");
+            var activeController = scene.Root.GetComponentInChildren<UnityTavernTrainerController>(true);
+            var matchingTargets = scene.Root.GetComponentsInChildren<UnityTavernDropTargetBehaviour>(true)
+                .Where(candidate => candidate.Target == target.Target && candidate.TargetIndex == target.TargetIndex)
+                .Select(candidate => candidate.name + "#" + candidate.GetInstanceID() + "=" + candidate.gameObject.activeInHierarchy)
+                .ToArray();
+            var sourceDrag = source.GetComponent<UnityTavernCardDragBehaviour>() ??
+                             source.GetComponentInParent<UnityTavernCardDragBehaviour>() ??
+                             source.GetComponentInChildren<UnityTavernCardDragBehaviour>(true);
+            Assert.IsTrue(
+                target.gameObject.activeInHierarchy,
+                target.name + " did not become visible after drag began. " +
+                "physicalDragActive=" + (activeController != null && activeController.IsPhysicalDragActive) +
+                ", physicalCommitInProgress=" + (activeController != null && activeController.IsPhysicalCommitInProgress) +
+                ", source=" + source.name + "#" + source.GetInstanceID() +
+                ", sourceHit=" + sourceHit.name + "#" + sourceHit.GetInstanceID() +
+                ", sourceDrag=" + (sourceDrag == null
+                    ? "missing"
+                    : sourceDrag.Source + "/" + sourceDrag.Card?.CardKind + "/magnetic=" + UnityTavernDragController.IsMagnetic(sourceDrag.Card)) +
+                ", selectedTarget=" + target.GetInstanceID() +
+                ", matchingTargets=[" + string.Join(", ", matchingTargets) + "]");
 
-            var targetPointer = PointerAt(scene, target.GetComponent<RectTransform>());
+            var targetPointer = boardInsertIndex >= 0 && target.Target == UnityTavernDropTarget.PlayerBoardInsert
+                ? PointerAtBoardInsertIndex(scene, target.GetComponent<RectTransform>(), boardInsertIndex)
+                : PointerAt(scene, target.GetComponent<RectTransform>(), targetNormalized);
             var targetHit = Raycast(scene, targetPointer, target.transform);
             ExecuteEvents.ExecuteHierarchy(sourceHit, targetPointer, ExecuteEvents.dragHandler);
             ExecuteEvents.ExecuteHierarchy(targetHit, targetPointer, ExecuteEvents.pointerEnterHandler);
@@ -931,14 +1233,73 @@ namespace LearnHearthstone.Tests.PlayMode
             ExecuteEvents.ExecuteHierarchy(targetHit, targetPointer, ExecuteEvents.dropHandler);
             ExecuteEvents.ExecuteHierarchy(sourceHit, targetPointer, ExecuteEvents.endDragHandler);
             ExecuteEvents.ExecuteHierarchy(sourceHit, targetPointer, ExecuteEvents.pointerUpHandler);
+
+            var controller = scene.Root.GetComponentInChildren<UnityTavernTrainerController>(true);
+            for (var frame = 0; controller != null && controller.IsPhysicalCommitInProgress && frame < 90; frame += 1)
+            {
+                yield return null;
+            }
+
+            Assert.IsFalse(controller != null && controller.IsPhysicalCommitInProgress, "Physical drag commit animation did not finish.");
+            Canvas.ForceUpdateCanvases();
         }
 
-        private static PointerEventData PointerAt(JourneyScene scene, RectTransform target)
+        private static PointerEventData PointerAt(JourneyScene scene, RectTransform target, Vector2? normalized = null)
         {
+            var point = normalized ?? new Vector2(0.5f, 0.5f);
+            var localPoint = new Vector3(
+                Mathf.Lerp(target.rect.xMin, target.rect.xMax, point.x),
+                Mathf.Lerp(target.rect.yMin, target.rect.yMax, point.y));
             return new PointerEventData(scene.EventSystem)
             {
                 button = PointerEventData.InputButton.Left,
-                position = RectTransformUtility.WorldToScreenPoint(null, target.TransformPoint(target.rect.center))
+                position = RectTransformUtility.WorldToScreenPoint(null, target.TransformPoint(localPoint))
+            };
+        }
+
+        private static PointerEventData PointerAtBoardInsertIndex(
+            JourneyScene scene,
+            RectTransform surface,
+            int insertIndex)
+        {
+            var boardZone = FindChild(scene.Root, "UnityPlayerBoardZone");
+            var cards = boardZone.GetComponentsInChildren<UnityTavernCardComponent>(true)
+                .Where(component => component.Card != null && component.BoundMode == UnityTavernCardMode.Board)
+                .Select(component => component.transform as RectTransform)
+                .Where(rect => rect != null)
+                .OrderBy(rect => rect.position.x)
+                .ToArray();
+            Vector3 worldPoint;
+            if (cards.Length == 0)
+            {
+                worldPoint = surface.TransformPoint(surface.rect.center);
+            }
+            else
+            {
+                var resolvedIndex = Mathf.Clamp(insertIndex, 0, cards.Length);
+                var firstCenter = cards[0].TransformPoint(cards[0].rect.center);
+                var lastCenter = cards[cards.Length - 1].TransformPoint(cards[cards.Length - 1].rect.center);
+                var width = Mathf.Abs(cards[0].TransformPoint(cards[0].rect.max).x - cards[0].TransformPoint(cards[0].rect.min).x);
+                if (resolvedIndex == 0)
+                {
+                    worldPoint = firstCenter + Vector3.left * width * 0.6f;
+                }
+                else if (resolvedIndex == cards.Length)
+                {
+                    worldPoint = lastCenter + Vector3.right * width * 0.6f;
+                }
+                else
+                {
+                    var left = cards[resolvedIndex - 1].TransformPoint(cards[resolvedIndex - 1].rect.center);
+                    var right = cards[resolvedIndex].TransformPoint(cards[resolvedIndex].rect.center);
+                    worldPoint = Vector3.Lerp(left, right, 0.5f);
+                }
+            }
+
+            return new PointerEventData(scene.EventSystem)
+            {
+                button = PointerEventData.InputButton.Left,
+                position = RectTransformUtility.WorldToScreenPoint(null, worldPoint)
             };
         }
 
@@ -959,7 +1320,11 @@ namespace LearnHearthstone.Tests.PlayMode
         private static UnityTavernDropTargetBehaviour DropTarget(Transform root, UnityTavernDropTarget target, int index)
         {
             var result = root.GetComponentsInChildren<UnityTavernDropTargetBehaviour>(true)
-                .FirstOrDefault(candidate => candidate.Target == target && candidate.TargetIndex == index);
+                .Where(candidate => candidate.Target == target && candidate.TargetIndex == index)
+                .OrderByDescending(candidate =>
+                    target == UnityTavernDropTarget.PlayerBoardInsert &&
+                    candidate.name == "UnityPlayerBoardPhysicalDropZone")
+                .FirstOrDefault();
             Assert.IsNotNull(result, "Missing drop target " + target + " at " + index + ".");
             return result;
         }

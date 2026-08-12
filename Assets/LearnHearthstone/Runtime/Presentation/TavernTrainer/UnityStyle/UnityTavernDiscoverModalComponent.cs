@@ -60,6 +60,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 UnityTavernUiStyle.ConfigureLabel(titleText, UnityTavernUiStyle.TextLight, 14);
                 var panel = titleText != null ? titleText.transform.parent : optionParent != null ? optionParent.parent : null;
                 ConfigurePanelChrome(panel == null ? null : panel.gameObject);
+                ConfigurePanelSize(panel == null ? null : panel.gameObject);
                 if (optionParent != null)
                 {
                     ClearChildren(optionParent);
@@ -83,7 +84,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(560f, 310f);
+            rect.sizeDelta = new Vector2(720f, 410f);
             rect.anchoredPosition = Vector2.zero;
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
@@ -121,6 +122,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.62f),
                 new Vector2(1.5f, -1.5f));
             UnityTavernUiStyle.AddStarLanternRail(panel.transform, "UnityDiscoverStarLantern", UnityTavernUiStyle.ArcaneBlue);
+        }
+
+        private static void ConfigurePanelSize(GameObject panel)
+        {
+            var rect = panel == null ? null : panel.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.sizeDelta = new Vector2(720f, 410f);
+            }
         }
 
         private bool HasPrefabReferences()

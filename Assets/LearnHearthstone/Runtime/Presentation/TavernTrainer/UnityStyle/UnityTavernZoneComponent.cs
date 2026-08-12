@@ -219,7 +219,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             ConfigureSlotParent(parent, metrics, layoutHand);
             ConfigureRowVisuals(parent);
 
-            var totalSlots = layoutHand
+            var renderOnlyEntities = zoneKind == UnityTavernZoneKind.PlayerBoard ||
+                                     zoneKind == UnityTavernZoneKind.OpponentBoard;
+            var totalSlots = layoutHand || renderOnlyEntities
                 ? handCardCount
                 : stableSlotCount > 0 ? stableSlotCount : handCardCount;
             for (var index = 0; index < totalSlots; index += 1)

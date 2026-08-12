@@ -17,6 +17,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private readonly Action backToHub;
         private readonly Action openLegacyTools;
         private readonly GameObject rootPrefab;
+        private readonly StrategyGuideSession strategyGuideSession;
         private GameObject shell;
 
         public UnityTavernTrainerView(
@@ -25,7 +26,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             IAdvisorService advisor,
             Action backToHub,
             Action openLegacyTools = null,
-            GameObject rootPrefab = null)
+            GameObject rootPrefab = null,
+            StrategyGuideSession strategyGuideSession = null)
         {
             this.root = root;
             this.service = service;
@@ -33,6 +35,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             this.backToHub = backToHub;
             this.openLegacyTools = openLegacyTools;
             this.rootPrefab = rootPrefab;
+            this.strategyGuideSession = strategyGuideSession;
         }
 
         public void Build()
@@ -45,7 +48,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var image = UnityTavernUiStyle.EnsureComponent<Image>(shell);
             image.color = UnityTavernUiStyle.BackWall;
             var controller = UnityTavernUiStyle.EnsureComponent<UnityTavernTrainerController>(shell);
-            controller.Initialize(service, advisor, backToHub, openLegacyTools);
+            controller.Initialize(service, advisor, backToHub, openLegacyTools, strategyGuideSession);
         }
 
         private GameObject CreateShell()

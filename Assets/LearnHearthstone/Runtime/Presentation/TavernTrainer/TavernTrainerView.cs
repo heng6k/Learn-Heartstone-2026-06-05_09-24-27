@@ -1358,7 +1358,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer
             colors.selectedColor = highlighted;
             colors.disabledColor = disabled;
             colors.colorMultiplier = 1f;
-            colors.fadeDuration = 0.16f;
+            colors.fadeDuration = UnityUiMotionSettings.Duration(0.16f);
             button.colors = colors;
         }
 

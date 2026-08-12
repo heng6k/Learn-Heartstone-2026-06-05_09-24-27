@@ -156,21 +156,24 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         public static void SetFixedSize(GameObject target, float width, float height)
         {
-            var resolvedHeight = target.GetComponent<Selectable>() != null
-                ? Mathf.Max(TouchHeight, height)
-                : height;
+            var selectable = target.GetComponent<Selectable>() != null;
+            var minimumTouchSize = selectable
+                ? UnityTavernLayoutContext.Current().CanvasUnitsForPhysicalPixels(TouchHeight)
+                : 0f;
+            var resolvedWidth = selectable && width > 0f ? Mathf.Max(minimumTouchSize, width) : width;
+            var resolvedHeight = selectable ? Mathf.Max(minimumTouchSize, height) : height;
             var element = EnsureComponent<LayoutElement>(target);
-            element.minWidth = width;
+            element.minWidth = Mathf.Max(element.minWidth, resolvedWidth);
             element.preferredWidth = width;
             element.flexibleWidth = 0f;
-            element.minHeight = resolvedHeight;
-            element.preferredHeight = resolvedHeight;
+            element.minHeight = Mathf.Max(element.minHeight, resolvedHeight);
+            element.preferredHeight = selectable ? Mathf.Max(TouchHeight, height) : height;
             element.flexibleHeight = 0f;
 
             var rect = target.GetComponent<RectTransform>();
             if (rect != null)
             {
-                rect.sizeDelta = new Vector2(width, resolvedHeight);
+                rect.sizeDelta = new Vector2(resolvedWidth, resolvedHeight);
             }
         }
 
@@ -178,13 +181,16 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             var element = EnsureComponent<LayoutElement>(target);
             var selectable = target.GetComponent<Selectable>();
-            var resolvedHeight = selectable != null ? Mathf.Max(TouchHeight, height) : height;
+            var minimumTouchSize = selectable != null
+                ? UnityTavernLayoutContext.Current().CanvasUnitsForPhysicalPixels(TouchHeight)
+                : 0f;
+            var resolvedHeight = selectable != null ? Mathf.Max(minimumTouchSize, height) : height;
             if (selectable != null)
             {
                 element.minHeight = Mathf.Max(element.minHeight, resolvedHeight);
             }
 
-            element.preferredHeight = resolvedHeight;
+            element.preferredHeight = selectable != null ? Mathf.Max(TouchHeight, height) : height;
         }
 
         public static void SetFlexible(GameObject target, float width, float height)
@@ -263,7 +269,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             colors.selectedColor = highlighted;
             colors.disabledColor = new Color(normal.r, normal.g, normal.b, 0.42f);
             colors.colorMultiplier = 1f;
-            colors.fadeDuration = 0.08f;
+            colors.fadeDuration = UnityUiMotionSettings.Duration(0.08f);
             button.colors = colors;
             button.transition = Selectable.Transition.ColorTint;
         }

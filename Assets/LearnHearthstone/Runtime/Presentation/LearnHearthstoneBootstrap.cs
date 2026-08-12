@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Adapters.Content;
+using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Persistence;
 using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
+using LearnHearthstone.Domain.Data;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.MainHub;
@@ -25,6 +28,8 @@ namespace LearnHearthstone.Presentation
         private enum ViewRoute
         {
             Hub,
+            VersionCenter,
+            StrategyGuides,
             Setup,
             UnityTrainer,
             RealisticTrainer,
@@ -34,9 +39,11 @@ namespace LearnHearthstone.Presentation
         private const string UiFontResourcePath = "Fonts/NotoSansSC-Regular";
 
         private Canvas canvas;
+        private Transform routeRoot;
         private GameCatalogSnapshot catalogSnapshot;
         private ICardPoolVersionRepository cardPoolVersionRepository;
         private MatchService matchService;
+        private StrategyGuideSession strategyGuideSession;
         private IAdvisorService advisor;
         private bool useEnglish;
         private ViewRoute currentRoute;
@@ -48,6 +55,7 @@ namespace LearnHearthstone.Presentation
 
         private void Awake()
         {
+            LearnHearthstoneDistributionChannel.ConfigureRuntime();
             ConfigureUiFont();
             EnsureEventSystem();
             canvas = GetComponentInChildren<Canvas>();
@@ -66,8 +74,7 @@ namespace LearnHearthstone.Presentation
         private IEnumerator Start()
         {
             var clientVersion = UnityEngine.Application.version;
-            byte[] remoteManifestBytes = null;
-            byte[] remoteContentBytes = null;
+            ContentPackageDownload remotePackage = null;
             string remoteFailureReason = null;
             var manifestUrl = ResolveContentManifestUrl();
             if (!string.IsNullOrWhiteSpace(manifestUrl))
@@ -75,19 +82,30 @@ namespace LearnHearthstone.Presentation
                 yield return new RemoteContentPackageDownloader().Download(
                     manifestUrl,
                     clientVersion,
-                    (manifest, content, failure) =>
+                    (package, failure) =>
                     {
-                        remoteManifestBytes = manifest;
-                        remoteContentBytes = content;
+                        remotePackage = package;
                         remoteFailureReason = failure;
                     });
             }
 
-            catalogSnapshot = new GameCatalogSnapshotResolver(clientVersion).Resolve(
-                remoteManifestBytes,
-                remoteContentBytes,
+            catalogSnapshot = new GameCatalogSnapshotResolver(
+                clientVersion,
+                preferEmbeddedFallback: UnityEngine.Application.isEditor).Resolve(
+                remotePackage,
                 remoteFailureReason);
             initialized = true;
+            ShowChannelHome();
+        }
+
+        private void ShowChannelHome()
+        {
+            if (LearnHearthstoneDistributionChannel.IsWeChatMiniGame)
+            {
+                ShowStrategyGuides();
+                return;
+            }
+
             ShowHub();
         }
 
@@ -105,11 +123,6 @@ namespace LearnHearthstone.Presentation
             var layout = UnityTavernLayoutContext.Current();
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
-            if (layout.Mode == lastLayoutMode)
-            {
-                return;
-            }
-
             lastLayoutMode = layout.Mode;
             ConfigureCanvas(canvas, layout);
             RebuildCurrentRoute(layout);
@@ -120,13 +133,123 @@ namespace LearnHearthstone.Presentation
             currentRoute = ViewRoute.Hub;
             tribeSelectionView = null;
             ClearCanvas();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            var versionCatalog = catalogSnapshot.VersionedContent?.Versions ?? GameVersionCatalog.CreateBuiltIn();
+            var currentVersionId = ResolveCurrentVersionId(versionCatalog);
+            var currentVersion = versionCatalog.Summaries.First(summary => string.Equals(summary.Id, currentVersionId, StringComparison.OrdinalIgnoreCase));
             new MainHubView(
-                canvas.transform,
+                routeRoot,
                 ShowLegacyTrainer,
                 ShowRealisticTrainer,
                 ShowUnityTrainer,
                 useEnglish: useEnglish,
-                languageChanged: SetLanguage).Build();
+                languageChanged: SetLanguage,
+                currentGameVersion: currentVersion,
+                openVersionCenter: catalogSnapshot.VersionedContent != null ? ShowVersionCenter : (Action)null,
+                openStrategyGuides: catalogSnapshot.VersionedContent != null ? ShowStrategyGuides : (Action)null).Build();
+            AddDebugAspectRatioOverlay();
+        }
+
+        private void ShowVersionCenter()
+        {
+            var versionedContent = catalogSnapshot.VersionedContent;
+            if (versionedContent == null)
+            {
+                ShowHub();
+                return;
+            }
+
+            currentRoute = ViewRoute.VersionCenter;
+            tribeSelectionView = null;
+            ClearCanvas();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            new GameVersionCenterView(
+                routeRoot,
+                versionedContent,
+                ResolveCurrentVersionId(versionedContent.Versions),
+                ShowHub,
+                useEnglish: useEnglish).Build();
+            AddDebugAspectRatioOverlay();
+        }
+
+        private void ShowStrategyGuides()
+        {
+            var versionedContent = catalogSnapshot.VersionedContent;
+            if (versionedContent == null ||
+                !versionedContent.Versions.Versions.Any(version =>
+                    string.Equals(version.Id, GameVersionIds.Season14Preview, StringComparison.Ordinal)))
+            {
+                ShowHub();
+                return;
+            }
+
+            currentRoute = ViewRoute.StrategyGuides;
+            tribeSelectionView = null;
+            ClearCanvas();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            var resolver = versionedContent.CreateResolver();
+            var resolvedVersion = resolver.Resolve(
+                GameVersionIds.Season14Preview,
+                catalogSnapshot.AsVersionResolutionSource());
+            new StrategyGuideSelectionView(
+                routeRoot,
+                StrategyGuideCatalogLoader.LoadFromResources(),
+                catalogSnapshot.ForLanguage(useEnglish),
+                GameVersionIds.Season14Preview,
+                StartStrategyGuide,
+                LearnHearthstoneDistributionChannel.IsWeChatMiniGame ? (Action)null : ShowHub,
+                useEnglish,
+                resolvedVersion: resolvedVersion,
+                startImportedGuide: StartImportedStrategyGuide,
+                mobileOnePageOnly: LearnHearthstoneDistributionChannel.IsWeChatMiniGame).Build();
+            AddDebugAspectRatioOverlay();
+        }
+
+        private void StartStrategyGuide(string guideId, string profileId)
+        {
+            var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+            var guide = catalog.GetGuide(guideId);
+            var resolver = catalogSnapshot.VersionedContent?.CreateResolver() ?? GameVersionResolver.CreateBuiltIn();
+            var version = resolver.Resolve(guide.GameVersionId, catalogSnapshot.AsVersionResolutionSource());
+            OpenStrategyGuideSession(catalog, guideId, profileId, version);
+        }
+
+        private void StartImportedStrategyGuide(StrategyGuideImportResult imported)
+        {
+            if (imported == null || !imported.IsCompatible)
+            {
+                ShowStrategyGuides();
+                return;
+            }
+
+            var resolver = catalogSnapshot.VersionedContent?.CreateResolver() ?? GameVersionResolver.CreateBuiltIn();
+            var version = resolver.Resolve(imported.Guide.GameVersionId, catalogSnapshot.AsVersionResolutionSource());
+            OpenStrategyGuideSession(
+                imported.Catalog,
+                imported.Guide.GuideId,
+                imported.Profile.ProfileId,
+                version);
+        }
+
+        private void OpenStrategyGuideSession(
+            StrategyGuideCatalog catalog,
+            string guideId,
+            string profileId,
+            ResolvedGameVersion version)
+        {
+            strategyGuideSession = StrategyGuideSession.Start(catalog, guideId, version, useEnglish, profileId);
+            matchService = strategyGuideSession.MatchService;
+            currentRoute = ViewRoute.UnityTrainer;
+            tribeSelectionView = null;
+            ClearCanvas();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            new UnityTavernTrainerView(
+                routeRoot,
+                matchService,
+                advisor,
+                ShowChannelHome,
+                ShowLegacyTrainer,
+                strategyGuideSession: strategyGuideSession).Build();
             AddDebugAspectRatioOverlay();
         }
 
@@ -134,13 +257,15 @@ namespace LearnHearthstone.Presentation
         {
             currentRoute = ViewRoute.Setup;
             ClearCanvas();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
             tribeSelectionView = new UnityTavernTribeSelectionView(
-                canvas.transform,
+                routeRoot,
                 StartUnityTrainer,
                 ShowHub,
                 repository: cardPoolVersionRepository,
                 useEnglish: useEnglish,
-                catalogs: catalogSnapshot.ForLanguage(useEnglish));
+                catalogs: catalogSnapshot.ForLanguage(useEnglish),
+                catalogSnapshot: catalogSnapshot);
             tribeSelectionView.Build();
             AddDebugAspectRatioOverlay();
         }
@@ -161,12 +286,11 @@ namespace LearnHearthstone.Presentation
             currentRoute = ViewRoute.UnityTrainer;
             tribeSelectionView = null;
             var effectiveSetup = setup ?? new MatchSetupOptions();
-            matchService = MatchService.CreateWithCatalogs(
-                catalogSnapshot.ForLanguage(effectiveSetup.UseEnglish),
-                CreateMatchSeed(),
-                setup: effectiveSetup);
+            strategyGuideSession = null;
+            matchService = CreateMatchService(effectiveSetup);
             ClearCanvas();
-            new UnityTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            new UnityTavernTrainerView(routeRoot, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
             AddDebugAspectRatioOverlay();
         }
 
@@ -175,9 +299,10 @@ namespace LearnHearthstone.Presentation
             currentRoute = ViewRoute.RealisticTrainer;
             tribeSelectionView = null;
             var setup = new MatchSetupOptions { UseEnglish = useEnglish };
-            matchService = MatchService.CreateWithCatalogs(catalogSnapshot.ForLanguage(useEnglish), CreateMatchSeed(), setup: setup);
+            matchService = CreateMatchService(setup);
             ClearCanvas();
-            new RealisticTavernTrainerView(canvas.transform, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            new RealisticTavernTrainerView(routeRoot, matchService, advisor, ShowHub, ShowLegacyTrainer).Build();
             AddDebugAspectRatioOverlay();
         }
 
@@ -186,10 +311,23 @@ namespace LearnHearthstone.Presentation
             currentRoute = ViewRoute.LegacyTrainer;
             tribeSelectionView = null;
             var setup = new MatchSetupOptions { UseEnglish = useEnglish };
-            matchService = MatchService.CreateWithCatalogs(catalogSnapshot.ForLanguage(useEnglish), CreateMatchSeed(), setup: setup);
+            matchService = CreateMatchService(setup);
             ClearCanvas();
-            new TavernTrainerView(canvas.transform, matchService, advisor, ShowHub).Build();
+            routeRoot = CreateSafeAreaRoot(canvas.transform);
+            new TavernTrainerView(routeRoot, matchService, advisor, ShowHub).Build();
             AddDebugAspectRatioOverlay();
+        }
+
+        private MatchService CreateMatchService(MatchSetupOptions setup)
+        {
+            var versionId = !string.IsNullOrWhiteSpace(setup.GameVersionId)
+                ? setup.GameVersionId
+                : !string.IsNullOrWhiteSpace(catalogSnapshot.Info.GameVersionId)
+                    ? catalogSnapshot.Info.GameVersionId
+                    : GameVersionIds.LegacyCompositeSandbox;
+            var versionResolver = catalogSnapshot.VersionedContent?.CreateResolver() ?? GameVersionResolver.CreateBuiltIn();
+            var resolvedVersion = versionResolver.Resolve(versionId, catalogSnapshot.AsVersionResolutionSource());
+            return MatchService.CreateWithResolvedVersion(resolvedVersion, CreateMatchSeed(), setup: setup);
         }
 
         private void RebuildCurrentRoute(UnityTavernLayoutContext layout)
@@ -198,6 +336,12 @@ namespace LearnHearthstone.Presentation
             {
                 case ViewRoute.Hub:
                     ShowHub();
+                    break;
+                case ViewRoute.VersionCenter:
+                    ShowVersionCenter();
+                    break;
+                case ViewRoute.StrategyGuides:
+                    ShowStrategyGuides();
                     break;
                 case ViewRoute.Setup:
                     tribeSelectionView?.RebuildForLayout(layout);
@@ -214,6 +358,15 @@ namespace LearnHearthstone.Presentation
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
             lastLayoutMode = layout.Mode;
+        }
+
+        private string ResolveCurrentVersionId(GameVersionCatalog versions)
+        {
+            var snapshotVersionId = catalogSnapshot?.Info?.GameVersionId;
+            return !string.IsNullOrWhiteSpace(snapshotVersionId) &&
+                   versions.Versions.Any(version => string.Equals(version.Id, snapshotVersionId, StringComparison.OrdinalIgnoreCase))
+                ? snapshotVersionId
+                : versions.Default.Id;
         }
 
         private static void ConfigureUiFont()
@@ -235,7 +388,9 @@ namespace LearnHearthstone.Presentation
 
         private static string ResolveContentManifestUrl()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if LEARN_HEARTHSTONE_WECHAT_MINIGAME
+            return null;
+#elif UNITY_WEBGL && !UNITY_EDITOR
             if (Uri.TryCreate(UnityEngine.Application.absoluteURL, UriKind.Absolute, out var pageUri))
             {
                 return new Uri(pageUri, "content/content-manifest.json").AbsoluteUri;
@@ -243,7 +398,26 @@ namespace LearnHearthstone.Presentation
 
             Debug.LogWarning("Remote content disabled because Application.absoluteURL is invalid.");
 #endif
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            return ResolveStandaloneContentManifestUrl(UnityEngine.Application.dataPath);
+#else
             return null;
+#endif
+        }
+
+        public static string ResolveStandaloneContentManifestUrl(string dataPath)
+        {
+            if (string.IsNullOrWhiteSpace(dataPath))
+            {
+                return null;
+            }
+
+            var manifestPath = Path.GetFullPath(Path.Combine(
+                dataPath,
+                "..",
+                "content",
+                "content-manifest.json"));
+            return new Uri(manifestPath).AbsoluteUri;
         }
 
         private Canvas CreateCanvas()
@@ -272,17 +446,23 @@ namespace LearnHearthstone.Presentation
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = layout.IsCompact ? 0f : 0.5f;
+            scaler.matchWidthOrHeight = layout.CanvasMatchWidthOrHeight;
 
             UnityTavernUiStyle.EnsureComponent<GraphicRaycaster>(target.gameObject);
         }
 
         private void ClearCanvas()
         {
+            routeRoot = null;
             for (var index = canvas.transform.childCount - 1; index >= 0; index -= 1)
             {
                 Destroy(canvas.transform.GetChild(index).gameObject);
             }
+        }
+
+        public static Transform CreateSafeAreaRoot(Transform parent)
+        {
+            return UnitySafeAreaPanel.Create(parent, includeTitleSafe: true);
         }
 
         private void AddDebugAspectRatioOverlay()
@@ -309,6 +489,11 @@ namespace LearnHearthstone.Presentation
             if (eventSystemObject.GetComponent<InputSystemUIInputModule>() == null)
             {
                 eventSystemObject.AddComponent<InputSystemUIInputModule>();
+            }
+
+            if (eventSystemObject.GetComponent<UnityInputDeviceTracker>() == null)
+            {
+                eventSystemObject.AddComponent<UnityInputDeviceTracker>();
             }
         }
     }

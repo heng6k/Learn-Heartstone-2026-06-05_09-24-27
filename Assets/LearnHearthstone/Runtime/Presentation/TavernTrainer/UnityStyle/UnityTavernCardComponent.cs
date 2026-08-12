@@ -27,7 +27,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         OpponentTarget
     }
 
-    public sealed class UnityTavernCardComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+    public sealed class UnityTavernCardComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler, ISelectHandler, IDeselectHandler
     {
         private const string ContainedArtViewportName = "UnityCardArtViewport";
         public const string TavernCardPrefabAssetPath = "Assets/LearnHearthstone/Runtime/Presentation/TavernTrainer/UnityStyle/Prefabs/Card/TavernCard.prefab";
@@ -65,6 +65,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private Color baseFrameColor;
         private bool selected;
         private bool hovered;
+        private bool focused;
         private int handSlotSiblingIndex = -1;
         private bool pressed;
         private UnityTavernCardMode boundMode;
@@ -85,10 +86,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         }
 
         public MinionInstance Card => card;
+        public UnityTavernCardMode BoundMode => boundMode;
         public bool IsSelected => selected;
         public bool IsHovered => hovered;
         public UnityTavernTargetingState TargetingState => targetingState;
-        public static bool ReduceTargetingMotion { get; set; }
+        public static bool ReduceTargetingMotion
+        {
+            get => UnityUiMotionSettings.ReduceMotion;
+            set => UnityUiMotionSettings.ReduceMotion = value;
+        }
 
         public static GameObject CreateCardHost(UnityTavernCardMode mode, Transform parent, string fallbackName, GameObject prefabOverride = null)
         {
@@ -179,6 +185,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             this.useEnglish = useEnglish;
             selected = isSelected && card != null;
             hovered = false;
+            focused = false;
             pressed = false;
             targetingState = UnityTavernTargetingState.None;
             targetingLabelOverride = null;
@@ -189,11 +196,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (HasPrefabReferences())
             {
                 BindPrefabReferences(mode, primaryActionLabel);
+                UnityTavernKeywordVisuals.Rebuild(transform, card?.Keywords, mode == UnityTavernCardMode.Board, useEnglish);
                 return;
             }
 
             ClearChildren();
             BuildGenerated(mode, primaryActionLabel);
+            UnityTavernKeywordVisuals.Rebuild(transform, card?.Keywords, mode == UnityTavernCardMode.Board, useEnglish);
             CaptureFrameColor();
             ApplyFeedbackVisuals();
         }
@@ -285,6 +294,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             contextAction?.Invoke(card);
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            focused = card != null;
+            ApplyFeedbackVisuals();
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            focused = false;
+            ApplyFeedbackVisuals();
         }
 
         private void BindPrefabReferences(UnityTavernCardMode mode, string primaryActionLabel)
@@ -403,6 +424,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             SetText(actionText, hasAction ? primaryActionLabel : string.Empty);
+            ApplyPrimaryActionVisibility();
+        }
+
+        private void ApplyPrimaryActionVisibility()
+        {
+            if (actionButton == null || !actionButton.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            var visible = hovered || selected || focused;
+            var group = UnityTavernUiStyle.EnsureComponent<CanvasGroup>(actionButton.gameObject);
+            group.alpha = visible ? 1f : 0f;
+            group.blocksRaycasts = visible;
+            group.interactable = visible;
         }
 
         private static void ConfigurePrimaryActionButton(Button button, Text label, bool usesFullCardArt)
@@ -867,11 +903,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 }
                 else if (target)
                 {
-                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.Red, 0.58f);
+                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.FocusRing, 0.58f);
                 }
-                else if (source || candidate)
+                else if (candidate)
                 {
-                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.Gold, source ? 0.54f : 0.30f);
+                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.FocusRing, 0.34f);
+                }
+                else if (source)
+                {
+                    targetColor = Color.Lerp(targetColor, UnityTavernUiStyle.Gold, 0.54f);
                 }
                 else if (selected)
                 {
@@ -889,9 +929,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (feedbackOutline != null)
             {
                 feedbackOutline.enabled = targeting || selected || hovered;
-                var outlineColor = invalid || target
+                var outlineColor = invalid
                     ? UnityTavernUiStyle.Red
-                    : source || candidate || selected
+                    : target || candidate
+                        ? UnityTavernUiStyle.FocusRing
+                    : source || selected
                         ? UnityTavernUiStyle.Gold
                         : UnityTavernUiStyle.Blue;
                 feedbackOutline.effectColor = new Color(
@@ -912,6 +954,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             UpdateTargetingLabel(previewTarget);
+            ApplyPrimaryActionVisibility();
         }
 
         private void UpdateTargetingLabel(bool previewTarget)
@@ -932,11 +975,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             targetingLabel.transform.SetAsLastSibling();
             targetingLabelText.text = label;
 
-            var target = previewTarget ||
-                         targetingState == UnityTavernTargetingState.InvalidTarget ||
-                         targetingState == UnityTavernTargetingState.ConfirmedTarget ||
-                         targetingState == UnityTavernTargetingState.OpponentTarget;
-            var color = target ? UnityTavernUiStyle.Red : UnityTavernUiStyle.Gold;
+            var invalid = targetingState == UnityTavernTargetingState.InvalidTarget;
+            var legalTarget = previewTarget ||
+                              targetingState == UnityTavernTargetingState.Candidate ||
+                              targetingState == UnityTavernTargetingState.ConfirmedTarget;
+            var color = invalid
+                ? UnityTavernUiStyle.Red
+                : legalTarget
+                    ? UnityTavernUiStyle.FocusRing
+                    : UnityTavernUiStyle.Gold;
             targetingLabel.GetComponent<Image>().color = new Color(color.r, color.g, color.b, 0.94f);
         }
 
@@ -986,11 +1033,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             image.raycastTarget = false;
 
             var rect = targetingLabel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.anchorMin = new Vector2(0.08f, 1f);
+            rect.anchorMax = new Vector2(0.92f, 1f);
             rect.pivot = new Vector2(0.5f, 1f);
             rect.anchoredPosition = new Vector2(0f, -4f);
-            rect.sizeDelta = new Vector2(92f, 24f);
+            rect.sizeDelta = new Vector2(0f, Mathf.Clamp(SizeFor(boundMode).y * 0.19f, 24f, 32f));
 
             targetingLabelText = UiFactory.Label("UnityTargetingLabelText", targetingLabel.transform, string.Empty, 14, FontStyle.Bold);
             targetingLabelText.alignment = TextAnchor.MiddleCenter;

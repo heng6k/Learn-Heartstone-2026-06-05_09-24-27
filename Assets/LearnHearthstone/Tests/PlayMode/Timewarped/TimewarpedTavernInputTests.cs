@@ -54,8 +54,9 @@ namespace LearnHearthstone.Tests.PlayMode
                 }
 
                 var tavern = service.State.Player.Tavern;
-                Assert.IsNotNull(tavern.AdvancedMechanics.PendingChoice);
-                Assert.AreEqual(AdvancedMechanicKind.Trinket, tavern.AdvancedMechanics.PendingChoice.Kind);
+                var pendingChoice = service.GetActiveMechanicChoice();
+                Assert.IsNotNull(pendingChoice, "Round 6 must expose the pending Lesser Trinket choice.");
+                Assert.AreEqual(AdvancedMechanicKind.Trinket, pendingChoice.Kind);
                 Assert.AreEqual(TimewarpTavernPhase.BlockedByTrinketChoice, tavern.Timewarp.Phase);
                 Assert.IsFalse(tavern.Timewarp.VisitOpen);
 
@@ -111,7 +112,7 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.IsNull(tavern.AdvancedMechanics.PendingChoice);
                 Assert.IsTrue(tavern.Timewarp.VisitOpen);
                 Assert.AreEqual(TimewarpTavernPhase.Open, tavern.Timewarp.Phase);
-                Assert.IsNotNull(tavern.AdvancedMechanics.Trinkets.LesserTrinketId);
+                Assert.IsNotNull(tavern.AdvancedMechanics.Trinkets.LesserTrinketId, "Selecting the first offer must equip a Lesser Trinket.");
 
                 var offerCard = service.GetTimewarpedOfferCards()
                     .First(card => card != null && card.CardKind == CardKind.Minion);
@@ -163,7 +164,7 @@ namespace LearnHearthstone.Tests.PlayMode
                 Assert.AreEqual(roundBeforeCombat, service.State.Round);
                 Assert.AreEqual(roundBeforeCombat + 1, service.State.PendingTurnStartRound);
                 Assert.AreEqual(MatchPhase.Result, service.State.Phase);
-                Assert.IsNotNull(service.State.LastReplay);
+                Assert.IsNotNull(service.State.LastReplay, "Starting combat after the Timewarped visit must record a replay.");
                 Assert.Greater(service.State.LastReplay.Frames.Count, 1);
 
                 ClickThroughRaycast(

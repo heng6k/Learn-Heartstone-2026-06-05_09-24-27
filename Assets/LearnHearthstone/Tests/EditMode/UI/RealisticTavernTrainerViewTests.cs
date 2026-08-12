@@ -28,7 +28,7 @@ namespace LearnHearthstone.Tests.EditMode
 
                 new MainHubView(rootObject.transform, () => legacyOpened = true, () => realisticOpened = true, () => unityOpened = true).Build();
 
-                FindChild(rootObject.transform, "酒馆训练器Button").GetComponent<Button>().onClick.Invoke();
+                FindChild(rootObject.transform, "MainHubPrimaryStartButton").GetComponent<Button>().onClick.Invoke();
 
                 Assert.IsTrue(unityOpened);
                 Assert.IsFalse(legacyOpened);

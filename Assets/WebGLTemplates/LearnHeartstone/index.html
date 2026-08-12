@@ -101,6 +101,10 @@
       // the canvas DOM size and WebGL render target sizes yourself.
       // config.matchWebGLToCanvasSize = false;
 
+      config.devicePixelRatio = mobileDevice
+        ? Math.min(window.devicePixelRatio || 1, 1.25)
+        : Math.min(window.devicePixelRatio || 1, 2);
+
       // If you would like all file writes inside Unity Application.persistentDataPath
       // directory to automatically persist so that the contents are remembered when
       // the user revisits the site the next time, uncomment the following line:
@@ -136,11 +140,80 @@
 #endif
       document.querySelector("#unity-loading-bar").style.display = "block";
 
+      async function resolveChunkedDataUrl(dataUrl, onProgress) {
+        var chunkManifestSuffix = ".data.br.chunks.json";
+        if (!dataUrl.endsWith(".data.br")) return null;
+
+        var manifestUrl = dataUrl + ".chunks.json";
+        if (!manifestUrl.endsWith(chunkManifestSuffix)) return null;
+        var manifestResponse = await fetch(manifestUrl, { cache: "no-cache" });
+        if (manifestResponse.status === 404) return null;
+        if (!manifestResponse.ok) {
+          throw new Error("Data chunk manifest request failed: " + manifestResponse.status);
+        }
+
+        var manifest = await manifestResponse.json();
+        if (manifest.schemaVersion !== 1 ||
+            !dataUrl.endsWith(manifest.originalFile) ||
+            !Array.isArray(manifest.chunks) ||
+            manifest.chunks.length === 0 ||
+            !Number.isSafeInteger(manifest.uncompressedBytes) ||
+            manifest.uncompressedBytes <= 0) {
+          throw new Error("Invalid data chunk manifest");
+        }
+
+        var chunkBuffers = new Array(manifest.chunks.length);
+        var loadedBytes = 0;
+        var nextChunkIndex = 0;
+        async function loadNextChunk() {
+          while (nextChunkIndex < manifest.chunks.length) {
+            var index = nextChunkIndex;
+            nextChunkIndex += 1;
+            var chunk = manifest.chunks[index];
+            var chunkResponse = await fetch(new URL(chunk.file, manifestResponse.url), { cache: "force-cache" });
+            if (!chunkResponse.ok) {
+              throw new Error("Data chunk request failed: " + chunk.file + " (" + chunkResponse.status + ")");
+            }
+            var chunkBuffer = await chunkResponse.arrayBuffer();
+            if (chunkBuffer.byteLength !== chunk.uncompressedBytes) {
+              throw new Error("Data chunk size mismatch: " + chunk.file);
+            }
+            chunkBuffers[index] = chunkBuffer;
+            loadedBytes += chunkBuffer.byteLength;
+            onProgress(Math.min(loadedBytes / manifest.uncompressedBytes, 1));
+          }
+        }
+
+        var chunkWorkers = [];
+        var workerCount = Math.min(8, manifest.chunks.length);
+        for (var workerIndex = 0; workerIndex < workerCount; workerIndex += 1) {
+          chunkWorkers.push(loadNextChunk());
+        }
+        await Promise.all(chunkWorkers);
+
+        if (loadedBytes !== manifest.uncompressedBytes) {
+          throw new Error("Data chunk total size mismatch");
+        }
+        return URL.createObjectURL(new Blob(chunkBuffers, { type: "application/octet-stream" }));
+      }
+
       var script = document.createElement("script");
       script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+      script.onload = async () => {
+        var chunkedDataUrl = null;
+        try {
+          chunkedDataUrl = await resolveChunkedDataUrl(config.dataUrl, (progress) => {
+            document.querySelector("#unity-progress-bar-full").style.width = 50 * progress + "%";
+          });
+          if (chunkedDataUrl) config.dataUrl = chunkedDataUrl;
+        } catch (message) {
+          unityShowBanner("Game data loading failed: " + message, "error");
+          return;
+        }
+
+        var unityPromise = createUnityInstance(canvas, config, (progress) => {
+          var percent = chunkedDataUrl ? 50 + 50 * progress : 100 * progress;
+          document.querySelector("#unity-progress-bar-full").style.width = percent + "%";
               }).then((unityInstance) => {
                 document.querySelector("#unity-loading-bar").style.display = "none";
 #if SHOW_DIAGNOSTICS
@@ -191,6 +264,9 @@
               }).catch((message) => {
                 unityShowBanner('游戏加载失败：' + message, 'error');
               });
+        unityPromise.finally(() => {
+          if (chunkedDataUrl) URL.revokeObjectURL(chunkedDataUrl);
+        });
             };
 
       document.body.appendChild(script);

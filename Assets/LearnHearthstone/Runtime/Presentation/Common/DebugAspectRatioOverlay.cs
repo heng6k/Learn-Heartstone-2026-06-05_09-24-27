@@ -128,6 +128,7 @@ namespace LearnHearthstone.Presentation.Common
 
             var close = UiFactory.Button("DebugAspectRatioCloseButton", panel.transform, "关闭", () => DestroyUi(modal));
             UiFactory.SetHeight(close.gameObject, 30f);
+            modal.AddComponent<UnityFocusTrap>().Activate(close.gameObject);
         }
 
         private static void ApplyResolution(int width, int height)

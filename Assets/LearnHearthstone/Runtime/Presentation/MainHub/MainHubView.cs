@@ -1,4 +1,6 @@
 using System;
+using LearnHearthstone.Adapters.Images;
+using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using UnityEngine;
@@ -8,8 +10,7 @@ namespace LearnHearthstone.Presentation.MainHub
 {
     public sealed class MainHubView
     {
-        private const string TavernTitle = "酒馆训练器";
-        private const string TavernDescription = "进入单人酒馆训练、拖拽摆位、战斗测试与回放";
+        private const string AtmosphereResource = "UI/Combat/BattlegroundsBattlefieldAtmosphere-v2";
 
         private readonly Transform root;
         private readonly Action openTrainer;
@@ -17,6 +18,8 @@ namespace LearnHearthstone.Presentation.MainHub
         private readonly UnityTavernLayoutContext layout;
         private readonly bool useEnglish;
         private readonly Action<bool> languageChanged;
+        private readonly GameVersionSummaryViewModel currentGameVersion;
+        private readonly Action openStrategyGuides;
 
         public MainHubView(
             Transform root,
@@ -25,7 +28,10 @@ namespace LearnHearthstone.Presentation.MainHub
             Action openUnityTrainer = null,
             UnityTavernLayoutContext? layoutContext = null,
             bool useEnglish = false,
-            Action<bool> languageChanged = null)
+            Action<bool> languageChanged = null,
+            GameVersionSummaryViewModel currentGameVersion = null,
+            Action openVersionCenter = null,
+            Action openStrategyGuides = null)
         {
             this.root = root;
             this.openTrainer = openTrainer;
@@ -33,37 +39,426 @@ namespace LearnHearthstone.Presentation.MainHub
             layout = layoutContext ?? UnityTavernLayoutContext.FromRoot(root);
             this.useEnglish = useEnglish;
             this.languageChanged = languageChanged;
+            this.currentGameVersion = currentGameVersion;
+            this.openStrategyGuides = openStrategyGuides;
+            _ = openRealisticTrainer;
+            _ = openVersionCenter;
         }
 
         public void Build()
         {
             var shell = UiFactory.Panel("MainHub", root, UnityTavernUiStyle.BackWall);
             UiFactory.Stretch(shell.GetComponent<RectTransform>());
-            UiFactory.Vertical(shell, layout.IsCompact ? 14 : 22, layout.IsCompact ? 10 : 16);
+            UiFactory.Vertical(
+                shell,
+                CompactInt(layout.IsCompact ? 12f : 24f),
+                CompactInt(layout.IsCompact ? 10f : 16f));
 
+            BuildAtmosphere(shell.transform);
             BuildHeader(shell.transform);
+            BuildEntryDeck(shell.transform);
+            BuildVersionContext(shell.transform);
+        }
 
-            var primaryTrainer = openUnityTrainer ?? openTrainer;
-            ModuleButton(
-                shell.transform,
-                TavernTitle,
-                T(TavernTitle, "Tavern Trainer"),
-                T(TavernDescription, "Practice solo Battlegrounds, board positioning, combat tests, and replays"),
-                primaryTrainer != null,
-                primaryTrainer,
-                true,
+        private static void BuildAtmosphere(Transform parent)
+        {
+            var backdrop = new GameObject(
+                "MainHubAtmosphere",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(LayoutElement));
+            backdrop.transform.SetParent(parent, false);
+            backdrop.GetComponent<LayoutElement>().ignoreLayout = true;
+            UiFactory.Stretch(backdrop.GetComponent<RectTransform>());
+            var image = backdrop.GetComponent<Image>();
+            image.sprite = Resources.Load<Sprite>(AtmosphereResource);
+            image.color = UnityTavernUiStyle.WithAlpha(Color.white, 0.58f);
+            image.preserveAspect = false;
+            image.raycastTarget = false;
+            backdrop.transform.SetAsFirstSibling();
+
+            var veil = UiFactory.Panel(
+                "MainHubAtmosphereVeil",
+                backdrop.transform,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.BackWall, 0.52f));
+            UiFactory.Stretch(veil.GetComponent<RectTransform>());
+            veil.GetComponent<Image>().raycastTarget = false;
+        }
+
+        private void BuildHeader(Transform parent)
+        {
+            var header = UiFactory.Panel(
+                "MainHubHeader",
+                parent,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.96f));
+            UiFactory.SetHeight(
+                header,
+                layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 64f : 76f));
+            UiFactory.SetFlexible(header, 0f, 0f);
+            UnityTavernUiStyle.ConfigureOutline(
+                header,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.46f),
+                new Vector2(1f, -1f));
+            UnityTavernUiStyle.AddStarLanternRail(
+                header.transform,
+                "MainHubStarLantern",
+                UnityTavernUiStyle.ArcaneBlue);
+
+            var headerLayout = UiFactory.Horizontal(
+                header,
+                CompactInt(8f),
+                CompactInt(layout.IsCompact ? 8f : 14f));
+            headerLayout.childAlignment = TextAnchor.MiddleCenter;
+            headerLayout.childForceExpandWidth = false;
+            headerLayout.childForceExpandHeight = true;
+
+            var titleStack = UiFactory.Panel("MainHubTitleStack", header.transform, Color.clear);
+            UiFactory.SetFlexible(titleStack, 1f, 0f);
+            UiFactory.Vertical(titleStack, 0, CompactInt(2f)).childAlignment = TextAnchor.MiddleLeft;
+
+            var title = UiFactory.Label(
+                "Title",
+                titleStack.transform,
+                "Learn Heartstone",
+                CompactFont(28f, 36),
+                FontStyle.Bold,
                 layout);
+            title.color = UnityTavernUiStyle.TextLight;
+            UiFactory.SetHeight(title.gameObject, CompactUnits(layout.IsCompact ? 32f : 36f));
 
-            var grid = UiFactory.Panel("ModuleGrid", shell.transform, UnityTavernUiStyle.TableDark);
-            UnityTavernUiStyle.ConfigureOutline(grid, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.32f), new Vector2(1f, -1f));
-            UiFactory.SetFlexible(grid, 1, 1);
-            var gridLayout = grid.AddComponent<GridLayoutGroup>();
-            ConfigureModuleGrid(gridLayout, layout);
+            if (!layout.IsCompact)
+            {
+                var subtitle = UiFactory.Label(
+                    "MainHubSubtitle",
+                    titleStack.transform,
+                    T("酒馆战棋 · 交互训练工坊", "Battlegrounds interactive training lab"),
+                    14,
+                    FontStyle.Bold,
+                    layout);
+                subtitle.color = UnityTavernUiStyle.TextMuted;
+                UiFactory.SetHeight(subtitle.gameObject, 18f);
+            }
 
-            ModuleButton(grid.transform, "英雄训练", T("英雄训练", "Hero Training"), T("后续扩展入口", "Coming later"), false, null, false, layout);
-            ModuleButton(grid.transform, "阵容库", T("阵容库", "Lineup Library"), T("后续扩展入口", "Coming later"), false, null, false, layout);
-            ModuleButton(grid.transform, "教学场景", T("教学场景", "Tutorials"), T("后续扩展入口", "Coming later"), false, null, false, layout);
-            ModuleButton(grid.transform, "数据浏览", T("数据浏览", "Data Browser"), T("后续扩展入口", "Coming later"), false, null, false, layout);
+            BuildLanguageSwitch(header.transform);
+        }
+
+        private void BuildLanguageSwitch(Transform parent)
+        {
+            var switcher = UiFactory.Panel(
+                "MainHubLanguageSwitch",
+                parent,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.82f));
+            UnityTavernUiStyle.SetFixedSize(
+                switcher,
+                CompactUnits(layout.IsCompact ? 226f : 250f),
+                layout.CanvasUnitsForPhysicalPixels(48f));
+            var row = UiFactory.Horizontal(
+                switcher,
+                CompactInt(4f),
+                CompactInt(6f));
+            row.childForceExpandWidth = true;
+            row.childForceExpandHeight = true;
+
+            BuildLanguageButton(
+                "MainHubLanguageChineseButton",
+                switcher.transform,
+                useEnglish ? "中文" : "中文 · 当前",
+                !useEnglish,
+                UnityTavernUiStyle.Gold,
+                () => RequestLanguage(false));
+            BuildLanguageButton(
+                "MainHubLanguageEnglishButton",
+                switcher.transform,
+                useEnglish ? "English · Current" : "English",
+                useEnglish,
+                UnityTavernUiStyle.ArcaneBlue,
+                () => RequestLanguage(true));
+        }
+
+        private void BuildLanguageButton(
+            string name,
+            Transform parent,
+            string text,
+            bool active,
+            Color accent,
+            Action onClick)
+        {
+            var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke(), layout);
+            UiFactory.SetFlexible(button.gameObject, 1f, 1f);
+            UnityTavernUiStyle.ConfigureButton(button, accent, active, active);
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.fontSize = CompactFont(14f, 14);
+                label.resizeTextMaxSize = label.fontSize;
+            }
+        }
+
+        private void BuildEntryDeck(Transform parent)
+        {
+            var deck = UiFactory.Panel("MainHubEntryDeck", parent, Color.clear);
+            UiFactory.SetFlexible(deck, 1f, 1f);
+            var portrait = layout.Height > layout.Width;
+            HorizontalOrVerticalLayoutGroup deckLayout = portrait
+                ? (HorizontalOrVerticalLayoutGroup)UiFactory.Vertical(deck, 0, CompactInt(12f))
+                : UiFactory.Horizontal(deck, 0, CompactInt(layout.IsCompact ? 12f : 18f));
+            deckLayout.childControlWidth = true;
+            deckLayout.childControlHeight = true;
+            deckLayout.childForceExpandWidth = true;
+            deckLayout.childForceExpandHeight = true;
+
+            BuildEntryCard(
+                deck.transform,
+                "MainHubPrimaryStartButton",
+                "MainHubTrainingEntryContent",
+                T("模拟对局", "Tavern Simulator"),
+                layout.IsCompact
+                    ? T("购买、打出、移位、战斗", "Buy · Play · Reposition · Fight")
+                    : T("像真实酒馆一样购买、打出、移位并测试战斗", "Buy, play, reposition, and test combat like the real Tavern"),
+                T("进入模拟", "Start Simulation"),
+                UnityTavernUiStyle.Gold,
+                openUnityTrainer ?? openTrainer,
+                true);
+
+            BuildEntryCard(
+                deck.transform,
+                "MainHubStrategyGuideButton",
+                "MainHubGuideEntryContent",
+                T("一图流训练", "One-Page Training"),
+                layout.IsCompact
+                    ? T("创建、查看、跟练阵容路线", "Create · Review · Practice Routes")
+                    : T("创建、查看并按初级或困难路线练习阵容", "Create, review, and practice beginner or hard lineup routes"),
+                openStrategyGuides != null
+                    ? T("进入一图流", "Open One-Page Training")
+                    : T("暂不可用", "Unavailable"),
+                UnityTavernUiStyle.ArcaneBlue,
+                openStrategyGuides,
+                false);
+        }
+
+        private void BuildEntryCard(
+            Transform parent,
+            string buttonName,
+            string contentName,
+            string titleText,
+            string descriptionText,
+            string actionText,
+            Color accent,
+            Action action,
+            bool emphasized)
+        {
+            var button = UiFactory.Button(buttonName, parent, string.Empty, () => action?.Invoke(), layout);
+            button.interactable = action != null;
+            UiFactory.SetFlexible(button.gameObject, 1f, 1f);
+            UnityTavernUiStyle.ConfigureButton(button, accent, emphasized, false);
+            var buttonSurface = button.GetComponent<Image>();
+            var resting = UnityTavernUiStyle.WithAlpha(
+                emphasized
+                    ? Color.Lerp(UnityTavernUiStyle.SurfaceRaised, accent, 0.24f)
+                    : Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.SurfaceRaised, 0.72f),
+                0.92f);
+            UnityTavernUiStyle.TintSelectable(
+                button,
+                resting,
+                Color.Lerp(resting, accent, 0.24f),
+                Color.Lerp(resting, Color.black, 0.16f));
+            buttonSurface.color = resting;
+            UnityTavernUiStyle.ConfigureOutline(
+                button.gameObject,
+                UnityTavernUiStyle.WithAlpha(accent, emphasized ? 0.76f : 0.54f),
+                new Vector2(emphasized ? 2f : 1f, emphasized ? -2f : -1f));
+            UnityTavernUiStyle.AddStarLanternRail(
+                button.transform,
+                buttonName + "StarLantern",
+                accent);
+
+            var defaultLabel = button.GetComponentInChildren<Text>();
+            if (defaultLabel != null)
+            {
+                defaultLabel.gameObject.SetActive(false);
+            }
+
+            BuildEntryArtwork(button.transform, buttonName, accent, emphasized);
+
+            var content = UiFactory.Panel(
+                contentName,
+                button.transform,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.86f));
+            content.GetComponent<Image>().raycastTarget = false;
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0.035f, 0.07f);
+            contentRect.anchorMax = new Vector2(layout.IsCompact ? 0.70f : 0.64f, 0.93f);
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+            var contentLayout = UiFactory.Vertical(
+                content,
+                CompactInt(layout.IsCompact ? 10f : 18f),
+                CompactInt(layout.IsCompact ? 6f : 8f));
+            contentLayout.childAlignment = TextAnchor.MiddleLeft;
+            contentLayout.childControlHeight = true;
+            contentLayout.childForceExpandHeight = false;
+
+            var badge = UiFactory.Label(
+                buttonName + "ModeBadge",
+                content.transform,
+                emphasized
+                    ? T("自由沙盒 · 真实操作", "FREE PLAY · REAL INTERACTIONS")
+                    : T("路线学习 · 阵容复现", "GUIDED ROUTES · LINEUP PRACTICE"),
+                14,
+                FontStyle.Bold,
+                layout);
+            badge.color = button.interactable ? accent : UnityTavernUiStyle.TextMuted;
+            UiFactory.SetHeight(badge.gameObject, CompactUnits(layout.IsCompact ? 20f : 24f));
+
+            var title = UiFactory.Label(
+                buttonName + "Title",
+                content.transform,
+                titleText,
+                CompactFont(26f, 34),
+                FontStyle.Bold,
+                layout);
+            title.color = UnityTavernUiStyle.TextLight;
+            title.alignment = TextAnchor.MiddleLeft;
+            UiFactory.SetHeight(title.gameObject, CompactUnits(layout.IsCompact ? 34f : 46f));
+
+            var description = UiFactory.Label(
+                buttonName + "Description",
+                content.transform,
+                descriptionText,
+                CompactFont(16f, 18),
+                FontStyle.Normal,
+                layout);
+            description.color = UnityTavernUiStyle.TextMuted;
+            description.alignment = TextAnchor.UpperLeft;
+            UiFactory.SetHeight(description.gameObject, CompactUnits(layout.IsCompact ? 40f : 58f));
+
+            var spacer = UiFactory.Panel(buttonName + "Spacer", content.transform, Color.clear);
+            UiFactory.SetFlexible(spacer, 1f, 1f);
+
+            var actionPlate = UiFactory.Panel(
+                buttonName + "ActionPlate",
+                content.transform,
+                UnityTavernUiStyle.WithAlpha(
+                    button.interactable ? accent : UnityTavernUiStyle.SurfaceRaised,
+                    0.28f));
+            actionPlate.GetComponent<Image>().raycastTarget = false;
+            var actionHeight = Mathf.Max(
+                UiFactory.MinimumButtonHeight,
+                layout.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight));
+            UiFactory.SetMinSize(actionPlate, 0f, actionHeight);
+            UiFactory.SetHeight(actionPlate, actionHeight);
+            UnityTavernUiStyle.ConfigureOutline(
+                actionPlate,
+                UnityTavernUiStyle.WithAlpha(
+                    button.interactable ? accent : UnityTavernUiStyle.TextMuted,
+                    0.62f),
+                new Vector2(1f, -1f));
+
+            var actionLabel = UiFactory.Label(
+                buttonName + "ActionLabel",
+                actionPlate.transform,
+                actionText + "   →",
+                CompactFont(16f, 18),
+                FontStyle.Bold,
+                layout);
+            actionLabel.color = button.interactable ? UnityTavernUiStyle.TextLight : UnityTavernUiStyle.TextMuted;
+            actionLabel.alignment = TextAnchor.MiddleCenter;
+            actionLabel.raycastTarget = false;
+            UiFactory.Stretch(actionLabel.rectTransform);
+            actionLabel.rectTransform.offsetMin = new Vector2(8f, 0f);
+            actionLabel.rectTransform.offsetMax = new Vector2(-8f, 0f);
+
+            var focusRing = button.GetComponent<UnitySelectableFocusRing>();
+            if (focusRing != null)
+            {
+                focusRing.FocusOutline.transform.parent.SetAsLastSibling();
+            }
+        }
+
+        private void BuildEntryArtwork(Transform parent, string prefix, Color accent, bool trainingMode)
+        {
+            var artwork = UiFactory.Panel(prefix + "Artwork", parent, Color.clear);
+            artwork.GetComponent<Image>().raycastTarget = false;
+            var artworkRect = artwork.GetComponent<RectTransform>();
+            artworkRect.anchorMin = new Vector2(layout.IsCompact ? 0.50f : 0.48f, 0.04f);
+            artworkRect.anchorMax = new Vector2(0.98f, 0.97f);
+            artworkRect.offsetMin = Vector2.zero;
+            artworkRect.offsetMax = Vector2.zero;
+
+            var glow = UiFactory.Panel(
+                prefix + "ArtworkGlow",
+                artwork.transform,
+                UnityTavernUiStyle.WithAlpha(accent, 0.10f));
+            UiFactory.Stretch(glow.GetComponent<RectTransform>());
+            glow.GetComponent<Image>().raycastTarget = false;
+
+            if (trainingMode)
+            {
+                BuildCardArt(artwork.transform, prefix, 0, "BGS_041", CardKind.Minion, -8f, 0.00f, 0.16f, 0.72f, 0.97f);
+                BuildCardArt(artwork.transform, prefix, 1, "BG32_822", CardKind.Minion, 7f, 0.28f, 0.05f, 1.00f, 0.92f);
+            }
+            else
+            {
+                BuildCardArt(artwork.transform, prefix, 0, "BG33_825", CardKind.Minion, -7f, 0.00f, 0.14f, 0.70f, 0.96f);
+                BuildCardArt(artwork.transform, prefix, 1, "133711", CardKind.TavernSpell, 6f, 0.28f, 0.04f, 1.00f, 0.92f);
+            }
+        }
+
+        private static void BuildCardArt(
+            Transform parent,
+            string prefix,
+            int index,
+            string cardId,
+            CardKind cardKind,
+            float rotation,
+            float minX,
+            float minY,
+            float maxX,
+            float maxY)
+        {
+            var card = new GameObject(prefix + "CardArt-" + index, typeof(RectTransform), typeof(Image));
+            card.transform.SetParent(parent, false);
+            var rect = card.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(minX, minY);
+            rect.anchorMax = new Vector2(maxX, maxY);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            var image = card.GetComponent<Image>();
+            image.sprite = CardImageProvider.LoadSprite(null, cardId, cardKind);
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+        }
+
+        private void BuildVersionContext(Transform parent)
+        {
+            var footer = UiFactory.Panel(
+                "MainHubFooter",
+                parent,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.78f));
+            var footerHeight = layout.CanvasUnitsForPhysicalPixels(40f);
+            UiFactory.SetHeight(footer, footerHeight);
+            UiFactory.SetMinSize(footer, 0f, footerHeight);
+            UiFactory.SetFlexible(footer, 0f, 0f);
+            UiFactory.Horizontal(
+                footer,
+                CompactInt(layout.IsCompact ? 10f : 14f),
+                0).childAlignment = TextAnchor.MiddleLeft;
+
+            var versionName = currentGameVersion == null
+                ? T("当前训练版本", "Current training version")
+                : GameVersionUiText.DisplayName(currentGameVersion, useEnglish);
+            var version = UiFactory.Label(
+                "MainHubVersionContext",
+                footer.transform,
+                versionName + T(" · 版本与机制可在训练内调整", " · Change version and mechanics inside training"),
+                Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f)),
+                FontStyle.Normal,
+                layout);
+            version.color = UnityTavernUiStyle.TextMuted;
+            version.alignment = TextAnchor.MiddleLeft;
+            UiFactory.SetFlexible(version.gameObject, 1f, 0f);
+            UiFactory.SetMinSize(version.gameObject, 0f, layout.CanvasUnitsForPhysicalPixels(18f));
         }
 
         private string T(string chinese, string english)
@@ -71,161 +466,29 @@ namespace LearnHearthstone.Presentation.MainHub
             return useEnglish ? english : chinese;
         }
 
-        private void BuildHeader(Transform parent)
-        {
-            var header = UiFactory.Panel("MainHubHeader", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.96f));
-            UiFactory.SetHeight(header, layout.IsCompact ? 74f : 92f);
-            UnityTavernUiStyle.ConfigureOutline(header, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
-            UnityTavernUiStyle.AddStarLanternRail(header.transform, "MainHubStarLantern", UnityTavernUiStyle.ArcaneBlue);
-            var headerLayout = header.AddComponent<HorizontalLayoutGroup>();
-            headerLayout.padding = new RectOffset(0, 0, 0, 0);
-            headerLayout.spacing = layout.IsCompact ? 10 : 16;
-            headerLayout.childAlignment = TextAnchor.MiddleCenter;
-            headerLayout.childControlWidth = true;
-            headerLayout.childControlHeight = true;
-            headerLayout.childForceExpandWidth = false;
-            headerLayout.childForceExpandHeight = true;
-
-            var titleStack = UiFactory.Panel("MainHubTitleStack", header.transform, Color.clear);
-            UiFactory.SetFlexible(titleStack, 1, 0);
-            var titleLayout = titleStack.AddComponent<VerticalLayoutGroup>();
-            titleLayout.padding = new RectOffset(0, 0, 0, 0);
-            titleLayout.spacing = layout.IsCompact ? 4 : 6;
-            titleLayout.childControlWidth = true;
-            titleLayout.childControlHeight = true;
-            titleLayout.childForceExpandWidth = true;
-            titleLayout.childForceExpandHeight = false;
-
-            var title = UiFactory.Label("Title", titleStack.transform, "Learn Heartstone", layout.IsCompact ? 28 : 34, FontStyle.Bold);
-            title.color = UnityTavernUiStyle.TextLight;
-            UiFactory.SetHeight(title.gameObject, layout.IsCompact ? 40 : 52);
-
-            var subtitle = UiFactory.Label("Subtitle", titleStack.transform, T("训练功能大厅", "Training Hub"), layout.IsCompact ? 16 : 20);
-            subtitle.color = UnityTavernUiStyle.TextMuted;
-            UiFactory.SetHeight(subtitle.gameObject, layout.IsCompact ? 24 : 30);
-
-            BuildLanguageSwitch(header.transform);
-        }
-
-        private void BuildLanguageSwitch(Transform parent)
-        {
-            var row = UiFactory.Panel("MainHubLanguageSwitch", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.96f));
-            UnityTavernUiStyle.SetFixedSize(row, layout.IsCompact ? 230f : 260f, 52f);
-            UnityTavernUiStyle.ConfigureOutline(row, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.42f), new Vector2(1f, -1f));
-
-            var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
-            rowLayout.padding = new RectOffset(6, 6, 3, 3);
-            rowLayout.spacing = 6;
-            rowLayout.childAlignment = TextAnchor.MiddleCenter;
-            rowLayout.childControlWidth = true;
-            rowLayout.childControlHeight = true;
-            rowLayout.childForceExpandWidth = false;
-            rowLayout.childForceExpandHeight = false;
-
-            var label = UiFactory.Label("MainHubLanguageLabel", row.transform, T("语言", "Language"), 14, FontStyle.Bold);
-            label.alignment = TextAnchor.MiddleRight;
-            label.color = UnityTavernUiStyle.MutedText;
-            UnityTavernUiStyle.SetFixedSize(label.gameObject, layout.IsCompact ? 48f : 68f, UnityTavernUiStyle.TouchHeight);
-
-            var chinese = LanguageButton("MainHubLanguageChineseButton", row.transform, "中文", !useEnglish, UnityTavernUiStyle.Gold, () => RequestLanguage(false));
-            UnityTavernUiStyle.SetFixedSize(chinese.gameObject, layout.IsCompact ? 72f : 78f, UnityTavernUiStyle.TouchHeight);
-
-            var english = LanguageButton("MainHubLanguageEnglishButton", row.transform, "English", useEnglish, UnityTavernUiStyle.Blue, () => RequestLanguage(true));
-            UnityTavernUiStyle.SetFixedSize(english.gameObject, layout.IsCompact ? 88f : 96f, UnityTavernUiStyle.TouchHeight);
-        }
-
         private void RequestLanguage(bool nextUseEnglish)
         {
-            if (useEnglish == nextUseEnglish)
+            if (useEnglish != nextUseEnglish)
             {
-                return;
+                languageChanged?.Invoke(nextUseEnglish);
             }
-
-            languageChanged?.Invoke(nextUseEnglish);
         }
 
-        private static Button LanguageButton(string name, Transform parent, string text, bool active, Color accentColor, Action onClick)
+        private float CompactUnits(float value)
         {
-            var button = UiFactory.Button(name, parent, text, () => onClick?.Invoke());
-            UnityTavernUiStyle.ConfigureButton(button, accentColor, active, active);
-
-            var label = button.GetComponentInChildren<Text>();
-            if (label != null)
-            {
-                label.fontSize = 14;
-                label.fontStyle = FontStyle.Bold;
-                label.color = active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Text;
-                label.horizontalOverflow = HorizontalWrapMode.Wrap;
-                label.text = active ? "✓ " + text : text;
-            }
-
-            return button;
+            return layout.IsCompact ? layout.CanvasUnitsForPhysicalPixels(value) : value;
         }
 
-        private static void ConfigureModuleGrid(GridLayoutGroup gridLayout, UnityTavernLayoutContext context)
+        private int CompactInt(float value)
         {
-            var padding = context.IsCompact ? 12 : 18;
-            var spacing = context.IsCompact ? 10 : 14;
-            gridLayout.padding = new RectOffset(padding, padding, padding, padding);
-            gridLayout.spacing = new Vector2(spacing, spacing);
-            gridLayout.cellSize = context.IsCompact ? new Vector2(220, 96) : new Vector2(260, 116);
-            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            gridLayout.constraintCount = context.IsWide ? 4 : 2;
+            return Mathf.CeilToInt(CompactUnits(value));
         }
 
-        private void ModuleButton(
-            Transform parent,
-            string title,
-            string body,
-            bool enabled,
-            Action action,
-            bool primary,
-            UnityTavernLayoutContext context)
+        private int CompactFont(float compactPhysicalSize, int regularSize)
         {
-            ModuleButton(parent, title, title, body, enabled, action, primary, context);
-        }
-
-        private void ModuleButton(
-            Transform parent,
-            string objectName,
-            string title,
-            string body,
-            bool enabled,
-            Action action,
-            bool primary,
-            UnityTavernLayoutContext context)
-        {
-            var tile = UiFactory.Panel(
-                objectName,
-                parent,
-                enabled
-                    ? Color.Lerp(UnityTavernUiStyle.TableDark, UnityTavernUiStyle.TableLit, primary ? 0.36f : 0.16f)
-                    : Color.Lerp(UnityTavernUiStyle.SurfaceDark, UnityTavernUiStyle.Disabled, 0.18f));
-            UnityTavernUiStyle.ConfigureOutline(
-                tile,
-                UnityTavernUiStyle.WithAlpha(primary ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ParchmentDark, primary ? 0.68f : 0.32f),
-                new Vector2(1f, -1f));
-            if (primary)
-            {
-                UnityTavernUiStyle.AddStarLanternRail(tile.transform, "MainHubPrimaryStarLantern", UnityTavernUiStyle.Gold);
-            }
-            var padding = primary ? (context.IsCompact ? 14 : 18) : 12;
-            UiFactory.Vertical(tile, padding, context.IsCompact ? 6 : 8);
-            if (primary)
-            {
-                UiFactory.SetHeight(tile, context.IsCompact ? 148 : 168);
-            }
-
-            var heading = UiFactory.Label(objectName + "Title", tile.transform, title, primary ? (context.IsCompact ? 22 : 26) : 18, FontStyle.Bold);
-            heading.color = enabled ? UnityTavernUiStyle.TextLight : UnityTavernUiStyle.TextMuted;
-            UiFactory.SetHeight(heading.gameObject, primary ? (context.IsCompact ? 32 : 38) : 28);
-            var desc = UiFactory.Label(objectName + "Body", tile.transform, body, primary ? 16 : 14);
-            desc.color = enabled ? UnityTavernUiStyle.TextMuted : UnityTavernUiStyle.Disabled;
-            UiFactory.SetHeight(desc.gameObject, primary ? (context.IsCompact ? 42 : 48) : 32);
-            var button = UiFactory.Button(objectName + "Button", tile.transform, enabled ? T("进入", "Enter") : T("预留", "Reserved"), () => action?.Invoke());
-            button.interactable = enabled;
-            UnityTavernUiStyle.ConfigureButton(button, primary ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ParchmentDark, primary, false);
-            UiFactory.SetHeight(button.gameObject, primary || context.IsCompact ? UnityTavernUiStyle.CompactTouchHeight : UnityTavernUiStyle.TouchHeight);
+            return layout.IsCompact
+                ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(compactPhysicalSize))
+                : regularSize;
         }
     }
 }
