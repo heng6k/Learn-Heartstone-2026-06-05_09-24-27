@@ -134,6 +134,41 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void CompactSelectionClipsGuideRailAndLeavesDetailScrollable()
+        {
+            var root = new GameObject("StrategyGuidePhoneRoot", typeof(RectTransform));
+            try
+            {
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                new StrategyGuideSelectionView(
+                    root.transform,
+                    catalog,
+                    snapshot.ForLanguage(false),
+                    GameVersionIds.Season14Preview,
+                    (_, __) => { },
+                    () => { },
+                    layoutContext: UnityTavernLayoutContext.ForSize(844f, 390f)).Build();
+
+                var rail = Find(root.transform, "StrategyGuideRail").Single().GetComponent<LayoutElement>();
+                var railScroll = Find(root.transform, "StrategyGuideRailListScroll").Single().GetComponent<ScrollRect>();
+                var selectors = root.GetComponentsInChildren<Button>(true)
+                    .Where(button => button.name.StartsWith("StrategyGuideCard-", StringComparison.Ordinal))
+                    .ToList();
+
+                Assert.AreEqual(176f, rail.preferredHeight);
+                Assert.NotNull(railScroll.viewport.GetComponent<Mask>());
+                Assert.AreEqual(catalog.Guides.Count, selectors.Count);
+                Assert.IsTrue(selectors.All(button => button.transform.IsChildOf(railScroll.content)));
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideDetailScroll").Count);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
         public void AuthoringStartPickerSeparatesSourcesAndDeletesLocalDraftWithConfirmation()
         {
             var root = new GameObject("StrategyGuideAuthoringPickerRoot", typeof(RectTransform));

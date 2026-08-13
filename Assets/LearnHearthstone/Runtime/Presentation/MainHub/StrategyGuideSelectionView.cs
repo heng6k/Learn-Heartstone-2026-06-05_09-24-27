@@ -89,7 +89,7 @@ namespace LearnHearthstone.Presentation.MainHub
             StrategyGuideUiTheme.Outline(rail, StrategyGuideUiTheme.BorderStrong);
             if (layout.IsCompact)
             {
-                UiFactory.SetHeight(rail, 226f);
+                UiFactory.SetHeight(rail, 176f);
             }
             else
             {
@@ -113,6 +113,20 @@ namespace LearnHearthstone.Presentation.MainHub
             railHint.color = StrategyGuideUiTheme.MutedText;
             UiFactory.SetHeight(railHint.gameObject, 24f);
 
+            var selectorParent = rail.transform;
+            if (layout.IsCompact)
+            {
+                selectorParent = UiFactory.ScrollView(
+                    "StrategyGuideRailListScroll",
+                    rail.transform,
+                    Color.clear,
+                    out _,
+                    layout);
+                var selectorList = UiFactory.Vertical(selectorParent.gameObject, 4, 2);
+                selectorList.childControlWidth = true;
+                selectorList.childForceExpandWidth = true;
+            }
+
             var detailContent = UiFactory.ScrollView(
                 "StrategyGuideDetailScroll",
                 workspace.transform,
@@ -126,7 +140,7 @@ namespace LearnHearthstone.Presentation.MainHub
             Button first = null;
             foreach (var guide in guides)
             {
-                var selector = BuildGuideSelector(rail.transform, guide);
+                var selector = BuildGuideSelector(selectorParent, guide);
                 guideSelectors.Add(guide.GuideId, selector);
                 first ??= selector;
                 var detail = BuildGuideDetail(detailContent, guide);
