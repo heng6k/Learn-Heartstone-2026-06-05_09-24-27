@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Content;
@@ -568,6 +569,19 @@ namespace LearnHearthstone.Presentation.MainHub
 
         private void BuildAuthoringDraftRow(Transform parent, StrategyGuideAuthoringDraft draft)
         {
+            var savedAt = authoringRepository.GetDraftLastSavedUtc(draft.DraftId).ToLocalTime();
+            var titleText = useEnglish && !string.IsNullOrWhiteSpace(draft.Guide.EnglishTitle)
+                ? draft.Guide.EnglishTitle.Trim()
+                : draft.Guide.Title?.Trim();
+            if (string.IsNullOrWhiteSpace(titleText) ||
+                string.Equals(titleText, "未命名一图流", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(titleText, "Untitled one-page guide", StringComparison.OrdinalIgnoreCase))
+            {
+                titleText = T("未命名草稿", "Untitled draft");
+            }
+            var dateText = savedAt.ToString(
+                useEnglish ? "MMM dd" : "MM月dd日",
+                CultureInfo.InvariantCulture);
             var panel = UiFactory.Panel(
                 "StrategyGuideAuthoringDraft-" + draft.DraftId,
                 parent,
@@ -586,9 +600,7 @@ namespace LearnHearthstone.Presentation.MainHub
             var title = UiFactory.Label(
                 "StrategyGuideAuthoringDraftName-" + draft.DraftId,
                 copy.transform,
-                useEnglish && !string.IsNullOrWhiteSpace(draft.Guide.EnglishTitle)
-                    ? draft.Guide.EnglishTitle
-                    : draft.Guide.Title,
+                titleText + "  ·  " + dateText,
                 18,
                 FontStyle.Bold,
                 layout);

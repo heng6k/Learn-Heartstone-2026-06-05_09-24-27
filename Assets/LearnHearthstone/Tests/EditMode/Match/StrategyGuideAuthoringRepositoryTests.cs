@@ -22,6 +22,9 @@ namespace LearnHearthstone.Tests.EditMode
                 var first = Draft("draft-zeta");
                 var originalTitle = first.Guide.Title;
                 repository.SaveDraft(first);
+                Assert.That(
+                    repository.GetDraftLastSavedUtc(first.DraftId),
+                    Is.InRange(DateTime.UtcNow.AddMinutes(-1), DateTime.UtcNow.AddMinutes(1)));
                 first.Guide.Title = "调用方已修改";
 
                 Assert.AreEqual(originalTitle, repository.LoadDraft(first.DraftId).Guide.Title);

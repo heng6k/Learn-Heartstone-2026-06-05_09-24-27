@@ -62,6 +62,16 @@ namespace LearnHearthstone.Application.Services
             return draft;
         }
 
+        public DateTime GetDraftLastSavedUtc(string draftId)
+        {
+            var path = DraftPath(draftId);
+            if (!File.Exists(path))
+            {
+                throw new InvalidOperationException("Strategy guide draft does not exist: " + draftId + ".");
+            }
+            return File.GetLastWriteTimeUtc(path);
+        }
+
         public bool DeleteDraft(string draftId)
         {
             var path = DraftPath(draftId);

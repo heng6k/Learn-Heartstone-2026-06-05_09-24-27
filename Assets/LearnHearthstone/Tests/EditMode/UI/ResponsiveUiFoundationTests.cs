@@ -167,6 +167,11 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreNotSame(button.gameObject, focusOutline.gameObject);
                 Assert.IsFalse(focusOutline.enabled);
                 Assert.IsFalse(focusOutline.GetComponent<Image>().raycastTarget);
+                var ring = focusOutline.transform.parent;
+                Assert.IsNull(ring.GetComponent<Image>(), "Focus must be drawn as borders, never as a full-size color block over input text.");
+                Assert.AreEqual(4, ring.GetComponentsInChildren<Image>(true).Length);
+                Assert.IsTrue(ring.GetComponentsInChildren<Image>(true).All(image =>
+                    image.rectTransform.sizeDelta.x == 3f || image.rectTransform.sizeDelta.y == 3f));
 
                 var eventData = new BaseEventData(eventSystem);
                 ExecuteEvents.Execute(button.gameObject, eventData, ExecuteEvents.selectHandler);

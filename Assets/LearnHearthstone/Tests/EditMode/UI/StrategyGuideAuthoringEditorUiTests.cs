@@ -151,6 +151,14 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.NotNull(input.textComponent);
                 Assert.AreEqual(input.text, input.textComponent.text, "The restored value must be visible, not only stored in InputField.text.");
                 Assert.AreEqual(Selectable.Transition.None, input.transition, "Mobile focus must not paint an opaque selected tint over the text.");
+                ExecuteEvents.Execute<ISelectHandler>(
+                    input.gameObject,
+                    new BaseEventData(EventSystem.current),
+                    ExecuteEvents.selectHandler);
+                var focusRing = input.GetComponent<UnitySelectableFocusRing>().FocusOutline.transform.parent;
+                Assert.IsNull(focusRing.GetComponent<Image>(), "Focused text input must not receive a full-size blue overlay.");
+                Assert.AreEqual(4, focusRing.GetComponentsInChildren<Image>(true).Length);
+                Assert.AreEqual(input.text, input.textComponent.text);
                 Assert.AreEqual("待继续的草稿", input.text);
                 input.text = "继续后的草稿";
                 input.ForceLabelUpdate();

@@ -188,6 +188,10 @@ namespace LearnHearthstone.Tests.EditMode
                     DraftId = draftId,
                     Guide = JsonUtility.FromJson<StrategyGuideDefinition>(JsonUtility.ToJson(catalog.Guides[0]))
                 });
+                var savedDraft = repository.LoadDraft(draftId);
+                savedDraft.Guide.Title = "";
+                savedDraft.Guide.EnglishTitle = "";
+                repository.SaveDraft(savedDraft);
 
                 new StrategyGuideSelectionView(
                     root.transform,
@@ -229,6 +233,21 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsTrue(Find(root.transform, "StrategyGuideAuthoringDraftsPage").Single().gameObject.activeSelf);
                 Assert.IsFalse(Find(root.transform, "StrategyGuideAuthoringTemplatesPage").Single().gameObject.activeSelf);
                 Assert.IsFalse(Find(root.transform, "StrategyGuideAuthoringVerifiedPage").Single().gameObject.activeSelf);
+                var draftName = Find(root.transform, "StrategyGuideAuthoringDraftName-" + draftId)
+                    .Single()
+                    .GetComponent<Text>()
+                    .text;
+                StringAssert.StartsWith("未命名草稿  ·  ", draftName);
+                StringAssert.EndsWith(
+                    repository.GetDraftLastSavedUtc(draftId).ToLocalTime().ToString("MM月dd日"),
+                    draftName);
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(root.GetComponent<RectTransform>());
+                var draftNameRect = Find(root.transform, "StrategyGuideAuthoringDraftName-" + draftId)
+                    .Single()
+                    .GetComponent<RectTransform>();
+                Assert.Greater(draftNameRect.rect.width, 100f);
+                Assert.Greater(draftNameRect.rect.height, 0f);
 
                 Find(root.transform, "StrategyGuideAuthoringDraftDeleteButton-" + draftId)
                     .Single()
