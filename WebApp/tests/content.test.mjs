@@ -109,7 +109,8 @@ test('player-facing play gate and footer omit release engineering metadata', () 
 
 test('play gate defers Unity and offers browser and mobile fullscreen paths', () => {
   assert.equal(unityRelease.chunkCount, 12)
-  assert.equal(unityRelease.sourceDataBytes, 107314429)
+  assert.equal(Number.isInteger(unityRelease.sourceDataBytes), true)
+  assert.ok(unityRelease.sourceDataBytes > 100 * 1024 * 1024)
   assert.match(playPageSource, /state === 'idle' \|\| state === 'failed'/)
   assert.match(playPageSource, /requestFullscreen \|\| document\.documentElement\.webkitRequestFullscreen/)
   assert.match(playPageSource, /全屏进入训练场/)

@@ -5,8 +5,8 @@ export const currentVersion = Object.freeze({
   officialStatus: '已上线',
   trainerStatus: '已上线',
   supportLabel: '限定训练范围',
-  updatedAt: '2026-08-12',
-  contentSnapshotId: '36.2-20260812-b96d544',
+  updatedAt: '2026-08-13',
+  contentSnapshotId: '36.2-20260813-f61e7bb',
   rulesetId: 'ruleset-legacy-composite-v1',
   summary: '当前训练范围只启用黑暗之赐与饰品；其他历史机制不会混入这套版本规则。',
 })
@@ -79,8 +79,8 @@ export const communityNews = Object.freeze([
 
 export const unityRelease = Object.freeze({
   path: '/unity/',
-  sourceDataBytes: 107314429,
-  sourceDataLabel: '约 102.3 MiB 压缩数据',
+  sourceDataBytes: 107357298,
+  sourceDataLabel: '约 102.4 MiB 压缩数据',
   chunkCount: 12,
   recommendedMemory: '建议桌面浏览器、8 GB 及以上内存',
 })
