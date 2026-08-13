@@ -1,0 +1,269 @@
+{
+	"systeminfo": "WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | OPENMP = 1 | REPACK = 1 | ",
+	"model": {
+		"type": "small",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"text": {
+			"ctx": 448,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": "C:\\Users\\wch\\.cache\\hyperframes\\whisper\\models\\ggml-small.bin",
+		"language": "zh",
+		"translate": false
+	},
+	"result": {
+		"language": "zh"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:03,240"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 3240
+			},
+			"text": "一套陣容 先放進訓練局裡驗證",
+			"tokens": [
+				{
+					"text": "[_BEG_]",
+					"timestamps": {
+						"from": "00:00:00,000",
+						"to": "00:00:00,000"
+					},
+					"offsets": {
+						"from": 0,
+						"to": 0
+					},
+					"id": 50364,
+					"p": 0.998591,
+					"t_dtw": -1
+				},
+				{
+					"text": "一",
+					"timestamps": {
+						"from": "00:00:00,040",
+						"to": "00:00:00,250"
+					},
+					"offsets": {
+						"from": 40,
+						"to": 250
+					},
+					"id": 2257,
+					"p": 0.826443,
+					"t_dtw": 14
+				},
+				{
+					"text": "套",
+					"timestamps": {
+						"from": "00:00:00,250",
+						"to": "00:00:00,490"
+					},
+					"offsets": {
+						"from": 250,
+						"to": 490
+					},
+					"id": 1881,
+					"p": 0.995091,
+					"t_dtw": 32
+				},
+				{
+					"text": "陣",
+					"timestamps": {
+						"from": "00:00:00,490",
+						"to": "00:00:00,730"
+					},
+					"offsets": {
+						"from": 490,
+						"to": 730
+					},
+					"id": 8842,
+					"p": 0.594976,
+					"t_dtw": 54
+				},
+				{
+					"text": "容",
+					"timestamps": {
+						"from": "00:00:00,730",
+						"to": "00:00:00,830"
+					},
+					"offsets": {
+						"from": 730,
+						"to": 830
+					},
+					"id": 25750,
+					"p": 0.998493,
+					"t_dtw": 78
+				},
+				{
+					"text": " ",
+					"timestamps": {
+						"from": "00:00:00,890",
+						"to": "00:00:01,000"
+					},
+					"offsets": {
+						"from": 890,
+						"to": 1000
+					},
+					"id": 220,
+					"p": 0.362749,
+					"t_dtw": 114
+				},
+				{
+					"text": "先",
+					"timestamps": {
+						"from": "00:00:01,210",
+						"to": "00:00:01,240"
+					},
+					"offsets": {
+						"from": 1210,
+						"to": 1240
+					},
+					"id": 10108,
+					"p": 0.994086,
+					"t_dtw": 136
+				},
+				{
+					"text": "放",
+					"timestamps": {
+						"from": "00:00:01,250",
+						"to": "00:00:01,480"
+					},
+					"offsets": {
+						"from": 1250,
+						"to": 1480
+					},
+					"id": 12744,
+					"p": 0.991093,
+					"t_dtw": 158
+				},
+				{
+					"text": "進",
+					"timestamps": {
+						"from": "00:00:01,480",
+						"to": "00:00:01,720"
+					},
+					"offsets": {
+						"from": 1480,
+						"to": 1720
+					},
+					"id": 18214,
+					"p": 0.893879,
+					"t_dtw": 176
+				},
+				{
+					"text": "訓",
+					"timestamps": {
+						"from": "00:00:01,720",
+						"to": "00:00:01,960"
+					},
+					"offsets": {
+						"from": 1720,
+						"to": 1960
+					},
+					"id": 5396,
+					"p": 0.974949,
+					"t_dtw": 194
+				},
+				{
+					"text": "練",
+					"timestamps": {
+						"from": "00:00:01,960",
+						"to": "00:00:02,200"
+					},
+					"offsets": {
+						"from": 1960,
+						"to": 2200
+					},
+					"id": 47027,
+					"p": 0.997208,
+					"t_dtw": 218
+				},
+				{
+					"text": "局",
+					"timestamps": {
+						"from": "00:00:02,200",
+						"to": "00:00:02,440"
+					},
+					"offsets": {
+						"from": 2200,
+						"to": 2440
+					},
+					"id": 34703,
+					"p": 0.702787,
+					"t_dtw": 236
+				},
+				{
+					"text": "裡",
+					"timestamps": {
+						"from": "00:00:02,440",
+						"to": "00:00:02,680"
+					},
+					"offsets": {
+						"from": 2440,
+						"to": 2680
+					},
+					"id": 11066,
+					"p": 0.637922,
+					"t_dtw": 254
+				},
+				{
+					"text": "驗",
+					"timestamps": {
+						"from": "00:00:02,680",
+						"to": "00:00:02,920"
+					},
+					"offsets": {
+						"from": 2680,
+						"to": 2920
+					},
+					"id": 24023,
+					"p": 0.969667,
+					"t_dtw": 274
+				},
+				{
+					"text": "證",
+					"timestamps": {
+						"from": "00:00:02,920",
+						"to": "00:00:03,240"
+					},
+					"offsets": {
+						"from": 2920,
+						"to": 3240
+					},
+					"id": 11823,
+					"p": 0.997164,
+					"t_dtw": 290
+				},
+				{
+					"text": "[_TT_162]",
+					"timestamps": {
+						"from": "00:00:03,240",
+						"to": "00:00:03,240"
+					},
+					"offsets": {
+						"from": 3240,
+						"to": 3240
+					},
+					"id": 50526,
+					"p": 0.0384748,
+					"t_dtw": -1
+				}
+			]
+		}
+	]
+}

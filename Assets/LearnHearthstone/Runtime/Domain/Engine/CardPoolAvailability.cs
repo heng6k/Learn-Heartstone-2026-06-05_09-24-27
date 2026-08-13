@@ -40,7 +40,7 @@ namespace LearnHearthstone.Domain.Engine
 
         public bool AllowsTavernSpell(TavernSpellDefinition spell)
         {
-            if (spell == null || spell.Category != "TavernSpell")
+            if (spell == null || spell.Category != "TavernSpell" || IsDuoCardId(spell.CardNumber))
             {
                 return false;
             }

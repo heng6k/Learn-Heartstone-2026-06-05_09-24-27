@@ -8325,10 +8325,9 @@ namespace LearnHearthstone.Domain.Engine
                     }
                     else if (source.CardId == EternalSummonerCardId)
                     {
-                        var token = AddToken(context, owner, source, owner.Board.Count, "eternal-knight", "Eternal Knight", 4, 1, Tribe.Undead);
+                        var token = AddToken(context, owner, source, owner.Board.Count, "eternal-knight", "Eternal Knight", 4, 1, Tribe.Undead, cardId: EternalKnightCardId);
                         if (token != null)
                         {
-                            token.CardId = EternalKnightCardId;
                             token.Keywords.Add(Keyword.Windfury);
                             AddLog(context.Log, "Avenge", source.InstanceId + " summoned Eternal Knight", source.InstanceId, token.InstanceId, LogSeverity.Good);
                         }
@@ -10185,36 +10184,56 @@ namespace LearnHearthstone.Domain.Engine
                 keywords.Add(keyword.Value);
             }
 
-            var token = new MinionInstance
+            var instanceId = "token-" + sourceInstanceId + "-" + tokenId + "-" + owner.Board.Count;
+            MinionInstance token;
+            if (!string.IsNullOrEmpty(cardId) && context.MinionCatalog?.TryGetByCardId(cardId, out var definition) == true)
             {
-                CardKind = CardKind.Minion,
-                InstanceId = "token-" + sourceInstanceId + "-" + tokenId + "-" + owner.Board.Count,
-                DefinitionId = tokenId,
-                CardId = string.IsNullOrEmpty(cardId) ? tokenId.ToUpperInvariant() : cardId,
-                Name = name,
-                BaseAttack = attack,
-                BaseHealth = health,
-                Attack = attack,
-                Health = health,
-                MaxHealth = health,
-                Tribes = new List<Tribe> { tribe },
-                Keywords = keywords,
-                Golden = golden,
-                Enchantments = new List<Enchantment>(),
-                Counters = new Dictionary<string, int>(),
-                Owner = owner.Side,
-                CanAttack = true,
-                PoolSource = PoolSource.Summon,
-                PoolCopiesHeld = 0
-            };
+                token = MinionFactory.Create(definition, owner.Side, instanceId, golden, PoolSource.Summon, 0);
+                token.InstanceId = instanceId;
+                token.BaseAttack = attack;
+                token.BaseHealth = health;
+                token.Attack = attack;
+                token.Health = health;
+                token.MaxHealth = health;
+            }
+            else
+            {
+                token = new MinionInstance
+                {
+                    CardKind = CardKind.Minion,
+                    InstanceId = instanceId,
+                    DefinitionId = tokenId,
+                    CardId = string.IsNullOrEmpty(cardId) ? tokenId.ToUpperInvariant() : cardId,
+                    Name = name,
+                    BaseAttack = attack,
+                    BaseHealth = health,
+                    Attack = attack,
+                    Health = health,
+                    MaxHealth = health,
+                    Tribes = new List<Tribe> { tribe },
+                    Keywords = keywords,
+                    Golden = golden,
+                    Enchantments = new List<Enchantment>(),
+                    Counters = new Dictionary<string, int>(),
+                    Owner = owner.Side,
+                    CanAttack = true,
+                    PoolSource = PoolSource.Summon,
+                    PoolCopiesHeld = 0
+                };
+            }
+
+            if (keyword.HasValue && !token.Keywords.Contains(keyword.Value))
+            {
+                token.Keywords.Add(keyword.Value);
+            }
             ApplySummonAuras(owner, token);
             owner.Board.Insert(Math.Min(Math.Max(0, insertIndex), owner.Board.Count), token);
             ResolveFriendlySummonTriggers(context, owner, token, source);
-            AddLog(context.Log, "MinionSummoned", sourceInstanceId + " summoned " + name, sourceInstanceId, token.InstanceId, LogSeverity.Good);
+            AddLog(context.Log, "MinionSummoned", sourceInstanceId + " summoned " + token.Name, sourceInstanceId, token.InstanceId, LogSeverity.Good);
             RecordFrame(
                 context,
                 CombatEventType.MinionSummoned,
-                sourceInstanceId + " summoned " + name,
+                sourceInstanceId + " summoned " + token.Name,
                 owner.Side,
                 sourceInstanceId,
                 owner.Side,

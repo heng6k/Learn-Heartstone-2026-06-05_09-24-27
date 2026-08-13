@@ -74,6 +74,23 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void FreezeAllowsCustomGuideWithoutRequiredTribe()
+        {
+            var context = Context();
+            var draft = Draft(context.Catalog.Guides[0]);
+            draft.Guide.RequiredTribes.Clear();
+
+            var result = StrategyGuideAuthoringFreezeService.Freeze(
+                draft,
+                context.Catalog,
+                context.Version);
+
+            Assert.IsTrue(result.Succeeded, string.Join(" | ", result.Diagnostics));
+            Assert.IsEmpty(result.Guide.RequiredTribes);
+            Assert.AreEqual(5, result.Guide.ActiveTribes.Count);
+        }
+
+        [Test]
         public void FreezeRejectsAuthoringIntegerOverflowBeforeRuntimeCompilation()
         {
             var context = Context();

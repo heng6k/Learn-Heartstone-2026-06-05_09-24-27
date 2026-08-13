@@ -1,8 +1,8 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1920, height=1080" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
   <style>
     @font-face { font-family: "Microsoft YaHei"; src: local("Microsoft YaHei"); }
@@ -27,59 +27,57 @@
     .focus { position: absolute; border: 4px solid #e5b94b; box-shadow: 0 0 0 9999px rgba(18,14,11,.16), 0 0 32px rgba(229,185,75,.75); }
     .split { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 72px; background: #120e0b; }
     .split img { width: 100%; height: 100%; object-fit: cover; border: 2px solid rgba(229,185,75,.55); }
+    .split img.card-still { object-fit: contain; background: radial-gradient(circle at 50% 42%, #3a2517 0%, #1f1510 48%, #120e0b 100%); }
     .final { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle at 50% 42%, #3a2517 0%, #1f1510 38%, #120e0b 75%); }
     .final .mark { width: 160px; height: 8px; margin-bottom: 38px; background: #e5b94b; }
     .final h1 { font-size: 88px; }
     .final p { max-width: 1220px; margin: 30px 0 0; font-size: 38px; line-height: 1.5; color: #f6d889; }
     .legal { position: absolute; bottom: 54px; font-size: 29px; color: rgba(244,235,221,.78); letter-spacing: 2px; }
-    .brann-card { position: absolute; right: 210px; top: 125px; height: 820px; width: auto; filter: drop-shadow(0 24px 32px rgba(0,0,0,.62)); }
   </style>
 </head>
 <body>
-<div id="root" data-composition-id="learn-heartstone-promo" data-start="0" data-duration="70" data-width="1920" data-height="1080">
-  <img id="s1-tavern" class="clip still" src="assets/stills/tavern-main.png" data-start="0" data-duration="5" data-track-index="0" />
-  <div id="overlay-1" class="clip" data-start="0" data-duration="5" data-track-index="2"><div class="shade"></div><div class="copy" id="copy-1"><div class="eyebrow">阵容验证 · 测试版</div><h1>一套阵容，先放进训练局里验证。</h1></div><div class="vignette"></div><div class="frame"></div></div>
+<div data-hf-id="hf-bwhn" id="root" data-composition-id="learn-heartstone-promo" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+  <img data-hf-id="hf-2iri" id="s1-tavern" class="clip still" src="assets/stills/tavern-main.png" data-start="0" data-duration="5" data-track-index="0">
+  <div data-hf-id="hf-8og7" id="overlay-1" class="clip" data-start="0" data-duration="5" data-track-index="2"><div data-hf-id="hf-q0n7" class="shade"></div><div data-hf-id="hf-4510" class="copy" id="copy-1"><div data-hf-id="hf-0ucp" class="eyebrow">阵容验证 · 测试版</div><h1 data-hf-id="hf-n94x">一套阵容，先放进训练局里验证。</h1></div><div data-hf-id="hf-q7bi" class="vignette"></div><div data-hf-id="hf-d9wv" class="frame"></div></div>
 
-  <video id="r01" class="clip scene-fill" src="assets/recordings/r01-tribes.mp4" data-start="5" data-duration="3.7" data-track-index="0" muted playsinline></video>
-  <video id="r02" class="clip scene-fill" src="assets/recordings/r02-hero-to-tavern.mp4" data-start="8.7" data-duration="7.3" data-media-start="1.8" data-track-index="0" muted playsinline></video>
-  <div id="overlay-2" class="clip" data-start="5" data-duration="11" data-track-index="2"><div class="copy" id="copy-2"><div class="eyebrow">01 · 搭建对局</div><h2>从对局环境开始搭建。</h2><div class="sub">选择种族与英雄，进入单人训练酒馆。</div></div><div class="frame"></div></div>
+  <video data-hf-id="hf-mhkj" id="r01" class="clip scene-fill" src="assets/recordings/r01-tribes.mp4" data-start="5" data-duration="3.7" data-track-index="0" muted playsinline></video>
+  <video data-hf-id="hf-o8an" id="r02" class="clip scene-fill" src="assets/recordings/r02-hero-to-tavern.mp4" data-start="8.7" data-duration="7.3" data-media-start="1.8" data-track-index="0" muted playsinline></video>
+  <div data-hf-id="hf-nebc" id="overlay-2" class="clip" data-start="5" data-duration="11" data-track-index="2"><div data-hf-id="hf-cswv" class="copy" id="copy-2"><div data-hf-id="hf-abd3" class="eyebrow">01 · 搭建对局</div><h2 data-hf-id="hf-rt5o">从对局环境开始搭建。</h2><div data-hf-id="hf-iras" class="sub">选择种族与英雄，进入单人训练酒馆。</div></div><div data-hf-id="hf-w9zj" class="frame"></div></div>
 
-  <video id="r03" class="clip scene-fill" src="assets/recordings/r03-recruit-loop.mp4" data-start="16" data-duration="9" data-media-start="14" data-track-index="0" muted playsinline></video>
-  <div id="overlay-3" class="clip" data-start="16" data-duration="9" data-track-index="2"><div class="copy" id="copy-3"><div class="eyebrow">02 · 招募阶段</div><h2>购买、上场，构造你的棋盘。</h2><div class="sub">每一步都来自当前 Build 的真实操作画面。</div></div><div class="focus" id="focus-3" style="left:430px;top:590px;width:1060px;height:370px"></div><div class="frame"></div></div>
+  <video data-hf-id="hf-0fec" id="r03" class="clip scene-fill" src="assets/recordings/r03-recruit-loop.mp4" data-start="16" data-duration="9" data-media-start="14" data-track-index="0" muted playsinline></video>
+  <div data-hf-id="hf-gzam" id="overlay-3" class="clip" data-start="16" data-duration="9" data-track-index="2"><div data-hf-id="hf-8usu" class="copy" id="copy-3"><div data-hf-id="hf-j5f1" class="eyebrow">02 · 招募阶段</div><h2 data-hf-id="hf-7o82">购买、上场，构造你的棋盘。</h2><div data-hf-id="hf-skht" class="sub">每一步都来自当前 Build 的真实操作画面。</div></div><div data-hf-id="hf-5ujs" class="focus" id="focus-3" style="left:430px;top:590px;width:1060px;height:370px"></div><div data-hf-id="hf-vvoi" class="frame"></div></div>
 
-  <div id="brann-feature" class="clip" data-start="25" data-duration="10" data-track-index="0"><img class="still" src="assets/stills/tavern-main.png" /><div class="shade"></div><img class="brann-card" src="assets/stills/brann-feature.png" /><div class="vignette"></div></div>
-  <div id="overlay-4" class="clip" data-start="25" data-duration="10" data-track-index="2"><div class="copy" id="copy-4"><div class="eyebrow">03 · 五本卡</div><h2>铜须：先看清一张关键卡。</h2><div class="sub">五本卡牌，真实属性与效果直接可读。</div></div><div class="frame"></div></div>
+  <video data-hf-id="hf-yezp" id="r05" class="clip scene-fill" src="assets/recordings/r05-opponent-and-combat.mp4" data-start="25" data-duration="9" data-media-start="41" data-track-index="0" muted playsinline></video>
+  <div data-hf-id="hf-6zge" id="overlay-5" class="clip" data-start="25" data-duration="9" data-track-index="2"><div data-hf-id="hf-iymo" class="copy" id="copy-5"><div data-hf-id="hf-incs" class="eyebrow">03 · 对手配置</div><h2 data-hf-id="hf-b0c3">对手阵容也能独立配置。</h2><div data-hf-id="hf-b1c6" class="sub">配置三张真实随从，再打开对手面板核对。</div></div><div data-hf-id="hf-vhdh" class="frame"></div></div>
 
-  <video id="r05" class="clip scene-fill" src="assets/recordings/r05-opponent-and-combat.mp4" data-start="35" data-duration="9" data-media-start="41" data-track-index="0" muted playsinline></video>
-  <div id="overlay-5" class="clip" data-start="35" data-duration="9" data-track-index="2"><div class="copy" id="copy-5"><div class="eyebrow">04 · 对手配置</div><h2>对手阵容也能独立配置。</h2><div class="sub">配置三张真实随从，再打开对手面板核对。</div></div><div class="frame"></div></div>
+  <video data-hf-id="hf-i7bh" id="r07" class="clip scene-fill" src="assets/recordings/r07-replay-controls.mp4" data-start="34" data-duration="10" data-media-start="5" data-track-index="0" muted playsinline></video>
+  <div data-hf-id="hf-atkx" id="overlay-6" class="clip" data-start="34" data-duration="10" data-track-index="2"><div data-hf-id="hf-rmij" class="copy" id="copy-6"><div data-hf-id="hf-m83a" class="eyebrow">04 · 回放检视</div><h2 data-hf-id="hf-pzpp">播放、步进与日志，逐项检视事件。</h2><div data-hf-id="hf-adw7" class="sub">当前素材仅证明回放控制，不冒充完整双方战斗。</div></div><div data-hf-id="hf-nqya" class="focus" id="focus-6" style="left:390px;top:865px;width:1450px;height:145px"></div><div data-hf-id="hf-y9io" class="frame"></div></div>
 
-  <video id="r07" class="clip scene-fill" src="assets/recordings/r07-replay-controls.mp4" data-start="44" data-duration="10" data-media-start="5" data-track-index="0" muted playsinline></video>
-  <div id="overlay-6" class="clip" data-start="44" data-duration="10" data-track-index="2"><div class="copy" id="copy-6"><div class="eyebrow">05 · 回放检视</div><h2>播放、步进与日志，逐项检视事件。</h2><div class="sub">当前素材仅证明回放控制，不冒充完整双方战斗。</div></div><div class="focus" id="focus-6" style="left:390px;top:865px;width:1450px;height:145px"></div><div class="frame"></div></div>
+  <video data-hf-id="hf-vp0l" id="r08" class="clip scene-fill" src="assets/recordings/r08-library-filter.mp4" data-start="44" data-duration="8" data-media-start="9" data-track-index="0" muted playsinline></video>
+  <div data-hf-id="hf-jtri" id="overlay-7" class="clip" data-start="44" data-duration="8" data-track-index="2"><div data-hf-id="hf-noei" class="copy" id="copy-7"><div data-hf-id="hf-uvwl" class="eyebrow">05 · 卡牌库</div><h2 data-hf-id="hf-h9af">等级、种族与类型筛选，快速缩小范围。</h2></div><div data-hf-id="hf-xv7n" class="frame"></div></div>
 
-  <video id="r08" class="clip scene-fill" src="assets/recordings/r08-library-filter.mp4" data-start="54" data-duration="8" data-media-start="9" data-track-index="0" muted playsinline></video>
-  <div id="overlay-7" class="clip" data-start="54" data-duration="8" data-track-index="2"><div class="copy" id="copy-7"><div class="eyebrow">06 · 卡牌库</div><h2>等级、种族与类型筛选，快速缩小范围。</h2></div><div class="frame"></div></div>
+  <div data-hf-id="hf-va3e" id="scene-search" class="clip" data-start="52" data-duration="4" data-track-index="0"><div data-hf-id="hf-opox" class="split" id="search-split"><img data-hf-id="hf-31zm" src="assets/stills/advanced-filter.png"><img data-hf-id="hf-fzr1" class="card-still" src="assets/stills/minion-normal.png"></div><div data-hf-id="hf-wcad" class="copy" id="copy-8"><div data-hf-id="hf-3ry4" class="eyebrow">名称筛选</div><h2 data-hf-id="hf-vcnt">名称筛选，继续定位目标卡牌。</h2></div><div data-hf-id="hf-xgwm" class="frame"></div></div>
 
-  <div id="scene-search" class="clip" data-start="62" data-duration="4" data-track-index="0"><div class="split" id="search-split"><img src="assets/stills/advanced-filter.png" /><img src="assets/stills/brann.png" /></div><div class="copy" id="copy-8"><div class="eyebrow">名称检索</div><h2>真实搜索结果，继续定位目标卡牌。</h2></div><div class="frame"></div></div>
+  <div data-hf-id="hf-omxm" id="scene-final" class="clip" data-start="56" data-duration="4" data-track-index="0"><div data-hf-id="hf-fqsh" class="final" id="final-card"><div data-hf-id="hf-9gvv" class="mark"></div><h1 data-hf-id="hf-4vix">Learn Heartstone 测试版</h1><p data-hf-id="hf-88x2">用可复现的局面，验证你的阵容思路。</p><div data-hf-id="hf-nxla" class="legal">非官方单人酒馆训练 / 模拟工具</div></div></div>
 
-  <div id="scene-final" class="clip" data-start="66" data-duration="4" data-track-index="0"><div class="final" id="final-card"><div class="mark"></div><h1>Learn Heartstone 测试版</h1><p>用可复现的局面，验证你的阵容思路。</p><div class="legal">非官方单人酒馆训练 / 模拟工具</div></div></div>
-
-  <div id="beta-badge" class="clip badge" data-start="0" data-duration="70" data-track-index="8">测试版</div>
+  <div data-hf-id="hf-5umr" id="beta-badge" class="clip badge" data-start="0" data-duration="60" data-track-index="8">测试版</div>
+  <audio data-hf-id="hf-155r" id="voiceover" src="assets/audio/voiceover-final.wav" data-start="0" data-duration="60" data-track-index="10" data-volume="1"></audio>
 </div>
 <script>
   window.__timelines = window.__timelines || {};
   const tl = gsap.timeline({ paused: true });
   const enters = [
-    ["#copy-1", 0.15], ["#copy-2", 5.15], ["#copy-3", 16.15], ["#copy-4", 25.15],
-    ["#copy-5", 35.15], ["#copy-6", 44.15], ["#copy-7", 54.15], ["#copy-8", 62.15]
+    ["#copy-1", 0.15], ["#copy-2", 5.15], ["#copy-3", 16.15],
+    ["#copy-5", 25.15], ["#copy-6", 34.15], ["#copy-7", 44.15], ["#copy-8", 52.15]
   ];
   enters.forEach(([selector, at]) => tl.fromTo(selector, { opacity: 0, x: -54 }, { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" }, at));
   tl.fromTo("#focus-3", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 17.2);
   tl.to("#focus-3", { opacity: 0, duration: 0.45 }, 23.8);
-  tl.fromTo("#focus-6", { opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power2.out" }, 45.2);
-  tl.to("#focus-6", { opacity: 0.25, duration: 0.45 }, 52.8);
+  tl.fromTo("#focus-6", { opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power2.out" }, 35.2);
+  tl.to("#focus-6", { opacity: 0.25, duration: 0.45 }, 42.8);
   tl.fromTo("#s1-tavern", { scale: 1.04 }, { scale: 1, duration: 5, ease: "power1.out" }, 0);
-  tl.fromTo("#search-split", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }, 62);
-  tl.fromTo("#final-card", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, 66);
+  tl.fromTo("#search-split", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }, 52);
+  tl.fromTo("#final-card", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, 56);
   window.__timelines["learn-heartstone-promo"] = tl;
 </script>
 </body>

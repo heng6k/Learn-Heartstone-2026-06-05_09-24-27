@@ -1117,7 +1117,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Apply_BelindaRepeatsFriendlyTargetedSpellsIncludingTavernTargets()
+        public void Apply_BelindaRepeatsFriendlyBoardTargetsButNotTavernTargets()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
             var boardTarget = AddBoardTarget(service);
@@ -1138,7 +1138,43 @@ namespace LearnHearthstone.Tests.EditMode
             var shopAttack = shopTarget.Attack;
             AddSpellToHand(service, "100596");
             service.Apply(new GameCommand(GameCommandType.PlayMinion, 0, shopIndex, TargetZone.TavernShop, -1, TargetZone.Unspecified));
-            Assert.AreEqual(shopAttack + 8, shopTarget.Attack);
+            Assert.AreEqual(shopAttack + 4, shopTarget.Attack);
+        }
+
+        [Test]
+        public void Apply_BelindaAuraRepeatsGeneratedFriendlySpellsAndStopsAfterLeavingBoard()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+            var boardTarget = AddBoardTarget(service);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG35_883", CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, 0));
+
+            var beforeAttack = boardTarget.Attack;
+            var beforeHealth = boardTarget.MaxHealth;
+            AddGeneratedSpellToHand(service, "BLOOD_GEM");
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified));
+
+            Assert.AreEqual(beforeAttack + 2, boardTarget.Attack, "Blood Gems are friendly-targeted spells and must be doubled by the aura.");
+            Assert.AreEqual(beforeHealth + 2, boardTarget.MaxHealth);
+
+            service.State.Player.Board.RemoveAll(card => card.CardId == "BG35_883");
+            AddGeneratedSpellToHand(service, "BLOOD_GEM");
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                0,
+                TargetZone.FriendlyBoard,
+                -1,
+                TargetZone.Unspecified));
+
+            Assert.AreEqual(beforeAttack + 3, boardTarget.Attack, "Removing Belinda must disable the aura immediately.");
+            Assert.AreEqual(beforeHealth + 3, boardTarget.MaxHealth);
         }
 
         [Test]

@@ -3,6 +3,7 @@
   "rootNamespace": "LearnHearthstone.Editor",
   "references": [
     "LearnHearthstone.Runtime",
+    "WxEditor",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

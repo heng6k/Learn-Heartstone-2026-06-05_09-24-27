@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Content;
+using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Models;
@@ -182,9 +183,18 @@ namespace LearnHearthstone.Tests.EditMode
             RunOneAttack(service, 6509);
 
             var lobster = service.State.LastResult.FinalPlayerBoard.Single(card => card.CardId == "BG36_202");
+            var definition = service.Catalogs.Minions.GetByCardId("BG36_202");
             Assert.AreEqual(golden, lobster.Golden);
             Assert.AreEqual(golden ? 2 : 1, lobster.Attack);
             Assert.AreEqual(golden ? 2 : 1, lobster.MaxHealth);
+            Assert.AreEqual(definition.Id, lobster.DefinitionId);
+            Assert.AreEqual(definition.Name, lobster.Name);
+            Assert.AreEqual(definition.ImagePath, lobster.ImagePath);
+            Assert.AreEqual(definition.TavernTier, lobster.TavernTier);
+            Assert.AreEqual(golden ? definition.Golden.Text : definition.Text, lobster.Text);
+            Assert.IsNotNull(CardImageProvider.LoadSprite(lobster));
+            Assert.AreEqual(PoolSource.Summon, lobster.OriginPoolSource);
+            Assert.AreEqual(PoolSource.Summon, lobster.PoolSource);
             Assert.IsTrue(lobster.Keywords.Contains(Keyword.Taunt));
             Assert.IsTrue(lobster.Keywords.Contains(Keyword.Deathrattle));
         }

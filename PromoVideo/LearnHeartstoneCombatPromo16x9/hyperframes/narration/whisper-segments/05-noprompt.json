@@ -1,0 +1,311 @@
+{
+	"systeminfo": "WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | OPENMP = 1 | REPACK = 1 | ",
+	"model": {
+		"type": "small",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"text": {
+			"ctx": 448,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": "C:\\Users\\wch\\.cache\\hyperframes\\whisper\\models\\ggml-small.bin",
+		"language": "zh",
+		"translate": false
+	},
+	"result": {
+		"language": "zh"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:03,800"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 3800
+			},
+			"text": "進入回放 用播放不禁和日治檢視事件",
+			"tokens": [
+				{
+					"text": "[_BEG_]",
+					"timestamps": {
+						"from": "00:00:00,000",
+						"to": "00:00:00,000"
+					},
+					"offsets": {
+						"from": 0,
+						"to": 0
+					},
+					"id": 50364,
+					"p": 0.995545,
+					"t_dtw": -1
+				},
+				{
+					"text": "進",
+					"timestamps": {
+						"from": "00:00:00,070",
+						"to": "00:00:00,250"
+					},
+					"offsets": {
+						"from": 70,
+						"to": 250
+					},
+					"id": 18214,
+					"p": 0.946234,
+					"t_dtw": 18
+				},
+				{
+					"text": "入",
+					"timestamps": {
+						"from": "00:00:00,250",
+						"to": "00:00:00,500"
+					},
+					"offsets": {
+						"from": 250,
+						"to": 500
+					},
+					"id": 14028,
+					"p": 0.998887,
+					"t_dtw": 36
+				},
+				{
+					"text": "回",
+					"timestamps": {
+						"from": "00:00:00,500",
+						"to": "00:00:00,750"
+					},
+					"offsets": {
+						"from": 500,
+						"to": 750
+					},
+					"id": 8350,
+					"p": 0.782599,
+					"t_dtw": 56
+				},
+				{
+					"text": "放",
+					"timestamps": {
+						"from": "00:00:00,750",
+						"to": "00:00:00,810"
+					},
+					"offsets": {
+						"from": 750,
+						"to": 810
+					},
+					"id": 12744,
+					"p": 0.994735,
+					"t_dtw": 78
+				},
+				{
+					"text": " ",
+					"timestamps": {
+						"from": "00:00:00,990",
+						"to": "00:00:01,020"
+					},
+					"offsets": {
+						"from": 990,
+						"to": 1020
+					},
+					"id": 220,
+					"p": 0.420981,
+					"t_dtw": 110
+				},
+				{
+					"text": "用",
+					"timestamps": {
+						"from": "00:00:01,140",
+						"to": "00:00:01,250"
+					},
+					"offsets": {
+						"from": 1140,
+						"to": 1250
+					},
+					"id": 9254,
+					"p": 0.997967,
+					"t_dtw": 128
+				},
+				{
+					"text": "播",
+					"timestamps": {
+						"from": "00:00:01,250",
+						"to": "00:00:01,480"
+					},
+					"offsets": {
+						"from": 1250,
+						"to": 1480
+					},
+					"id": 49993,
+					"p": 0.968692,
+					"t_dtw": 152
+				},
+				{
+					"text": "放",
+					"timestamps": {
+						"from": "00:00:01,480",
+						"to": "00:00:01,710"
+					},
+					"offsets": {
+						"from": 1480,
+						"to": 1710
+					},
+					"id": 12744,
+					"p": 0.999874,
+					"t_dtw": 180
+				},
+				{
+					"text": "不",
+					"timestamps": {
+						"from": "00:00:01,710",
+						"to": "00:00:01,790"
+					},
+					"offsets": {
+						"from": 1710,
+						"to": 1790
+					},
+					"id": 1960,
+					"p": 0.825554,
+					"t_dtw": 208
+				},
+				{
+					"text": "禁",
+					"timestamps": {
+						"from": "00:00:01,970",
+						"to": "00:00:02,090"
+					},
+					"offsets": {
+						"from": 1970,
+						"to": 2090
+					},
+					"id": 18614,
+					"p": 0.481703,
+					"t_dtw": 226
+				},
+				{
+					"text": "和",
+					"timestamps": {
+						"from": "00:00:02,160",
+						"to": "00:00:02,300"
+					},
+					"offsets": {
+						"from": 2160,
+						"to": 2300
+					},
+					"id": 12565,
+					"p": 0.484526,
+					"t_dtw": 248
+				},
+				{
+					"text": "日",
+					"timestamps": {
+						"from": "00:00:02,400",
+						"to": "00:00:02,620"
+					},
+					"offsets": {
+						"from": 2400,
+						"to": 2620
+					},
+					"id": 6890,
+					"p": 0.992956,
+					"t_dtw": 268
+				},
+				{
+					"text": "治",
+					"timestamps": {
+						"from": "00:00:02,620",
+						"to": "00:00:02,850"
+					},
+					"offsets": {
+						"from": 2620,
+						"to": 2850
+					},
+					"id": 30118,
+					"p": 0.518749,
+					"t_dtw": 284
+				},
+				{
+					"text": "檢",
+					"timestamps": {
+						"from": "00:00:02,850",
+						"to": "00:00:03,060"
+					},
+					"offsets": {
+						"from": 2850,
+						"to": 3060
+					},
+					"id": 40741,
+					"p": 0.897793,
+					"t_dtw": 302
+				},
+				{
+					"text": "視",
+					"timestamps": {
+						"from": "00:00:03,070",
+						"to": "00:00:03,300"
+					},
+					"offsets": {
+						"from": 3070,
+						"to": 3300
+					},
+					"id": 27333,
+					"p": 0.986461,
+					"t_dtw": 322
+				},
+				{
+					"text": "事",
+					"timestamps": {
+						"from": "00:00:03,300",
+						"to": "00:00:03,530"
+					},
+					"offsets": {
+						"from": 3300,
+						"to": 3530
+					},
+					"id": 6973,
+					"p": 0.983607,
+					"t_dtw": 342
+				},
+				{
+					"text": "件",
+					"timestamps": {
+						"from": "00:00:03,530",
+						"to": "00:00:03,640"
+					},
+					"offsets": {
+						"from": 3530,
+						"to": 3640
+					},
+					"id": 20485,
+					"p": 0.999931,
+					"t_dtw": 362
+				},
+				{
+					"text": "[_TT_190]",
+					"timestamps": {
+						"from": "00:00:03,800",
+						"to": "00:00:03,800"
+					},
+					"offsets": {
+						"from": 3800,
+						"to": 3800
+					},
+					"id": 50554,
+					"p": 0.0436185,
+					"t_dtw": -1
+				}
+			]
+		}
+	]
+}

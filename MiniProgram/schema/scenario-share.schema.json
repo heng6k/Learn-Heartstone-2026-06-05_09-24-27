@@ -1,0 +1,484 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learn-hearthstone.example/schema/scenario-share-v1.json",
+  "title": "Learn Heartstone scenario share contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sceneId",
+    "revisionId",
+    "shareCode",
+    "status",
+    "contentHash",
+    "summary",
+    "compatibility",
+    "content",
+    "handoff"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "sceneId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revisionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "shareCode": {
+      "type": "string",
+      "pattern": "^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{20}$"
+    },
+    "status": {
+      "enum": ["Published"]
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/compatibility"
+    },
+    "content": {
+      "$ref": "#/$defs/content"
+    },
+    "handoff": {
+      "$ref": "#/$defs/handoff"
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stableId", "kind", "name", "imagePath", "golden", "badge"],
+      "properties": {
+        "stableId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "imagePath": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "golden": {
+          "type": "boolean"
+        },
+        "badge": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "summary",
+        "archetype",
+        "difficulty",
+        "difficultyTitle",
+        "gameVersionId",
+        "gameVersionName",
+        "hero",
+        "activeTribes",
+        "finalComposition"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "archetype": {
+          "type": "string",
+          "minLength": 1
+        },
+        "difficulty": {
+          "enum": ["Showcase", "GuidedDiscover", "OpenBuild"]
+        },
+        "difficultyTitle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gameVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gameVersionName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hero": {
+          "$ref": "#/$defs/asset"
+        },
+        "activeTribes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "finalComposition": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "level", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "enum": ["Warning", "Error"]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenarioSchemaVersion",
+        "mechanicStateSchemaVersion",
+        "gameVersionId",
+        "rulesetId",
+        "rulesetRevision",
+        "contentSnapshotId",
+        "contentFingerprint",
+        "status",
+        "diagnostics"
+      ],
+      "properties": {
+        "scenarioSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mechanicStateSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "gameVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rulesetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rulesetRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "contentSnapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentFingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": ["Compatible", "CompatibleWithWarnings", "Rejected"]
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          }
+        }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requireFinalComposition", "requireCombatWin", "postWinChoices"],
+      "properties": {
+        "requireFinalComposition": {
+          "type": "boolean"
+        },
+        "requireCombatWin": {
+          "type": "boolean"
+        },
+        "postWinChoices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order",
+        "actionId",
+        "kind",
+        "count",
+        "instruction",
+        "sourcePlacementId",
+        "sourcePlacementIds",
+        "targetPlacementId",
+        "choiceId"
+      ],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "instruction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourcePlacementId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourcePlacementIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "targetPlacementId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "choiceId": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "discoveryRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scheduleId",
+        "source",
+        "policy",
+        "label",
+        "cardKind",
+        "tavernTier",
+        "optionCount",
+        "targetCardIds",
+        "requiredTribe",
+        "minimumRequiredTribeMinions"
+      ],
+      "properties": {
+        "scheduleId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "source": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "policy": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "label": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "cardKind": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "tavernTier": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "optionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "targetCardIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredTribe": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "minimumRequiredTribeMinions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "undo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usesPerRun", "restoreRng", "lockAfterTurnEnd", "lockAfterCombat", "lockDuringFreeExplore"],
+      "properties": {
+        "usesPerRun": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "restoreRng": {
+          "type": "boolean"
+        },
+        "lockAfterTurnEnd": {
+          "type": "boolean"
+        },
+        "lockAfterCombat": {
+          "type": "boolean"
+        },
+        "lockDuringFreeExplore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "mechanicStateSchemaVersion",
+        "name",
+        "seed",
+        "gameVersionId",
+        "rulesetId",
+        "rulesetRevision",
+        "contentSnapshotId",
+        "contentFingerprint"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mechanicStateSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "gameVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rulesetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rulesetRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "contentSnapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentFingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowedActions", "objectives", "steps", "hints", "discoveryRules", "undo", "state"],
+      "properties": {
+        "allowedActions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "objectives": {
+          "$ref": "#/$defs/objectives"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "discoveryRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/discoveryRule"
+          }
+        },
+        "undo": {
+          "$ref": "#/$defs/undo"
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["webPlayUrl", "shareUrl", "windowsDownloadUrl"],
+      "properties": {
+        "webPlayUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "shareUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "windowsDownloadUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

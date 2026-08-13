@@ -45,6 +45,46 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void BuyMinion_AlwaysAppendsToFarRightEvenWhenCommandRequestsAnInsertIndex()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, BloodGemCardId, CardKind.Spell));
+            var existing = tavern.Hand.Single();
+            var shopIndex = tavern.Shop.FindIndex(card => card != null);
+            var bought = tavern.Shop[shopIndex];
+            tavern.Gold = 100;
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, shopIndex, 0));
+
+            Assert.AreSame(existing, tavern.Hand[0]);
+            Assert.AreSame(bought, tavern.Hand.Last());
+        }
+
+        [Test]
+        public void TripleResult_ReentersHandAtFarRightAfterAllMaterialsAreRemoved()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(12345);
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, BloodGemCardId, CardKind.Spell));
+            var existing = tavern.Hand.Single();
+            var shopIndex = tavern.Shop.FindIndex(card => card != null && card.CardKind == CardKind.Minion);
+            var materialCardId = tavern.Shop[shopIndex].CardId;
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, materialCardId, CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, materialCardId, CardKind.Minion));
+            tavern.Gold = 100;
+
+            service.Apply(new GameCommand(GameCommandType.BuyMinion, shopIndex, 0));
+
+            Assert.AreEqual(2, tavern.Hand.Count);
+            Assert.AreSame(existing, tavern.Hand[0]);
+            Assert.IsTrue(tavern.Hand.Last().Golden);
+            Assert.AreEqual(materialCardId, tavern.Hand.Last().CardId);
+        }
+
+        [Test]
         public void NextTurn_ClampsNormalMaxGoldToNinetyNineThenAddsBonusGoldAsOverflow()
         {
             var service = MatchService.CreateWithDefaultCatalog(12345);

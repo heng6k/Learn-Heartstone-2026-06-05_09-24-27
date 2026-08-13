@@ -1,0 +1,210 @@
+<view class="safe-page detail-page">
+  <view wx:if="{{loading}}" class="surface empty-state muted">正在铺开战术板…</view>
+  <view wx:elif="{{error}}" class="surface error-state">{{error}}</view>
+
+  <block wx:else>
+    <view class="guide-header">
+      <image wx:if="{{guide.hero.artType === 'image'}}" class="hero-portrait" src="{{guide.hero.image}}" mode="aspectFit" />
+      <view class="header-copy">
+        <text class="eyebrow">{{guide.primaryTribe}} · {{guide.gameVersionId}}</text>
+        <text class="detail-title warm">{{guide.title}}</text>
+        <text class="detail-summary muted">{{guide.summary}}</text>
+      </view>
+      <button class="favorite-button {{isFavorite ? 'favorite-button-active' : ''}}" hover-class="button-pressed" bindtap="toggleFavorite">{{isFavorite ? '★' : '☆'}}</button>
+    </view>
+
+    <view class="profile-tabs" aria-label="难度档位">
+      <button
+        wx:for="{{guide.profiles}}"
+        wx:key="profileId"
+        class="profile-tab {{item.selected ? 'profile-tab-active' : ''}}"
+        data-profile-id="{{item.profileId}}"
+        hover-class="button-pressed"
+        bindtap="selectProfile"
+      >
+        <text class="profile-tab-title">{{item.title}}</text>
+        <text class="profile-tab-sub">{{item.difficulty === 'OpenBuild' ? '开放构筑' : item.difficulty === 'GuidedDiscover' ? '受控发现' : '认识路线'}}</text>
+      </button>
+    </view>
+
+    <view class="surface mission-card">
+      <view class="mission-stats">
+        <view class="mission-stat"><text class="mission-value">{{profile.startRound}}</text><text class="mission-label">回合</text></view>
+        <view class="mission-stat"><text class="mission-value">{{profile.tavernTier}}</text><text class="mission-label">酒馆</text></view>
+        <view class="mission-stat"><text class="mission-value">{{profile.gold}}/{{profile.maxGold}}</text><text class="mission-label">金币</text></view>
+        <view class="mission-stat"><text class="mission-value">{{completedCount}}/{{totalSteps}}</text><text class="mission-label">进度</text></view>
+      </view>
+      <text class="mission-goal">{{profile.learningGoal}}</text>
+      <view class="progress-track"><view class="progress-fill" style="width: {{progressPercent}}%;"></view></view>
+      <view class="current-action">
+        <text class="current-marker">当前</text>
+        <text class="current-copy">{{currentInstruction}}</text>
+      </view>
+    </view>
+
+    <view class="surface board-card">
+      <view class="section-heading-row">
+        <text class="section-title warm">起手战术板</text>
+        <text class="section-meta">只显示有牌的位置</text>
+      </view>
+
+      <view wx:if="{{profile.startingShop.length}}" class="zone-block">
+        <view class="zone-title-row"><text class="zone-title">酒馆</text><text class="zone-count">{{profile.startingShop.length}} 张</text></view>
+        <scroll-view class="card-rail" scroll-x enable-flex show-scrollbar="false">
+          <view class="card-rail-inner">
+            <view wx:for="{{profile.startingShop}}" wx:key="placementId" wx:for-item="card" class="mini-card {{card.golden ? 'mini-card-golden' : ''}}">
+              <image wx:if="{{card.artType === 'image'}}" class="mini-card-art" src="{{card.image}}" mode="aspectFit" />
+              <view wx:elif="{{card.artType === 'tutorial'}}" class="tutorial-card-art">{{card.tutorialGlyph}}</view>
+              <view wx:else class="missing-card-art">无图</view>
+              <text class="mini-card-name">{{card.name}}</text>
+              <text wx:if="{{card.badge}}" class="mini-card-badge">{{card.badge}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{profile.startingBoard.length}}" class="zone-block board-zone">
+        <view class="zone-title-row"><text class="zone-title">战场</text><text class="zone-count">{{profile.startingBoard.length}} 张</text></view>
+        <scroll-view class="card-rail" scroll-x enable-flex show-scrollbar="false">
+          <view class="card-rail-inner">
+            <view wx:for="{{profile.startingBoard}}" wx:key="placementId" wx:for-item="card" class="mini-card {{card.golden ? 'mini-card-golden' : ''}}">
+              <image wx:if="{{card.artType === 'image'}}" class="mini-card-art" src="{{card.image}}" mode="aspectFit" />
+              <view wx:elif="{{card.artType === 'tutorial'}}" class="tutorial-card-art">{{card.tutorialGlyph}}</view>
+              <view wx:else class="missing-card-art">无图</view>
+              <text class="mini-card-name">{{card.name}}</text>
+              <text wx:if="{{card.badge}}" class="mini-card-badge">{{card.badge}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{profile.startingHand.length}}" class="zone-block hand-zone">
+        <view class="zone-title-row"><text class="zone-title">手牌</text><text class="zone-count">{{profile.startingHand.length}} 张</text></view>
+        <scroll-view class="card-rail" scroll-x enable-flex show-scrollbar="false">
+          <view class="card-rail-inner">
+            <view wx:for="{{profile.startingHand}}" wx:key="placementId" wx:for-item="card" class="mini-card {{card.golden ? 'mini-card-golden' : ''}}">
+              <image wx:if="{{card.artType === 'image'}}" class="mini-card-art" src="{{card.image}}" mode="aspectFit" />
+              <view wx:elif="{{card.artType === 'tutorial'}}" class="tutorial-card-art">{{card.tutorialGlyph}}</view>
+              <view wx:else class="missing-card-art">无图</view>
+              <text class="mini-card-name">{{card.name}}</text>
+              <text wx:if="{{card.badge}}" class="mini-card-badge">{{card.badge}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view class="surface route-card">
+      <view class="section-heading-row">
+        <text class="section-title warm">核心路线</text>
+        <text class="section-meta">成型目标</text>
+      </view>
+      <scroll-view class="card-rail" scroll-x enable-flex show-scrollbar="false">
+        <view class="card-rail-inner">
+          <view wx:for="{{guide.coreCards}}" wx:key="stableId" wx:for-item="card" class="mini-card {{card.golden ? 'mini-card-golden' : ''}}">
+            <image wx:if="{{card.artType === 'image'}}" class="mini-card-art" src="{{card.image}}" mode="aspectFit" />
+            <view wx:elif="{{card.artType === 'tutorial'}}" class="tutorial-card-art">{{card.tutorialGlyph}}</view>
+            <view wx:else class="missing-card-art">无图</view>
+            <text class="mini-card-name">{{card.name}}</text>
+            <text wx:if="{{card.badge}}" class="mini-card-badge">{{card.badge}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="decision-list">
+        <view wx:for="{{profile.keyDecisions}}" wx:key="*this" class="decision-row">
+          <text class="decision-mark">◆</text>
+          <text class="decision-copy">{{item}}</text>
+        </view>
+      </view>
+
+      <view class="trinket-strip">
+        <view class="trinket-group">
+          <text class="trinket-label">推荐小饰品</text>
+          <view class="trinket-items">
+            <view wx:for="{{guide.recommendedLesserTrinkets}}" wx:key="stableId" wx:for-item="card" class="trinket-item">
+              <image wx:if="{{card.artType === 'image'}}" class="trinket-art" src="{{card.image}}" mode="aspectFit" />
+              <text>{{card.name}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="trinket-group">
+          <text class="trinket-label">推荐大饰品</text>
+          <view class="trinket-items">
+            <view wx:for="{{guide.recommendedGreaterTrinkets}}" wx:key="stableId" wx:for-item="card" class="trinket-item">
+              <image wx:if="{{card.artType === 'image'}}" class="trinket-art" src="{{card.image}}" mode="aspectFit" />
+              <text>{{card.name}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="surface shaping-card">
+      <view class="section-heading-row">
+        <text class="section-title warm">塑造法术</text>
+        <text class="section-meta">首回合 3 张，之后每回合 1 张</text>
+      </view>
+      <view class="shaping-row">
+        <view wx:for="{{profile.shapingSpells}}" wx:key="stableId" wx:for-item="card" class="shaping-spell">
+          <view class="shaping-glyph">{{card.tutorialGlyph}}</view>
+          <text class="shaping-name">{{card.name}}</text>
+          <text class="shaping-note">教学专用</text>
+        </view>
+      </view>
+      <text class="shaping-rule muted">回合结束清除未使用的塑造法术；它们不进入正常酒馆法术池。</text>
+    </view>
+
+    <view class="surface operation-card">
+      <view class="section-heading-row">
+        <text class="section-title warm">操作顺序</text>
+        <text class="section-meta">点击可完成 / 撤销</text>
+      </view>
+
+      <scroll-view class="step-rail" scroll-x enable-flex show-scrollbar="false">
+        <view class="step-rail-inner">
+          <view wx:for="{{profile.steps}}" wx:key="actionId" wx:for-item="step" class="rail-node {{step.done ? 'rail-node-done' : ''}} {{step.current ? 'rail-node-current' : ''}}">
+            <text>{{step.done ? '✓' : step.order}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="step-list">
+        <button
+          wx:for="{{profile.steps}}"
+          wx:key="actionId"
+          wx:for-item="step"
+          class="step-row {{step.done ? 'step-row-done' : ''}} {{step.current ? 'step-row-current' : ''}}"
+          data-action-id="{{step.actionId}}"
+          hover-class="button-pressed"
+          bindtap="toggleStep"
+        >
+          <view class="step-check">{{step.done ? '✓' : step.order}}</view>
+          <view class="step-copy">
+            <view class="step-label-row">
+              <text class="step-kind">{{step.actionLabel}}</text>
+              <text wx:if="{{step.count > 1}}" class="step-count">×{{step.count}}</text>
+            </view>
+            <text class="step-title">{{step.instruction}}</text>
+          </view>
+        </button>
+      </view>
+      <text class="completion-condition">完成条件：{{profile.completionCondition}}</text>
+      <text class="training-disclaimer muted">步骤勾选只保存在本机；小程序不重复运行 Unity 战斗结算。</text>
+    </view>
+
+    <view class="utility-row">
+      <button class="quiet-button utility-button" hover-class="button-pressed" bindtap="copyIdentity">复制编号</button>
+      <button class="quiet-button utility-button" open-type="share" hover-class="button-pressed">分享</button>
+      <button class="quiet-button utility-button" hover-class="button-pressed" bindtap="resetProgress">重置本档</button>
+    </view>
+
+    <view class="sticky-action safe-sticky">
+      <view class="sticky-copy">
+        <text class="sticky-label">{{completedCount}} / {{totalSteps}} 步</text>
+        <text class="sticky-current">{{currentInstruction}}</text>
+      </view>
+      <button class="primary-button complete-button" hover-class="button-pressed" bindtap="completeCurrentStep">{{completedCount === totalSteps ? '已完成' : '完成本步'}}</button>
+    </view>
+  </block>
+</view>

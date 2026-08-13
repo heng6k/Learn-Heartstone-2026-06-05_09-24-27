@@ -4,7 +4,7 @@
   "Guides": [
     {
       "GuideId": "GUIDE-S14-BEAST-LOBSTER-RALLY",
-      "RevisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@7b95ddb536f5765d",
+      "RevisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@c9a08a6757934313",
       "GameVersionId": "36.2-preview",
       "Title": "龙虾进击亡语",
       "EnglishTitle": "Lobster Rally Deathrattles",
@@ -42,7 +42,7 @@
         "MaxGold": 10,
         "Seed": 3620101,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "Placements": [
           {"PlacementId":"beast-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
           {"PlacementId":"beast-hyena","Zone":"Board","CardKind":"Minion","CardId":"BG36_210","Golden":true,"Provenance":"NormalPool"},
@@ -82,7 +82,7 @@
         "MaxGold": 10,
         "Seed": 3621101,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "Placements": [
           {"PlacementId":"beast-guided-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
           {"PlacementId":"beast-guided-cage","Zone":"Board","CardKind":"Minion","CardId":"BG36_211","Golden":false,"Provenance":"NormalPool"},
@@ -140,7 +140,7 @@
         "Seed": 3622101,
         "InitialTripleRewardCount": 2,
         "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "UnequippedTrinketSlots": ["Greater"],
         "Placements": [
           {"PlacementId":"beast-lobster","Zone":"Board","CardKind":"Minion","CardId":"BG36_202","Golden":false,"Provenance":"NormalPool"},
@@ -197,7 +197,7 @@
     },
     {
       "GuideId": "GUIDE-S14-MECH-SPELL-SATELLITE",
-      "RevisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@8ec65b2762878f4b",
+      "RevisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@c00c3afb80067516",
       "GameVersionId": "36.2-preview",
       "Title": "法术磁力卫星",
       "EnglishTitle": "Spell-Magnetic Satellites",
@@ -235,7 +235,7 @@
         "MaxGold": 10,
         "Seed": 3620102,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_END_OF_TURN"],
         "Placements": [
           {"PlacementId":"mech-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
           {"PlacementId":"mech-gearfin","Zone":"Board","CardKind":"Minion","CardId":"BG36_764","Golden":true,"Provenance":"NormalPool"},
@@ -277,7 +277,7 @@
         "MaxGold": 10,
         "Seed": 3621102,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_END_OF_TURN"],
         "Placements": [
           {"PlacementId":"mech-guided-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
           {"PlacementId":"mech-guided-gearfin","Zone":"Board","CardKind":"Minion","CardId":"BG36_764","Golden":true,"Provenance":"NormalPool"},
@@ -335,7 +335,7 @@
         "Seed": 3622102,
         "InitialTripleRewardCount": 2,
         "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_END_OF_TURN"],
         "UnequippedTrinketSlots": ["Greater"],
         "Placements": [
           {"PlacementId":"mech-spark","Zone":"Board","CardKind":"Minion","CardId":"BG36_851","Golden":true,"Provenance":"NormalPool"},
@@ -396,7 +396,7 @@
     },
     {
       "GuideId": "GUIDE-S14-DEMON-TAVERN-CONSUME",
-      "RevisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@7b30b26b78fb172f",
+      "RevisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@fe2ea710e0f8233b",
       "GameVersionId": "36.2-preview",
       "Title": "酒馆成长吞噬",
       "EnglishTitle": "Tavern-Growth Devour",
@@ -434,7 +434,7 @@
         "MaxGold": 10,
         "Seed": 3620103,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "Placements": [
           {"PlacementId":"demon-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},
           {"PlacementId":"demon-distractor-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
@@ -477,7 +477,7 @@
         "MaxGold": 10,
         "Seed": 3621103,
         "AllowedCommands": ["BuyMinion","SellMinion","PlayMinion","MoveMinion","MoveBoardMinion","RerollShop","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "Placements": [
           {"PlacementId":"demon-guided-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},
           {"PlacementId":"demon-guided-distractor-a","Zone":"Board","CardKind":"Minion","CardId":"BG36_762","Golden":true,"Provenance":"NormalPool"},
@@ -535,7 +535,7 @@
         "Seed": 3622103,
         "InitialTripleRewardCount": 2,
         "AllowedCommands": ["BuyMinion","SellMinion","RerollShop","FreezeShop","UpgradeTavern","PlayMinion","MoveMinion","MoveBoardMinion","UseHeroPower","UseRecruitAction","ChooseDiscover","ChooseMechanicOption","UseGuideShapingSpell","BeginNextTurnTransition","ContinueNextTurnTransition"],
-          "ShapingSpellCardIds": ["GUIDE_SHAPING_BATTLECRY","GUIDE_SHAPING_DEATHRATTLE","GUIDE_SHAPING_END_OF_TURN"],
+          "ShapingSpellCardIds": ["GUIDE_SHAPING_DEATHRATTLE"],
         "UnequippedTrinketSlots": ["Greater"],
         "Placements": [
           {"PlacementId":"demon-jailer","Zone":"Board","CardKind":"Minion","CardId":"BG36_503","Golden":true,"Provenance":"NormalPool"},

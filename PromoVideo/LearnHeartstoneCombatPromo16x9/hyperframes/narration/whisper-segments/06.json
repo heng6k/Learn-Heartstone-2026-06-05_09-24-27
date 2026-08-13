@@ -1,0 +1,283 @@
+{
+	"systeminfo": "WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | OPENMP = 1 | REPACK = 1 | ",
+	"model": {
+		"type": "small",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"text": {
+			"ctx": 448,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": "C:\\Users\\wch\\.cache\\hyperframes\\whisper\\models\\ggml-small.bin",
+		"language": "zh",
+		"translate": false
+	},
+	"result": {
+		"language": "zh"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:03,400"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 3400
+			},
+			"text": "卡牌库支持等級種族类型和名称山选",
+			"tokens": [
+				{
+					"text": "[_BEG_]",
+					"timestamps": {
+						"from": "00:00:00,000",
+						"to": "00:00:00,000"
+					},
+					"offsets": {
+						"from": 0,
+						"to": 0
+					},
+					"id": 50364,
+					"p": 0.998649,
+					"t_dtw": -1
+				},
+				{
+					"text": "卡",
+					"timestamps": {
+						"from": "00:00:00,080",
+						"to": "00:00:00,170"
+					},
+					"offsets": {
+						"from": 80,
+						"to": 170
+					},
+					"id": 32681,
+					"p": 0.906297,
+					"t_dtw": 22
+				},
+				{
+					"text": "牌",
+					"timestamps": {
+						"from": "00:00:00,240",
+						"to": "00:00:00,440"
+					},
+					"offsets": {
+						"from": 240,
+						"to": 440
+					},
+					"id": 6935,
+					"p": 0.985844,
+					"t_dtw": 34
+				},
+				{
+					"text": "库",
+					"timestamps": {
+						"from": "00:00:00,470",
+						"to": "00:00:00,600"
+					},
+					"offsets": {
+						"from": 470,
+						"to": 600
+					},
+					"id": 6346,
+					"p": 0.951791,
+					"t_dtw": 46
+				},
+				{
+					"text": "支持",
+					"timestamps": {
+						"from": "00:00:00,700",
+						"to": "00:00:01,110"
+					},
+					"offsets": {
+						"from": 700,
+						"to": 1110
+					},
+					"id": 35488,
+					"p": 0.714427,
+					"t_dtw": 90
+				},
+				{
+					"text": "等",
+					"timestamps": {
+						"from": "00:00:01,110",
+						"to": "00:00:01,250"
+					},
+					"offsets": {
+						"from": 1110,
+						"to": 1250
+					},
+					"id": 10187,
+					"p": 0.987887,
+					"t_dtw": 118
+				},
+				{
+					"text": "級",
+					"timestamps": {
+						"from": "00:00:01,330",
+						"to": "00:00:01,600"
+					},
+					"offsets": {
+						"from": 1330,
+						"to": 1600
+					},
+					"id": 35315,
+					"p": 0.986199,
+					"t_dtw": 144
+				},
+				{
+					"text": "種",
+					"timestamps": {
+						"from": "00:00:01,600",
+						"to": "00:00:01,760"
+					},
+					"offsets": {
+						"from": 1600,
+						"to": 1760
+					},
+					"id": 16516,
+					"p": 0.538875,
+					"t_dtw": 170
+				},
+				{
+					"text": "族",
+					"timestamps": {
+						"from": "00:00:01,820",
+						"to": "00:00:01,960"
+					},
+					"offsets": {
+						"from": 1820,
+						"to": 1960
+					},
+					"id": 4479,
+					"p": 0.999645,
+					"t_dtw": 190
+				},
+				{
+					"text": "类",
+					"timestamps": {
+						"from": "00:00:01,960",
+						"to": "00:00:02,100"
+					},
+					"offsets": {
+						"from": 1960,
+						"to": 2100
+					},
+					"id": 22113,
+					"p": 0.694782,
+					"t_dtw": 206
+				},
+				{
+					"text": "型",
+					"timestamps": {
+						"from": "00:00:02,200",
+						"to": "00:00:02,320"
+					},
+					"offsets": {
+						"from": 2200,
+						"to": 2320
+					},
+					"id": 39823,
+					"p": 0.985421,
+					"t_dtw": 230
+				},
+				{
+					"text": "和",
+					"timestamps": {
+						"from": "00:00:02,320",
+						"to": "00:00:02,530"
+					},
+					"offsets": {
+						"from": 2320,
+						"to": 2530
+					},
+					"id": 12565,
+					"p": 0.847203,
+					"t_dtw": 248
+				},
+				{
+					"text": "名",
+					"timestamps": {
+						"from": "00:00:02,530",
+						"to": "00:00:02,690"
+					},
+					"offsets": {
+						"from": 2530,
+						"to": 2690
+					},
+					"id": 15940,
+					"p": 0.993348,
+					"t_dtw": 262
+				},
+				{
+					"text": "称",
+					"timestamps": {
+						"from": "00:00:02,740",
+						"to": "00:00:02,950"
+					},
+					"offsets": {
+						"from": 2740,
+						"to": 2950
+					},
+					"id": 8204,
+					"p": 0.301288,
+					"t_dtw": 282
+				},
+				{
+					"text": "山",
+					"timestamps": {
+						"from": "00:00:02,950",
+						"to": "00:00:03,160"
+					},
+					"offsets": {
+						"from": 2950,
+						"to": 3160
+					},
+					"id": 24113,
+					"p": 0.576108,
+					"t_dtw": 306
+				},
+				{
+					"text": "选",
+					"timestamps": {
+						"from": "00:00:03,160",
+						"to": "00:00:03,310"
+					},
+					"offsets": {
+						"from": 3160,
+						"to": 3310
+					},
+					"id": 2215,
+					"p": 0.65518,
+					"t_dtw": 322
+				},
+				{
+					"text": "[_TT_170]",
+					"timestamps": {
+						"from": "00:00:03,400",
+						"to": "00:00:03,400"
+					},
+					"offsets": {
+						"from": 3400,
+						"to": 3400
+					},
+					"id": 50534,
+					"p": 0.0657883,
+					"t_dtw": -1
+				}
+			]
+		}
+	]
+}

@@ -290,6 +290,24 @@ namespace LearnHearthstone.Tests.Catalogs
             Assert.AreEqual(TrinketOfferPoolStatus.Offerable, removed.OfferPoolStatus);
         }
 
+        [Test]
+        public void CardPoolAvailabilityRejectsDuosMinionsAndTavernSpells()
+        {
+            var availability = new CardPoolAvailability(null);
+
+            Assert.IsFalse(availability.AllowsMinion(new MinionDefinition
+            {
+                CardId = "BGDUO_TEST_MINION",
+                InPool = true
+            }));
+            Assert.IsFalse(availability.AllowsTavernSpell(new TavernSpellDefinition
+            {
+                CardNumber = "BGDUO_TEST_SPELL",
+                Category = "TavernSpell",
+                InPool = true
+            }));
+        }
+
         private static GameCatalogSet ReplaceMinions(GameCatalogSet source, MinionDefinition minion)
         {
             return new GameCatalogSet(

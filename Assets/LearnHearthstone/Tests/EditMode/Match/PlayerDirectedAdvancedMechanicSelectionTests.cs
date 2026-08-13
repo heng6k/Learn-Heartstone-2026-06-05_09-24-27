@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
 using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -15,6 +16,25 @@ namespace LearnHearthstone.Tests.EditMode
 {
     public sealed class PlayerDirectedAdvancedMechanicSelectionTests
     {
+        [Test]
+        public void ChineseLocalizedMetadata_DoesNotExposeInternalEnglishEnums()
+        {
+            Assert.AreEqual("小饰品", BattlegroundsLocalizedText.TrinketSlot(TrinketSlotKind.Lesser, false));
+            Assert.AreEqual("全局抉择", BattlegroundsLocalizedText.AnomalyFamily(AnomalyEffectFamily.SharedLobbyChoice, false));
+            Assert.AreEqual("战斗中攻击后", BattlegroundsLocalizedText.QuestTrigger(QuestRewardTrigger.CombatAfterAttack, false));
+            Assert.AreEqual("回合结束时", BattlegroundsLocalizedText.FilterTag("timing:TurnEnd", false));
+
+            var service = MatchService.CreateWithDefaultCatalog(
+                12345,
+                new InMemoryTestScenarioRepository(),
+                new MatchSetupOptions { UseEnglish = false });
+            var option = service.GetPlayerSelectableTrinkets(TrinketSlotKind.Lesser).First();
+            Assert.AreEqual("小饰品", option.Type);
+            StringAssert.DoesNotContain("Implemented", option.Status);
+            StringAssert.DoesNotContain("Offerable", option.Status);
+            StringAssert.DoesNotContain("Lesser", option.Type);
+        }
+
         [Test]
         public void PlayerDirectedQuestChoice_SelectsQuestAndRewardPair()
         {
@@ -146,6 +166,10 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterCostFree"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterTagAll"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceSelectButton"));
+                Assert.AreEqual("自由选择任务与奖励", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceTitle").GetComponent<Text>().text);
+                Assert.AreEqual("可选", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceFilterStatusSelectable").GetComponentInChildren<Text>(true).text);
+                StringAssert.DoesNotContain("Implemented", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceMeta").GetComponent<Text>().text);
+                StringAssert.DoesNotContain("Offerable", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceMeta").GetComponent<Text>().text);
                 Assert.AreEqual("关闭", FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponentInChildren<Text>(true).text);
                 Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponent<LayoutElement>().preferredHeight, 44f);
                 Assert.GreaterOrEqual(FindChild(rootObject.transform, "UnityPlayerDirectedChoiceCloseButton").GetComponentInChildren<Text>(true).fontSize, 14);

@@ -1,0 +1,14 @@
+{
+  "appid": "wx0c076cf75f157837",
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "miniprogramRoot": "./",
+  "projectname": "learn-heartstone-mini",
+  "setting": {
+    "coverView": true,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": false
+  }
+}

@@ -244,7 +244,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void DedicatedShapingSpell_ResolvesOnceWithoutOrdinarySpellOrCardSideEffects()
+        public void DedicatedShapingSpell_UsesBelindaAuraWithoutOrdinarySpellOrCardSideEffects()
         {
             var service = MatchService.CreateWithDefaultCatalog(381062);
             var tavern = service.State.Player.Tavern;
@@ -268,7 +268,10 @@ namespace LearnHearthstone.Tests.EditMode
                 TargetZone.Unspecified,
                 target.InstanceId));
 
-            Assert.AreEqual(4, service.State.Player.Board.Count, "Belinda must not add a second shaping cast.");
+            Assert.AreEqual(3, service.State.Player.Board.Count);
+            Assert.IsTrue(
+                tavern.Hand.Any(card => card.Golden),
+                "Two Deathrattle resolutions summon four matching tokens; three immediately triple and the golden token returns to the far-right hand slot.");
             Assert.AreEqual(3, tavern.TavernSpellsCastThisTurn);
             Assert.AreEqual(7, tavern.TavernSpellsCastThisGame);
             Assert.AreEqual(5, tavern.CardsPlayedThisTurn);
@@ -343,16 +346,14 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Validator_RequiresCompleteSetAndRejectsDuplicatesUnknownOrOrdinaryPlacement()
+        public void Validator_RequiresOneCategoryAndRejectsMultipleUnknownOrOrdinaryPlacement()
         {
             var catalog = StrategyGuideCatalogLoader.LoadFromResources();
             var guide = catalog.Guides[0];
             var profile = guide.EntryProfiles[0];
             profile.ShapingSpellCardIds = new List<string>
             {
-                BattlecrySpellId,
-                DeathrattleSpellId,
-                EndOfTurnSpellId
+                BattlecrySpellId
             };
 
             var complete = StrategyGuideValidator.Validate(catalog, guide, ResolveSeason14());
@@ -360,14 +361,11 @@ namespace LearnHearthstone.Tests.EditMode
                 complete.Errors.Any(error => error.StartsWith("guide.shaping-spell.", StringComparison.Ordinal)),
                 string.Join(" | ", complete.Errors));
 
-            profile.ShapingSpellCardIds[2] = DeathrattleSpellId;
-            var repeated = StrategyGuideValidator.Validate(catalog, guide, ResolveSeason14());
-            CollectionAssert.Contains(
-                repeated.Errors,
-                "guide.shaping-spell.duplicate-or-empty:" + DeathrattleSpellId);
-            CollectionAssert.Contains(repeated.Errors, "guide.shaping-spell.complete-set");
+            profile.ShapingSpellCardIds.Add(DeathrattleSpellId);
+            var multiple = StrategyGuideValidator.Validate(catalog, guide, ResolveSeason14());
+            CollectionAssert.Contains(multiple.Errors, "guide.shaping-spell.single-category");
 
-            profile.ShapingSpellCardIds[2] = "UNKNOWN_GUIDE_SHAPING";
+            profile.ShapingSpellCardIds = new List<string> { "UNKNOWN_GUIDE_SHAPING" };
             var unknown = StrategyGuideValidator.Validate(catalog, guide, ResolveSeason14());
             CollectionAssert.Contains(unknown.Errors, "guide.shaping-spell.unknown:UNKNOWN_GUIDE_SHAPING");
 
@@ -380,7 +378,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Session_DealsThreeFirstRoundThenCyclesOneAndExpiresAtCombat()
+        public void Session_DealsTwoSelectedCopiesFirstRoundThenOneEachRoundAndExpiresAtCombat()
         {
             var catalog = StrategyGuideCatalogLoader.LoadFromResources();
             var guide = catalog.Guides[0];
@@ -388,8 +386,6 @@ namespace LearnHearthstone.Tests.EditMode
                 item.Difficulty == StrategyGuideDifficulties.Showcase);
             profile.ShapingSpellCardIds = new List<string>
             {
-                BattlecrySpellId,
-                DeathrattleSpellId,
                 EndOfTurnSpellId
             };
             profile.AllowedCommands.Remove(GameCommandType.UseGuideShapingSpell.ToString());
@@ -401,10 +397,10 @@ namespace LearnHearthstone.Tests.EditMode
             var state = session.MatchService.State;
 
             CollectionAssert.AreEqual(
-                new[] { BattlecrySpellId, DeathrattleSpellId, EndOfTurnSpellId },
+                new[] { EndOfTurnSpellId, EndOfTurnSpellId },
                 state.Player.Tavern.GuideShapingSpellCardIds);
-            Assert.AreEqual(3, session.MatchService.GetCurrentGuideShapingSpells().Count);
-            Assert.AreEqual(BattlecrySpellId, state.Player.Tavern.GuideShapingSpellCardId);
+            Assert.AreEqual(2, session.MatchService.GetCurrentGuideShapingSpells().Count);
+            Assert.AreEqual(EndOfTurnSpellId, state.Player.Tavern.GuideShapingSpellCardId);
             Assert.AreEqual(profile.StartRound, state.Player.Tavern.GuideShapingSpellRound);
             Assert.IsTrue(session.CanApply(GameCommandType.UseGuideShapingSpell));
 
@@ -414,15 +410,15 @@ namespace LearnHearthstone.Tests.EditMode
                 TargetZone.Unspecified,
                 cardId: EndOfTurnSpellId));
             CollectionAssert.AreEqual(
-                new[] { BattlecrySpellId, DeathrattleSpellId },
+                new[] { EndOfTurnSpellId },
                 state.Player.Tavern.GuideShapingSpellCardIds);
             Assert.IsFalse(state.Player.Tavern.GuideShapingSpellConsumed);
 
             state.Round = profile.StartRound + 1;
             session.Synchronize();
-            Assert.AreEqual(DeathrattleSpellId, state.Player.Tavern.GuideShapingSpellCardId);
+            Assert.AreEqual(EndOfTurnSpellId, state.Player.Tavern.GuideShapingSpellCardId);
             CollectionAssert.AreEqual(
-                new[] { DeathrattleSpellId },
+                new[] { EndOfTurnSpellId },
                 state.Player.Tavern.GuideShapingSpellCardIds);
 
             state.Round = profile.StartRound + 8;
@@ -441,9 +437,9 @@ namespace LearnHearthstone.Tests.EditMode
 
             state.Round += 1;
             session.Synchronize();
-            Assert.AreEqual(BattlecrySpellId, state.Player.Tavern.GuideShapingSpellCardId);
+            Assert.AreEqual(EndOfTurnSpellId, state.Player.Tavern.GuideShapingSpellCardId);
             CollectionAssert.AreEqual(
-                new[] { BattlecrySpellId },
+                new[] { EndOfTurnSpellId },
                 state.Player.Tavern.GuideShapingSpellCardIds);
 
             state.Player.Tavern.GuideShapingSpellCardId = null;
@@ -463,9 +459,7 @@ namespace LearnHearthstone.Tests.EditMode
                 item.Difficulty == StrategyGuideDifficulties.Showcase);
             profile.ShapingSpellCardIds = new List<string>
             {
-                EndOfTurnSpellId,
-                BattlecrySpellId,
-                DeathrattleSpellId
+                EndOfTurnSpellId
             };
             var session = StrategyGuideSession.Start(
                 catalog,
@@ -475,13 +469,13 @@ namespace LearnHearthstone.Tests.EditMode
 
             session.Apply(new GameCommand(GameCommandType.UseGuideShapingSpell));
             CollectionAssert.AreEqual(
-                new[] { BattlecrySpellId, DeathrattleSpellId },
+                new[] { EndOfTurnSpellId },
                 session.MatchService.State.Player.Tavern.GuideShapingSpellCardIds);
             Assert.IsFalse(session.MatchService.State.Player.Tavern.GuideShapingSpellConsumed);
             Assert.IsTrue(session.Undo().Succeeded);
             Assert.AreEqual(EndOfTurnSpellId, session.MatchService.State.Player.Tavern.GuideShapingSpellCardId);
             CollectionAssert.AreEqual(
-                new[] { EndOfTurnSpellId, BattlecrySpellId, DeathrattleSpellId },
+                new[] { EndOfTurnSpellId, EndOfTurnSpellId },
                 session.MatchService.State.Player.Tavern.GuideShapingSpellCardIds);
             Assert.IsFalse(session.MatchService.State.Player.Tavern.GuideShapingSpellConsumed);
 
@@ -489,7 +483,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(session.Restart().Succeeded);
             Assert.AreEqual(EndOfTurnSpellId, session.MatchService.State.Player.Tavern.GuideShapingSpellCardId);
             CollectionAssert.AreEqual(
-                new[] { EndOfTurnSpellId, BattlecrySpellId, DeathrattleSpellId },
+                new[] { EndOfTurnSpellId, EndOfTurnSpellId },
                 session.MatchService.State.Player.Tavern.GuideShapingSpellCardIds);
             Assert.AreEqual(profile.StartRound, session.MatchService.State.Player.Tavern.GuideShapingSpellRound);
             Assert.IsFalse(session.MatchService.State.Player.Tavern.GuideShapingSpellConsumed);

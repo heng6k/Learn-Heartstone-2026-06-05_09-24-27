@@ -401,6 +401,12 @@ namespace LearnHearthstone.Application.Services
             {
                 return MatchService.CanApply(commandType) && HasCurrentShapingSpellSlot();
             }
+            if (commandType == GameCommandType.RerollShop &&
+                (string.Equals(Profile.Difficulty, StrategyGuideDifficulties.Showcase, StringComparison.Ordinal) ||
+                 string.Equals(Profile.Difficulty, StrategyGuideDifficulties.GuidedDiscover, StringComparison.Ordinal)))
+            {
+                return MatchService.CanApply(commandType);
+            }
             if (RunState == StrategyGuideRunState.FreeExplore)
             {
                 return MatchService.CanApply(commandType);
@@ -724,27 +730,15 @@ namespace LearnHearthstone.Application.Services
 
         private List<string> ScheduledShapingSpellCardIds(int round)
         {
-            var schedule = Profile.ShapingSpellCardIds;
-            if (schedule == null || schedule.Count == 0 || round < Profile.StartRound)
+            var cardId = Profile.ShapingSpellCardIds?.FirstOrDefault(StrategyGuideShapingSpells.Contains);
+            if (cardId == null || round < Profile.StartRound)
             {
                 return new List<string>();
             }
 
-            var validSchedule = schedule
-                .Where(StrategyGuideShapingSpells.Contains)
-                .ToList();
-            if (validSchedule.Count == 0)
-            {
-                return validSchedule;
-            }
-
-            var offset = Math.Max(0, round - Profile.StartRound);
-            if (offset == 0)
-            {
-                return validSchedule.Distinct(StringComparer.Ordinal).ToList();
-            }
-
-            return new List<string> { validSchedule[offset % validSchedule.Count] };
+            return round == Profile.StartRound
+                ? new List<string> { cardId, cardId }
+                : new List<string> { cardId };
         }
 
         private bool CanTriggerAcquisition(CommandContext context)

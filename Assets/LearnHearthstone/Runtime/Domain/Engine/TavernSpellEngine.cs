@@ -145,6 +145,8 @@ namespace LearnHearthstone.Domain.Engine
         };
         private static readonly HashSet<string> FriendlyMinionTargetedSpellCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
+            StrategyGuideShapingSpells.Deathrattle,
+            StrategyGuideShapingSpells.Battlecry,
             BloodGemCardId,
             BristlebackBloodGemCardId,
             RebornBloodGemCardId,

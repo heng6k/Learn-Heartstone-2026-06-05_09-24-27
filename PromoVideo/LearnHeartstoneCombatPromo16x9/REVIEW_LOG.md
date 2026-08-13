@@ -156,3 +156,101 @@
 - FFprobe：H.264、1920×1080、30fps、70.000 秒；按已批准的无音乐方案，无音频流。
 - SHA256：`DA7F7680C39E4A56330372447A7619986B07CD98DF1FD3FC67A356D90590EA2C`。
 - 最终边界：测试版、非官方单人酒馆训练 / 模拟工具；不声明完整双方战斗、官方完整复刻、双打或真实八人大厅。
+
+## Root Cause Analysis 2026-07-30-01
+
+- Error：Voicebox profile 已创建，但 `http://127.0.0.1:17493` 无法连接，生成历史无法查询。
+- Expected：桌面版后端监听 17493，并读取 `%APPDATA%/sh.voicebox.app` 中的 profile 与生成记录。
+- Cause：直接运行 `voicebox-server.exe` 默认监听 8000，并使用 `D:/voicebox/data` 空数据库；同时 Qwen TTS 模型尚未下载。
+- Fix：以 `--host 127.0.0.1 --port 17493 --data-dir C:/Users/wch/AppData/Roaming/sh.voicebox.app` 启动后端；优先下载 CPU 可用的 `qwen-tts-0.6B`。
+- Prevention：以后在调用 API 前同时验证 `/health`、数据目录、profile 数量与 `/models/status`，不能只检查进程是否存在。
+
+## Review 2026-07-30-02
+
+- 阶段：G9 新版实现置信度检查
+- 结果：PASS / 100%
+- 重复检查：Voicebox “曼波” profile 已存在，但生成历史为 0；composition 中铜须场景只有一处完整实现。
+- 架构检查：沿用现有单一 seek-safe GSAP 时间线、原媒体轨和稳定 ID；只删除铜须 DOM/CSS 并将后续时间整体前移。
+- 官方文档与参考：已核对 HyperFrames core/CLI/media 规则和 Voicebox v0.5.0 OpenAPI。
+- 根因：铜须场景仍占用 25–35 秒；Voicebox 后端参数和模型状态均已明确。
+
+## Review 2026-07-30-03
+
+- 阶段：G4 用户定向修改
+- 结果：APPLIED / AUDIO PENDING
+- 修改：完整删除 25–35 秒铜须场景，成片从 70 秒缩短为 60 秒；后续画面、功能序号、GSAP 入场和聚焦时间整体前移 10 秒。
+- 文案：删除全部铜须旁白，建立 7 句 Voicebox 新版旁白文本。
+- 依赖失效：旧版 preview 批准、draft/high 与 SHA256 全部失效；新版旁白接入并通过 check 后必须重新取得 G10 人工批准。
+
+## Review 2026-07-30-04
+
+- 阶段：G5/G6 Voicebox 旁白生成与母带审计
+- 结果：PASS / READY FOR COMPOSITION
+- 实际引擎：Voicebox v0.5.0、用户授权的“曼波”克隆 profile、Chatterbox Multilingual（`chatterbox-tts`）；历史 Qwen 下载故障记录仅保留为排障证据，不是最终方案。
+- 生成：按新版 `SCRIPT.md` 生成 7 段中文旁白，并在 0.6、5.7、16.7、25.7、34.7、44.7、52.0 秒接入 60 秒母带。
+- 母带：`hyperframes/assets/audio/voiceover-final.wav`，48 kHz、mono、PCM s16le、60.000 秒、-16.0 LUFS、-1.5 dBTP。
+- SHA256：`D3208F0200733408EF5D33A1B76C7DD18CDA330ABAA2ECF441E0B94854203B24`。
+- 音频边界：无 BGM、无官方游戏原声；WAV 只保留于工程审计，不作为独立交付物。
+
+## Root Cause Analysis 2026-07-30-05
+
+- Error：首次运行 HyperFrames `transcribe` 返回 `whisper_unavailable`；安装 whisper.cpp 后，默认 Flash Attention 又关闭 DTW，HyperFrames 中文归一化把连续 CJK token 合并成两条长句。
+- Expected：获得可复核的中文词组级时间戳，用于字幕与音画审计。
+- Cause：本机缺少 `whisper-cli`；whisper.cpp v1.9.1 的 Flash Attention 与 DTW token timestamps 不兼容；当前 HyperFrames CJK 合并策略不适合这条连续中文旁白。
+- Fix：安装官方 whisper.cpp v1.9.1 与 `ggml-small.bin`，对 7 个旁白源段分别使用 `--dtw small --no-flash-attn`，过滤特殊 token 后按锁定文案合并原始 token span。
+- Verification：`assets/audio/transcript.json` 为 `w0`–`w54` 共 55 条、0 重叠；`captions/voiceover-final.srt` 为 7 条完整句子。只校正文案并合并真实 token 起止，未插值或伪造时间戳；详见 `narration/transcription-audit.json`。
+
+## Review 2026-07-30-06
+
+- 阶段：G7 旁白接入与字幕
+- 结果：APPLIED / CHECK PENDING
+- Composition：在 `hyperframes/index.html` 根合成加入独立 `voiceover` audio track，0–60 秒、track 10、volume 1，由 HyperFrames 管理播放和 seek。
+- 字幕/转写：生成规范 transcript、7 句 SRT 与 whisper.cpp/模型/DTW 审计记录。
+- 审批：旧版无声渲染继续失效；新版 `check --snapshots` 和 Studio 有声预览批准前不得渲染。
+
+## Review 2026-07-30-07
+
+- 阶段：G10 人工快照定点修正
+- 结果：APPLIED / RECHECK PENDING
+- 发现：编号章节已正确删除并顺延，但 53.5 秒“名称检索”静态拼接仍显示铜须卡图；自动 layout/contrast 检查不会识别这类内容边界问题。
+- 修改：用现有真实普通随从卡 `minion-normal.png` 替代 `brann.png`，并将镜头文案收敛为“名称筛选，继续定位目标卡牌”。
+- 边界：A007 铜须截图改为 `approved-unused`，本版 composition 不再引用铜须素材；修改后重新执行 `check --snapshots`。
+
+## Review 2026-07-30-08
+
+- 阶段：G10 最终工程门与人工快照审计
+- 结果：PASS / WAITING HUMAN AUDIO PREVIEW APPROVAL
+- HyperFrames：0.7.83，升级元数据 `updateAvailable: false`。
+- `check --snapshots --json`：0 lint/runtime/layout/motion/contrast 错误；19/19 文本对比度通过。
+- 非阻塞项：track 2 的 6 个 timed elements 触发 1 条维护性 warning；不影响当前单文件 60 秒成片的运行、布局或渲染。
+- 主快照：3.3、16.7、30.0、43.3、56.7 秒均通过人工检查；功能编号为 02、03、04、05，结尾页与测试版/非官方边界完整。
+- 定点快照：`hyperframes/snapshots-audit/frame-at-53.5s-no-brann.png` 确认名称筛选镜头无铜须；`index.html` 已规范化为 UTF-8 no-BOM，异常字符不再出现。
+- 下一门：启动 Studio 有声预览，用户明确批准后才能进入 draft/high 渲染。
+
+## Review 2026-07-30-09
+
+- 阶段：G10 Studio 有声预览交付
+- 结果：RUNNING / WAITING HUMAN APPROVAL
+- URL：`http://localhost:3017/#project/hyperframes`。
+- 服务：HTTP 200，监听 PID 7896；stdout 确认 project `hyperframes`、Studio running。
+- Studio context：0 error、1 条既有非阻塞轨道密度 warning。
+- 操作：请在 Studio 播放 60 秒完整时间轴，重点试听 7 段中文旁白的音色、响度、断句和画面对齐；明确批准前不运行 render。
+
+## Root Cause Analysis 2026-07-30-10
+
+- Error：通过 `npm run render -- --quality high ...` 调用时，HyperFrames 在编码前报告 `Not a directory: ...\high`；改用等号后又把 `30` 当作目录。
+- Expected：package.json 固定版本 wrapper 将 render 选项原样传给 HyperFrames。
+- Cause：本机 Windows、npm 10.9.2 与当前脚本调用组合破坏了带值参数转发，只把选项值作为位置参数交给 CLI；底层 `hyperframes@0.7.83` 无效质量探针能正确进入参数校验，证明工程和 CLI 本身正常。
+- Fix：直接调用 package.json 中同一固定版本 `npx --yes hyperframes@0.7.83 render`，并统一使用 `--quality=high`、`--fps=30`、`--output=...`。
+- Prevention：本机最终渲染使用固定版本底层命令或先验证 wrapper 的 argv 转发；参数错误必须在编码前停止，不得把失败调用视为成片。
+
+## Review 2026-07-30-11
+
+- 阶段：G10 批准、G11/G12 最终渲染与交付审计
+- 结果：PASS / FINAL HIGH RENDER COMPLETE
+- 人工批准：用户在当前任务中明确回复“批准”。
+- HyperFrames：固定版本 `0.7.83`，升级检查 `updateAvailable: false`。
+- 成片：`hyperframes/renders/LearnHeartstoneCombatPromo16x9-final-voiceover-high-20260730.mp4`，13,480,733 bytes。
+- 技术规格：60.000 秒、1920×1080、30fps、H.264；音轨为 AAC、48 kHz、双声道。
+- 验证：FFprobe 通过，FFmpeg 全片解码通过；render 的 drawElement 自检关键帧均通过。唯一 lint 信息仍是既有的 track 2 密度维护性 warning，不影响交付。
+- SHA256：`5A0C97B479537A3014168DA861693A43762F250807E3CFBDAB84E6C34DB26597`。

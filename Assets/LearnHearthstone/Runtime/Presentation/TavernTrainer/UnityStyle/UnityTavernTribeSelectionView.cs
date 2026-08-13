@@ -1493,7 +1493,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             "UnityAdvancedPoolQuestToggle-" + SafeCardName(quest.CardId),
                             CardImageProvider.LoadSprite(quest.ImagePath, quest.CardId, CardKind.Quest),
                             T("任务  ", "Quest  ") + quest.Name,
-                            quest.Objective.Kind + "  " + quest.CardId,
+                            BattlegroundsLocalizedText.QuestObjective(quest.Objective.Kind, UseEnglish) + "  " + quest.CardId,
                             enabledQuestCardIds.Contains(quest.CardId),
                             true,
                             value => SetAdvancedPoolEnabled(enabledQuestCardIds, quest.CardId, value));
@@ -1510,7 +1510,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                             "UnityAdvancedPoolRewardToggle-" + SafeCardName(reward.CardId),
                             CardImageProvider.LoadSprite(reward.ImagePath, reward.CardId, CardKind.QuestReward),
                             T("奖励  ", "Reward  ") + reward.Name,
-                            reward.Trigger + " / " + reward.OfferPoolStatus + "  " + reward.CardId,
+                            BattlegroundsLocalizedText.QuestTrigger(reward.Trigger, UseEnglish) + " / " +
+                            BattlegroundsLocalizedText.OfferPool(reward.OfferPoolStatus, UseEnglish) + "  " + reward.CardId,
                             enabledQuestRewardCardIds.Contains(reward.CardId),
                             true,
                             value => SetAdvancedPoolEnabled(enabledQuestRewardCardIds, reward.CardId, value));
@@ -1528,7 +1529,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         "UnityAdvancedPoolTrinketToggle-" + SafeCardName(trinket.CardId),
                         CardImageProvider.LoadSprite(trinket.ImagePath, trinket.CardId, CardKind.Trinket),
                             T(trinket.SlotKind == TrinketSlotKind.Lesser ? "小型" : "大型", trinket.SlotKind.ToString()) + "  " + trinket.Name,
-                        trinket.TriggerTemplate + " / " + trinket.OfferPoolStatus + "  " + trinket.CardId,
+                        BattlegroundsLocalizedText.TrinketTrigger(trinket.TriggerTemplate, UseEnglish) + " / " +
+                        BattlegroundsLocalizedText.OfferPool(trinket.OfferPoolStatus, UseEnglish) + "  " + trinket.CardId,
                         target.Contains(trinket.CardId),
                         true,
                         value => SetAdvancedPoolEnabled(target, trinket.CardId, value));
@@ -1544,7 +1546,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         "UnityAdvancedPoolAnomalyToggle-" + SafeCardName(anomaly.CardId),
                         CardImageProvider.LoadSprite(null, anomaly.CardId, CardKind.Spell),
                         anomaly.Name,
-                        anomaly.EffectFamily + " / " + anomaly.ImplementationStatus + "  " + anomaly.CardId,
+                        BattlegroundsLocalizedText.AnomalyFamily(anomaly.EffectFamily, UseEnglish) + " / " +
+                        BattlegroundsLocalizedText.AnomalyImplementation(anomaly.ImplementationStatus, UseEnglish) + "  " + anomaly.CardId,
                         enabledAnomalyCardIds.Contains(anomaly.CardId),
                         true,
                         value => SetAdvancedPoolEnabled(enabledAnomalyCardIds, anomaly.CardId, value));
@@ -2104,7 +2107,8 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             var statusText = hero == null
                 ? T("进入酒馆时由对局兜底", "Match will use fallback hero")
-                : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor + " · " + (hero.ImplementationStatus ?? T("状态未知", "Unknown status"));
+                : T("生命 ", "Health ") + hero.Health + T(" / 护甲 ", " / Armor ") + hero.Armor + " · " +
+                    BattlegroundsLocalizedText.HeroImplementation(hero.ImplementationStatus, UseEnglish);
             var stats = UiFactory.Label("UnityTribeSelectionHeroStats", textBlock.transform, statusText, 14, FontStyle.Normal);
             stats.color = UnityTavernUiStyle.MutedText;
             UnityTavernUiStyle.SetPreferredHeight(stats.gameObject, 19f);

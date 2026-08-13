@@ -1,0 +1,8 @@
+{
+  "name": "learn-heartstone-mini-program",
+  "private": true,
+  "scripts": {
+    "sync-content": "python ../Tools/Release/sync-mini-program-content.py",
+    "test": "node --test tests/*.test.js"
+  }
+}

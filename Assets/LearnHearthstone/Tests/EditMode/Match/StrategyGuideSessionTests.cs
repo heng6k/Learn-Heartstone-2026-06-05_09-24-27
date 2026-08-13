@@ -120,12 +120,34 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsFalse(session.CanUndo);
         }
 
+        [TestCase(StrategyGuideDifficulties.Showcase)]
+        [TestCase(StrategyGuideDifficulties.GuidedDiscover)]
+        public void SimpleAndBeginnerModes_CanRefreshShopWithNormalCostEvenWhenLegacyAllowlistOmitsIt(
+            string difficulty)
+        {
+            var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+            var guide = catalog.GetGuide("GUIDE-S14-BEAST-LOBSTER-RALLY");
+            var profile = guide.EntryProfiles.Single(item => item.Difficulty == difficulty);
+            profile.AllowedCommands.RemoveAll(command =>
+                string.Equals(command, GameCommandType.RerollShop.ToString(), StringComparison.Ordinal));
+            var session = StrategyGuideSession.Start(
+                catalog,
+                guide.GuideId,
+                ResolveSeason14(),
+                profileId: profile.ProfileId);
+            var goldBeforeRefresh = session.MatchService.State.Player.Tavern.Gold;
+
+            Assert.IsTrue(session.CanApply(GameCommandType.RerollShop));
+            session.Apply(new GameCommand(GameCommandType.RerollShop));
+
+            Assert.AreEqual(goldBeforeRefresh - 1, session.MatchService.State.Player.Tavern.Gold);
+        }
+
         [Test]
         public void Undo_RestoresStateRngAndActionProgressExactlyOnce()
         {
             var catalog = StrategyGuideCatalogLoader.LoadFromResources();
             var guide = catalog.GetGuide("GUIDE-S14-BEAST-LOBSTER-RALLY");
-            Showcase(guide).AllowedCommands.Add(GameCommandType.RerollShop.ToString());
             var session = StrategyGuideSession.Start(catalog, guide.GuideId, ResolveSeason14());
 
             session.Apply(new GameCommand(GameCommandType.RerollShop));

@@ -1927,7 +1927,7 @@ namespace LearnHearthstone.Tests.EditMode
                 AssertMainTableRows(rootObject.transform);
 
                 var quickBar = FindChild(rootObject.transform, "UnityTavernActionBar").GetComponent<RectTransform>();
-                Assert.GreaterOrEqual(quickBar.anchorMin.x, 0.34f);
+                Assert.AreEqual(0f, quickBar.anchorMin.x, 0.001f);
                 Assert.AreEqual(1f, quickBar.anchorMax.x, 0.001f);
                 Assert.AreEqual(UnityTavernUiStyle.CompactTouchHeight, quickBar.offsetMax.y - quickBar.offsetMin.y, 0.001f);
                 Assert.AreEqual(0, quickBar.GetComponent<HorizontalLayoutGroup>().padding.top);
@@ -1977,6 +1977,45 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNull(FindChild(rootObject.transform, "UnityOpponentPanelOverlay"));
                 Assert.IsNull(FindChild(rootObject.transform, "UnityOpponentBoardZone"));
                 Assert.IsNotNull(FindChild(rootObject.transform, "UnityShopZone"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void OpponentEditor_IsFullScreenKeepsBoardOutsideScrollAndDeletesSelectedMinion()
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(932f, 430f);
+            try
+            {
+                var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
+                service.State.Opponent.Board.Clear();
+                service.State.Opponent.Board.Add(CreateBoardMinion(service, "opponent-editor-card", BoardSide.Opponent, 4, 5));
+
+                new UnityTavernTrainerView(rootObject.transform, service, new LocalAdvisorService(), () => { }).Build();
+                FindChild(rootObject.transform, "UnityOpponentEntryButton").GetComponent<Button>().onClick.Invoke();
+
+                var panel = FindChild(rootObject.transform, "UnityOpponentPanel").GetComponent<RectTransform>();
+                Assert.LessOrEqual(panel.anchorMin.x, 0.02f);
+                Assert.LessOrEqual(panel.anchorMin.y, 0.02f);
+                Assert.GreaterOrEqual(panel.anchorMax.x, 0.98f);
+                Assert.GreaterOrEqual(panel.anchorMax.y, 0.98f);
+
+                var board = FindChild(rootObject.transform, "UnityOpponentBoardZone");
+                var scroll = FindChild(rootObject.transform, "UnityOpponentPanelScroll");
+                Assert.IsFalse(board.IsChildOf(scroll));
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityOpponentSelectionActions"));
+
+                FindChild(rootObject.transform, "UnityCard-opponent-editor-card").GetComponent<Button>().onClick.Invoke();
+                var remove = FindChild(rootObject.transform, "UnityOpponentRemoveSelectedButton").GetComponent<Button>();
+                Assert.IsTrue(remove.interactable);
+                remove.onClick.Invoke();
+
+                Assert.AreEqual(0, service.State.Opponent.Board.Count);
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityOpponentPanelOverlay"));
             }
             finally
             {
@@ -3795,7 +3834,7 @@ namespace LearnHearthstone.Tests.EditMode
                 4,
                 GameCommandType.BuyMinion,
                 2,
-                4,
+                -1,
                 null);
 
             AssertDropCommand(

@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/scenario/scenario"
+  ],
+  "window": {
+    "navigationBarTitleText": "一图流训练",
+    "navigationBarBackgroundColor": "#101816",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#101816",
+    "backgroundTextStyle": "light"
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -107,6 +107,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             ConfigureSurface(input.gameObject, Color.Lerp(SurfaceDark, SurfaceRaised, 0.42f), true);
             ConfigureOutline(input.gameObject, WithAlpha(accent, 0.46f), new Vector2(1f, -1f));
+            // InputField inherits Unity's bright default selected tint. It obscures text on
+            // mobile; focus is already represented by UnitySelectableFocusRing.
+            input.transition = Selectable.Transition.None;
             ConfigureLabel(input.textComponent, TextLight);
             ConfigureLabel(input.placeholder as Text, TextMuted);
         }

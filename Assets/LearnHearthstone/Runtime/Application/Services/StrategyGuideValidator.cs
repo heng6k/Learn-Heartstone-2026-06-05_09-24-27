@@ -94,7 +94,6 @@ namespace LearnHearthstone.Application.Services
             Require(result, activeTribes.Count == 5, "guide.active-tribe.count");
             Require(result, activeTribes.Distinct().Count() == activeTribes.Count, "guide.active-tribe.duplicate");
             Require(result, requiredTribes.All(activeTribes.Contains), "guide.required-tribe.missing");
-            Require(result, requiredTribes.Count > 0, "guide.required-tribe.empty");
 
             ValidateHeroAndMechanics(result, guide, catalogs);
             var rawProfiles = guide.EntryProfiles ?? new List<StrategyGuideEntryProfileDefinition>();
@@ -311,13 +310,8 @@ namespace LearnHearthstone.Application.Services
             EnsureUnique(result, shapingSpellCardIds, "guide.shaping-spell");
             Require(
                 result,
-                new HashSet<string>(shapingSpellCardIds, StringComparer.Ordinal).SetEquals(new[]
-                {
-                    StrategyGuideShapingSpells.Battlecry,
-                    StrategyGuideShapingSpells.Deathrattle,
-                    StrategyGuideShapingSpells.EndOfTurn
-                }),
-                "guide.shaping-spell.complete-set");
+                shapingSpellCardIds.Count == 1,
+                "guide.shaping-spell.single-category");
             foreach (var cardId in shapingSpellCardIds)
             {
                 if (!StrategyGuideShapingSpells.Contains(cardId))

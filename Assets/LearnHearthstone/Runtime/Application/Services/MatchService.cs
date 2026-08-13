@@ -2003,7 +2003,7 @@ namespace LearnHearthstone.Application.Services
                 result.Add(new AdvancedChoiceStatus
                 {
                     Id = "discover-current",
-                    Title = "Discover pending",
+                    Title = Localized("等待发现选择", "Discover pending"),
                     Detail = DiscoverStatusDetail(tavern.Discover),
                     DueRound = State.Round,
                     IsCurrent = true,
@@ -2032,10 +2032,10 @@ namespace LearnHearthstone.Application.Services
                 result.Add(new AdvancedChoiceStatus
                 {
                     Id = "timewarp-current",
-                    Title = timewarp.PendingKind + " Timewarped Tavern",
+                    Title = Localized("时空酒馆", timewarp.PendingKind + " Timewarped Tavern"),
                     Detail = timewarp.Phase == TimewarpTavernPhase.Open
-                        ? "Open with " + timewarp.Chronum + " Chronum."
-                        : "Waiting for the pending player choice.",
+                        ? Localized("已开放，当前时币：" + timewarp.Chronum + "。", "Open with " + timewarp.Chronum + " Chronum.")
+                        : Localized("等待玩家完成当前选择。", "Waiting for the pending player choice."),
                     DueRound = State.Round,
                     IsCurrent = timewarp.Phase == TimewarpTavernPhase.Open,
                     IsBlocking = timewarp.Phase == TimewarpTavernPhase.BlockedByTrinketChoice
@@ -2303,7 +2303,7 @@ namespace LearnHearthstone.Application.Services
             switch (command.Type)
             {
                 case GameCommandType.BuyMinion:
-                    BuyMinion(command.Index, command.TargetIndex);
+                    BuyMinion(command.Index);
                     break;
                 case GameCommandType.BuyTimewarpedTavernCard:
                     BuyTimewarpedTavernCard(command.Index);
@@ -5337,28 +5337,28 @@ namespace LearnHearthstone.Application.Services
             var blockedByCurrentChoice = HasActiveBlockingPlayerChoice();
             if (State.Round < 6 && string.IsNullOrEmpty(trinkets.LesserTrinketId))
             {
-                AddScheduledChoiceStatus(result, "trinket-lesser-round-6", "Lesser Trinket scheduled", "Automatic Lesser Trinket choice.", 6, blockedByCurrentChoice);
+                AddScheduledChoiceStatus(result, "trinket-lesser-round-6", Localized("小饰品即将开放", "Lesser Trinket scheduled"), Localized("届时自动提供小饰品选择。", "Automatic Lesser Trinket choice."), 6, blockedByCurrentChoice);
             }
 
             if (State.Round < 9 && string.IsNullOrEmpty(trinkets.GreaterTrinketId))
             {
-                AddScheduledChoiceStatus(result, "trinket-greater-round-9", "Greater Trinket scheduled", "Automatic Greater Trinket choice.", 9, blockedByCurrentChoice);
+                AddScheduledChoiceStatus(result, "trinket-greater-round-9", Localized("大饰品即将开放", "Greater Trinket scheduled"), Localized("届时自动提供大饰品选择。", "Automatic Greater Trinket choice."), 9, blockedByCurrentChoice);
             }
 
             if (trinkets.OrnateClockGreaterOfferRound > State.Round && string.IsNullOrEmpty(trinkets.GreaterTrinketId))
             {
-                AddScheduledChoiceStatus(result, "trinket-ornate-clock", "Greater Trinket scheduled", "Ornate Clock will offer a Greater Trinket.", trinkets.OrnateClockGreaterOfferRound, blockedByCurrentChoice);
+                AddScheduledChoiceStatus(result, "trinket-ornate-clock", Localized("大饰品即将开放", "Greater Trinket scheduled"), Localized("华丽时钟将提供一次大饰品选择。", "Ornate Clock will offer a Greater Trinket."), trinkets.OrnateClockGreaterOfferRound, blockedByCurrentChoice);
             }
 
             if (GetAdvancedMechanicCounter(MysteryCubePendingCounter) > 0)
             {
-                AddScheduledChoiceStatus(result, "trinket-mystery-cube", "Replacement choice pending", "Mystery Cube will offer a Lesser Trinket replacement.", State.Round, blockedByCurrentChoice);
+                AddScheduledChoiceStatus(result, "trinket-mystery-cube", Localized("等待替换选择", "Replacement choice pending"), Localized("神秘魔方将提供一次小饰品替换。", "Mystery Cube will offer a Lesser Trinket replacement."), State.Round, blockedByCurrentChoice);
             }
 
             var tripVouchersDueRound = GetAdvancedMechanicCounter(TripVouchersDueRoundCounter);
             if (tripVouchersDueRound > 0)
             {
-                AddScheduledChoiceStatus(result, "trinket-trip-vouchers", "Replacement choice scheduled", "Trip Vouchers will offer a Greater-pool replacement.", tripVouchersDueRound, blockedByCurrentChoice);
+                AddScheduledChoiceStatus(result, "trinket-trip-vouchers", Localized("替换选择即将开放", "Replacement choice scheduled"), Localized("旅行券将提供一次大饰品池替换。", "Trip Vouchers will offer a Greater-pool replacement."), tripVouchersDueRound, blockedByCurrentChoice);
             }
 
             AddQuestDelayedTrinketStatus(result, QuaintBoutiqueRewardId, TrinketSlotKind.Lesser, blockedByCurrentChoice);
@@ -5383,8 +5383,8 @@ namespace LearnHearthstone.Application.Services
             AddScheduledChoiceStatus(
                 result,
                 "quest-delayed-" + rewardId,
-                slotKind + " Trinket scheduled",
-                rewardName + " will offer a " + slotKind + " Trinket choice.",
+                Localized(BattlegroundsLocalizedText.TrinketSlot(slotKind, false) + "即将开放", slotKind + " Trinket scheduled"),
+                Localized(rewardName + "将提供一次" + BattlegroundsLocalizedText.TrinketSlot(slotKind, false) + "选择。", rewardName + " will offer a " + slotKind + " Trinket choice."),
                 dueRound,
                 blockedByCurrentChoice);
         }
@@ -5395,70 +5395,76 @@ namespace LearnHearthstone.Application.Services
             {
                 Id = id,
                 Title = title,
-                Detail = (dueRound <= State.Round ? "Due now. " : "Due round " + dueRound + ". ") + detail,
+                Detail = Localized(
+                    dueRound <= State.Round ? "现在可用。" : "第" + dueRound + "回合开放。",
+                    dueRound <= State.Round ? "Due now. " : "Due round " + dueRound + ". ") + detail,
                 DueRound = dueRound,
                 IsCurrent = false,
                 IsBlocking = blockedByCurrentChoice && dueRound <= State.Round
             });
         }
 
-        private static string DiscoverStatusDetail(DiscoverState discover)
+        private string DiscoverStatusDetail(DiscoverState discover)
         {
             var options = discover?.Options == null ? 0 : discover.Options.Count;
             var source = string.IsNullOrWhiteSpace(discover?.Source) ? "discover" : discover.Source;
-            return source + " / " + options + " option(s) / " + Math.Max(1, discover?.RemainingPicks ?? 1) + " pick(s)";
+            return Localized(
+                options + "个选项 / 还需选择" + Math.Max(1, discover?.RemainingPicks ?? 1) + "次",
+                source + " / " + options + " option(s) / " + Math.Max(1, discover?.RemainingPicks ?? 1) + " pick(s)");
         }
 
-        private static string AdvancedChoiceStatusTitle(MechanicChoiceRequest request)
+        private string AdvancedChoiceStatusTitle(MechanicChoiceRequest request)
         {
             if (request == null)
             {
-                return "Advanced choice pending";
+                return Localized("等待机制选择", "Advanced choice pending");
             }
 
             if (request.Kind == AdvancedMechanicKind.Quest)
             {
                 return string.Equals(request.Slot, "Bonus", StringComparison.OrdinalIgnoreCase)
-                    ? "Bonus Quest pending"
-                    : "Quest pending";
+                    ? Localized("等待额外任务选择", "Bonus Quest pending")
+                    : Localized("等待任务选择", "Quest pending");
             }
 
             if (request.Kind == AdvancedMechanicKind.Anomaly)
             {
-                return "Anomaly choice pending";
+                return Localized("等待畸变选择", "Anomaly choice pending");
             }
 
             if (request.Kind == AdvancedMechanicKind.Distortion)
             {
                 if (string.Equals(request.Source, GalewingChoiceSource, StringComparison.OrdinalIgnoreCase))
                 {
-                    return "Flightpath pending";
+                    return Localized("等待航线选择", "Flightpath pending");
                 }
 
                 if (string.Equals(request.Source, CarielChoiceSource, StringComparison.OrdinalIgnoreCase))
                 {
-                    return "Conviction improvement pending";
+                    return Localized("等待定罪强化选择", "Conviction improvement pending");
                 }
 
-                return "Hero choice pending";
+                return Localized("等待英雄机制选择", "Hero choice pending");
             }
 
             if (request.Kind == AdvancedMechanicKind.DarkGift)
             {
-                return "Dark Gift choice pending";
+                return Localized("等待黑暗之赐选择", "Dark Gift choice pending");
             }
 
             return string.Equals(request.Slot, "Greater", StringComparison.OrdinalIgnoreCase)
-                ? "Greater Trinket pending"
-                : "Lesser Trinket pending";
+                ? Localized("等待大饰品选择", "Greater Trinket pending")
+                : Localized("等待小饰品选择", "Lesser Trinket pending");
         }
 
-        private static string AdvancedChoiceStatusDetail(MechanicChoiceRequest request)
+        private string AdvancedChoiceStatusDetail(MechanicChoiceRequest request)
         {
             var options = request?.Options == null ? 0 : request.Options.Count;
             var source = string.IsNullOrWhiteSpace(request?.Source) ? "advanced" : request.Source;
             var slot = string.IsNullOrWhiteSpace(request?.Slot) ? "Any" : request.Slot;
-            return source + " / " + slot + " / " + options + " option(s)";
+            return Localized(
+                BattlegroundsLocalizedText.Slot(slot, false) + " / " + options + "个选项",
+                source + " / " + slot + " / " + options + " option(s)");
         }
 
         private void AssertNoRequiredPlayerChoicePending()
@@ -5748,11 +5754,12 @@ namespace LearnHearthstone.Application.Services
                 SecondaryDisplayName = reward.Name,
                 Text = FormatQuestText(quest.Text, requiredAmount) + "\n" + reward.Text,
                 ImagePath = quest.ImagePath,
-                Type = "Quest + Reward",
-                Status = quest.ImplementationStatus + " / " + reward.OfferPoolStatus,
+                Type = Localized("任务与奖励", "Quest + Reward"),
+                Status = BattlegroundsLocalizedText.QuestImplementation(quest.ImplementationStatus, useEnglish) + " / " +
+                    BattlegroundsLocalizedText.OfferPool(reward.OfferPoolStatus, useEnglish),
                 Slot = string.IsNullOrWhiteSpace(slot) ? "Main" : slot,
-                PowerLevel = reward.PowerLevel.ToString(),
-                Timing = reward.Trigger.ToString(),
+                PowerLevel = BattlegroundsLocalizedText.Power(reward.PowerLevel, useEnglish),
+                Timing = BattlegroundsLocalizedText.QuestTrigger(reward.Trigger, useEnglish),
                 IsSelectable = true,
                 FilterTags = PlayerDirectedFilterTags(
                     PlayerDirectedChoiceKind.QuestPair,
@@ -5779,11 +5786,13 @@ namespace LearnHearthstone.Application.Services
                 DisplayName = definition?.Name,
                 Text = definition?.Text,
                 ImagePath = definition?.ImagePath,
-                Type = definition == null ? "Trinket" : definition.SlotKind + " Trinket",
-                Status = definition == null ? string.Empty : definition.ImplementationStatus + " / " + definition.OfferPoolStatus,
+                Type = definition == null ? Localized("饰品", "Trinket") : BattlegroundsLocalizedText.TrinketSlot(definition.SlotKind, useEnglish),
+                Status = definition == null ? string.Empty :
+                    BattlegroundsLocalizedText.TrinketImplementation(definition.ImplementationStatus, useEnglish) + " / " +
+                    BattlegroundsLocalizedText.OfferPool(definition.OfferPoolStatus, useEnglish),
                 Slot = targetSlotKind.ToString(),
-                PowerLevel = definition?.PowerLevel.ToString(),
-                Timing = definition?.TriggerTemplate.ToString(),
+                PowerLevel = definition == null ? string.Empty : BattlegroundsLocalizedText.Power(definition.PowerLevel, useEnglish),
+                Timing = definition == null ? string.Empty : BattlegroundsLocalizedText.TrinketTrigger(definition.TriggerTemplate, useEnglish),
                 DisabledReason = disabledReason,
                 IsSelectable = string.IsNullOrEmpty(disabledReason),
                 Cost = definition?.Cost ?? 0,
@@ -5809,37 +5818,37 @@ namespace LearnHearthstone.Application.Services
         {
             if (definition == null)
             {
-                return "Trinket definition is missing.";
+                return Localized("饰品定义缺失。", "Trinket definition is missing.");
             }
 
             if (definition.ImplementationStatus != TrinketImplementationStatus.Implemented)
             {
-                return "Trinket is not implemented.";
+                return Localized("该饰品尚未实现。", "Trinket is not implemented.");
             }
 
             if (definition.OfferPoolStatus != TrinketOfferPoolStatus.Offerable)
             {
-                return "Trinket is not in the normal player offer pool.";
+                return Localized("该饰品不在正常提供池中。", "Trinket is not in the normal player offer pool.");
             }
 
             if (!showProxySafe && string.Equals(definition.ProxyLevel, "ProxySafe", StringComparison.OrdinalIgnoreCase))
             {
-                return "Proxy-safe content is disabled for this match.";
+                return Localized("本局已关闭代理实现内容。", "Proxy-safe content is disabled for this match.");
             }
 
             if (definition.SlotKind != targetSlotKind)
             {
-                return "Trinket slot does not match.";
+                return Localized("饰品槽位不匹配。", "Trinket slot does not match.");
             }
 
             if (equippedIds != null && equippedIds.Contains(definition.CardId))
             {
-                return "Trinket is already equipped.";
+                return Localized("该饰品已经装备。", "Trinket is already equipped.");
             }
 
             if (!TribeAvailabilityRules.IsTrinketAvailable(definition, CurrentActiveTribes()))
             {
-                return "Trinket does not match the active tribes.";
+                return Localized("该饰品不符合本局种族。", "Trinket does not match the active tribes.");
             }
 
             return string.Empty;
@@ -5854,13 +5863,13 @@ namespace LearnHearthstone.Application.Services
             {
                 Kind = PlayerDirectedChoiceKind.SecondHeroPower,
                 CardId = power?.CardId,
-                DisplayName = power?.Name,
-                Text = power?.Text,
+                DisplayName = !useEnglish && !string.IsNullOrWhiteSpace(power?.ZhName) ? power.ZhName : power?.Name,
+                Text = !useEnglish && !string.IsNullOrWhiteSpace(power?.ZhText) ? power.ZhText : power?.Text,
                 ImagePath = power?.ImagePath,
-                Type = "Second Hero Power",
-                Status = power == null ? string.Empty : HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId).ToString(),
-                PowerLevel = power?.PrimaryCategory.ToString(),
-                Timing = power?.ReplacementEligibility.ToString(),
+                Type = Localized("第二英雄技能", "Second Hero Power"),
+                Status = power == null ? string.Empty : BattlegroundsLocalizedText.HeroImplementation(HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId), useEnglish),
+                PowerLevel = power == null ? string.Empty : BattlegroundsLocalizedText.HeroPowerCategory(power.PrimaryCategory, useEnglish),
+                Timing = power == null ? string.Empty : BattlegroundsLocalizedText.HeroPowerEligibility(power.ReplacementEligibility, useEnglish),
                 DisabledReason = disabledReason,
                 IsSelectable = string.IsNullOrEmpty(disabledReason),
                 Cost = power?.Cost ?? 0,
@@ -5925,31 +5934,31 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private static string PlayerSelectableSecondHeroPowerDisabledReason(HeroPowerDefinition power, HashSet<string> owned)
+        private string PlayerSelectableSecondHeroPowerDisabledReason(HeroPowerDefinition power, HashSet<string> owned)
         {
             if (power == null || string.IsNullOrEmpty(power.CardId))
             {
-                return "Hero Power definition is missing.";
+                return Localized("英雄技能定义缺失。", "Hero Power definition is missing.");
             }
 
             if (owned != null && owned.Contains(power.CardId))
             {
-                return "Hero Power is already owned.";
+                return Localized("已经拥有该英雄技能。", "Hero Power is already owned.");
             }
 
             if (power.ReplacementEligibility != HeroPowerReplacementEligibility.DiscoverableAfterStart)
             {
-                return "Hero Power is not discoverable after start.";
+                return Localized("该英雄技能不能在开局后获得。", "Hero Power is not discoverable after start.");
             }
 
             if (HeroEffectImplementationRegistry.GetStatusByHeroPowerCardId(power.CardId) != HeroEffectImplementationStatus.Implemented)
             {
-                return "Hero Power is not implemented.";
+                return Localized("该英雄技能尚未实现。", "Hero Power is not implemented.");
             }
 
             if (!HeroCatalog.IsOfferableDiscoverHeroPower(power))
             {
-                return "Hero Power is not in the normal discover pool.";
+                return Localized("该英雄技能不在正常发现池中。", "Hero Power is not in the normal discover pool.");
             }
 
             return string.Empty;
@@ -20308,7 +20317,7 @@ namespace LearnHearthstone.Application.Services
             }
         }
 
-        private void BuyMinion(int shopIndex, int handInsertIndex = -1)
+        private void BuyMinion(int shopIndex)
         {
             var tavern = State.Player.Tavern;
             TavernShopSlots.Ensure(tavern);
@@ -20349,14 +20358,9 @@ namespace LearnHearthstone.Application.Services
             }
 
             target.Counters["last_purchase_cost"] = cost;
-            if (handInsertIndex >= 0)
-            {
-                tavern.Hand.Insert(Math.Min(handInsertIndex, tavern.Hand.Count), target);
-            }
-            else
-            {
-                tavern.Hand.Add(target);
-            }
+            // Every newly acquired card enters at the far right. Triple resolution and
+            // hand-entry triggers also rely on the newest cards occupying the tail.
+            tavern.Hand.Add(target);
             tavern.Shop[shopIndex] = null;
             TavernShopSlots.ClearSlot(tavern, shopIndex);
             RecordSeason14WarcryTotemBuy(target);
@@ -20529,21 +20533,47 @@ namespace LearnHearthstone.Application.Services
                 secondaryTargetZone,
                 secondaryTargetInstanceId);
 
-            var result = CastSingleTavernSpellEffect(
-                spell,
-                new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count),
-                targetIndex,
-                targetZone,
-                targetInstanceId,
-                choiceId,
-                secondaryTargetIndex,
-                secondaryTargetZone,
-                secondaryTargetInstanceId);
+            var actualCastCount = 1 + GetBelindaStonehearthExtraCasts(spell, targetZone);
+            var results = new List<string>();
+            var castTarget = (
+                TargetIndex: targetIndex,
+                TargetZone: targetZone,
+                TargetInstanceId: ResolvePlayerMinionTargetId(targetIndex, targetZone, targetInstanceId));
+            for (var actualCast = 0; actualCast < actualCastCount; actualCast += 1)
+            {
+                if (actualCast > 0 && !TryResolveRepeatedTavernSpellTarget(
+                    spell,
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId,
+                    State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast,
+                    out castTarget))
+                {
+                    break;
+                }
+
+                results.Add(CastSingleTavernSpellEffect(
+                    spell,
+                    new SeededRng(State.Seed + State.Round * 1777 + tavern.RecruitLog.Count + actualCast),
+                    castTarget.TargetIndex,
+                    castTarget.TargetZone,
+                    castTarget.TargetInstanceId,
+                    choiceId,
+                    secondaryTargetIndex,
+                    secondaryTargetZone,
+                    secondaryTargetInstanceId));
+            }
+
+            var result = string.Join(" + ", results);
 
             if (tavern.GuideShapingSpellCardIds != null && tavern.GuideShapingSpellCardIds.Count > 0)
             {
-                tavern.GuideShapingSpellCardIds.RemoveAll(cardId =>
+                var consumedIndex = tavern.GuideShapingSpellCardIds.FindIndex(cardId =>
                     string.Equals(cardId, spell.CardId, StringComparison.Ordinal));
+                if (consumedIndex >= 0)
+                {
+                    tavern.GuideShapingSpellCardIds.RemoveAt(consumedIndex);
+                }
                 tavern.GuideShapingSpellCardId = tavern.GuideShapingSpellCardIds.FirstOrDefault();
                 tavern.GuideShapingSpellConsumed = tavern.GuideShapingSpellCardIds.Count == 0;
             }
@@ -22020,7 +22050,6 @@ namespace LearnHearthstone.Application.Services
 
             var cardIds = (tavern.GuideShapingSpellCardIds ?? new List<string>())
                 .Where(StrategyGuideShapingSpells.Contains)
-                .Distinct(StringComparer.Ordinal)
                 .ToList();
             if (cardIds.Count == 0 && StrategyGuideShapingSpells.Contains(tavern.GuideShapingSpellCardId))
             {
@@ -22028,8 +22057,9 @@ namespace LearnHearthstone.Application.Services
             }
 
             var spells = new List<MinionInstance>();
-            foreach (var currentCardId in cardIds)
+            for (var index = 0; index < cardIds.Count; index += 1)
             {
+                var currentCardId = cardIds[index];
                 var definition = spellCatalog.All.FirstOrDefault(item =>
                     string.Equals(item.CardNumber, currentCardId, StringComparison.Ordinal));
                 if (definition == null)
@@ -22040,7 +22070,7 @@ namespace LearnHearthstone.Application.Services
                 var spell = MinionFactory.Create(
                     definition,
                     BoardSide.Player,
-                    "guide-shaping-round-" + State.Round + "-" + currentCardId.ToLowerInvariant());
+                    "guide-shaping-round-" + State.Round + "-" + index + "-" + currentCardId.ToLowerInvariant());
                 spell.Tags.Add(GuideTutorialProvenanceTag);
                 spells.Add(spell);
             }
@@ -30283,20 +30313,11 @@ namespace LearnHearthstone.Application.Services
                 extra += 1;
             }
 
+            extra += GetBelindaStonehearthExtraCasts(spell, targetZone);
+
             if (spell.CardKind != CardKind.TavernSpell)
             {
                 return extra;
-            }
-
-            var targetsFriendlyMinion = (targetZone == TargetZone.FriendlyBoard ||
-                                         targetZone == TargetZone.TavernShop ||
-                                         targetZone == TargetZone.Unspecified) &&
-                                        TavernSpellEngine.TargetsFriendlyMinion(spell);
-            if (targetsFriendlyMinion)
-            {
-                extra += State.Player.Board
-                    .Where(minion => minion != null && minion.CardId == BelindaStonehearthCardId)
-                    .Sum(minion => minion.Golden ? 2 : 1);
             }
 
             if (IsBountyCardId(spell.CardId))
@@ -30312,6 +30333,23 @@ namespace LearnHearthstone.Application.Services
             }
 
             return extra;
+        }
+
+        private int GetBelindaStonehearthExtraCasts(MinionInstance spell, TargetZone targetZone)
+        {
+            if (spell == null ||
+                (spell.CardKind != CardKind.TavernSpell && spell.CardKind != CardKind.Spell) ||
+                targetZone != TargetZone.FriendlyBoard ||
+                !TavernSpellEngine.TargetsFriendlyMinion(spell))
+            {
+                return 0;
+            }
+
+            // This is a continuous board aura: adding, removing, or goldenizing Balinda
+            // changes the next cast immediately without storing a stale player modifier.
+            return State.Player.Board
+                .Where(minion => minion != null && minion.CardId == BelindaStonehearthCardId)
+                .Sum(minion => minion.Golden ? 2 : 1);
         }
 
         private bool TryConsumeReplicaCathedralExtraCast()

@@ -386,7 +386,8 @@ namespace LearnHearthstone.Presentation.MainHub
             LayoutRebuilder.ForceRebuildLayoutImmediate(stepScroll.content);
             stepScroll.normalizedPosition = scrollPosition;
 
-            var first = stepContent.GetComponentsInChildren<Selectable>(true).FirstOrDefault();
+            var selectables = stepContent.GetComponentsInChildren<Selectable>(true);
+            var first = selectables.FirstOrDefault(item => !(item is InputField)) ?? selectables.FirstOrDefault();
             if (first != null && EventSystem.current != null)
             {
                 EventSystem.current.SetSelectedGameObject(first.gameObject);
@@ -663,6 +664,8 @@ namespace LearnHearthstone.Presentation.MainHub
             BuildNumberField(panel.transform, profile, "MaxGold", T("金币上限", "Maximum gold"), profile.MaxGold, 0,
                 StrategyGuideAuthoringFreezeService.MaximumAuthoringGold, value => profile.MaxGold = value);
 
+            BuildShapingSpellEditor(panel.transform, profile);
+
             BuildTextField(
                 panel.transform,
                 "StrategyGuideAuthoringLearningGoalInput-" + profile.ProfileId,
@@ -744,6 +747,30 @@ namespace LearnHearthstone.Presentation.MainHub
             if (LastFreezeResult?.Succeeded == true)
             {
                 BuildFrozenDelivery(panel.transform);
+            }
+            else if (LastFreezeResult != null && LastFreezeResult.Diagnostics.Count > 0)
+            {
+                BuildValidationFailure(panel.transform);
+            }
+        }
+
+        private void BuildValidationFailure(Transform parent)
+        {
+            var panel = AdvancedPanel(
+                "StrategyGuideAuthoringValidationResults",
+                parent,
+                T("校验未通过，请按下面项目修改", "Validation needs attention"));
+            foreach (var diagnostic in LastFreezeResult.Diagnostics.Take(8))
+            {
+                var row = UiFactory.Label(
+                    "StrategyGuideAuthoringValidationItem",
+                    panel.transform,
+                    "• " + DiagnosticText(diagnostic),
+                    14,
+                    FontStyle.Bold,
+                    layout);
+                row.color = UnityTavernUiStyle.DangerRed;
+                UiFactory.SetHeight(row.gameObject, 44f);
             }
         }
 
@@ -932,7 +959,7 @@ namespace LearnHearthstone.Presentation.MainHub
             SectionTitle(
                 panel.transform,
                 T("英雄、饰品与本局种族", "Hero, trinkets, and tribes"),
-                T("选择器只列出当前版本可用内容。五个种族必须包含攻略要求的种族。", "Pick from current-version content. The five tribes must include the guide's required tribes."));
+                T("选择器只列出当前版本可用内容。自定义阵容没有默认必选种族；模板标记的核心种族仍需保留。", "Pick from current-version content. Blank custom lineups have no required tribe; template-defined core tribes still stay selected."));
             SelectionRow(
                 panel.transform,
                 "StrategyGuideAuthoringHeroPickerButton",
@@ -1169,7 +1196,7 @@ namespace LearnHearthstone.Presentation.MainHub
                     minions ? MinionItems() : SpellItems(false),
                     null,
                     minions ? T("添加核心随从", "Add core minion") : T("添加核心法术", "Add core spell"),
-                    T("重复项目不会再次添加。", "Duplicate entries are ignored."),
+                    T("可按等级或关键词查找；已添加的卡牌会保留标记。", "Filter by tier or keyword. Added cards stay marked."),
                     item =>
                     {
                         if (!values.Contains(item.Id, StringComparer.OrdinalIgnoreCase))
@@ -1178,14 +1205,15 @@ namespace LearnHearthstone.Presentation.MainHub
                         }
                         SaveDraft(T("核心列表已保存。", "Core list saved."));
                         ShowStep(CompositionStep);
-                    }),
+                    },
+                    true,
+                    values),
                 layout);
             UnityTavernUiStyle.ConfigureButton(add, UnityTavernUiStyle.ArcaneBlue);
         }
 
         private void BuildAdvancedProfileEditor(Transform parent, StrategyGuideEntryProfileDefinition profile)
         {
-            BuildShapingSpellEditor(parent, profile);
             BuildPlacementEditor(parent, profile);
             BuildDarkGiftEditor(parent, profile);
             BuildOfferEditor(parent, profile);
@@ -1197,79 +1225,45 @@ namespace LearnHearthstone.Presentation.MainHub
             var panel = AdvancedPanel(
                 "StrategyGuideAuthoringShapingSpells-" + profile.ProfileId,
                 parent,
-                T("每回合塑造法术", "Per-turn shaping spells"));
-            var schedule = profile.ShapingSpellCardIds ?? (profile.ShapingSpellCardIds = new List<string>());
+                T("塑造法术类别", "Shaping spell category"));
+            var selected = profile.ShapingSpellCardIds?.FirstOrDefault(StrategyGuideShapingSpells.Contains);
             var hint = UiFactory.Label(
                 "StrategyGuideAuthoringShapingSpellHint-" + profile.ProfileId,
                 panel.transform,
                 T(
-                    "第 1 项对应进入关卡后的第 1 个回合；超过已配置回合后继续发放最后一张。塑造法术使用独立槽，不占普通手牌。",
-                    "Item 1 is the first local turn. Later turns repeat the final configured spell. Shaping spells use a dedicated slot and never occupy the normal hand."),
+                    "为这套阵容指定战吼、亡语或回合结束中的一个类别。进入关卡时发两张，之后每个酒馆回合发一张同类法术。",
+                    "Choose one category for this lineup: Battlecry, Deathrattle, or end of turn. Two copies are granted initially, then one copy each Tavern turn."),
                 14,
                 FontStyle.Normal,
                 layout);
             hint.color = UnityTavernUiStyle.TextMuted;
             UiFactory.SetHeight(hint.gameObject, layout.IsCompact ? 72f : 54f);
 
-            for (var index = 0; index < schedule.Count; index += 1)
-            {
-                var capturedIndex = index;
-                var cardId = schedule[index];
-                SelectionRow(
-                    panel.transform,
-                    "StrategyGuideAuthoringShapingSpellButton-" + profile.ProfileId + "-" + index,
-                    T("本地回合 ", "Local turn ") + (index + 1),
-                    DisplaySpell(cardId),
-                    T("选择", "Choose"),
-                    () => OpenShapingSpellPicker(profile, capturedIndex));
-            }
-
-            var add = UiFactory.Button(
-                "StrategyGuideAuthoringShapingSpellAddButton-" + profile.ProfileId,
+            SelectionRow(
                 panel.transform,
-                T("＋ 配置下一回合", "+ Configure next turn"),
-                () => OpenShapingSpellPicker(profile, schedule.Count),
-                layout);
-            UnityTavernUiStyle.ConfigureButton(add, UnityTavernUiStyle.ArcaneBlue);
-
-            if (schedule.Count > 1)
-            {
-                var remove = UiFactory.Button(
-                    "StrategyGuideAuthoringShapingSpellRemoveButton-" + profile.ProfileId,
-                    panel.transform,
-                    T("移除最后一个回合", "Remove final turn"),
-                    () =>
-                    {
-                        schedule.RemoveAt(schedule.Count - 1);
-                        SaveAndRefreshProfiles(T("最后一个塑造回合已移除。", "Final shaping turn removed."));
-                    },
-                    layout);
-                UnityTavernUiStyle.ConfigureButton(remove, UnityTavernUiStyle.DangerRed);
-            }
+                "StrategyGuideAuthoringShapingSpellButton-" + profile.ProfileId,
+                T("阵容专属类别", "Lineup category"),
+                selected == null ? T("未选择", "Not selected") : DisplaySpell(selected),
+                T("选择", "Choose"),
+                () => OpenShapingSpellPicker(profile));
         }
 
-        private void OpenShapingSpellPicker(StrategyGuideEntryProfileDefinition profile, int scheduleIndex)
+        private void OpenShapingSpellPicker(StrategyGuideEntryProfileDefinition profile)
         {
-            var schedule = profile.ShapingSpellCardIds ?? (profile.ShapingSpellCardIds = new List<string>());
-            var currentId = scheduleIndex >= 0 && scheduleIndex < schedule.Count ? schedule[scheduleIndex] : null;
+            var selected = profile.ShapingSpellCardIds ?? (profile.ShapingSpellCardIds = new List<string>());
+            var currentId = selected.FirstOrDefault(StrategyGuideShapingSpells.Contains);
             OpenPicker(
                 ShapingSpellItems(),
                 currentId,
-                T("选择塑造法术", "Choose shaping spell"),
+                T("选择阵容专属塑造类别", "Choose the lineup's shaping category"),
                 T(
-                    "这三张法术只服务于攻略模式，会真实触发亡语、战吼或回合结束效果，但不会计入普通酒馆法术施放次数。",
-                    "These three guide-only spells trigger real Deathrattle, Battlecry, or end-of-turn effects without counting as normal Tavern Spell casts."),
+                    "每套阵容只能选择一种。进入关卡先获得两张，之后每个酒馆回合获得一张。",
+                    "Each lineup selects exactly one category. You receive two copies initially and one copy each later Tavern turn."),
                 item =>
                 {
-                    if (scheduleIndex < schedule.Count)
-                    {
-                        schedule[scheduleIndex] = item.Id;
-                    }
-                    else
-                    {
-                        schedule.Add(item.Id);
-                    }
-                    SaveAndRefreshProfiles(T("塑造法术安排已保存。", "Shaping spell schedule saved."));
+                    selected.Clear();
+                    selected.Add(item.Id);
+                    SaveAndRefreshProfiles(T("阵容塑造类别已保存。", "Lineup shaping category saved."));
                 });
         }
 
@@ -1649,11 +1643,12 @@ namespace LearnHearthstone.Presentation.MainHub
             UiFactory.SetWidth(inputObject, 100f);
             var input = inputObject.GetComponent<InputField>();
             input.contentType = InputField.ContentType.IntegerNumber;
-            input.text = value.ToString();
             var text = UiFactory.Label(inputObject.name + "Text", inputObject.transform, string.Empty, 16, FontStyle.Bold, layout);
             text.alignment = TextAnchor.MiddleCenter;
             UiFactory.Stretch(text.rectTransform);
             input.textComponent = text;
+            input.text = value.ToString();
+            input.ForceLabelUpdate();
             inputObject.AddComponent<UnitySelectableFocusRing>();
             UnityTavernUiStyle.ConfigureInputField(input, StrategyGuideUiTheme.Focus);
             input.onEndEdit.AddListener(raw =>
@@ -1674,7 +1669,9 @@ namespace LearnHearthstone.Presentation.MainHub
             string currentId,
             string titleText,
             string helpText,
-            Action<StrategyGuideAuthoringPickerItem> select)
+            Action<StrategyGuideAuthoringPickerItem> select,
+            bool cardLibraryMode = false,
+            IEnumerable<string> selectedIds = null)
         {
             ClosePicker();
             pickerOverlay = StrategyGuideAuthoringPickerModalComponent.CreateModalHost(shell.transform);
@@ -1690,7 +1687,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 },
                 ClosePicker,
                 useEnglish,
-                layout);
+                layout,
+                cardLibraryMode,
+                selectedIds);
         }
 
         private void ClosePicker()
@@ -1717,32 +1716,56 @@ namespace LearnHearthstone.Presentation.MainHub
         private IEnumerable<StrategyGuideAuthoringPickerItem> MinionItems()
         {
             return catalogs.Minions.All
-                .Where(item => item.InPool)
+                .Where(item => item.InPool && !IsDuosCard(item.CardId))
                 .Select(item => new StrategyGuideAuthoringPickerItem
                 {
                     Id = item.CardId,
                     Name = item.Name,
-                    Detail = T("等级 ", "Tier ") + item.TavernTier + " · " + item.Text,
-                    Group = "Tier " + item.TavernTier,
+                    Detail = T("等级 ", "Tier ") + item.TavernTier + " · " +
+                        MinionTribesText(item.Tribes) + " · " + item.Text,
+                    Group = T("等级 ", "Tier ") + item.TavernTier,
+                    SearchTerms = string.Join(" ", (item.Tribes ?? new List<Tribe>())
+                        .Select(tribe => TribeDisplayName(tribe.ToString()))),
                     ImagePath = item.ImagePath,
-                    CardKind = CardKind.Minion
+                    CardKind = CardKind.Minion,
+                    TavernTier = item.TavernTier
                 });
         }
 
         private IEnumerable<StrategyGuideAuthoringPickerItem> SpellItems(bool includeGuideTutorial)
         {
             return catalogs.Spells.All
-                .Where(item => item.InPool || includeGuideTutorial && IsGuideTutorialSpell(item))
+                .Where(item => !IsDuosCard(item.CardNumber) &&
+                    (item.InPool && string.Equals(item.Category, "TavernSpell", StringComparison.OrdinalIgnoreCase) ||
+                     includeGuideTutorial && IsGuideTutorialSpell(item)))
                 .Select(item => new StrategyGuideAuthoringPickerItem
                 {
                     Id = item.CardNumber,
                     Name = useEnglish && !string.IsNullOrWhiteSpace(item.EnglishName) ? item.EnglishName : item.Name,
                     Detail = (IsGuideTutorialSpell(item) ? T("一图流教学专用 · ", "Guide tutorial only · ") : T("等级 ", "Tier ") + item.TavernTier + " · ") +
                         (useEnglish && !string.IsNullOrWhiteSpace(item.EnglishText) ? item.EnglishText : item.Text),
-                    Group = IsGuideTutorialSpell(item) ? "GuideTutorial" : "Tier " + item.TavernTier,
+                    Group = IsGuideTutorialSpell(item) ? T("一图流教学", "Guide tutorial") : T("等级 ", "Tier ") + item.TavernTier,
+                    SearchTerms = string.Join(" ", (item.Keywords ?? new List<string>()).Concat(item.Tags ?? new List<string>())),
                     ImagePath = item.ImagePath,
-                    CardKind = CardKind.TavernSpell
+                    CardKind = CardKind.TavernSpell,
+                    TavernTier = item.TavernTier
                 });
+        }
+
+        private string MinionTribesText(IEnumerable<Tribe> tribes)
+        {
+            var names = (tribes ?? Enumerable.Empty<Tribe>())
+                .Where(tribe => tribe != Tribe.None)
+                .Select(tribe => TribeDisplayName(tribe.ToString()))
+                .Distinct()
+                .ToArray();
+            return names.Length == 0 ? T("中立", "Neutral") : string.Join("/", names);
+        }
+
+        private static bool IsDuosCard(string cardId)
+        {
+            return !string.IsNullOrWhiteSpace(cardId) &&
+                cardId.StartsWith("BGDUO", StringComparison.OrdinalIgnoreCase);
         }
 
         private IEnumerable<StrategyGuideAuthoringPickerItem> ProfileCardItems()
@@ -1979,12 +2002,12 @@ namespace LearnHearthstone.Presentation.MainHub
 
             var inputObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(InputField));
             inputObject.transform.SetParent(group.transform, false);
-            UiFactory.SetMinSize(inputObject, UnityTavernUiStyle.TouchHeight, UnityTavernUiStyle.TouchHeight);
-            UiFactory.SetHeight(inputObject, multiline ? 104f : UnityTavernUiStyle.TouchHeight);
+            var touchHeight = layout.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight);
+            UiFactory.SetMinSize(inputObject, touchHeight, touchHeight);
+            UiFactory.SetHeight(inputObject, multiline ? Mathf.Max(104f, touchHeight * 2f) : touchHeight);
             var input = inputObject.GetComponent<InputField>();
             input.lineType = multiline ? InputField.LineType.MultiLineNewline : InputField.LineType.SingleLine;
             input.characterLimit = multiline ? 320 : 80;
-            input.text = value ?? string.Empty;
             input.caretColor = UnityTavernUiStyle.TextLight;
             input.selectionColor = UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Gold, 0.36f);
 
@@ -1994,6 +2017,10 @@ namespace LearnHearthstone.Presentation.MainHub
             text.rectTransform.offsetMin = new Vector2(12f, 8f);
             text.rectTransform.offsetMax = new Vector2(-12f, -8f);
             input.textComponent = text;
+            input.text = value ?? string.Empty;
+            input.ForceLabelUpdate();
+            inputObject.AddComponent<StrategyGuideAuthoringInputVisibilityHandler>().Selected =
+                () => KeepFocusedInputVisible(inputObject.GetComponent<RectTransform>());
             input.onEndEdit.AddListener(committed => commit?.Invoke(committed.Trim()));
             inputObject.AddComponent<UnitySelectableFocusRing>();
             UnityTavernUiStyle.ConfigureInputField(input, StrategyGuideUiTheme.Focus);
@@ -2013,7 +2040,8 @@ namespace LearnHearthstone.Presentation.MainHub
                 "StrategyGuideAuthoring" + fieldName + "Row-" + profile.ProfileId,
                 parent,
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.74f));
-            UiFactory.SetHeight(rowPanel, 56f);
+            var touchHeight = layout.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight);
+            UiFactory.SetHeight(rowPanel, Mathf.Max(56f, touchHeight));
             var row = UiFactory.Horizontal(rowPanel, 8, 8);
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
@@ -2030,18 +2058,22 @@ namespace LearnHearthstone.Presentation.MainHub
             var objectName = "StrategyGuideAuthoring" + fieldName + "Input-" + profile.ProfileId;
             var inputObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(InputField));
             inputObject.transform.SetParent(rowPanel.transform, false);
-            UiFactory.SetMinSize(inputObject, 92f, UnityTavernUiStyle.TouchHeight);
-            UiFactory.SetWidth(inputObject, layout.IsCompact ? 92f : 112f);
+            var inputWidth = layout.IsCompact ? layout.CanvasUnitsForPhysicalPixels(92f) : 112f;
+            UiFactory.SetMinSize(inputObject, inputWidth, touchHeight);
+            UiFactory.SetWidth(inputObject, inputWidth);
             var input = inputObject.GetComponent<InputField>();
             input.contentType = InputField.ContentType.IntegerNumber;
             input.lineType = InputField.LineType.SingleLine;
-            input.text = value.ToString();
             var text = UiFactory.Label(objectName + "Text", inputObject.transform, string.Empty, 16, FontStyle.Bold, layout);
             text.alignment = TextAnchor.MiddleCenter;
             UiFactory.Stretch(text.rectTransform);
             input.textComponent = text;
+            input.text = value.ToString();
+            input.ForceLabelUpdate();
             inputObject.AddComponent<UnitySelectableFocusRing>();
             UnityTavernUiStyle.ConfigureInputField(input, StrategyGuideUiTheme.Focus);
+            inputObject.AddComponent<StrategyGuideAuthoringInputVisibilityHandler>().Selected =
+                () => KeepFocusedInputVisible(inputObject.GetComponent<RectTransform>());
             input.onEndEdit.AddListener(raw =>
             {
                 if (!int.TryParse(raw, out var parsed) || parsed < minimum || parsed > maximum)
@@ -2053,6 +2085,47 @@ namespace LearnHearthstone.Presentation.MainHub
                 commit(parsed);
                 SaveDraft(labelText + T("已自动保存。", " autosaved."));
             });
+        }
+
+        private void KeepFocusedInputVisible(RectTransform target)
+        {
+            EnsureFocusedInputVisible(target);
+            if (UnityEngine.Application.isPlaying && operationRunner != null)
+            {
+                operationRunner.Run(KeepFocusedInputVisibleOverFrames(target));
+            }
+        }
+
+        private IEnumerator KeepFocusedInputVisibleOverFrames(RectTransform target)
+        {
+            yield return null;
+            EnsureFocusedInputVisible(target);
+            yield return null;
+            EnsureFocusedInputVisible(target);
+        }
+
+        private void EnsureFocusedInputVisible(RectTransform target)
+        {
+            if (target == null || stepScroll == null || stepScroll.content == null || stepScroll.viewport == null)
+            {
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(stepScroll.content);
+            var viewportHeight = stepScroll.viewport.rect.height;
+            var hiddenHeight = Mathf.Max(0f, stepScroll.content.rect.height - viewportHeight);
+            if (viewportHeight <= 0f || hiddenHeight <= 0f)
+            {
+                return;
+            }
+
+            var targetBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(stepScroll.content, target);
+            var targetTopFromContent = stepScroll.content.rect.yMax - targetBounds.max.y;
+            var safeTop = viewportHeight * (layout.IsCompact ? 0.18f : 0.12f);
+            var desiredY = Mathf.Clamp(targetTopFromContent - safeTop, 0f, hiddenHeight);
+            stepScroll.StopMovement();
+            stepScroll.content.anchoredPosition = new Vector2(stepScroll.content.anchoredPosition.x, desiredY);
         }
 
         private GameObject StepPanel(string name, Transform parent)
@@ -2171,6 +2244,7 @@ namespace LearnHearthstone.Presentation.MainHub
                     .Take(3)
                     .Select(DiagnosticText);
                 FinishFreeze(T("无法冻结：", "Cannot freeze: ") + string.Join("；", recovery), false);
+                ShowStep(FreezeStep);
                 yield break;
             }
 
@@ -2370,6 +2444,16 @@ namespace LearnHearthstone.Presentation.MainHub
         public void Run(IEnumerator routine)
         {
             StartCoroutine(routine);
+        }
+    }
+
+    internal sealed class StrategyGuideAuthoringInputVisibilityHandler : MonoBehaviour, ISelectHandler
+    {
+        public Action Selected { get; set; }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            Selected?.Invoke();
         }
     }
 }

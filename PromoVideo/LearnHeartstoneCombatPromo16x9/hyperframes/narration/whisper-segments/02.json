@@ -1,0 +1,297 @@
+{
+	"systeminfo": "WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | OPENMP = 1 | REPACK = 1 | ",
+	"model": {
+		"type": "small",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"text": {
+			"ctx": 448,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": "C:\\Users\\wch\\.cache\\hyperframes\\whisper\\models\\ggml-small.bin",
+		"language": "zh",
+		"translate": false
+	},
+	"result": {
+		"language": "zh"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:03,840"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 3840
+			},
+			"text": "从对局环境开始搭建,选择种族与英雄",
+			"tokens": [
+				{
+					"text": "[_BEG_]",
+					"timestamps": {
+						"from": "00:00:00,000",
+						"to": "00:00:00,000"
+					},
+					"offsets": {
+						"from": 0,
+						"to": 0
+					},
+					"id": 50364,
+					"p": 0.996957,
+					"t_dtw": -1
+				},
+				{
+					"text": "从",
+					"timestamps": {
+						"from": "00:00:00,070",
+						"to": "00:00:00,220"
+					},
+					"offsets": {
+						"from": 70,
+						"to": 220
+					},
+					"id": 35630,
+					"p": 0.426142,
+					"t_dtw": 18
+				},
+				{
+					"text": "对",
+					"timestamps": {
+						"from": "00:00:00,220",
+						"to": "00:00:00,430"
+					},
+					"offsets": {
+						"from": 220,
+						"to": 430
+					},
+					"id": 8713,
+					"p": 0.940604,
+					"t_dtw": 40
+				},
+				{
+					"text": "局",
+					"timestamps": {
+						"from": "00:00:00,440",
+						"to": "00:00:00,640"
+					},
+					"offsets": {
+						"from": 440,
+						"to": 640
+					},
+					"id": 34703,
+					"p": 0.9713,
+					"t_dtw": 58
+				},
+				{
+					"text": "环",
+					"timestamps": {
+						"from": "00:00:00,710",
+						"to": "00:00:00,870"
+					},
+					"offsets": {
+						"from": 710,
+						"to": 870
+					},
+					"id": 8051,
+					"p": 0.9947,
+					"t_dtw": 82
+				},
+				{
+					"text": "境",
+					"timestamps": {
+						"from": "00:00:00,870",
+						"to": "00:00:01,060"
+					},
+					"offsets": {
+						"from": 870,
+						"to": 1060
+					},
+					"id": 47885,
+					"p": 0.998635,
+					"t_dtw": 102
+				},
+				{
+					"text": "开始",
+					"timestamps": {
+						"from": "00:00:01,120",
+						"to": "00:00:01,530"
+					},
+					"offsets": {
+						"from": 1120,
+						"to": 1530
+					},
+					"id": 45213,
+					"p": 0.995619,
+					"t_dtw": 130
+				},
+				{
+					"text": "搭",
+					"timestamps": {
+						"from": "00:00:01,530",
+						"to": "00:00:01,740"
+					},
+					"offsets": {
+						"from": 1530,
+						"to": 1740
+					},
+					"id": 22220,
+					"p": 0.983297,
+					"t_dtw": 160
+				},
+				{
+					"text": "建",
+					"timestamps": {
+						"from": "00:00:01,740",
+						"to": "00:00:01,850"
+					},
+					"offsets": {
+						"from": 1740,
+						"to": 1850
+					},
+					"id": 34157,
+					"p": 0.98419,
+					"t_dtw": 180
+				},
+				{
+					"text": ",",
+					"timestamps": {
+						"from": "00:00:02,160",
+						"to": "00:00:02,160"
+					},
+					"offsets": {
+						"from": 2160,
+						"to": 2160
+					},
+					"id": 11,
+					"p": 0.524108,
+					"t_dtw": 224
+				},
+				{
+					"text": "选",
+					"timestamps": {
+						"from": "00:00:02,240",
+						"to": "00:00:02,400"
+					},
+					"offsets": {
+						"from": 2240,
+						"to": 2400
+					},
+					"id": 2215,
+					"p": 0.918143,
+					"t_dtw": 234
+				},
+				{
+					"text": "择",
+					"timestamps": {
+						"from": "00:00:02,400",
+						"to": "00:00:02,600"
+					},
+					"offsets": {
+						"from": 2400,
+						"to": 2600
+					},
+					"id": 6852,
+					"p": 0.998369,
+					"t_dtw": 260
+				},
+				{
+					"text": "种",
+					"timestamps": {
+						"from": "00:00:02,680",
+						"to": "00:00:02,840"
+					},
+					"offsets": {
+						"from": 2680,
+						"to": 2840
+					},
+					"id": 39810,
+					"p": 0.916404,
+					"t_dtw": 280
+				},
+				{
+					"text": "族",
+					"timestamps": {
+						"from": "00:00:02,900",
+						"to": "00:00:03,120"
+					},
+					"offsets": {
+						"from": 2900,
+						"to": 3120
+					},
+					"id": 4479,
+					"p": 0.996139,
+					"t_dtw": 294
+				},
+				{
+					"text": "与",
+					"timestamps": {
+						"from": "00:00:03,120",
+						"to": "00:00:03,360"
+					},
+					"offsets": {
+						"from": 3120,
+						"to": 3360
+					},
+					"id": 940,
+					"p": 0.974355,
+					"t_dtw": 314
+				},
+				{
+					"text": "英",
+					"timestamps": {
+						"from": "00:00:03,360",
+						"to": "00:00:03,600"
+					},
+					"offsets": {
+						"from": 3360,
+						"to": 3600
+					},
+					"id": 27869,
+					"p": 0.996523,
+					"t_dtw": 338
+				},
+				{
+					"text": "雄",
+					"timestamps": {
+						"from": "00:00:03,600",
+						"to": "00:00:03,840"
+					},
+					"offsets": {
+						"from": 3600,
+						"to": 3840
+					},
+					"id": 6306,
+					"p": 0.999043,
+					"t_dtw": 354
+				},
+				{
+					"text": "[_TT_192]",
+					"timestamps": {
+						"from": "00:00:03,840",
+						"to": "00:00:03,840"
+					},
+					"offsets": {
+						"from": 3840,
+						"to": 3840
+					},
+					"id": 50556,
+					"p": 0.0747308,
+					"t_dtw": -1
+				}
+			]
+		}
+	]
+}

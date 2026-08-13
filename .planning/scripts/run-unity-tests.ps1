@@ -3,8 +3,11 @@ param(
     [string]$Mode = "EditMode",
     [string]$RefreshScope = "all",
     [string]$Compile = "request",
+    [string]$JobId = "",
+    [string]$ConsoleFilter = "error CS",
     [switch]$SkipRefresh,
     [switch]$RefreshOnly,
+    [switch]$ConsoleOnly,
     [switch]$AllTests,
     [int]$PortStart = 6400,
     [int]$PortEnd = 6410,
@@ -97,9 +100,10 @@ function Invoke-UnityMcpCommand {
 }
 
 function Find-UnityMcpPort {
+    $probeTimeoutMs = [Math]::Min([Math]::Max($TimeoutMs, 5000), 120000)
     for ($port = $PortStart; $port -le $PortEnd; $port += 1) {
         try {
-            $state = Invoke-UnityMcpCommand -Port $port -Payload @{ type = "get_editor_state"; params = @{} } -CommandTimeoutMs 5000
+            $state = Invoke-UnityMcpCommand -Port $port -Payload @{ type = "get_editor_state"; params = @{} } -CommandTimeoutMs $probeTimeoutMs
             if ($state.status -eq "success" -and $state.result.success) {
                 return $port
             }
@@ -149,12 +153,30 @@ function Wait-UnityIdle {
 $port = Find-UnityMcpPort
 Write-Host "Using Unity MCP port $port"
 
+if ($ConsoleOnly) {
+    $console = Invoke-UnityMcpCommand -Port $port -Payload @{
+        type = "read_console"
+        params = @{
+            action = "get"
+            types = @("error")
+            count = 200
+            filterText = $ConsoleFilter
+            format = "json"
+            includeStacktrace = $false
+        }
+    }
+    $console | ConvertTo-Json -Depth 16
+    exit 0
+}
+
 if (-not $SkipRefresh) {
     [void](Invoke-UnityMcpCommand -Port $port -Payload @{
         type = "refresh_unity"
         params = @{
+            mode = "force"
             scope = $RefreshScope
             compile = $Compile
+            wait_for_ready = $false
         }
     })
 
@@ -166,25 +188,30 @@ if ($RefreshOnly) {
     exit 0
 }
 
-$runParams = @{ mode = $Mode }
-if (-not $AllTests) {
-    $runParams.testNames = $TestName
-}
+if ([string]::IsNullOrWhiteSpace($JobId)) {
+    $runParams = @{ mode = $Mode }
+    if (-not $AllTests) {
+        $runParams.testNames = $TestName
+    }
 
-$start = Invoke-UnityMcpCommand -Port $port -Payload @{
-    type = "run_tests"
-    params = $runParams
-}
+    $start = Invoke-UnityMcpCommand -Port $port -Payload @{
+        type = "run_tests"
+        params = $runParams
+    }
 
-$jobId = $start.result.data.job_id
-Write-Host "Started Unity test job $jobId"
+    $JobId = $start.result.data.job_id
+    Write-Host "Started Unity test job $JobId"
+}
+else {
+    Write-Host "Resuming Unity test job $JobId"
+}
 
 for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
     try {
         $job = Invoke-UnityMcpCommand -Port $port -Payload @{
             type = "get_test_job"
             params = @{
-                job_id = $jobId
+                job_id = $JobId
                 include_details = $false
                 include_failed_tests = $true
             }
@@ -205,7 +232,7 @@ for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
     $data = $job.result.data
     if ($data.status -eq "running") {
         if (($poll % 5) -eq 0) {
-            Write-Host "Tests running: completed=$($data.progress.completed)/$($data.progress.total)"
+            Write-Host "Tests running: completed=$($data.progress.completed)/$($data.progress.total) current=$($data.progress.current_test_full_name) last=$($data.progress.last_finished_test_full_name)"
         }
 
         Start-Sleep -Seconds $PollSeconds
@@ -232,4 +259,4 @@ for ($poll = 1; $poll -le $MaxPolls; $poll += 1) {
     exit 0
 }
 
-throw "Unity test job $jobId did not finish after $MaxPolls polls."
+throw "Unity test job $JobId did not finish after $MaxPolls polls."

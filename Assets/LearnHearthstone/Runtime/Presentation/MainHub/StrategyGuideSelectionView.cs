@@ -5,6 +5,7 @@ using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Data;
+using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
@@ -299,6 +300,15 @@ namespace LearnHearthstone.Presentation.MainHub
             hint.color = UnityTavernUiStyle.TextMuted;
             UiFactory.SetHeight(hint.gameObject, layout.IsCompact ? 54f : 42f);
 
+            var blank = UiFactory.Button(
+                "StrategyGuideAuthoringBlankButton",
+                card.transform,
+                T("空白创建", "Start blank"),
+                () => OpenAuthoringEditor(CreateBlankGuide()),
+                layout);
+            UnityTavernUiStyle.ConfigureButton(blank, UnityTavernUiStyle.Gold, true);
+            UiFactory.SetHeight(blank.gameObject, UnityTavernUiStyle.TouchHeight);
+
             IReadOnlyList<string> draftIds = Array.Empty<string>();
             string draftReadError = null;
             try
@@ -365,7 +375,7 @@ namespace LearnHearthstone.Presentation.MainHub
                     "StrategyGuideAuthoringDraftsEmpty",
                     !string.IsNullOrWhiteSpace(draftReadError)
                         ? T("草稿读取失败：", "Could not read drafts: ") + draftReadError
-                        : T("暂无本地草稿。可切换到“使用模板”开始创建。", "No local drafts. Open Templates to start one."),
+                        : T("暂无本地草稿。可以空白创建，也可以使用模板。", "No local drafts. Start blank or use a template."),
                     !string.IsNullOrWhiteSpace(draftReadError));
             }
 
@@ -395,7 +405,112 @@ namespace LearnHearthstone.Presentation.MainHub
             UnityTavernUiStyle.ConfigureButton(cancel, UnityTavernUiStyle.ArcaneBlue);
             UiFactory.SetHeight(cancel.gameObject, UnityTavernUiStyle.TouchHeight);
             authoringOverlay.AddComponent<UnityFocusTrap>().Activate(
-                draftContent.GetComponentsInChildren<Button>(true).FirstOrDefault()?.gameObject ?? tabButtons[0].gameObject);
+                blank.gameObject);
+        }
+
+        private StrategyGuideDefinition CreateBlankGuide()
+        {
+            var authoringCatalogs = resolvedVersion?.Snapshot?.ForLanguage(useEnglish) ?? catalogs;
+            var hero = authoringCatalogs.Heroes.AllHeroes.FirstOrDefault(item =>
+                item.InPool &&
+                HeroEffectImplementationRegistry.FindByHeroCardId(item.HeroCardId).Status == HeroEffectImplementationStatus.Implemented);
+            var lesserTrinket = authoringCatalogs.Trinkets.GetOfferableBySlot(TrinketSlotKind.Lesser).FirstOrDefault();
+            var greaterTrinket = authoringCatalogs.Trinkets.GetOfferableBySlot(TrinketSlotKind.Greater).FirstOrDefault();
+            var minions = authoringCatalogs.Minions.All.Where(item => item.InPool).Take(7).ToList();
+            var activeTribes = TribeAvailabilityRules.PlayableTribes.Take(5).Select(item => item.ToString()).ToList();
+
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            var guide = new StrategyGuideDefinition
+            {
+                GuideId = "GUIDE-CUSTOM-" + timestamp,
+                RevisionId = "authoring-working-copy",
+                GameVersionId = gameVersionId,
+                Title = "未命名一图流",
+                EnglishTitle = "Untitled one-page guide",
+                Summary = "从空白阵容开始制作。",
+                EnglishSummary = "Created from a blank lineup.",
+                Archetype = "Custom",
+                HeroCardId = hero?.HeroCardId,
+                LesserTrinketCardId = lesserTrinket?.CardId,
+                GreaterTrinketCardId = greaterTrinket?.CardId,
+                RecommendedLesserTrinketCardIds = lesserTrinket == null
+                    ? new List<string>()
+                    : new List<string> { lesserTrinket.CardId },
+                RecommendedGreaterTrinketCardIds = greaterTrinket == null
+                    ? new List<string>()
+                    : new List<string> { greaterTrinket.CardId },
+                ActiveTribes = activeTribes,
+                RequiredTribes = new List<string>()
+            };
+
+            for (var index = 0; index < 7; index += 1)
+            {
+                var cardId = minions.Count == 0 ? null : minions[index % minions.Count].CardId;
+                guide.FinalComposition.Add(new StrategyGuideCardDefinition
+                {
+                    PlacementId = "custom-final-" + (index + 1),
+                    CardKind = StrategyGuideCardKinds.Minion,
+                    CardId = cardId,
+                    Provenance = StrategyGuideProvenance.NormalPool
+                });
+            }
+
+            var opponent = (catalog.Opponents ?? new List<StrategyGuideOpponentDefinition>()).FirstOrDefault(item =>
+                item != null && string.Equals(item.GameVersionId, gameVersionId, StringComparison.Ordinal));
+            var profile = new StrategyGuideEntryProfileDefinition
+            {
+                ProfileId = "showcase",
+                Difficulty = StrategyGuideDifficulties.Showcase,
+                Title = "简单模式",
+                EnglishTitle = "Showcase",
+                LearningGoal = "完成这套阵容的一图流教学。",
+                EnglishLearningGoal = "Complete this lineup's one-page lesson.",
+                StartRound = 10,
+                TavernTier = 6,
+                Gold = 10,
+                MaxGold = 10,
+                Seed = timestamp.GetHashCode(),
+                AllowedCommands = new List<string>
+                {
+                    "BuyMinion", "SellMinion", "RerollShop", "FreezeShop", "UpgradeTavern",
+                    "PlayMinion", "MoveMinion", "MoveBoardMinion", "UseHeroPower",
+                    "ChooseDiscover", "ChooseMechanicOption", "UseGuideShapingSpell",
+                    "BeginNextTurnTransition", "ContinueNextTurnTransition"
+                },
+                ShapingSpellCardIds = new List<string> { StrategyGuideShapingSpells.Battlecry },
+                Opponent = new StrategyGuideOpponentSelector
+                {
+                    StrengthRound = opponent?.StrengthRound ?? 10,
+                    RequiredTag = opponent?.Tags?.FirstOrDefault()
+                },
+                Victory = new StrategyGuideVictoryCondition
+                {
+                    RequireFinalComposition = true,
+                    RequireCombatWin = true,
+                    PostWinChoices = new List<string> { "FreeExplore", "Restart", "Return" }
+                },
+                Undo = new StrategyGuideUndoPolicy
+                {
+                    UsesPerRun = 1,
+                    RestoreRng = true,
+                    LockAfterTurnEnd = true,
+                    LockAfterCombat = true,
+                    LockDuringFreeExplore = true
+                }
+            };
+            foreach (var card in guide.FinalComposition)
+            {
+                profile.Placements.Add(new StrategyGuideCardDefinition
+                {
+                    PlacementId = "custom-board-" + profile.Placements.Count,
+                    Zone = StrategyGuideZones.Board,
+                    CardKind = card.CardKind,
+                    CardId = card.CardId,
+                    Provenance = card.Provenance
+                });
+            }
+            guide.EntryProfiles.Add(profile);
+            return guide;
         }
 
         private Transform BuildAuthoringStartPage(Transform parent, string name, ICollection<GameObject> pages)

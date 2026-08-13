@@ -1,0 +1,127 @@
+<view class="safe-page home-page">
+  <view class="tavern-mast">
+    <view class="brand-seal">8</view>
+    <view class="mast-copy">
+      <text class="eyebrow">第 14 赛季 · 掌上战术板</text>
+      <text class="hero-title warm">一图流训练</text>
+      <text class="hero-copy muted">看真牌、认起手、按顺序完成操作。</text>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{continued}}"
+    class="surface continue-card"
+    data-guide-id="{{continued.guideId}}"
+    data-profile-id="{{continued.profileId}}"
+    hover-class="surface-pressed"
+    bindtap="openGuide"
+  >
+    <image wx:if="{{continued.hero.artType === 'image'}}" class="continue-hero" src="{{continued.hero.image}}" mode="aspectFit" />
+    <view class="continue-copy">
+      <text class="eyebrow">继续上次训练</text>
+      <text class="continue-title">{{continued.title}}</text>
+      <text class="continue-meta">{{continued.profileTitle}} · {{continued.completed}} / {{continued.total}} 步</text>
+    </view>
+    <text class="continue-arrow">›</text>
+  </view>
+
+  <view class="control-row">
+    <view class="search-shell">
+      <text class="search-icon">⌕</text>
+      <input
+        class="search-input"
+        value="{{query}}"
+        placeholder="搜索阵容或核心牌"
+        placeholder-class="input-placeholder"
+        bindinput="onSearchInput"
+      />
+    </view>
+    <button class="tool-button {{favoritesOnly ? 'tool-button-active' : ''}}" hover-class="button-pressed" bindtap="toggleFavoritesOnly">{{favoritesOnly ? '已收藏' : '收藏'}}</button>
+    <button class="tool-button" hover-class="button-pressed" bindtap="toggleImport">导入</button>
+  </view>
+
+  <view wx:if="{{showImport}}" class="surface import-drawer">
+    <text class="section-title">打开一图流</text>
+    <text class="import-copy muted">支持阵容编号、旧 20 位分享码或分享链接。</text>
+    <input
+      class="import-input"
+      value="{{importValue}}"
+      placeholder="粘贴编号或链接"
+      placeholder-class="input-placeholder"
+      confirm-type="go"
+      bindinput="onImportInput"
+      bindconfirm="submitImport"
+    />
+    <text wx:if="{{importError}}" class="inline-error">{{importError}}</text>
+    <view class="import-actions">
+      <button class="primary-button import-action" hover-class="button-pressed" bindtap="submitImport">打开</button>
+      <button class="secondary-button import-action" hover-class="button-pressed" bindtap="scanCode">扫码</button>
+    </view>
+  </view>
+
+  <scroll-view class="tribe-tabs" scroll-x enable-flex show-scrollbar="false" aria-label="种族筛选">
+    <view class="tribe-tabs-inner">
+      <button
+        wx:for="{{tribes}}"
+        wx:key="*this"
+        class="tribe-tab {{selectedTribe === item ? 'tribe-tab-active' : ''}}"
+        data-tribe="{{item}}"
+        hover-class="button-pressed"
+        bindtap="selectTribe"
+      >{{item}}</button>
+    </view>
+  </scroll-view>
+
+  <view class="list-heading">
+    <view>
+      <text class="section-title warm">选择阵容</text>
+      <text class="list-caption">{{guides.length}} 个可训练路线</text>
+    </view>
+    <text class="list-note">默认进入初级档</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="surface empty-state muted">正在整理一图流…</view>
+  <view wx:elif="{{error}}" class="surface error-state">{{error}}</view>
+  <view wx:elif="{{!guides.length}}" class="surface empty-state muted">没有符合条件的阵容。</view>
+
+  <view wx:else class="guide-list">
+    <view
+      wx:for="{{guides}}"
+      wx:key="guideId"
+      class="surface guide-card"
+      data-guide-id="{{item.guideId}}"
+      data-profile-id="{{item.resumeProfileId}}"
+      hover-class="surface-pressed"
+      bindtap="openGuide"
+    >
+      <view class="guide-topline">
+        <view class="guide-heading">
+          <view class="guide-kicker-row">
+            <text class="tag-chip">{{item.primaryTribe}}</text>
+            <text class="guide-progress">{{item.resumeProfileTitle}} · {{item.completed}}/{{item.total}}</text>
+          </view>
+          <text class="guide-title">{{item.title}}</text>
+          <text class="guide-summary muted">{{item.summary}}</text>
+        </view>
+        <button
+          class="favorite-button {{item.isFavorite ? 'favorite-button-active' : ''}}"
+          data-guide-id="{{item.guideId}}"
+          hover-class="button-pressed"
+          catchtap="toggleFavorite"
+        >{{item.isFavorite ? '★' : '☆'}}</button>
+      </view>
+
+      <view class="cover-fan" aria-label="目标阵容预览">
+        <view wx:for="{{item.coverCards}}" wx:key="stableId" wx:for-item="card" class="cover-card cover-card-{{index}} {{card.golden ? 'cover-card-golden' : ''}}">
+          <image wx:if="{{card.artType === 'image'}}" class="cover-card-art" src="{{card.image}}" mode="aspectFit" />
+          <view wx:else class="cover-card-fallback">{{card.name}}</view>
+        </view>
+      </view>
+
+      <view class="guide-footer">
+        <text class="core-label">核心：{{item.coreCards[0].name}} · {{item.coreCards[1].name}}</text>
+        <text class="open-label">开始训练 ›</text>
+      </view>
+    </view>
+  </view>
+</view>

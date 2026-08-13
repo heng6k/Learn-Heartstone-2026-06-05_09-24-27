@@ -12,6 +12,7 @@ using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -147,8 +148,13 @@ namespace LearnHearthstone.Tests.EditMode
                 Click(root, "StrategyGuideAuthoringOpenButton");
                 Click(root, "StrategyGuideAuthoringDraftOpenButton-draft-existing-ui");
                 var input = Find(root.transform, "StrategyGuideAuthoringTitleInput").Single().GetComponent<InputField>();
+                Assert.NotNull(input.textComponent);
+                Assert.AreEqual(input.text, input.textComponent.text, "The restored value must be visible, not only stored in InputField.text.");
+                Assert.AreEqual(Selectable.Transition.None, input.transition, "Mobile focus must not paint an opaque selected tint over the text.");
                 Assert.AreEqual("待继续的草稿", input.text);
                 input.text = "继续后的草稿";
+                input.ForceLabelUpdate();
+                Assert.AreEqual(input.text, input.textComponent.text);
                 input.onEndEdit.Invoke(input.text);
 
                 Assert.AreEqual(1, repository.ListDraftIds().Count);
@@ -174,8 +180,50 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsTrue(root.GetComponentsInChildren<Button>(true).All(button =>
                     button.GetComponent<LayoutElement>().minHeight >=
                     compact.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight)));
+                Assert.IsTrue(root.GetComponentsInChildren<InputField>(true).All(input =>
+                    input.GetComponent<LayoutElement>().minHeight >=
+                    compact.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight)));
+                Assert.IsTrue(root.GetComponentsInChildren<InputField>(true).All(input =>
+                    input.textComponent != null && input.transition == Selectable.Transition.None));
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringHeader").Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringFooter").Count);
+            }, layoutContext: compact);
+        }
+
+        [Test]
+        public void CompactFocusedInputScrollsIntoTheKeyboardSafeBand()
+        {
+            var compact = UnityTavernLayoutContext.ForSize(390f, 844f);
+            WithEditor((root, view, guide, repository) =>
+            {
+                var rootRect = root.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(
+                    compact.Width / compact.CanvasScaleFactor,
+                    compact.Height / compact.CanvasScaleFactor);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+
+                Click(root, "StrategyGuideAuthoringStepButton-2");
+                var scroll = Find(root.transform, "StrategyGuideAuthoringStepScroll")
+                    .Single()
+                    .GetComponent<ScrollRect>();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+                scroll.content.anchoredPosition = new Vector2(scroll.content.anchoredPosition.x, 0f);
+                var input = Find(root.transform, "StrategyGuideAuthoringKeyDecisionsInput-" + guide.EntryProfiles[0].ProfileId)
+                    .Single()
+                    .GetComponent<InputField>();
+
+                ExecuteEvents.Execute<ISelectHandler>(
+                    input.gameObject,
+                    new BaseEventData(null),
+                    ExecuteEvents.selectHandler);
+
+                Assert.Greater(scroll.content.anchoredPosition.y, 0f);
+                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    scroll.viewport,
+                    input.GetComponent<RectTransform>());
+                var safeTop = scroll.viewport.rect.yMax - scroll.viewport.rect.height * 0.18f;
+                Assert.LessOrEqual(bounds.max.y, safeTop + 2.1f);
+                Assert.Greater(bounds.min.y, scroll.viewport.rect.yMin);
             }, layoutContext: compact);
         }
 
@@ -336,6 +384,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.NotNull(view.LastFreezeResult);
                 Assert.IsFalse(view.LastFreezeResult.Succeeded);
                 Assert.AreEqual(1, repository.ListDraftIds().Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringValidationResults").Count);
                 var status = Find(root.transform, "StrategyGuideAuthoringStatus").Single().GetComponent<Text>().text;
                 StringAssert.Contains("5", status);
                 StringAssert.Contains("种族", status);
@@ -425,6 +474,113 @@ namespace LearnHearthstone.Tests.EditMode
             }, layoutContext: UnityTavernLayoutContext.ForSize(width, height));
         }
 
+        [Test]
+        public void CoreCardPickersSupportLibraryFilteringMarkSelectedCardsAndExcludeDuos()
+        {
+            WithEditor((root, view, guide, repository) =>
+            {
+                Click(root, "StrategyGuideAuthoringStepButton-1");
+                Click(root, "StrategyGuideAuthoringCoreMinionAddButton");
+
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerLibraryFilters").Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerTierFilter-0").Count);
+                Assert.GreaterOrEqual(
+                    root.GetComponentsInChildren<Button>(true).Count(button =>
+                        button.name.StartsWith("StrategyGuideAuthoringPickerTierFilter-", StringComparison.Ordinal)),
+                    2);
+
+                var selectedMinion = guide.CoreMinionCardIds.FirstOrDefault();
+                Assert.IsFalse(string.IsNullOrWhiteSpace(selectedMinion));
+                SearchPicker(root, selectedMinion);
+                var selectedButton = Find(
+                        root.transform,
+                        "StrategyGuideAuthoringPickerChooseButton-" +
+                        StrategyGuideAuthoringPickerModalComponent.SafeName(selectedMinion))
+                    .Single()
+                    .GetComponent<Button>();
+                Assert.IsFalse(selectedButton.interactable);
+                Assert.AreEqual("已添加", selectedButton.GetComponentInChildren<Text>(true).text);
+
+                Click(root, "StrategyGuideAuthoringPickerClearSearchButton");
+                Click(root, "StrategyGuideAuthoringPickerTierFilter-1");
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerGroup-等级_1").Count);
+                Assert.AreEqual(0, Find(root.transform, "StrategyGuideAuthoringPickerGroup-等级_2").Count);
+                var before = repository.LoadDraft("draft-ui-test").Guide.CoreMinionCardIds.Count;
+                var newChoice = root.GetComponentsInChildren<Button>(true).First(button =>
+                    button.interactable &&
+                    button.name.StartsWith("StrategyGuideAuthoringPickerChooseButton-", StringComparison.Ordinal));
+                newChoice.onClick.Invoke();
+                Assert.AreEqual(before + 1, repository.LoadDraft("draft-ui-test").Guide.CoreMinionCardIds.Count);
+
+                Click(root, "StrategyGuideAuthoringCoreMinionAddButton");
+                SearchPicker(root, "BGDUO");
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerEmpty").Count);
+                Assert.AreEqual(0, root.GetComponentsInChildren<Button>(true).Count(button =>
+                    button.name.StartsWith("StrategyGuideAuthoringPickerChooseButton-BGDUO", StringComparison.OrdinalIgnoreCase)));
+
+                Click(root, "StrategyGuideAuthoringPickerCloseButton");
+                Click(root, "StrategyGuideAuthoringCoreSpellAddButton");
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerLibraryFilters").Count);
+                SearchPicker(root, "BGDUO");
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerEmpty").Count);
+                Assert.AreEqual(0, root.GetComponentsInChildren<Button>(true).Count(button =>
+                    button.name.StartsWith("StrategyGuideAuthoringPickerChooseButton-BGDUO", StringComparison.OrdinalIgnoreCase)));
+            });
+        }
+
+        [Test]
+        public void CompactCardLibraryPickerKeepsFiltersTouchableAndResultsVisible()
+        {
+            var width = 844f;
+            var height = 390f;
+            var layout = UnityTavernLayoutContext.ForSize(width, height);
+            var root = new GameObject("StrategyGuideAuthoringCompactLibraryRoot", typeof(RectTransform));
+            try
+            {
+                var rootRect = root.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(width / layout.CanvasScaleFactor, height / layout.CanvasScaleFactor);
+                var shell = UiFactory.Panel("StrategyGuideAuthoringCompactLibraryShell", root.transform, Color.black);
+                UiFactory.Stretch(shell.GetComponent<RectTransform>());
+                UiFactory.Vertical(shell, 8, 8);
+                var overlay = StrategyGuideAuthoringPickerModalComponent.CreateModalHost(shell.transform);
+                overlay.GetComponent<StrategyGuideAuthoringPickerModalComponent>().Build(
+                    Enumerable.Range(1, 40).Select(index => new StrategyGuideAuthoringPickerItem
+                    {
+                        Id = "CARD_" + index,
+                        Name = "Card " + index,
+                        Detail = "Card library layout check",
+                        Group = "等级 " + ((index - 1) % 7 + 1),
+                        CardKind = CardKind.Minion,
+                        TavernTier = (index - 1) % 7 + 1
+                    }),
+                    null,
+                    "核心随从",
+                    "按等级或关键词查找。",
+                    _ => { },
+                    () => { },
+                    false,
+                    layout,
+                    true);
+
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+                var filters = Find(root.transform, "StrategyGuideAuthoringPickerLibraryFilters").Single().GetComponent<RectTransform>();
+                var scroll = Find(root.transform, "StrategyGuideAuthoringPickerScroll").Single().GetComponent<RectTransform>();
+                var tierButtons = root.GetComponentsInChildren<Button>(true).Where(button =>
+                    button.name.StartsWith("StrategyGuideAuthoringPickerTierFilter-", StringComparison.Ordinal));
+
+                Assert.That(filters.rect.height * layout.CanvasScaleFactor, Is.InRange(47.5f, 56.5f));
+                Assert.Greater(scroll.rect.height * layout.CanvasScaleFactor, height * 0.35f);
+                Assert.IsTrue(tierButtons.All(button =>
+                    button.GetComponent<LayoutElement>().minHeight * layout.CanvasScaleFactor >= UiFactory.MinimumButtonHeight - 0.5f));
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerLoadMoreButton").Count);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         [TestCase(844f, 390f)]
         [TestCase(1280f, 720f)]
         public void PickerSearchFieldCannotExpandTheModalHeader(float width, float height)
@@ -491,8 +647,10 @@ namespace LearnHearthstone.Tests.EditMode
                 var profile = guide.EntryProfiles[0];
                 Click(root, "StrategyGuideAuthoringStepButton-2");
                 Assert.AreEqual(0, Find(root.transform, "StrategyGuideAuthoringPlacements-" + profile.ProfileId).Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringShapingSpells-" + profile.ProfileId).Count);
 
                 Click(root, "StrategyGuideAuthoringAdvancedButton-" + profile.ProfileId);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringShapingSpells-" + profile.ProfileId).Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPlacements-" + profile.ProfileId).Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringDarkGifts-" + profile.ProfileId).Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringOffers-" + profile.ProfileId).Count);
@@ -502,7 +660,33 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void ProfileCardPickerExcludesShapingSpellsAndDedicatedSchedulePersists()
+        public void ShapingSpellCategoryIsVisibleAndSelectableWithoutAdvancedExpansion()
+        {
+            WithEditor((root, view, guide, repository) =>
+            {
+                var profile = guide.EntryProfiles[0];
+                Click(root, "StrategyGuideAuthoringStepButton-2");
+
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringShapingSpells-" + profile.ProfileId).Count);
+                Assert.AreEqual(0, Find(root.transform, "StrategyGuideAuthoringPlacements-" + profile.ProfileId).Count);
+
+                Click(root, "StrategyGuideAuthoringShapingSpellButton-" + profile.ProfileId);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerChooseButton-GUIDE_SHAPING_BATTLECRY").Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerChooseButton-GUIDE_SHAPING_DEATHRATTLE").Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringPickerChooseButton-GUIDE_SHAPING_END_OF_TURN").Count);
+                Click(root, "StrategyGuideAuthoringPickerChooseButton-GUIDE_SHAPING_DEATHRATTLE");
+
+                var saved = repository.LoadDraft("draft-ui-test").Guide.EntryProfiles
+                    .Single(item => item.ProfileId == profile.ProfileId);
+                CollectionAssert.AreEqual(
+                    new[] { "GUIDE_SHAPING_DEATHRATTLE" },
+                    saved.ShapingSpellCardIds);
+                Assert.AreEqual(0, Find(root.transform, "StrategyGuideAuthoringPlacements-" + profile.ProfileId).Count);
+            });
+        }
+
+        [Test]
+        public void ProfileCardPickerExcludesShapingSpellsAndSelectedCategoryPersists()
         {
             WithEditor((root, view, guide, repository) =>
             {
@@ -528,13 +712,13 @@ namespace LearnHearthstone.Tests.EditMode
                             StrategyGuideAuthoringPickerModalComponent.SafeName(excluded.CardNumber)).Count);
                 }
 
-                var scheduleCount = profile.ShapingSpellCardIds.Count;
-                Click(root, "StrategyGuideAuthoringShapingSpellAddButton-" + profile.ProfileId);
+                Click(root, "StrategyGuideAuthoringShapingSpellButton-" + profile.ProfileId);
                 Click(root, "StrategyGuideAuthoringPickerChooseButton-GUIDE_SHAPING_DEATHRATTLE");
                 var saved = repository.LoadDraft("draft-ui-test").Guide.EntryProfiles
                     .Single(item => item.ProfileId == profile.ProfileId);
-                Assert.AreEqual(scheduleCount + 1, saved.ShapingSpellCardIds.Count);
-                Assert.AreEqual("GUIDE_SHAPING_DEATHRATTLE", saved.ShapingSpellCardIds.Last());
+                CollectionAssert.AreEqual(
+                    new[] { "GUIDE_SHAPING_DEATHRATTLE" },
+                    saved.ShapingSpellCardIds);
 
                 var goal = Find(root.transform, "StrategyGuideAuthoringLearningGoalInput-" + profile.ProfileId)
                     .Single()
@@ -693,6 +877,15 @@ namespace LearnHearthstone.Tests.EditMode
         private static void Click(GameObject root, string name)
         {
             Find(root.transform, name).Single().GetComponent<Button>().onClick.Invoke();
+        }
+
+        private static void SearchPicker(GameObject root, string query)
+        {
+            var input = Find(root.transform, "StrategyGuideAuthoringPickerSearchInput")
+                .Single()
+                .GetComponent<InputField>();
+            input.text = query;
+            input.onEndEdit.Invoke(query);
         }
 
         private static System.Collections.Generic.List<Transform> Find(Transform root, string name)

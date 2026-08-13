@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="tavern">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>一图流攻略 UI 原型 · Learn Heartstone</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --workspace: #111f2c;
+      --surface: #192134;
+      --surface-selected: #203246;
+      --surface-soft: #142536;
+      --felt: #15803d;
+      --felt-soft: #153c32;
+      --gold: #d97706;
+      --gold-soft: #f0b84e;
+      --cyan: #38a9cf;
+      --cyan-soft: #8bd5eb;
+      --text: #f8fafc;
+      --warm: #f6e7c4;
+      --muted: #a7b5c7;
+      --muted-strong: #cbd5e1;
+      --danger: #dc2626;
+      --success: #32b86b;
+      --border: rgba(255, 255, 255, .1);
+      --border-strong: rgba(255, 255, 255, .18);
+      --shadow: 0 18px 48px rgba(2, 8, 23, .34);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 18px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --header-h: 72px;
+      --action-h: 80px;
+      --focus: 0 0 0 3px rgba(56, 169, 207, .38);
+      font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 84% 8%, rgba(217, 119, 6, .11), transparent 28rem),
+        linear-gradient(145deg, #0b1423, var(--bg) 48%, #0d1b28);
+      overflow-x: hidden;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button, [role="button"] {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(56, 169, 207, .2);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--cyan-soft);
+      outline-offset: 2px;
+      box-shadow: var(--focus);
+    }
+
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 1000;
+      left: 16px;
+      top: 12px;
+      padding: 10px 14px;
+      color: #07111e;
+      background: var(--cyan-soft);
+      border-radius: 8px;
+      transform: translateY(-140%);
+      transition: transform 160ms ease-out;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .prototype-bar {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 6px clamp(14px, 2vw, 28px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 14, 25, .92);
+      backdrop-filter: blur(12px);
+    }
+
+    .prototype-title {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 10px;
+      color: var(--muted-strong);
+      font-size: 13px;
+    }
+    .prototype-title strong { color: var(--warm); font-size: 14px; }
+
+    .view-switcher {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, .8);
+    }
+
+    .view-switcher button {
+      min-height: 36px;
+      padding: 7px 14px;
+      color: var(--muted-strong);
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      transition: color 160ms ease-out, background-color 160ms ease-out;
+    }
+    .view-switcher button:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .view-switcher button[aria-pressed="true"] { color: #07111e; background: var(--gold-soft); font-weight: 700; }
+
+    .screen {
+      width: min(100%, 1920px);
+      min-height: calc(100dvh - 48px);
+      margin: 0 auto;
+      display: none;
+      background: rgba(15, 23, 42, .54);
+    }
+    .screen.is-active { display: grid; }
+
+    .screen-header {
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: 12px clamp(18px, 3vw, 48px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 31, 44, .92);
+    }
+
+    .title-block { min-width: 0; }
+    .eyebrow {
+      margin: 0 0 3px;
+      color: var(--gold-soft);
+      font: 700 11px/1.2 ui-monospace, "Cascadia Code", monospace;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 2px;
+      color: var(--warm);
+      font: 700 clamp(25px, 2vw, 34px)/1.12 STKaiti, KaiTi, "Noto Serif SC", serif;
+      text-wrap: balance;
+    }
+    h2 { margin-bottom: 8px; color: var(--warm); font-size: 22px; line-height: 1.25; }
+    h3 { margin-bottom: 6px; color: var(--text); font-size: 17px; line-height: 1.35; }
+    p { margin-bottom: 0; color: var(--muted); line-height: 1.55; }
+
+    .header-actions, .button-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .btn {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 9px;
+      background: rgba(255,255,255,.035);
+      font-weight: 700;
+      transition: color 160ms ease-out, background-color 160ms ease-out, border-color 160ms ease-out, transform 120ms ease-out;
+    }
+    .btn:hover { border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.075); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { color: #09111d; border-color: #ecac38; background: var(--gold); }
+    .btn-primary:hover { color: #09111d; border-color: #f4c15d; background: #e68a0a; }
+    .btn-quiet { border-color: transparent; background: transparent; color: var(--muted-strong); }
+    .btn-quiet:hover { color: var(--text); background: rgba(255,255,255,.055); }
+    .btn-icon { min-width: 46px; padding-inline: 12px; }
+    .btn:disabled { opacity: .42; transform: none; }
+
+    .badge-row, .chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .badge, .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 4px 9px;
+      color: var(--muted-strong);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,.035);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-version { color: #171006; border-color: #d59a32; background: var(--gold-soft); }
+    .badge-success { color: #d7ffe6; border-color: rgba(50,184,107,.42); background: rgba(21,128,61,.28); }
+    .badge-controlled { color: #d8f6ff; border-color: rgba(56,169,207,.42); background: rgba(56,169,207,.14); }
+
+    /* Guide hub */
+    #guide-hub { grid-template-rows: auto minmax(0, 1fr); }
+    .guide-layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(268px, 330px) minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px clamp(18px, 3vw, 48px) 24px;
+    }
+    .guide-rail, .detail-panel, .context-rail, .form-panel, .component-group {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(25, 33, 52, .88);
+      box-shadow: var(--shadow);
+    }
+    .guide-rail {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+    }
+    .rail-heading { padding: 18px 18px 12px; border-bottom: 1px solid var(--border); }
+    .rail-heading p { font-size: 13px; }
+    .guide-list { overflow-y: auto; padding: 10px; scrollbar-color: #36516a transparent; }
+    .guide-card {
+      position: relative;
+      width: 100%;
+      min-height: 116px;
+      display: grid;
+      grid-template-columns: 58px minmax(0,1fr);
+      gap: 12px;
+      padding: 13px;
+      color: var(--text);
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      transition: background-color 160ms ease-out, border-color 160ms ease-out, transform 120ms ease-out;
+    }
+    .guide-card + .guide-card { margin-top: 6px; }
+    .guide-card:hover { background: rgba(255,255,255,.055); }
+    .guide-card[aria-selected="true"] {
+      border-color: rgba(56,169,207,.64);
+      background: linear-gradient(90deg, rgba(56,169,207,.18), rgba(255,255,255,.035));
+    }
+    .guide-card[aria-selected="true"]::before {
+      content: "";
+      position: absolute;
+      inset: 12px auto 12px -1px;
+      width: 3px;
+      border-radius: 3px;
+      background: var(--gold-soft);
+    }
+    .guide-emblem {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(217,119,6,.5);
+      border-radius: 14px;
+      color: var(--warm);
+      background: radial-gradient(circle at 40% 30%, rgba(217,119,6,.35), rgba(21,60,50,.72));
+      font: 700 23px/1 STKaiti, KaiTi, serif;
+    }
+    .guide-card strong { display: block; margin-bottom: 4px; color: var(--warm); font-size: 16px; }
+    .guide-card small { display: block; color: var(--muted); line-height: 1.45; }
+    .rail-footer { padding: 12px; border-top: 1px solid var(--border); }
+    .rail-footer .btn { width: 100%; }
+
+    .detail-panel {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      overflow: hidden;
+    }
+    .guide-identity {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 20px;
+      align-items: start;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(110deg, rgba(21,128,61,.16), transparent 55%);
+    }
+    .guide-identity::after {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: -1px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), rgba(217,119,6,0));
+    }
+    .guide-identity h2 { font-size: clamp(24px, 2vw, 32px); margin-bottom: 7px; }
+    .guide-identity p { max-width: 68ch; color: var(--muted-strong); }
+    .identity-stat {
+      min-width: 150px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(8,17,29,.48);
+    }
+    .identity-stat span { display: block; color: var(--muted); font-size: 12px; }
+    .identity-stat strong { display: block; margin-top: 3px; color: var(--warm); font-size: 20px; }
+
+    .section-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px 10px;
+    }
+    .section-bar h3 { margin: 0; }
+    .section-bar small { color: var(--muted); }
+
+    .lineup-wrap { min-width: 0; overflow-x: auto; padding: 0 24px 16px; }
+    .lineup {
+      position: relative;
+      min-width: 690px;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(82px, 1fr));
+      gap: 10px;
+      padding-top: 11px;
+    }
+    .lineup::before {
+      content: "";
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      top: 2px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-soft) 8%, var(--gold-soft) 92%, transparent);
+      opacity: .8;
+    }
+    .card-slot {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 12px;
+      background: #0c1725;
+    }
+    .card-slot.is-golden { border-color: rgba(240,184,78,.78); box-shadow: inset 0 0 0 1px rgba(240,184,78,.16); }
+    .card-slot img { width: 100%; aspect-ratio: 3 / 4; display: block; object-fit: cover; object-position: top center; background: #132434; }
+    .card-slot-info { padding: 8px 8px 9px; }
+    .card-slot-info strong { display: block; overflow: hidden; color: var(--warm); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .card-slot-info small { display: block; margin-top: 3px; color: var(--muted); font: 11px/1.25 ui-monospace, monospace; }
+    .gold-mark { position: absolute; top: 6px; right: 6px; padding: 3px 6px; border-radius: 99px; color: #181008; background: var(--gold-soft); font-size: 10px; font-weight: 800; }
+
+    .mechanics-grid {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 24px 18px;
+    }
+    .mechanic-card { min-width: 0; padding: 12px 13px; border: 1px solid var(--border); border-radius: 11px; background: rgba(17,31,44,.78); }
+    .mechanic-card span { display: block; color: var(--muted); font-size: 11px; }
+    .mechanic-card strong { display: block; margin-top: 4px; color: var(--text); overflow-wrap: anywhere; }
+
+    .difficulty-dock {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+      background: rgba(9,18,29,.56);
+    }
+    .difficulty-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .difficulty {
+      min-height: 72px;
+      padding: 10px 12px;
+      color: var(--muted-strong);
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.025);
+      transition: border-color 160ms ease-out, background-color 160ms ease-out;
+    }
+    .difficulty:hover:not(:disabled) { border-color: rgba(56,169,207,.5); background: rgba(56,169,207,.08); }
+    .difficulty[aria-pressed="true"] { color: var(--text); border-color: var(--cyan); background: rgba(56,169,207,.14); }
+    .difficulty strong { display: block; margin-bottom: 3px; }
+    .difficulty small { color: var(--muted); line-height: 1.35; }
+    .start-block { min-width: 180px; }
+    .start-block .btn { width: 100%; }
+    .start-block small { display: block; margin-top: 7px; color: var(--muted); text-align: center; }
+
+    /* Editor */
+    #guide-editor {
+      height: calc(100dvh - 48px);
+      grid-template-rows: auto auto minmax(0,1fr) auto;
+    }
+    .draft-status { display: flex; align-items: center; gap: 7px; color: var(--muted-strong); font-size: 13px; }
+    .draft-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(50,184,107,.12); }
+    .step-rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      padding: 0 clamp(18px, 3vw, 48px);
+      border-bottom: 1px solid var(--border);
+      background: #0c1725;
+    }
+    .step-button {
+      position: relative;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 12px;
+      color: var(--muted);
+      border: 0;
+      background: transparent;
+      transition: color 160ms ease-out, background-color 160ms ease-out;
+    }
+    .step-button:hover { color: var(--text); background: rgba(255,255,255,.035); }
+    .step-button[aria-selected="true"] { color: var(--text); background: rgba(56,169,207,.08); }
+    .step-button[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      left: 14%;
+      right: 14%;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--cyan);
+    }
+    .step-index { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font: 700 13px/1 ui-monospace, monospace; }
+    .step-button.is-complete .step-index { color: #07160d; border-color: var(--success); background: var(--success); }
+    .step-copy { text-align: left; }
+    .step-copy strong { display: block; color: inherit; font-size: 14px; }
+    .step-copy small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+
+    .editor-layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px clamp(18px, 3vw, 48px);
+      overflow: hidden;
+    }
+    .context-rail { min-height: 0; overflow-y: auto; padding: 18px; }
+    .context-guide { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .context-guide .guide-emblem { margin-bottom: 12px; }
+    .context-guide h2 { font-size: 20px; }
+    .context-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .context-list li { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 9px; padding: 9px 0; color: var(--muted-strong); font-size: 13px; }
+    .context-state { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--muted); font-size: 11px; }
+    .context-list li.is-done .context-state { color: #07160d; border-color: var(--success); background: var(--success); }
+    .context-list li.is-current { color: var(--text); }
+    .context-list li.is-current .context-state { color: #07111e; border-color: var(--cyan); background: var(--cyan-soft); }
+
+    .form-panel { min-width: 0; min-height: 0; overflow-y: auto; padding: clamp(18px, 2.2vw, 30px); scroll-padding-bottom: 24px; }
+    .form-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    .form-heading p { max-width: 68ch; }
+    .form-step { display: none; }
+    .form-step.is-active { display: block; animation: step-in 180ms ease-out; }
+    @keyframes step-in { from { opacity: .2; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field { min-width: 0; }
+    .field.span-2 { grid-column: 1 / -1; }
+    .field label, .field legend { display: block; margin-bottom: 7px; color: var(--muted-strong); font-size: 13px; font-weight: 700; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 13px;
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 9px;
+      background: #0e1b29;
+      transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
+    }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .field input:hover, .field textarea:hover, .field select:hover { border-color: rgba(255,255,255,.3); }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--cyan); }
+    .help { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    fieldset.field { margin: 0; padding: 0; border: 0; }
+    .tribe-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tribe-toggle { position: relative; }
+    .tribe-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .tribe-toggle span { min-height: 44px; display: inline-flex; align-items: center; padding: 8px 13px; border: 1px solid var(--border); border-radius: 99px; color: var(--muted-strong); background: rgba(255,255,255,.025); cursor: pointer; }
+    .tribe-toggle input:checked + span { color: var(--text); border-color: rgba(21,128,61,.8); background: rgba(21,128,61,.25); }
+    .tribe-toggle input:focus-visible + span { outline: 2px solid var(--cyan-soft); outline-offset: 2px; }
+
+    .editor-lineup { display: grid; grid-template-columns: repeat(7, minmax(92px, 1fr)); gap: 10px; overflow-x: auto; padding: 10px 0 6px; }
+    .editable-slot { min-width: 92px; padding: 0; color: var(--text); text-align: left; }
+    .editable-slot:hover { border-color: var(--cyan); }
+    .slot-number { position: absolute; left: 7px; top: 7px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: #08111d; background: var(--cyan-soft); font: 800 11px/1 ui-monospace, monospace; }
+    .subsection { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .subsection-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .subsection-heading h3 { margin: 0; }
+    .mini-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+    .mini-card { padding: 13px; border: 1px solid var(--border); border-radius: 10px; background: rgba(17,31,44,.72); }
+    .mini-card small { color: var(--muted); }
+
+    .difficulty-editor-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+    .difficulty-editor-card { min-height: 168px; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: rgba(17,31,44,.72); }
+    .difficulty-editor-card.is-selected { border-color: var(--cyan); background: rgba(56,169,207,.1); }
+    .difficulty-editor-card h3 { display: flex; align-items: center; justify-content: space-between; }
+    .difficulty-editor-card ul { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+    .validation-card { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 14px; padding: 17px; border: 1px solid rgba(50,184,107,.38); border-radius: 12px; background: rgba(21,128,61,.13); }
+    .validation-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; color: #07160d; background: var(--success); }
+    .validation-card h3 { margin-bottom: 4px; }
+    .revision-box { margin-top: 18px; padding: 15px; border: 1px solid var(--border); border-radius: 10px; background: #0b1724; }
+    .revision-box code { display: block; margin-top: 7px; color: var(--cyan-soft); overflow-wrap: anywhere; font-size: 12px; }
+
+    .editor-actions {
+      min-height: var(--action-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px clamp(18px, 3vw, 48px);
+      border-top: 1px solid var(--border);
+      background: rgba(9,18,29,.96);
+    }
+    .autosave-copy { color: var(--muted); font-size: 13px; }
+    .editor-actions .button-row { flex-wrap: nowrap; }
+    .editor-actions .btn { min-width: 116px; }
+
+    /* Component sheet */
+    #component-sheet { grid-template-rows: auto minmax(0,1fr); }
+    .component-canvas { padding: 22px clamp(18px, 3vw, 48px) 48px; overflow-y: auto; }
+    .component-note { max-width: 80ch; margin-bottom: 18px; padding: 14px 16px; border-left: 3px solid var(--gold); background: rgba(217,119,6,.08); color: var(--muted-strong); }
+    .component-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .component-group { padding: 18px; box-shadow: none; }
+    .component-group.wide { grid-column: 1 / -1; }
+    .component-group h2 { font-size: 18px; }
+    .component-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px; border: 1px dashed rgba(255,255,255,.15); border-radius: 11px; background: #0d1927; }
+    .swatch { width: 94px; }
+    .swatch-color { height: 54px; border-radius: 8px; border: 1px solid var(--border); }
+    .swatch code { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+    .state-sample { min-width: 130px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-soft); }
+    .state-sample strong { display: block; color: var(--warm); }
+    .state-sample small { color: var(--muted); }
+    .state-sample.is-selected { border-color: var(--cyan); box-shadow: inset 3px 0 var(--gold); }
+    .state-sample.is-invalid { border-color: rgba(220,38,38,.7); }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(2,8,23,.72);
+      backdrop-filter: blur(5px);
+      overscroll-behavior: contain;
+    }
+    .modal-backdrop.is-open { display: grid; }
+    .modal {
+      width: min(560px, 100%);
+      padding: 22px;
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      background: var(--workspace);
+      box-shadow: 0 28px 90px rgba(0,0,0,.5);
+    }
+    .modal-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .modal-header h2 { margin: 0; }
+    .modal .field { margin-bottom: 16px; }
+
+    .toast {
+      position: fixed;
+      z-index: 150;
+      right: 20px;
+      bottom: 20px;
+      max-width: min(420px, calc(100vw - 40px));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 15px;
+      color: var(--text);
+      border: 1px solid rgba(50,184,107,.4);
+      border-radius: 11px;
+      background: #102b24;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 160ms ease-out, transform 160ms ease-out;
+    }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1100px) {
+      .guide-layout { grid-template-columns: 250px minmax(0,1fr); padding-inline: 16px; }
+      .mechanics-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .difficulty-dock { grid-template-columns: 1fr; }
+      .start-block { display: flex; align-items: center; gap: 12px; }
+      .start-block .btn { width: auto; min-width: 180px; }
+      .editor-layout { grid-template-columns: 1fr; overflow-y: auto; }
+      .context-rail { display: grid; grid-template-columns: 180px minmax(0,1fr); gap: 16px; min-height: auto; overflow: visible; }
+      .context-guide { padding: 0 16px 0 0; border-right: 1px solid var(--border); border-bottom: 0; }
+      .context-guide .guide-emblem { width: 44px; height: 44px; margin-bottom: 8px; font-size: 18px; }
+      .context-list { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); margin: 0; }
+      .context-list li { padding: 7px; }
+      .form-panel { overflow: visible; }
+      .component-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      #guide-editor { height: auto; }
+      .prototype-bar, .screen-header, .editor-actions { align-items: stretch; flex-direction: column; }
+      .view-switcher { width: 100%; overflow-x: auto; }
+      .view-switcher button { flex: 1 0 auto; }
+      .screen-header { padding-block: 14px; }
+      .header-actions { justify-content: flex-start; }
+      .guide-layout { grid-template-columns: 1fr; overflow: visible; }
+      .guide-rail { max-height: 330px; }
+      .guide-identity { grid-template-columns: 1fr; }
+      .identity-stat { min-width: 0; }
+      .difficulty-list, .field-grid, .difficulty-editor-grid, .mini-grid { grid-template-columns: 1fr; }
+      .field.span-2 { grid-column: auto; }
+      .step-copy small { display: none; }
+      .step-button { min-height: 58px; padding-inline: 5px; }
+      .step-index { width: 26px; height: 26px; }
+      .context-rail { grid-template-columns: 1fr; }
+      .context-guide { padding: 0 0 12px; border-right: 0; border-bottom: 1px solid var(--border); }
+      .context-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .editor-actions .button-row { width: 100%; }
+      .editor-actions .btn { flex: 1; min-width: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#prototype-main">跳到主要内容</a>
+
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M5 18v3h14v-3"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 16-.8 4.8L8 20l11-11-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h12l2 2v14H5V4Z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  </svg>
+
+  <div class="prototype-bar" aria-label="原型视图切换">
+    <div class="prototype-title"><strong>P3 攻略 UI 设计合同</strong><span>1920×1080 基准 · HTML → Holopix → Unity</span></div>
+    <div class="view-switcher" role="group" aria-label="选择原型页面">
+      <button type="button" data-view-target="guide-hub" aria-pressed="true">攻略大厅</button>
+      <button type="button" data-view-target="guide-editor" aria-pressed="false">四步编辑器</button>
+      <button type="button" data-view-target="component-sheet" aria-pressed="false">Holopix 组件板</button>
+    </div>
+  </div>
+
+  <main id="prototype-main">
+    <section id="guide-hub" class="screen is-active" aria-labelledby="hub-title">
+      <header class="screen-header">
+        <div class="title-block">
+          <p class="eyebrow">Strategy guides · 36.2</p>
+          <h1 id="hub-title" tabindex="-1">一图流攻略</h1>
+          <p>先看清阵容和关键操作，再进入固定场景试玩。</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn" type="button" data-open-import><svg class="icon"><use href="#i-import"/></svg>导入攻略代码</button>
+          <button class="btn btn-primary" type="button" data-open-editor><svg class="icon"><use href="#i-edit"/></svg>本地创作</button>
+          <button class="btn btn-quiet" type="button"><svg class="icon"><use href="#i-arrow-left"/></svg>返回大厅</button>
+        </div>
+      </header>
+
+      <div class="guide-layout">
+        <aside class="guide-rail" aria-label="首发攻略列表">
+          <div class="rail-heading"><h2>首发阵容</h2><p>3 套简单模式黄金样例</p></div>
+          <div id="guide-list" class="guide-list" role="listbox" aria-label="选择攻略"></div>
+          <div class="rail-footer"><button class="btn" type="button" data-open-editor><svg class="icon"><use href="#i-plus"/></svg>创建自己的攻略</button></div>
+        </aside>
+
+        <article class="detail-panel" aria-live="polite">
+          <div class="guide-identity">
+            <div>
+              <div class="badge-row"><span class="badge badge-version">36.2 预览</span><span class="badge badge-success">简单模式可玩</span><span class="badge badge-controlled">受控场景已标识</span></div>
+              <h2 id="guide-title">龙虾进击亡语</h2>
+              <p id="guide-summary">为美味龙虾补上复生，再利用进击召唤和左侧亡语完成野兽阵容。</p>
+            </div>
+            <div class="identity-stat"><span>开始状态</span><strong id="guide-start">第 10 回合 · 6 级</strong></div>
+          </div>
+
+          <div class="section-bar"><h3>最终成型阵容</h3><small>从左到右即战斗站位</small></div>
+          <div class="lineup-wrap"><div id="guide-lineup" class="lineup" aria-label="最终阵容"></div></div>
+
+          <div id="guide-mechanics" class="mechanics-grid"></div>
+
+          <div class="difficulty-dock">
+            <div>
+              <div class="section-bar" style="padding:0 0 10px"><h3>选择进入方式</h3><small>实际普通对局仍以正常概率为准</small></div>
+              <div class="difficulty-list" role="group" aria-label="选择难度">
+                <button class="difficulty" type="button" aria-pressed="true" data-difficulty="showcase"><strong>简单模式</strong><small>成型牌与教学牌已准备 · 1 次撤销</small></button>
+                <button class="difficulty" type="button" aria-pressed="false" data-difficulty="guided"><strong>初级模式</strong><small>通过三连、法术或刷新补齐核心</small></button>
+                <button class="difficulty" type="button" aria-pressed="false" data-difficulty="difficult"><strong>困难模式</strong><small>大饰品前开始 · 受控饰品池</small></button>
+              </div>
+            </div>
+            <div class="start-block"><button class="btn btn-primary" type="button" data-start-guide><svg class="icon"><use href="#i-play"/></svg>开始简单模式</button><small id="selected-profile-copy">固定种子 · 可撤销 1 次</small></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="guide-editor" class="screen" aria-labelledby="editor-title">
+      <header class="screen-header">
+        <div class="title-block">
+          <p class="eyebrow">Local authoring</p>
+          <h1 id="editor-title" tabindex="-1">创建一图流攻略</h1>
+          <p>使用同一份草稿生成试玩代码与分享图。</p>
+        </div>
+        <div class="header-actions"><div class="draft-status" role="status"><span class="draft-dot"></span><span id="draft-status">草稿已保存</span></div><button class="btn btn-quiet" type="button" data-open-hub><svg class="icon"><use href="#i-arrow-left"/></svg>返回攻略</button></div>
+      </header>
+
+      <nav class="step-rail" aria-label="攻略编辑步骤" role="tablist">
+        <button class="step-button is-complete" type="button" role="tab" aria-selected="true" data-step="0"><span class="step-index">1</span><span class="step-copy"><strong>基本信息</strong><small>版本、标题、种族</small></span></button>
+        <button class="step-button" type="button" role="tab" aria-selected="false" data-step="1"><span class="step-index">2</span><span class="step-copy"><strong>阵容</strong><small>战队、手牌、酒馆</small></span></button>
+        <button class="step-button" type="button" role="tab" aria-selected="false" data-step="2"><span class="step-index">3</span><span class="step-copy"><strong>难度</strong><small>进入方式、受控发牌</small></span></button>
+        <button class="step-button" type="button" role="tab" aria-selected="false" data-step="3"><span class="step-index">4</span><span class="step-copy"><strong>校验冻结</strong><small>代码、revision、分享图</small></span></button>
+      </nav>
+
+      <div class="editor-layout">
+        <aside class="context-rail" aria-label="攻略编辑摘要">
+          <div class="context-guide"><div class="guide-emblem">兽</div><h2>龙虾进击亡语</h2><div class="badge-row"><span class="badge badge-version">36.2</span><span class="badge">简单模式</span></div></div>
+          <ol class="context-list">
+            <li class="is-current"><span class="context-state">1</span><span><strong>身份与版本</strong><br><small>当前正在编辑</small></span></li>
+            <li><span class="context-state">2</span><span><strong>7 格阵容</strong><br><small>已载入模板</small></span></li>
+            <li><span class="context-state">3</span><span><strong>进入方式</strong><br><small>简单模式</small></span></li>
+            <li><span class="context-state">4</span><span><strong>发布校验</strong><br><small>等待冻结</small></span></li>
+          </ol>
+        </aside>
+
+        <div class="form-panel">
+          <section class="form-step is-active" data-step-panel="0" aria-labelledby="step-basic-title">
+            <div class="form-heading"><div><p class="eyebrow">Step 1 of 4</p><h2 id="step-basic-title">基本信息</h2><p>先锁定版本、阵容身份和必需种族。标题与简介会进入攻略列表和分享图。</p></div><span class="badge badge-success">3 项已完成</span></div>
+            <div class="field-grid">
+              <div class="field"><label for="guide-name">攻略标题</label><input id="guide-name" name="guide-name" value="龙虾进击亡语" autocomplete="off"><small class="help">建议 6–18 个汉字，直接说明阵容核心。</small></div>
+              <div class="field"><label for="game-version">游戏版本</label><select id="game-version" name="game-version"><option selected>36.2 预览</option></select><small class="help">冻结后不可跨版本修改。</small></div>
+              <div class="field span-2"><label for="guide-description">一句话说明</label><textarea id="guide-description" name="guide-description">为美味龙虾补上复生，再利用进击召唤和左侧亡语完成野兽阵容。</textarea><small class="help">只描述玩家要做什么，不写内部 effectId 或实现状态。</small></div>
+              <fieldset class="field span-2"><legend>本局 5 个种族</legend><div class="tribe-options">
+                <label class="tribe-toggle"><input type="checkbox" checked><span>野兽 · 必需</span></label><label class="tribe-toggle"><input type="checkbox" checked><span>机械</span></label><label class="tribe-toggle"><input type="checkbox" checked><span>恶魔</span></label><label class="tribe-toggle"><input type="checkbox" checked><span>纳迦</span></label><label class="tribe-toggle"><input type="checkbox" checked><span>野猪人</span></label><label class="tribe-toggle"><input type="checkbox"><span>龙</span></label><label class="tribe-toggle"><input type="checkbox"><span>元素</span></label>
+              </div><small class="help">必须包含阵容核心种族；冻结时严格校验数量和引用。</small></fieldset>
+            </div>
+          </section>
+
+          <section class="form-step" data-step-panel="1" aria-labelledby="step-lineup-title">
+            <div class="form-heading"><div><p class="eyebrow">Step 2 of 4</p><h2 id="step-lineup-title">阵容与教学资源</h2><p>最终阵容决定分享图顺序；起始战队、手牌和教学酒馆只决定进入场景后的操作。</p></div><button class="btn" type="button"><svg class="icon"><use href="#i-plus"/></svg>打开卡牌选择器</button></div>
+            <h3>最终成型阵容 · 7/7</h3><div id="editor-lineup" class="editor-lineup"></div>
+            <div class="subsection"><div class="subsection-heading"><h3>场景投放</h3><span class="badge badge-controlled">受控内容会明确标识</span></div><div class="mini-grid"><div class="mini-card"><small>预置战队</small><h3>4 张</h3><p>龙虾、金色土狼、笼具、金色狼</p></div><div class="mini-card"><small>起始手牌</small><h3>3 张</h3><p>两张金色逐亡陆行鸟、暴虐巨蝎</p></div><div class="mini-card"><small>教学酒馆</small><h3>1 张</h3><p>机变甲虫：为最左野兽选择复生</p></div></div></div>
+          </section>
+
+          <section class="form-step" data-step-panel="2" aria-labelledby="step-difficulty-title">
+            <div class="form-heading"><div><p class="eyebrow">Step 3 of 4</p><h2 id="step-difficulty-title">进入方式</h2><p>一张一图流共用同一套最终阵容；难度只改变进入回合、预置资源和受控获取方式。</p></div><span class="badge badge-version">首发冻结简单模式</span></div>
+            <div class="difficulty-editor-grid"><article class="difficulty-editor-card is-selected"><h3>简单模式 <span class="badge badge-success">可发布</span></h3><p>最终组件基本到位，用少量教学牌完成关键操作。</p><ul><li>第 10 回合进入</li><li>固定英雄、饰品和黑赐</li><li>允许撤销 1 次</li></ul></article><article class="difficulty-editor-card"><h3>初级模式 <span class="badge">保留协议</span></h3><p>在大饰品之后，通过三连、法术或刷新补齐核心。</p><ul><li>没有自动撤销</li><li>失败后说明原因</li><li>受控发牌明确标识</li></ul></article><article class="difficulty-editor-card"><h3>困难模式 <span class="badge">保留协议</span></h3><p>在大饰品前开始，通过种族门槛提高目标饰品期望。</p><ul><li>进入指定饰品池</li><li>固定每回合对手</li><li>失败后重新开始</li></ul></article></div>
+            <div class="subsection"><div class="field-grid"><div class="field"><label for="start-round">开始回合</label><input id="start-round" name="start-round" type="number" min="1" max="30" value="10"></div><div class="field"><label for="tavern-tier">酒馆等级</label><select id="tavern-tier" name="tavern-tier"><option>5</option><option selected>6</option></select></div><div class="field"><label for="hero-choice">固定英雄</label><select id="hero-choice" name="hero-choice"><option selected>蘑菇术士弗洛格尔</option></select></div><div class="field"><label for="undo-count">撤销次数</label><select id="undo-count" name="undo-count"><option selected>1 次，仅简单模式</option></select></div></div></div>
+          </section>
+
+          <section class="form-step" data-step-panel="3" aria-labelledby="step-freeze-title">
+            <div class="form-heading"><div><p class="eyebrow">Step 4 of 4</p><h2 id="step-freeze-title">校验并冻结</h2><p>冻结后得到不可覆盖 revision。分享图和试玩代码必须指向同一份内容。</p></div><span class="badge badge-success">0 个阻断问题</span></div>
+            <div class="validation-card"><div class="validation-icon"><svg class="icon" style="width:28px;height:28px"><use href="#i-check"/></svg></div><div><h3>可以冻结</h3><p>版本、5 个种族、英雄、大小饰品、黑赐、卡牌引用、起始状态和胜利条件均通过。</p></div></div>
+            <div class="revision-box"><strong>预期 revision</strong><code>GUIDE-S14-BEAST-LOBSTER-RALLY@2a7ea93f1d88f5a0</code></div>
+            <div class="subsection"><div class="button-row" style="justify-content:flex-start"><button class="btn" type="button" data-toast="已生成分享图预览"><svg class="icon"><use href="#i-eye"/></svg>预览分享图</button><button class="btn" type="button" data-toast="攻略代码已复制"><svg class="icon"><use href="#i-copy"/></svg>复制攻略代码</button></div></div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="editor-actions"><div class="autosave-copy">自动保存已开启 · 本地草稿不会覆盖冻结 revision</div><div class="button-row"><button id="previous-step" class="btn" type="button" disabled><svg class="icon"><use href="#i-arrow-left"/></svg>上一步</button><button id="save-draft" class="btn" type="button"><svg class="icon"><use href="#i-save"/></svg>保存草稿</button><button id="next-step" class="btn btn-primary" type="button">下一步</button></div></footer>
+    </section>
+
+    <section id="component-sheet" class="screen" aria-labelledby="component-title">
+      <header class="screen-header"><div class="title-block"><p class="eyebrow">Holopix handoff</p><h1 id="component-title" tabindex="-1">攻略 UI 组件板</h1><p>生成美术资源时逐组截图；文字、图标、卡牌图和数值不得烘焙。</p></div><div class="badge-row"><span class="badge badge-version">2× 输出</span><span class="badge badge-controlled">透明背景</span><span class="badge">9-slice 安全中心</span></div></header>
+      <div class="component-canvas"><p class="component-note">Holopix 只负责表面、框体、角花、徽记和分隔装饰。请为每个资源保留可拉伸中心，并分别输出 normal / selected / disabled / invalid 状态；不要输出整屏截图作为最终 Unity UI。</p><div class="component-grid">
+        <section class="component-group"><h2>01 · 语义颜色</h2><div class="component-strip"><div class="swatch"><div class="swatch-color" style="background:#0f172a"></div><code>BG #0F172A</code></div><div class="swatch"><div class="swatch-color" style="background:#192134"></div><code>CARD #192134</code></div><div class="swatch"><div class="swatch-color" style="background:#15803d"></div><code>FELT #15803D</code></div><div class="swatch"><div class="swatch-color" style="background:#d97706"></div><code>CTA #D97706</code></div><div class="swatch"><div class="swatch-color" style="background:#38a9cf"></div><code>FOCUS #38A9CF</code></div></div></section>
+        <section class="component-group"><h2>02 · 按钮层级</h2><div class="component-strip"><button class="btn btn-primary" type="button"><svg class="icon"><use href="#i-play"/></svg>开始试玩</button><button class="btn" type="button"><svg class="icon"><use href="#i-save"/></svg>保存草稿</button><button class="btn btn-quiet" type="button"><svg class="icon"><use href="#i-arrow-left"/></svg>返回</button><button class="btn" type="button" disabled>尚未开放</button></div></section>
+        <section class="component-group"><h2>03 · 卡片状态</h2><div class="component-strip"><div class="state-sample"><strong>普通</strong><small>默认表面</small></div><div class="state-sample is-selected"><strong>已选择</strong><small>青色焦点＋金色轨道</small></div><div class="state-sample is-invalid"><strong>校验失败</strong><small>错误文字给出修复办法</small></div><div class="state-sample" style="opacity:.42"><strong>不可用</strong><small>保留可读标签</small></div></div></section>
+        <section class="component-group"><h2>04 · 标签与机制徽记</h2><div class="component-strip"><span class="badge badge-version">36.2 预览</span><span class="badge badge-success">可发布</span><span class="badge badge-controlled">受控发牌</span><span class="chip">野兽 · 必需</span><span class="chip">小饰品</span><span class="chip">黑暗之赐</span></div></section>
+        <section class="component-group wide"><h2>05 · 阵容卡槽与战术轨道</h2><div class="component-strip" style="overflow-x:auto"><div id="component-lineup" class="lineup" style="width:min(100%,980px);flex:1"></div></div></section>
+        <section class="component-group wide"><h2>06 · 步骤轨道</h2><div class="component-strip" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0"><button class="step-button is-complete" type="button"><span class="step-index">✓</span><span class="step-copy"><strong>基本信息</strong><small>已完成</small></span></button><button class="step-button" type="button" aria-selected="true"><span class="step-index">2</span><span class="step-copy"><strong>阵容</strong><small>当前</small></span></button><button class="step-button" type="button"><span class="step-index">3</span><span class="step-copy"><strong>难度</strong><small>未开始</small></span></button><button class="step-button" type="button"><span class="step-index">4</span><span class="step-copy"><strong>校验冻结</strong><small>未开始</small></span></button></div></section>
+      </div></div>
+    </section>
+  </main>
+
+  <div id="import-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="import-title" aria-hidden="true">
+    <div class="modal"><div class="modal-header"><div><p class="eyebrow">LHSG1</p><h2 id="import-title">导入攻略代码</h2><p>导入前先校验版本、revision 和全部内容引用。</p></div><button class="btn btn-icon btn-quiet" type="button" data-close-import aria-label="关闭导入窗口"><svg class="icon"><use href="#i-close"/></svg></button></div><div class="field"><label for="share-code">攻略代码</label><textarea id="share-code" name="share-code" spellcheck="false" autocomplete="off" placeholder="粘贴 LHSG1…"></textarea><small class="help">未知版本、非法卡牌或被覆盖的 revision 会被明确拒绝。</small></div><div class="button-row"><button class="btn" type="button" data-close-import>取消</button><button class="btn btn-primary" type="button" data-import-code>校验并导入</button></div></div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"><svg class="icon"><use href="#i-check"/></svg><span id="toast-copy">操作已完成</span></div>
+
+  <script>
+    const assetRoot = 'assets/cards/'
+    const guides = [
+      {
+        id: 'beast', emblem: '兽', title: '龙虾进击亡语', summary: '为美味龙虾补上复生，再利用进击召唤和左侧亡语完成野兽阵容。',
+        archetype: '亡语 / 召唤链', start: '第 10 回合 · 6 级', tribes: '野兽＋机械＋恶魔＋纳迦＋野猪人', hero: '蘑菇术士弗洛格尔', lesser: '回响亡语', greater: '狼首连枷', gift: '巨颚',
+        cards: [
+          ['BG36_202','美味龙虾',false],['BG36_210','囤食土狼',true],['BG36_208','逐亡陆行鸟',true],['BG36_211','召唤笼具',false],['BG36_207','亡语狼',true],['BG36_208','逐亡陆行鸟',true],['BG36_209','暴虐巨蝎',true]
+        ]
+      },
+      {
+        id: 'mech', emblem: '机', title: '法术磁力卫星', summary: '用酒馆法术推动机械成长，再以发动与磁力卫星完成阵容。',
+        archetype: '法术 / 经济成长', start: '第 10 回合 · 5 级', tribes: '机械＋鱼人＋恶魔＋元素＋龙', hero: '挂机的阿凯', lesser: '卫星小饰品', greater: '机械核心', gift: '驱动协议',
+        cards: [
+          ['BG36_506','复制无人机',true],['BG36_851','火花响尾蛇',true],['BG36_853','华丽机器人',true],['BG36_853','华丽机器人',true],['BG36_764','齿轮鱼',true],['BG36_854','救援机器人',false],['BG36_854','救援机器人',false]
+        ]
+      },
+      {
+        id: 'demon', emblem: '魔', title: '酒馆吞噬成长', summary: '塑造酒馆中的恶魔质量，触发吞噬并用发动完成属性成长阵容。',
+        archetype: '属性 / 酒馆成长', start: '第 10 回合 · 6 级', tribes: '恶魔＋野兽＋机械＋元素＋海盗', hero: '加拉克苏斯大王', lesser: '邪能契约', greater: '邪钢切肉斧', gift: '恶魔学识',
+        cards: [
+          ['BG36_503','缚魂狱卒',true],['BG36_762','恶魔干扰者',true],['BG36_762','恶魔干扰者',true],['BG36_621','邪能逃兵',true],['BG36_731','幻术恶魔',true],['BG36_733','艾瑞达逃脱大师',true],['BG36_730','吞噬拍板者',false]
+        ]
+      }
+    ]
+
+    let selectedGuide = guides[0]
+    let selectedStep = 0
+    let toastTimer = 0
+
+    const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`
+    const cardMarkup = (card, index, editable = false, priority = false) => {
+      const [id, name, golden] = card
+      const tag = editable ? 'button type="button"' : 'article'
+      const endTag = editable ? 'button' : 'article'
+      return `<${tag} class="card-slot ${golden ? 'is-golden' : ''} ${editable ? 'editable-slot' : ''}" ${editable ? `aria-label="编辑第 ${index + 1} 格 ${name}"` : ''}>
+        ${editable ? `<span class="slot-number">${index + 1}</span>` : ''}
+        ${golden ? '<span class="gold-mark">金色</span>' : ''}
+        <img src="${assetRoot}${id}.webp" width="192" height="252" alt="${name}" loading="${priority ? 'eager' : 'lazy'}" ${priority ? 'fetchpriority="high"' : ''}>
+        <span class="card-slot-info"><strong>${name}</strong><small>${id}</small></span>
+      </${endTag}>`
+    }
+
+    function renderGuideList() {
+      document.getElementById('guide-list').innerHTML = guides.map((guide) => `<button class="guide-card" type="button" role="option" aria-selected="${guide.id === selectedGuide.id}" data-guide-id="${guide.id}"><span class="guide-emblem">${guide.emblem}</span><span><strong>${guide.title}</strong><small>${guide.archetype}</small><small>${guide.start}</small></span></button>`).join('')
+      document.querySelectorAll('[data-guide-id]').forEach((button) => button.addEventListener('click', () => {
+        selectedGuide = guides.find((guide) => guide.id === button.dataset.guideId)
+        renderGuideList()
+        renderGuideDetail()
+      }))
+    }
+
+    function renderGuideDetail() {
+      document.getElementById('guide-title').textContent = selectedGuide.title
+      document.getElementById('guide-summary').textContent = selectedGuide.summary
+      document.getElementById('guide-start').textContent = selectedGuide.start
+      document.getElementById('guide-lineup').innerHTML = selectedGuide.cards.map((card, index) => cardMarkup(card, index, false, true)).join('')
+      document.getElementById('guide-mechanics').innerHTML = [
+        ['固定英雄', selectedGuide.hero], ['本局种族', selectedGuide.tribes], ['大小饰品', `${selectedGuide.lesser} · ${selectedGuide.greater}`], ['黑暗之赐', selectedGuide.gift]
+      ].map(([label, value]) => `<div class="mechanic-card"><span>${label}</span><strong>${value}</strong></div>`).join('')
+    }
+
+    function hydrateView(id) {
+      const screen = document.getElementById(id)
+      if (!screen || screen.dataset.hydrated === 'true') return
+      if (id === 'guide-editor') {
+        document.getElementById('editor-lineup').innerHTML = guides[0].cards.map((card, index) => cardMarkup(card, index, true)).join('')
+      }
+      if (id === 'component-sheet') {
+        document.getElementById('component-lineup').innerHTML = guides[0].cards.map((card, index) => cardMarkup(card, index)).join('')
+      }
+      screen.dataset.hydrated = 'true'
+    }
+
+    function showView(id) {
+      hydrateView(id)
+      document.querySelectorAll('.screen').forEach((screen) => screen.classList.toggle('is-active', screen.id === id))
+      document.querySelectorAll('[data-view-target]').forEach((button) => button.setAttribute('aria-pressed', button.dataset.viewTarget === id ? 'true' : 'false'))
+      document.getElementById(id)?.querySelector('h1')?.focus?.({ preventScroll: true })
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+      window.scrollTo({ top: 0, behavior })
+    }
+
+    function showStep(next) {
+      selectedStep = Math.max(0, Math.min(3, next))
+      document.querySelectorAll('[data-step]').forEach((button, index) => {
+        button.setAttribute('aria-selected', index === selectedStep ? 'true' : 'false')
+        button.classList.toggle('is-complete', index < selectedStep)
+      })
+      document.querySelectorAll('[data-step-panel]').forEach((panel, index) => panel.classList.toggle('is-active', index === selectedStep))
+      document.querySelectorAll('.context-list li').forEach((item, index) => {
+        item.classList.toggle('is-done', index < selectedStep)
+        item.classList.toggle('is-current', index === selectedStep)
+        item.querySelector('.context-state').textContent = index < selectedStep ? '✓' : String(index + 1)
+        const small = item.querySelector('small')
+        if (small) small.textContent = index < selectedStep ? '已完成' : index === selectedStep ? '当前正在编辑' : '未开始'
+      })
+      document.getElementById('previous-step').disabled = selectedStep === 0
+      document.getElementById('next-step').textContent = selectedStep === 3 ? '校验并冻结' : '下一步'
+      document.querySelector('[data-step-panel].is-active')?.scrollIntoView({ block: 'start' })
+    }
+
+    function showToast(copy) {
+      clearTimeout(toastTimer)
+      document.getElementById('toast-copy').textContent = copy
+      document.getElementById('toast').classList.add('is-visible')
+      toastTimer = window.setTimeout(() => document.getElementById('toast').classList.remove('is-visible'), 3200)
+    }
+
+    document.querySelectorAll('svg.icon').forEach((svg) => svg.setAttribute('aria-hidden', 'true'))
+
+    const modal = document.getElementById('import-modal')
+    let modalReturnFocus = null
+    function openModal() {
+      modalReturnFocus = document.activeElement
+      modal.classList.add('is-open')
+      modal.setAttribute('aria-hidden','false')
+      document.querySelector('.prototype-bar').inert = true
+      document.getElementById('prototype-main').inert = true
+      document.getElementById('share-code').focus()
+    }
+    function closeModal() {
+      modal.classList.remove('is-open')
+      modal.setAttribute('aria-hidden','true')
+      document.querySelector('.prototype-bar').inert = false
+      document.getElementById('prototype-main').inert = false
+      modalReturnFocus?.focus()
+    }
+
+    document.querySelectorAll('[data-view-target]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.viewTarget)))
+    document.querySelectorAll('[data-open-editor]').forEach((button) => button.addEventListener('click', () => showView('guide-editor')))
+    document.querySelectorAll('[data-open-hub]').forEach((button) => button.addEventListener('click', () => showView('guide-hub')))
+    document.querySelectorAll('[data-open-import]').forEach((button) => button.addEventListener('click', openModal))
+    document.querySelectorAll('[data-close-import]').forEach((button) => button.addEventListener('click', closeModal))
+    document.querySelector('[data-import-code]').addEventListener('click', () => { closeModal(); showToast('代码结构正确，已进入版本兼容性校验') })
+    modal.addEventListener('click', (event) => { if (event.target === modal) closeModal() })
+    document.addEventListener('keydown', (event) => {
+      if (!modal.classList.contains('is-open')) return
+      if (event.key === 'Escape') { closeModal(); return }
+      if (event.key !== 'Tab') return
+      const focusable = [...modal.querySelectorAll('button, textarea, input, select, [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled)
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    })
+    document.querySelectorAll('[data-step]').forEach((button) => button.addEventListener('click', () => showStep(Number(button.dataset.step))))
+    document.getElementById('previous-step').addEventListener('click', () => showStep(selectedStep - 1))
+    document.getElementById('next-step').addEventListener('click', () => selectedStep === 3 ? showToast('校验通过，可以生成冻结 revision') : showStep(selectedStep + 1))
+    document.getElementById('save-draft').addEventListener('click', () => {
+      document.getElementById('draft-status').textContent = '保存中…'
+      window.setTimeout(() => { document.getElementById('draft-status').textContent = '草稿已保存'; showToast('草稿已保存') }, 360)
+    })
+    document.querySelectorAll('[data-toast]').forEach((button) => button.addEventListener('click', () => showToast(button.dataset.toast)))
+    document.querySelector('[data-start-guide]').addEventListener('click', () => showToast(`准备进入「${selectedGuide.title}」`))
+    document.querySelectorAll('[data-difficulty]').forEach((button) => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-difficulty]').forEach((item) => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'))
+      const copy = { showcase: ['开始简单模式','固定种子 · 可撤销 1 次'], guided: ['开始初级模式','受控获取会明确标识 · 无撤销'], difficult: ['开始困难模式','大饰品前进入 · 无撤销'] }[button.dataset.difficulty]
+      document.querySelector('[data-start-guide]').innerHTML = `${icon('play')}${copy[0]}`
+      document.getElementById('selected-profile-copy').textContent = copy[1]
+    }))
+
+    renderGuideList()
+    renderGuideDetail()
+  </script>
+</body>
+</html>

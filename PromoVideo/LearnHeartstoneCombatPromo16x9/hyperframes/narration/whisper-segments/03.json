@@ -1,0 +1,227 @@
+{
+	"systeminfo": "WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | OPENMP = 1 | REPACK = 1 | ",
+	"model": {
+		"type": "small",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"text": {
+			"ctx": 448,
+			"state": 768,
+			"head": 12,
+			"layer": 12
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": "C:\\Users\\wch\\.cache\\hyperframes\\whisper\\models\\ggml-small.bin",
+		"language": "zh",
+		"translate": false
+	},
+	"result": {
+		"language": "zh"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:02,340"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 2340
+			},
+			"text": "購買上場,購造你的棋盤。",
+			"tokens": [
+				{
+					"text": "[_BEG_]",
+					"timestamps": {
+						"from": "00:00:00,000",
+						"to": "00:00:00,000"
+					},
+					"offsets": {
+						"from": 0,
+						"to": 0
+					},
+					"id": 50364,
+					"p": 0.995412,
+					"t_dtw": -1
+				},
+				{
+					"text": "購",
+					"timestamps": {
+						"from": "00:00:00,040",
+						"to": "00:00:00,240"
+					},
+					"offsets": {
+						"from": 40,
+						"to": 240
+					},
+					"id": 13352,
+					"p": 0.671248,
+					"t_dtw": 6
+				},
+				{
+					"text": "買",
+					"timestamps": {
+						"from": "00:00:00,240",
+						"to": "00:00:00,490"
+					},
+					"offsets": {
+						"from": 240,
+						"to": 490
+					},
+					"id": 31001,
+					"p": 0.98987,
+					"t_dtw": 30
+				},
+				{
+					"text": "上",
+					"timestamps": {
+						"from": "00:00:00,490",
+						"to": "00:00:00,740"
+					},
+					"offsets": {
+						"from": 490,
+						"to": 740
+					},
+					"id": 5708,
+					"p": 0.897332,
+					"t_dtw": 54
+				},
+				{
+					"text": "場",
+					"timestamps": {
+						"from": "00:00:00,740",
+						"to": "00:00:00,810"
+					},
+					"offsets": {
+						"from": 740,
+						"to": 810
+					},
+					"id": 21446,
+					"p": 0.955835,
+					"t_dtw": 78
+				},
+				{
+					"text": ",",
+					"timestamps": {
+						"from": "00:00:01,110",
+						"to": "00:00:01,110"
+					},
+					"offsets": {
+						"from": 1110,
+						"to": 1110
+					},
+					"id": 11,
+					"p": 0.487709,
+					"t_dtw": 108
+				},
+				{
+					"text": "購",
+					"timestamps": {
+						"from": "00:00:01,160",
+						"to": "00:00:01,270"
+					},
+					"offsets": {
+						"from": 1160,
+						"to": 1270
+					},
+					"id": 13352,
+					"p": 0.853175,
+					"t_dtw": 126
+				},
+				{
+					"text": "造",
+					"timestamps": {
+						"from": "00:00:01,270",
+						"to": "00:00:01,440"
+					},
+					"offsets": {
+						"from": 1270,
+						"to": 1440
+					},
+					"id": 37583,
+					"p": 0.925267,
+					"t_dtw": 142
+				},
+				{
+					"text": "你的",
+					"timestamps": {
+						"from": "00:00:01,440",
+						"to": "00:00:01,640"
+					},
+					"offsets": {
+						"from": 1440,
+						"to": 1640
+					},
+					"id": 18961,
+					"p": 0.990459,
+					"t_dtw": 162
+				},
+				{
+					"text": "棋",
+					"timestamps": {
+						"from": "00:00:01,790",
+						"to": "00:00:01,940"
+					},
+					"offsets": {
+						"from": 1790,
+						"to": 1940
+					},
+					"id": 16407,
+					"p": 0.755793,
+					"t_dtw": 184
+				},
+				{
+					"text": "盤",
+					"timestamps": {
+						"from": "00:00:01,940",
+						"to": "00:00:02,100"
+					},
+					"offsets": {
+						"from": 1940,
+						"to": 2100
+					},
+					"id": 5419,
+					"p": 0.994755,
+					"t_dtw": 204
+				},
+				{
+					"text": "。",
+					"timestamps": {
+						"from": "00:00:02,100",
+						"to": "00:00:02,150"
+					},
+					"offsets": {
+						"from": 2100,
+						"to": 2150
+					},
+					"id": 1543,
+					"p": 0.58501,
+					"t_dtw": 232
+				},
+				{
+					"text": "[_TT_117]",
+					"timestamps": {
+						"from": "00:00:02,340",
+						"to": "00:00:02,340"
+					},
+					"offsets": {
+						"from": 2340,
+						"to": 2340
+					},
+					"id": 50481,
+					"p": 0.0271909,
+					"t_dtw": -1
+				}
+			]
+		}
+	]
+}

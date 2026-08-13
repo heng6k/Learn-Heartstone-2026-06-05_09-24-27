@@ -136,7 +136,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (drag.Source == UnityTavernDragSource.Shop &&
                 (target == UnityTavernDropTarget.Hand || target == UnityTavernDropTarget.PurchaseZone))
             {
-                command = new GameCommand(GameCommandType.BuyMinion, drag.Index, targetIndex);
+                command = new GameCommand(GameCommandType.BuyMinion, drag.Index);
                 return true;
             }
 

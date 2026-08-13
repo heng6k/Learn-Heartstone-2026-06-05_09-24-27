@@ -17,19 +17,27 @@ namespace LearnHearthstone.Presentation.MainHub
         public string Name;
         public string Detail;
         public string Group;
+        public string SearchTerms;
         public string ImagePath;
         public CardKind CardKind;
+        public int TavernTier;
     }
 
     public sealed class StrategyGuideAuthoringPickerModalComponent : MonoBehaviour
     {
+        private const int CardLibraryPageSize = 24;
+
         private IReadOnlyList<StrategyGuideAuthoringPickerItem> items;
+        private HashSet<string> alreadySelectedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Action<StrategyGuideAuthoringPickerItem> selected;
         private Action close;
         private string title;
         private string help;
         private string currentId;
         private string searchText = string.Empty;
+        private int tierFilter;
+        private int visibleLimit = CardLibraryPageSize;
+        private bool cardLibraryMode;
         private bool useEnglish;
         private UnityTavernLayoutContext? layoutContext;
 
@@ -56,20 +64,29 @@ namespace LearnHearthstone.Presentation.MainHub
             Action<StrategyGuideAuthoringPickerItem> onSelected,
             Action onClose,
             bool english = false,
-            UnityTavernLayoutContext? requestedLayout = null)
+            UnityTavernLayoutContext? requestedLayout = null,
+            bool useCardLibraryMode = false,
+            IEnumerable<string> selectedIds = null)
         {
             items = (source ?? Enumerable.Empty<StrategyGuideAuthoringPickerItem>())
                 .Where(item => item != null && !string.IsNullOrWhiteSpace(item.Id))
                 .GroupBy(item => item.Id, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First())
-                .OrderBy(item => item.Group ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(item => item.TavernTier)
+                .ThenBy(item => item.Group ?? string.Empty, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(item => item.Name ?? item.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            alreadySelectedIds = new HashSet<string>(
+                (selectedIds ?? Enumerable.Empty<string>()).Where(id => !string.IsNullOrWhiteSpace(id)),
+                StringComparer.OrdinalIgnoreCase);
             currentId = selectedId;
             title = modalTitle ?? string.Empty;
             help = helpText ?? string.Empty;
             selected = onSelected;
             close = onClose;
+            cardLibraryMode = useCardLibraryMode;
+            tierFilter = 0;
+            visibleLimit = CardLibraryPageSize;
             useEnglish = english;
             layoutContext = requestedLayout;
             Rebuild();
@@ -101,6 +118,10 @@ namespace LearnHearthstone.Presentation.MainHub
 
             BuildHeader(panel.transform, layout);
             BuildHelp(panel.transform, layout);
+            if (cardLibraryMode)
+            {
+                BuildCardLibraryFilters(panel.transform, layout);
+            }
             BuildResults(panel.transform, layout);
         }
 
@@ -126,7 +147,7 @@ namespace LearnHearthstone.Presentation.MainHub
             var count = UiFactory.Label(
                 "StrategyGuideAuthoringPickerResultCount",
                 header.transform,
-                FilteredItems().Count() + T(" 项", " items"),
+                ResultCountText(),
                 14,
                 FontStyle.Bold,
                 layout);
@@ -180,6 +201,7 @@ namespace LearnHearthstone.Presentation.MainHub
             input.onEndEdit.AddListener(value =>
             {
                 searchText = (value ?? string.Empty).Trim();
+                visibleLimit = CardLibraryPageSize;
                 Rebuild();
             });
             inputObject.AddComponent<UnitySelectableFocusRing>();
@@ -195,6 +217,16 @@ namespace LearnHearthstone.Presentation.MainHub
             UiFactory.SetWidth(closeButton.gameObject, layout.IsCompact ? 72f : 88f);
         }
 
+        private string ResultCountText()
+        {
+            var total = FilteredItems().Count();
+            if (cardLibraryMode && tierFilter == 0 && string.IsNullOrWhiteSpace(searchText) && total > visibleLimit)
+            {
+                return Math.Min(total, visibleLimit) + "/" + total + T(" 项", " items");
+            }
+            return total + T(" 项", " items");
+        }
+
         private void BuildHelp(Transform parent, UnityTavernLayoutContext layout)
         {
             var label = UiFactory.Label(
@@ -208,6 +240,82 @@ namespace LearnHearthstone.Presentation.MainHub
             UiFactory.SetHeight(label.gameObject, layout.IsCompact ? 48f : 34f);
         }
 
+        private void BuildCardLibraryFilters(Transform parent, UnityTavernLayoutContext layout)
+        {
+            var panel = UiFactory.Panel(
+                "StrategyGuideAuthoringPickerLibraryFilters",
+                parent,
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.96f));
+            UiFactory.SetHeight(
+                panel,
+                layout.CanvasUnitsForPhysicalPixels(layout.IsCompact ? 52f : 56f));
+            var row = UiFactory.Horizontal(panel, 5, 6);
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+
+            var label = UiFactory.Label(
+                "StrategyGuideAuthoringPickerTierLabel",
+                panel.transform,
+                T("等级", "Tier"),
+                14,
+                FontStyle.Bold,
+                layout);
+            label.color = UnityTavernUiStyle.Gold;
+            label.alignment = TextAnchor.MiddleCenter;
+            UiFactory.SetWidth(label.gameObject, layout.IsCompact ? 48f : 58f);
+
+            BuildTierButton(panel.transform, 0, T("全部", "All"), layout);
+            foreach (var tier in (items ?? Array.Empty<StrategyGuideAuthoringPickerItem>())
+                         .Select(item => item.TavernTier)
+                         .Where(value => value > 0)
+                         .Distinct()
+                         .OrderBy(value => value))
+            {
+                BuildTierButton(panel.transform, tier, tier.ToString(), layout);
+            }
+
+            var spacer = UiFactory.Panel("StrategyGuideAuthoringPickerFilterSpacer", panel.transform, Color.clear);
+            UiFactory.SetFlexible(spacer, 1f, 0f);
+            var clear = UiFactory.Button(
+                "StrategyGuideAuthoringPickerClearSearchButton",
+                panel.transform,
+                T("清空搜索", "Clear"),
+                () =>
+                {
+                    searchText = string.Empty;
+                    visibleLimit = CardLibraryPageSize;
+                    Rebuild();
+                },
+                layout);
+            clear.interactable = !string.IsNullOrWhiteSpace(searchText);
+            UnityTavernUiStyle.ConfigureButton(clear, UnityTavernUiStyle.ArcaneBlue);
+            UiFactory.SetWidth(clear.gameObject, layout.IsCompact ? 82f : 96f);
+        }
+
+        private void BuildTierButton(Transform parent, int tier, string caption, UnityTavernLayoutContext layout)
+        {
+            var capturedTier = tier;
+            var active = tierFilter == tier;
+            var button = UiFactory.Button(
+                "StrategyGuideAuthoringPickerTierFilter-" + tier,
+                parent,
+                caption,
+                () =>
+                {
+                    tierFilter = capturedTier;
+                    visibleLimit = CardLibraryPageSize;
+                    Rebuild();
+                },
+                layout);
+            UnityTavernUiStyle.ConfigureButton(
+                button,
+                active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ArcaneBlue,
+                active,
+                active);
+            UiFactory.SetWidth(button.gameObject, layout.IsCompact ? 48f : 54f);
+        }
+
         private void BuildResults(Transform parent, UnityTavernLayoutContext layout)
         {
             var content = UiFactory.ScrollView(
@@ -219,7 +327,10 @@ namespace LearnHearthstone.Presentation.MainHub
             var list = UiFactory.Vertical(content.gameObject, 8, 8);
             list.childControlWidth = true;
             list.childForceExpandWidth = true;
-            var filtered = FilteredItems().ToList();
+            var allFiltered = FilteredItems().ToList();
+            var filtered = cardLibraryMode && tierFilter == 0 && string.IsNullOrWhiteSpace(searchText)
+                ? allFiltered.Take(visibleLimit).ToList()
+                : allFiltered;
             if (filtered.Count == 0)
             {
                 var empty = UiFactory.Label(
@@ -235,20 +346,61 @@ namespace LearnHearthstone.Presentation.MainHub
                 return;
             }
 
+            string lastGroup = null;
             foreach (var item in filtered)
             {
+                if (cardLibraryMode && !string.Equals(lastGroup, item.Group, StringComparison.OrdinalIgnoreCase))
+                {
+                    BuildGroupHeader(content, item.Group, layout);
+                    lastGroup = item.Group;
+                }
                 BuildItem(content, item, layout);
             }
+
+            if (filtered.Count < allFiltered.Count)
+            {
+                var loadMore = UiFactory.Button(
+                    "StrategyGuideAuthoringPickerLoadMoreButton",
+                    content,
+                    T("加载更多（", "Load more (") + filtered.Count + "/" + allFiltered.Count +
+                        T("）", ")"),
+                    () =>
+                    {
+                        visibleLimit += CardLibraryPageSize;
+                        Rebuild();
+                    },
+                    layout);
+                UnityTavernUiStyle.ConfigureButton(loadMore, UnityTavernUiStyle.ArcaneBlue);
+            }
+        }
+
+        private static void BuildGroupHeader(
+            Transform parent,
+            string group,
+            UnityTavernLayoutContext layout)
+        {
+            var header = UiFactory.Label(
+                "StrategyGuideAuthoringPickerGroup-" + SafeName(group),
+                parent,
+                group ?? string.Empty,
+                14,
+                FontStyle.Bold,
+                layout);
+            header.color = UnityTavernUiStyle.Gold;
+            header.alignment = TextAnchor.MiddleLeft;
+            UiFactory.SetHeight(header.gameObject, 30f);
         }
 
         private void BuildItem(Transform parent, StrategyGuideAuthoringPickerItem item, UnityTavernLayoutContext layout)
         {
             var safeId = SafeName(item.Id);
             var current = string.Equals(item.Id, currentId, StringComparison.OrdinalIgnoreCase);
+            var alreadySelected = alreadySelectedIds.Contains(item.Id);
+            var unavailable = current || alreadySelected;
             var rowObject = UiFactory.Panel(
                 "StrategyGuideAuthoringPickerItem-" + safeId,
                 parent,
-                current
+                unavailable
                     ? Color.Lerp(UnityTavernUiStyle.SurfaceRaised, UnityTavernUiStyle.Gold, 0.19f)
                     : UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.96f));
             UiFactory.SetHeight(rowObject, layout.IsCompact ? 76f : 84f);
@@ -257,7 +409,7 @@ namespace LearnHearthstone.Presentation.MainHub
             row.childForceExpandWidth = false;
             UnityTavernUiStyle.ConfigureOutline(
                 rowObject,
-                current
+                unavailable
                     ? UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Gold, 0.72f)
                     : UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.ArcaneBlue, 0.28f),
                 new Vector2(1f, -1f));
@@ -288,21 +440,21 @@ namespace LearnHearthstone.Presentation.MainHub
             var choose = UiFactory.Button(
                 "StrategyGuideAuthoringPickerChooseButton-" + safeId,
                 rowObject.transform,
-                current ? T("当前", "Current") : T("选择", "Choose"),
+                current ? T("当前", "Current") : alreadySelected ? T("已添加", "Added") : T("选择", "Choose"),
                 () =>
                 {
-                    if (!current)
+                    if (!unavailable)
                     {
                         selected?.Invoke(item);
                     }
                 },
                 layout);
-            choose.interactable = !current;
+            choose.interactable = !unavailable;
             UnityTavernUiStyle.ConfigureButton(
                 choose,
-                current ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Brass,
-                current,
-                current);
+                unavailable ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Brass,
+                unavailable,
+                unavailable);
             UiFactory.SetWidth(choose.gameObject, layout.IsCompact ? 74f : 92f);
         }
 
@@ -344,16 +496,22 @@ namespace LearnHearthstone.Presentation.MainHub
 
         private IEnumerable<StrategyGuideAuthoringPickerItem> FilteredItems()
         {
+            var filtered = items ?? Array.Empty<StrategyGuideAuthoringPickerItem>();
+            if (cardLibraryMode && tierFilter > 0)
+            {
+                filtered = filtered.Where(item => item.TavernTier == tierFilter).ToList();
+            }
             var query = (searchText ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(query))
             {
-                return items ?? Array.Empty<StrategyGuideAuthoringPickerItem>();
+                return filtered;
             }
-            return (items ?? Array.Empty<StrategyGuideAuthoringPickerItem>()).Where(item =>
+            return filtered.Where(item =>
                 Contains(item.Id, query) ||
                 Contains(item.Name, query) ||
                 Contains(item.Detail, query) ||
-                Contains(item.Group, query));
+                Contains(item.Group, query) ||
+                Contains(item.SearchTerms, query));
         }
 
         private void ConfigureOverlay()

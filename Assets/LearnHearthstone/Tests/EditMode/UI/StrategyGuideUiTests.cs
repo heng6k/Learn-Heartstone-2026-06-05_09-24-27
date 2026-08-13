@@ -15,6 +15,7 @@ using LearnHearthstone.Presentation.MainHub;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -207,6 +208,7 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringDraftsTab").Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringTemplatesTab").Count);
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringVerifiedTab").Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringBlankButton").Count);
                 var tabStrip = Find(root.transform, "StrategyGuideAuthoringStartTabs").Single();
                 var tabStripElement = tabStrip.GetComponent<LayoutElement>();
                 Assert.AreEqual(56f, tabStripElement.minHeight);
@@ -249,6 +251,112 @@ namespace LearnHearthstone.Tests.EditMode
                     .onClick.Invoke();
                 Assert.IsEmpty(repository.ListDraftIds());
                 Assert.IsFalse(Find(root.transform, "StrategyGuideAuthoringDraft-" + draftId).Single().gameObject.activeSelf);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void AuthoringCanStartFromBlankWithoutSelectingTemplate()
+        {
+            var root = new GameObject("StrategyGuideBlankAuthoringRoot", typeof(RectTransform));
+            var compact = UnityTavernLayoutContext.ForSize(390f, 844f);
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(
+                compact.Width / compact.CanvasScaleFactor,
+                compact.Height / compact.CanvasScaleFactor);
+            var directory = Path.Combine(
+                UnityEngine.Application.temporaryCachePath,
+                "strategy-guide-blank-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                var repository = new FileStrategyGuideAuthoringRepository(directory);
+                new StrategyGuideSelectionView(
+                    root.transform,
+                    catalog,
+                    snapshot.ForLanguage(false),
+                    GameVersionIds.Season14Preview,
+                    (_, __) => { },
+                    () => { },
+                    layoutContext: compact,
+                    resolvedVersion: ResolveSeason14(),
+                    authoringRepository: repository).Build();
+
+                Find(root.transform, "StrategyGuideAuthoringOpenButton")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+                Find(root.transform, "StrategyGuideAuthoringBlankButton")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringEditor").Count);
+                var draft = repository.ListDraftIds().Select(repository.LoadDraft).Single();
+                StringAssert.StartsWith("GUIDE-CUSTOM-", draft.Guide.GuideId);
+                Assert.AreEqual(7, draft.Guide.FinalComposition.Count);
+                Assert.AreEqual(1, draft.Guide.EntryProfiles.Count);
+                Assert.IsEmpty(draft.Guide.RequiredTribes);
+                CollectionAssert.Contains(draft.Guide.ActiveTribes, Tribe.Beast.ToString());
+                CollectionAssert.AreEqual(
+                    new[] { StrategyGuideShapingSpells.Battlecry },
+                    draft.Guide.EntryProfiles[0].ShapingSpellCardIds);
+
+                var title = Find(root.transform, "StrategyGuideAuthoringTitleInput")
+                    .Single()
+                    .GetComponent<InputField>();
+                ExecuteEvents.Execute<ISelectHandler>(
+                    title.gameObject,
+                    new BaseEventData(null),
+                    ExecuteEvents.selectHandler);
+                title.text = "手机自定义阵容";
+                title.onEndEdit.Invoke(title.text);
+
+                Find(root.transform, "StrategyGuideAuthoringTribeButton-Beast")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+                draft = repository.ListDraftIds().Select(repository.LoadDraft).Single();
+                Assert.IsFalse(draft.Guide.ActiveTribes.Contains(Tribe.Beast.ToString()));
+                var replacement = TribeAvailabilityRules.PlayableTribes
+                    .Select(tribe => tribe.ToString())
+                    .First(tribe => tribe != Tribe.Beast.ToString() && !draft.Guide.ActiveTribes.Contains(tribe));
+                Find(root.transform, "StrategyGuideAuthoringTribeButton-" + replacement)
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+
+                Find(root.transform, "StrategyGuideAuthoringStepButton-3")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+                Find(root.transform, "StrategyGuideAuthoringFreezeButton")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+
+                draft = repository.ListDraftIds().Select(repository.LoadDraft).Single();
+                Assert.AreEqual("手机自定义阵容", draft.Guide.Title);
+                Assert.AreEqual(5, draft.Guide.ActiveTribes.Count);
+                Assert.IsEmpty(draft.Guide.RequiredTribes);
+                Assert.IsFalse(draft.Guide.ActiveTribes.Contains(Tribe.Beast.ToString()));
+                var directFreeze = StrategyGuideAuthoringFreezeService.Freeze(
+                    draft,
+                    catalog,
+                    ResolveSeason14());
+                Assert.IsTrue(directFreeze.Succeeded, string.Join(" | ", directFreeze.Diagnostics));
+                var frozenDirectory = Path.Combine(directory, "Frozen");
+                Assert.IsTrue(Directory.Exists(frozenDirectory), "The UI freeze action did not create its artifact directory.");
+                var frozen = Directory.GetFiles(frozenDirectory, "*.json");
+                Assert.AreEqual(1, frozen.Length, "A real blank-authoring journey should finish with one frozen revision.");
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideAuthoringFrozenDelivery").Count);
             }
             finally
             {
@@ -554,7 +662,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void TrainerBuildsCompactGuideHudAndHidesUnneededSandboxControls()
+        public void TrainerBuildsCompactGuideHudAndKeepsCoreRecruitControlsVisible()
         {
             var root = new GameObject("StrategyGuideTrainerRoot", typeof(RectTransform));
             try
@@ -570,7 +678,9 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(1, Find(root.transform, "UnityStrategyGuideHud").Count);
                 Assert.IsNotEmpty(Find(root.transform, "UnityStrategyGuideInstruction").Single().GetComponent<Text>().text);
                 Assert.AreEqual(0, Find(root.transform, "UnityQuickToolsButton").Count);
-                Assert.AreEqual(0, Find(root.transform, "UnityQuickRefreshButton").Count);
+                var refresh = Find(root.transform, "UnityQuickRefreshButton").Single().GetComponent<Button>();
+                Assert.IsFalse(refresh.interactable);
+                StringAssert.Contains("模式锁定", refresh.GetComponentInChildren<Text>(true).text);
                 Assert.IsFalse(Find(root.transform, "UnityHeroBadge").Single().GetComponent<Button>().interactable);
 
                 var undo = Find(root.transform, "UnityStrategyGuideUndoButton").Single().GetComponent<Button>();
@@ -684,7 +794,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void GuideShapingSlotStaysOutsideHandAndExecutesWithoutTurnOrHandSideEffects()
+        public void GuideShapingSpellsRenderInsideHandAndExecuteWithoutOrdinaryHandSideEffects()
         {
             var root = CreateTrainerRoot("StrategyGuideShapingSlotUiRoot");
             try
@@ -704,31 +814,23 @@ namespace LearnHearthstone.Tests.EditMode
                 BuildTrainer(root, session);
 
                 var hand = Find(root.transform, "UnityHandZone").Single();
-                var slot = Find(root.transform, "UnityStrategyGuideShapingSpellSlot").Single();
                 var currentSpells = session.MatchService.GetCurrentGuideShapingSpells();
-                var shapingCards = slot.GetComponentsInChildren<Button>(true)
-                    .Where(button => button.name.StartsWith("UnityStrategyGuideShapingSpellCard-", StringComparison.Ordinal))
+                var shapingCards = hand.GetComponentsInChildren<UnityTavernCardComponent>(true)
+                    .Where(card => StrategyGuideShapingSpells.Contains(card.Card?.CardId))
                     .ToList();
-                Assert.IsFalse(slot.IsChildOf(hand));
+                Assert.AreEqual(0, Find(root.transform, "UnityStrategyGuideShapingSpellSlot").Count);
                 Assert.AreEqual(
-                    handIds.Length,
+                    handIds.Length + currentSpells.Count,
                     hand.GetComponentsInChildren<Transform>(true).Count(item =>
                         item.name.StartsWith("UnityHandZoneSlot-", StringComparison.Ordinal)));
                 Assert.AreEqual(currentSpells.Count, shapingCards.Count);
-                Assert.IsTrue(shapingCards.All(button => button.GetComponent<UnitySelectableFocusRing>() != null));
-                Assert.IsTrue(shapingCards.All(button => button.interactable));
-                Assert.GreaterOrEqual(slot.GetComponent<LayoutElement>().preferredHeight, UnityTavernUiStyle.TouchHeight);
-                Assert.IsTrue(shapingCards.All(button =>
-                    button.GetComponent<LayoutElement>().preferredHeight >= UnityTavernUiStyle.CompactTouchHeight));
-                Assert.GreaterOrEqual(
-                    slot.GetComponent<LayoutElement>().preferredWidth,
-                    shapingCards.Sum(button => button.GetComponent<LayoutElement>().preferredWidth) +
-                    slot.GetComponent<HorizontalLayoutGroup>().spacing * Math.Max(0, shapingCards.Count - 1));
-                CollectionAssert.IsSubsetOf(
-                    new[] { "亡语", "战吼", "结束" },
-                    slot.GetComponentsInChildren<Text>(true).Select(text => text.text).ToArray());
+                CollectionAssert.AreEquivalent(
+                    currentSpells.Select(spell => spell.CardId),
+                    shapingCards.Select(card => card.Card.CardId));
+                StringAssert.Contains("塑造法术 2", hand.GetComponentsInChildren<Text>(true)
+                    .Single(text => text.name == "UnityZoneSubtitle").text);
 
-                var directSpell = currentSpells.Single(spell => !session.MatchService.RequiresPlayerTarget(spell));
+                var directSpell = currentSpells.First(spell => !session.MatchService.RequiresPlayerTarget(spell));
                 var directDrag = new UnityTavernDragContext(
                     directSpell,
                     UnityTavernDragSource.GuideShapingSpell,
@@ -749,7 +851,66 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.AreEqual(cardsPlayedThisTurn, tavern.CardsPlayedThisTurn);
                 Assert.AreEqual(currentSpells.Count - 1, tavern.GuideShapingSpellCardIds.Count);
                 Assert.AreEqual(currentSpells.Count == 1, tavern.GuideShapingSpellConsumed);
-                Assert.IsFalse(tavern.GuideShapingSpellCardIds.Contains(directSpell.CardId));
+                Assert.AreEqual(currentSpells.Count - 1, tavern.GuideShapingSpellCardIds.Count(cardId =>
+                    string.Equals(cardId, directSpell.CardId, StringComparison.Ordinal)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void GuideRecruitCommandsKeepStableVisibleButtonsWhenLocked()
+        {
+            var root = CreateTrainerRoot("StrategyGuideStableRecruitActionsRoot");
+            try
+            {
+                BuildTrainer(root, Start("GUIDE-S14-BEAST-LOBSTER-RALLY", "showcase"));
+
+                foreach (var name in new[]
+                         {
+                             "UnityQuickRefreshButton",
+                             "UnityQuickFreezeButton",
+                             "UnityQuickUpgradeButton"
+                         })
+                {
+                    var button = Find(root.transform, name).Single().GetComponent<Button>();
+                    Assert.IsFalse(button.interactable, name);
+                    Assert.GreaterOrEqual(button.GetComponent<LayoutElement>().preferredHeight, 48f, name);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void DifficultGuideKeepsAllowedRecruitCommandsVisibleAndUsable()
+        {
+            var root = CreateTrainerRoot("StrategyGuideAllowedRecruitActionsRoot");
+            try
+            {
+                var session = Start("GUIDE-S14-BEAST-LOBSTER-RALLY", "difficult");
+                session.MatchService.State.Player.Tavern.Gold = 10;
+                BuildTrainer(root, session);
+
+                foreach (var name in new[]
+                         {
+                             "UnityQuickRefreshButton",
+                             "UnityQuickFreezeButton",
+                             "UnityQuickUpgradeButton"
+                         })
+                {
+                    var button = Find(root.transform, name).Single().GetComponent<Button>();
+                    Assert.IsTrue(button.interactable, name);
+                    StringAssert.DoesNotContain("模式锁定", button.GetComponentInChildren<Text>(true).text, name);
+                }
+
+                var frozen = session.MatchService.State.Player.Tavern.Frozen;
+                Find(root.transform, "UnityQuickFreezeButton").Single().GetComponent<Button>().onClick.Invoke();
+                Assert.AreNotEqual(frozen, session.MatchService.State.Player.Tavern.Frozen);
             }
             finally
             {
@@ -779,9 +940,10 @@ namespace LearnHearthstone.Tests.EditMode
 
                 BuildTrainer(root, session);
 
-                Find(
-                    root.transform,
-                    "UnityStrategyGuideShapingSpellCard-" + StrategyGuideShapingSpells.Battlecry).Single().GetComponent<Button>().onClick.Invoke();
+                root.GetComponentsInChildren<UnityTavernCardComponent>(true)
+                    .Single(card => card.Card?.CardId == StrategyGuideShapingSpells.Battlecry)
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
                 var controller = Find(root.transform, "UnityTavernTrainer")
                     .Single()
                     .GetComponent<UnityTavernTrainerController>();
