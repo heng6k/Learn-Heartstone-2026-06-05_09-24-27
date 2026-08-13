@@ -237,17 +237,32 @@ namespace LearnHearthstone.Tests.EditMode
                     .Single()
                     .GetComponent<Text>()
                     .text;
-                StringAssert.StartsWith("未命名草稿  ·  ", draftName);
-                StringAssert.EndsWith(
-                    repository.GetDraftLastSavedUtc(draftId).ToLocalTime().ToString("MM月dd日"),
-                    draftName);
+                Assert.AreEqual("未命名草稿", draftName);
+                var expectedDate = repository.GetDraftLastSavedUtc(draftId).ToLocalTime().ToString("MM月dd日");
+                Assert.AreEqual(
+                    expectedDate,
+                    Find(root.transform, "StrategyGuideAuthoringDraftDate-" + draftId).Single().GetComponent<Text>().text);
                 Canvas.ForceUpdateCanvases();
                 LayoutRebuilder.ForceRebuildLayoutImmediate(root.GetComponent<RectTransform>());
-                var draftNameRect = Find(root.transform, "StrategyGuideAuthoringDraftName-" + draftId)
+                Canvas.ForceUpdateCanvases();
+                var draftCopy = Find(root.transform, "StrategyGuideAuthoringDraftCopy-" + draftId)
                     .Single()
-                    .GetComponent<RectTransform>();
+                    .GetComponent<LayoutElement>();
+                var draftNameText = Find(root.transform, "StrategyGuideAuthoringDraftName-" + draftId)
+                    .Single()
+                    .GetComponent<Text>();
+                var draftNameRect = draftNameText.rectTransform;
+                var draftDateText = Find(root.transform, "StrategyGuideAuthoringDraftDate-" + draftId)
+                    .Single()
+                    .GetComponent<Text>();
+                Assert.GreaterOrEqual(draftCopy.minWidth, 120f);
+                Assert.GreaterOrEqual(draftCopy.minHeight, 26f);
+                Assert.Greater(draftCopy.flexibleWidth, 0f);
                 Assert.Greater(draftNameRect.rect.width, 100f);
-                Assert.Greater(draftNameRect.rect.height, 0f);
+                Assert.GreaterOrEqual(draftNameRect.rect.height, 26f);
+                Assert.Greater(draftNameText.cachedTextGenerator.characterCountVisible, 0);
+                Assert.GreaterOrEqual(draftDateText.rectTransform.rect.width, 150f);
+                Assert.GreaterOrEqual(draftDateText.cachedTextGenerator.characterCountVisible, expectedDate.Length);
 
                 Find(root.transform, "StrategyGuideAuthoringDraftDeleteButton-" + draftId)
                     .Single()
@@ -274,6 +289,118 @@ namespace LearnHearthstone.Tests.EditMode
             finally
             {
                 Object.DestroyImmediate(root);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Test]
+        public void AuthoringDraftTitleAndDateRenderToPixelsInARealCanvas()
+        {
+            const int width = 844;
+            const int height = 600;
+            const string draftId = "draft-rendered-label";
+            var directory = Path.Combine(
+                UnityEngine.Application.temporaryCachePath,
+                "strategy-guide-rendered-label-" + Guid.NewGuid().ToString("N"));
+            var cameraObject = new GameObject("StrategyGuideDraftCaptureCamera", typeof(Camera));
+            var canvasObject = new GameObject(
+                "StrategyGuideDraftCaptureCanvas",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster));
+            RenderTexture renderTexture = null;
+            Texture2D texture = null;
+            var previousActive = RenderTexture.active;
+            try
+            {
+                var camera = cameraObject.GetComponent<Camera>();
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = Color.black;
+                camera.orthographic = true;
+                camera.nearClipPlane = 0.1f;
+                camera.farClipPlane = 100f;
+                camera.transform.position = new Vector3(0f, 0f, -10f);
+                renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+                camera.targetTexture = renderTexture;
+
+                var layoutContext = UnityTavernLayoutContext.ForSize(width, height);
+                var canvas = canvasObject.GetComponent<Canvas>();
+                LearnHearthstone.Presentation.LearnHearthstoneBootstrap.ConfigureCanvas(canvas, layoutContext);
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.worldCamera = camera;
+                canvas.planeDistance = 1f;
+
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                var repository = new FileStrategyGuideAuthoringRepository(directory);
+                var draft = new StrategyGuideAuthoringDraft
+                {
+                    DraftId = draftId,
+                    Guide = JsonUtility.FromJson<StrategyGuideDefinition>(JsonUtility.ToJson(catalog.Guides[0]))
+                };
+                draft.Guide.Title = "";
+                draft.Guide.EnglishTitle = "";
+                repository.SaveDraft(draft);
+
+                new StrategyGuideSelectionView(
+                    canvasObject.transform,
+                    catalog,
+                    snapshot.ForLanguage(false),
+                    GameVersionIds.Season14Preview,
+                    (_, __) => { },
+                    () => { },
+                    layoutContext: layoutContext,
+                    resolvedVersion: ResolveSeason14(),
+                    authoringRepository: repository).Build();
+                Find(canvasObject.transform, "StrategyGuideAuthoringOpenButton")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(canvasObject.GetComponent<RectTransform>());
+                Canvas.ForceUpdateCanvases();
+                camera.Render();
+
+                RenderTexture.active = renderTexture;
+                texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+                texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                texture.Apply();
+
+                var title = Find(canvasObject.transform, "StrategyGuideAuthoringDraftName-" + draftId)
+                    .Single()
+                    .GetComponent<Text>();
+                var date = Find(canvasObject.transform, "StrategyGuideAuthoringDraftDate-" + draftId)
+                    .Single()
+                    .GetComponent<Text>();
+                var capturePath = Path.Combine(UnityEngine.Application.temporaryCachePath, "StrategyGuideAuthoringDraftRow.png");
+                File.WriteAllBytes(capturePath, texture.EncodeToPNG());
+                Assert.Greater(new FileInfo(capturePath).Length, 0);
+                Assert.Greater(title.cachedTextGenerator.characterCountVisible, 0);
+                Assert.GreaterOrEqual(date.cachedTextGenerator.characterCountVisible, date.text.Length);
+                Assert.Greater(CountBrightPixels(texture, title.rectTransform, camera), 12, "The title/date must reach the rendered frame.");
+                Assert.Greater(CountBrightPixels(texture, date.rectTransform, camera), 8, "The month/day must reach the rendered frame.");
+
+            }
+            finally
+            {
+                RenderTexture.active = previousActive;
+                cameraObject.GetComponent<Camera>().targetTexture = null;
+                if (renderTexture != null)
+                {
+                    renderTexture.Release();
+                    Object.DestroyImmediate(renderTexture);
+                }
+                if (texture != null)
+                {
+                    Object.DestroyImmediate(texture);
+                }
+                Object.DestroyImmediate(canvasObject);
+                Object.DestroyImmediate(cameraObject);
                 if (Directory.Exists(directory))
                 {
                     Directory.Delete(directory, true);
@@ -1380,6 +1507,31 @@ namespace LearnHearthstone.Tests.EditMode
             var result = new List<Transform>();
             Collect(root, name, result);
             return result;
+        }
+
+        private static int CountBrightPixels(Texture2D texture, RectTransform target, Camera camera)
+        {
+            var corners = new Vector3[4];
+            target.GetWorldCorners(corners);
+            var bottomLeft = RectTransformUtility.WorldToScreenPoint(camera, corners[0]);
+            var topRight = RectTransformUtility.WorldToScreenPoint(camera, corners[2]);
+            var xMin = Mathf.Clamp(Mathf.FloorToInt(Mathf.Min(bottomLeft.x, topRight.x)), 0, texture.width - 1);
+            var xMax = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(bottomLeft.x, topRight.x)), 0, texture.width);
+            var yMin = Mathf.Clamp(Mathf.FloorToInt(Mathf.Min(bottomLeft.y, topRight.y)), 0, texture.height - 1);
+            var yMax = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(bottomLeft.y, topRight.y)), 0, texture.height);
+            var count = 0;
+            for (var y = yMin; y < yMax; y += 1)
+            {
+                for (var x = xMin; x < xMax; x += 1)
+                {
+                    var color = texture.GetPixel(x, y);
+                    if (color.r + color.g + color.b > 1.7f)
+                    {
+                        count += 1;
+                    }
+                }
+            }
+            return count;
         }
 
         private static void Collect(Transform root, string name, ICollection<Transform> result)

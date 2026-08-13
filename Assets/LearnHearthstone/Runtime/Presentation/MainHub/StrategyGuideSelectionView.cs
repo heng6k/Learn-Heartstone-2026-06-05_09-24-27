@@ -595,24 +595,39 @@ namespace LearnHearthstone.Presentation.MainHub
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
             var copy = UiFactory.Panel("StrategyGuideAuthoringDraftCopy-" + draft.DraftId, panel.transform, Color.clear);
-            UiFactory.SetFlexible(copy, 1f, 0f);
-            UiFactory.Vertical(copy, 0, 2);
+            var copyElement = copy.AddComponent<LayoutElement>();
+            copyElement.minWidth = 120f;
+            copyElement.minHeight = 26f;
+            copyElement.flexibleWidth = 1f;
+            var copyLayout = UiFactory.Vertical(copy, 0, 0);
+            copyLayout.childForceExpandHeight = false;
+            var titleRow = UiFactory.Panel(
+                "StrategyGuideAuthoringDraftTitleRow-" + draft.DraftId,
+                copy.transform,
+                Color.clear);
+            UiFactory.SetHeight(titleRow, 26f);
+            var titleLayout = UiFactory.Horizontal(titleRow, 0, 6);
+            titleLayout.childControlWidth = true;
             var title = UiFactory.Label(
                 "StrategyGuideAuthoringDraftName-" + draft.DraftId,
-                copy.transform,
-                titleText + "  ·  " + dateText,
+                titleRow.transform,
+                titleText,
                 18,
                 FontStyle.Bold,
                 layout);
             title.color = UnityTavernUiStyle.TextLight;
-            var detail = UiFactory.Label(
-                "StrategyGuideAuthoringDraftDetail-" + draft.DraftId,
-                copy.transform,
-                T("本地草稿  ·  自动保存", "Local draft  ·  Autosaved"),
+            UiFactory.SetFlexible(title.gameObject, 1f, 0f);
+            var date = UiFactory.Label(
+                "StrategyGuideAuthoringDraftDate-" + draft.DraftId,
+                titleRow.transform,
+                dateText,
                 14,
-                FontStyle.Normal,
+                FontStyle.Bold,
                 layout);
-            detail.color = UnityTavernUiStyle.TextMuted;
+            date.alignment = TextAnchor.MiddleRight;
+            date.color = UnityTavernUiStyle.Gold;
+            date.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.SetWidth(date.gameObject, useEnglish ? 84f : 150f);
             var open = UiFactory.Button(
                 "StrategyGuideAuthoringDraftOpenButton-" + draft.DraftId,
                 panel.transform,
@@ -646,8 +661,12 @@ namespace LearnHearthstone.Presentation.MainHub
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
             var copy = UiFactory.Panel("StrategyGuideAuthoringTemplateCopy-" + guide.GuideId, panel.transform, Color.clear);
-            UiFactory.SetFlexible(copy, 1f, 0f);
-            UiFactory.Vertical(copy, 0, 2);
+            var copyElement = copy.AddComponent<LayoutElement>();
+            copyElement.minWidth = 120f;
+            copyElement.minHeight = 50f;
+            copyElement.flexibleWidth = 1f;
+            var copyLayout = UiFactory.Vertical(copy, 0, 2);
+            copyLayout.childForceExpandHeight = false;
             var title = UiFactory.Label(
                 "StrategyGuideAuthoringTemplateName-" + guide.GuideId,
                 copy.transform,
@@ -656,6 +675,7 @@ namespace LearnHearthstone.Presentation.MainHub
                 FontStyle.Bold,
                 layout);
             title.color = UnityTavernUiStyle.TextLight;
+            UiFactory.SetHeight(title.gameObject, 26f);
             var summary = UiFactory.Label(
                 "StrategyGuideAuthoringTemplateSummary-" + guide.GuideId,
                 copy.transform,
@@ -664,6 +684,7 @@ namespace LearnHearthstone.Presentation.MainHub
                 FontStyle.Normal,
                 layout);
             summary.color = UnityTavernUiStyle.TextMuted;
+            UiFactory.SetHeight(summary.gameObject, 22f);
             var select = UiFactory.Button(
                 (viewOnly ? "StrategyGuideAuthoringVerifiedSelectButton-" : "StrategyGuideAuthoringTemplateSelectButton-") + guide.GuideId,
                 panel.transform,
