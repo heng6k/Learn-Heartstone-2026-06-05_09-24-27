@@ -95,7 +95,62 @@ namespace LearnHearthstone.Presentation
                 remotePackage,
                 remoteFailureReason);
             initialized = true;
+            if (TryOpenRequestedStrategyGuide(UnityEngine.Application.absoluteURL))
+            {
+                yield break;
+            }
             ShowChannelHome();
+        }
+
+        private bool TryOpenRequestedStrategyGuide(string absoluteUrl)
+        {
+            if (!TryResolveStrategyGuideLaunch(absoluteUrl, out var guideId, out var profileId))
+            {
+                return false;
+            }
+
+            try
+            {
+                StartStrategyGuide(guideId, profileId);
+                return true;
+            }
+            catch (InvalidOperationException exception)
+            {
+                Debug.LogWarning("Ignored invalid strategy guide launch parameters: " + exception.Message);
+                return false;
+            }
+        }
+
+        public static bool TryResolveStrategyGuideLaunch(string absoluteUrl, out string guideId, out string profileId)
+        {
+            guideId = null;
+            profileId = null;
+            if (!Uri.TryCreate(absoluteUrl, UriKind.Absolute, out var uri))
+            {
+                return false;
+            }
+
+            foreach (var part in uri.Query.TrimStart('?').Split('&'))
+            {
+                var separator = part.IndexOf('=');
+                if (separator <= 0)
+                {
+                    continue;
+                }
+
+                var key = Uri.UnescapeDataString(part.Substring(0, separator));
+                var value = Uri.UnescapeDataString(part.Substring(separator + 1));
+                if (string.Equals(key, "guide", StringComparison.OrdinalIgnoreCase))
+                {
+                    guideId = value;
+                }
+                else if (string.Equals(key, "profile", StringComparison.OrdinalIgnoreCase))
+                {
+                    profileId = value;
+                }
+            }
+
+            return !string.IsNullOrWhiteSpace(guideId) && !string.IsNullOrWhiteSpace(profileId);
         }
 
         private void ShowChannelHome()

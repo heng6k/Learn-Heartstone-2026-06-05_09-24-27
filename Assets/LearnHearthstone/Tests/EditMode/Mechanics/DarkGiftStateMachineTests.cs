@@ -1250,6 +1250,50 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void DarkGiftChoice_ThirdCopyImmediatelyCreatesTripleAtFarRight()
+        {
+            var definition = Definition("choice-triple", Season14DarkGiftResolvers.SteadyGrowthRevision);
+            var service = MatchService.CreateWithDefaultCatalog(
+                4593,
+                new InMemoryTestScenarioRepository(),
+                setup: DarkGiftOnlySetup(),
+                darkGiftDefinitions: new[] { definition });
+            var tavern = service.State.Player.Tavern;
+            tavern.Hand.Clear();
+            service.State.Player.Board.Clear();
+            var cardId = service.Catalogs.Minions.All.First(item => item.InPool).CardId;
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));
+            service.State.ChoiceQueue = new ChoiceQueueState
+            {
+                ActiveChoice = new ChoiceQueueItem
+                {
+                    RequestId = "dark-gift-choice-triple",
+                    Kind = ChoiceRequestKind.DarkGift,
+                    Source = "test",
+                    Blocking = true,
+                    RemainingPicks = 1,
+                    Options = new List<MechanicChoiceOption>
+                    {
+                        new MechanicChoiceOption
+                        {
+                            OptionId = "dark-gift-choice-triple-option",
+                            Kind = AdvancedMechanicKind.DarkGift,
+                            SourceId = cardId,
+                            RewardId = definition.RevisionId
+                        }
+                    }
+                }
+            };
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, 0));
+
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand[0].Golden);
+            Assert.AreEqual(cardId, tavern.Hand[0].CardId);
+        }
+
+        [Test]
         public void Acquire_StackThenReplacePreservesExpiredHistory()
         {
             var state = CreateState(out var target);

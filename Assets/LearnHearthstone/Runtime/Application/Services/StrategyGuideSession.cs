@@ -401,7 +401,7 @@ namespace LearnHearthstone.Application.Services
             {
                 return MatchService.CanApply(commandType) && HasCurrentShapingSpellSlot();
             }
-            if (commandType == GameCommandType.RerollShop &&
+            if ((commandType == GameCommandType.RerollShop || commandType == GameCommandType.FreezeShop) &&
                 (string.Equals(Profile.Difficulty, StrategyGuideDifficulties.Showcase, StringComparison.Ordinal) ||
                  string.Equals(Profile.Difficulty, StrategyGuideDifficulties.GuidedDiscover, StringComparison.Ordinal)))
             {

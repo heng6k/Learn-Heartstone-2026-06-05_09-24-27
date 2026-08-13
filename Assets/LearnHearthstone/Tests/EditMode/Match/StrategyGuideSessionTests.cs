@@ -143,6 +143,27 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(goldBeforeRefresh - 1, session.MatchService.State.Player.Tavern.Gold);
         }
 
+        [TestCase(StrategyGuideDifficulties.Showcase)]
+        [TestCase(StrategyGuideDifficulties.GuidedDiscover)]
+        public void SimpleAndBeginnerModes_CanFreezeShopEvenWhenLegacyAllowlistOmitsIt(string difficulty)
+        {
+            var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+            var guide = catalog.GetGuide("GUIDE-S14-BEAST-LOBSTER-RALLY");
+            var profile = guide.EntryProfiles.Single(item => item.Difficulty == difficulty);
+            profile.AllowedCommands.RemoveAll(command =>
+                string.Equals(command, GameCommandType.FreezeShop.ToString(), StringComparison.Ordinal));
+            var session = StrategyGuideSession.Start(
+                catalog,
+                guide.GuideId,
+                ResolveSeason14(),
+                profileId: profile.ProfileId);
+
+            Assert.IsTrue(session.CanApply(GameCommandType.FreezeShop));
+            session.Apply(new GameCommand(GameCommandType.FreezeShop, true));
+
+            Assert.IsTrue(session.MatchService.State.Player.Tavern.Frozen);
+        }
+
         [Test]
         public void Undo_RestoresStateRngAndActionProgressExactlyOnce()
         {

@@ -56,6 +56,7 @@ test('lightweight guide catalog is complete and does not embed Unity', () => {
   assert.ok(guideCatalog.guides.every(guide => guide.profiles.length === 3))
   assert.ok(guideCatalog.guides.every(guide => guide.profiles.every(profile => Array.isArray(profile.steps))))
   assert.ok(guideCatalog.guides.every(guide => guide.profiles.some(profile => profile.steps.length > 0)))
+  assert.ok(guideCatalog.guides.every(guide => guide.profiles.every(profile => profile.shapingSpells.length === 1)))
   assert.doesNotMatch(guidesPageSource, /createUnityInstance|\.wasm|\.data|UnityLoader/)
 })
 
@@ -117,6 +118,10 @@ test('play gate defers Unity and offers browser and mobile fullscreen paths', ()
   assert.match(playPageSource, /screen\.orientation\?\.lock/)
   assert.match(playPageSource, /screen\.orientation\.lock\('landscape'\)/)
   assert.match(playPageSource, /allow="autoplay; fullscreen; gamepad"/)
+  assert.match(playPageSource, /root\.style\.setProperty\('scroll-behavior', 'auto', 'important'\)/)
+  assert.match(playPageSource, /document\.scrollingElement\.scrollTop = window\.scrollY \+ unityToolbar\.getBoundingClientRect\(\)\.top/)
+  assert.match(playPageSource, /url\.searchParams\.set\('guide', requestedGuide\.value\)/)
+  assert.match(playPageSource, /url\.searchParams\.set\('profile', requestedProfile\.value\)/)
 })
 
 test('web app manifest enables installed mobile fullscreen without changing the lightweight start path', () => {

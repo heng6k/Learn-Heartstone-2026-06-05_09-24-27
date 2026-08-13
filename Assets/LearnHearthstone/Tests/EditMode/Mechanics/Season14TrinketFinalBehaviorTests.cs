@@ -34,6 +34,7 @@ namespace LearnHearthstone.Tests.EditMode
         private const string CyclistPortraitId = "BG36_MagicItem_362";
         private const string TargetedTavernSpellId = "100596";
         private const string UntargetedTavernSpellId = "122186";
+        private const string ReflectivePendantId = "BG30_MagicItem_706";
 
         [Test]
         public void HoneycombRing_TargetedSpellsImproveUntilTurnEnds()
@@ -385,6 +386,24 @@ namespace LearnHearthstone.Tests.EditMode
             var copy = service.State.Player.Tavern.Hand.Single(card => card.CardId == "BG28_300");
             Assert.IsFalse(copy.Golden);
             Assert.AreEqual(PoolSource.Copy, copy.PoolSource);
+        }
+
+        [Test]
+        public void ReflectivePendant_ThirdPlainCopyImmediatelyCreatesTripleAtFarRight()
+        {
+            var service = CreateService();
+            var tavern = service.State.Player.Tavern;
+            var source = Minion("reflective-source", Tribe.Beast);
+            source.DefinitionId = source.CardId = "BG36_202";
+            service.State.Player.Board.Add(source);
+            tavern.Hand.Add(source.Clone());
+            tavern.Hand[0].InstanceId = "reflective-first-copy";
+
+            Equip(service, ReflectivePendantId, 0);
+
+            Assert.AreEqual(1, tavern.Hand.Count);
+            Assert.IsTrue(tavern.Hand[0].Golden);
+            Assert.AreEqual(source.CardId, tavern.Hand[0].CardId);
         }
 
         private static MatchService CreateService()

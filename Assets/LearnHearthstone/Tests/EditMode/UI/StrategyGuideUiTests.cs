@@ -662,7 +662,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void TrainerBuildsCompactGuideHudAndKeepsCoreRecruitControlsVisible()
+        public void TrainerBuildsCompactGuideHudAndKeepsNormalRefreshAndFreezeAvailable()
         {
             var root = new GameObject("StrategyGuideTrainerRoot", typeof(RectTransform));
             try
@@ -679,8 +679,9 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsNotEmpty(Find(root.transform, "UnityStrategyGuideInstruction").Single().GetComponent<Text>().text);
                 Assert.AreEqual(0, Find(root.transform, "UnityQuickToolsButton").Count);
                 var refresh = Find(root.transform, "UnityQuickRefreshButton").Single().GetComponent<Button>();
-                Assert.IsFalse(refresh.interactable);
-                StringAssert.Contains("模式锁定", refresh.GetComponentInChildren<Text>(true).text);
+                Assert.IsTrue(refresh.interactable);
+                StringAssert.DoesNotContain("模式锁定", refresh.GetComponentInChildren<Text>(true).text);
+                Assert.IsTrue(Find(root.transform, "UnityQuickFreezeButton").Single().GetComponent<Button>().interactable);
                 Assert.IsFalse(Find(root.transform, "UnityHeroBadge").Single().GetComponent<Button>().interactable);
 
                 var undo = Find(root.transform, "UnityStrategyGuideUndoButton").Single().GetComponent<Button>();
@@ -861,24 +862,23 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void GuideRecruitCommandsKeepStableVisibleButtonsWhenLocked()
+        public void GuideRecruitCommandsKeepStableVisibleButtonsWithOnlyUpgradeLocked()
         {
             var root = CreateTrainerRoot("StrategyGuideStableRecruitActionsRoot");
             try
             {
                 BuildTrainer(root, Start("GUIDE-S14-BEAST-LOBSTER-RALLY", "showcase"));
 
-                foreach (var name in new[]
-                         {
-                             "UnityQuickRefreshButton",
-                             "UnityQuickFreezeButton",
-                             "UnityQuickUpgradeButton"
-                         })
+                foreach (var name in new[] { "UnityQuickRefreshButton", "UnityQuickFreezeButton" })
                 {
                     var button = Find(root.transform, name).Single().GetComponent<Button>();
-                    Assert.IsFalse(button.interactable, name);
+                    Assert.IsTrue(button.interactable, name);
                     Assert.GreaterOrEqual(button.GetComponent<LayoutElement>().preferredHeight, 48f, name);
                 }
+
+                var upgrade = Find(root.transform, "UnityQuickUpgradeButton").Single().GetComponent<Button>();
+                Assert.IsFalse(upgrade.interactable);
+                Assert.GreaterOrEqual(upgrade.GetComponent<LayoutElement>().preferredHeight, 48f);
             }
             finally
             {

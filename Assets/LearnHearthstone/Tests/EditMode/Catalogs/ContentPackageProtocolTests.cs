@@ -27,6 +27,22 @@ namespace LearnHearthstone.Tests.Catalogs
                 manifestUrl);
         }
 
+        [Test]
+        public void WebLaunchParameters_ResolveSelectedStrategyGuideAndProfile()
+        {
+            Assert.IsTrue(LearnHearthstoneBootstrap.TryResolveStrategyGuideLaunch(
+                "https://example.test/unity/index.html?guide=GUIDE-S14-BEAST-LOBSTER-RALLY&profile=guided",
+                out var guideId,
+                out var profileId));
+
+            Assert.AreEqual("GUIDE-S14-BEAST-LOBSTER-RALLY", guideId);
+            Assert.AreEqual("guided", profileId);
+            Assert.IsFalse(LearnHearthstoneBootstrap.TryResolveStrategyGuideLaunch(
+                "https://example.test/unity/index.html?guide=GUIDE-S14-BEAST-LOBSTER-RALLY",
+                out _,
+                out _));
+        }
+
         private const string ClientVersion = "0.1.0-alpha";
         private const string ContentVersion = "20260727";
         private const string ValidSha256 = "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a";

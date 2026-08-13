@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import AppIcon from '../components/AppIcon.vue'
 import { currentVersion, unityRelease } from '../data/site-content.js'
@@ -10,6 +10,18 @@ const frameKey = ref(0)
 let loadTimer
 const unityUrl = import.meta.env.VITE_UNITY_URL || unityRelease.path
 const requestedGuide = computed(() => String(route.query.guide ?? ''))
+const requestedProfile = computed(() => String(route.query.profile ?? ''))
+const unityFrameUrl = computed(() => {
+  const url = new URL(unityUrl, window.location.origin)
+  if (requestedGuide.value && requestedProfile.value) {
+    url.searchParams.set('guide', requestedGuide.value)
+    url.searchParams.set('profile', requestedProfile.value)
+  }
+  return url.href
+})
+const guideReturnTarget = computed(() => requestedGuide.value
+  ? { name: 'guide-detail', params: { guideId: requestedGuide.value }, query: { profile: requestedProfile.value } }
+  : { name: 'guides' })
 const isFullscreen = ref(false)
 const isStandalone = ref(false)
 const fullscreenAvailable = ref(false)
@@ -22,10 +34,18 @@ const stateLabel = computed(() => ({
   failed: '加载失败',
 })[state.value])
 
-function startUnity() {
+async function startUnity() {
   clearTimeout(loadTimer)
   frameKey.value += 1
   state.value = 'loading'
+  await nextTick()
+  const unityToolbar = document.querySelector('.unity-toolbar')
+  if (unityToolbar && document.scrollingElement) {
+    const root = document.documentElement
+    root.style.setProperty('scroll-behavior', 'auto', 'important')
+    document.scrollingElement.scrollTop = window.scrollY + unityToolbar.getBoundingClientRect().top
+    root.style.removeProperty('scroll-behavior')
+  }
   loadTimer = setTimeout(() => {
     state.value = 'failed'
   }, 90000)
@@ -136,7 +156,7 @@ onBeforeUnmount(() => {
         <p>
           本次会加载 {{ unityRelease.chunkCount }} 个数据分块，合计 {{ unityRelease.sourceDataLabel }}。移动设备可能出现较长加载或内存压力。
         </p>
-        <p v-if="requestedGuide" class="guide-play-context">已从一图流进入。Unity 加载完成后，请在训练场选择对应阵容与档位继续操作练习。</p>
+        <p v-if="requestedGuide" class="guide-play-context">已选择一图流阵容与档位，Unity 加载完成后会直接进入对应操作练习。</p>
 
         <div v-if="state === 'failed'" class="inline-error" role="alert">
           <AppIcon name="alert" :size="22" />
@@ -183,7 +203,7 @@ onBeforeUnmount(() => {
           </div>
         </dl>
 
-        <RouterLink class="button button-quiet play-back-to-guides" to="/guides">暂不加载，返回轻量一图流</RouterLink>
+        <RouterLink class="button button-quiet play-back-to-guides" :to="guideReturnTarget">暂不加载，返回轻量一图流</RouterLink>
       </div>
 
       <aside class="preflight-aside">
@@ -223,7 +243,7 @@ onBeforeUnmount(() => {
         <iframe
           :key="frameKey"
           class="unity-frame"
-          :src="unityUrl"
+          :src="unityFrameUrl"
           title="Learn Heartstone Unity 训练场"
           allow="autoplay; fullscreen; gamepad"
           allowfullscreen

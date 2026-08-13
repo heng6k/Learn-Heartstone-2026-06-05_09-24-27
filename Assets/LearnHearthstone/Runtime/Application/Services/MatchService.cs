@@ -6540,6 +6540,7 @@ namespace LearnHearthstone.Application.Services
             }
 
             HandleCardsAddedToHand(tavern.Hand.Count - handCountBefore, request.Source);
+            ResolvePlayerTriples();
             AddRecruitLog(
                 RecruitLogType.Discover,
                 selected.Name + " received " + giftDefinition.DisplayName + ".",
@@ -36189,6 +36190,7 @@ namespace LearnHearthstone.Application.Services
             copy.CanReturnToPoolAfterAttach = false;
             tavern.Hand.Add(copy);
             HandleCardsAddedToHand(1, source);
+            ResolvePlayerTriples();
             AddRecruitLog(RecruitLogType.Play, source + ": copied " + target.Name + " to hand.", tavern.Gold, tavern.Gold);
             return true;
         }

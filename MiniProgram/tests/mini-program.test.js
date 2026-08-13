@@ -27,6 +27,7 @@ test('one-sheet fixture exposes eight guides and every three-profile route', asy
     assert.ok(guide.profiles.some(profile => profile.difficulty === 'Showcase'), guide.guideId)
     assert.ok(guide.profiles.some(profile => profile.difficulty === 'GuidedDiscover'), guide.guideId)
     assert.ok(guide.profiles.some(profile => profile.difficulty === 'OpenBuild'), guide.guideId)
+    assert.ok(guide.profiles.every(profile => profile.shapingSpells.length === 1), guide.guideId)
     assert.equal(guide.finalComposition.length, 7, guide.guideId)
     assert.ok(guide.coreCards.length >= 4, guide.guideId)
     assert.ok(guide.recommendedGreaterTrinkets.length >= 1, guide.guideId)
@@ -58,7 +59,7 @@ test('generated card references use real local thumbnails or explicit tutorial s
   }
   visit(guidesFixture)
   assert.ok(imageCount > 100)
-  assert.equal(tutorialCount, 72)
+  assert.equal(tutorialCount, 24)
 })
 
 test('guide API resolves direct identifiers, legacy codes and local profiles', async () => {
