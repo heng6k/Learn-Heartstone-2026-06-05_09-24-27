@@ -514,6 +514,81 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
+        [TestCase(390f, 844f)]
+        [TestCase(844f, 390f)]
+        public void AuthoringStartCardUsesTheMobileViewportInsteadOfBeingScaledTwice(float width, float height)
+        {
+            var layoutContext = UnityTavernLayoutContext.ForSize(width, height);
+            var root = new GameObject("StrategyGuideMobileAuthoringRoot", typeof(RectTransform));
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(
+                width / layoutContext.CanvasScaleFactor,
+                height / layoutContext.CanvasScaleFactor);
+            var directory = Path.Combine(
+                UnityEngine.Application.temporaryCachePath,
+                "strategy-guide-mobile-authoring-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                var repository = new FileStrategyGuideAuthoringRepository(directory);
+                repository.SaveDraft(new StrategyGuideAuthoringDraft
+                {
+                    DraftId = "mobile-layout-draft",
+                    Guide = JsonUtility.FromJson<StrategyGuideDefinition>(JsonUtility.ToJson(catalog.Guides[0]))
+                });
+
+                new StrategyGuideSelectionView(
+                    root.transform,
+                    catalog,
+                    snapshot.ForLanguage(false),
+                    GameVersionIds.Season14Preview,
+                    (_, __) => { },
+                    () => { },
+                    layoutContext: layoutContext,
+                    resolvedVersion: ResolveSeason14(),
+                    authoringRepository: repository).Build();
+                Find(root.transform, "StrategyGuideAuthoringOpenButton")
+                    .Single()
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(root.GetComponent<RectTransform>());
+                Canvas.ForceUpdateCanvases();
+
+                var card = Find(root.transform, "StrategyGuideAuthoringTemplateCard")
+                    .Single()
+                    .GetComponent<RectTransform>();
+                var physicalCardWidth = card.rect.width * layoutContext.CanvasScaleFactor;
+                var physicalCardHeight = card.rect.height * layoutContext.CanvasScaleFactor;
+                Assert.GreaterOrEqual(physicalCardWidth, Mathf.Min(width - 26f, 818f));
+                Assert.LessOrEqual(physicalCardWidth, width);
+                Assert.GreaterOrEqual(physicalCardHeight, Mathf.Min(height - 26f, 718f));
+                Assert.LessOrEqual(physicalCardHeight, height);
+
+                var open = Find(root.transform, "StrategyGuideAuthoringDraftOpenButton-mobile-layout-draft")
+                    .Single()
+                    .GetComponent<RectTransform>();
+                var delete = Find(root.transform, "StrategyGuideAuthoringDraftDeleteButton-mobile-layout-draft")
+                    .Single()
+                    .GetComponent<RectTransform>();
+                var date = Find(root.transform, "StrategyGuideAuthoringDraftDate-mobile-layout-draft")
+                    .Single()
+                    .GetComponent<RectTransform>();
+                Assert.GreaterOrEqual(open.rect.width * layoutContext.CanvasScaleFactor, 100f);
+                Assert.GreaterOrEqual(delete.rect.width * layoutContext.CanvasScaleFactor, 60f);
+                Assert.GreaterOrEqual(date.rect.width * layoutContext.CanvasScaleFactor, 76f);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
         [Test]
         public void SelectionBuildsThreeReadableDataDrivenEntryRowsPerGuide()
         {

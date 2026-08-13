@@ -273,9 +273,17 @@ namespace LearnHearthstone.Presentation.MainHub
             var cardRect = card.GetComponent<RectTransform>();
             cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
             cardRect.pivot = new Vector2(0.5f, 0.5f);
+            var cardPhysicalWidth = Mathf.Clamp(
+                layout.Width - (layout.IsCompact ? 24f : 32f),
+                280f,
+                820f);
+            var cardPhysicalHeight = Mathf.Clamp(
+                layout.Height - (layout.IsCompact ? 24f : 32f),
+                360f,
+                layout.IsCompact ? 720f : 620f);
             cardRect.sizeDelta = new Vector2(
-                Mathf.Clamp(layout.Width - 32f, 320f, layout.IsCompact ? 560f : 820f),
-                Mathf.Clamp(layout.Height - 32f, 420f, layout.IsCompact ? 520f : 620f));
+                layout.CanvasUnitsForPhysicalPixels(cardPhysicalWidth),
+                layout.CanvasUnitsForPhysicalPixels(cardPhysicalHeight));
             UnityTavernUiStyle.ConfigureOutline(
                 card,
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Gold, 0.72f),
@@ -627,7 +635,11 @@ namespace LearnHearthstone.Presentation.MainHub
             date.alignment = TextAnchor.MiddleRight;
             date.color = UnityTavernUiStyle.Gold;
             date.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetWidth(date.gameObject, useEnglish ? 84f : 150f);
+            UiFactory.SetWidth(
+                date.gameObject,
+                layout.IsCompact
+                    ? layout.CanvasUnitsForPhysicalPixels(useEnglish ? 84f : 80f)
+                    : useEnglish ? 84f : 150f);
             var open = UiFactory.Button(
                 "StrategyGuideAuthoringDraftOpenButton-" + draft.DraftId,
                 panel.transform,
@@ -635,7 +647,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 () => OpenAuthoringEditor(draft.Guide, draft),
                 layout);
             UnityTavernUiStyle.ConfigureButton(open, UnityTavernUiStyle.ArcaneBlue, true);
-            UiFactory.SetWidth(open.gameObject, layout.IsCompact ? 112f : 140f);
+            UiFactory.SetWidth(
+                open.gameObject,
+                layout.IsCompact ? layout.CanvasUnitsForPhysicalPixels(104f) : 140f);
             var delete = UiFactory.Button(
                 "StrategyGuideAuthoringDraftDeleteButton-" + draft.DraftId,
                 panel.transform,
@@ -643,7 +657,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 () => ConfirmDeleteDraft(draft, panel),
                 layout);
             UnityTavernUiStyle.ConfigureButton(delete, UnityTavernUiStyle.DangerRed, false);
-            UiFactory.SetWidth(delete.gameObject, layout.IsCompact ? 76f : 88f);
+            UiFactory.SetWidth(
+                delete.gameObject,
+                layout.IsCompact ? layout.CanvasUnitsForPhysicalPixels(64f) : 88f);
         }
 
         private void BuildAuthoringTemplateRow(Transform parent, StrategyGuideDefinition guide, bool viewOnly)
@@ -703,7 +719,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 },
                 layout);
             UnityTavernUiStyle.ConfigureButton(select, UnityTavernUiStyle.Gold, true);
-            UiFactory.SetWidth(select.gameObject, layout.IsCompact ? 112f : 140f);
+            UiFactory.SetWidth(
+                select.gameObject,
+                layout.IsCompact ? layout.CanvasUnitsForPhysicalPixels(104f) : 140f);
         }
 
         private void ConfirmDeleteDraft(StrategyGuideAuthoringDraft draft, GameObject row)
