@@ -5,9 +5,9 @@ export const currentVersion = Object.freeze({
   officialStatus: '已上线',
   trainerStatus: '已上线',
   supportLabel: '限定训练范围',
-  updatedAt: '2026-08-13',
-  contentSnapshotId: '36.2-20260813-f61e7bb',
-  rulesetId: 'ruleset-legacy-composite-v1',
+  updatedAt: '2026-08-15',
+  contentSnapshotId: '36.2-20260815-1baa487',
+  rulesetId: 'ruleset-36.2-preview-v1',
   summary: '当前训练范围只启用黑暗之赐与饰品；其他历史机制不会混入这套版本规则。',
 })
 
@@ -79,7 +79,7 @@ export const communityNews = Object.freeze([
 
 export const unityRelease = Object.freeze({
   path: '/unity/',
-  sourceDataBytes: 107357298,
+  sourceDataBytes: 107420996,
   sourceDataLabel: '约 102.4 MiB 压缩数据',
   chunkCount: 12,
   recommendedMemory: '建议桌面浏览器、8 GB 及以上内存',
@@ -91,11 +91,11 @@ export const windowsRelease = Object.freeze({
   version: '36.2-preview',
   status: 'Windows 36.2 预览版',
   reason: '下载后解压，运行 Learn Heartstone.exe 即可开始训练。',
-  buildJobId: 'build-f61e7bb-r1',
-  contentSnapshotId: '36.2-20260813-f61e7bb',
-  artifactBytes: 185071735,
-  artifactLabel: '176.50 MiB',
-  sha256: '4909f564dd5bb9637d17805596e92aaf30f90ae31a9fdf43dc049e2b0870c5c5',
-  downloadUrl: 'https://downloads.jsoncool.com/windows/36.2-preview/0.1.0-alpha__36.2-20260813-f61e7bb__build-f61e7bb-r1/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260813-f61e7bb__build-f61e7bb-r1.zip',
+  buildJobId: 'build-1baa487-r1',
+  contentSnapshotId: '36.2-20260815-1baa487',
+  artifactBytes: 185206303,
+  artifactLabel: '176.63 MiB',
+  sha256: '2b6d183eed654e087731c5e0d35cf0471a49e6fa8cd44a943015df31c1820adb',
+  downloadUrl: 'https://downloads.jsoncool.com/windows/36.2-preview/0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1.zip',
   manifestPath: '/releases/windows-release-manifest.json',
 })
