@@ -6,7 +6,7 @@ module.exports = {
   "guides": [
     {
       "guideId": "GUIDE-S14-BEAST-LOBSTER-RALLY",
-      "revisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@c9a08a6757934313",
+      "revisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@112bdd66d2be0da8",
       "gameVersionId": "36.2-preview",
       "title": "龙虾进击亡语",
       "summary": "用复生保护龙虾，以进击召唤和左侧亡语串起完整野兽阵容。",
@@ -1108,7 +1108,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-MECH-SPELL-SATELLITE",
-      "revisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@c00c3afb80067516",
+      "revisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@e3d1e563de33392b",
       "gameVersionId": "36.2-preview",
       "title": "法术磁力卫星",
       "summary": "用酒馆法术推动机械成长，再以发动和磁力卫星完成阵容。",
@@ -2328,7 +2328,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-DEMON-TAVERN-CONSUME",
-      "revisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@fe2ea710e0f8233b",
+      "revisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@caa80e05b24e9804",
       "gameVersionId": "36.2-preview",
       "title": "酒馆成长吞噬",
       "summary": "强化酒馆中的恶魔，利用吞噬和发动把酒馆属性转移到战队。",
@@ -3545,7 +3545,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING",
-      "revisionId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING@f81a9f15ac759673",
+      "revisionId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING@1e9ccd1022854e55",
       "gameVersionId": "36.2-preview",
       "title": "巨龙战吼成长",
       "summary": "用四本诗人站稳场面，碰出卡雷苟斯后转入战吼成长，并在五本继续碰六本核心。",
@@ -4386,7 +4386,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-MURLOC-MAGICFIN",
-      "revisionId": "GUIDE-S14-MURLOC-MAGICFIN@bf887f8f5c2dca09",
+      "revisionId": "GUIDE-S14-MURLOC-MAGICFIN@a73cb00d6983e5ee",
       "gameVersionId": "36.2-preview",
       "title": "鱼人法术成长",
       "summary": "用低本鱼人守住种族数量，碰出胆汁喷吐者并在五本继续寻找魔法鳍真菌术士。",
@@ -5213,7 +5213,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-PIRATE-BOUNTY-APM",
-      "revisionId": "GUIDE-S14-PIRATE-BOUNTY-APM@9aa68ae2a28bd492",
+      "revisionId": "GUIDE-S14-PIRATE-BOUNTY-APM@4452a0b8fb6446fe",
       "gameVersionId": "36.2-preview",
       "title": "海盗悬赏循环",
       "summary": "用四本海盗搭出经济底盘，碰出骄傲的私掠者，再寻找六本天空上将。",
@@ -6040,7 +6040,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-QUILBOAR-COMBAT-SCALING",
-      "revisionId": "GUIDE-S14-QUILBOAR-COMBAT-SCALING@5789a7f7926d3589",
+      "revisionId": "GUIDE-S14-QUILBOAR-COMBAT-SCALING@caf3ffe176312a2e",
       "gameVersionId": "36.2-preview",
       "title": "野猪人战斗成长",
       "summary": "用四本野猪人保住宝石成长，碰出警觉的刺鬃，再寻找六本老练的强盗。",
@@ -6867,7 +6867,7 @@ module.exports = {
     },
     {
       "guideId": "GUIDE-S14-UNDEAD-OVERFLOW",
-      "revisionId": "GUIDE-S14-UNDEAD-OVERFLOW@34b8060bd4c9f76d",
+      "revisionId": "GUIDE-S14-UNDEAD-OVERFLOW@4380e6e1a1194fd2",
       "gameVersionId": "36.2-preview",
       "title": "亡灵铺场成长",
       "summary": "用低本亡灵填满站位，碰出屏障女妖，再寻找六本永恒召唤者完成铺场链。",

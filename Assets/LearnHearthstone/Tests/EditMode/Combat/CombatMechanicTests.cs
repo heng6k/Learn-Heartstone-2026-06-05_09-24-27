@@ -27,13 +27,13 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, result.FinalOpponentBoard.Count);
             var returned = result.FinalOpponentBoard[0];
             Assert.AreEqual(1, returned.Health);
-            Assert.AreEqual(7, returned.Attack);
-            Assert.AreEqual(12, returned.MaxHealth);
+            Assert.AreEqual(1, returned.Attack);
+            Assert.AreEqual(1, returned.MaxHealth);
             Assert.AreNotEqual("o1", returned.InstanceId);
             Assert.IsFalse(returned.Keywords.Contains(Keyword.Reborn));
-            Assert.IsFalse(returned.OfficialKeywords.Contains(Keyword.Reborn));
-            Assert.IsTrue(returned.Enchantments.Exists(enchantment => enchantment.Id == "permanent-buff"));
-            Assert.AreEqual(2, returned.Counters["permanent-counter"]);
+            Assert.IsTrue(returned.OfficialKeywords.Contains(Keyword.Reborn));
+            Assert.IsEmpty(returned.Enchantments);
+            Assert.IsEmpty(returned.Counters);
             Assert.AreEqual(0, returned.AttacksThisCombat);
             Assert.IsTrue(returned.CanAttack);
         }

@@ -4,7 +4,7 @@
   "Guides": [
     {
       "GuideId": "GUIDE-S14-BEAST-LOBSTER-RALLY",
-      "RevisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@c9a08a6757934313",
+      "RevisionId": "GUIDE-S14-BEAST-LOBSTER-RALLY@112bdd66d2be0da8",
       "GameVersionId": "36.2-preview",
       "Title": "龙虾进击亡语",
       "EnglishTitle": "Lobster Rally Deathrattles",
@@ -197,7 +197,7 @@
     },
     {
       "GuideId": "GUIDE-S14-MECH-SPELL-SATELLITE",
-      "RevisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@c00c3afb80067516",
+      "RevisionId": "GUIDE-S14-MECH-SPELL-SATELLITE@e3d1e563de33392b",
       "GameVersionId": "36.2-preview",
       "Title": "法术磁力卫星",
       "EnglishTitle": "Spell-Magnetic Satellites",
@@ -396,7 +396,7 @@
     },
     {
       "GuideId": "GUIDE-S14-DEMON-TAVERN-CONSUME",
-      "RevisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@fe2ea710e0f8233b",
+      "RevisionId": "GUIDE-S14-DEMON-TAVERN-CONSUME@caa80e05b24e9804",
       "GameVersionId": "36.2-preview",
       "Title": "酒馆成长吞噬",
       "EnglishTitle": "Tavern-Growth Devour",

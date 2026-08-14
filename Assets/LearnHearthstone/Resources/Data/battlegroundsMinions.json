@@ -2,7 +2,7 @@
   "source": "https://api.hearthstonejson.com/v1/latest/zhCN/cards.json",
   "targetReference": "https://hsreplay.net/battlegrounds/minions/",
   "filter": "type=MINION, isBattlegroundsPoolMinion=true, excluding golden cards with battlegroundsNormalDbfId",
-  "count": 378,
+  "count": 379,
   "minions": [
     {
       "id": "tb_baconshop_hp_105t",
@@ -693,6 +693,50 @@
       ],
       "englishName": "Cord Puller",
       "englishText": "<b>Divine Shield</b>\n<b>Deathrattle:</b> Summon a\n1/1 Microbot."
+    },
+    {
+      "id": "bg26_146",
+      "cardId": "BG26_146",
+      "dbfId": 98582,
+      "name": "催眠机器人",
+      "tavernTier": 1,
+      "attack": 2,
+      "health": 2,
+      "tribes": [
+        "机械"
+      ],
+      "tribesText": "机械",
+      "keywords": [
+        "磁力",
+        "回合结束时"
+      ],
+      "text": "磁力。在你的回合结束时，获得+1生命值。",
+      "goldenDbfId": 98585,
+      "golden": {
+        "cardId": "BG26_146_G",
+        "dbfId": 98585,
+        "attack": 4,
+        "health": 4,
+        "text": "磁力。在你的回合结束时，获得+2生命值。",
+        "keywords": [
+          "磁力",
+          "回合结束时"
+        ],
+        "officialKeywords": [
+          "Magnetic",
+          "EndOfTurn"
+        ],
+        "englishText": "<b>Magnetic</b>\nAt the end of your turn, gain +2 Health."
+      },
+      "sourceSet": "BATTLEGROUNDS",
+      "inPool": 1,
+      "poolCount": 15,
+      "officialKeywords": [
+        "Magnetic",
+        "EndOfTurn"
+      ],
+      "englishName": "Lullabot",
+      "englishText": "<b>Magnetic</b>\nAt the end of your turn, gain +1 Health."
     },
     {
       "id": "bg26_135",
@@ -5247,8 +5291,7 @@
       "tribesText": "机械",
       "keywords": [
         "战吼",
-        "发现",
-        "磁力"
+        "发现"
       ],
       "text": "战吼：选择一个友方机械，发现一个机械以对其磁力吸附。",
       "goldenDbfId": 113767,
@@ -5260,8 +5303,7 @@
         "text": "战吼：选择一个友方机械，发现2个机械以对其磁力吸附。",
         "keywords": [
           "战吼",
-          "发现",
-          "磁力"
+          "发现"
         ],
         "englishText": "<b>Battlecry:</b> Choose a friendly Mech. <b>Discover</b> 2 Mechs to <b>Magnetize</b> to it."
       },
@@ -5326,8 +5368,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "进击",
-        "磁力"
+        "进击"
       ],
       "text": "进击：随机获取一张磁力机械牌。",
       "goldenDbfId": 115675,
@@ -5338,8 +5379,7 @@
         "health": 8,
         "text": "进击：随机获取2张磁力机械牌。",
         "keywords": [
-          "进击",
-          "磁力"
+          "进击"
         ],
         "englishText": "<b>Divine Shield</b>\n<b>Rally:</b> Get 2 random\n<b>Magnetic</b> Mechs."
       },
@@ -5366,8 +5406,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "亡语",
-        "磁力"
+        "亡语"
       ],
       "text": "磁力。亡语：召唤一个星元自动机。",
       "goldenDbfId": 120026,
@@ -5378,8 +5417,7 @@
         "health": 4,
         "text": "磁力。亡语： 召唤一个金色的星元自动机。",
         "keywords": [
-          "亡语",
-          "磁力"
+          "亡语"
         ],
         "englishText": "<b>Magnetic</b>\n<b>Deathrattle:</b> Summon a\nGolden Ancestral\nAutomaton."
       },
@@ -7847,8 +7885,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "亡语",
-        "磁力"
+        "亡语"
       ],
       "text": "亡语：随机获取一张磁力机械牌。",
       "goldenDbfId": 98593,
@@ -7859,8 +7896,7 @@
         "health": 10,
         "text": "亡语：随机获取2张磁力机械牌。",
         "keywords": [
-          "亡语",
-          "磁力"
+          "亡语"
         ],
         "englishText": "<b>Deathrattle:</b> Get 2 random <b>Magnetic</b> Mechs."
       },
@@ -7887,8 +7923,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "亡语",
-        "磁力"
+        "亡语"
       ],
       "text": "亡语：在本场战斗中，你的机械拥有+2攻击力。（在本局对战中你每磁力吸附一次都会提升！）",
       "goldenDbfId": 131607,
@@ -7899,8 +7934,7 @@
         "health": 8,
         "text": "亡语：在本场战斗中，你的机械拥有+4攻击力。（在本局对战中你每磁力吸附一次都会提升！）",
         "keywords": [
-          "亡语",
-          "磁力"
+          "亡语"
         ],
         "englishText": "<b>Deathrattle:</b> Your Mechs have\n+4 Attack this combat.\n<i>(Improved by each time you've\n<b>Magnetized</b> this game!)</i>"
       },
@@ -9457,8 +9491,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "触发效果",
-        "磁力"
+        "触发效果"
       ],
       "text": "在你磁力吸附一个随从后，使你的随从获得+5/+5。",
       "goldenDbfId": 126831,
@@ -9469,8 +9502,7 @@
         "health": 14,
         "text": "在你磁力吸附一个随从后，使你的随从获得+10/+10。",
         "keywords": [
-          "触发效果",
-          "磁力"
+          "触发效果"
         ],
         "englishText": "After you <b>Magnetize</b> a minion, give your minions +10/+10."
       },
@@ -9496,8 +9528,7 @@
       ],
       "tribesText": "机械",
       "keywords": [
-        "回合结束时",
-        "磁力"
+        "回合结束时"
       ],
       "text": "在你的回合结束时，获取两张6/6的磁力卫星并提升此效果。",
       "goldenDbfId": 115667,
@@ -9508,8 +9539,7 @@
         "health": 16,
         "text": "在你的回合结束时，获取两张12/12的磁力卫星并提升此效果。",
         "keywords": [
-          "回合结束时",
-          "磁力"
+          "回合结束时"
         ],
         "englishText": "At the end of your turn,\nget two 12/12 <b>Magnetic</b>\nSatellites and improve\nthis."
       },

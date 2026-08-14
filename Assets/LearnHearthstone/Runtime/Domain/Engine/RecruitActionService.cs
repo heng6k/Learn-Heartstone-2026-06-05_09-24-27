@@ -15,7 +15,8 @@ namespace LearnHearthstone.Domain.Engine
             RecruitActionDefinition definition,
             RecruitActionRequest request,
             MinionInstance source,
-            MinionInstance target)
+            MinionInstance target,
+            MinionInstance secondaryTarget)
         {
             Round = round;
             GoldBefore = goldBefore;
@@ -23,6 +24,7 @@ namespace LearnHearthstone.Domain.Engine
             Request = request?.Clone();
             Source = source?.Clone();
             Target = target?.Clone();
+            SecondaryTarget = secondaryTarget?.Clone();
         }
 
         public int Round { get; }
@@ -31,6 +33,7 @@ namespace LearnHearthstone.Domain.Engine
         public RecruitActionRequest Request { get; }
         public MinionInstance Source { get; }
         public MinionInstance Target { get; }
+        public MinionInstance SecondaryTarget { get; }
     }
 
     public sealed class RecruitActionResolution
@@ -146,7 +149,12 @@ namespace LearnHearthstone.Domain.Engine
             var actionStates = state.RecruitActionStates ?? new List<RecruitActionState>();
             var actionState = actionStates.FirstOrDefault(item =>
                 item != null &&
-                string.Equals(item.SourceInstanceId, source.InstanceId, StringComparison.Ordinal));
+                string.Equals(item.SourceInstanceId, source.InstanceId, StringComparison.Ordinal) &&
+                string.Equals(item.ActionId, definition.ActionId, StringComparison.Ordinal)) ??
+                actionStates.FirstOrDefault(item =>
+                    item != null &&
+                    string.Equals(item.SourceInstanceId, source.InstanceId, StringComparison.Ordinal) &&
+                    string.IsNullOrWhiteSpace(item.ActionId));
             var usesThisTurn = actionState != null && actionState.LastUsedRound == state.Round
                 ? Math.Max(0, actionState.UsesThisTurn)
                 : 0;
@@ -177,6 +185,7 @@ namespace LearnHearthstone.Domain.Engine
             {
                 return Failure(state, request, "recruit-action.target.invalid", "Recruit action target is invalid.", goldBefore, usesThisTurn);
             }
+            var secondaryTarget = ResolveSecondaryTarget(state, request);
             if (resolver == null)
             {
                 return Failure(state, request, "recruit-action.resolver.not-found", "Recruit action resolver is not registered: " + definition.ResolverId, goldBefore, usesThisTurn);
@@ -191,7 +200,8 @@ namespace LearnHearthstone.Domain.Engine
                     definition,
                     request,
                     source,
-                    target));
+                    target,
+                    secondaryTarget));
             }
             catch (Exception exception)
             {
@@ -208,9 +218,13 @@ namespace LearnHearthstone.Domain.Engine
                     usesThisTurn);
             }
 
-            var eventTargets = string.IsNullOrWhiteSpace(request.TargetInstanceId)
-                ? null
-                : new[] { request.TargetInstanceId };
+            var eventTargets = new[] { request.TargetInstanceId, request.SecondaryTargetInstanceId }
+                .Where(instanceId => !string.IsNullOrWhiteSpace(instanceId))
+                .ToArray();
+            if (eventTargets.Length == 0)
+            {
+                eventTargets = null;
+            }
             MechanicEventLog.Append(
                 state,
                 "recruit-action.validated",
@@ -226,6 +240,29 @@ namespace LearnHearthstone.Domain.Engine
                 eventTargets,
                 "gold=" + goldCost,
                 request.ActionId);
+
+            var actionStatesBeforeCommit = (state.RecruitActionStates ?? new List<RecruitActionState>())
+                .Where(item => item != null)
+                .Select(item => item.Clone())
+                .ToList();
+            if (actionState == null)
+            {
+                actionState = new RecruitActionState
+                {
+                    SourceInstanceId = source.InstanceId,
+                    ActionId = definition.ActionId
+                };
+                state.RecruitActionStates = state.RecruitActionStates ?? new List<RecruitActionState>();
+                state.RecruitActionStates.Add(actionState);
+            }
+            else if (string.IsNullOrWhiteSpace(actionState.ActionId))
+            {
+                actionState.ActionId = definition.ActionId;
+            }
+            var committedUses = usesThisTurn + 1;
+            actionState.UsesThisTurn = committedUses;
+            actionState.LastUsedRound = state.Round;
+
             try
             {
                 resolution.Commit?.Invoke(state);
@@ -233,17 +270,9 @@ namespace LearnHearthstone.Domain.Engine
             catch
             {
                 tavern.Gold = goldBefore;
+                state.RecruitActionStates = actionStatesBeforeCommit;
                 throw;
             }
-
-            if (actionState == null)
-            {
-                actionState = new RecruitActionState { SourceInstanceId = source.InstanceId };
-                state.RecruitActionStates = state.RecruitActionStates ?? new List<RecruitActionState>();
-                state.RecruitActionStates.Add(actionState);
-            }
-            actionState.UsesThisTurn = usesThisTurn + 1;
-            actionState.LastUsedRound = state.Round;
 
             MechanicEventLog.Append(
                 state,
@@ -261,7 +290,7 @@ namespace LearnHearthstone.Domain.Engine
                 GoldBefore = goldBefore,
                 GoldAfter = tavern.Gold,
                 GoldSpent = goldCost,
-                UsesThisTurn = actionState.UsesThisTurn,
+                UsesThisTurn = committedUses,
                 Events = new List<string>(resolution.Events ?? new List<string>())
             };
         }
@@ -311,6 +340,33 @@ namespace LearnHearthstone.Domain.Engine
             return target != null &&
                 (targetSpec != RecruitActionTargetSpec.OtherFriendlyBoardMinion ||
                  !string.Equals(target.InstanceId, source.InstanceId, StringComparison.Ordinal));
+        }
+
+        private static MinionInstance ResolveSecondaryTarget(MatchState state, RecruitActionRequest request)
+        {
+            if (request == null ||
+                (string.IsNullOrWhiteSpace(request.SecondaryTargetInstanceId) && request.SecondaryTargetIndex < 0))
+            {
+                return null;
+            }
+
+            if (request.SecondaryTargetZone != TargetZone.Unspecified &&
+                request.SecondaryTargetZone != TargetZone.FriendlyBoard)
+            {
+                return null;
+            }
+
+            var board = state.Player?.Board;
+            if (board == null)
+            {
+                return null;
+            }
+
+            return !string.IsNullOrWhiteSpace(request.SecondaryTargetInstanceId)
+                ? board.FirstOrDefault(item => item != null && string.Equals(item.InstanceId, request.SecondaryTargetInstanceId, StringComparison.Ordinal))
+                : request.SecondaryTargetIndex >= 0 && request.SecondaryTargetIndex < board.Count
+                    ? board[request.SecondaryTargetIndex]
+                    : null;
         }
 
         private static RecruitActionResult Failure(

@@ -6327,6 +6327,9 @@ namespace LearnHearthstone.Tests.EditMode
             var service = MatchService.CreateWithDefaultCatalog(12345);
             var attacker = TestShopMinion("ceremonial-attacker", 2, 10);
             service.State.Player.Board.Add(attacker);
+            var nonAttacker = TestShopMinion("ceremonial-non-attacker", 0, 100);
+            nonAttacker.CanAttack = false;
+            service.State.Player.Board.Add(nonAttacker);
             service.State.Player.Tavern.Gold = 20;
 
             QueueTrinketChoice(service, "BG30_MagicItem_925");

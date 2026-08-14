@@ -123,7 +123,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void CombatPointer_SelfDeathrattleSummonRetargetsNextFriendlyAttack()
+        public void CombatPointer_CurrentAttackerDeathrattleSummonTakesItsVacatedAttackSlot()
         {
             var summoner = TestMinion("p-summoner", BoardSide.Player, 1, 1, Keyword.Deathrattle);
             summoner.CardId = "BG31_801";
@@ -132,19 +132,99 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = new TavernState { BeetleAttackBonus = 10, BeetleHealthBonus = 10 };
 
             var result = CombatEngine.SimulateBasicCombat(new[] { summoner, follower }, new[] { opponent }, 3110, 4, tavern);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted);
             var nextPlayerAttack = result.Replay.Frames
-                .Where(frame => frame.Index > retarget.Index && frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
+                .Where(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
+                .Skip(1)
                 .First();
+            var summonedId = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == summoner.InstanceId)
+                .SelectMany(frame => frame.SummonedEntityIds)
+                .Single();
 
-            Assert.AreEqual(BoardSide.Player, retarget.AttackPointerSide);
-            Assert.AreEqual(0, retarget.AttackPointerIndex);
-            Assert.That(retarget.TargetId, Does.StartWith("token-p-summoner-beetle"));
-            Assert.That(nextPlayerAttack.ActorId, Does.StartWith("token-p-summoner-beetle"));
+            Assert.AreEqual(summonedId, nextPlayerAttack.ActorId);
+            Assert.IsTrue(result.Replay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Player &&
+                frame.TargetId == summonedId));
         }
 
         [Test]
-        public void CombatPointer_DeathOnEnemyAttackRetargetsDefenderNextAttack()
+        public void CombatPointer_DustboneRebornAfterItsAttackTakesTheNextNaturalAttackBeforeRoadrunner()
+        {
+            var dustbone = TestMinion("p-dustbone", BoardSide.Player, 2, 6, Keyword.Rally);
+            dustbone.CardId = "BG33_323";
+            dustbone.Tribes = new List<Tribe> { Tribe.Undead };
+            var roadrunner = TestMinion("p-roadrunner", BoardSide.Player, 10, 11, Keyword.Reborn);
+            roadrunner.CardId = "BG36_208";
+            roadrunner.Tribes = new List<Tribe> { Tribe.Beast };
+            var mummifier = TestMinion("p-mummifier", BoardSide.Player, 10, 4, Keyword.Deathrattle, Keyword.Reborn);
+            mummifier.CardId = "BG28_309";
+            mummifier.Tribes = new List<Tribe> { Tribe.Undead };
+            var rider = TestMinion("p-rider", BoardSide.Player, 4, 2, Keyword.Reborn, Keyword.Taunt);
+            rider.CardId = "BG25_001";
+            rider.Tribes = new List<Tribe> { Tribe.Undead };
+            var opponentA = TestMinion("o-rider-a", BoardSide.Opponent, 10000, 10000, Keyword.Reborn, Keyword.Taunt);
+            var opponentB = TestMinion("o-rider-b", BoardSide.Opponent, 10000, 10000, Keyword.Reborn, Keyword.Taunt);
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { dustbone, roadrunner, mummifier, rider },
+                new[] { opponentA, opponentB },
+                3117,
+                3);
+            var dustboneReborn = result.Replay.Frames.First(frame =>
+                frame.EventType == CombatEventType.RebornResolved &&
+                frame.ActorId == dustbone.InstanceId);
+            var riderReborn = result.Replay.Frames.First(frame =>
+                frame.EventType == CombatEventType.RebornResolved &&
+                frame.ActorId == rider.InstanceId);
+            var nextPlayerAttack = result.Replay.Frames.First(frame =>
+                frame.Index > riderReborn.Index &&
+                frame.EventType == CombatEventType.AttackDeclared &&
+                frame.ActorSide == BoardSide.Player);
+            var dustboneRebornId = dustboneReborn.SummonedEntityIds.Single();
+
+            Assert.AreEqual(0, dustboneReborn.PlayerBoardSnapshot.Minions.Single(minion => minion.InstanceId == dustboneRebornId).AttacksThisCombat);
+            Assert.AreEqual(dustboneRebornId, nextPlayerAttack.ActorId);
+            Assert.AreNotEqual(roadrunner.InstanceId, nextPlayerAttack.ActorId);
+        }
+
+        [Test]
+        public void CombatPointer_BacklineRebornDoesNotReplaceLivingNextAttacker()
+        {
+            var next = TestMinion("p-next", BoardSide.Player, 1, 30);
+            var backline = TestMinion("p-backline", BoardSide.Player, 1, 1, Keyword.Reborn, Keyword.Taunt);
+            var opponentA = TestMinion("o-attacker", BoardSide.Opponent, 5, 30);
+            var opponentB = TestMinion("o-filler-a", BoardSide.Opponent, 0, 30);
+            var opponentC = TestMinion("o-filler-b", BoardSide.Opponent, 0, 30);
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { next, backline }, new[] { opponentA, opponentB, opponentC }, 3114, 2);
+            var reborn = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.RebornResolved);
+            var rebornId = reborn.SummonedEntityIds.Single();
+            var nextPlayerAttack = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player);
+
+            Assert.AreEqual(next.InstanceId, nextPlayerAttack.ActorId);
+            Assert.AreNotEqual(rebornId, nextPlayerAttack.ActorId);
+        }
+
+        [Test]
+        public void CombatPointer_WindfuryInsertsExtraAttackWithoutConsumingNaturalNextAttacker()
+        {
+            var windfury = TestMinion("p-windfury", BoardSide.Player, 1, 30, Keyword.Windfury);
+            var next = TestMinion("p-next", BoardSide.Player, 1, 30);
+            var wall = TestMinion("o-wall", BoardSide.Opponent, 0, 100, Keyword.Taunt);
+            var opponentFiller = TestMinion("o-filler", BoardSide.Opponent, 0, 100);
+
+            var result = CombatEngine.SimulateBasicCombat(new[] { windfury, next }, new[] { wall, opponentFiller }, 3115, 3);
+            var playerAttacks = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
+                .Select(frame => frame.ActorId)
+                .ToList();
+
+            CollectionAssert.AreEqual(new[] { windfury.InstanceId, windfury.InstanceId, next.InstanceId }, playerAttacks);
+        }
+
+        [Test]
+        public void CombatPointer_FirstNaturalAttackAfterEnemyKillStartsAtDeathrattleSummon()
         {
             var summoner = TestMinion("p-summoner", BoardSide.Player, 1, 1, Keyword.Deathrattle);
             summoner.CardId = "BG31_801";
@@ -153,34 +233,47 @@ namespace LearnHearthstone.Tests.EditMode
             var tavern = new TavernState { BeetleAttackBonus = 10, BeetleHealthBonus = 10 };
 
             var result = CombatEngine.SimulateBasicCombat(new[] { summoner }, new[] { opponentA, opponentB }, 3111, 3, tavern);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted && frame.AttackPointerSide == BoardSide.Player);
-            var nextPlayerAttack = result.Replay.Frames
-                .Where(frame => frame.Index > retarget.Index && frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
-                .First();
+            var summonedId = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == summoner.InstanceId)
+                .SelectMany(frame => frame.SummonedEntityIds)
+                .Single();
+            var nextPlayerAttack = result.Replay.Frames.First(frame =>
+                frame.EventType == CombatEventType.AttackDeclared &&
+                frame.ActorSide == BoardSide.Player);
 
-            Assert.That(retarget.TargetId, Does.StartWith("token-p-summoner-beetle"));
-            Assert.That(nextPlayerAttack.ActorId, Does.StartWith("token-p-summoner-beetle"));
+            Assert.AreEqual(summonedId, nextPlayerAttack.ActorId);
+            Assert.IsFalse(result.Replay.Frames.Any(frame =>
+                frame.Index < nextPlayerAttack.Index &&
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Player));
         }
 
         [Test]
-        public void CombatPointer_DeathrattleBeforeRebornRetargetsToFirstNewUnit()
+        public void CombatPointer_DeathrattleBeforeRebornPlacesFirstNewUnitInFirstAttackSlot()
         {
             var summoner = TestMinion("p-summoner", BoardSide.Player, 1, 1, Keyword.Deathrattle, Keyword.Reborn);
             summoner.CardId = "BG31_801";
-            var follower = TestMinion("p-follower", BoardSide.Player, 1, 30);
-            var opponent = TestMinion("o-wall", BoardSide.Opponent, 1, 50);
+            var opponent = TestMinion("o-attacker", BoardSide.Opponent, 1, 50);
+            var opponentFollower = TestMinion("o-follower", BoardSide.Opponent, 0, 50);
             var tavern = new TavernState { BeetleAttackBonus = 10, BeetleHealthBonus = 10 };
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { summoner, follower }, new[] { opponent }, 3112, 4, tavern);
+            var result = CombatEngine.SimulateBasicCombat(new[] { summoner }, new[] { opponent, opponentFollower }, 3112, 2, tavern);
             var deathrattleIndex = result.Replay.Frames.FindIndex(frame => frame.EventType == CombatEventType.DeathrattleResolved);
             var rebornIndex = result.Replay.Frames.FindIndex(frame => frame.EventType == CombatEventType.RebornResolved);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted);
+            var summonedId = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == summoner.InstanceId)
+                .SelectMany(frame => frame.SummonedEntityIds)
+                .Single();
 
             Assert.GreaterOrEqual(deathrattleIndex, 0);
             Assert.GreaterOrEqual(rebornIndex, 0);
             Assert.Less(deathrattleIndex, rebornIndex);
-            Assert.That(retarget.TargetId, Does.StartWith("token-p-summoner-beetle"));
-            Assert.That(retarget.RelatedEntityIds, Does.Contain("p-summoner"));
+            var nextPlayerAttack = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player);
+            Assert.AreEqual(summonedId, nextPlayerAttack.ActorId);
+            Assert.IsFalse(result.Replay.Frames.Any(frame =>
+                frame.Index < nextPlayerAttack.Index &&
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Player));
         }
 
         [Test]
@@ -195,13 +288,42 @@ namespace LearnHearthstone.Tests.EditMode
             var result = CombatEngine.SimulateBasicCombat(playerBoard, new[] { opponent }, 3113, 3);
             var summonOverflow = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.SummonOverflowed);
             var rebornOverflow = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.RebornOverflowed);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted);
+            var summonedId = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == summoner.InstanceId)
+                .SelectMany(frame => frame.SummonedEntityIds)
+                .Single();
+            var nextPlayerAttack = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
+                .Skip(1)
+                .First();
 
             Assert.AreEqual(1, summonOverflow.SummonOverflowCount);
             Assert.AreEqual(1, rebornOverflow.RebornOverflowCount);
             Assert.LessOrEqual(summonOverflow.PlayerBoardSnapshot.Minions.Count, 7);
             Assert.LessOrEqual(rebornOverflow.PlayerBoardSnapshot.Minions.Count, 7);
-            Assert.That(retarget.TargetId, Does.StartWith("token-p-summoner-skeleton"));
+            Assert.AreEqual(summonedId, nextPlayerAttack.ActorId);
+        }
+
+        [Test]
+        public void RallyTarget_UsesTheActualAttackDefenderInsteadOfTheFirstEnemy()
+        {
+            var attacker = TestMinion("p-ravager", BoardSide.Player, 3, 20, Keyword.Rally);
+            attacker.CardId = "BG27_017";
+            var playerFillerA = TestMinion("p-filler-a", BoardSide.Player, 0, 30);
+            var playerFillerB = TestMinion("p-filler-b", BoardSide.Player, 0, 30);
+            var decoy = TestMinion("o-decoy", BoardSide.Opponent, 0, 20);
+            var target = TestMinion("o-target", BoardSide.Opponent, 0, 20, Keyword.Taunt);
+            var neighbor = TestMinion("o-neighbor", BoardSide.Opponent, 0, 20);
+
+            var result = CombatEngine.SimulateBasicCombat(
+                new[] { attacker, playerFillerA, playerFillerB },
+                new[] { decoy, target, neighbor },
+                3116,
+                1);
+
+            Assert.AreEqual(20, result.FinalOpponentBoard.Single(minion => minion.InstanceId == decoy.InstanceId).Health);
+            Assert.AreEqual(14, result.FinalOpponentBoard.Single(minion => minion.InstanceId == target.InstanceId).Health);
+            Assert.AreEqual(17, result.FinalOpponentBoard.Single(minion => minion.InstanceId == neighbor.InstanceId).Health);
         }
 
         [Test]

@@ -118,6 +118,7 @@ namespace LearnHearthstone.Tests.EditMode
             source.Attack = 0;
             source.Health = 1;
             source.MaxHealth = 1;
+            source.Keywords.Add(Keyword.Taunt);
             var firstNaga = Minion("showy-naga-1", 3, 7, Tribe.Naga, BoardSide.Player);
             var secondNaga = Minion("showy-naga-2", 5, 9, Tribe.Naga, BoardSide.Player);
             var beast = Minion("showy-beast", 4, 8, Tribe.Beast, BoardSide.Player);
@@ -125,10 +126,25 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(firstNaga);
             service.State.Player.Board.Add(secondNaga);
             service.State.Player.Board.Add(beast);
-            service.State.Opponent.Board.Add(Minion("showy-enemy", 1, 20, Tribe.Pirate, BoardSide.Opponent));
+            service.State.Opponent.Board.Add(Minion("showy-enemy", 100, 100, Tribe.Pirate, BoardSide.Opponent));
+            for (var index = 0; index < 4; index += 1)
+            {
+                var reserve = Minion("showy-enemy-reserve-" + index, 0, 100, Tribe.None, BoardSide.Opponent);
+                reserve.CanAttack = false;
+                service.State.Opponent.Board.Add(reserve);
+            }
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 31, SafetyLimit = 1 }));
 
+            var finalSource = service.State.LastResult.FinalPlayerBoard.FirstOrDefault(card => card.InstanceId == source.InstanceId);
+            Assert.IsNull(
+                finalSource,
+                "Showy Cyclist must die before its Deathrattle can be verified.");
+            Assert.IsTrue(
+                service.State.LastResult.Replay.Frames.Any(frame =>
+                    frame.EventType == CombatEventType.DeathrattleResolved &&
+                    frame.ActorId == source.InstanceId),
+                "Showy Cyclist death must emit its DeathrattleResolved frame.");
             var finalFirst = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == firstNaga.InstanceId);
             var finalSecond = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == secondNaga.InstanceId);
             var finalBeast = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == beast.InstanceId);

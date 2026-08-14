@@ -281,11 +281,17 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var attacker = TestInstance("p1", "attacker", 0);
             var support = TestInstance("p2", "support", 0);
+            var extraSupport = TestInstance("p3", "extra-support", 0);
+            attacker.Attack = 1;
+            attacker.Health = 10;
+            attacker.MaxHealth = 10;
+            support.CanAttack = false;
+            extraSupport.CanAttack = false;
             var stealth = TestInstance("o1", "stealth", 0);
             stealth.Keywords.Add(Keyword.Stealth);
             var visible = TestInstance("o2", "visible", 0);
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support }, new[] { stealth, visible }, 5, 1);
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, support, extraSupport }, new[] { stealth, visible }, 5, 1);
 
             Assert.AreEqual("o2", result.Log.First(entry => entry.Title == "AttackResolved").TargetId);
         }
@@ -343,9 +349,11 @@ namespace LearnHearthstone.Tests.EditMode
             rover.MaxHealth = 1;
             rover.Tribes = new List<Tribe> { Tribe.Beast };
             rover.Keywords.Add(Keyword.Deathrattle);
+            rover.Keywords.Add(Keyword.Taunt);
             var right = TestInstance("p-right", "right", 0);
             right.Health = 10;
             right.MaxHealth = 10;
+            right.CanAttack = false;
             var attacker = TestInstance("o1", "attacker", 0);
             attacker.Attack = 1;
             attacker.Health = 1;
@@ -414,6 +422,7 @@ namespace LearnHearthstone.Tests.EditMode
             scarletSkull.MaxHealth = 1;
             scarletSkull.Tribes = new List<Tribe> { Tribe.Undead };
             scarletSkull.Keywords.Add(Keyword.Deathrattle);
+            scarletSkull.Keywords.Add(Keyword.Taunt);
             var skullAttacker = TestInstance("o-skull", "skull-attacker", 0);
             skullAttacker.Attack = 1;
             skullAttacker.Health = 3;
@@ -435,11 +444,13 @@ namespace LearnHearthstone.Tests.EditMode
             scarletSkull.MaxHealth = 1;
             scarletSkull.Tribes = new List<Tribe> { Tribe.Undead };
             scarletSkull.Keywords.Add(Keyword.Deathrattle);
+            scarletSkull.Keywords.Add(Keyword.Taunt);
             var undeadTarget = TestInstance("p-undead", "undead-target", 0);
             undeadTarget.Attack = 2;
             undeadTarget.Health = 4;
             undeadTarget.MaxHealth = 4;
             undeadTarget.Tribes = new List<Tribe> { Tribe.Undead };
+            undeadTarget.CanAttack = false;
             var opponent = TestInstance("o1", "opponent", 0);
             opponent.Attack = 1;
             opponent.Health = 10;
@@ -448,6 +459,8 @@ namespace LearnHearthstone.Tests.EditMode
             var result = CombatEngine.SimulateBasicCombat(new[] { scarletSkull, undeadTarget }, new[] { opponent }, 7, 1);
             var buffed = result.FinalPlayerBoard.First(card => card.InstanceId == "p-undead");
 
+            Assert.AreEqual("p-skull", result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared).TargetId);
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "DeathrattleResolved" && entry.ActorId == "p-skull"));
             Assert.AreEqual(3, buffed.Attack);
             Assert.AreEqual(6, buffed.MaxHealth);
         }
@@ -883,11 +896,13 @@ namespace LearnHearthstone.Tests.EditMode
         public void CombatEngine_TideRaiserCastsShiftingTideOnAdjacentMinion()
         {
             var tideRaiser = DeathrattleRewardSource("p-tide", "BG34_920");
+            tideRaiser.Keywords.Add(Keyword.Taunt);
             var adjacentNaga = TestInstance("p-naga", "naga", 0);
             adjacentNaga.Attack = 2;
             adjacentNaga.Health = 3;
             adjacentNaga.MaxHealth = 3;
             adjacentNaga.Tribes = new List<Tribe> { Tribe.Naga };
+            adjacentNaga.CanAttack = false;
             var opponent = LethalOpponent("o-tide");
 
             var result = CombatEngine.SimulateBasicCombat(new[] { tideRaiser, adjacentNaga }, new[] { opponent }, 41, 1);
@@ -954,6 +969,8 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.FinalPlayerBoard.Any(card => card.InstanceId.Contains("hand-high")));
             Assert.IsFalse(result.FinalPlayerBoard.Any(card => card.InstanceId.Contains("hand-low")));
             Assert.IsTrue(result.Log.Any(entry => entry.Title == "RallyResolved" && entry.TargetId.Contains("hand-high")));
+            Assert.AreEqual(1, result.FinalPlayerBoard.Single(card => card.InstanceId == aviator.InstanceId).AttacksThisCombat);
+            Assert.IsTrue(result.Log.Any(entry => entry.Title == "AttackResolved"));
         }
 
         [Test]
@@ -1137,13 +1154,13 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(2, board.Count(minion => minion.Name == "Skeleton"));
             var reborn = board.Single(minion => minion.InstanceId.StartsWith("bonehead-reborn-"));
             Assert.AreEqual(1, reborn.Health);
-            Assert.AreEqual(13, reborn.Attack);
-            Assert.AreEqual(14, reborn.MaxHealth);
-            Assert.IsTrue(reborn.Enchantments.Any(enchantment => enchantment.Id == "recruit-permanent-buff"));
+            Assert.AreEqual(4, reborn.Attack);
+            Assert.AreEqual(1, reborn.MaxHealth);
+            Assert.IsFalse(reborn.Enchantments.Any(enchantment => enchantment.Id == "recruit-permanent-buff"));
             Assert.AreEqual(1, reborn.Enchantments.Count(enchantment => enchantment.Id == "Undead Attack Bonus"));
-            Assert.AreEqual(3, reborn.Counters["recruit-permanent-counter"]);
+            Assert.IsFalse(reborn.Counters.ContainsKey("recruit-permanent-counter"));
             Assert.IsFalse(reborn.Keywords.Contains(Keyword.Reborn));
-            Assert.IsFalse(reborn.OfficialKeywords.Contains(Keyword.Reborn));
+            Assert.IsTrue(reborn.OfficialKeywords.Contains(Keyword.Reborn));
             Assert.AreEqual(PoolSource.Summon, reborn.PoolSource);
             Assert.AreEqual(PoolSource.Summon, reborn.OriginPoolSource);
             Assert.AreEqual(0, reborn.PoolCopiesHeld);

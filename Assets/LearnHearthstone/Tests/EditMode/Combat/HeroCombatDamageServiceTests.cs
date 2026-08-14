@@ -116,6 +116,45 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(7, state.Opponent.Armor);
         }
 
+        [Test]
+        public void ResolveAndApply_NonlethalLossKeepsIceBlockAndAppliesDamage()
+        {
+            var state = State(playerTier: 4, opponentHealth: 30, opponentArmor: 0);
+            state.Player.Tavern.Secrets.Add(IceBlock());
+            var result = HeroCombatDamageService.ResolveAndApply(
+                Combat(CombatWinner.Opponent, Minion(1)),
+                state,
+                round: 1,
+                HeroDamageCapPolicy.OfficialTopFour,
+                isTopFour: false);
+
+            Assert.IsFalse(result.Prevented);
+            Assert.AreEqual(5, result.AppliedDamage);
+            Assert.AreEqual(25, state.Player.Health);
+            Assert.AreEqual(1, state.Player.Tavern.Secrets.Count);
+        }
+
+        [Test]
+        public void ResolveAndApply_LethalLossConsumesIceBlockWithoutChangingWinnerOrHeroState()
+        {
+            var state = State(playerTier: 4, opponentHealth: 30, opponentArmor: 0);
+            state.Player.Health = 2;
+            state.Player.Tavern.Secrets.Add(IceBlock());
+            var result = HeroCombatDamageService.ResolveAndApply(
+                Combat(CombatWinner.Opponent, Minion(1)),
+                state,
+                round: 1,
+                HeroDamageCapPolicy.OfficialTopFour,
+                isTopFour: false);
+
+            Assert.AreEqual(CombatWinner.Opponent, result.Winner);
+            Assert.IsTrue(result.Prevented);
+            Assert.IsFalse(result.Applied);
+            Assert.AreEqual(0, result.AppliedDamage);
+            Assert.AreEqual(2, state.Player.Health);
+            Assert.IsEmpty(state.Player.Tavern.Secrets);
+        }
+
         private static MatchState State(int playerTier, int opponentHealth, int opponentArmor)
         {
             return new MatchState
@@ -141,10 +180,24 @@ namespace LearnHearthstone.Tests.EditMode
             return new CombatOutput
             {
                 Winner = winner,
-                FinalPlayerBoard = new List<MinionInstance>(playerSurvivors),
-                FinalOpponentBoard = new List<MinionInstance>(),
+                FinalPlayerBoard = winner == CombatWinner.Player
+                    ? new List<MinionInstance>(playerSurvivors)
+                    : new List<MinionInstance>(),
+                FinalOpponentBoard = winner == CombatWinner.Opponent
+                    ? new List<MinionInstance>(playerSurvivors)
+                    : new List<MinionInstance>(),
                 FinalPlayerTavern = new TavernState { Tier = 4 },
                 FinalOpponentTavern = new TavernState { Tier = 4 }
+            };
+        }
+
+        private static SecretState IceBlock()
+        {
+            return new SecretState
+            {
+                SecretCardId = "TB_Bacon_Secrets_12",
+                Name = "Ice Block",
+                Owner = BoardSide.Player
             };
         }
 

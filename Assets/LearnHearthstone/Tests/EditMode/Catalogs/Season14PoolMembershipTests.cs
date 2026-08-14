@@ -52,7 +52,7 @@ namespace LearnHearthstone.Tests.Catalogs
             var contentSet = snapshot.VersionedContent.ContentSets.Single(item =>
                 item.Id == ContentSetIds.Season14Preview);
 
-            AssertMembership(contentSet, EntityKind.Minion, 273);
+            AssertMembership(contentSet, EntityKind.Minion, 274);
             AssertMembership(contentSet, EntityKind.TavernSpell, 76);
             AssertMembership(contentSet, EntityKind.Trinket, 242);
             AssertMembership(contentSet, EntityKind.TimewarpedTavern, 123);
@@ -73,7 +73,7 @@ namespace LearnHearthstone.Tests.Catalogs
             var spells = resolved.Snapshot.Chinese.Spells.All;
             var heroes = resolved.Snapshot.Chinese.Heroes;
 
-            Assert.AreEqual(273, minions.Count(item => item.InPool));
+            Assert.AreEqual(274, minions.Count(item => item.InPool));
             Assert.IsTrue(minions
                 .Where(item => !string.IsNullOrWhiteSpace(item.ResearchKey))
                 .All(item => item.InPool));
@@ -115,7 +115,7 @@ namespace LearnHearthstone.Tests.Catalogs
             var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
             var resolved = snapshot.VersionedContent.CreateResolver().Resolve(GameVersionIds.LegacyCompositeSandbox, snapshot);
 
-            Assert.AreEqual(276, resolved.Snapshot.Chinese.Minions.All.Count(item => item.InPool));
+            Assert.AreEqual(277, resolved.Snapshot.Chinese.Minions.All.Count(item => item.InPool));
             Assert.AreEqual(73, resolved.Snapshot.Chinese.Spells.All.Count(item =>
                 item.Category == "TavernSpell" && item.InPool));
             Assert.AreEqual(125, resolved.Snapshot.Chinese.TimewarpedTavern.Current.Count);

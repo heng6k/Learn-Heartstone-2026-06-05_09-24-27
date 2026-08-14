@@ -14,8 +14,8 @@ namespace LearnHearthstone.Tests.EditMode
                 .Where(minion => minion.InPool && minion.TavernTier >= 1 && minion.TavernTier <= 3)
                 .ToList();
 
-            Assert.AreEqual(107, tierOneToThree.Count);
-            Assert.AreEqual(22, tierOneToThree.Count(minion => minion.TavernTier == 1));
+            Assert.AreEqual(108, tierOneToThree.Count);
+            Assert.AreEqual(23, tierOneToThree.Count(minion => minion.TavernTier == 1));
             Assert.AreEqual(36, tierOneToThree.Count(minion => minion.TavernTier == 2));
             Assert.AreEqual(49, tierOneToThree.Count(minion => minion.TavernTier == 3));
             Assert.IsTrue(tierOneToThree.All(minion => !string.IsNullOrWhiteSpace(minion.CardId)));

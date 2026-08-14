@@ -216,6 +216,37 @@ namespace LearnHearthstone.Tests.EditMode
             RunOneAttack(service, 6510);
 
             Assert.AreEqual(expectedRepairJobs, service.State.Player.Tavern.Hand.Count(card => card.CardId == RepairJobCardNumber));
+            var deathrattleFrame = service.State.LastResult.Replay.Frames.First(frame =>
+                frame.EventType == CombatEventType.DeathrattleResolved &&
+                frame.ActorId == deathrattle.InstanceId);
+            var damageFrame = service.State.LastResult.Replay.Frames.First(frame => frame.EventType == CombatEventType.DamageResolved);
+            Assert.Less(deathrattleFrame.Index, damageFrame.Index, "逐亡陆行鸟触发的亡语必须在本次碰撞伤害前完整结算。");
+        }
+
+        [Test]
+        public void DeathChasingRoadrunner_DeathrattleCanRemoveDefenderBeforeCombatDamage()
+        {
+            var service = CreateService();
+            var attacker = CreateCatalogMinion(service, FlutteringBatKey, "roadrunner-cancel-attacker", false);
+            attacker.Health = attacker.MaxHealth = 5;
+            var baneling = Minion("roadrunner-baneling", 10, 10, Tribe.None, BoardSide.Player, Keyword.Deathrattle);
+            baneling.CardId = "BG31_HERO_811t5";
+            var source = CreateCatalogMinion(service, DeathChasingRoadrunnerKey, "roadrunner-cancel-source", false);
+            var defender = Minion("roadrunner-cancel-defender", 20, 5, Tribe.None, BoardSide.Opponent, Keyword.Taunt);
+            service.State.Player.Board.Add(attacker);
+            service.State.Player.Board.Add(baneling);
+            service.State.Player.Board.Add(source);
+            service.State.Opponent.Board.Add(defender);
+
+            RunOneAttack(service, 6513);
+
+            var finalAttacker = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == attacker.InstanceId);
+            Assert.AreEqual(5, finalAttacker.Health, "攻击前亡语移除 defender 后不得继续使用旧对象反伤攻击者。");
+            Assert.IsFalse(service.State.LastResult.FinalOpponentBoard.Any(card => card.InstanceId == defender.InstanceId));
+            Assert.IsFalse(service.State.LastResult.Replay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.DamageResolved &&
+                frame.ActorId == attacker.InstanceId &&
+                frame.TargetId == defender.InstanceId));
         }
 
         [TestCase(false, 5)]

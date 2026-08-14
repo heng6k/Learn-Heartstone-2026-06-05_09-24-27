@@ -104,7 +104,7 @@ namespace LearnHearthstone.Tests.EditMode
                 .ThenBy(minion => minion.CardId)
                 .ToList();
 
-            Assert.AreEqual(107, minions.Count);
+            Assert.AreEqual(108, minions.Count);
             foreach (var minion in minions)
             {
                 if (minion.CardId.StartsWith("BGDUO", StringComparison.Ordinal))
@@ -190,6 +190,71 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(result.FinalPlayerBoard.Any(minion => minion.CardId == "BEETLE" && minion.Attack == 2 && minion.MaxHealth == 2));
             var gnoll = result.FinalPlayerBoard.Single(minion => minion.InstanceId == "gnoll");
             Assert.AreEqual(2, gnoll.Attack);
+        }
+
+        [Test]
+        public void Lullabot_EndOfTurnHealthPersistsWhenPlayedOrMagnetized()
+        {
+            var normal = PreparedService(9529);
+            normal.State.Player.Board.Clear();
+            AddAndPlay(normal, "BG26_146");
+            var normalLullabot = normal.State.Player.Board.Single();
+            var normalHealthBefore = normalLullabot.MaxHealth;
+
+            normal.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(normalHealthBefore + 1, normalLullabot.MaxHealth);
+
+            var golden = PreparedService(9530);
+            golden.State.Player.Board.Clear();
+            var lullabotDefinition = golden.Catalogs.Minions.All.Single(minion => minion.CardId == "BG26_146");
+            var goldenLullabot = MinionFactory.Create(
+                lullabotDefinition,
+                BoardSide.Player,
+                "golden-lullabot",
+                true,
+                PoolSource.Copy,
+                0);
+            golden.State.Player.Board.Add(goldenLullabot);
+            var goldenHealthBefore = goldenLullabot.MaxHealth;
+
+            golden.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(goldenHealthBefore + 2, goldenLullabot.MaxHealth);
+
+            var magnetized = PreparedService(9531);
+            magnetized.State.Player.Board.Clear();
+            magnetized.State.Player.Tavern.Hand.Clear();
+            var target = TestMinion("lullabot-target", BoardSide.Player, 2, 5, Tribe.Mech);
+            magnetized.State.Player.Board.Add(target);
+            magnetized.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG26_146", CardKind.Minion));
+            magnetized.State.Player.Tavern.Hand.Add(MinionFactory.Create(
+                lullabotDefinition,
+                BoardSide.Player,
+                "golden-lullabot-attachment",
+                true,
+                PoolSource.Copy,
+                0));
+
+            for (var handIndex = magnetized.State.Player.Tavern.Hand.Count - 1; handIndex >= 0; handIndex -= 1)
+            {
+                var source = magnetized.State.Player.Tavern.Hand[handIndex];
+                Assert.IsTrue(
+                    magnetized.TryValidateMagnetize(source, handIndex, TargetZone.FriendlyBoard, target.InstanceId, out var reason),
+                    reason);
+                magnetized.Apply(new GameCommand(
+                    GameCommandType.PlayMinion,
+                    handIndex,
+                    PlayIntent.Magnetize,
+                    targetIndex: 0,
+                    targetZone: TargetZone.FriendlyBoard,
+                    targetInstanceId: target.InstanceId));
+            }
+
+            var attachedHealthBefore = target.MaxHealth;
+            magnetized.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(attachedHealthBefore + 3, target.MaxHealth);
         }
 
         [Test]

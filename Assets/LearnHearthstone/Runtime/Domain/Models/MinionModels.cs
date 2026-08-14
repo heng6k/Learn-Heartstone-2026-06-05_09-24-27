@@ -103,6 +103,7 @@ namespace LearnHearthstone.Domain.Models
         public Dictionary<string, int> Counters = new Dictionary<string, int>();
         public bool CanAttack = true;
         public int AttacksThisCombat;
+        public long OrderOfPlay;
         public PoolSource OriginPoolSource;
         public bool CanReturnToPoolAfterAttach;
         public PoolSource PoolSource;
@@ -141,6 +142,7 @@ namespace LearnHearthstone.Domain.Models
                 Counters = new Dictionary<string, int>(Counters),
                 CanAttack = CanAttack,
                 AttacksThisCombat = AttacksThisCombat,
+                OrderOfPlay = OrderOfPlay,
                 OriginPoolSource = OriginPoolSource,
                 CanReturnToPoolAfterAttach = CanReturnToPoolAfterAttach,
                 PoolSource = PoolSource,

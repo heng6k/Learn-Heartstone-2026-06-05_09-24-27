@@ -4,7 +4,7 @@
   "Guides": [
     {
       "GuideId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING",
-      "RevisionId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING@f81a9f15ac759673",
+      "RevisionId": "GUIDE-S14-DRAGON-BATTLECRY-SCALING@1e9ccd1022854e55",
       "GameVersionId": "36.2-preview",
       "Title": "巨龙战吼成长",
       "EnglishTitle": "Dragon Battlecry Scaling",
@@ -111,7 +111,7 @@
       ]
     },
     {
-      "GuideId":"GUIDE-S14-MURLOC-MAGICFIN","RevisionId":"GUIDE-S14-MURLOC-MAGICFIN@bf887f8f5c2dca09","GameVersionId":"36.2-preview",
+    "GuideId":"GUIDE-S14-MURLOC-MAGICFIN","RevisionId":"GUIDE-S14-MURLOC-MAGICFIN@a73cb00d6983e5ee","GameVersionId":"36.2-preview",
       "Title":"鱼人法术成长","EnglishTitle":"Murloc Magicfin","Summary":"用低本鱼人守住种族数量，碰出胆汁喷吐者并在五本继续寻找魔法鳍真菌术士。","EnglishSummary":"Hold the Murloc count, Triple into Bile Spitter, then find Magicfin Mycologist from Tier 5.",
       "Archetype":"MurlocMagicfin","HeroCardId":"TB_BaconShop_HERO_55","LesserTrinketCardId":"BG32_MagicItem_893","GreaterTrinketCardId":"BG35_MagicItem_750",
       "RequiredTribes":["Murloc"],"ActiveTribes":["Dragon","Murloc","Pirate","Quilboar","Undead"],
@@ -164,7 +164,7 @@
       ]
     },
     {
-      "GuideId":"GUIDE-S14-PIRATE-BOUNTY-APM","RevisionId":"GUIDE-S14-PIRATE-BOUNTY-APM@9aa68ae2a28bd492","GameVersionId":"36.2-preview",
+    "GuideId":"GUIDE-S14-PIRATE-BOUNTY-APM","RevisionId":"GUIDE-S14-PIRATE-BOUNTY-APM@4452a0b8fb6446fe","GameVersionId":"36.2-preview",
       "Title":"海盗悬赏循环","EnglishTitle":"Pirate Bounty APM","Summary":"用四本海盗搭出经济底盘，碰出骄傲的私掠者，再寻找六本天空上将。","EnglishSummary":"Build the economy shell with Tier 4 Pirates, Triple into Proud Privateer, then find Sky Admiral Rogers.",
       "Archetype":"PirateBountyApm","HeroCardId":"TB_BaconShop_HERO_18","LesserTrinketCardId":"BG35_MagicItem_890","GreaterTrinketCardId":"BG35_MagicItem_712",
       "RequiredTribes":["Pirate"],"ActiveTribes":["Dragon","Murloc","Pirate","Quilboar","Undead"],"CoreMinionCardIds":["BG33_825","BG33_823","BG31_824","BG33_822"],"CoreSpellCardNumbers":[],
@@ -193,7 +193,7 @@
       ]
     },
     {
-      "GuideId":"GUIDE-S14-QUILBOAR-COMBAT-SCALING","RevisionId":"GUIDE-S14-QUILBOAR-COMBAT-SCALING@5789a7f7926d3589","GameVersionId":"36.2-preview",
+    "GuideId":"GUIDE-S14-QUILBOAR-COMBAT-SCALING","RevisionId":"GUIDE-S14-QUILBOAR-COMBAT-SCALING@caf3ffe176312a2e","GameVersionId":"36.2-preview",
       "Title":"野猪人战斗成长","EnglishTitle":"Quilboar Combat Scaling","Summary":"用四本野猪人保住宝石成长，碰出警觉的刺鬃，再寻找六本老练的强盗。","EnglishSummary":"Preserve Gem scaling with Tier 4 Quilboar, Triple into Vigilant Bristlemane, then find Veteran Brigand.",
       "Archetype":"QuilboarCombatScaling","HeroCardId":"BG20_HERO_103","LesserTrinketCardId":"BG30_MagicItem_988","GreaterTrinketCardId":"BG30_MagicItem_546",
       "RequiredTribes":["Quilboar"],"ActiveTribes":["Dragon","Murloc","Pirate","Quilboar","Undead"],"CoreMinionCardIds":["BG36_510","BG36_341","BG36_331","BG36_332"],"CoreSpellCardNumbers":[],
@@ -218,7 +218,7 @@
       ]
     },
     {
-      "GuideId":"GUIDE-S14-UNDEAD-OVERFLOW","RevisionId":"GUIDE-S14-UNDEAD-OVERFLOW@34b8060bd4c9f76d","GameVersionId":"36.2-preview",
+    "GuideId":"GUIDE-S14-UNDEAD-OVERFLOW","RevisionId":"GUIDE-S14-UNDEAD-OVERFLOW@4380e6e1a1194fd2","GameVersionId":"36.2-preview",
       "Title":"亡灵铺场成长","EnglishTitle":"Undead Overflow","Summary":"用低本亡灵填满站位，碰出屏障女妖，再寻找六本永恒召唤者完成铺场链。","EnglishSummary":"Fill the board with low-tier Undead, Triple into Barrier Banshee, then find Eternal Summoner.",
       "Archetype":"UndeadOverflow","HeroCardId":"BG25_HERO_103","LesserTrinketCardId":"BG30_MagicItem_700","GreaterTrinketCardId":"BG35_MagicItem_731",
       "RequiredTribes":["Undead"],"ActiveTribes":["Dragon","Murloc","Pirate","Quilboar","Undead"],"CoreMinionCardIds":["BG36_514","BG25_009","BG32_880","BG34_690"],"CoreSpellCardNumbers":[],

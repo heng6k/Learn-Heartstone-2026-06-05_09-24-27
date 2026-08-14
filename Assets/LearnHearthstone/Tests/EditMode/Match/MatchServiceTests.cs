@@ -2302,7 +2302,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(beast);
             service.State.Opponent.Board.Add(TestBoardMinion("enemy-lil-quilboar", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 23, SafetyLimit = 1 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 23, SafetyLimit = 2 }));
 
             var finalQuilboar = service.State.LastResult.FinalPlayerBoard.First(card => card.InstanceId == "lil-quilboar-target");
             var finalAll = service.State.LastResult.FinalPlayerBoard.First(card => card.InstanceId == "lil-all-target");
@@ -2865,10 +2865,11 @@ namespace LearnHearthstone.Tests.EditMode
             pillager.Attack = 0;
             pillager.Health = 1;
             pillager.MaxHealth = 1;
+            pillager.Keywords.Add(Keyword.Taunt);
             service.State.Player.Tavern.Hand.Clear();
             service.State.Opponent.Board.Add(TestBoardMinion("enemy-deios-deathrattle", "Enemy", "TEST_ENEMY", 1, 80, Tribe.None, 1));
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 21, SafetyLimit = 1 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 21, SafetyLimit = 2 }));
 
             Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardKind == CardKind.TavernSpell && card.CardId == "104436"));
         }
@@ -3571,12 +3572,13 @@ namespace LearnHearthstone.Tests.EditMode
             whirl.Attack = 0;
             whirl.Health = 1;
             whirl.MaxHealth = 1;
+            whirl.Keywords.Add(Keyword.Taunt);
             var cordPuller = TestBoardMinion("cord-puller", "Cord Puller", "BG29_611", 0, 20, Tribe.Mech, 4);
             cordPuller.Keywords.Add(Keyword.Deathrattle);
             service.State.Player.Board.Add(cordPuller);
             service.State.Opponent.Board.Add(TestOpponentMinion("whirl-enemy", "Whirl Enemy", "WHIRL_ENEMY", 1, 20, Tribe.None, 1));
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 54, SafetyLimit = 2 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 54, SafetyLimit = 1 }));
 
             Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => card.Name == "Microbot"));
         }

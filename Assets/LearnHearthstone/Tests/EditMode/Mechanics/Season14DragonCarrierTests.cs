@@ -14,6 +14,9 @@ namespace LearnHearthstone.Tests.EditMode
         private const string HiredMountKey = "MIN-R45";
         private const string BronzeTimewalkerKey = "MIN-R46";
         private const string HeavenbornEscapeDrakeKey = "MIN-R47";
+        private const string DeathstriderKey = "MIN-R35";
+        private const string ExpertAviatorCardId = "BG34_140";
+        private const string HarmlessBoneheadCardId = "BG28_300";
         private const string RunicArcanistKey = "MIN-R48";
         private const string CrimsonGuardDragonKey = "MIN-R49";
         private const string HiredMountActionId = "activate:min-r45";
@@ -77,8 +80,14 @@ namespace LearnHearthstone.Tests.EditMode
             var service = CreateService();
             var source = CreateCatalogMinion(service, HeavenbornEscapeDrakeKey, "escape-drake", golden);
             var rallyTarget = CreateCatalogMinion(service, BronzeTimewalkerKey, "escape-rally-target", false);
+            var deathstrider = CreateCatalogMinion(service, DeathstriderKey, "escape-deathstrider", false);
+            var bonehead = CreateCatalogMinionByCardId(service, HarmlessBoneheadCardId, "escape-bonehead");
+            var wall = Minion("escape-wall", 0, 100, Tribe.None, BoardSide.Opponent, Keyword.Taunt);
             service.State.Player.Board.Add(source);
             service.State.Player.Board.Add(rallyTarget);
+            service.State.Player.Board.Add(deathstrider);
+            service.State.Player.Board.Add(bonehead);
+            service.State.Opponent.Board.Add(wall);
             service.State.Player.Tavern.Gold = 5;
 
             Activate(service, HeavenbornEscapeDrakeActionId, source);
@@ -87,6 +96,41 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(4, service.State.Player.Tavern.Gold);
             Assert.AreEqual(expectedCards, service.State.Player.Tavern.Hand.Count);
             Assert.IsTrue(service.State.Player.Tavern.Hand.All(IsChromawhelp));
+            Assert.AreEqual(4, service.State.Player.Board.Count, "Replaying Rally is not an attack, so Deathstrider must not trigger the Bonehead Deathrattle.");
+            Assert.AreEqual(0, rallyTarget.AttacksThisCombat);
+            Assert.AreEqual(100, wall.Health);
+        }
+
+        [Test]
+        public void HeavenbornEscapeDrake_ExpertAviatorSummonExistsOnlyForCombatAndDoesNotAttackDuringActivate()
+        {
+            var service = CreateService();
+            var source = CreateCatalogMinion(service, HeavenbornEscapeDrakeKey, "escape-aviator-source", false);
+            var aviator = CreateCatalogMinionByCardId(service, ExpertAviatorCardId, "escape-aviator");
+            var low = Minion("escape-hand-low", 2, 4, Tribe.Beast);
+            var high = Minion("escape-hand-high", 9, 9, Tribe.Beast);
+            var wall = Minion("escape-aviator-wall", 0, 100, Tribe.None, BoardSide.Opponent, Keyword.Taunt);
+            service.State.Player.Board.Add(source);
+            service.State.Player.Board.Add(aviator);
+            service.State.Player.Tavern.Hand.Add(low);
+            service.State.Player.Tavern.Hand.Add(high);
+            service.State.Opponent.Board.Add(wall);
+            service.State.Player.Tavern.Gold = 5;
+
+            Activate(service, HeavenbornEscapeDrakeActionId, source);
+
+            Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+            Assert.AreEqual(0, aviator.AttacksThisCombat, "Activate must replay only the Rally effect.");
+            Assert.AreEqual(100, wall.Health, "Activate must not deal attack damage.");
+
+            RunOneAttack(service, 7204);
+
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => card.InstanceId.Contains(high.InstanceId)));
+            Assert.IsFalse(service.State.LastResult.FinalPlayerBoard.Any(card => card.InstanceId.Contains(low.InstanceId)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == high.InstanceId));
+            Assert.IsFalse(
+                service.State.Player.Board.Any(card => card.InstanceId.Contains(high.InstanceId)),
+                "Expert Aviator says the summoned copy exists for this combat only and must not persist on the recruit board.");
         }
 
         [TestCase(false, 1)]
@@ -179,6 +223,15 @@ namespace LearnHearthstone.Tests.EditMode
         {
             var definition = service.Catalogs.Minions.All.Single(item => item.ResearchKey == researchKey);
             return MinionFactory.Create(definition, BoardSide.Player, suffix, golden, PoolSource.Copy, 0);
+        }
+
+        private static MinionInstance CreateCatalogMinionByCardId(
+            MatchService service,
+            string cardId,
+            string suffix)
+        {
+            var definition = service.Catalogs.Minions.All.Single(item => item.CardId == cardId);
+            return MinionFactory.Create(definition, BoardSide.Player, suffix, false, PoolSource.Copy, 0);
         }
 
         private static MinionInstance Minion(

@@ -1964,6 +1964,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             var goldenReward = service.State.Player.Tavern.Hand.Single(card => card.Golden && card.Tags.Contains("golden_reward"));
             Assert.IsNotNull(goldenReward);
+            var goldenRewardDefinition = service.Catalogs.Minions.All.Single(card => card.Id == goldenReward.DefinitionId);
+            Assert.LessOrEqual(goldenRewardDefinition.TavernTier, service.State.Player.Tavern.Tier);
 
             service.State.Player.Board.Clear();
             var goldenTarget = TestMinion("dagwik-target", "DAGWIK_TARGET", 2, 2);
@@ -2891,8 +2893,8 @@ namespace LearnHearthstone.Tests.EditMode
 
             iceBlock.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2107, SafetyLimit = 1 }));
 
-            Assert.AreEqual(CombatWinner.Draw, iceBlock.State.LastResult.Winner);
-            Assert.IsEmpty(iceBlock.State.Player.Tavern.Secrets);
+            Assert.AreEqual(CombatWinner.Opponent, iceBlock.State.LastResult.Winner);
+            Assert.AreEqual(1, iceBlock.State.Player.Tavern.Secrets.Count, "A nonlethal combat loss must not consume Ice Block.");
         }
 
         [Test]
@@ -3531,7 +3533,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(attacks[0].TriggeredAttack);
             Assert.AreEqual("illidan-right", attacks[1].ActorId);
             Assert.IsTrue(attacks[1].TriggeredAttack);
-            Assert.AreEqual(BoardSide.Opponent, attacks[2].ActorSide);
+            Assert.AreEqual(BoardSide.Player, attacks[2].ActorSide, "Wingmen attacks are inserted before combat and do not consume the natural first attack.");
             Assert.IsFalse(attacks[2].TriggeredAttack);
 
             var damageFrames = service.State.LastReplay.Frames

@@ -470,6 +470,7 @@ namespace LearnHearthstone.Domain.Engine
                 .Select(state => new ScenarioRecruitActionState
                 {
                     SourceInstanceId = state.SourceInstanceId,
+                    ActionId = state.ActionId,
                     UsesThisTurn = Math.Max(0, state.UsesThisTurn),
                     LastUsedRound = Math.Max(0, state.LastUsedRound),
                     Cooldown = Math.Max(0, state.Cooldown),
@@ -485,6 +486,7 @@ namespace LearnHearthstone.Domain.Engine
                 .Select(state => new RecruitActionState
                 {
                     SourceInstanceId = state.SourceInstanceId,
+                    ActionId = state.ActionId,
                     UsesThisTurn = Math.Max(0, state.UsesThisTurn),
                     LastUsedRound = Math.Max(0, state.LastUsedRound),
                     Cooldown = Math.Max(0, state.Cooldown),

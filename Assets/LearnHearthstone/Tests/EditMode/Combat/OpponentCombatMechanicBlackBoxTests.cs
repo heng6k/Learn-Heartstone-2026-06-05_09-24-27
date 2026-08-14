@@ -414,9 +414,9 @@ namespace LearnHearthstone.Tests.EditMode
 
             var opponent = service.State.LastResult.FinalOpponentBoard.Single(card => card.InstanceId == "opponent-kibble-beast");
             var player = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == "player-kibble-control");
-            Assert.AreEqual(4, opponent.Attack);
+            Assert.AreEqual(7, opponent.Attack);
             Assert.AreEqual(0, player.Attack);
-            Assert.IsTrue(service.State.LastReplay.Frames.Any(frame =>
+            Assert.AreEqual(2, service.State.LastReplay.Frames.Count(frame =>
                 frame.EventType == CombatEventType.AttackTriggered &&
                 frame.ActorSide == BoardSide.Opponent &&
                 frame.TargetId == "opponent-kibble-beast"));
@@ -742,7 +742,14 @@ namespace LearnHearthstone.Tests.EditMode
                 service.State.Player.Board.Add(TestMinion("matrix-player-start-control", BoardSide.Player, 0, 300));
                 service.State.Opponent.Board.Add(TestMultiTribeMinion("matrix-opponent-start-all", BoardSide.Opponent, 2, 60, AllPlayableTribes()));
                 service.State.Opponent.Board.Add(TestMinion("matrix-opponent-start-beast", BoardSide.Opponent, 2, 60, Tribe.Beast));
-                service.State.Opponent.Board.Add(TestMinion("matrix-opponent-start-dragon", BoardSide.Opponent, 2, 60, Tribe.Dragon));
+                var startDragon = TestMinion("matrix-opponent-start-dragon", BoardSide.Opponent, 2, 60, Tribe.Dragon);
+                if (string.Equals(row.EffectId, "yulon_sticker", StringComparison.OrdinalIgnoreCase))
+                {
+                    startDragon.CardId = TarecgosaCardId;
+                    startDragon.TavernTier = 6;
+                }
+
+                service.State.Opponent.Board.Add(startDragon);
                 ConfigureStartStatsMatrixPreconditions(service, row);
                 return;
             }
@@ -1169,6 +1176,19 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsTrue(
                     dragon.Attack > 2 || dragon.MaxHealth > 100,
                     row.CaseId + " did not persist combat buffs onto the opponent edge Dragon.");
+                return;
+            }
+
+            if (string.Equals(row.EffectId, "yulon_sticker", StringComparison.OrdinalIgnoreCase))
+            {
+                var combatDragon = service.State.LastReplay.InitialSnapshot.Opponent.Minions.FirstOrDefault(minion =>
+                    minion.InstanceId == "matrix-opponent-start-dragon");
+                var recruitDragon = service.State.Opponent.Board.FirstOrDefault(minion =>
+                    minion.InstanceId == "matrix-opponent-start-dragon");
+                Assert.IsNotNull(combatDragon, row.CaseId + " lost the configured highest-Tier Dragon.");
+                Assert.IsTrue(combatDragon.Golden, row.CaseId + " did not make the highest-Tier Dragon Golden for combat.");
+                Assert.IsNotNull(recruitDragon, row.CaseId + " lost the recruit-phase Dragon.");
+                Assert.IsFalse(recruitDragon.Golden, row.CaseId + " persisted the combat-only Golden state into recruit phase.");
                 return;
             }
 

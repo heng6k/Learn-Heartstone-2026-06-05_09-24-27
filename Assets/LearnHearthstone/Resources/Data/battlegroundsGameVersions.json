@@ -275,6 +275,10 @@
         },
         {
           "kind": "Minion",
+          "stableEntityId": "BG26_146"
+        },
+        {
+          "kind": "Minion",
           "stableEntityId": "BG26_147"
         },
         {

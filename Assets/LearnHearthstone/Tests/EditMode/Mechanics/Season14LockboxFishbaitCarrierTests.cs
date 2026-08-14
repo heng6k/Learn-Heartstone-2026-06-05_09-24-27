@@ -73,6 +73,36 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(reward.Tribes.Any(tribe => tribe != Tribe.None && tribe != Tribe.All));
         }
 
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(6)]
+        public void Lockbox_GoldenRewardNeverExceedsTheCurrentTavernTier(int tavernTier)
+        {
+            for (var seed = 1; seed <= 12; seed += 1)
+            {
+                var service = CreateService(seed);
+                service.State.Player.Tavern.Tier = tavernTier;
+                PlayCatalogMinion(service, BilgewaterResearchKey, false, "tier-cap-" + seed);
+
+                for (var turn = 0; turn < 5; turn += 1)
+                {
+                    service.Apply(new GameCommand(GameCommandType.NextTurn));
+                }
+
+                var reward = service.State.Player.Tavern.Hand.Single();
+                var definition = service.Catalogs.Minions.All.Single(item => item.Id == reward.DefinitionId);
+                Assert.IsTrue(reward.Golden, "seed " + seed + " did not create a Golden reward");
+                Assert.IsTrue(definition.InPool, "seed " + seed + " selected a non-pool minion");
+                Assert.LessOrEqual(
+                    definition.TavernTier,
+                    tavernTier,
+                    "seed " + seed + " selected " + reward.CardId + " above Tavern Tier " + tavernTier);
+            }
+        }
+
         [Test]
         public void LockedUpMutineer_DeathrattleCreatesLockboxThroughCombatRewardPipeline()
         {
@@ -163,13 +193,13 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsEmpty(fishbait.Enchantments);
         }
 
-        private static MatchService CreateService()
+        private static MatchService CreateService(int seed = 12345)
         {
             var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
             var resolved = snapshot.VersionedContent.CreateResolver().Resolve(GameVersionIds.Season14Preview, snapshot);
             var service = MatchService.CreateWithResolvedVersion(
                 resolved,
-                12345,
+                seed,
                 new InMemoryTestScenarioRepository(),
                 new MatchSetupOptions
                 {

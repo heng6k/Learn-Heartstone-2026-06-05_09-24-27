@@ -30,6 +30,9 @@ namespace LearnHearthstone.Tests.EditMode
         private const string FloatingCandleSetId = "BG36_MagicItem_208";
         private const string WolfheadFlailId = "BG36_MagicItem_212";
         private const string InsurrectionistsBladeId = "BG36_MagicItem_214";
+        private const string ExpertAviatorCardId = "BG34_140";
+        private const string DeathstriderCardId = "BG36_208";
+        private const string HarmlessBoneheadCardId = "BG28_300";
         private const string FuneralWreathId = "BG36_MagicItem_217";
         private const string CyclistPortraitId = "BG36_MagicItem_362";
         private const string TargetedTavernSpellId = "100596";
@@ -223,6 +226,45 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void OminousStone_DarkGiftThirdCopyTriplesAndRebindsToGoldenInstance()
+        {
+            var service = CreateService();
+            service.State.Player.Board.Add(Minion("ominous-triple-one", Tribe.Beast));
+            service.State.Player.Board.Add(Minion("ominous-triple-two", Tribe.Beast));
+            Equip(service, OminousStoneId, 0);
+
+            var choice = service.State.ChoiceQueue.ActiveChoice;
+            Assert.NotNull(choice);
+            var optionIndex = choice.Options.FindIndex(option =>
+            {
+                var gift = service.Catalogs.DarkGifts.GetByRevisionId(option.RewardId);
+                return gift.EffectRevision != Season14DarkGiftResolvers.GildingRevision &&
+                       gift.EffectRevision != Season14DarkGiftResolvers.DoubleVisionRevision;
+            });
+            Assert.GreaterOrEqual(optionIndex, 0, "Ominous Stone needs a non-transforming gift option for this triple transaction test.");
+            var selectedOption = choice.Options[optionIndex];
+            var definition = service.Catalogs.Minions.All.Single(minion => minion.CardId == selectedOption.SourceId);
+            var first = MinionFactory.Create(definition, BoardSide.Player, "ominous-material-first", false, PoolSource.Copy, 0);
+            var second = MinionFactory.Create(definition, BoardSide.Player, "ominous-material-second", false, PoolSource.Copy, 0);
+            service.State.Player.Tavern.Hand.Add(first);
+            service.State.Player.Tavern.Hand.Add(second);
+
+            service.Apply(new GameCommand(GameCommandType.ChooseMechanicOption, optionIndex));
+
+            var golden = service.State.Player.Tavern.Hand
+                .Concat(service.State.Player.Board)
+                .Single(minion => minion.DefinitionId == definition.Id && minion.Golden);
+            var activeBindings = service.State.PlayerDarkGifts.AcquiredGiftInstances
+                .Where(gift => gift.Active && !gift.Expired)
+                .ToList();
+            Assert.IsTrue(service.State.ChoiceQueue.CompletedRequestIds.Contains(choice.RequestId));
+            Assert.IsNotEmpty(activeBindings);
+            Assert.IsTrue(activeBindings.All(gift => gift.InstanceId == golden.InstanceId));
+            Assert.IsFalse(activeBindings.Any(gift =>
+                gift.InstanceId == first.InstanceId || gift.InstanceId == second.InstanceId));
+        }
+
+        [Test]
         public void MaldraxxusDagger_DiscoversPlainCopyOfGiftedWarbandMinionOnEquip()
         {
             var service = CreateService();
@@ -338,13 +380,98 @@ namespace LearnHearthstone.Tests.EditMode
             var glim = Minion("blade-glim", Tribe.Dragon);
             glim.CardId = "BG29_888";
             glim.Keywords.Add(Keyword.Rally);
+            var deathstrider = Minion("blade-deathstrider", Tribe.Beast);
+            deathstrider.CardId = DeathstriderCardId;
+            var bonehead = Minion("blade-bonehead", Tribe.Undead);
+            bonehead.CardId = HarmlessBoneheadCardId;
+            bonehead.Keywords.Add(Keyword.Deathrattle);
             service.State.Player.Board.Add(glim);
+            service.State.Player.Board.Add(deathstrider);
+            service.State.Player.Board.Add(bonehead);
+            AcquireConsanguinity(service, glim, "blade-consanguinity");
             Equip(service, InsurrectionistsBladeId, 1);
             var attack = glim.Attack;
+            var darkGiftEventsBefore = service.State.MechanicEvents.Count(item => item.Type == "dark-gift.triggered");
+            var rallyObserverEventsBefore = service.State.MechanicEvents.Count(item => item.Type == "rally.observers-dispatched");
+            Assert.AreEqual(1, service.State.PlayerDarkGifts.AcquiredGiftInstances.Count);
 
             service.Apply(new GameCommand(GameCommandType.NextTurn));
 
             Assert.AreEqual(attack + 2, glim.Attack);
+            var newGiftEvents = service.State.MechanicEvents
+                .Where(item => item.Type == "dark-gift.triggered")
+                .Skip(darkGiftEventsBefore)
+                .ToList();
+            var newRallyObserverEvents = service.State.MechanicEvents
+                .Where(item => item.Type == "rally.observers-dispatched")
+                .Skip(rallyObserverEventsBefore)
+                .ToList();
+            Assert.AreEqual(
+                1,
+                newRallyObserverEvents.Count,
+                string.Join(" | ", newRallyObserverEvents.Select(item => item.Source + ":" + item.Result + ":" + item.RequestId)));
+            Assert.AreEqual(
+                1,
+                newGiftEvents.Count,
+                string.Join(" | ", newGiftEvents.Select(item => item.Source + ":" + item.Result + ":" + item.RequestId)));
+            Assert.AreEqual(3, service.State.Player.Board.Count, "Replayed Rally effects must not fire Deathstrider's post-attack observer.");
+            Assert.AreEqual(0, glim.AttacksThisCombat);
+            Assert.IsFalse(service.State.LastResult.PlayerRewards.Any(reward => reward.Type == CombatRewardType.FriendlyMinionAttacked));
+        }
+
+        [Test]
+        public void InsurrectionistsBlade_ExpertAviatorSummonDoesNotPersistAfterCombat()
+        {
+            var service = CreateService();
+            var aviator = Minion("blade-aviator", Tribe.Murloc);
+            aviator.CardId = ExpertAviatorCardId;
+            aviator.Keywords.Add(Keyword.Rally);
+            var high = Minion("blade-hand-high", Tribe.Beast);
+            high.Attack = high.BaseAttack = 9;
+            high.Health = high.MaxHealth = high.BaseHealth = 9;
+            service.State.Player.Board.Add(aviator);
+            service.State.Player.Tavern.Hand.Add(high);
+            Equip(service, InsurrectionistsBladeId, 1);
+
+            service.Apply(new GameCommand(GameCommandType.NextTurn));
+
+            Assert.AreEqual(0, aviator.AttacksThisCombat, "The Blade replays Rally; it does not perform an attack.");
+            Assert.IsTrue(service.State.LastResult.FinalPlayerBoard.Any(card => card.InstanceId.Contains(high.InstanceId)));
+            Assert.IsTrue(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == high.InstanceId));
+            Assert.IsFalse(
+                service.State.Player.Board.Any(card => card.InstanceId.Contains(high.InstanceId)),
+                "Expert Aviator's replayed summon is combat-only and must not remain on the recruit board.");
+        }
+
+        [Test]
+        public void RallyAttack_TriggersHerdingHornDarkGiftAndDeathstriderBeforeCollisionDamage()
+        {
+            var service = CreateService();
+            var glim = Minion("rally-chain-glim", Tribe.Dragon);
+            glim.CardId = "BG29_888";
+            glim.Keywords.Add(Keyword.Rally);
+            glim.Attack = glim.BaseAttack = 4;
+            glim.Health = glim.MaxHealth = glim.BaseHealth = 20;
+            var deathstrider = Minion("rally-chain-deathstrider", Tribe.Beast);
+            deathstrider.CardId = DeathstriderCardId;
+            var bonehead = Minion("rally-chain-bonehead", Tribe.Undead);
+            bonehead.CardId = HarmlessBoneheadCardId;
+            bonehead.Keywords.Add(Keyword.Deathrattle);
+            service.State.Player.Board.Add(glim);
+            service.State.Player.Board.Add(deathstrider);
+            service.State.Player.Board.Add(bonehead);
+            service.State.Opponent.Board.Add(Opponent("rally-chain-wall", 0, 100));
+            AcquireConsanguinity(service, glim, "rally-chain-consanguinity");
+            Equip(service, HerdingHornId, 0);
+
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2507, SafetyLimit = 1 }));
+
+            var finalGlim = service.State.LastResult.FinalPlayerBoard.Single(card => card.InstanceId == glim.InstanceId);
+            Assert.AreEqual(1, finalGlim.AttacksThisCombat);
+            Assert.IsTrue(service.State.LastResult.Log.Any(entry => entry.Title == "AttackResolved"));
+            Assert.Greater(service.State.LastResult.FinalPlayerBoard.Count, 3, "A real Rally attack must let Deathstrider trigger the left-most Deathrattle.");
+            Assert.GreaterOrEqual(service.State.Player.Tavern.FreeRefreshes, 1);
+            Assert.AreEqual(2, service.State.Player.Tavern.Hand.Count(card => card.CardId == "BLOOD_GEM"));
         }
 
         [Test]
@@ -444,6 +571,22 @@ namespace LearnHearthstone.Tests.EditMode
         private static void Cast(MatchService service, string cardId, int targetIndex)
         {
             service.Apply(new GameCommand(GameCommandType.DebugCastCard, cardId, CardKind.TavernSpell, targetIndex));
+        }
+
+        private static void AcquireConsanguinity(MatchService service, MinionInstance target, string operationId)
+        {
+            service.State.PlayerDarkGifts = new PlayerDarkGiftState();
+            var definition = service.Catalogs.DarkGifts.All.Single(item =>
+                item.EffectRevision == Season14DarkGiftResolvers.ConsanguinityRevision);
+            var registry = new DarkGiftResolverRegistry();
+            Season14DarkGiftResolvers.RegisterDefaults(registry);
+            Assert.IsTrue(DarkGiftStateMachine.Acquire(
+                service.State,
+                target,
+                definition,
+                "rally-special-test",
+                operationId,
+                registry).Succeeded);
         }
 
         private static MinionInstance Minion(string instanceId, Tribe tribe)

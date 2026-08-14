@@ -882,6 +882,22 @@ namespace LearnHearthstone.Domain.Models
     }
 
     [Serializable]
+    public sealed class PendingCombatMinionSummon
+    {
+        public string SourceInstanceId;
+        public MinionInstance Minion;
+
+        public PendingCombatMinionSummon Clone()
+        {
+            return new PendingCombatMinionSummon
+            {
+                SourceInstanceId = SourceInstanceId,
+                Minion = Minion?.Clone()
+            };
+        }
+    }
+
+    [Serializable]
     public sealed class TavernState
     {
         public int Tier;
@@ -894,6 +910,7 @@ namespace LearnHearthstone.Domain.Models
         public int PendingCombatWinGold;
         public int PendingCombatDrawGold;
         public List<string> NextCombatTavernSpellCardIds = new List<string>();
+        public List<PendingCombatMinionSummon> NextCombatMinionSummons = new List<PendingCombatMinionSummon>();
         public int NextCombatBoardAttack;
         public int NextCombatBoardHealth;
         public int NextTavernSpellCostReduction;
@@ -1082,6 +1099,7 @@ namespace LearnHearthstone.Domain.Models
         {
             var clone = (TavernState)MemberwiseClone();
             clone.NextCombatTavernSpellCardIds = new List<string>(NextCombatTavernSpellCardIds ?? new List<string>());
+            clone.NextCombatMinionSummons = (NextCombatMinionSummons ?? new List<PendingCombatMinionSummon>()).ConvertAll(summon => summon?.Clone());
             clone.PendingTimeManagementEnchantments = (PendingTimeManagementEnchantments ?? new List<Enchantment>()).ConvertAll(enchantment => enchantment?.Clone());
             clone.Shop = (Shop ?? new List<MinionInstance>()).ConvertAll(card => card?.Clone());
             clone.ShopSlots = (ShopSlots ?? new List<TavernShopSlotState>()).ConvertAll(slot => slot?.Clone());
@@ -1294,6 +1312,7 @@ namespace LearnHearthstone.Domain.Models
         public string PendingTurnEndTransitionId;
         public int PendingTurnEndOccurrenceCount;
         public int TurnEndTransitionSequence;
+        public long MinionOrderOfPlaySequence;
         public int Seed;
         public List<Tribe> ActiveTribes = new List<Tribe>();
         public string CardPoolVersionId;

@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LearnHearthstone.Adapters.Advisor;
+using LearnHearthstone.Adapters.Content;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Adapters.Persistence;
 using LearnHearthstone.Application.Commands;
+using LearnHearthstone.Application.Content;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
 using LearnHearthstone.Domain.Models;
@@ -750,6 +752,61 @@ namespace LearnHearthstone.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator PlayMode_ActivateExecutesFromEmbeddedMinionButtonThroughRealRaycast()
+        {
+            using (var scene = new JourneyScene())
+            {
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("playmode-embedded-activate");
+                var resolved = snapshot.VersionedContent.CreateResolver()
+                    .Resolve(GameVersionIds.Season14Preview, snapshot);
+                var service = MatchService.CreateWithResolvedVersion(
+                    resolved,
+                    13580,
+                    new InMemoryTestScenarioRepository(),
+                    new MatchSetupOptions
+                    {
+                        EnableQuests = false,
+                        EnableTrinkets = false,
+                        EnableQuestRewards = false,
+                        EnableTimewarpedTavern = false,
+                        EnableAnomalies = false
+                    });
+                service.State.Player.Board.Clear();
+                service.State.Player.Tavern.Hand.Clear();
+                service.State.Player.Tavern.Gold = 5;
+                var definition = service.Catalogs.Minions.All.Single(item => item.ResearchKey == "ACT-R02N");
+                var source = MinionFactory.Create(
+                    definition,
+                    BoardSide.Player,
+                    "playmode-activate-source",
+                    false,
+                    PoolSource.Copy,
+                    0);
+                service.State.Player.Board.Add(source);
+                new UnityTavernTrainerView(scene.Root, service, new LocalAdvisorService(), () => { }).Build();
+
+                yield return WaitForState(
+                    () => EmbeddedActivateButtons(scene.Root, source.InstanceId).Any(),
+                    "embedded Activate button");
+                var activate = EmbeddedActivateButtons(scene.Root, source.InstanceId).Single();
+                Assert.IsTrue(activate.interactable);
+
+                Click(scene, activate.transform);
+
+                yield return WaitForState(
+                    () => service.State.RecruitActionStates.Any(state =>
+                        state.SourceInstanceId == source.InstanceId &&
+                        state.ActionId == "activate:private-investigator" &&
+                        state.UsesThisTurn == 1),
+                    "Activate resolution through card raycast");
+                Assert.AreEqual(4, service.State.Player.Tavern.Gold);
+                var rebuilt = EmbeddedActivateButtons(scene.Root, source.InstanceId).Single();
+                Assert.IsFalse(rebuilt.interactable);
+                StringAssert.Contains("0/1", rebuilt.GetComponentInChildren<Text>(true).text);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator PlayMode_PhysicalPurchasePlayAndSell_UseHeroBoardAndBobAnchors()
         {
             using (var scene = new JourneyScene())
@@ -1339,6 +1396,14 @@ namespace LearnHearthstone.Tests.PlayMode
                     ? null
                     : button.transform.parent.parent.GetComponentInChildren<UnityTavernCardComponent>(true))
                 .Where(component => component != null);
+        }
+
+        private static IEnumerable<Button> EmbeddedActivateButtons(Transform root, string sourceInstanceId)
+        {
+            return root.GetComponentsInChildren<Button>(true)
+                .Where(button => button.name.StartsWith(
+                    "UnityCardRecruitActionButton-" + sourceInstanceId + "-",
+                    StringComparison.Ordinal));
         }
 
         private static UnityTavernCardComponent FindCardLibraryCard(Transform root, string cardId)

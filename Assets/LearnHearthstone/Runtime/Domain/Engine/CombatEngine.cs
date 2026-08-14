@@ -338,7 +338,6 @@ namespace LearnHearthstone.Domain.Engine
         private const string RedemptionSecretId = "TB_Bacon_Secrets_10";
         private const string BetterRedemptionSecretId = "TB_Bacon_Secrets_10b";
         private const string HandOfSalvationSecretId = "TB_Bacon_Secrets_11";
-        private const string IceBlockSecretId = "TB_Bacon_Secrets_12";
         private const string ReckoningSecretId = "TB_Bacon_Secrets_14";
         private const string PackTacticsSecretId = "TB_Bacon_Secrets_15";
         private const string BetterPackTacticsSecretId = "TB_Bacon_Secrets_15b";
@@ -483,19 +482,18 @@ namespace LearnHearthstone.Domain.Engine
                 round: round,
                 taughtSpellFactory: taughtSpellFactory,
                 venomousEffectRevision: venomousEffectRevision);
-            var attackerSide = context.Player.Board.Count >= context.Opponent.Board.Count ? BoardSide.Player : BoardSide.Opponent;
             var steps = 0;
             context.Replay.InitialSnapshot = CreateBoardPairSnapshot(context);
             AddLog(context.Log, "CombatStarted", "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count, null, null, LogSeverity.Normal);
             RecordFrame(context, CombatEventType.CombatStarted, "seed " + seed + " player " + context.Player.Board.Count + " opponent " + context.Opponent.Board.Count);
 
             var startOfCombatSides = StartOfCombatSides(context, startOfCombatFirstSide).ToList();
-            ResolveHeroStartOfCombatEffects(context, ref steps, safetyLimit);
+            ResolveHeroStartOfCombatEffects(context, startOfCombatSides, ref steps, safetyLimit);
             foreach (var side in startOfCombatSides)
             {
                 ResolveDarkGiftStartOfCombat(context, side);
             }
-            var preCombatImmediateSide = QueueTaggedImmediateAttacks(context);
+            QueueTaggedImmediateAttacks(context);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
             foreach (var side in startOfCombatSides)
             {
@@ -511,39 +509,43 @@ namespace LearnHearthstone.Domain.Engine
             {
                 ApplyStartOfCombatAuras(context, side);
             }
-            if (preCombatImmediateSide.HasValue)
-            {
-                attackerSide = preCombatImmediateSide.Value == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
-            }
+            var attackerSide = DetermineFirstAttacker(context, seed);
+            var consecutivePasses = 0;
+            var stalemate = false;
 
             while (context.Player.Board.Any(IsAlive) && context.Opponent.Board.Any(IsAlive) && steps < safetyLimit)
             {
+                ResolveStealthStateActions(context);
                 var attackers = context.Get(attackerSide);
+                var defenders = context.Get(attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                ResolveNaturalAttackPointer(context, attackers);
                 var attackerIndex = FindNextAttackerIndex(attackers.Board, attackers.AttackIndex);
-                if (attackerIndex < 0)
+                if (attackerIndex < 0 || !HasLegalDefender(defenders.Board))
                 {
-                    break;
+                    consecutivePasses += 1;
+                    if (consecutivePasses >= 2)
+                    {
+                        stalemate = true;
+                        break;
+                    }
+
+                    attackerSide = attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
+                    continue;
                 }
 
+                consecutivePasses = 0;
                 steps += 1;
+                SetNaturalAttackAnchor(attackers, attackerIndex);
                 var attackResult = PerformAttack(context, attackerSide, attackerIndex, steps, false);
                 ResolveExtraAttacks(context, attackResult, ref steps, safetyLimit);
                 ResolveImmediateAttacks(context, ref steps, safetyLimit);
 
-                AdvanceNaturalAttackPointers(context, attackerSide, attackerIndex);
-
                 attackerSide = attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
             }
 
-            var winner = context.Player.Board.Count == context.Opponent.Board.Count
+            var winner = stalemate || context.Player.Board.Count == context.Opponent.Board.Count
                 ? CombatWinner.Draw
                 : context.Player.Board.Count > context.Opponent.Board.Count ? CombatWinner.Player : CombatWinner.Opponent;
-            if (winner == CombatWinner.Opponent && TryTriggerSecret(context.Player.Tavern, IceBlockSecretId))
-            {
-                winner = CombatWinner.Draw;
-                AddLog(context.Log, "SecretTriggered", "Ice Block prevented lethal hero damage", IceBlockSecretId, null, LogSeverity.Good);
-            }
-
             AddLog(context.Log, "CombatEnded", "winner " + winner + " steps " + steps + " safety " + (steps >= safetyLimit), null, null, LogSeverity.Normal);
             context.Replay.Result = winner;
             context.Replay.Steps = steps;
@@ -855,20 +857,24 @@ namespace LearnHearthstone.Domain.Engine
             yield return context.Get(firstSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
         }
 
-        private static void ResolveHeroStartOfCombatEffects(CombatContext context, ref int steps, int safetyLimit)
+        private static void ResolveHeroStartOfCombatEffects(
+            CombatContext context,
+            IReadOnlyList<CombatSideState> orderedSides,
+            ref int steps,
+            int safetyLimit)
         {
-            ResolveTavishDeadeye(context);
-            ResolveBrukanElement(context, context.Player, context.Player.Tavern?.HeroBrukanElement);
-            ResolveBrukanElement(context, context.Opponent, context.Opponent.Tavern?.HeroBrukanElement);
-            PrepareTeronReanimation(context, context.Player);
-            PrepareTeronReanimation(context, context.Opponent);
-            ResolveBattlecruiserStartOfCombat(context, context.Player);
-            ResolveBattlecruiserStartOfCombat(context, context.Opponent);
-            ResolveZergStartOfCombat(context, context.Player);
-            ResolveZergStartOfCombat(context, context.Opponent);
-            ResolveProtossStartOfCombat(context, context.Player);
-            ResolveProtossStartOfCombat(context, context.Opponent);
-            ResolveAllDeaths(context, BoardSide.Opponent);
+            foreach (var owner in orderedSides)
+            {
+                var enemy = context.Get(owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                ResolveTavishDeadeye(context, owner, enemy);
+                ResolveBrukanElement(context, owner, owner.Tavern?.HeroBrukanElement);
+                PrepareTeronReanimation(context, owner);
+                ResolveBattlecruiserStartOfCombat(context, owner);
+                ResolveZergStartOfCombat(context, owner);
+                ResolveProtossStartOfCombat(context, owner);
+            }
+
+            ResolveAllDeaths(context, orderedSides[0].Side);
             ResolveImmediateAttacks(context, ref steps, safetyLimit);
         }
 
@@ -977,12 +983,6 @@ namespace LearnHearthstone.Domain.Engine
             return false;
         }
 
-        private static void ResolveTavishDeadeye(CombatContext context)
-        {
-            ResolveTavishDeadeye(context, context.Player, context.Opponent);
-            ResolveTavishDeadeye(context, context.Opponent, context.Player);
-        }
-
         private static void ResolveTavishDeadeye(CombatContext context, CombatSideState owner, CombatSideState enemy)
         {
             var tavern = owner?.Tavern;
@@ -1006,13 +1006,12 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var damage = GetCombatSpellDamage(owner, 1);
-            var result = DealDamage(target, damage, false);
+            var result = DealDamageAndResolveTriggers(context, owner, TavishPowerId, enemy, target, damage);
             if (result.Minion.Health <= 0)
             {
                 MarkKilledBy(result.Minion, TavishPowerId, owner.Side, TavishPowerId);
             }
 
-            ReplaceByInstanceId(enemy.Board, result.Minion);
             AddLog(context.Log, "HeroStartOfCombat", "Deadeye dealt " + damage + " damage to " + target.InstanceId, TavishPowerId, target.InstanceId, LogSeverity.Good);
         }
 
@@ -1066,13 +1065,12 @@ namespace LearnHearthstone.Domain.Engine
                     }
 
                     var target = new SeededRng(context.Seed + context.AttackSequence * 607 + index * 31 + targets.Count).Pick(targets);
-                    var result = DealDamage(target, GetCombatSpellDamage(owner, 1), false);
+                    var result = DealDamageAndResolveTriggers(context, owner, sourceId, enemy, target, GetCombatSpellDamage(owner, 1));
                     if (result.Minion.Health <= 0)
                     {
                         MarkKilledBy(result.Minion, sourceId, owner.Side, BrukanPowerId);
                     }
 
-                    ReplaceByInstanceId(enemy.Board, result.Minion);
                 }
             }
 
@@ -1116,13 +1114,12 @@ namespace LearnHearthstone.Domain.Engine
                     }
 
                     var damage = Math.Max(1, battlecruiser.Attack);
-                    var result = DealDamage(target, damage, false);
+                    var result = DealDamageAndResolveTriggers(context, owner, battlecruiser.InstanceId, opponent, target, damage);
                     if (!IsAlive(result.Minion))
                     {
                         MarkKilledBy(result.Minion, battlecruiser.InstanceId, owner.Side, battlecruiser.CardId);
                     }
 
-                    ReplaceByInstanceId(opponent.Board, result.Minion);
                     AddLog(context.Log, "HeroStartOfCombat", "Yamato Cannon dealt " + damage + " to " + target.InstanceId, battlecruiser.InstanceId, target.InstanceId, LogSeverity.Good);
                 }
             }
@@ -1636,18 +1633,7 @@ namespace LearnHearthstone.Domain.Engine
                     continue;
                 }
 
-                var result = DealDamage(target, Math.Max(0, source.Attack), false);
-                ReplaceByInstanceId(opponent.Board, result.Minion);
-                ResolveDamageTriggers(
-                    context,
-                    side,
-                    source.InstanceId,
-                    false,
-                    false,
-                    opponent,
-                    target.InstanceId,
-                    result.CombatDamageDealt,
-                    result.DivineShieldBroken);
+                DealDamageAndResolveTriggers(context, side, source.InstanceId, opponent, target, Math.Max(0, source.Attack));
                 AddLog(context.Log, "StartOfCombat", source.InstanceId + " dealt " + source.Attack + " to " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
                 ResolveDeaths(context, opponent.Side);
             }
@@ -1722,23 +1708,12 @@ namespace LearnHearthstone.Domain.Engine
                 var damagedIds = new List<string>();
                 foreach (var target in targets)
                 {
-                    var result = DealDamage(target, amount, false);
-                    ReplaceByInstanceId(opponent.Board, result.Minion);
+                    var result = DealDamageAndResolveTriggers(context, side, source.InstanceId, opponent, target, amount);
                     if (result.CombatDamageDealt || result.DivineShieldBroken)
                     {
                         damagedIds.Add(target.InstanceId);
                     }
 
-                    ResolveDamageTriggers(
-                        context,
-                        side,
-                        source.InstanceId,
-                        false,
-                        false,
-                        opponent,
-                        target.InstanceId,
-                        result.CombatDamageDealt,
-                        result.DivineShieldBroken);
                 }
 
                 if (damagedIds.Count > 0)
@@ -2287,9 +2262,10 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
+            ResolveStealthStateActions(context);
             var attackers = context.Get(attackResult.AttackerSide);
             var attackerIndex = attackers.Board.FindIndex(minion => minion.InstanceId == attackResult.AttackerId);
-            if (attackerIndex < 0)
+            if (attackerIndex < 0 || !CanDeclareAttack(attackers.Board[attackerIndex]) || !HasLegalDefender(context.Get(attackResult.DefenderSide).Board))
             {
                 return;
             }
@@ -2313,10 +2289,12 @@ namespace LearnHearthstone.Domain.Engine
         {
             while (context.ImmediateAttacks.Count > 0 && steps < safetyLimit && context.Player.Board.Any(IsAlive) && context.Opponent.Board.Any(IsAlive))
             {
+                ResolveStealthStateActions(context);
                 var request = context.ImmediateAttacks.Dequeue();
                 var attackers = context.Get(request.Side);
                 var attackerIndex = attackers.Board.FindIndex(minion => minion.InstanceId == request.InstanceId && IsAlive(minion));
-                if (attackerIndex < 0)
+                var defenders = context.Get(request.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
+                if (attackerIndex < 0 || !CanDeclareAttack(attackers.Board[attackerIndex]) || !HasLegalDefender(defenders.Board))
                 {
                     continue;
                 }
@@ -2326,21 +2304,18 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static BoardSide? QueueTaggedImmediateAttacks(CombatContext context)
+        private static void QueueTaggedImmediateAttacks(CombatContext context)
         {
-            BoardSide? lastQueuedSide = null;
-            QueueTaggedImmediateAttacks(context, context.Player, ref lastQueuedSide);
-            QueueTaggedImmediateAttacks(context, context.Opponent, ref lastQueuedSide);
-            return lastQueuedSide;
+            QueueTaggedImmediateAttacks(context, context.Player);
+            QueueTaggedImmediateAttacks(context, context.Opponent);
         }
 
-        private static void QueueTaggedImmediateAttacks(CombatContext context, CombatSideState owner, ref BoardSide? lastQueuedSide)
+        private static void QueueTaggedImmediateAttacks(CombatContext context, CombatSideState owner)
         {
             foreach (var minion in owner.Board.Where(minion => IsAlive(minion) && minion.Tags.Contains(WingmenImmediateAttackPendingTag)).ToList())
             {
                 minion.Tags.Remove(WingmenImmediateAttackPendingTag);
                 context.ImmediateAttacks.Enqueue(new ImmediateAttackRequest(owner.Side, minion.InstanceId));
-                lastQueuedSide = owner.Side;
                 AddLog(context.Log, "ImmediateAttackQueued", minion.InstanceId + " queued by Wingmen", minion.InstanceId, null, LogSeverity.Good);
                 RecordFrame(
                     context,
@@ -2356,6 +2331,7 @@ namespace LearnHearthstone.Domain.Engine
 
         private static AttackResult PerformAttack(CombatContext context, BoardSide attackerSide, int attackerIndex, int step, bool triggeredAttack)
         {
+            ResolveStealthStateActions(context);
             var attackers = context.Get(attackerSide);
             var defenders = context.Get(attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
             if (attackerIndex < 0 || attackerIndex >= attackers.Board.Count || !defenders.Board.Any(IsAlive))
@@ -2364,9 +2340,20 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             var attacker = attackers.Board[attackerIndex];
+            if (!CanDeclareAttack(attacker))
+            {
+                return AttackResult.Empty(attackerSide);
+            }
+
             var defender = ChooseDefender(defenders.Board.Where(IsAlive).ToList(), context.Seed + step + context.AttackSequence);
+            if (defender == null)
+            {
+                return AttackResult.Empty(attackerSide);
+            }
+
+            var attackerId = attacker.InstanceId;
+            var defenderId = defender.InstanceId;
             var defenderIndex = defenders.Board.FindIndex(minion => minion.InstanceId == defender.InstanceId);
-            var defenderHealthBeforeDamage = defender.Health;
             RecordFrame(
                 context,
                 CombatEventType.AttackDeclared,
@@ -2389,6 +2376,36 @@ namespace LearnHearthstone.Domain.Engine
                 0,
                 triggeredAttack);
             ResolveAttackDeclarationTriggers(context, attackers, attacker, defenders, defender, triggeredAttack);
+            attacker.Keywords.Remove(Keyword.Stealth);
+            attacker.AttacksThisCombat += 1;
+            ResolveRally(context, attackers.Side, attackerId, triggeredAttack, defenderId);
+            ResolveSeason14FriendlyAttackObservers(context, attackers, attacker);
+            ResolveAllDeaths(context, attackers.Side);
+
+            attacker = attackers.Board.FirstOrDefault(minion =>
+                minion != null && string.Equals(minion.InstanceId, attackerId, StringComparison.Ordinal) && IsAlive(minion));
+            defender = defenders.Board.FirstOrDefault(minion =>
+                minion != null && string.Equals(minion.InstanceId, defenderId, StringComparison.Ordinal) && IsAlive(minion));
+            if (attacker == null || defender == null)
+            {
+                context.AttackSequence += 1;
+                AddLog(
+                    context.Log,
+                    "AttackCancelled",
+                    attackerId + " attack on " + defenderId + " ended before combat damage",
+                    attackerId,
+                    defenderId,
+                    LogSeverity.Normal);
+                return new AttackResult(
+                    attackerId,
+                    attackers.Side,
+                    defenders.Side,
+                    attacker != null,
+                    attacker != null && attacker.Keywords.Contains(Keyword.Windfury) && !triggeredAttack);
+            }
+
+            defenderIndex = defenders.Board.FindIndex(minion => minion.InstanceId == defenderId);
+            var defenderHealthBeforeDamage = defender.Health;
             var venomousCanTrigger = !context.IsRecruitPhase ||
                 !string.Equals(
                     context.VenomousEffectRevision,
@@ -2413,32 +2430,6 @@ namespace LearnHearthstone.Domain.Engine
                 AddLog(context.Log, "ImmuneWhileAttackingResolved", attacker.InstanceId + " ignored defender damage while attacking", attacker.InstanceId, defender.InstanceId, LogSeverity.Good);
             }
 
-            ResolveCleaveDamage(context, attackers, attacker, defenders, defenderIndex);
-            damagedAttacker.Keywords.Remove(Keyword.Stealth);
-            damagedAttacker.AttacksThisCombat += 1;
-            var damagedIds = new List<string>();
-            if (attackerDamage.CombatDamageDealt || attackerDamage.DivineShieldBroken)
-            {
-                damagedIds.Add(attacker.InstanceId);
-            }
-
-            if (defenderDamage.CombatDamageDealt || defenderDamage.DivineShieldBroken)
-            {
-                damagedIds.Add(defender.InstanceId);
-            }
-
-            if (attackerVenomous && defenderDamage.CombatDamageDealt)
-            {
-                damagedAttacker.Keywords.Remove(Keyword.Venomous);
-                ResolveTrinketVenomousLost(context, attackers, damagedAttacker);
-            }
-
-            if (defenderVenomous && attackerDamage.CombatDamageDealt)
-            {
-                damagedDefender.Keywords.Remove(Keyword.Venomous);
-                ResolveTrinketVenomousLost(context, defenders, damagedDefender);
-            }
-
             if (damagedDefender.Health <= 0)
             {
                 MarkKilledBy(damagedDefender, damagedAttacker.InstanceId, attackers.Side, damagedAttacker.CardId);
@@ -2451,6 +2442,36 @@ namespace LearnHearthstone.Domain.Engine
 
             ReplaceByInstanceId(attackers.Board, damagedAttacker);
             ReplaceByInstanceId(defenders.Board, damagedDefender);
+            var cleaveConsumedVenomous = ResolveCleaveDamage(
+                context,
+                attackers,
+                attacker,
+                defenders,
+                defenderIndex,
+                attackerVenomous && !defenderDamage.CombatDamageDealt);
+            var damagedIds = new List<string>();
+            if (attackerDamage.CombatDamageDealt || attackerDamage.DivineShieldBroken)
+            {
+                damagedIds.Add(attacker.InstanceId);
+            }
+
+            if (defenderDamage.CombatDamageDealt || defenderDamage.DivineShieldBroken)
+            {
+                damagedIds.Add(defender.InstanceId);
+            }
+
+            if (attackerVenomous && (defenderDamage.CombatDamageDealt || cleaveConsumedVenomous))
+            {
+                damagedAttacker.Keywords.Remove(Keyword.Venomous);
+                ResolveTrinketVenomousLost(context, attackers, damagedAttacker);
+            }
+
+            if (defenderVenomous && attackerDamage.CombatDamageDealt)
+            {
+                damagedDefender.Keywords.Remove(Keyword.Venomous);
+                ResolveTrinketVenomousLost(context, defenders, damagedDefender);
+            }
+
             ResolveReckoningSecret(context, defenders, damagedAttacker, defenderDamage.CombatDamageDealt, attacker.Attack);
             ResolveReckoningSecret(context, attackers, damagedDefender, attackerDamage.CombatDamageDealt, defender.Attack);
             ResolveOverkillTriggers(context, attackers, damagedAttacker, defenders, defenderIndex, defenderHealthBeforeDamage, defenderDamage);
@@ -2558,8 +2579,6 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             ResolveAllDeaths(context, attackers.Side);
-            ResolveRally(context, attackers.Side, attacker.InstanceId, triggeredAttack);
-            ResolveSeason14FriendlyAttackObservers(context, attackers, attacker);
 
             var attackerSurvived = attackers.Board.Any(minion => minion.InstanceId == attacker.InstanceId && IsAlive(minion));
             return new AttackResult(
@@ -2578,14 +2597,21 @@ namespace LearnHearthstone.Domain.Engine
         private static void ResolveAllDeaths(CombatContext context, BoardSide firstSide)
         {
             var secondSide = firstSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player;
+            if (context.IsRecruitPhase)
+            {
+                ResolveRecruitPhaseDeaths(context, firstSide);
+                ResolveRecruitPhaseDeaths(context, secondSide);
+                return;
+            }
+
             while (true)
             {
-                var hasDeaths = context.Get(firstSide).Board.Any(minion => minion.Health <= 0) ||
-                                context.Get(secondSide).Board.Any(minion => minion.Health <= 0);
+                var deaths = DetachDeathBatch(context, firstSide, secondSide);
+                var hasDeaths = deaths.Count > 0;
                 if (hasDeaths)
                 {
-                    ResolveDeaths(context, firstSide);
-                    ResolveDeaths(context, secondSide);
+                    ResolveDeaths(context, firstSide, deaths.Where(death => death.Side == firstSide).ToList());
+                    ResolveDeaths(context, secondSide, deaths.Where(death => death.Side == secondSide).ToList());
                 }
 
                 var heroEffectResolved = ResolveDeferredHeroSpaceEffects(context, context.Get(firstSide));
@@ -2597,6 +2623,37 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
+        private static List<PendingCombatDeath> DetachDeathBatch(CombatContext context, BoardSide firstSide, BoardSide secondSide)
+        {
+            var deaths = new List<PendingCombatDeath>();
+            DetachDeathBatch(context.Get(firstSide), deaths);
+            DetachDeathBatch(context.Get(secondSide), deaths);
+            if (deaths.Count > 0)
+            {
+                RefreshDynamicCombatStats(context.Get(firstSide));
+                RefreshDynamicCombatStats(context.Get(secondSide));
+            }
+
+            return deaths;
+        }
+
+        private static void DetachDeathBatch(CombatSideState owner, List<PendingCombatDeath> deaths)
+        {
+            var insertIndex = 0;
+            foreach (var minion in owner.Board.ToList())
+            {
+                if (IsAlive(minion))
+                {
+                    insertIndex += 1;
+                    continue;
+                }
+
+                deaths.Add(new PendingCombatDeath(owner.Side, minion, insertIndex));
+            }
+
+            owner.Board.RemoveAll(minion => !IsAlive(minion));
+        }
+
         private static void ResolveDeaths(CombatContext context, BoardSide side)
         {
             if (context.IsRecruitPhase)
@@ -2605,23 +2662,24 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            var owner = context.Get(side);
-            var index = 0;
-            var newEntityIds = new List<string>();
-            var retargetSourceIds = new List<string>();
-            while (index < owner.Board.Count)
-            {
-                var minion = owner.Board[index];
-                if (minion.Health > 0)
-                {
-                    index += 1;
-                    continue;
-                }
+            ResolveAllDeaths(context, side);
+        }
 
+        private static void ResolveDeaths(CombatContext context, BoardSide side, IReadOnlyList<PendingCombatDeath> deaths)
+        {
+            var owner = context.Get(side);
+            var newEntityIds = new List<string>();
+            var insertedOffset = 0;
+            foreach (var death in deaths
+                .OrderBy(entry => entry.Minion.OrderOfPlay)
+                .ThenBy(entry => entry.InsertIndex))
+            {
+                var minion = death.Minion;
                 QueueFriendlyKillReward(context, owner, minion);
                 TrackDeadMech(owner, minion);
                 TrackSTharaDemonDeath(owner, minion);
-                owner.Board.RemoveAt(index);
+                var deathIndex = Math.Min(death.InsertIndex + insertedOffset, owner.Board.Count);
+                var index = deathIndex;
                 owner.FriendlyDeathsThisCombat = StatMath.SaturatingAdd(owner.FriendlyDeathsThisCombat, 1, 0, StatMath.MaxStat);
                 if (minion.CardId == EternalKnightCardId)
                 {
@@ -2631,8 +2689,8 @@ namespace LearnHearthstone.Domain.Engine
                 RefreshDynamicCombatStats(owner);
                 var inserted = 0;
                 var newEntityCountBeforeDeathEffects = newEntityIds.Count;
-                inserted += ResolveRedemptionSecret(context, owner, minion, index + inserted, newEntityIds);
-                inserted += ResolveDeathSecretTriggers(context, owner, minion, index + inserted, newEntityIds);
+                owner.AvengeCounters.TryGetValue(HandOfSalvationDeathsCounter, out var handOfSalvationDeaths);
+                owner.AvengeCounters[HandOfSalvationDeathsCounter] = handOfSalvationDeaths + 1;
                 AddReward(
                     context.Log,
                     owner,
@@ -2668,11 +2726,12 @@ namespace LearnHearthstone.Domain.Engine
                     AddReward(context.Log, owner, CombatRewardType.EternalKnightDied, minion.CardId, null, 1);
                 }
 
-                ResolveAvenge(context, owner, minion.InstanceId);
-                if (minion.Keywords.Contains(Keyword.Deathrattle))
-                {
-                    inserted += ResolveDeathrattleEffect(context, owner, minion, index + inserted, newEntityIds, true, minion.InstanceId);
-                }
+                inserted += ResolveOrderedAvengeAndDeathrattle(
+                    context,
+                    owner,
+                    minion,
+                    index + inserted,
+                    newEntityIds);
 
                 if (minion.Keywords.Contains(Keyword.Reborn))
                 {
@@ -2709,17 +2768,24 @@ namespace LearnHearthstone.Domain.Engine
                     }
                 }
 
-                if (newEntityIds.Count > newEntityCountBeforeDeathEffects)
-                {
-                    retargetSourceIds.Add(minion.InstanceId);
-                }
+                inserted += ResolveDeathSecretsInAcquisitionOrder(
+                    context,
+                    owner,
+                    minion,
+                    index + inserted,
+                    newEntityIds);
 
-                index += inserted;
+                TrackNaturalAttackSuccessors(
+                    owner,
+                    minion.InstanceId,
+                    deathIndex,
+                    newEntityIds.Skip(newEntityCountBeforeDeathEffects));
+
+                insertedOffset += inserted;
             }
 
             ResolveSoulFermenterResummon(context, owner, newEntityIds);
             ResolveSTharaStickerResummon(context, owner, newEntityIds);
-            RetargetAttackPointerToNewUnits(context, owner, newEntityIds, retargetSourceIds);
         }
 
         private static void ResolveRecruitPhaseDeaths(CombatContext context, BoardSide side)
@@ -2793,24 +2859,50 @@ namespace LearnHearthstone.Domain.Engine
 
         private static MinionInstance CreateRebornInstance(CombatContext context, MinionInstance dead)
         {
-            var reborn = dead.Clone();
-            reborn.InstanceId = dead.InstanceId + "-reborn-" + context.RecruitSummonSequence;
-            context.RecruitSummonSequence += 1;
-            reborn.Health = dead.Tags != null &&
-                (dead.Tags.Contains("battlecruiser_full_health_reborn") || dead.Tags.Contains("dark-gift.dg-r41"))
-                ? Math.Max(1, reborn.MaxHealth)
-                : 1;
-            reborn.MaxHealth = Math.Max(1, reborn.MaxHealth);
-            reborn.AttacksThisCombat = 0;
-            reborn.CanAttack = true;
-            reborn.Keywords?.Remove(Keyword.Reborn);
-            reborn.OfficialKeywords?.Remove(Keyword.Reborn);
-            RemoveKillTags(reborn);
-            reborn.OriginPoolSource = PoolSource.Summon;
-            reborn.CanReturnToPoolAfterAttach = false;
-            reborn.PoolSource = PoolSource.Summon;
-            reborn.PoolCopiesHeld = 0;
-            return reborn;
+            var preserveFullState = dead.Tags != null && dead.Tags.Contains("dark-gift.dg-r41");
+            var fullHealth = preserveFullState ||
+                (dead.Tags != null && dead.Tags.Contains("battlecruiser_full_health_reborn"));
+            return CreateFreshSummonedInstance(
+                context,
+                dead,
+                dead.InstanceId + "-reborn",
+                fullHealth,
+                preserveFullState);
+        }
+
+        private static MinionInstance CreateFreshSummonedInstance(
+            CombatContext context,
+            MinionInstance source,
+            string instancePrefix,
+            bool fullHealth,
+            bool preserveFullState = false)
+        {
+            var copy = source.Clone();
+            copy.InstanceId = NextCombatEntityId(context, instancePrefix);
+            if (!preserveFullState)
+            {
+                copy.Attack = Math.Max(0, source.BaseAttack);
+                copy.MaxHealth = Math.Max(1, source.BaseHealth);
+                copy.Enchantments = new List<Enchantment>();
+                copy.Counters = new Dictionary<string, int>();
+                var printedKeywords = source.OfficialKeywords != null && source.OfficialKeywords.Count > 0
+                    ? source.OfficialKeywords
+                    : source.Keywords;
+                copy.Keywords = printedKeywords == null
+                    ? new List<Keyword>()
+                    : printedKeywords.Distinct().ToList();
+            }
+
+            copy.Health = fullHealth ? Math.Max(1, copy.MaxHealth) : 1;
+            copy.AttacksThisCombat = 0;
+            copy.CanAttack = true;
+            copy.Keywords?.Remove(Keyword.Reborn);
+            RemoveKillTags(copy);
+            copy.OriginPoolSource = PoolSource.Summon;
+            copy.CanReturnToPoolAfterAttach = false;
+            copy.PoolSource = PoolSource.Summon;
+            copy.PoolCopiesHeld = 0;
+            return copy;
         }
 
         private static void ResolveTimewarpedJellyBellyReborn(CombatContext context, CombatSideState owner, MinionInstance reborn)
@@ -3537,13 +3629,12 @@ namespace LearnHearthstone.Domain.Engine
 
             var target = new SeededRng(context.Seed + context.AttackSequence * 811 + targets.Count).Pick(targets);
             var damage = Math.Max(1, source.Attack);
-            var result = DealDamage(target, damage, false);
+            var result = DealDamageAndResolveTriggers(context, owner, source.InstanceId, enemy, target, damage);
             if (!IsAlive(result.Minion))
             {
                 MarkKilledBy(result.Minion, source.InstanceId, owner.Side, source.CardId);
             }
 
-            ReplaceByInstanceId(enemy.Board, result.Minion);
             AddLog(context.Log, "DeathrattleResolved", "Baneling dealt " + damage + " to " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
         }
 
@@ -4475,8 +4566,7 @@ namespace LearnHearthstone.Domain.Engine
             var amount = minion.Golden ? 16 : 8;
             var rng = new SeededRng(context.Seed + context.AttackSequence * 997 + context.Replay.Frames.Count * 37 + candidates.Count);
             var target = rng.Pick(candidates);
-            var result = DealDamage(target, amount, false);
-            ReplaceByInstanceId(enemy.Board, result.Minion);
+            var result = DealDamageAndResolveTriggers(context, owner, minion.InstanceId, enemy, target, amount);
             if (result.Minion.Health <= 0)
             {
                 MarkKilledBy(result.Minion, minion.InstanceId, owner.Side, minion.CardId);
@@ -4721,92 +4811,100 @@ namespace LearnHearthstone.Domain.Engine
             AddLog(context.Log, "TrinketDeathrattleTriggered", "Fish of N'Zoth copied " + source.InstanceId + " deathrattle", fish.InstanceId, source.InstanceId, LogSeverity.Good);
         }
 
-        private static int ResolveRedemptionSecret(CombatContext context, CombatSideState owner, MinionInstance dead, int insertIndex, List<string> newEntityIds)
+        private static int ResolveDeathSecretsInAcquisitionOrder(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance dead,
+            int insertIndex,
+            List<string> newEntityIds)
         {
-            if (dead == null || owner.Board.Count >= BoardLimit)
-            {
-                return 0;
-            }
-
-            var better = TryTriggerSecret(owner.Tavern, BetterRedemptionSecretId);
-            var normal = better ? false : TryTriggerSecret(owner.Tavern, RedemptionSecretId);
-            if (!better && !normal)
-            {
-                return 0;
-            }
-
-            var copy = dead.Clone();
-            copy.InstanceId = (better ? "better-redemption-" : "redemption-") + dead.InstanceId + "-" + context.Replay.Frames.Count;
-            copy.Owner = owner.Side;
-            copy.Health = better ? Math.Max(1, copy.MaxHealth) : 1;
-            copy.PoolSource = PoolSource.Summon;
-            copy.OriginPoolSource = PoolSource.Summon;
-            copy.PoolCopiesHeld = 0;
-            copy.CanAttack = true;
-            ApplySummonAuras(owner, copy);
-            owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
-            ResolveFriendlySummonTriggers(context, owner, copy, dead);
-            newEntityIds?.Add(copy.InstanceId);
-            AddLog(
-                context.Log,
-                "SecretTriggered",
-                (better ? "Better Redemption" : "Redemption") + " revived " + dead.InstanceId,
-                better ? BetterRedemptionSecretId : RedemptionSecretId,
-                copy.InstanceId,
-                LogSeverity.Good);
-            RecordFrame(
-                context,
-                CombatEventType.MinionSummoned,
-                (better ? "Better Redemption" : "Redemption") + " revived " + dead.InstanceId,
-                owner.Side,
-                better ? BetterRedemptionSecretId : RedemptionSecretId,
-                owner.Side,
-                copy.InstanceId,
-                new[] { dead.InstanceId, copy.InstanceId },
-                null,
-                null,
-                new[] { copy.InstanceId },
-                new[] { better ? BetterRedemptionSecretId : RedemptionSecretId });
-            return 1;
-        }
-
-        private static int ResolveDeathSecretTriggers(CombatContext context, CombatSideState owner, MinionInstance dead, int insertIndex, List<string> newEntityIds)
-        {
-            if (owner == null || dead == null)
+            if (owner?.Tavern?.Secrets == null || dead == null)
             {
                 return 0;
             }
 
             var inserted = 0;
-            if (TryTriggerSecret(owner.Tavern, EffigySecretId))
+            foreach (var secret in owner.Tavern.Secrets
+                .Where(secret => secret != null && !secret.Triggered)
+                .ToList())
             {
-                inserted += ResolveEffigySecret(context, owner, dead, insertIndex + inserted, newEntityIds);
-            }
-
-            if (TryTriggerSecret(owner.Tavern, AvengeSecretId))
-            {
-                var targets = owner.Board.Where(IsAlive).ToList();
-                if (targets.Count > 0)
+                if (string.Equals(secret.SecretCardId, BetterRedemptionSecretId, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(secret.SecretCardId, RedemptionSecretId, StringComparison.OrdinalIgnoreCase))
                 {
+                    if (owner.Board.Count >= BoardLimit || !ConsumeSecret(owner.Tavern, secret))
+                    {
+                        continue;
+                    }
+
+                    var better = string.Equals(secret.SecretCardId, BetterRedemptionSecretId, StringComparison.OrdinalIgnoreCase);
+                    inserted += ReviveSecretMinion(
+                        context,
+                        owner,
+                        dead,
+                        insertIndex + inserted,
+                        newEntityIds,
+                        secret.SecretCardId,
+                        better ? "Better Redemption" : "Redemption",
+                        better);
+                    continue;
+                }
+
+                if (string.Equals(secret.SecretCardId, EffigySecretId, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!CanResolveEffigySecret(owner, dead) || !ConsumeSecret(owner.Tavern, secret))
+                    {
+                        continue;
+                    }
+
+                    inserted += ResolveEffigySecret(context, owner, dead, insertIndex + inserted, newEntityIds);
+                    continue;
+                }
+
+                if (string.Equals(secret.SecretCardId, AvengeSecretId, StringComparison.OrdinalIgnoreCase))
+                {
+                    var targets = owner.Board.Where(IsAlive).ToList();
+                    if (targets.Count == 0 || !ConsumeSecret(owner.Tavern, secret))
+                    {
+                        continue;
+                    }
+
                     var target = new SeededRng(context.Seed + context.Replay.Frames.Count * 313 + targets.Count).Pick(targets);
                     BuffMinion(target, 3, 2, "Avenge Secret");
                     AddLog(context.Log, "SecretTriggered", "Avenge gave +3/+2 to " + target.InstanceId, AvengeSecretId, target.InstanceId, LogSeverity.Good);
+                    continue;
                 }
-                else
-                {
-                    AddLog(context.Log, "SecretTriggered", "Avenge had no friendly minion to buff", AvengeSecretId, dead.InstanceId, LogSeverity.Warning);
-                }
-            }
 
-            owner.AvengeCounters.TryGetValue(HandOfSalvationDeathsCounter, out var deaths);
-            deaths += 1;
-            owner.AvengeCounters[HandOfSalvationDeathsCounter] = deaths;
-            if (deaths >= 2 && TryTriggerSecret(owner.Tavern, HandOfSalvationSecretId))
-            {
-                inserted += ReviveSecretMinion(context, owner, dead, insertIndex + inserted, newEntityIds, HandOfSalvationSecretId, "Hand of Salvation", false);
+                if (!string.Equals(secret.SecretCardId, HandOfSalvationSecretId, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                owner.AvengeCounters.TryGetValue(HandOfSalvationDeathsCounter, out var deaths);
+                if (deaths < 2 || owner.Board.Count >= BoardLimit || !ConsumeSecret(owner.Tavern, secret))
+                {
+                    continue;
+                }
+
+                inserted += ReviveSecretMinion(
+                    context,
+                    owner,
+                    dead,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    secret.SecretCardId,
+                    "Hand of Salvation",
+                    false);
             }
 
             return inserted;
+        }
+
+        private static bool CanResolveEffigySecret(CombatSideState owner, MinionInstance dead)
+        {
+            return owner != null &&
+                   dead != null &&
+                   owner.Board.Count < BoardLimit &&
+                   owner.CombatSummonPool.Any(card => card != null && card.CardKind == CardKind.Minion);
         }
 
         private static int ResolveEffigySecret(CombatContext context, CombatSideState owner, MinionInstance dead, int insertIndex, List<string> newEntityIds)
@@ -4884,16 +4982,12 @@ namespace LearnHearthstone.Domain.Engine
                 return 0;
             }
 
-            var copy = dead.Clone();
-            copy.InstanceId = secretName.ToLowerInvariant().Replace(" ", "-") + "-" + dead.InstanceId + "-" + context.Replay.Frames.Count;
+            var copy = CreateFreshSummonedInstance(
+                context,
+                dead,
+                secretName.ToLowerInvariant().Replace(" ", "-") + "-" + dead.InstanceId,
+                fullHealth);
             copy.Owner = owner.Side;
-            copy.Health = fullHealth ? Math.Max(1, copy.MaxHealth) : 1;
-            copy.PoolSource = PoolSource.Summon;
-            copy.OriginPoolSource = PoolSource.Summon;
-            copy.PoolCopiesHeld = 0;
-            copy.CanAttack = true;
-            copy.AttacksThisCombat = 0;
-            RemoveKillTags(copy);
             ApplySummonAuras(owner, copy);
             owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
             ResolveFriendlySummonTriggers(context, owner, copy, dead);
@@ -4941,6 +5035,24 @@ namespace LearnHearthstone.Domain.Engine
             }
 
             tavern.Secrets[index].Triggered = true;
+            tavern.Secrets.RemoveAt(index);
+            return true;
+        }
+
+        private static bool ConsumeSecret(TavernState tavern, SecretState secret)
+        {
+            if (tavern?.Secrets == null || secret == null || secret.Triggered)
+            {
+                return false;
+            }
+
+            var index = tavern.Secrets.IndexOf(secret);
+            if (index < 0)
+            {
+                return false;
+            }
+
+            secret.Triggered = true;
             tavern.Secrets.RemoveAt(index);
             return true;
         }
@@ -5232,6 +5344,7 @@ namespace LearnHearthstone.Domain.Engine
         private static void DealAreaDamage(CombatContext context, CombatSideState owner, MinionInstance source, int amount, Func<MinionInstance, bool> canDamage)
         {
             var damagedIds = new List<string>();
+            var observations = new List<(CombatSideState Owner, string TargetId, DamageResult Result)>();
             foreach (var side in new[] { context.Player, context.Opponent })
             {
                 foreach (var target in side.Board.Where(minion => IsAlive(minion) && canDamage(minion)).ToList())
@@ -5242,7 +5355,23 @@ namespace LearnHearthstone.Domain.Engine
                     {
                         damagedIds.Add(target.InstanceId);
                     }
+
+                    observations.Add((side, target.InstanceId, result));
                 }
+            }
+
+            foreach (var observation in observations)
+            {
+                ResolveDamageTriggers(
+                    context,
+                    owner,
+                    source.InstanceId,
+                    false,
+                    false,
+                    observation.Owner,
+                    observation.TargetId,
+                    observation.Result.CombatDamageDealt,
+                    observation.Result.DivineShieldBroken);
             }
 
             if (damagedIds.Count == 0)
@@ -6160,7 +6289,12 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void ResolveRally(CombatContext context, BoardSide side, string attackerId, bool triggeredAttack)
+        private static void ResolveRally(
+            CombatContext context,
+            BoardSide side,
+            string attackerId,
+            bool triggeredAttack,
+            string defenderId = null)
         {
             var owner = context.Get(side);
             var attackerIndex = owner.Board.FindIndex(minion => minion.InstanceId == attackerId && IsAlive(minion));
@@ -6335,7 +6469,7 @@ namespace LearnHearthstone.Domain.Engine
 
                 ResolveSeason14ReturnedQuilboarRally(context, owner, attacker);
 
-                ResolveHighTierRally(context, owner, attacker, attackerIndex);
+                ResolveHighTierRally(context, owner, attacker, attackerIndex, defenderId);
                 ResolveBattlecruiserBallisticsRally(context, owner, attacker);
                 ResolveZergRally(context, owner, attacker);
                 ResolveProtossRally(context, owner, attacker, attackerIndex);
@@ -6812,13 +6946,12 @@ namespace LearnHearthstone.Domain.Engine
 
             var target = new SeededRng(context.Seed + context.AttackSequence * 919 + attackerIndex).Pick(targets);
             var damage = Math.Max(1, attacker.Cost + 1);
-            var result = DealDamage(target, damage, false);
+            var result = DealDamageAndResolveTriggers(context, owner, attacker.InstanceId, enemy, target, damage);
             if (!IsAlive(result.Minion))
             {
                 MarkKilledBy(result.Minion, attacker.InstanceId, owner.Side, attacker.CardId);
             }
 
-            ReplaceByInstanceId(enemy.Board, result.Minion);
             AddLog(context.Log, "RallyResolved", "Colossus dealt " + damage + " splash damage to " + target.InstanceId, attacker.InstanceId, target.InstanceId, LogSeverity.Good);
         }
 
@@ -6884,6 +7017,19 @@ namespace LearnHearthstone.Domain.Engine
                 copy.PoolSource = PoolSource.Summon;
                 copy.PoolCopiesHeld = 0;
                 copy.CanAttack = true;
+                if (context.IsRecruitPhase && owner.Tavern != null)
+                {
+                    owner.Tavern.NextCombatMinionSummons = owner.Tavern.NextCombatMinionSummons ?? new List<PendingCombatMinionSummon>();
+                    copy.InstanceId += "-" + owner.Tavern.NextCombatMinionSummons.Count;
+                    owner.Tavern.NextCombatMinionSummons.Add(new PendingCombatMinionSummon
+                    {
+                        SourceInstanceId = attacker.InstanceId,
+                        Minion = copy
+                    });
+                    AddLog(context.Log, "RallyResolved", attacker.InstanceId + " queued " + copy.InstanceId + " for combat", attacker.InstanceId, copy.InstanceId, LogSeverity.Good);
+                    continue;
+                }
+
                 ApplySummonAuras(owner, copy);
                 owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
                 ResolveFriendlySummonTriggers(context, owner, copy, attacker);
@@ -7290,72 +7436,109 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void ResolveSecretAttackDeclarationTriggers(CombatContext context, CombatSideState defenderOwner, MinionInstance defender)
         {
-            if (defenderOwner == null || defender == null)
+            if (defenderOwner?.Tavern?.Secrets == null || defender == null)
             {
                 return;
             }
 
-            if (TryTriggerSecret(defenderOwner.Tavern, SnakeTrapSecretId))
+            foreach (var secret in defenderOwner.Tavern.Secrets.Where(item => item != null && !item.Triggered).ToList())
             {
-                for (var index = 0; index < 3; index += 1)
+                var secretId = secret.SecretCardId;
+                if (string.Equals(secretId, SnakeTrapSecretId, StringComparison.OrdinalIgnoreCase))
                 {
-                    AddToken(context, defenderOwner, defender, defenderOwner.Board.Count, "bacon-secret-snake", "Snake", 1, 1, Tribe.Beast);
+                    if (defenderOwner.Board.Count >= BoardLimit || !ConsumeSecret(defenderOwner.Tavern, secret))
+                    {
+                        continue;
+                    }
+
+                    for (var index = 0; index < 3 && defenderOwner.Board.Count < BoardLimit; index += 1)
+                    {
+                        AddToken(context, defenderOwner, defender, defenderOwner.Board.Count, "bacon-secret-snake", "Snake", 1, 1, Tribe.Beast);
+                    }
+
+                    AddLog(context.Log, "SecretTriggered", "Snake Trap summoned Snakes", SnakeTrapSecretId, defender.InstanceId, LogSeverity.Good);
+                    continue;
                 }
 
-                AddLog(context.Log, "SecretTriggered", "Snake Trap summoned three Snakes", SnakeTrapSecretId, defender.InstanceId, LogSeverity.Good);
-            }
-
-            var betterVenomstrike = TryTriggerSecret(defenderOwner.Tavern, BetterVenomstrikeTrapSecretId);
-            var normalVenomstrike = betterVenomstrike ? false : TryTriggerSecret(defenderOwner.Tavern, VenomstrikeTrapSecretId);
-            if (betterVenomstrike || normalVenomstrike)
-            {
-                var cobra = AddToken(context, defenderOwner, defender, defenderOwner.Board.Count, "bacon-secret-cobra", "Cobra", 2, 3, Tribe.Beast, Keyword.Poisonous);
-                if (cobra != null && betterVenomstrike)
+                var betterVenomstrike = string.Equals(secretId, BetterVenomstrikeTrapSecretId, StringComparison.OrdinalIgnoreCase);
+                var normalVenomstrike = string.Equals(secretId, VenomstrikeTrapSecretId, StringComparison.OrdinalIgnoreCase);
+                if (betterVenomstrike || normalVenomstrike)
                 {
-                    AddKeyword(cobra, Keyword.Reborn);
+                    if (defenderOwner.Board.Count >= BoardLimit || !ConsumeSecret(defenderOwner.Tavern, secret))
+                    {
+                        continue;
+                    }
+
+                    var cobra = AddToken(context, defenderOwner, defender, defenderOwner.Board.Count, "bacon-secret-cobra", "Cobra", 2, 3, Tribe.Beast, Keyword.Poisonous);
+                    if (cobra != null && betterVenomstrike)
+                    {
+                        AddKeyword(cobra, Keyword.Reborn);
+                    }
+
+                    AddLog(
+                        context.Log,
+                        "SecretTriggered",
+                        (betterVenomstrike ? "Better Venomstrike Trap" : "Venomstrike Trap") + " summoned a Cobra",
+                        secretId,
+                        cobra?.InstanceId ?? defender.InstanceId,
+                        LogSeverity.Good);
+                    continue;
                 }
 
-                AddLog(
-                    context.Log,
-                    "SecretTriggered",
-                    (betterVenomstrike ? "Better Venomstrike Trap" : "Venomstrike Trap") + " summoned a Cobra",
-                    betterVenomstrike ? BetterVenomstrikeTrapSecretId : VenomstrikeTrapSecretId,
-                    cobra?.InstanceId ?? defender.InstanceId,
-                    LogSeverity.Good);
-            }
+                if (string.Equals(secretId, SplittingImageSecretId, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (defenderOwner.Board.Count >= BoardLimit || !ConsumeSecret(defenderOwner.Tavern, secret))
+                    {
+                        continue;
+                    }
 
-            if (TryTriggerSecret(defenderOwner.Tavern, SplittingImageSecretId))
-            {
-                var copy = SummonCombatCopy(context, defenderOwner, defender, defenderOwner.Board.Count, SplittingImageSecretId, "splitting-image", null, null);
-                AddLog(context.Log, "SecretTriggered", "Splitting Image copied " + defender.InstanceId, SplittingImageSecretId, copy?.InstanceId ?? defender.InstanceId, LogSeverity.Good);
-            }
+                    var copy = SummonCombatCopy(context, defenderOwner, defender, defenderOwner.Board.Count, secretId, "splitting-image", null, null);
+                    AddLog(context.Log, "SecretTriggered", "Splitting Image copied " + defender.InstanceId, secretId, copy?.InstanceId ?? defender.InstanceId, LogSeverity.Good);
+                    continue;
+                }
 
-            var betterPackTactics = TryTriggerSecret(defenderOwner.Tavern, BetterPackTacticsSecretId);
-            var normalPackTactics = betterPackTactics ? false : TryTriggerSecret(defenderOwner.Tavern, PackTacticsSecretId);
-            if (betterPackTactics || normalPackTactics)
-            {
-                var copy = SummonCombatCopy(
-                    context,
-                    defenderOwner,
-                    defender,
-                    defenderOwner.Board.Count,
-                    betterPackTactics ? BetterPackTacticsSecretId : PackTacticsSecretId,
-                    betterPackTactics ? "better-pack-tactics" : "pack-tactics",
-                    normalPackTactics ? 3 : (int?)null,
-                    normalPackTactics ? 3 : (int?)null);
-                AddLog(
-                    context.Log,
-                    "SecretTriggered",
-                    (betterPackTactics ? "Better Pack Tactics" : "Pack Tactics") + " copied " + defender.InstanceId,
-                    betterPackTactics ? BetterPackTacticsSecretId : PackTacticsSecretId,
-                    copy?.InstanceId ?? defender.InstanceId,
-                    LogSeverity.Good);
-            }
+                var betterPackTactics = string.Equals(secretId, BetterPackTacticsSecretId, StringComparison.OrdinalIgnoreCase);
+                var normalPackTactics = string.Equals(secretId, PackTacticsSecretId, StringComparison.OrdinalIgnoreCase);
+                if (betterPackTactics || normalPackTactics)
+                {
+                    if (defenderOwner.Board.Count >= BoardLimit || !ConsumeSecret(defenderOwner.Tavern, secret))
+                    {
+                        continue;
+                    }
 
-            var betterAutodefense = TryTriggerSecret(defenderOwner.Tavern, BetterAutodefenseMatrixSecretId);
-            var normalAutodefense = betterAutodefense ? false : TryTriggerSecret(defenderOwner.Tavern, AutodefenseMatrixSecretId);
-            if (betterAutodefense || normalAutodefense)
-            {
+                    var copy = SummonCombatCopy(
+                        context,
+                        defenderOwner,
+                        defender,
+                        defenderOwner.Board.Count,
+                        secretId,
+                        betterPackTactics ? "better-pack-tactics" : "pack-tactics",
+                        normalPackTactics ? 3 : (int?)null,
+                        normalPackTactics ? 3 : (int?)null);
+                    AddLog(
+                        context.Log,
+                        "SecretTriggered",
+                        (betterPackTactics ? "Better Pack Tactics" : "Pack Tactics") + " copied " + defender.InstanceId,
+                        secretId,
+                        copy?.InstanceId ?? defender.InstanceId,
+                        LogSeverity.Good);
+                    continue;
+                }
+
+                var betterAutodefense = string.Equals(secretId, BetterAutodefenseMatrixSecretId, StringComparison.OrdinalIgnoreCase);
+                var normalAutodefense = string.Equals(secretId, AutodefenseMatrixSecretId, StringComparison.OrdinalIgnoreCase);
+                if (!betterAutodefense && !normalAutodefense)
+                {
+                    continue;
+                }
+
+                var alreadyProtected = defender.Keywords.Contains(Keyword.DivineShield) &&
+                    (!betterAutodefense || defender.Keywords.Contains(Keyword.Reborn));
+                if (alreadyProtected || !ConsumeSecret(defenderOwner.Tavern, secret))
+                {
+                    continue;
+                }
+
                 AddKeyword(defender, Keyword.DivineShield);
                 if (betterAutodefense)
                 {
@@ -7366,7 +7549,7 @@ namespace LearnHearthstone.Domain.Engine
                     context.Log,
                     "SecretTriggered",
                     (betterAutodefense ? "Better Autodefense Matrix" : "Autodefense Matrix") + " protected " + defender.InstanceId,
-                    betterAutodefense ? BetterAutodefenseMatrixSecretId : AutodefenseMatrixSecretId,
+                    secretId,
                     defender.InstanceId,
                     LogSeverity.Good);
             }
@@ -7471,26 +7654,26 @@ namespace LearnHearthstone.Domain.Engine
             bool defenderTookDamage,
             bool defenderShieldBroken)
         {
-            ResolveTrinketDivineShieldLostTriggers(context, attackerOwner, attackerId, attackerShieldBroken);
             ResolveTrinketDivineShieldLostTriggers(context, defenderOwner, defenderId, defenderShieldBroken);
-            ResolveToughOrcaDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage, attackerShieldBroken);
+            ResolveTrinketDivineShieldLostTriggers(context, attackerOwner, attackerId, attackerShieldBroken);
             ResolveToughOrcaDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage, defenderShieldBroken);
-            ResolveTrigoreDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveToughOrcaDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage, attackerShieldBroken);
             ResolveTrigoreDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
-            ResolveSkyfinDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveTrigoreDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveSkyfinDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
-            ResolveDevoutSatyressDamageTrigger(context, attackerOwner, attackerId, defenderTookDamage || defenderShieldBroken);
+            ResolveSkyfinDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveDevoutSatyressDamageTrigger(context, defenderOwner, defenderId, attackerTookDamage || attackerShieldBroken);
-            ResolveRuinsLordDamageTrigger(context, attackerOwner, attackerId, defenderTookDamage || defenderShieldBroken);
+            ResolveDevoutSatyressDamageTrigger(context, attackerOwner, attackerId, defenderTookDamage || defenderShieldBroken);
             ResolveRuinsLordDamageTrigger(context, defenderOwner, defenderId, attackerTookDamage || attackerShieldBroken);
-            ResolveTigerCarvingDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveRuinsLordDamageTrigger(context, attackerOwner, attackerId, defenderTookDamage || defenderShieldBroken);
             ResolveTigerCarvingDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
-            ResolveWyvernDamageRefreshTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveTigerCarvingDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveWyvernDamageRefreshTrigger(context, defenderOwner, defenderId, defenderTookDamage);
-            ResolveSilkyShimmermothDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveWyvernDamageRefreshTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveSilkyShimmermothDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
-            ResolveTimewarpedDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
+            ResolveSilkyShimmermothDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
             ResolveTimewarpedDamageTrigger(context, defenderOwner, defenderId, defenderTookDamage);
+            ResolveTimewarpedDamageTrigger(context, attackerOwner, attackerId, attackerTookDamage);
         }
 
         private static void ResolveReckoningSecret(CombatContext context, CombatSideState secretOwner, MinionInstance enemySource, bool dealtDamage, int damageAmount)
@@ -7850,33 +8033,23 @@ namespace LearnHearthstone.Domain.Engine
                 targets.Add(defenderOwner.Board[defenderIndex + 1]);
             }
 
+            if (!attacker.Golden && targets.Count > 1)
+            {
+                targets = new List<MinionInstance>
+                {
+                    new SeededRng(context.Seed + context.AttackSequence * 613 + defenderIndex).Pick(targets)
+                };
+            }
+
             var damagedIds = new List<string>();
             foreach (var target in targets.Where(IsAlive))
             {
-                var result = DealDamage(target, StatMath.SaturatingMultiply(excess, attacker.Golden ? 2 : 1, 0, StatMath.MaxStat), false);
-                ReplaceByInstanceId(defenderOwner.Board, result.Minion);
+                var result = DealDamageAndResolveTriggers(context, attackerOwner, attacker.InstanceId, defenderOwner, target, excess);
                 if (result.CombatDamageDealt || result.DivineShieldBroken)
                 {
                     damagedIds.Add(target.InstanceId);
                 }
 
-                if (attacker.CardId == TimewarpedCollectorCardId)
-                {
-                    ResolveDamageTriggers(
-                        context,
-                        attackerOwner,
-                        attacker.InstanceId,
-                        false,
-                        false,
-                        defenderOwner,
-                        target.InstanceId,
-                        result.CombatDamageDealt,
-                        result.DivineShieldBroken);
-                }
-                else
-                {
-                    ResolveWyvernDamageRefreshTrigger(context, defenderOwner, target.InstanceId, result.CombatDamageDealt);
-                }
             }
 
             if (damagedIds.Count == 0)
@@ -7906,17 +8079,25 @@ namespace LearnHearthstone.Domain.Engine
                 damagedIds.Count);
         }
 
-        private static void ResolveCleaveDamage(CombatContext context, CombatSideState attackerOwner, MinionInstance attacker, CombatSideState defenderOwner, int defenderIndex)
+        private static bool ResolveCleaveDamage(
+            CombatContext context,
+            CombatSideState attackerOwner,
+            MinionInstance attacker,
+            CombatSideState defenderOwner,
+            int defenderIndex,
+            bool venomousAvailable)
         {
             if ((attacker.CardId != BladeCollectorCardId &&
                     attacker.CardId != TimewarpedCollectorCardId &&
                     attacker.CardId != TimewarpedUltraliskCardId) ||
                 attacker.Attack <= 0)
             {
-                return;
+                return false;
             }
 
             var damagedIds = new List<string>();
+            var venomousConsumed = false;
+            var poisonous = attacker.Keywords.Contains(Keyword.Poisonous);
             foreach (var index in new[] { defenderIndex - 1, defenderIndex + 1 })
             {
                 if (index < 0 || index >= defenderOwner.Board.Count)
@@ -7930,19 +8111,29 @@ namespace LearnHearthstone.Domain.Engine
                     continue;
                 }
 
-                var result = DealDamage(target, attacker.Attack, attacker.Keywords.Contains(Keyword.Poisonous) || attacker.Keywords.Contains(Keyword.Venomous));
-                ReplaceByInstanceId(defenderOwner.Board, result.Minion);
+                var result = DealDamageAndResolveTriggers(
+                    context,
+                    attackerOwner,
+                    attacker.InstanceId,
+                    defenderOwner,
+                    target,
+                    attacker.Attack,
+                    poisonous || venomousAvailable);
                 if (result.CombatDamageDealt || result.DivineShieldBroken)
                 {
                     damagedIds.Add(target.InstanceId);
                 }
 
-                ResolveWyvernDamageRefreshTrigger(context, defenderOwner, target.InstanceId, result.CombatDamageDealt);
+                if (venomousAvailable && result.CombatDamageDealt)
+                {
+                    venomousAvailable = false;
+                    venomousConsumed = true;
+                }
             }
 
             if (damagedIds.Count == 0)
             {
-                return;
+                return venomousConsumed;
             }
 
             AddLog(context.Log, "DamageTriggered", attacker.InstanceId + " cleaved adjacent targets", attacker.InstanceId, null, LogSeverity.Good);
@@ -7965,6 +8156,7 @@ namespace LearnHearthstone.Domain.Engine
                 0,
                 0,
                 damagedIds.Count);
+            return venomousConsumed;
         }
 
         private static void TriggerLeftmostOtherDeathrattle(CombatContext context, CombatSideState owner, MinionInstance attacker)
@@ -8014,7 +8206,12 @@ namespace LearnHearthstone.Domain.Engine
                 new[] { attacker.InstanceId });
         }
 
-        private static void ResolveHighTierRally(CombatContext context, CombatSideState owner, MinionInstance attacker, int attackerIndex)
+        private static void ResolveHighTierRally(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance attacker,
+            int attackerIndex,
+            string defenderId)
         {
             switch (attacker.CardId)
             {
@@ -8044,7 +8241,7 @@ namespace LearnHearthstone.Domain.Engine
 
                     break;
                 case ObsidianRavagerDragonCardId:
-                    DamageRallyTargetAndNeighbor(context, owner, attacker, attackerIndex);
+                    DamageRallyTargetAndNeighbor(context, owner, attacker, defenderId);
                     break;
                 case RingingNagaCardId:
                     BuffMinion(attacker, attacker.Golden ? 4 : 2, attacker.Golden ? 4 : 2, "Shiny Ring");
@@ -8071,10 +8268,19 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void DamageRallyTargetAndNeighbor(CombatContext context, CombatSideState owner, MinionInstance attacker, int attackerIndex)
+        private static void DamageRallyTargetAndNeighbor(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance attacker,
+            string defenderId)
         {
             var defenderOwner = context.Get(owner.Side == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
-            var targetIndex = defenderOwner.Board.FindIndex(IsAlive);
+            var targetIndex = string.IsNullOrEmpty(defenderId)
+                ? defenderOwner.Board.FindIndex(IsAlive)
+                : defenderOwner.Board.FindIndex(minion =>
+                    minion != null &&
+                    string.Equals(minion.InstanceId, defenderId, StringComparison.Ordinal) &&
+                    IsAlive(minion));
             if (targetIndex < 0)
             {
                 return;
@@ -8097,8 +8303,7 @@ namespace LearnHearthstone.Domain.Engine
                     continue;
                 }
 
-                var result = DealDamage(target, attacker.Attack, false);
-                ReplaceByInstanceId(defenderOwner.Board, result.Minion);
+                var result = DealDamageAndResolveTriggers(context, owner, attacker.InstanceId, defenderOwner, target, attacker.Attack);
                 if (result.CombatDamageDealt || result.DivineShieldBroken)
                 {
                     damagedIds.Add(target.InstanceId);
@@ -8276,15 +8481,70 @@ namespace LearnHearthstone.Domain.Engine
             }
         }
 
-        private static void ResolveAvenge(CombatContext context, CombatSideState owner, string deadId)
+        private static int ResolveOrderedAvengeAndDeathrattle(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance dead,
+            int insertIndex,
+            List<string> newEntityIds)
         {
-            if (owner.Tavern != null)
+            ResolveAvenge(context, owner, dead.InstanceId, true, null);
+            var sources = owner.Board
+                .Where(minion =>
+                    IsAlive(minion) &&
+                    (minion.Keywords.Contains(Keyword.Avenge) || minion.EffectIds.Contains("avenge_2_buff_self_2_2")))
+                .OrderBy(minion => minion.OrderOfPlay)
+                .ThenBy(minion => owner.Board.IndexOf(minion))
+                .ToList();
+            var inserted = 0;
+            var deathrattlePending = dead.Keywords.Contains(Keyword.Deathrattle);
+            foreach (var source in sources)
+            {
+                if (deathrattlePending && dead.OrderOfPlay < source.OrderOfPlay)
+                {
+                    inserted += ResolveDeathrattleEffect(
+                        context,
+                        owner,
+                        dead,
+                        insertIndex + inserted,
+                        newEntityIds,
+                        true,
+                        dead.InstanceId);
+                    deathrattlePending = false;
+                }
+
+                ResolveAvenge(context, owner, dead.InstanceId, false, source);
+            }
+
+            if (deathrattlePending)
+            {
+                inserted += ResolveDeathrattleEffect(
+                    context,
+                    owner,
+                    dead,
+                    insertIndex + inserted,
+                    newEntityIds,
+                    true,
+                    dead.InstanceId);
+            }
+
+            return inserted;
+        }
+
+        private static void ResolveAvenge(
+            CombatContext context,
+            CombatSideState owner,
+            string deadId,
+            bool resolveNonMinionSources,
+            MinionInstance onlySource)
+        {
+            if (resolveNonMinionSources && owner.Tavern != null)
             {
                 ResolveQuestAvenge(context, owner, deadId);
                 ResolveTrinketAvenge(context, owner, deadId);
             }
 
-            if (owner.TemporaryAvengeBeastRewards > 0)
+            if (resolveNonMinionSources && owner.TemporaryAvengeBeastRewards > 0)
             {
                 owner.AvengeCounters.TryGetValue("temporary-beast-revenge", out var temporaryCount);
                 temporaryCount += 1;
@@ -8297,11 +8557,14 @@ namespace LearnHearthstone.Domain.Engine
                 owner.AvengeCounters["temporary-beast-revenge"] = temporaryCount;
             }
 
-            ResolveOnyxiaAvenge(context, owner, deadId);
+            if (resolveNonMinionSources)
+            {
+                ResolveOnyxiaAvenge(context, owner, deadId);
+            }
 
-            var sources = owner.Board
-                .Where(minion => IsAlive(minion) && (minion.Keywords.Contains(Keyword.Avenge) || minion.EffectIds.Contains("avenge_2_buff_self_2_2")))
-                .ToList();
+            var sources = onlySource == null
+                ? Enumerable.Empty<MinionInstance>()
+                : new[] { onlySource };
             foreach (var source in sources)
             {
                 var threshold = source.Counters.TryGetValue("avenge_threshold", out var storedThreshold) ? Math.Max(1, storedThreshold) : GetDefaultAvengeThreshold(source);
@@ -8588,10 +8851,9 @@ namespace LearnHearthstone.Domain.Engine
                     tavern.TrinketGilneanRoseHealth,
                     deadId);
 
-                var result = DealDamage(target, 1, false);
+                var result = DealDamageAndResolveTriggers(context, owner, GilneanThornedRoseCardId, owner, target, 1);
                 if (result.CombatDamageDealt || result.DivineShieldBroken)
                 {
-                    ReplaceByInstanceId(owner.Board, result.Minion);
                     if (result.Minion.Health <= 0)
                     {
                         MarkKilledBy(result.Minion, GilneanThornedRoseCardId, owner.Side, GilneanThornedRoseCardId);
@@ -8799,8 +9061,7 @@ namespace LearnHearthstone.Domain.Engine
                     var target = enemy.Board.Where(IsAlive).OrderByDescending(minion => minion.Health).FirstOrDefault();
                     if (target != null)
                     {
-                        var result = DealDamage(target, 10, false);
-                        ReplaceByInstanceId(enemy.Board, result.Minion);
+                        var result = DealDamageAndResolveTriggers(context, owner, "quest-boom-squad", enemy, target, 10);
                         AddLog(context.Log, "QuestAvenge", "Boom Squad dealt 10 damage to " + target.InstanceId, null, target.InstanceId, LogSeverity.Good);
                         if (!IsAlive(result.Minion))
                         {
@@ -9219,8 +9480,8 @@ namespace LearnHearthstone.Domain.Engine
             RemoveKillTags(copy);
             ApplySummonAuras(owner, copy);
             owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
-            newEntityIds?.Add(copy.InstanceId);
             ResolveFriendlySummonTriggers(context, owner, copy, deadMinion);
+            newEntityIds?.Add(copy.InstanceId);
             AddLog(context.Log, "MinionSummoned", "Boom Controller summoned exact copy of " + deadMinion.InstanceId, BoomControllerCardId, copy.InstanceId, LogSeverity.Good);
             RecordFrame(
                 context,
@@ -9815,8 +10076,8 @@ namespace LearnHearthstone.Domain.Engine
                 copy.CanAttack = true;
                 ApplySummonAuras(owner, copy);
                 owner.Board.Insert(Math.Min(insertIndex + inserted, owner.Board.Count), copy);
-                newEntityIds.Add(copy.InstanceId);
                 ResolveFriendlySummonTriggers(context, owner, copy, source);
+                newEntityIds.Add(copy.InstanceId);
                 inserted += 1;
                 AddLog(context.Log, "MinionSummoned", source.InstanceId + " summoned hand Murloc " + copy.InstanceId, source.InstanceId, copy.InstanceId, LogSeverity.Good);
                 RecordFrame(
@@ -9866,8 +10127,8 @@ namespace LearnHearthstone.Domain.Engine
 
                 ApplySummonAuras(owner, copy);
                 owner.Board.Insert(Math.Min(insertIndex + inserted, owner.Board.Count), copy);
-                newEntityIds.Add(copy.InstanceId);
                 ResolveFriendlySummonTriggers(context, owner, copy, source);
+                newEntityIds.Add(copy.InstanceId);
                 inserted += 1;
                 AddLog(context.Log, "MinionSummoned", source.InstanceId + " summoned hand minion " + copy.InstanceId, source.InstanceId, copy.InstanceId, LogSeverity.Good);
             }
@@ -9902,8 +10163,8 @@ namespace LearnHearthstone.Domain.Engine
             BuffMinion(copy, attack, health, "Timewarped Scourfin");
             ApplySummonAuras(owner, copy);
             owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
-            newEntityIds.Add(copy.InstanceId);
             ResolveFriendlySummonTriggers(context, owner, copy, source);
+            newEntityIds.Add(copy.InstanceId);
             return 1;
         }
 
@@ -10158,8 +10419,8 @@ namespace LearnHearthstone.Domain.Engine
             copy.CanAttack = true;
             ApplySummonAuras(owner, copy);
             owner.Board.Insert(Math.Min(insertIndex, owner.Board.Count), copy);
-            newEntityIds.Add(copy.InstanceId);
             ResolveFriendlySummonTriggers(context, owner, copy, source);
+            newEntityIds.Add(copy.InstanceId);
             AddLog(context.Log, "MinionSummoned", source.InstanceId + " summoned hand minion " + copy.InstanceId, source.InstanceId, copy.InstanceId, LogSeverity.Good);
             return 1;
         }
@@ -10184,7 +10445,7 @@ namespace LearnHearthstone.Domain.Engine
                 keywords.Add(keyword.Value);
             }
 
-            var instanceId = "token-" + sourceInstanceId + "-" + tokenId + "-" + owner.Board.Count;
+            var instanceId = NextCombatEntityId(context, "token-" + sourceInstanceId + "-" + tokenId);
             MinionInstance token;
             if (!string.IsNullOrEmpty(cardId) && context.MinionCatalog?.TryGetByCardId(cardId, out var definition) == true)
             {
@@ -10300,12 +10561,59 @@ namespace LearnHearthstone.Domain.Engine
                 0);
         }
 
+        private static string NextCombatEntityId(CombatContext context, string prefix)
+        {
+            while (true)
+            {
+                var sequence = context.RecruitSummonSequence;
+                context.RecruitSummonSequence += 1;
+                var instanceId = prefix + "-" + sequence;
+                if (!context.AllocatedCombatEntityIds.Add(instanceId))
+                {
+                    continue;
+                }
+
+                context.PendingCombatEntityIds.Add(instanceId);
+                return instanceId;
+            }
+        }
+
+        private static void EnsureCombatSummonIdentity(CombatContext context, MinionInstance summoned)
+        {
+            if (context == null || summoned == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(summoned.InstanceId) &&
+                context.PendingCombatEntityIds.Remove(summoned.InstanceId))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(summoned.InstanceId) &&
+                context.AllocatedCombatEntityIds.Add(summoned.InstanceId))
+            {
+                return;
+            }
+
+            var prefix = string.IsNullOrEmpty(summoned.InstanceId)
+                ? "combat-" + (string.IsNullOrEmpty(summoned.CardId) ? "minion" : summoned.CardId)
+                : summoned.InstanceId;
+            summoned.InstanceId = NextCombatEntityId(context, prefix);
+            context.PendingCombatEntityIds.Remove(summoned.InstanceId);
+        }
+
         private static void ResolveFriendlySummonTriggers(CombatContext context, CombatSideState owner, MinionInstance summoned, MinionInstance source)
         {
             if (summoned == null)
             {
                 return;
             }
+
+            EnsureCombatSummonIdentity(context, summoned);
+            summoned.OrderOfPlay = context.NextOrderOfPlay;
+            context.NextOrderOfPlay += 1L;
 
             if (context.IsRecruitPhase)
             {
@@ -10316,7 +10624,6 @@ namespace LearnHearthstone.Domain.Engine
             {
                 ApplyHeroCombatSummonModifiers(owner, summoned);
                 ApplyTrinketCombatSummonModifiers(context, owner, summoned, source);
-                ResolveTimewarpedKarathressSummon(context, owner, summoned);
             }
 
             if (IsAncestralAutomaton(summoned))
@@ -10338,60 +10645,83 @@ namespace LearnHearthstone.Domain.Engine
                 return;
             }
 
-            if (HasCountedTribe(summoned, Tribe.Beast))
-            {
-                foreach (var slamma in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == BananaSlammaCardId))
-                {
-                    BuffMinion(summoned, StatMath.SaturatingMultiply(summoned.Attack, slamma.Golden ? 2 : 1, 0, StatMath.MaxStat), 0, "Banana Slamma");
-                }
-
-                foreach (var rider in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == MoonRiderCardId))
-                {
-                    rider.Counters.TryGetValue("beast_summon_attack", out var bonus);
-                    bonus += rider.Golden ? 4 : 2;
-                    rider.Counters["beast_summon_attack"] = bonus;
-                    BuffMinion(summoned, bonus, 0, "Moon-Rider");
-                }
-            }
-
-            if (HasCountedTribe(summoned, Tribe.Mech))
-            {
-                foreach (var deflecto in owner.Board.Where(minion => IsAlive(minion) && minion.CardId == DeflectOBotCardId))
-                {
-                    BuffMinion(deflecto, deflecto.Golden ? 4 : 2, 0, "Deflect-o-Bot");
-                    if (!deflecto.Keywords.Contains(Keyword.DivineShield))
-                    {
-                        deflecto.Keywords.Add(Keyword.DivineShield);
-                    }
-
-                    RecordFrame(
-                        context,
-                        CombatEventType.AttackTriggered,
-                        deflecto.InstanceId + " reacted to Mech summon",
-                        owner.Side,
-                        deflecto.InstanceId,
-                        owner.Side,
-                        summoned.InstanceId,
-                        new[] { deflecto.InstanceId, summoned.InstanceId, source?.InstanceId },
-                        null,
-                        null,
-                        null,
-                        new[] { deflecto.InstanceId });
-                }
-            }
+            ResolveMinionSummonObservers(context, owner, summoned, source);
 
             QueueFriendlySummonReward(context, owner, source, summoned);
             ResolveWildfeatherDusterSummonReward(context, owner, summoned);
         }
 
-        private static void ResolveTimewarpedKarathressSummon(CombatContext context, CombatSideState owner, MinionInstance summoned)
+        private static void ResolveMinionSummonObservers(
+            CombatContext context,
+            CombatSideState owner,
+            MinionInstance summoned,
+            MinionInstance source)
         {
-            foreach (var source in owner.Board.Where(minion =>
-                IsAlive(minion) &&
-                minion.CardId == TimewarpedKarathressCardId &&
-                minion.InstanceId != summoned.InstanceId).ToList())
+            var observers = owner.Board
+                .Where(minion =>
+                    IsAlive(minion) &&
+                    minion.InstanceId != summoned.InstanceId &&
+                    (minion.CardId == TimewarpedKarathressCardId ||
+                     minion.CardId == BananaSlammaCardId ||
+                     minion.CardId == MoonRiderCardId ||
+                     minion.CardId == DeflectOBotCardId))
+                .OrderBy(minion => minion.OrderOfPlay)
+                .ThenBy(minion => owner.Board.IndexOf(minion))
+                .ToList();
+            foreach (var observer in observers)
             {
-                AddReward(context.Log, owner, CombatRewardType.AddGeneratedSpellToHand, source.CardId, DeepBlueSpellCardId, source.Golden ? 2 : 1, source.InstanceId);
+                if (observer.CardId == TimewarpedKarathressCardId)
+                {
+                    AddReward(
+                        context.Log,
+                        owner,
+                        CombatRewardType.AddGeneratedSpellToHand,
+                        observer.CardId,
+                        DeepBlueSpellCardId,
+                        observer.Golden ? 2 : 1,
+                        observer.InstanceId);
+                    continue;
+                }
+
+                if (observer.CardId == BananaSlammaCardId && HasCountedTribe(summoned, Tribe.Beast))
+                {
+                    BuffMinion(
+                        summoned,
+                        StatMath.SaturatingMultiply(summoned.Attack, observer.Golden ? 2 : 1, 0, StatMath.MaxStat),
+                        0,
+                        "Banana Slamma");
+                    continue;
+                }
+
+                if (observer.CardId == MoonRiderCardId && HasCountedTribe(summoned, Tribe.Beast))
+                {
+                    observer.Counters.TryGetValue("beast_summon_attack", out var bonus);
+                    bonus += observer.Golden ? 4 : 2;
+                    observer.Counters["beast_summon_attack"] = bonus;
+                    BuffMinion(summoned, bonus, 0, "Moon-Rider");
+                    continue;
+                }
+
+                if (observer.CardId != DeflectOBotCardId || !HasCountedTribe(summoned, Tribe.Mech))
+                {
+                    continue;
+                }
+
+                BuffMinion(observer, observer.Golden ? 4 : 2, 0, "Deflect-o-Bot");
+                AddKeyword(observer, Keyword.DivineShield);
+                RecordFrame(
+                    context,
+                    CombatEventType.AttackTriggered,
+                    observer.InstanceId + " reacted to Mech summon",
+                    owner.Side,
+                    observer.InstanceId,
+                    owner.Side,
+                    summoned.InstanceId,
+                    new[] { observer.InstanceId, summoned.InstanceId, source?.InstanceId },
+                    null,
+                    null,
+                    null,
+                    new[] { observer.InstanceId });
             }
         }
 
@@ -10699,44 +11029,75 @@ namespace LearnHearthstone.Domain.Engine
                 1);
         }
 
-        private static void RetargetAttackPointerToNewUnits(CombatContext context, CombatSideState owner, List<string> newEntityIds, List<string> sourceIds)
+        private static void TrackNaturalAttackSuccessors(
+            CombatSideState owner,
+            string deadInstanceId,
+            int deathIndex,
+            IEnumerable<string> createdEntityIds)
         {
-            if (newEntityIds == null || newEntityIds.Count == 0)
+            if (!owner.NaturalAttackAnchorPrepared || string.IsNullOrEmpty(deadInstanceId))
             {
                 return;
             }
 
-            var candidates = newEntityIds
-                .Select(id => new { Id = id, Index = owner.Board.FindIndex(minion => minion.InstanceId == id && IsAlive(minion) && minion.CanAttack) })
-                .Where(candidate => candidate.Index >= 0)
-                .OrderBy(candidate => candidate.Index)
+            var createdIds = (createdEntityIds ?? Enumerable.Empty<string>())
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
                 .ToList();
-            if (candidates.Count == 0)
+            if (string.Equals(owner.NaturalAttackAnchorId, deadInstanceId, StringComparison.Ordinal))
+            {
+                owner.NaturalAttackAnchorId = null;
+                owner.NaturalAttackFallbackIndex = Math.Max(0, deathIndex);
+                owner.NaturalAttackSuccessorIds.Clear();
+                owner.NaturalAttackSuccessorIds.AddRange(createdIds);
+                owner.NaturalAttackFallbackId = FindNaturalAttackFallbackId(owner, deathIndex, createdIds);
+                owner.NaturalAttackDeathSourceIds.Add(deadInstanceId);
+                return;
+            }
+
+            var successorIndex = owner.NaturalAttackSuccessorIds.FindIndex(id =>
+                string.Equals(id, deadInstanceId, StringComparison.Ordinal));
+            if (successorIndex >= 0)
+            {
+                owner.NaturalAttackSuccessorIds.RemoveAt(successorIndex);
+                owner.NaturalAttackSuccessorIds.InsertRange(successorIndex, createdIds);
+                owner.NaturalAttackFallbackIndex = Math.Max(0, deathIndex);
+                owner.NaturalAttackDeathSourceIds.Add(deadInstanceId);
+                return;
+            }
+
+            if (!string.Equals(owner.NaturalAttackFallbackId, deadInstanceId, StringComparison.Ordinal))
             {
                 return;
             }
 
-            var target = candidates[0];
-            owner.PendingAttackIndexOverride = target.Index;
-            AddLog(context.Log, "AttackPointerRetargeted", owner.Side + " attack pointer -> " + target.Id + " @" + target.Index, target.Id, null, LogSeverity.Good);
-            RecordFrame(
-                context,
-                CombatEventType.AttackPointerRetargeted,
-                owner.Side + " attack pointer -> " + target.Id + " @" + target.Index,
-                owner.Side,
-                target.Id,
-                owner.Side,
-                target.Id,
-                candidates.Select(candidate => candidate.Id).Concat(sourceIds ?? Enumerable.Empty<string>()),
-                null,
-                null,
-                null,
-                candidates.Select(candidate => candidate.Id),
-                null,
-                owner.Side,
-                target.Index,
-                0,
-                0);
+            owner.NaturalAttackSuccessorIds.AddRange(createdIds);
+            owner.NaturalAttackFallbackIndex = Math.Max(0, deathIndex);
+            owner.NaturalAttackFallbackId = FindNaturalAttackFallbackId(owner, deathIndex, createdIds);
+            owner.NaturalAttackDeathSourceIds.Add(deadInstanceId);
+        }
+
+        private static string FindNaturalAttackFallbackId(
+            CombatSideState owner,
+            int deathIndex,
+            IEnumerable<string> createdEntityIds)
+        {
+            if (owner.Board.Count == 0)
+            {
+                return null;
+            }
+
+            var createdIds = new HashSet<string>(createdEntityIds ?? Enumerable.Empty<string>());
+            for (var offset = 0; offset < owner.Board.Count; offset += 1)
+            {
+                var candidate = owner.Board[NormalizeAttackIndex(owner.Board, deathIndex + offset)];
+                if (candidate != null && !createdIds.Contains(candidate.InstanceId))
+                {
+                    return candidate.InstanceId;
+                }
+            }
+
+            return null;
         }
 
         private static void ApplyBloodGem(MinionInstance target, TavernState tavern = null, string sourceId = "Blood Gem")
@@ -10964,31 +11325,103 @@ namespace LearnHearthstone.Domain.Engine
                 }).ToList();
         }
 
-        private static void AdvanceNaturalAttackPointers(CombatContext context, BoardSide attackerSide, int attackerIndex)
+        private static void SetNaturalAttackAnchor(CombatSideState side, int attackerIndex)
         {
-            var attackers = context.Get(attackerSide);
-            var defenders = context.Get(attackerSide == BoardSide.Player ? BoardSide.Opponent : BoardSide.Player);
-
-            if (!ApplyPendingAttackPointer(attackers))
-            {
-                attackers.AttackIndex = NormalizeAttackIndex(attackers.Board, attackerIndex + 1);
-            }
-
-            if (!ApplyPendingAttackPointer(defenders))
-            {
-                defenders.AttackIndex = NormalizeAttackIndex(defenders.Board, defenders.AttackIndex);
-            }
+            side.NaturalAttackAnchorPrepared = true;
+            side.NaturalAttackAnchorId = side.Board[attackerIndex].InstanceId;
+            side.NaturalAttackFallbackIndex = attackerIndex;
+            side.NaturalAttackFallbackId = null;
+            side.NaturalAttackSuccessorIds.Clear();
+            side.NaturalAttackDeathSourceIds.Clear();
         }
 
-        private static bool ApplyPendingAttackPointer(CombatSideState side)
+        private static bool ResolveNaturalAttackPointer(CombatContext context, CombatSideState side)
         {
-            if (!side.PendingAttackIndexOverride.HasValue)
+            if (!side.NaturalAttackAnchorPrepared)
             {
                 return false;
             }
 
-            side.AttackIndex = NormalizeAttackIndex(side.Board, side.PendingAttackIndexOverride.Value);
-            side.PendingAttackIndexOverride = null;
+            var anchorIndex = string.IsNullOrEmpty(side.NaturalAttackAnchorId)
+                ? -1
+                : side.Board.FindIndex(minion =>
+                    minion != null &&
+                    string.Equals(minion.InstanceId, side.NaturalAttackAnchorId, StringComparison.Ordinal) &&
+                    IsAlive(minion));
+            var targetId = side.NaturalAttackAnchorId;
+            var targetIndex = anchorIndex >= 0
+                ? NormalizeAttackIndex(side.Board, anchorIndex + 1)
+                : -1;
+            var usedDeathSuccessor = false;
+            if (anchorIndex < 0)
+            {
+                foreach (var successorId in side.NaturalAttackSuccessorIds)
+                {
+                    targetIndex = side.Board.FindIndex(minion =>
+                        minion != null &&
+                        string.Equals(minion.InstanceId, successorId, StringComparison.Ordinal) &&
+                        IsAlive(minion) &&
+                        minion.CanAttack);
+                    if (targetIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    targetId = successorId;
+                    usedDeathSuccessor = true;
+                    break;
+                }
+            }
+
+            if (anchorIndex < 0 && targetIndex < 0 && !string.IsNullOrEmpty(side.NaturalAttackFallbackId))
+            {
+                targetIndex = side.Board.FindIndex(minion =>
+                    minion != null &&
+                    string.Equals(minion.InstanceId, side.NaturalAttackFallbackId, StringComparison.Ordinal) &&
+                    IsAlive(minion));
+                targetId = targetIndex >= 0 ? side.Board[targetIndex].InstanceId : targetId;
+            }
+
+            side.AttackIndex = targetIndex >= 0
+                ? targetIndex
+                : NormalizeAttackIndex(side.Board, side.NaturalAttackFallbackIndex);
+            if (usedDeathSuccessor)
+            {
+                var relatedIds = side.NaturalAttackSuccessorIds
+                    .Concat(side.NaturalAttackDeathSourceIds)
+                    .ToList();
+                AddLog(
+                    context.Log,
+                    "AttackPointerRetargeted",
+                    side.Side + " attack pointer -> " + targetId + " @" + side.AttackIndex,
+                    targetId,
+                    null,
+                    LogSeverity.Good);
+                RecordFrame(
+                    context,
+                    CombatEventType.AttackPointerRetargeted,
+                    side.Side + " attack pointer -> " + targetId + " @" + side.AttackIndex,
+                    side.Side,
+                    targetId,
+                    side.Side,
+                    targetId,
+                    relatedIds,
+                    null,
+                    null,
+                    null,
+                    side.NaturalAttackSuccessorIds,
+                    null,
+                    side.Side,
+                    side.AttackIndex,
+                    0,
+                0);
+            }
+
+            side.NaturalAttackAnchorPrepared = false;
+            side.NaturalAttackAnchorId = null;
+            side.NaturalAttackFallbackId = null;
+            side.NaturalAttackSuccessorIds.Clear();
+            side.NaturalAttackDeathSourceIds.Clear();
             return true;
         }
 
@@ -11004,7 +11437,7 @@ namespace LearnHearthstone.Domain.Engine
             {
                 var index = (normalized + offset) % board.Count;
                 var candidate = board[index];
-                if (candidate != null && IsAlive(candidate) && candidate.CanAttack)
+                if (CanDeclareAttack(candidate))
                 {
                     return index;
                 }
@@ -11027,15 +11460,93 @@ namespace LearnHearthstone.Domain.Engine
         private static MinionInstance ChooseDefender(IList<MinionInstance> defenders, int seed)
         {
             var visible = defenders.Where(minion => !minion.Keywords.Contains(Keyword.Stealth)).ToList();
-            var targetPool = visible.Count > 0 ? visible : defenders;
-            var taunts = targetPool.Where(minion => minion.Keywords.Contains(Keyword.Taunt)).ToList();
-            var candidates = taunts.Count > 0 ? taunts : targetPool;
+            if (visible.Count == 0)
+            {
+                return null;
+            }
+
+            var taunts = visible.Where(minion => minion.Keywords.Contains(Keyword.Taunt)).ToList();
+            var candidates = taunts.Count > 0 ? taunts : visible;
             return new SeededRng(seed).Pick(candidates);
+        }
+
+        private static BoardSide DetermineFirstAttacker(CombatContext context, int seed)
+        {
+            var playerCount = context.Player.Board.Count(IsAlive);
+            var opponentCount = context.Opponent.Board.Count(IsAlive);
+            if (playerCount != opponentCount)
+            {
+                return playerCount > opponentCount ? BoardSide.Player : BoardSide.Opponent;
+            }
+
+            return new SeededRng(seed).NextInt(2) == 0 ? BoardSide.Player : BoardSide.Opponent;
+        }
+
+        private static bool CanDeclareAttack(MinionInstance minion)
+        {
+            return minion != null && IsAlive(minion) && minion.CanAttack && minion.Attack > 0;
+        }
+
+        private static bool HasLegalDefender(IList<MinionInstance> board)
+        {
+            return board.Any(minion => IsAlive(minion) && !minion.Keywords.Contains(Keyword.Stealth));
+        }
+
+        private static void ResolveStealthStateActions(CombatContext context)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            var alive = context.Player.Board
+                .Concat(context.Opponent.Board)
+                .Where(IsAlive)
+                .ToList();
+            foreach (var minion in alive.Where(minion => minion.Attack <= 0 && minion.Keywords.Contains(Keyword.Stealth)))
+            {
+                minion.Keywords.Remove(Keyword.Stealth);
+            }
+
+            alive = alive.Where(IsAlive).ToList();
+            if (alive.Count == 0 || !alive.All(minion => minion.Keywords.Contains(Keyword.Stealth)))
+            {
+                return;
+            }
+
+            foreach (var minion in alive)
+            {
+                minion.Keywords.Remove(Keyword.Stealth);
+            }
         }
 
         private static int GetCombatSpellDamage(CombatSideState owner, int baseAmount)
         {
             return StatMath.SaturatingAdd(Math.Max(0, baseAmount), Math.Max(0, owner?.Tavern?.SpellPower ?? 0), 0, StatMath.MaxStat);
+        }
+
+        private static DamageResult DealDamageAndResolveTriggers(
+            CombatContext context,
+            CombatSideState sourceOwner,
+            string sourceId,
+            CombatSideState targetOwner,
+            MinionInstance target,
+            int amount,
+            bool poison = false)
+        {
+            var result = DealDamage(target, amount, poison);
+            ReplaceByInstanceId(targetOwner.Board, result.Minion);
+            ResolveDamageTriggers(
+                context,
+                sourceOwner,
+                sourceId,
+                false,
+                false,
+                targetOwner,
+                target.InstanceId,
+                result.CombatDamageDealt,
+                result.DivineShieldBroken);
+            return result;
         }
 
         private static DamageResult DealDamage(MinionInstance target, int amount, bool poison)
@@ -11149,6 +11660,29 @@ namespace LearnHearthstone.Domain.Engine
                     : venomousEffectRevision;
                 TaughtSpellFactory = taughtSpellFactory;
                 Replay = new CombatReplay { Seed = seed };
+                foreach (var minion in player.Concat(opponent).Where(minion => minion != null && !string.IsNullOrEmpty(minion.InstanceId)))
+                {
+                    AllocatedCombatEntityIds.Add(minion.InstanceId);
+                }
+
+                var existingOrder = player
+                    .Concat(opponent)
+                    .Where(minion => minion != null)
+                    .Select(minion => minion.OrderOfPlay)
+                    .DefaultIfEmpty(0L)
+                    .Max();
+                NextOrderOfPlay = existingOrder + 1L;
+                InitializeMissingOrderOfPlay(player);
+                InitializeMissingOrderOfPlay(opponent);
+            }
+
+            private void InitializeMissingOrderOfPlay(IEnumerable<MinionInstance> board)
+            {
+                foreach (var minion in board.Where(minion => minion != null && minion.OrderOfPlay <= 0L))
+                {
+                    minion.OrderOfPlay = NextOrderOfPlay;
+                    NextOrderOfPlay += 1L;
+                }
             }
 
             public CombatSideState Player { get; }
@@ -11168,6 +11702,9 @@ namespace LearnHearthstone.Domain.Engine
             public int CombatSpellSequence { get; set; }
             public int RecruitDeathSteps { get; set; }
             public int RecruitSummonSequence { get; set; }
+            public long NextOrderOfPlay { get; set; }
+            public HashSet<string> AllocatedCombatEntityIds { get; } = new HashSet<string>(StringComparer.Ordinal);
+            public HashSet<string> PendingCombatEntityIds { get; } = new HashSet<string>(StringComparer.Ordinal);
             public List<CombatLogEntry> Log { get; } = new List<CombatLogEntry>();
             public CombatReplay Replay { get; }
             public Queue<ImmediateAttackRequest> ImmediateAttacks { get; } = new Queue<ImmediateAttackRequest>();
@@ -11205,7 +11742,12 @@ namespace LearnHearthstone.Domain.Engine
             public bool IsRecruitPhase { get; }
             public List<CombatReward> Rewards { get; } = new List<CombatReward>();
             public int AttackIndex { get; set; }
-            public int? PendingAttackIndexOverride { get; set; }
+            public bool NaturalAttackAnchorPrepared { get; set; }
+            public string NaturalAttackAnchorId { get; set; }
+            public int NaturalAttackFallbackIndex { get; set; }
+            public string NaturalAttackFallbackId { get; set; }
+            public List<string> NaturalAttackSuccessorIds { get; } = new List<string>();
+            public List<string> NaturalAttackDeathSourceIds { get; } = new List<string>();
             public int FriendlyDeathsThisCombat { get; set; }
             public int EternalKnightDeaths { get; set; }
             public int AncestralAutomatonSummons { get; set; }
@@ -11242,6 +11784,20 @@ namespace LearnHearthstone.Domain.Engine
             public Tribe Tribe;
             public int Attack;
             public int Health;
+        }
+
+        private readonly struct PendingCombatDeath
+        {
+            public PendingCombatDeath(BoardSide side, MinionInstance minion, int insertIndex)
+            {
+                Side = side;
+                Minion = minion;
+                InsertIndex = insertIndex;
+            }
+
+            public BoardSide Side { get; }
+            public MinionInstance Minion { get; }
+            public int InsertIndex { get; }
         }
 
         private readonly struct ImmediateAttackRequest

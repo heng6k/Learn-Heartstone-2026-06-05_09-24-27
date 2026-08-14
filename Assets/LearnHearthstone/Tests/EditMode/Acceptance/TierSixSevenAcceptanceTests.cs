@@ -582,6 +582,9 @@ namespace LearnHearthstone.Tests.EditMode
         public void TierSixCombatTaughtSpell_OverconfidenceUsesTheCurrentCombatOutcomeAndStacksActualCasts()
         {
             var service = CreateCombatTaughtSpellService("105267", 9666, true, true);
+            service.State.Player.Board[0].CanAttack = true;
+            service.State.Opponent.Board[0].Health = 1;
+            service.State.Opponent.Board[0].MaxHealth = 1;
 
             service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 9666, SafetyLimit = 1 }));
 

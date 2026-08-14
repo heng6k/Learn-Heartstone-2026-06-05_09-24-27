@@ -204,9 +204,21 @@ namespace LearnHearthstone.Tests.EditMode
                 MaxHealth = int.MaxValue,
                 TavernTier = 6
             };
+            var nonAttacker = new MinionInstance
+            {
+                InstanceId = "p-large-non-attacker",
+                CardId = "p-large-non-attacker",
+                Name = "Large Player Non-Attacker",
+                CardKind = CardKind.Minion,
+                Attack = 0,
+                Health = 1,
+                MaxHealth = 1,
+                TavernTier = 1,
+                CanAttack = false
+            };
 
             var result = LearnHearthstone.Domain.Engine.CombatEngine.SimulateBasicCombat(
-                new[] { player },
+                new[] { player, nonAttacker },
                 new[] { opponent },
                 19,
                 1);

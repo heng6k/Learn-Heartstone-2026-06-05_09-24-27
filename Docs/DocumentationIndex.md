@@ -96,6 +96,7 @@
 
 1. [testing/test-suite-overview.zh-CN.md](testing/test-suite-overview.zh-CN.md)：全部 EditMode/PlayMode 测试的分类目录、测试类索引、覆盖范围、运行命令和最近验证基线。
 2. [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md)：玩家视角验收标准、测试分层和发布门槛。
+3. [Season14NewContentActivateAuditStandard.zh-CN.md](Season14NewContentActivateAuditStandard.zh-CN.md)：36.2 新随从、大小饰品、黑暗之赐、发动与高本内容的逐条证据基线，以及随从内嵌发动 UI 验收标准。
 
 ### 想制作宣传或玩法演示视频
 
@@ -110,6 +111,7 @@
 | 当前计划 | [TavernSimulatorOptimizationPlan.zh-CN.md](TavernSimulatorOptimizationPlan.zh-CN.md) | 合并当前五项需求和全流程审核建议的分阶段实施方案 | 当前酒馆模拟器优化统一入口 |
 | 测试规范 | [TavernPlayerPerspectiveTestingStandard.zh-CN.md](TavernPlayerPerspectiveTestingStandard.zh-CN.md) | 测试分层、玩家旅程、实现真实性证据和发布门槛 | 所有酒馆功能验收的统一测试基线 |
 | 测试索引 | [testing/test-suite-overview.zh-CN.md](testing/test-suite-overview.zh-CN.md) | 全部测试目录、测试类、覆盖范围、运行方式和验证结果 | 后续定位与运行测试的统一入口 |
+| 测试基线 | [Season14NewContentActivateAuditStandard.zh-CN.md](Season14NewContentActivateAuditStandard.zh-CN.md) | 63 新随从、47 新饰品、43 黑暗之赐的证据模型，17 张发动与 22 张高本强化矩阵，随从内嵌发动 UI 方向 | Season 14 新内容排查与后续实现的默认基线 |
 | Skill/工作流 | [../AGENTS.md](../AGENTS.md) | 项目级代理路由规则，说明不同任务应该先用哪些 skill | 每次项目修改和提问前的入口规则 |
 | Skill/工作流 | [LocalSkillClassification.zh-CN.md](LocalSkillClassification.zh-CN.md) | 本机 57 个本地 skills 的分类、适用场景和冲突处理 | 全量 skill 路由索引 |
 | Skill/工作流 | [PonytailSkillRouting.md](PonytailSkillRouting.md) | Ponytail 系列 skills 的使用场景、边界和模式说明 | 编码最小化与复杂度控制参考 |

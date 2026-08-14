@@ -7,6 +7,8 @@ namespace LearnHearthstone.Domain.Engine
 {
     public static class HeroCombatDamageService
     {
+        private const string IceBlockSecretId = "TB_Bacon_Secrets_12";
+
         public static HeroDamageResolution ResolveAndApply(
             CombatOutput combat,
             MatchState state,
@@ -54,15 +56,54 @@ namespace LearnHearthstone.Domain.Engine
 
             if (playerWon)
             {
-                ApplyToOpponent(state.Opponent, result);
+                if (!TryPreventWithIceBlock(combat.FinalOpponentTavern, state.Opponent?.Armor ?? 0, state.Opponent?.Health ?? 0, result))
+                {
+                    ApplyToOpponent(state.Opponent, result);
+                }
             }
             else
             {
-                ApplyToPlayer(state.Player, result);
+                if (!TryPreventWithIceBlock(state.Player?.Tavern, state.Player?.Armor ?? 0, state.Player?.Health ?? 0, result))
+                {
+                    ApplyToPlayer(state.Player, result);
+                }
             }
 
             result.Applied = result.AppliedDamage > 0;
             return result;
+        }
+
+        private static bool TryPreventWithIceBlock(TavernState tavern, int armor, int health, HeroDamageResolution result)
+        {
+            var armorBefore = Math.Max(0, armor);
+            var healthBefore = Math.Max(0, health);
+            if (healthBefore <= 0 || (long)result.AppliedDamage < (long)armorBefore + healthBefore || tavern?.Secrets == null)
+            {
+                return false;
+            }
+
+            var secretIndex = tavern.Secrets.FindIndex(secret =>
+                secret != null &&
+                !secret.Triggered &&
+                string.Equals(secret.SecretCardId, IceBlockSecretId, StringComparison.OrdinalIgnoreCase));
+            if (secretIndex < 0)
+            {
+                return false;
+            }
+
+            tavern.Secrets[secretIndex].Triggered = true;
+            tavern.Secrets.RemoveAt(secretIndex);
+            result.ArmorBefore = armorBefore;
+            result.ArmorAfter = armorBefore;
+            result.HealthBefore = healthBefore;
+            result.HealthAfter = healthBefore;
+            result.AppliedDamage = 0;
+            result.ArmorAbsorbed = 0;
+            result.HealthDamage = 0;
+            result.Prevented = true;
+            result.PreventionSourceCardId = IceBlockSecretId;
+            result.Applied = false;
+            return true;
         }
 
         private static int DamageCapForRound(int round)

@@ -95,11 +95,12 @@ namespace LearnHearthstone.Tests.EditMode
             var goldrinn = CatalogMinion(service, "BGS_018", "goldrinn-player", golden);
             goldrinn.Attack = 0;
             goldrinn.Health = goldrinn.MaxHealth = 1;
+            goldrinn.Keywords.Add(Keyword.Taunt);
             var beast = Minion("goldrinn-player-beast", Tribe.Beast);
             service.State.Player.Board.AddRange(new[] { goldrinn, beast });
             service.State.Opponent.Board.Add(Minion("goldrinn-player-killer", Tribe.None, BoardSide.Opponent, 20, 100));
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1414, SafetyLimit = 1 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 1414, SafetyLimit = 2 }));
 
             Assert.AreEqual(beast.BaseAttack + expectedBuff, beast.Attack);
             Assert.AreEqual(beast.BaseHealth + expectedBuff, beast.MaxHealth);
@@ -124,10 +125,11 @@ namespace LearnHearthstone.Tests.EditMode
             goldrinn.Owner = BoardSide.Opponent;
             goldrinn.Attack = 0;
             goldrinn.Health = goldrinn.MaxHealth = 1;
+            goldrinn.Keywords.Add(Keyword.Taunt);
             var opponentBeast = Minion("goldrinn-opponent-beast", Tribe.Beast, BoardSide.Opponent);
             service.State.Opponent.Board.AddRange(new[] { goldrinn, opponentBeast });
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2424, SafetyLimit = 1 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 2424, SafetyLimit = 2 }));
 
             Assert.AreEqual(playerBeast.BaseAttack, playerBeast.Attack);
             Assert.AreEqual(opponentBeast.BaseAttack + 8, opponentBeast.Attack);

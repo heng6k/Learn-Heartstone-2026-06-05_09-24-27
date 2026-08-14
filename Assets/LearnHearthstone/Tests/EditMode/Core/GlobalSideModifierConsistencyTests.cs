@@ -77,7 +77,13 @@ namespace LearnHearthstone.Tests.EditMode
             var service = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
             service.State.Player.Board.Clear();
             service.State.Opponent.Board.Clear();
-            service.State.Player.Board.Add(Minion("player-blocker", "PLAYER_BLOCKER", BoardSide.Player, 0, 100, Tribe.None));
+            service.State.Player.Board.Add(Minion("player-blocker", "PLAYER_BLOCKER", BoardSide.Player, 1, 100, Tribe.None));
+            var playerReserveA = Minion("player-reserve-a", "PLAYER_RESERVE_A", BoardSide.Player, 0, 100, Tribe.None);
+            var playerReserveB = Minion("player-reserve-b", "PLAYER_RESERVE_B", BoardSide.Player, 0, 100, Tribe.None);
+            playerReserveA.CanAttack = false;
+            playerReserveB.CanAttack = false;
+            service.State.Player.Board.Add(playerReserveA);
+            service.State.Player.Board.Add(playerReserveB);
             service.State.Opponent.Board.Add(Minion("opponent-blocker", "OPPONENT_BLOCKER", BoardSide.Opponent, 0, 100, Tribe.None));
             service.State.Player.Tavern.NextCombatBeetles = 1;
             service.State.Opponent.NextCombatTavernSpellCardIds.Add("110401");

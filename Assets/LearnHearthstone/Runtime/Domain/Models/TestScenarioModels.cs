@@ -198,6 +198,7 @@ namespace LearnHearthstone.Domain.Models
     public sealed class ScenarioRecruitActionState
     {
         public string SourceInstanceId;
+        public string ActionId;
         public int UsesThisTurn;
         public int LastUsedRound;
         public int Cooldown;

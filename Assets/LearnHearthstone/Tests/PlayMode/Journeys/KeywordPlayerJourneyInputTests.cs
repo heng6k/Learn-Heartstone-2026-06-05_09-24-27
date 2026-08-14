@@ -84,7 +84,7 @@ namespace LearnHearthstone.Tests.PlayMode
                 service.State.Player.Board.Add(Minion("pj05-stealth-attacker", "进攻随从", BoardSide.Player, 1, 30));
                 service.State.Player.Board.Add(Minion("pj05-stealth-support-a", "支援随从甲", BoardSide.Player, 0, 30));
                 service.State.Player.Board.Add(Minion("pj05-stealth-support-b", "支援随从乙", BoardSide.Player, 0, 30));
-                var stealth = Minion("pj05-stealth", "潜行目标", BoardSide.Opponent, 0, 30, Keyword.Stealth);
+                var stealth = Minion("pj05-stealth", "潜行目标", BoardSide.Opponent, 1, 30, Keyword.Stealth);
                 var visible = Minion("pj05-visible", "可见目标", BoardSide.Opponent, 0, 30);
                 service.State.Opponent.Board.Add(stealth);
                 service.State.Opponent.Board.Add(visible);

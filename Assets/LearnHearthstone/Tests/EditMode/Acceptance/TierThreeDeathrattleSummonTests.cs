@@ -35,28 +35,31 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void SlyRaptor_SummonsSixSixBeastAtDeathPositionAndRetargetsAttack()
+        public void SlyRaptor_BacklineDeathSummonDoesNotReplaceLivingNextAttacker()
         {
             var attacker = TestMinion("p-attacker", BoardSide.Player, 10, 30);
+            var playerFillerA = TestMinion("p-filler-a", BoardSide.Player, 0, 30);
+            var playerFillerB = TestMinion("p-filler-b", BoardSide.Player, 0, 30);
             var left = TestMinion("o-left", BoardSide.Opponent, 1, 30);
             var raptor = CardMinion("o-raptor", BoardSide.Opponent, SlyRaptorCardId, false, 1, 3, Keyword.Deathrattle, Keyword.Taunt);
             var right = TestMinion("o-right", BoardSide.Opponent, 1, 30);
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { left, raptor, right }, 3101, 5);
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, playerFillerA, playerFillerB }, new[] { left, raptor, right }, 3101, 2);
             var summon = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == "o-raptor");
             var tokenId = summon.SummonedEntityIds.Single();
             var token = summon.OpponentBoardSnapshot.Minions.Single(minion => minion.InstanceId == tokenId);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted && frame.AttackPointerSide == BoardSide.Opponent);
-            var nextOpponentAttack = result.Replay.Frames.First(frame => frame.Index > retarget.Index && frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Opponent);
+            var nextOpponentAttack = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Opponent);
 
             Assert.AreEqual(1, summon.OpponentBoardSnapshot.Minions.FindIndex(minion => minion.InstanceId == tokenId));
             Assert.AreEqual(6, token.Attack);
             Assert.AreEqual(6, token.Health);
             Assert.AreEqual(6, token.MaxHealth);
             Assert.That(token.Tribes, Does.Contain(Tribe.Beast));
-            Assert.AreEqual(tokenId, retarget.TargetId);
-            Assert.AreEqual(1, retarget.AttackPointerIndex);
-            Assert.AreEqual(tokenId, nextOpponentAttack.ActorId);
+            Assert.AreEqual(left.InstanceId, nextOpponentAttack.ActorId);
+            Assert.IsFalse(result.Replay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Opponent &&
+                frame.TargetId == tokenId));
         }
 
         [Test]
@@ -76,7 +79,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void HandlessForsaken_DeathrattleResolvesBeforeSourceRebornAndRetargetsSummonedHand()
+        public void HandlessForsaken_DeathrattleResolvesBeforeSourceRebornAndSummonedHandAttacksFirst()
         {
             var handless = CardMinion("p-handless", BoardSide.Player, HandlessForsakenCardId, false, 2, 1, Keyword.Deathrattle, Keyword.Reborn);
             var opponentA = TestMinion("o-attacker", BoardSide.Opponent, 1, 50);
@@ -88,8 +91,7 @@ namespace LearnHearthstone.Tests.EditMode
             var rebornIndex = result.Replay.Frames.FindIndex(frame => frame.EventType == CombatEventType.RebornResolved);
             var handId = summon.SummonedEntityIds.Single();
             var hand = summon.PlayerBoardSnapshot.Minions.Single(minion => minion.InstanceId == handId);
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted && frame.AttackPointerSide == BoardSide.Player);
-            var nextPlayerAttack = result.Replay.Frames.First(frame => frame.Index > retarget.Index && frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player);
+            var nextPlayerAttack = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player);
 
             Assert.Less(deathrattleIndex, summon.Index);
             Assert.Less(summon.Index, rebornIndex);
@@ -98,27 +100,30 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1, hand.Health);
             Assert.That(hand.Tribes, Does.Contain(Tribe.Undead));
             Assert.That(hand.Keywords, Does.Contain(Keyword.Reborn));
-            Assert.AreEqual(handId, retarget.TargetId);
-            Assert.AreEqual(0, retarget.AttackPointerIndex);
             Assert.AreEqual(handId, nextPlayerAttack.ActorId);
+            Assert.IsFalse(result.Replay.Frames.Any(frame =>
+                frame.Index < nextPlayerAttack.Index &&
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Player));
         }
 
         [Test]
-        public void BoneWatcher_SummonsThreeSkeletonsInOrderAndRetargetsFirstSkeleton()
+        public void BoneWatcher_BacklineDeathSummonsInOrderWithoutReplacingLivingNextAttacker()
         {
             var attacker = TestMinion("p-attacker", BoardSide.Player, 10, 30);
+            var playerFillerA = TestMinion("p-filler-a", BoardSide.Player, 0, 30);
+            var playerFillerB = TestMinion("p-filler-b", BoardSide.Player, 0, 30);
             var left = TestMinion("o-left", BoardSide.Opponent, 1, 30);
             var watcher = CardMinion("o-watcher", BoardSide.Opponent, BoneWatcherCardId, false, 3, 3, Keyword.Deathrattle, Keyword.Taunt);
             var right = TestMinion("o-right", BoardSide.Opponent, 1, 30);
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { attacker }, new[] { left, watcher, right }, 3103, 6);
+            var result = CombatEngine.SimulateBasicCombat(new[] { attacker, playerFillerA, playerFillerB }, new[] { left, watcher, right }, 3103, 2);
             var summonFrames = result.Replay.Frames
                 .Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == "o-watcher")
                 .ToList();
             var tokenIds = summonFrames.SelectMany(frame => frame.SummonedEntityIds).ToList();
             var finalSummonBoard = summonFrames.Last().OpponentBoardSnapshot.Minions;
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted && frame.AttackPointerSide == BoardSide.Opponent);
-            var nextOpponentAttack = result.Replay.Frames.First(frame => frame.Index > retarget.Index && frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Opponent);
+            var nextOpponentAttack = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Opponent);
 
             Assert.AreEqual(3, tokenIds.Count);
             Assert.AreEqual(tokenIds[0], finalSummonBoard[1].InstanceId);
@@ -126,9 +131,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(tokenIds[2], finalSummonBoard[3].InstanceId);
             Assert.IsTrue(tokenIds.All(id => finalSummonBoard.Single(minion => minion.InstanceId == id).Attack == 1));
             Assert.IsTrue(tokenIds.All(id => finalSummonBoard.Single(minion => minion.InstanceId == id).Health == 1));
-            Assert.AreEqual(tokenIds[0], retarget.TargetId);
-            Assert.AreEqual(1, retarget.AttackPointerIndex);
-            Assert.AreEqual(tokenIds[0], nextOpponentAttack.ActorId);
+            Assert.AreEqual(left.InstanceId, nextOpponentAttack.ActorId);
+            Assert.IsFalse(result.Replay.Frames.Any(frame =>
+                frame.EventType == CombatEventType.AttackPointerRetargeted &&
+                frame.AttackPointerSide == BoardSide.Opponent &&
+                tokenIds.Contains(frame.TargetId)));
         }
 
         [Test]
@@ -142,13 +149,16 @@ namespace LearnHearthstone.Tests.EditMode
             var result = CombatEngine.SimulateBasicCombat(playerBoard, new[] { opponent }, 3104, 4);
             var summonFrames = result.Replay.Frames.Where(frame => frame.EventType == CombatEventType.MinionSummoned && frame.ActorId == "p-watcher").ToList();
             var overflowFrames = result.Replay.Frames.Where(frame => frame.EventType == CombatEventType.SummonOverflowed && frame.ActorId == "p-watcher").ToList();
-            var retarget = result.Replay.Frames.First(frame => frame.EventType == CombatEventType.AttackPointerRetargeted && frame.AttackPointerSide == BoardSide.Player);
+            var nextPlayerAttack = result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.AttackDeclared && frame.ActorSide == BoardSide.Player)
+                .Skip(1)
+                .First();
 
             Assert.AreEqual(1, summonFrames.Count);
             Assert.AreEqual(2, overflowFrames.Sum(frame => frame.SummonOverflowCount));
             Assert.That(overflowFrames.SelectMany(frame => frame.OverflowedEntityIds).Count(), Is.EqualTo(2));
             Assert.LessOrEqual(overflowFrames.Last().PlayerBoardSnapshot.Minions.Count, 7);
-            Assert.AreEqual(summonFrames.Single().SummonedEntityIds.Single(), retarget.TargetId);
+            Assert.AreEqual(summonFrames.Single().SummonedEntityIds.Single(), nextPlayerAttack.ActorId);
         }
 
         [Test]

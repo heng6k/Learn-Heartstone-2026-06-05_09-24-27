@@ -44,6 +44,7 @@ namespace LearnHearthstone.Domain.Models
     public sealed class RecruitActionState
     {
         public string SourceInstanceId;
+        public string ActionId;
         public int UsesThisTurn;
         public int LastUsedRound;
         public int Cooldown;
@@ -63,6 +64,9 @@ namespace LearnHearthstone.Domain.Models
         public int TargetIndex = -1;
         public TargetZone TargetZone = TargetZone.Unspecified;
         public string TargetInstanceId;
+        public int SecondaryTargetIndex = -1;
+        public TargetZone SecondaryTargetZone = TargetZone.Unspecified;
+        public string SecondaryTargetInstanceId;
         public string ChoiceId;
 
         public RecruitActionRequest Clone()

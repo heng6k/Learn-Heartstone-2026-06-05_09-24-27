@@ -268,13 +268,14 @@ namespace LearnHearthstone.Tests.EditMode
         public void Combat_TimewarpedViperIsVenomousAndImmuneWhileAttacking()
         {
             var viper = TestMinion("viper", "BG34_Treasure_990", 1, 1);
+            var nonAttacker = TestMinion("viper-non-attacker", "NON_ATTACKER", 0, 20);
+            nonAttacker.CanAttack = false;
             var opponent = TestMinion("opponent", "OPPONENT", 10, 10);
 
-            var result = CombatEngine.SimulateBasicCombat(new[] { viper }, new[] { opponent }, 9005, 1);
+            var result = CombatEngine.SimulateBasicCombat(new[] { viper, nonAttacker }, new[] { opponent }, 9005, 1);
 
-            Assert.AreEqual(1, result.FinalPlayerBoard.Count);
-            Assert.AreEqual(viper.InstanceId, result.FinalPlayerBoard[0].InstanceId);
-            Assert.AreEqual(1, result.FinalPlayerBoard[0].Health);
+            var finalViper = result.FinalPlayerBoard.Single(minion => minion.InstanceId == viper.InstanceId);
+            Assert.AreEqual(1, finalViper.Health);
             Assert.AreEqual(0, result.FinalOpponentBoard.Count);
         }
 

@@ -114,6 +114,41 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(expectedStats, target.Health);
         }
 
+        [Test]
+        public void Tyrael_AndPrisonGuardRespectSetThenAddOrdering()
+        {
+            var setThenAdd = CreateService();
+            var tyrael = CreateCatalogMinion(setThenAdd, TyraelKey, "order-tyrael", false);
+            var guard = CreateCatalogMinion(setThenAdd, PrisonGuardKey, "order-guard", false);
+            var target = Minion("order-target", 2, 4);
+            setThenAdd.State.Player.Board.Add(tyrael);
+            setThenAdd.State.Player.Board.Add(guard);
+            setThenAdd.State.Player.Board.Add(target);
+            setThenAdd.State.Player.Tavern.Gold = 5;
+
+            Activate(setThenAdd, "activate:tyrael", tyrael, target);
+            Activate(setThenAdd, "activate:suspicious-prison-guard", guard, target);
+
+            Assert.AreEqual(43, target.Attack);
+            Assert.AreEqual(43, target.MaxHealth);
+
+            var addThenSet = CreateService();
+            tyrael = CreateCatalogMinion(addThenSet, TyraelKey, "reverse-tyrael", false);
+            guard = CreateCatalogMinion(addThenSet, PrisonGuardKey, "reverse-guard", false);
+            target = Minion("reverse-target", 2, 4);
+            addThenSet.State.Player.Board.Add(tyrael);
+            addThenSet.State.Player.Board.Add(guard);
+            addThenSet.State.Player.Board.Add(target);
+            addThenSet.State.Player.Tavern.Gold = 5;
+
+            Activate(addThenSet, "activate:suspicious-prison-guard", guard, target);
+            Activate(addThenSet, "activate:tyrael", tyrael, target);
+
+            Assert.AreEqual(40, target.Attack);
+            Assert.AreEqual(40, target.MaxHealth);
+            Assert.AreEqual(40, target.Health);
+        }
+
         private static MatchService CreateService()
         {
             var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");

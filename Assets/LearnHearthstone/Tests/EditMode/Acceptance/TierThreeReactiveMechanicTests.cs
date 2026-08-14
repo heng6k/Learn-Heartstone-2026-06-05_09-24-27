@@ -187,7 +187,7 @@ namespace LearnHearthstone.Tests.EditMode
             service.State.Player.Board.Add(TestMinion("p-undead-service", BoardSide.Player, 3, 3, Tribe.Undead));
             service.State.Opponent.Board.Add(TestMinion("o-wall-service", BoardSide.Opponent, 0, 50, Tribe.None));
 
-            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 3207, SafetyLimit = 3 }));
+            service.Apply(new GameCommand(GameCommandType.RunCombatTest, new CombatTestOptions { Seed = 3207, SafetyLimit = 1 }));
 
             Assert.AreEqual(1, service.State.Player.Tavern.UndeadAttackBonus);
             Assert.IsTrue(service.State.LastResult.PlayerRewards.Any(reward =>

@@ -171,6 +171,9 @@ namespace LearnHearthstone.Tests.EditMode
 
                 StringAssert.Contains("酒馆", Text(root.transform, "UnityRecruitActionTargetHint"));
                 StringAssert.Contains("不是己方战队", Text(root.transform, "UnityRecruitActionTargetHint"));
+                Assert.IsNull(
+                    FindPrefix(root.transform, "UnityCardRecruitActionButton-"),
+                    "Embedded Activate buttons must yield the full card raycast surface while targeting is active.");
                 Assert.IsNotNull(Find(root.transform, "UnityTargetingCancelButton"));
                 Find(root.transform, "UnityTargetingCancelButton").GetComponent<Button>().onClick.Invoke();
                 Assert.IsNull(Find(root.transform, "UnityRecruitActionTargetPanel"));
@@ -185,6 +188,129 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
                 Assert.AreEqual(8, service.State.Player.Tavern.Gold);
                 Assert.AreEqual(1, service.State.RecruitActionStates.Single().UsesThisTurn);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void ActivateIsEmbeddedOnItsMinionCardWithoutReplacingSellAndTracksUsedState()
+        {
+            var root = Root(1280, 720);
+            try
+            {
+                var service = CreateRecruitActionService(out var source, out var target);
+                Build(root, service);
+
+                var sourceCard = Find(root.transform, "UnityCard-" + source.InstanceId);
+                var embeddedAction = FindPrefix(sourceCard, "UnityCardRecruitActionButton-");
+                Assert.IsNotNull(embeddedAction, "An Activate carrier must expose Activate on the minion card before selection.");
+                Assert.IsTrue(embeddedAction.IsChildOf(sourceCard));
+                Assert.IsTrue(embeddedAction.GetComponent<Button>().interactable);
+                StringAssert.Contains("发动", embeddedAction.GetComponentInChildren<Text>(true).text);
+                StringAssert.Contains("1/1", embeddedAction.GetComponentInChildren<Text>(true).text);
+                Assert.GreaterOrEqual(embeddedAction.GetComponent<LayoutElement>().minHeight, 44f);
+                Assert.IsNotNull(
+                    Find(sourceCard, "UnityCardAction-" + source.InstanceId),
+                    "Embedding Activate must not remove the existing Sell action from the board card.");
+
+                embeddedAction.GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsNotNull(Find(root.transform, "UnityRecruitActionTargetPanel"));
+                Find(root.transform, "UnityCard-" + target.InstanceId).GetComponent<Button>().onClick.Invoke();
+                Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+
+                sourceCard = Find(root.transform, "UnityCard-" + source.InstanceId);
+                embeddedAction = FindPrefix(sourceCard, "UnityCardRecruitActionButton-");
+                Assert.IsNotNull(embeddedAction);
+                Assert.IsFalse(embeddedAction.GetComponent<Button>().interactable);
+                StringAssert.Contains("0/1", embeddedAction.GetComponentInChildren<Text>(true).text);
+                StringAssert.Contains("已用", embeddedAction.GetComponentInChildren<Text>(true).text);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void RebuildCancelsPendingActivateWhenItsSourceLeavesTheWarband()
+        {
+            var root = Root(1280, 720);
+            try
+            {
+                var service = CreateRecruitActionService(out var source, out _);
+                Build(root, service);
+                var sourceCard = Find(root.transform, "UnityCard-" + source.InstanceId);
+                FindPrefix(sourceCard, "UnityCardRecruitActionButton-").GetComponent<Button>().onClick.Invoke();
+                Assert.IsNotNull(Find(root.transform, "UnityRecruitActionTargetPanel"));
+
+                service.State.Player.Board.RemoveAll(item => item.InstanceId == source.InstanceId);
+                var controller = root.GetComponentInChildren<UnityTavernTrainerController>(true);
+                Assert.IsNotNull(controller);
+                controller.Rebuild();
+
+                Assert.IsNull(Find(root.transform, "UnityRecruitActionTargetPanel"));
+                StringAssert.Contains("来源已离场", AllText(root.transform, "UnityFeedbackToast"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void KelpKeeperScrapperActivateShowsBattlecrySourceThenExplicitMagneticTarget()
+        {
+            var root = Root(1280, 720);
+            try
+            {
+                var service = CreateSeason14Service();
+                service.State.Phase = MatchPhase.Tavern;
+                service.State.Player.Board.Clear();
+                service.State.Player.Tavern.Hand.Clear();
+                service.State.Player.Tavern.Shop.Clear();
+                service.State.Player.Tavern.Gold = 5;
+                service.State.Player.Tavern.Tier = 4;
+                var kelpDefinition = service.Catalogs.Minions.All.Single(item => item.CardId == "BG36_701");
+                var scrapperDefinition = service.Catalogs.Minions.All.Single(item => item.CardId == "BG29_503");
+                var kelp = MinionFactory.Create(kelpDefinition, BoardSide.Player, "ui-kelp", false, PoolSource.Copy, 0);
+                var scrapper = MinionFactory.Create(scrapperDefinition, BoardSide.Player, "ui-scrapper", false, PoolSource.Copy, 0);
+                var mechDefinition = Definition("UI_KELP_MECH", "明确的机械目标");
+                mechDefinition.Tribes = new List<Tribe> { Tribe.Mech };
+                var undeadDefinition = Definition("UI_KELP_UNDEAD", "无效的亡灵目标");
+                undeadDefinition.Tribes = new List<Tribe> { Tribe.Undead };
+                var mech = MinionFactory.Create(mechDefinition, BoardSide.Player, "ui-kelp-mech", false, PoolSource.Copy, 0);
+                var undead = MinionFactory.Create(undeadDefinition, BoardSide.Player, "ui-kelp-undead", false, PoolSource.Copy, 0);
+                service.State.Player.Board.Add(kelp);
+                service.State.Player.Board.Add(scrapper);
+                service.State.Player.Board.Add(mech);
+                service.State.Player.Board.Add(undead);
+                Build(root, service);
+
+                Find(root.transform, "UnityCard-" + kelp.InstanceId).GetComponent<Button>().onClick.Invoke();
+                FindPrefix(root.transform, "UnityRecruitActionButton-").GetComponent<Button>().onClick.Invoke();
+                Find(root.transform, "UnityCard-" + scrapper.InstanceId).GetComponent<Button>().onClick.Invoke();
+
+                StringAssert.Contains("战吼来源已锁定", Text(root.transform, "UnityRecruitActionTargetHint"));
+                Assert.AreEqual(
+                    UnityTavernTargetingState.ConfirmedTarget,
+                    Find(root.transform, "UnityCard-" + scrapper.InstanceId).GetComponent<UnityTavernCardComponent>().TargetingState);
+                Assert.AreEqual(
+                    UnityTavernTargetingState.Candidate,
+                    Find(root.transform, "UnityCard-" + mech.InstanceId).GetComponent<UnityTavernCardComponent>().TargetingState);
+                Assert.AreEqual(
+                    UnityTavernTargetingState.InvalidTarget,
+                    Find(root.transform, "UnityCard-" + undead.InstanceId).GetComponent<UnityTavernCardComponent>().TargetingState);
+
+                Find(root.transform, "UnityCard-" + mech.InstanceId).GetComponent<Button>().onClick.Invoke();
+
+                Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+                Assert.AreEqual(4, service.State.Player.Tavern.Gold);
+                Assert.NotNull(service.State.Player.Tavern.Discover);
+                Assert.AreEqual(mech.InstanceId, service.State.Player.Tavern.Discover.TargetInstanceId);
             }
             finally
             {
@@ -241,6 +367,12 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.IsFalse(action.interactable);
                 StringAssert.Contains("不可用", action.GetComponentInChildren<Text>().text);
                 StringAssert.Contains("需要解除封印", action.GetComponentInChildren<Text>().text);
+                var cardAction = FindPrefix(
+                    Find(root.transform, "UnityCard-" + source.InstanceId),
+                    "UnityCardRecruitActionButton-");
+                Assert.IsNotNull(cardAction);
+                Assert.IsFalse(cardAction.GetComponent<Button>().interactable);
+                StringAssert.Contains("需要解除封印", cardAction.GetComponentInChildren<Text>(true).text);
             }
             finally
             {

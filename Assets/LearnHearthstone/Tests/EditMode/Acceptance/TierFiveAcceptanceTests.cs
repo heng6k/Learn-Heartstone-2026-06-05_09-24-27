@@ -191,7 +191,7 @@ namespace LearnHearthstone.Tests.EditMode
             var exactCopy = copies.Single(minion => minion.Keywords.Contains(Keyword.Reborn));
             Assert.AreEqual(1, reborn.Health);
             Assert.That(reborn.InstanceId, Does.Contain("-reborn-"));
-            Assert.IsTrue(reborn.Enchantments.Any(enchantment => enchantment.Id == "bonehead-buff"));
+            Assert.IsFalse(reborn.Enchantments.Any(enchantment => enchantment.Id == "bonehead-buff"));
             Assert.IsTrue(exactCopy.InstanceId.StartsWith("kel-thuzad-"));
             Assert.IsTrue(exactCopy.Enchantments.Any(enchantment => enchantment.Id == "bonehead-buff"));
         }

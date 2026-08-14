@@ -164,6 +164,17 @@ Packages/packages-lock.json linguist-generated
 *.apk                   lfs
 *.exe                   lfs
 
+# Large release/tooling payloads whose temporary/text extensions do not identify
+# their binary or archival contents. Keep the exact paths in LFS so GitHub never
+# receives blobs above its regular 100 MiB file limit.
+/Tools/voicebox-installer/Voicebox_0.5.0_x64-setup.exe.partial lfs
+/TextToolDatas/slim/backup.txt lfs
+
+# Preserve generated/imported snapshots byte-for-byte. Their upstream formatting
+# intentionally contains trailing spaces and is not maintained as project source.
+/Assets/LearnHearthstone/Resources/CardImages/BG26_146.png.meta -whitespace
+/PromoVideo/LearnHeartstoneCombatPromo16x9/voicebox-work/** -whitespace
+
 # Documents
 *.pdf                   lfs
 

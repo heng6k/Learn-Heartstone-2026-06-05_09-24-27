@@ -72,6 +72,8 @@ namespace LearnHearthstone.Domain.Models
         public bool CapRemoved;
         public bool UsesApproximation;
         public bool Applied;
+        public bool Prevented;
+        public string PreventionSourceCardId;
     }
 
     [Serializable]

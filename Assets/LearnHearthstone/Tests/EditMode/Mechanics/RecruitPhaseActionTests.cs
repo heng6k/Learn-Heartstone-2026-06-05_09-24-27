@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
 using LearnHearthstone.Domain.Engine;
@@ -41,6 +42,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(5, target.Attack);
             Assert.AreEqual(1, state.RecruitActionStates.Count);
             Assert.AreEqual(source.InstanceId, state.RecruitActionStates[0].SourceInstanceId);
+            Assert.AreEqual("activate:test", state.RecruitActionStates[0].ActionId);
             Assert.AreEqual(1, state.RecruitActionStates[0].UsesThisTurn);
             Assert.AreEqual(state.Round, state.RecruitActionStates[0].LastUsedRound);
             CollectionAssert.AreEqual(new[] { "friendly target gained +3 Attack" }, result.Events);
@@ -131,6 +133,94 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void Execute_DifferentActionsOnSameSourceTrackUsesIndependently()
+        {
+            var state = CreateState();
+            var source = Minion("multi-action-source", 1, 1);
+            state.Player.Board.Add(source);
+            state.Player.Tavern.Gold = 5;
+            var firstDefinition = Definition(1, RecruitActionTargetSpec.None);
+            firstDefinition.ActionId = "activate:first";
+            var secondDefinition = Definition(1, RecruitActionTargetSpec.None);
+            secondDefinition.ActionId = "activate:second";
+
+            var first = RecruitActionService.Execute(
+                state,
+                firstDefinition,
+                new RecruitActionRequest { ActionId = firstDefinition.ActionId, SourceInstanceId = source.InstanceId },
+                _ => RecruitActionResolution.Success());
+            var second = RecruitActionService.Execute(
+                state,
+                secondDefinition,
+                new RecruitActionRequest { ActionId = secondDefinition.ActionId, SourceInstanceId = source.InstanceId },
+                _ => RecruitActionResolution.Success());
+
+            Assert.IsTrue(first.Succeeded, first.Message);
+            Assert.IsTrue(second.Succeeded, second.Message);
+            Assert.AreEqual(3, state.Player.Tavern.Gold);
+            CollectionAssert.AreEquivalent(
+                new[] { firstDefinition.ActionId, secondDefinition.ActionId },
+                state.RecruitActionStates.ConvertAll(item => item.ActionId));
+            Assert.IsTrue(state.RecruitActionStates.All(item => item.UsesThisTurn == 1));
+        }
+
+        [Test]
+        public void Execute_LegacyStateWithoutActionIdIsClaimedByTheExecutedAction()
+        {
+            var state = CreateState();
+            var source = Minion("legacy-action-source", 1, 1);
+            state.Player.Board.Add(source);
+            state.Player.Tavern.Gold = 5;
+            state.RecruitActionStates.Add(new RecruitActionState
+            {
+                SourceInstanceId = source.InstanceId,
+                UsesThisTurn = 1,
+                LastUsedRound = state.Round - 1
+            });
+
+            var result = RecruitActionService.Execute(
+                state,
+                Definition(1, RecruitActionTargetSpec.None),
+                Request(source.InstanceId),
+                _ => RecruitActionResolution.Success());
+
+            Assert.IsTrue(result.Succeeded, result.Message);
+            Assert.AreEqual(1, state.RecruitActionStates.Count);
+            Assert.AreEqual("activate:test", state.RecruitActionStates[0].ActionId);
+            Assert.AreEqual(1, state.RecruitActionStates[0].UsesThisTurn);
+            Assert.AreEqual(state.Round, state.RecruitActionStates[0].LastUsedRound);
+        }
+
+        [Test]
+        public void Execute_CommitCanMigrateTheProvisionalUseDuringSourceReplacement()
+        {
+            var state = CreateState();
+            var source = Minion("replacement-source", 1, 1);
+            state.Player.Board.Add(source);
+            state.Player.Tavern.Gold = 5;
+            var replacementId = "replacement-source-golden";
+
+            var result = RecruitActionService.Execute(
+                state,
+                Definition(1, RecruitActionTargetSpec.None),
+                Request(source.InstanceId),
+                _ => RecruitActionResolution.Success(live =>
+                {
+                    var provisional = live.RecruitActionStates.Single(item =>
+                        item.SourceInstanceId == source.InstanceId && item.ActionId == "activate:test");
+                    Assert.AreEqual(1, provisional.UsesThisTurn);
+                    provisional.SourceInstanceId = replacementId;
+                    var replacement = live.Player.Board.Single(item => item.InstanceId == source.InstanceId);
+                    replacement.InstanceId = replacementId;
+                }));
+
+            Assert.IsTrue(result.Succeeded, result.Message);
+            Assert.AreEqual(replacementId, state.RecruitActionStates.Single().SourceInstanceId);
+            Assert.AreEqual("activate:test", state.RecruitActionStates.Single().ActionId);
+            Assert.AreEqual(1, state.RecruitActionStates.Single().UsesThisTurn);
+        }
+
+        [Test]
         public void Execute_ResolverRejectionDoesNotPayOrCreateState()
         {
             var state = CreateState();
@@ -158,6 +248,7 @@ namespace LearnHearthstone.Tests.EditMode
             source.RecruitActionStates.Add(new RecruitActionState
             {
                 SourceInstanceId = "saved-source",
+                ActionId = "activate:saved",
                 UsesThisTurn = 1,
                 LastUsedRound = source.Round,
                 Cooldown = 2,
@@ -171,6 +262,7 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(TestScenarioRestoreStatus.Applied, restore.Status, restore.Message);
             Assert.AreEqual(1, target.RecruitActionStates.Count);
             Assert.AreEqual("saved-source", target.RecruitActionStates[0].SourceInstanceId);
+            Assert.AreEqual("activate:saved", target.RecruitActionStates[0].ActionId);
             Assert.AreEqual(1, target.RecruitActionStates[0].UsesThisTurn);
             Assert.AreEqual(source.Round, target.RecruitActionStates[0].LastUsedRound);
             Assert.AreEqual(2, target.RecruitActionStates[0].Cooldown);

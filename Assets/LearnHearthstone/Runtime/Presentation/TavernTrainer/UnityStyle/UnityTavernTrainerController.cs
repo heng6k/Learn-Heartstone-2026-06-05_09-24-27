@@ -389,6 +389,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             rebuildQueued = false;
+            EnsureRecruitActionUiStateIsLive();
             cardLibraryScrollRect = null;
             ClearChildren();
             keywordTooltip = null;
@@ -2930,6 +2931,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 {
                     ConfigureDraggableCard(cardObject, card, UnityTavernDragSource.PlayerBoard, index);
                     ConfigureBoardCardInteractions(cardObject, card);
+                    BuildEmbeddedRecruitActionButtons(cardObject, card);
                     if (card != null)
                     {
                         AddDropTarget(
@@ -3645,6 +3647,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             float height,
             bool flexibleWidth)
         {
+            if (HasActiveTargetingSession())
+            {
+                return;
+            }
+
             var source = SelectedPlayerBoardCard();
             if (source == null)
             {
@@ -3676,6 +3683,71 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
+        private void BuildEmbeddedRecruitActionButtons(GameObject cardObject, MinionInstance source)
+        {
+            if (cardObject == null || source == null || HasActiveTargetingSession())
+            {
+                return;
+            }
+
+            var actions = RecruitActionsFor(source)
+                .Where(action => action != null)
+                .ToList();
+            if (actions.Count == 0)
+            {
+                return;
+            }
+
+            var rackObject = new GameObject(
+                "UnityCardRecruitActionRack-" + source.InstanceId,
+                typeof(RectTransform),
+                typeof(VerticalLayoutGroup));
+            rackObject.transform.SetParent(cardObject.transform, false);
+            rackObject.transform.SetAsLastSibling();
+            var rackRect = rackObject.GetComponent<RectTransform>();
+            var rowHeight = Mathf.Max(44f, UnityTavernUiStyle.TouchHeight);
+            var rackHeight = actions.Count * rowHeight + Math.Max(0, actions.Count - 1) * 3f;
+            rackRect.anchorMin = new Vector2(0.08f, 1f);
+            rackRect.anchorMax = new Vector2(0.92f, 1f);
+            rackRect.pivot = new Vector2(0.5f, 1f);
+            rackRect.offsetMin = new Vector2(0f, -rackHeight - 4f);
+            rackRect.offsetMax = new Vector2(0f, -4f);
+
+            var layout = rackObject.GetComponent<VerticalLayoutGroup>();
+            layout.spacing = 3f;
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            foreach (var action in actions)
+            {
+                var captured = action.Clone();
+                var reason = RecruitActionUnavailableReason(source, action);
+                var button = ActionButton(
+                    "UnityCardRecruitActionButton-" + source.InstanceId + "-" + SafeObjectName(action.ActionId),
+                    rackObject.transform,
+                    RecruitActionCardLabel(source, action, reason),
+                    () => BeginRecruitAction(source, captured),
+                    0f,
+                    rowHeight,
+                    true,
+                    UnityTavernActionButtonRole.Primary,
+                    string.IsNullOrWhiteSpace(reason));
+                var label = button.GetComponentInChildren<Text>(true);
+                if (label != null)
+                {
+                    label.fontSize = 12;
+                    label.resizeTextForBestFit = true;
+                    label.resizeTextMinSize = 9;
+                    label.resizeTextMaxSize = 12;
+                    label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                    label.verticalOverflow = VerticalWrapMode.Truncate;
+                }
+            }
+        }
+
         private IReadOnlyList<RecruitActionDefinition> RecruitActionsFor(MinionInstance source)
         {
             if (source == null || service.Catalogs?.Minions == null)
@@ -3697,7 +3769,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             RecruitActionDefinition definition,
             string unavailableReason)
         {
-            var state = RecruitActionStateFor(source.InstanceId);
+            var state = RecruitActionStateFor(source, definition);
             var used = state != null && state.LastUsedRound == service.State.Round
                 ? Math.Max(0, state.UsesThisTurn)
                 : 0;
@@ -3712,6 +3784,27 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 : label + T("\n⛔ 不可用：", "\n⛔ Unavailable: ") + unavailableReason;
         }
 
+        private string RecruitActionCardLabel(
+            MinionInstance source,
+            RecruitActionDefinition definition,
+            string unavailableReason)
+        {
+            var state = RecruitActionStateFor(source, definition);
+            var used = state != null && state.LastUsedRound == service.State.Round
+                ? Math.Max(0, state.UsesThisTurn)
+                : 0;
+            var maximum = Math.Max(1, definition.UsesPerTurn);
+            var remaining = Math.Max(0, maximum - used);
+            var cost = Math.Max(0, definition.CostSpec?.Gold ?? 0);
+            var status = string.IsNullOrWhiteSpace(unavailableReason)
+                ? T("可用", "Ready")
+                : used >= maximum
+                    ? T("已用", "Used")
+                    : unavailableReason;
+            return T("发动", "Activate") + " · " + cost + T("金", "G") +
+                   "\n" + remaining + "/" + maximum + " · " + status;
+        }
+
         private string RecruitActionUnavailableReason(MinionInstance source, RecruitActionDefinition definition)
         {
             if (service.State.Phase != definition.AllowedPhase)
@@ -3719,7 +3812,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return T("当前阶段不可用", "Wrong phase");
             }
 
-            var actionState = RecruitActionStateFor(source.InstanceId);
+            var actionState = RecruitActionStateFor(source, definition);
             if (!string.IsNullOrWhiteSpace(actionState?.LockedReason))
             {
                 return actionState.LockedReason;
@@ -3747,10 +3840,31 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             return string.Empty;
         }
 
-        private RecruitActionState RecruitActionStateFor(string sourceInstanceId)
+        private RecruitActionState RecruitActionStateFor(
+            MinionInstance source,
+            RecruitActionDefinition definition)
         {
-            return (service.State.RecruitActionStates ?? new List<RecruitActionState>()).FirstOrDefault(item =>
-                item != null && string.Equals(item.SourceInstanceId, sourceInstanceId, StringComparison.Ordinal));
+            if (source == null || definition == null)
+            {
+                return null;
+            }
+
+            var states = service.State.RecruitActionStates ?? new List<RecruitActionState>();
+            var exact = states.FirstOrDefault(item =>
+                item != null &&
+                string.Equals(item.SourceInstanceId, source.InstanceId, StringComparison.Ordinal) &&
+                string.Equals(item.ActionId, definition.ActionId, StringComparison.Ordinal));
+            if (exact != null)
+            {
+                return exact;
+            }
+
+            return RecruitActionsFor(source).Count == 1
+                ? states.FirstOrDefault(item =>
+                    item != null &&
+                    string.Equals(item.SourceInstanceId, source.InstanceId, StringComparison.Ordinal) &&
+                    string.IsNullOrWhiteSpace(item.ActionId))
+                : null;
         }
 
         private string RecruitActionTargetLabel(RecruitActionTargetSpec targetSpec)
@@ -3776,6 +3890,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return;
             }
 
+            selectedInstanceId = source.InstanceId;
             pendingRecruitActionSourceInstanceId = source.InstanceId;
             pendingRecruitActionDefinition = definition.Clone();
             if (definition.TargetSpec == RecruitActionTargetSpec.None)
@@ -9172,9 +9287,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             row.childForceExpandWidth = false;
             row.childForceExpandHeight = true;
 
-            var hintText = pendingRecruitActionDefinition.TargetSpec == RecruitActionTargetSpec.TavernMinion
-                ? T("选择酒馆中的随从作为目标；不是己方战队随从。", "Choose a Tavern minion; not a minion in your warband.")
-                : RecruitActionTargetLabel(pendingRecruitActionDefinition.TargetSpec);
+            var hintText = !string.IsNullOrWhiteSpace(pendingPrimaryTargetInstanceId)
+                ? T("战吼来源已锁定；请选择它的效果目标。", "Battlecry source locked; choose its effect target.")
+                : pendingRecruitActionDefinition.TargetSpec == RecruitActionTargetSpec.TavernMinion
+                    ? T("选择酒馆中的随从作为目标；不是己方战队随从。", "Choose a Tavern minion; not a minion in your warband.")
+                    : RecruitActionTargetLabel(pendingRecruitActionDefinition.TargetSpec);
             var hint = UiFactory.Label(
                 "UnityRecruitActionTargetHint",
                 panel.transform,
@@ -9215,7 +9332,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                         : result.Message;
                 }
 
-                selectedInstanceId = sourceInstanceId;
+                selectedInstanceId = service.State.Player.Board.Any(item =>
+                    item != null &&
+                    string.Equals(item.InstanceId, sourceInstanceId, StringComparison.Ordinal))
+                    ? sourceInstanceId
+                    : null;
             }
             catch (Exception exception)
             {
@@ -9224,6 +9345,39 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             Rebuild();
+        }
+
+        private void EnsureRecruitActionUiStateIsLive()
+        {
+            if (string.IsNullOrWhiteSpace(pendingRecruitActionSourceInstanceId) &&
+                pendingRecruitActionDefinition == null)
+            {
+                return;
+            }
+
+            var source = service.State.Player.Board.FirstOrDefault(item =>
+                item != null &&
+                string.Equals(item.InstanceId, pendingRecruitActionSourceInstanceId, StringComparison.Ordinal));
+            var sourceIsValid = source != null &&
+                pendingRecruitActionDefinition != null &&
+                RecruitActionsFor(source).Any(action =>
+                    action != null &&
+                    string.Equals(
+                        action.ActionId,
+                        pendingRecruitActionDefinition.ActionId,
+                        StringComparison.Ordinal)) &&
+                service.State.Phase == pendingRecruitActionDefinition.AllowedPhase;
+            if (sourceIsValid)
+            {
+                return;
+            }
+
+            var sourceLeft = source == null;
+            ClearPendingRecruitAction();
+            lastError = null;
+            lastFeedback = sourceLeft
+                ? T("发动来源已离场，已取消目标选择。", "The Activate source left your warband; targeting was cancelled.")
+                : T("发动能力或阶段已变化，已取消目标选择。", "The Activate ability or phase changed; targeting was cancelled.");
         }
 
         private void CancelPendingRecruitAction()
@@ -9238,6 +9392,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             pendingRecruitActionSourceInstanceId = null;
             pendingRecruitActionDefinition = null;
+            ClearPendingPrimaryTarget();
         }
 
         private void BuildAdvancedChoiceStatusRow(Transform parent, AdvancedChoiceStatus status)
@@ -12266,6 +12421,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 return true;
             }
 
+            if (string.IsNullOrWhiteSpace(pendingPrimaryTargetInstanceId) &&
+                service.RecruitActionRequiresSecondaryTarget(pendingRecruitActionDefinition, card))
+            {
+                pendingPrimaryTargetIndex = request.TargetIndex;
+                pendingPrimaryTargetZone = request.TargetZone;
+                pendingPrimaryTargetInstanceId = request.TargetInstanceId;
+                selectedInstanceId = request.TargetInstanceId;
+                lastError = null;
+                lastFeedback = T(
+                    "战吼来源已锁定，请选择要接受该战吼效果的随从。",
+                    "Battlecry source locked. Choose the minion that receives its effect.");
+                Rebuild();
+                return true;
+            }
+
             ExecuteRecruitAction(request);
             return true;
         }
@@ -12274,6 +12444,47 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             request = null;
             if (card == null || pendingRecruitActionDefinition == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(pendingPrimaryTargetInstanceId))
+            {
+                var primaryTarget = service.State.Player.Board.FirstOrDefault(item =>
+                    item != null && string.Equals(item.InstanceId, pendingPrimaryTargetInstanceId, StringComparison.Ordinal));
+                var secondaryTargetIndex = service.State.Player.Board.FindIndex(item =>
+                    item != null && string.Equals(item.InstanceId, card.InstanceId, StringComparison.Ordinal));
+                if (primaryTarget == null ||
+                    secondaryTargetIndex < 0 ||
+                    string.Equals(primaryTarget.InstanceId, card.InstanceId, StringComparison.Ordinal) ||
+                    !service.TryValidatePlayerTarget(
+                        primaryTarget,
+                        secondaryTargetIndex,
+                        TargetZone.FriendlyBoard,
+                        card.InstanceId,
+                        out _))
+                {
+                    return false;
+                }
+
+                request = new RecruitActionRequest
+                {
+                    ActionId = pendingRecruitActionDefinition.ActionId,
+                    SourceInstanceId = pendingRecruitActionSourceInstanceId,
+                    TargetIndex = pendingPrimaryTargetIndex,
+                    TargetZone = pendingPrimaryTargetZone,
+                    TargetInstanceId = pendingPrimaryTargetInstanceId,
+                    SecondaryTargetIndex = secondaryTargetIndex,
+                    SecondaryTargetZone = TargetZone.FriendlyBoard,
+                    SecondaryTargetInstanceId = card.InstanceId
+                };
+                return true;
+            }
+
+            if (!service.IsRecruitActionTargetCandidate(
+                    pendingRecruitActionDefinition,
+                    pendingRecruitActionSourceInstanceId,
+                    card))
             {
                 return false;
             }
@@ -13101,7 +13312,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
                 if (state == UnityTavernTargetingState.ConfirmedTarget &&
                     string.Equals(card?.InstanceId, pendingPrimaryTargetInstanceId, StringComparison.OrdinalIgnoreCase))
                 {
-                    labelOverride = UnityTavernDragController.RequiresTwoTargets(activeDrag?.Card)
+                    labelOverride = IsRecruitActionTargeting()
+                        ? T("战吼来源已锁定", "Battlecry source locked")
+                        : UnityTavernDragController.RequiresTwoTargets(activeDrag?.Card)
                         ? T("目标 1 已锁定", "Target 1 locked")
                         : T("效果目标", "Effect target");
                 }
@@ -13555,7 +13768,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             if (IsRecruitActionTargeting())
             {
-                return FindCardRect(pendingRecruitActionSourceInstanceId);
+                return FindCardRect(string.IsNullOrWhiteSpace(pendingPrimaryTargetInstanceId)
+                    ? pendingRecruitActionSourceInstanceId
+                    : pendingPrimaryTargetInstanceId);
             }
 
             if (activeDrag?.Source == UnityTavernDragSource.GuideShapingSpell &&

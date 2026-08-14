@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LearnHearthstone.Adapters.Content;
 using LearnHearthstone.Adapters.Data;
 using LearnHearthstone.Application.Commands;
 using LearnHearthstone.Application.Services;
@@ -261,6 +262,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual("scrapper-magnetic", service.State.Player.Tavern.Discover.Source);
             Assert.AreEqual(target.InstanceId, service.State.Player.Tavern.Discover.TargetInstanceId);
             Assert.IsTrue(service.State.Player.Tavern.Discover.Options.All(card => card.Tribes.Contains(Tribe.Mech)));
+            Assert.IsTrue(service.State.Player.Tavern.Discover.Options.All(card => card.Keywords.Contains(Keyword.Magnetic)));
+            CollectionAssert.DoesNotContain(
+                service.State.Player.Tavern.Discover.Options.Select(card => card.CardId).ToList(),
+                "BG29_503",
+                "Clunker Junker only references Magnetic in its Battlecry and cannot be offered as a Magnetic attachment.");
             var picked = service.State.Player.Tavern.Discover.Options[0];
             var attackBefore = target.Attack;
             var healthBefore = target.MaxHealth;
@@ -270,6 +276,61 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(attackBefore + picked.Attack, target.Attack);
             Assert.AreEqual(healthBefore + picked.MaxHealth, target.MaxHealth);
             Assert.IsNull(service.State.Player.Tavern.Discover);
+        }
+
+        [Test]
+        public void TierFourScrapper_AtTierOneOnlyOffersLullabotFromTheMagneticPool()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            Assert.IsTrue(catalog.TryGetByCardId("BG26_146", out var lullabot));
+            Assert.AreEqual(1, lullabot.TavernTier);
+            Assert.AreEqual(2, lullabot.BaseAttack);
+            Assert.AreEqual(2, lullabot.BaseHealth);
+            Assert.IsTrue(lullabot.InPool);
+            Assert.IsTrue(lullabot.Keywords.Contains(Keyword.Magnetic));
+            Assert.IsNotNull(lullabot.Golden);
+            Assert.AreEqual("BG26_146_G", lullabot.Golden.CardId);
+            Assert.AreEqual(4, lullabot.Golden.BaseAttack);
+            Assert.AreEqual(4, lullabot.Golden.BaseHealth);
+
+            var magneticReferenceOnlyCardIds = new[]
+            {
+                "BG29_503",
+                "BG31_175",
+                "BG26_148",
+                "BG35_890",
+                "BG34_175",
+                "BG31_171"
+            };
+            foreach (var cardId in magneticReferenceOnlyCardIds)
+            {
+                var referencedOnly = catalog.All.Single(card => card.CardId == cardId);
+                Assert.IsFalse(
+                    referencedOnly.Keywords.Contains(Keyword.Magnetic),
+                    cardId + " only references Magnetize and must not enter Magnetic attachment pools.");
+                Assert.IsTrue(
+                    referencedOnly.OfficialKeywords.Contains(Keyword.Magnetic),
+                    cardId + " should retain the raw official reference keyword for source fidelity.");
+            }
+
+            var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("tier-four-scrapper-magnetic");
+            var resolved = snapshot.VersionedContent.CreateResolver().Resolve(GameVersionIds.Season14Preview, snapshot);
+            var service = MatchService.CreateWithResolvedVersion(
+                resolved,
+                94181,
+                new InMemoryTestScenarioRepository());
+            service.State.Player.Tavern.Tier = 1;
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var target = Card("tier-one-target-mech", BoardSide.Player, "TARGET_MECH", 1, 5, Tribe.Mech);
+            service.State.Player.Board.Add(target);
+
+            AddAndPlay(service, "BG29_503", 0);
+
+            Assert.IsNotNull(service.State.Player.Tavern.Discover);
+            Assert.IsNotEmpty(service.State.Player.Tavern.Discover.Options);
+            Assert.IsTrue(service.State.Player.Tavern.Discover.Options.All(card => card.CardId == "BG26_146"));
+            Assert.IsFalse(service.State.Player.Tavern.Discover.Options.Any(card => card.CardId == "BG_GVG_085" || card.CardId == "BG29_611"));
         }
 
         [Test]
@@ -296,6 +357,83 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(1 + first.Attack + second.Attack, target.Attack);
             Assert.AreEqual(attackBeforeSecond + second.Attack, target.Attack);
             Assert.IsNull(service.State.Player.Tavern.Discover);
+        }
+
+        [TestCase(Tribe.Mech)]
+        [TestCase(Tribe.Undead)]
+        public void TierFourProstheticHand_MagnetizesToItsDeclaredTargetTypes(Tribe targetTribe)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9420, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var target = Card("prosthetic-target-" + targetTribe, BoardSide.Player, "PROSTHETIC_TARGET", 2, 5, targetTribe);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG_DEEP_015", CardKind.Minion));
+            var source = service.State.Player.Tavern.Hand.Single();
+            var attackBefore = target.Attack;
+
+            Assert.IsTrue(service.TryValidateMagnetize(source, 0, TargetZone.FriendlyBoard, target.InstanceId, out var reason), reason);
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                PlayIntent.Magnetize,
+                targetIndex: 0,
+                targetZone: TargetZone.FriendlyBoard,
+                targetInstanceId: target.InstanceId));
+
+            Assert.AreEqual(attackBefore + source.Attack, target.Attack);
+            Assert.IsTrue(target.Keywords.Contains(Keyword.Reborn));
+        }
+
+        [TestCase(false, Tribe.Mech)]
+        [TestCase(false, Tribe.Elemental)]
+        [TestCase(true, Tribe.Mech)]
+        [TestCase(true, Tribe.Elemental)]
+        public void TechnicalElement_NormalAndGoldenMagnetizeToMechsOrElementals(bool golden, Tribe targetTribe)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9421, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var target = Card("technical-element-target-" + golden + "-" + targetTribe, BoardSide.Player, "TECHNICAL_ELEMENT_TARGET", 2, 5, targetTribe);
+            service.State.Player.Board.Add(target);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "BG31_859", CardKind.Minion));
+            var source = service.State.Player.Tavern.Hand.Single();
+            if (golden)
+            {
+                source.CardId = "BG31_859_G";
+                source.Golden = true;
+            }
+
+            var attackBefore = target.Attack;
+            var healthBefore = target.MaxHealth;
+
+            Assert.IsTrue(service.TryValidateMagnetize(source, 0, TargetZone.FriendlyBoard, target.InstanceId, out var reason), reason);
+            service.Apply(new GameCommand(
+                GameCommandType.PlayMinion,
+                0,
+                PlayIntent.Magnetize,
+                targetIndex: 0,
+                targetZone: TargetZone.FriendlyBoard,
+                targetInstanceId: target.InstanceId));
+
+            Assert.AreEqual(attackBefore + source.Attack, target.Attack);
+            Assert.AreEqual(healthBefore + source.MaxHealth, target.MaxHealth);
+            Assert.IsFalse(service.State.Player.Tavern.Hand.Any(card => card.InstanceId == source.InstanceId));
+        }
+
+        [TestCase(Tribe.Undead)]
+        [TestCase(Tribe.Elemental)]
+        public void OrdinaryMagneticMech_CannotMagnetizeToPureNonMechTarget(Tribe targetTribe)
+        {
+            var service = MatchService.CreateWithDefaultCatalog(9422, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            var target = Card("ordinary-target-" + targetTribe, BoardSide.Player, "NON_MECH_TARGET", 2, 5, targetTribe);
+            var source = Card("ordinary-magnetic", BoardSide.Player, "ORDINARY_MAGNETIC", 3, 3, Tribe.Mech, Keyword.Magnetic);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Hand.Add(source);
+
+            Assert.IsFalse(service.TryValidateMagnetize(source, 0, TargetZone.FriendlyBoard, target.InstanceId, out _));
         }
 
         [Test]

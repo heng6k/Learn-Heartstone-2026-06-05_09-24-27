@@ -80,6 +80,96 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsEmpty(service.State.RecruitActionStates);
         }
 
+        [Test]
+        public void Command_SellingSourcePrunesItsRecruitActionState()
+        {
+            var registry = new RecruitActionResolverRegistry();
+            registry.Register(ResolverId, _ => RecruitActionResolution.Success());
+            var service = CreateService(ResolverId, registry);
+            var source = Minion("activate-source-sell", SourceCardId, 1, 1);
+            var target = Minion("activate-target-sell", "TEST_ACTIVATE_TARGET", 2, 2);
+            service.State.Player.Board.Add(source);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Gold = 5;
+
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = ActionId,
+                SourceInstanceId = source.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.FriendlyBoard
+            }));
+            Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+
+            service.Apply(new GameCommand(GameCommandType.SellMinion, source.InstanceId));
+
+            Assert.IsFalse(service.State.RecruitActionStates.Any(state => state.SourceInstanceId == source.InstanceId));
+        }
+
+        [Test]
+        public void Command_ReturningAndReplayingSameSourceDoesNotResetTurnUse()
+        {
+            var registry = new RecruitActionResolverRegistry();
+            registry.Register(ResolverId, _ => RecruitActionResolution.Success());
+            var service = CreateService(ResolverId, registry);
+            var source = Minion("activate-source-return", SourceCardId, 1, 1);
+            var target = Minion("activate-target-return", "TEST_ACTIVATE_TARGET", 2, 2);
+            service.State.Player.Board.Add(source);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Gold = 5;
+
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = ActionId,
+                SourceInstanceId = source.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.FriendlyBoard
+            }));
+            service.Apply(new GameCommand(GameCommandType.MoveMinion, source.InstanceId));
+            var handIndex = service.State.Player.Tavern.Hand.FindIndex(item => item.InstanceId == source.InstanceId);
+            Assert.GreaterOrEqual(handIndex, 0);
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, handIndex));
+
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = ActionId,
+                SourceInstanceId = source.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.FriendlyBoard
+            }));
+
+            Assert.IsFalse(service.LastRecruitActionResult.Succeeded);
+            Assert.AreEqual("recruit-action.uses.exhausted", service.LastRecruitActionResult.Code);
+            Assert.AreEqual(1, service.State.RecruitActionStates.Count);
+            Assert.AreEqual(ActionId, service.State.RecruitActionStates[0].ActionId);
+        }
+
+        [Test]
+        public void Apply_SourceChangedToDefinitionWithoutActivatePrunesOldActionState()
+        {
+            var registry = new RecruitActionResolverRegistry();
+            registry.Register(ResolverId, _ => RecruitActionResolution.Success());
+            var service = CreateService(ResolverId, registry);
+            var source = Minion("activate-source-transform", SourceCardId, 1, 1);
+            var target = Minion("activate-target-transform", "TEST_ACTIVATE_TARGET", 2, 2);
+            service.State.Player.Board.Add(source);
+            service.State.Player.Board.Add(target);
+            service.State.Player.Tavern.Gold = 5;
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = ActionId,
+                SourceInstanceId = source.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.FriendlyBoard
+            }));
+
+            source.CardId = "TEST_NO_ACTIVATE_AFTER_TRANSFORM";
+            source.DefinitionId = "TEST_NO_ACTIVATE_AFTER_TRANSFORM";
+            service.Apply(new GameCommand(GameCommandType.DebugAddGold, 0));
+
+            Assert.IsFalse(service.State.RecruitActionStates.Any(state => state.SourceInstanceId == source.InstanceId));
+        }
+
         private static MatchService CreateService(string resolverId, RecruitActionResolverRegistry registry)
         {
             var baseline = MatchService.CreateWithDefaultCatalog(12345, new InMemoryTestScenarioRepository());
