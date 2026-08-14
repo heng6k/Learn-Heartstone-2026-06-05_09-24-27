@@ -25,23 +25,25 @@
 ### 想了解当前产品怎么上线
 
 1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：现行上传总入口；统一拆分“手机版轻量网页、完整 Unity 网页版、网页下载包”，并固定 Git 先行、干净候选、Cloudflare Preview/Production、ZIP 与证据提交顺序。
-2. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)
-3. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)
-4. [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md)
-5. [ProjectReliabilityArchitectureCompletion.zh-CN.md](ProjectReliabilityArchitectureCompletion.zh-CN.md)
-6. [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md)
-7. [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md)
-8. [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)
-9. [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)
-10. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
+2. [Releases/2026-08-14-mobile-picker-windows-web-release.md](Releases/2026-08-14-mobile-picker-windows-web-release.md)：当前最新完整发布基准；包含手机双重缩放修复、Windows D3D11/D3D12、R2 完整回读、最终 SHA、Preview/Production 与正式域名复验。
+3. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)
+4. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)
+5. [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md)
+6. [ProjectReliabilityArchitectureCompletion.zh-CN.md](ProjectReliabilityArchitectureCompletion.zh-CN.md)
+7. [WebGLWebReleaseReadinessSpec.zh-CN.md](WebGLWebReleaseReadinessSpec.zh-CN.md)
+8. [AlphaReleaseRoadmap.md](AlphaReleaseRoadmap.md)
+9. [OnlineServicesAndSharingArchitecturePlan.md](OnlineServicesAndSharingArchitecturePlan.md)
+10. [HeroEffectImplementationGaps.md](HeroEffectImplementationGaps.md)
+11. [UnityUiComprehensiveImprovementPlan.md](UnityUiComprehensiveImprovementPlan.md)
 
 ### 想提交手机版网页或完整网页版
 
 1. [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md)：先确定本轮交付面，再按共享内容、手机版网页、完整网页版、打包配置和发布记录分块提交。
-2. [Releases/2026-08-12-windows-download-hotfix.md](Releases/2026-08-12-windows-download-hotfix.md)：当前最新上线基准；记录 Windows 可缩放/最大化、D3D11/D3D12、R2 完整回读、新下载地址以及 Pages Preview/Production 身份。
-3. [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md)：首轮手机版/完整 Unity 网页、手机与电脑全屏、最终 Git/Cloudflare 身份、下载包哈希与回滚证据；旧 dirty 和中间候选不得复用。
-4. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 Unity ReleaseCandidate、Cloudflare Pages Preview、同一冻结 `dist` 的 Production 部署和正式域名复验。
-5. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：判断变更类型、版本号、测试门禁与回滚级别。
+2. [Releases/2026-08-14-mobile-picker-windows-web-release.md](Releases/2026-08-14-mobile-picker-windows-web-release.md)：当前最新完整上线基准；记录最终 Git、Windows/R2、WebGL、手机横竖屏和 Cloudflare 身份，以及残留 Vite/Brotli 协商等经验。
+3. [Releases/2026-08-12-windows-download-hotfix.md](Releases/2026-08-12-windows-download-hotfix.md)：上一版 Windows 可缩放/最大化与 R2 发布基准。
+4. [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md)：首轮手机版/完整 Unity 网页发布与回滚历史证据。
+5. [WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md](WebGLUiChangeSyncAndDeploymentGuide.zh-CN.md)：执行 Unity ReleaseCandidate、Cloudflare Pages Preview、同一冻结 `dist` 的 Production 部署和正式域名复验。
+6. [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md)：判断变更类型、版本号、测试门禁与回滚级别。
 
 ### 想处理线上补丁或规划下一阶段
 
@@ -115,6 +117,7 @@
 | 当前计划 | [PostLaunchProductRoadmap.zh-CN.md](PostLaunchProductRoadmap.zh-CN.md) | 新规则、新手一图流、纯残局、肉鸽爬塔和在线 1v1 的阶段依赖与退出条件 | 当前上线后产品主路线 |
 | 当前计划 | [Season14ProductizationImplementationPlan.zh-CN.md](Season14ProductizationImplementationPlan.zh-CN.md) | 36.2 玩法收口、Vue3/Windows、R2 一图流和移动分发的工作包、规则契约与验收门 | 当前四阶段实施基线 |
 | 发行上线 | [ThreeChannelReleaseSubmissionWorkflow.zh-CN.md](ThreeChannelReleaseSubmissionWorkflow.zh-CN.md) | 手机版轻量网页、完整 Unity 网页版、下载包与可选微信渠道的分块提交；Git 先行、Cloudflare Preview/Production、发布模板和回滚规则 | 后续所有网页上传的唯一总入口 |
+| 发行记录 | [Releases/2026-08-14-mobile-picker-windows-web-release.md](Releases/2026-08-14-mobile-picker-windows-web-release.md) | 手机一图流双重缩放修复、最终 Git SHA、Windows/R2、WebGL、Cloudflare Preview/Production、正式域名与故障恢复经验 | 当前最新完整上线基准与下一轮发布实战参考 |
 | 发行记录 | [Releases/2026-08-12-windows-download-hotfix.md](Releases/2026-08-12-windows-download-hotfix.md) | 玩家文案热修、Windows 可缩放/最大化、退出验收、R2 完整回读、新下载地址和 Cloudflare 部署证据 | 当前最新上线与后续上传基准 |
 | 发行记录 | [Releases/2026-08-12-web-release.md](Releases/2026-08-12-web-release.md) | 手机版/完整 Unity 网页、全屏入口、干净 WebGL 候选、Cloudflare Preview/Production、下载包与回滚证据 | 2026-08-12 已上线版本的最终发布证据 |
 | 发行上线 | [PatchSubmissionAndReleasePolicy.zh-CN.md](PatchSubmissionAndReleasePolicy.zh-CN.md) | 补丁分类、版本、测试门禁、不停服升级、Cloudflare Preview/Production 与事故回滚 | 所有线上变更的决策规范 |

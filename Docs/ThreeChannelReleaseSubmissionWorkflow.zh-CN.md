@@ -154,6 +154,8 @@ Pop-Location
 
 4. 通过 HTTP 验收 `WebApp/dist`。不要双击 `index.html`。
 
+在 Windows 上启动本地预览前，先确认验收端口没有被旧 `node ... vite preview` 占用。部分测试包装器只能停止 `npm` 父进程，可能留下 Vite 子进程继续提供旧 `dist`；这会造成“源码与新 dist 都正确，但浏览器仍显示旧下载地址”的假象。发现异常时用 `netstat -ano -p tcp` 定位 PID，读取命令行确认归属后只关闭该旧进程，或改用未占用端口，再从 dist 搜索旧版本标识并重跑 smoke。
+
 ### 6.2 检查完整浏览器路径
 
 至少检查 390×844、1280×720 和 1600×900 三个视口：
@@ -168,6 +170,8 @@ Pop-Location
 8. 桌面浏览器检查原生网页全屏的进入与退出；手机检查沉浸式/PWA 引导、竖屏提示和无法调用原生全屏时的清晰回退。
 
 稳定验收链路上的完整 Unity 冷启动目标仍为 300s 内。超时或断连时先分层定位：如果存在资源 4xx/5xx、哈希不一致、加载器报错，或在稳定网络上可复现，则阻断发布；如果仅特定机器到 `*.pages.dev` 出现 TLS/连接重置，而同一 `dist` 在本地 `wrangler pages dev` 可完整启动、线上路由与响应头正常，则记录吞吐、错误和交叉证据，不把外部链路问题误判为 Unity 构建失败，也不得仅为过门禁而调大超时。
+
+检查 Brotli 时必须发送浏览器等价的 `Accept-Encoding: br, gzip`。未声明支持 Brotli 的 curl 请求可能正确地不返回 `Content-Encoding: br`，不能据此误判 Pages 中间件失效。
 
 ## 7. 决定 Preview 与 Production
 
@@ -262,6 +266,8 @@ Windows 原生包不继承 WebGL 的“浏览器可运行”结论，至少需�
 6. R2 使用新对象键和 immutable 缓存；上传后从 R2 完整下载回读并重算 SHA-256。
 7. 正式域名的下载按钮、公开 manifest、Content-Length、Content-Type 与下载文件名全部一致。
 8. CDN 长链路受本机网络影响时，如实记录已通过的范围和失败现象；可用 R2 管理端完整回读作为对象完整性证据，但不得虚写未完成的公网分段数量。
+
+如果 R2 上传和下载清单更新发生在 Unity 功能提交之后，必须在清单提交 push 后，从最终 SHA 的干净工作树重新组装 ReleaseCandidate。允许复用已验 Unity 二进制，但要记录复用边界，保证 `sourceDirty=false`，并确认重组前后的 `packageFingerprint` 一致。最终站点的 `currentVersion.contentSnapshotId`、更新时间、WebGL 数据规模和 Windows manifest 也必须相互对应，不能只替换下载按钮 URL。
 
 ## 10. 复制发布记录模板
 
@@ -391,7 +397,8 @@ Windows 原生包不继承 WebGL 的“浏览器可运行”结论，至少需�
 
 ## 14. 当前发布记录
 
+- [2026-08-14 手机一图流选择器、Windows 与网页同步发布记录](Releases/2026-08-14-mobile-picker-windows-web-release.md)
 - [2026-08-12 Windows 下载与网页文案热修发布记录](Releases/2026-08-12-windows-download-hotfix.md)
 - [2026-08-12 手机版网页、完整 Unity 网页版与下载包发布记录](Releases/2026-08-12-web-release.md)
-- 后续操作以 Windows 热修记录为最新基准，并从对应 Git 源提交创建干净工作树；不得从主工作区的未提交文件或第 12 节旧候选上传。
+- 后续操作以 2026-08-14 同步发布记录为最新基准，并重点复用其中的 R2 完整回读、最终 SHA 重组候选、残留 Vite 端口排查和 Brotli 协商验证；不得从主工作区的未提交文件或第 12 节旧候选上传。
 - Preview、Production、下载包和发布后复验结果统一回填到该记录，后续发布沿用同一结构新建文件。
