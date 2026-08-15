@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "generatedAtUtc": "2026-08-14T17:30:00.505Z",
-  "publishedAtUtc": "2026-08-14T17:39:52.327Z",
+  "generatedAtUtc": "2026-08-15T07:35:30.663Z",
+  "publishedAtUtc": "2026-08-15T07:50:32.014Z",
   "platform": "Windows-x64",
   "clientVersion": "0.1.0-alpha",
-  "contentSnapshotId": "36.2-20260815-1baa487",
+  "contentSnapshotId": "36.2-20260815-6d347b6",
   "gameVersionId": "36.2-preview",
   "rulesetId": "ruleset-36.2-preview-v1",
-  "packageFingerprint": "2af383155920186519dffc52a8f568f2b04cbcf896e5fe751150bd9579dfcf11",
+  "packageFingerprint": "4244594f08614340a1516025ac4e78a69c81d7548990887fbc35f4ff4cf0db3d",
   "unityVersion": "6000.4.10f1",
-  "sourceCommit": "1baa4876810cd75d4a793edefec6417b89517722",
+  "sourceCommit": "6d347b69da8a407fa36b2ba13457534ce97e8670",
   "sourceDirty": false,
   "artifact": {
-    "fileName": "LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1.zip",
-    "bytes": 185206303,
-    "sha256": "2b6d183eed654e087731c5e0d35cf0471a49e6fa8cd44a943015df31c1820adb"
+    "fileName": "LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-6d347b6__build-6d347b6-r2.zip",
+    "bytes": 185206933,
+    "sha256": "7a10712875b03831a352350517261e29f7089ee6fac0d169897b8e68dd618078"
   },
   "delivery": {
     "provider": "Cloudflare R2",
     "bucket": "learn-heartstone-releases",
-    "objectKey": "windows/36.2-preview/0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1.zip",
-    "url": "https://downloads.jsoncool.com/windows/36.2-preview/0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-1baa487__build-1baa487-r1.zip"
+    "objectKey": "windows/36.2-preview/0.1.0-alpha__36.2-20260815-6d347b6__build-6d347b6-r2/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-6d347b6__build-6d347b6-r2.zip",
+    "url": "https://downloads.jsoncool.com/windows/36.2-preview/0.1.0-alpha__36.2-20260815-6d347b6__build-6d347b6-r2/LearnHeartstone-Windows-x64-0.1.0-alpha__36.2-20260815-6d347b6__build-6d347b6-r2.zip"
   },
   "validation": {
-    "buildJobId": "build-1baa487-r1",
+    "buildJobId": "build-6d347b6-r2",
     "buildResult": "succeeded",
     "contentIdentity": "passed",
     "runtimeLogErrors": 0,
