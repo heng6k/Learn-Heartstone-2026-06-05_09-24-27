@@ -96,6 +96,16 @@
 
 HearthstoneJSON 的 `battlegroundsPremiumDbfId` / `battlegroundsNormalDbfId` 明确把上述普通与金色 token 配成一对。它们不是“池内普通随从”，但仍然拥有合法金色版本。
 
+### 木乃伊工匠与断手的复生语义（2026-08-15 已验证）
+
+- `BG25_010` 断手被遗忘者本体初始只有有效亡语，不具有有效复生；卡面 `officialKeywords` 保留 Reborn 是因为亡语文本引用了该关键字。
+- 断手亡语召唤的 `reborn-hand` / Helping Hand 才真正具有复生。普通断手召唤一只 2/1，金色断手召唤两只 2/1；外部效果另行赋予断手本体复生仍是合法状态。
+- `BG28_309` 木乃伊工匠本体同样不自带复生。单次亡语从存活、尚无复生、且按统一种族规则计为亡灵的友方随从中随机选择：普通最多 1 个，金色最多 2 个；选择不放回，候选不足时按实际数量执行。
+- “不同”按卡牌身份处理：所有普通/金色木乃伊工匠都不能成为另一只木乃伊工匠的目标，避免同名互相授予复生；亡灵双种族与全部种族随从均是合法候选。
+- 战斗死亡、招募阶段死亡、Titus 额外亡语次数共用同一目标规则。Titus 的每一次额外亡语独立执行，已获得复生的目标会从后续候选中排除。
+- 大地母亲之眼、三连和其它共享点金入口都以同一个 `Golden` 运行时状态进入该亡语，因此不能为不同点金来源复制单卡分支。
+- 本轮门禁覆盖普通/金色目录有效与官方关键字、断手本体与 Hand 衍生物、大地母亲之眼、共享点金转换器、三连、跨种子随机、普通/金色同名排除、亡灵双种族、全部种族、候选不足、Titus 与招募阶段死亡；专项 EditMode 结果为 28/28。
+
 ## 当前项目链路
 
 ### 回合结束到 Archlich
@@ -637,6 +647,8 @@ PoolCopiesHeld = 0
 ### 官方与结构化卡牌数据
 
 - [HearthstoneJSON latest enUS cards](https://api.hearthstonejson.com/v1/latest/enUS/cards.json)：Goldrinn、Warghoul、Bonehead、Handless、Skeleton、Helping Hand、Crab 的普通/金色文本和 DBF 映射。
+- [Handless Forsaken 官方卡牌页](https://hearthstone.blizzard.com/en-gb/battlegrounds/95265-handless-forsaken?bgCardType=minion&minionType=undead&tier=4)：本体亡语召唤具有 Reborn 的 Hand，Reborn 属于衍生物语义。
+- [Mummifier 规则资料](https://hearthstone.wiki.gg/wiki/Battlegrounds/Mummifier)：普通/金色目标数量、随机目标元数据与“different”语义的交叉核对。
 - [Blizzard 34.2 Patch Notes](https://hearthstone.blizzard.com/en-us/news/24244423/34-2-patch-notes-battlegrounds-arena-and-gameplay-updates)：时空酒馆内容的官方版本背景。
 - [Timewarped Warghoul 官方卡牌页](https://hearthstone.blizzard.com/en-us/cards/127443-timewarped-warghoul)。
 - [Goldrinn 官方卡牌页](https://hearthstone.blizzard.com/en-us/cards/59955-goldrinn-the-great-wolf)。

@@ -28,7 +28,11 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.IsTrue(watcher.InPool);
             Assert.IsTrue(raptor.InPool);
             Assert.That(handless.Keywords, Does.Contain(Keyword.Deathrattle));
-            Assert.That(handless.Keywords, Does.Contain(Keyword.Reborn));
+            Assert.IsFalse(handless.Keywords.Contains(Keyword.Reborn));
+            Assert.That(handless.OfficialKeywords, Does.Contain(Keyword.Reborn));
+            Assert.That(handless.Golden.Keywords, Does.Contain(Keyword.Deathrattle));
+            Assert.IsFalse(handless.Golden.Keywords.Contains(Keyword.Reborn));
+            Assert.That(handless.Golden.OfficialKeywords, Does.Contain(Keyword.Reborn));
             Assert.That(watcher.Keywords, Does.Contain(Keyword.Deathrattle));
             Assert.That(raptor.Keywords, Does.Contain(Keyword.Deathrattle));
             Assert.That(raptor.Tribes, Does.Contain(Tribe.Beast));
@@ -79,7 +83,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void HandlessForsaken_DeathrattleResolvesBeforeSourceRebornAndSummonedHandAttacksFirst()
+        public void HandlessForsaken_WithGrantedReborn_DeathrattleResolvesBeforeSourceRebornAndSummonedHandAttacksFirst()
         {
             var handless = CardMinion("p-handless", BoardSide.Player, HandlessForsakenCardId, false, 2, 1, Keyword.Deathrattle, Keyword.Reborn);
             var opponentA = TestMinion("o-attacker", BoardSide.Opponent, 1, 50);

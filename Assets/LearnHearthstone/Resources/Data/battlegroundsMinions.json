@@ -2643,8 +2643,7 @@
       ],
       "tribesText": "亡灵",
       "keywords": [
-        "亡语",
-        "复生"
+        "亡语"
       ],
       "text": "亡语：召唤一只2/1并具有复生的手。",
       "goldenDbfId": 95266,
@@ -2655,8 +2654,11 @@
         "health": 2,
         "text": "亡语：召唤两只2/1并具有复生的手。",
         "keywords": [
-          "亡语",
-          "复生"
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle",
+          "Reborn"
         ],
         "englishText": "<b>Deathrattle:</b> Summon two 2/1 Hands with <b>Reborn</b>."
       },
@@ -2683,8 +2685,7 @@
       ],
       "tribesText": "亡灵",
       "keywords": [
-        "亡语",
-        "复生"
+        "亡语"
       ],
       "text": "亡语：使一个不同的友方亡灵获得复生。",
       "goldenDbfId": 109003,
@@ -2695,8 +2696,11 @@
         "health": 4,
         "text": "亡语：使2个不同的友方亡灵获得复生。",
         "keywords": [
-          "亡语",
-          "复生"
+          "亡语"
+        ],
+        "officialKeywords": [
+          "Deathrattle",
+          "Reborn"
         ],
         "englishText": "<b>Deathrattle:</b> Give 2 different friendly Undead <b>Reborn</b>."
       },

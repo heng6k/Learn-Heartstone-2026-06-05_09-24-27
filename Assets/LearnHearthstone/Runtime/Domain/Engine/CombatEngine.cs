@@ -6244,27 +6244,45 @@ namespace LearnHearthstone.Domain.Engine
 
         private static void GiveDifferentUndeadReborn(CombatContext context, CombatSideState owner, MinionInstance source)
         {
-            var target = owner.Board.FirstOrDefault(minion => minion.InstanceId != source.InstanceId && IsAlive(minion) && minion.Tribes.Contains(Tribe.Undead) && !minion.Keywords.Contains(Keyword.Reborn));
-            if (target == null)
+            var candidates = owner.Board
+                .Where(minion =>
+                    IsAlive(minion) &&
+                    !string.Equals(minion.CardId, MummifierCardId, StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(minion.CardId, MummifierCardId + "_G", StringComparison.OrdinalIgnoreCase) &&
+                    HasCountedTribe(minion, Tribe.Undead) &&
+                    !minion.Keywords.Contains(Keyword.Reborn))
+                .ToList();
+            var targetCount = Math.Min(source.Golden ? 2 : 1, candidates.Count);
+            if (targetCount == 0)
             {
                 return;
             }
 
-            target.Keywords.Add(Keyword.Reborn);
-            AddLog(context.Log, "DeathrattleResolved", source.InstanceId + " gave Reborn to " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
-            RecordFrame(
-                context,
-                CombatEventType.DeathrattleResolved,
-                source.InstanceId + " gave Reborn to " + target.InstanceId,
-                owner.Side,
-                source.InstanceId,
-                owner.Side,
-                target.InstanceId,
-                new[] { source.InstanceId, target.InstanceId },
-                null,
-                null,
-                null,
-                new[] { source.InstanceId });
+            var rng = new SeededRng(
+                context.Seed +
+                context.AttackSequence * 997 +
+                context.Replay.Frames.Count * 31 +
+                candidates.Count * 17);
+            for (var index = 0; index < targetCount; index += 1)
+            {
+                var target = rng.Pick(candidates);
+                candidates.Remove(target);
+                AddKeyword(target, Keyword.Reborn);
+                AddLog(context.Log, "DeathrattleResolved", source.InstanceId + " gave Reborn to " + target.InstanceId, source.InstanceId, target.InstanceId, LogSeverity.Good);
+                RecordFrame(
+                    context,
+                    CombatEventType.DeathrattleResolved,
+                    source.InstanceId + " gave Reborn to " + target.InstanceId,
+                    owner.Side,
+                    source.InstanceId,
+                    owner.Side,
+                    target.InstanceId,
+                    new[] { source.InstanceId, target.InstanceId },
+                    null,
+                    null,
+                    null,
+                    new[] { source.InstanceId });
+            }
         }
 
         private static void ApplyBloodGemsToAdjacent(CombatSideState owner, int deadIndex, int count)

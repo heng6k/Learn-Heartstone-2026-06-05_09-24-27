@@ -238,6 +238,162 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
+        public void TierThreeCatalog_MummifierReferencesRebornWithoutStartingWithIt()
+        {
+            var definition = MinionCatalogLoader.LoadFromResources().GetByCardId("BG28_309");
+
+            Assert.That(definition.Keywords, Does.Contain(Keyword.Deathrattle));
+            Assert.IsFalse(definition.Keywords.Contains(Keyword.Reborn));
+            Assert.That(definition.OfficialKeywords, Does.Contain(Keyword.Reborn));
+            Assert.That(definition.Golden.Keywords, Does.Contain(Keyword.Deathrattle));
+            Assert.IsFalse(definition.Golden.Keywords.Contains(Keyword.Reborn));
+            Assert.That(definition.Golden.OfficialKeywords, Does.Contain(Keyword.Reborn));
+        }
+
+        [Test]
+        public void TierThreeCombat_EyesOfTheEarthMotherGoldenMummifierGivesTwoDifferentUndeadReborn()
+        {
+            var service = MatchService.CreateWithDefaultCatalog(8820, new InMemoryTestScenarioRepository());
+            service.State.Player.Board.Clear();
+            service.State.Player.Tavern.Hand.Clear();
+            AddAndPlay(service, "BG28_309");
+            var source = service.State.Player.Board.Single();
+            source.InstanceId = "p-eyes-mummifier";
+            source.Keywords.Remove(Keyword.Reborn);
+            var first = CardMinion("p-eyes-undead-a", BoardSide.Player, "UNDEAD_A", 2, 20, Tribe.Undead);
+            var second = CardMinion("p-eyes-undead-b", BoardSide.Player, "UNDEAD_B", 2, 20, Tribe.Undead);
+            service.State.Player.Board.Add(first);
+            service.State.Player.Board.Add(second);
+            service.Apply(new GameCommand(GameCommandType.AddCardToHand, "100601", CardKind.TavernSpell));
+
+            service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, 0));
+
+            Assert.IsTrue(source.Golden);
+            var targets = ResolveMummifierTargets(service.State.Player.Board, source.InstanceId, 8820);
+            CollectionAssert.AreEquivalent(new[] { first.InstanceId, second.InstanceId }, targets);
+        }
+
+        [Test]
+        public void TierThreeCombat_SharedGoldenTransformerMummifierUsesTwoTargetEffect()
+        {
+            var catalog = MinionCatalogLoader.LoadFromResources();
+            var source = CardMinion("p-shared-golden-mummifier", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle);
+            var first = CardMinion("p-shared-golden-undead-a", BoardSide.Player, "UNDEAD_A", 2, 20, Tribe.Undead);
+            var second = CardMinion("p-shared-golden-undead-b", BoardSide.Player, "UNDEAD_B", 2, 20, Tribe.Undead);
+
+            Assert.IsTrue(GoldenMinionTransformer.MakeGoldenInPlace(source, catalog));
+            var targets = ResolveMummifierTargets(new[] { source, first, second }, source.InstanceId, 8825);
+
+            Assert.IsTrue(source.Golden);
+            CollectionAssert.AreEquivalent(new[] { first.InstanceId, second.InstanceId }, targets);
+        }
+
+        [Test]
+        public void TierThreeCombat_TripleMummifierUsesGoldenTwoTargetEffect()
+        {
+            var materials = new[]
+            {
+                CardMinion("material-a", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle),
+                CardMinion("material-b", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle),
+                CardMinion("material-c", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle)
+            };
+            var source = TripleEngine.CreateGoldenFromMaterials(materials, "bg28_309", BoardSide.Player, "mummifier-test");
+            var first = CardMinion("p-triple-undead-a", BoardSide.Player, "UNDEAD_A", 2, 20, Tribe.Undead);
+            var second = CardMinion("p-triple-undead-b", BoardSide.Player, "UNDEAD_B", 2, 20, Tribe.Undead);
+
+            var targets = ResolveMummifierTargets(new[] { source, first, second }, source.InstanceId, 8821);
+
+            Assert.IsTrue(source.Golden);
+            CollectionAssert.AreEquivalent(new[] { first.InstanceId, second.InstanceId }, targets);
+        }
+
+        [Test]
+        public void TierThreeCombat_NormalMummifierRandomlySelectsExactlyOneCandidate()
+        {
+            var selectedAcrossSeeds = new HashSet<string>();
+            for (var seed = 8822; seed < 8842; seed += 1)
+            {
+                var source = CardMinion("p-random-mummifier", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle);
+                var candidates = new[]
+                {
+                    CardMinion("p-random-a", BoardSide.Player, "UNDEAD_A", 2, 20, Tribe.Undead),
+                    CardMinion("p-random-b", BoardSide.Player, "UNDEAD_B", 2, 20, Tribe.Undead),
+                    CardMinion("p-random-c", BoardSide.Player, "UNDEAD_C", 2, 20, Tribe.Undead)
+                };
+
+                var targets = ResolveMummifierTargets(new[] { source }.Concat(candidates), source.InstanceId, seed);
+
+                Assert.AreEqual(1, targets.Count, "seed " + seed);
+                selectedAcrossSeeds.Add(targets.Single());
+            }
+
+            Assert.Greater(selectedAcrossSeeds.Count, 1, "Mummifier must not always select the leftmost candidate.");
+        }
+
+        [Test]
+        public void TierThreeRecruitDeath_GoldenMummifierExcludesAllMummifiersAndUsesUnifiedUndeadTribeRules()
+        {
+            var source = CardMinion("p-recruit-mummifier", BoardSide.Player, "BG28_309", 10, 4, Tribe.Undead, Keyword.Deathrattle);
+            source.Golden = true;
+            var otherMummifier = CardMinion("p-other-mummifier", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle);
+            var otherGoldenMummifier = CardMinion("p-other-golden-mummifier", BoardSide.Player, "BG28_309_G", 10, 4, Tribe.Undead, Keyword.Deathrattle);
+            otherGoldenMummifier.Golden = true;
+            var handless = CardMinion("p-handless", BoardSide.Player, "BG25_010", 2, 1, Tribe.Undead, Keyword.Deathrattle);
+            var allTribes = CardMinion("p-all", BoardSide.Player, "ALL_TRIBES", 2, 20, Tribe.All);
+            var alreadyReborn = CardMinion("p-reborn", BoardSide.Player, "UNDEAD_REBORN", 2, 20, Tribe.Undead, Keyword.Reborn);
+            var nonUndead = CardMinion("p-neutral", BoardSide.Player, "NEUTRAL", 2, 20, Tribe.None);
+            var board = new List<MinionInstance> { source, otherMummifier, otherGoldenMummifier, handless, allTribes, alreadyReborn, nonUndead };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, source, new TavernState(), new List<MinionInstance>(), 8842, "test");
+
+            Assert.IsFalse(otherMummifier.Keywords.Contains(Keyword.Reborn));
+            Assert.IsFalse(otherGoldenMummifier.Keywords.Contains(Keyword.Reborn));
+            Assert.That(handless.Keywords, Does.Contain(Keyword.Reborn));
+            Assert.That(allTribes.Keywords, Does.Contain(Keyword.Reborn));
+            Assert.That(alreadyReborn.Keywords.Count(keyword => keyword == Keyword.Reborn), Is.EqualTo(1));
+            Assert.IsFalse(nonUndead.Keywords.Contains(Keyword.Reborn));
+        }
+
+        [Test]
+        public void TierThreeRecruitDeath_NormalMummifierAcceptsDualUndeadCandidate()
+        {
+            var source = CardMinion("p-dual-mummifier", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle);
+            var dualUndead = CardMinion("p-dual-undead", BoardSide.Player, "DUAL_UNDEAD_MECH", 2, 20, Tribe.Mech);
+            dualUndead.Tribes.Add(Tribe.Undead);
+            var board = new List<MinionInstance> { source, dualUndead };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, source, new TavernState(), new List<MinionInstance>(), 8845, "test");
+
+            Assert.That(dualUndead.Keywords, Does.Contain(Keyword.Reborn));
+        }
+
+        [Test]
+        public void TierThreeRecruitDeath_GoldenMummifierUsesAvailableCandidateWhenOnlyOneExists()
+        {
+            var source = CardMinion("p-shortage-mummifier", BoardSide.Player, "BG28_309", 10, 4, Tribe.Undead, Keyword.Deathrattle);
+            source.Golden = true;
+            var onlyCandidate = CardMinion("p-only-undead", BoardSide.Player, "UNDEAD", 2, 20, Tribe.Undead);
+            var board = new List<MinionInstance> { source, onlyCandidate };
+
+            CombatEngine.ResolveRecruitPhaseDeath(board, source, new TavernState(), new List<MinionInstance>(), 8843, "test");
+
+            Assert.That(onlyCandidate.Keywords, Does.Contain(Keyword.Reborn));
+        }
+
+        [Test]
+        public void TierThreeCombat_TitusRepeatsMummifierDeathrattleAgainstRemainingCandidates()
+        {
+            var source = CardMinion("p-titus-mummifier", BoardSide.Player, "BG28_309", 5, 2, Tribe.Undead, Keyword.Deathrattle);
+            var titus = CardMinion("p-titus", BoardSide.Player, "BG25_354", 1, 30, Tribe.None);
+            var first = CardMinion("p-titus-undead-a", BoardSide.Player, "UNDEAD_A", 2, 20, Tribe.Undead);
+            var second = CardMinion("p-titus-undead-b", BoardSide.Player, "UNDEAD_B", 2, 20, Tribe.Undead);
+
+            var targets = ResolveMummifierTargets(new[] { source, titus, first, second }, source.InstanceId, 8844);
+
+            CollectionAssert.AreEquivalent(new[] { first.InstanceId, second.InstanceId }, targets);
+        }
+
+        [Test]
         public void TierThreeCombat_DeathrattleRewardsAndSummonTriggersResolve()
         {
             var piper = CardMinion("p-piper", BoardSide.Player, "BG26_160", 1, 1, Tribe.Quilboar, Keyword.Deathrattle);
@@ -292,6 +448,22 @@ namespace LearnHearthstone.Tests.EditMode
         {
             service.Apply(new GameCommand(GameCommandType.AddCardToHand, cardId, CardKind.Minion));
             service.Apply(new GameCommand(GameCommandType.PlayMinion, service.State.Player.Tavern.Hand.Count - 1, targetIndex));
+        }
+
+        private static List<string> ResolveMummifierTargets(IEnumerable<MinionInstance> board, string sourceInstanceId, int seed)
+        {
+            var result = CombatEngine.SimulateBasicCombat(
+                board,
+                new[] { CardMinion("o-mummifier-wall", BoardSide.Opponent, "WALL", 50, 50, Tribe.None, Keyword.Taunt) },
+                seed,
+                8,
+                new TavernState());
+            return result.Replay.Frames
+                .Where(frame => frame.EventType == CombatEventType.DeathrattleResolved &&
+                                frame.ActorId == sourceInstanceId &&
+                                !string.IsNullOrEmpty(frame.TargetId))
+                .Select(frame => frame.TargetId)
+                .ToList();
         }
 
         private static MinionInstance CardMinion(string id, BoardSide owner, string cardId, int attack, int health, Tribe tribe, params Keyword[] keywords)
