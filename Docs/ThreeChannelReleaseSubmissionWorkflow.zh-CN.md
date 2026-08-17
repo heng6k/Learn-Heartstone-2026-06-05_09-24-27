@@ -397,8 +397,9 @@ Windows 原生包不继承 WebGL 的“浏览器可运行”结论，至少需�
 
 ## 14. 当前发布记录
 
+- [2026-08-17 手机短横屏 UI、Windows 与网页同步发布记录](Releases/2026-08-17-mobile-ui-windows-web-release.md)
 - [2026-08-14 手机一图流选择器、Windows 与网页同步发布记录](Releases/2026-08-14-mobile-picker-windows-web-release.md)
 - [2026-08-12 Windows 下载与网页文案热修发布记录](Releases/2026-08-12-windows-download-hotfix.md)
 - [2026-08-12 手机版网页、完整 Unity 网页版与下载包发布记录](Releases/2026-08-12-web-release.md)
-- 后续操作以 2026-08-14 同步发布记录为最新基准，并重点复用其中的 R2 完整回读、最终 SHA 重组候选、残留 Vite 端口排查和 Brotli 协商验证；不得从主工作区的未提交文件或第 12 节旧候选上传。
+- 后续操作以 2026-08-17 同步发布记录为最新基准，并重点复用其中的精确文件提交、干净 SHA 重组候选、Windows 双图形 API 门禁、R2 首次写入完整元数据、完整回读和 Brotli 协商验证；不得从主工作区的未提交文件或第 12 节旧候选上传。
 - Preview、Production、下载包和发布后复验结果统一回填到该记录，后续发布沿用同一结构新建文件。
