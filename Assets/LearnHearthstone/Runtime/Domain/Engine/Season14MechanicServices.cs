@@ -224,7 +224,8 @@ namespace LearnHearthstone.Domain.Engine
             MatchState state,
             string tavernTargetInstanceId,
             MinionInstance fishbait,
-            int seed)
+            int seed,
+            MinionCatalog minionCatalog = null)
         {
             if (!TryGetAttackInputs(state, out _, out var shop, out var failure))
             {
@@ -246,14 +247,15 @@ namespace LearnHearthstone.Domain.Engine
                 "fishbait:replace",
                 new[] { tavernTargetInstanceId, replacement.InstanceId },
                 "shop-index=" + targetIndex);
-            return Attack(state, replacement, seed, "fishbait:replace");
+            return Attack(state, replacement, seed, "fishbait:replace", minionCatalog);
         }
 
         public static RecruitPhaseAttackResult RefreshAndAttack(
             MatchState state,
             FishbaitRefreshResolver refresh,
             int seed,
-            string source)
+            string source,
+            MinionCatalog minionCatalog = null)
         {
             if (!TryGetAttackInputs(state, out _, out _, out var failure))
             {
@@ -280,14 +282,15 @@ namespace LearnHearthstone.Domain.Engine
                 source,
                 new[] { liveFishbait.InstanceId },
                 "fishbait-ready");
-            return Attack(state, liveFishbait, seed, source);
+            return Attack(state, liveFishbait, seed, source, minionCatalog);
         }
 
         private static RecruitPhaseAttackResult Attack(
             MatchState state,
             MinionInstance fishbait,
             int seed,
-            string source)
+            string source,
+            MinionCatalog minionCatalog)
         {
             var attacker = state.Player.Board.First(item =>
                 item != null &&
@@ -305,7 +308,8 @@ namespace LearnHearthstone.Domain.Engine
                     Sequence = state.MechanicEvents?.Count ?? 0
                 },
                 seed,
-                venomousEffectRevision: VenomousEffectRevisions.PerCombat);
+                venomousEffectRevision: VenomousEffectRevisions.PerCombat,
+                minionCatalog: minionCatalog);
             if (result.Succeeded && result.Rewards.Any(item =>
                     item != null &&
                     item.Type == CombatRewardType.BuffOriginalFriendlyMinion &&

@@ -724,7 +724,8 @@ namespace LearnHearthstone.Domain.Engine
             RecruitPhaseAttackContext attack,
             int seed,
             Action recruitMutationCheckpoint = null,
-            string venomousEffectRevision = VenomousEffectRevisions.LegacySingleUse)
+            string venomousEffectRevision = VenomousEffectRevisions.LegacySingleUse,
+            MinionCatalog minionCatalog = null)
         {
             if (state == null)
             {
@@ -786,6 +787,7 @@ namespace LearnHearthstone.Domain.Engine
                 seed,
                 true,
                 recruitMutationCheckpoint,
+                minionCatalog: minionCatalog,
                 venomousEffectRevision: venomousEffectRevision);
             context.AttackSequence = Math.Max(0, attack.Sequence);
 

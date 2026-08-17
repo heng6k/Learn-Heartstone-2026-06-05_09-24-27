@@ -2873,11 +2873,14 @@ namespace LearnHearthstone.Application.Services
                         state,
                         targetInstanceId,
                         fishbait,
-                        state.Seed + state.Round * 4217 + state.MechanicEvents.Count);
+                        state.Seed + state.Round * 4217 + state.MechanicEvents.Count,
+                        catalog);
                     if (!result.Succeeded)
                     {
                         throw new InvalidOperationException(result.Message);
                     }
+
+                    ApplyRecruitPhaseRewards(result.Rewards, sourceInstanceId);
                 },
                 new[] { "Lurking Lionfish replaced a Tavern card with Fishbait and attacked it from " + sourceInstanceId + "." });
         }
@@ -24864,11 +24867,16 @@ namespace LearnHearthstone.Application.Services
                 item != null && item.Health > 0 && MatchesTribe(item, Tribe.Beast));
             if (hasAttacker)
             {
-                FishbaitRecruitAttackService.RefreshAndAttack(
+                var result = FishbaitRecruitAttackService.RefreshAndAttack(
                     State,
                     state => RefreshTavernWithFishbait(sold.Golden),
                     seed,
-                    sold.InstanceId);
+                    sold.InstanceId,
+                    catalog);
+                if (result.Succeeded)
+                {
+                    ApplyRecruitPhaseRewards(result.Rewards, sold.InstanceId);
+                }
                 return;
             }
 

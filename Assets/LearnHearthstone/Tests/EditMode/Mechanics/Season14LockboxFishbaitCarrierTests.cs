@@ -16,6 +16,8 @@ namespace LearnHearthstone.Tests.EditMode
         private const string FishbaitResearchKey = "FISH-R01N";
         private const string LionfishResearchKey = "FISH-R02N";
         private const string SnarkySharkResearchKey = "FISH-R03N";
+        private const string HeadhunterGryphonResearchKey = "MIN-R32";
+        private const string FoodHoardingHyenaResearchKey = "MIN-R34";
         private const string LionfishActionId = "activate:lurking-lionfish";
 
         [Test]
@@ -147,6 +149,63 @@ namespace LearnHearthstone.Tests.EditMode
             Assert.AreEqual(attackBefore + expectedBuff, liveLionfish.Attack);
             Assert.AreEqual(healthBefore + expectedBuff, liveLionfish.MaxHealth);
             Assert.IsEmpty(service.State.Player.Tavern.Shop);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LurkingLionfish_FishbaitAttackMakesHoardingHyenaSummonCatalogLobster(bool golden)
+        {
+            var service = CreateService();
+            var hyena = CreateCatalogMinion(service, FoodHoardingHyenaResearchKey, "fishbait-hyena", golden);
+            var lionfish = CreateCatalogMinion(service, LionfishResearchKey, "fishbait-source", false);
+            service.State.Player.Board.Add(hyena);
+            service.State.Player.Board.Add(lionfish);
+            var target = Minion("fishbait-target", "TEST_FISHBAIT_TARGET", 1, 1, Tribe.None);
+            service.State.Player.Tavern.Shop.Add(target);
+            service.State.Player.Tavern.Gold = 5;
+
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = LionfishActionId,
+                SourceInstanceId = lionfish.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.TavernShop
+            }));
+
+            Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+            var lobster = service.State.Player.Board.Single(card => card.CardId == "BG36_202");
+            var definition = service.Catalogs.Minions.GetByCardId("BG36_202");
+            Assert.AreEqual(golden, lobster.Golden);
+            Assert.AreEqual(definition.Id, lobster.DefinitionId);
+            Assert.AreEqual(definition.Name, lobster.Name);
+            Assert.AreEqual(definition.ImagePath, lobster.ImagePath);
+            Assert.AreEqual(3, lobster.TavernTier);
+            Assert.AreEqual(golden ? definition.Golden.Text : definition.Text, lobster.Text);
+        }
+
+        [Test]
+        public void LurkingLionfish_FishbaitAttackAppliesRewardBasedRallyEffects()
+        {
+            var service = CreateService();
+            var gryphon = CreateCatalogMinion(service, HeadhunterGryphonResearchKey, "fishbait-gryphon", false);
+            var lionfish = CreateCatalogMinion(service, LionfishResearchKey, "fishbait-source", false);
+            service.State.Player.Board.Add(gryphon);
+            service.State.Player.Board.Add(lionfish);
+            var target = Minion("fishbait-target", "TEST_FISHBAIT_TARGET", 1, 1, Tribe.None);
+            service.State.Player.Tavern.Shop.Add(target);
+            service.State.Player.Tavern.Gold = 5;
+
+            service.Apply(new GameCommand(GameCommandType.UseRecruitAction, new RecruitActionRequest
+            {
+                ActionId = LionfishActionId,
+                SourceInstanceId = lionfish.InstanceId,
+                TargetInstanceId = target.InstanceId,
+                TargetZone = TargetZone.TavernShop
+            }));
+
+            Assert.IsTrue(service.LastRecruitActionResult.Succeeded, service.LastRecruitActionResult.Message);
+            Assert.AreEqual(1, service.State.Player.Tavern.Hand.Count);
+            Assert.Contains(Tribe.Beast, service.State.Player.Tavern.Hand.Single().Tribes);
         }
 
         [TestCase(false, 5)]
