@@ -2076,7 +2076,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             faceImage.raycastTarget = false;
             ConfigureTileOutline(face, minion.Golden ? UnityTavernUiStyle.Gold : accentColor);
 
-            var artViewport = new GameObject("UnityCombatCardArtViewport-" + minion.InstanceId, typeof(RectTransform), typeof(Image), typeof(Mask), typeof(RectMask2D));
+            var artViewport = new GameObject("UnityCombatCardArtViewport-" + minion.InstanceId, typeof(RectTransform), typeof(Image), typeof(Mask));
             artViewport.transform.SetParent(face.transform, false);
             var viewportImage = artViewport.GetComponent<Image>();
             viewportImage.sprite = CombatTokenOvalSprite();
@@ -3741,11 +3741,6 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         private void OnDisable()
         {
             Canvas.willRenderCanvases -= Refresh;
-        }
-
-        private void LateUpdate()
-        {
-            Refresh();
         }
 
         public void Refresh()

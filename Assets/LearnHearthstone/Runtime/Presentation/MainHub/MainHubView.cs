@@ -19,6 +19,7 @@ namespace LearnHearthstone.Presentation.MainHub
         private readonly bool useEnglish;
         private readonly Action<bool> languageChanged;
         private readonly GameVersionSummaryViewModel currentGameVersion;
+        private readonly Action openVersionCenter;
         private readonly Action openStrategyGuides;
 
         public MainHubView(
@@ -40,9 +41,9 @@ namespace LearnHearthstone.Presentation.MainHub
             this.useEnglish = useEnglish;
             this.languageChanged = languageChanged;
             this.currentGameVersion = currentGameVersion;
+            this.openVersionCenter = openVersionCenter;
             this.openStrategyGuides = openStrategyGuides;
             _ = openRealisticTrainer;
-            _ = openVersionCenter;
         }
 
         public void Build()
@@ -263,10 +264,11 @@ namespace LearnHearthstone.Presentation.MainHub
                 Color.Lerp(resting, accent, 0.24f),
                 Color.Lerp(resting, Color.black, 0.16f));
             buttonSurface.color = resting;
-            UnityTavernUiStyle.ConfigureOutline(
+            var outerOutline = UnityTavernUiStyle.ConfigureOutline(
                 button.gameObject,
                 UnityTavernUiStyle.WithAlpha(accent, emphasized ? 0.76f : 0.54f),
                 new Vector2(emphasized ? 2f : 1f, emphasized ? -2f : -1f));
+            outerOutline.enabled = !layout.IsCompact;
             UnityTavernUiStyle.AddStarLanternRail(
                 button.transform,
                 buttonName + "StarLantern",
@@ -283,11 +285,11 @@ namespace LearnHearthstone.Presentation.MainHub
             var content = UiFactory.Panel(
                 contentName,
                 button.transform,
-                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.86f));
+                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, layout.IsCompact ? 0.72f : 0.86f));
             content.GetComponent<Image>().raycastTarget = false;
             var contentRect = content.GetComponent<RectTransform>();
             contentRect.anchorMin = new Vector2(0.035f, 0.07f);
-            contentRect.anchorMax = new Vector2(layout.IsCompact ? 0.70f : 0.64f, 0.93f);
+            contentRect.anchorMax = new Vector2(layout.IsCompact ? 0.58f : 0.64f, 0.93f);
             contentRect.offsetMin = Vector2.zero;
             contentRect.offsetMax = Vector2.zero;
             var contentLayout = UiFactory.Vertical(
@@ -341,18 +343,23 @@ namespace LearnHearthstone.Presentation.MainHub
                 UnityTavernUiStyle.WithAlpha(
                     button.interactable ? accent : UnityTavernUiStyle.SurfaceRaised,
                     0.28f));
+            if (button.interactable)
+            {
+                UnityTavernUiStyle.ApplyTavernActionSkin(actionPlate, !emphasized);
+            }
             actionPlate.GetComponent<Image>().raycastTarget = false;
             var actionHeight = Mathf.Max(
                 UiFactory.MinimumButtonHeight,
                 layout.CanvasUnitsForPhysicalPixels(UiFactory.MinimumButtonHeight));
             UiFactory.SetMinSize(actionPlate, 0f, actionHeight);
             UiFactory.SetHeight(actionPlate, actionHeight);
-            UnityTavernUiStyle.ConfigureOutline(
+            var actionOutline = UnityTavernUiStyle.ConfigureOutline(
                 actionPlate,
                 UnityTavernUiStyle.WithAlpha(
                     button.interactable ? accent : UnityTavernUiStyle.TextMuted,
                     0.62f),
                 new Vector2(1f, -1f));
+            actionOutline.enabled = !layout.IsCompact || !button.interactable;
 
             var actionLabel = UiFactory.Label(
                 buttonName + "ActionLabel",
@@ -361,12 +368,19 @@ namespace LearnHearthstone.Presentation.MainHub
                 CompactFont(16f, 18),
                 FontStyle.Bold,
                 layout);
-            actionLabel.color = button.interactable ? UnityTavernUiStyle.TextLight : UnityTavernUiStyle.TextMuted;
+            actionLabel.color = button.interactable
+                ? emphasized ? UnityTavernUiStyle.TextDark : UnityTavernUiStyle.TextLight
+                : UnityTavernUiStyle.TextMuted;
             actionLabel.alignment = TextAnchor.MiddleCenter;
             actionLabel.raycastTarget = false;
             UiFactory.Stretch(actionLabel.rectTransform);
             actionLabel.rectTransform.offsetMin = new Vector2(8f, 0f);
             actionLabel.rectTransform.offsetMax = new Vector2(-8f, 0f);
+
+            if (layout.IsCompact)
+            {
+                UnityTavernUiStyle.AddTavernPanelFrame(button.transform, buttonName + "TavernFrame");
+            }
 
             var focusRing = button.GetComponent<UnitySelectableFocusRing>();
             if (focusRing != null)
@@ -380,7 +394,7 @@ namespace LearnHearthstone.Presentation.MainHub
             var artwork = UiFactory.Panel(prefix + "Artwork", parent, Color.clear);
             artwork.GetComponent<Image>().raycastTarget = false;
             var artworkRect = artwork.GetComponent<RectTransform>();
-            artworkRect.anchorMin = new Vector2(layout.IsCompact ? 0.50f : 0.48f, 0.04f);
+            artworkRect.anchorMin = new Vector2(layout.IsCompact ? 0.55f : 0.48f, 0.04f);
             artworkRect.anchorMax = new Vector2(0.98f, 0.97f);
             artworkRect.offsetMin = Vector2.zero;
             artworkRect.offsetMax = Vector2.zero;
@@ -432,11 +446,32 @@ namespace LearnHearthstone.Presentation.MainHub
 
         private void BuildVersionContext(Transform parent)
         {
-            var footer = UiFactory.Panel(
-                "MainHubFooter",
-                parent,
-                UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.78f));
-            var footerHeight = layout.CanvasUnitsForPhysicalPixels(40f);
+            GameObject footer;
+            if (openVersionCenter != null)
+            {
+                var button = UiFactory.Button(
+                    "MainHubVersionCenterButton",
+                    parent,
+                    string.Empty,
+                    () => openVersionCenter.Invoke(),
+                    layout);
+                footer = button.gameObject;
+                UnityTavernUiStyle.ConfigureButton(button, UnityTavernUiStyle.ArcaneBlue, false, false);
+                var defaultLabel = button.GetComponentInChildren<Text>();
+                if (defaultLabel != null)
+                {
+                    defaultLabel.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                footer = UiFactory.Panel(
+                    "MainHubFooter",
+                    parent,
+                    UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.78f));
+            }
+
+            var footerHeight = layout.CanvasUnitsForPhysicalPixels(openVersionCenter != null ? 48f : 40f);
             UiFactory.SetHeight(footer, footerHeight);
             UiFactory.SetMinSize(footer, 0f, footerHeight);
             UiFactory.SetFlexible(footer, 0f, 0f);
@@ -451,7 +486,9 @@ namespace LearnHearthstone.Presentation.MainHub
             var version = UiFactory.Label(
                 "MainHubVersionContext",
                 footer.transform,
-                versionName + T(" · 版本与机制可在训练内调整", " · Change version and mechanics inside training"),
+                versionName + (openVersionCenter != null
+                    ? T(" · 查看版本与机制　→", " · View versions and mechanics  →")
+                    : T(" · 版本与机制可在训练内调整", " · Change version and mechanics inside training")),
                 Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f)),
                 FontStyle.Normal,
                 layout);

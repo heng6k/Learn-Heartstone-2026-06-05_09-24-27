@@ -120,13 +120,15 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
-        [Test]
-        public void Build_ButtonsAndTextRespectPhysicalMinimums()
+        [TestCase(740f, 360f)]
+        [TestCase(844f, 390f)]
+        [TestCase(932f, 430f)]
+        public void Build_ButtonsAndTextRespectPhysicalMinimums(float width, float height)
         {
             var rootObject = new GameObject("Root", typeof(RectTransform));
             try
             {
-                var layout = UnityTavernLayoutContext.ForSize(844f, 390f);
+                var layout = UnityTavernLayoutContext.ForSize(width, height);
                 new GameVersionCenterView(
                     rootObject.transform,
                     CreateContent(),
@@ -143,6 +145,12 @@ namespace LearnHearthstone.Tests.EditMode
 
                 var minimumText = Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f));
                 Assert.IsTrue(rootObject.GetComponentsInChildren<Text>(true).All(text => text.fontSize >= minimumText));
+
+                AssertPhysicalHeight(rootObject.transform, "GameVersionCenterHeader", layout, 58f);
+                AssertPhysicalHeight(rootObject.transform, "GameVersionCenterCompactListButton", layout, 48f);
+                AssertPhysicalHeight(rootObject.transform, "GameVersionCenterDetailHeader", layout, 76f);
+                AssertPhysicalHeight(rootObject.transform, "GameVersionCenterTabs", layout, 54f);
+                AssertPhysicalHeight(rootObject.transform, "GameVersionCenterDifferenceLegend", layout, 34f);
             }
             finally
             {
@@ -191,7 +199,7 @@ namespace LearnHearthstone.Tests.EditMode
                 StringAssert.Contains("英雄 8 项", TextOf(rootObject.transform, "GameVersionCenterOverviewContentSummary"));
                 StringAssert.Contains("卡牌 167 项", TextOf(rootObject.transform, "GameVersionCenterOverviewContentSummary"));
                 StringAssert.Contains("机制 4 项", TextOf(rootObject.transform, "GameVersionCenterOverviewContentSummary"));
-                StringAssert.Contains("原子卡池成员：875", TextOf(rootObject.transform, "GameVersionCenterOverviewPoolSummary"));
+                StringAssert.Contains("原子卡池成员：874", TextOf(rootObject.transform, "GameVersionCenterOverviewPoolSummary"));
                 StringAssert.Contains("第 14 赛季：黑暗之赐", TextOf(rootObject.transform, "GameVersionCenterOverviewSummary"));
 
                 FindChildren(rootObject.transform, "GameVersionCenterTabCompare").Single().GetComponent<Button>().onClick.Invoke();
@@ -264,6 +272,20 @@ namespace LearnHearthstone.Tests.EditMode
         private static string TextOf(Transform root, string name)
         {
             return FindChildren(root, name).Single().GetComponent<Text>().text;
+        }
+
+        private static void AssertPhysicalHeight(
+            Transform root,
+            string objectName,
+            UnityTavernLayoutContext layout,
+            float minimumPhysicalHeight)
+        {
+            var element = FindChildren(root, objectName).Single().GetComponent<LayoutElement>();
+            Assert.IsNotNull(element, objectName);
+            Assert.GreaterOrEqual(
+                element.preferredHeight * layout.CanvasScaleFactor,
+                minimumPhysicalHeight - 0.01f,
+                objectName);
         }
 
         private static List<Transform> FindChildren(Transform root, string name)

@@ -49,7 +49,7 @@ namespace LearnHearthstone.Presentation.Common
             label.transform.SetParent(parent, false);
             var textComponent = label.GetComponent<Text>();
             var layout = layoutContext ?? UnityTavernLayoutContext.Current();
-            var minimumReadableSize = Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f));
+            var minimumReadableSize = Mathf.CeilToInt(layout.CanvasUnitsForDensityIndependentPixels(14f));
             var resolvedSize = Mathf.Max(minimumReadableSize, size);
             textComponent.text = text;
             textComponent.font = GetUiFont(resolvedSize, style);
@@ -75,7 +75,7 @@ namespace LearnHearthstone.Presentation.Common
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
             buttonObject.GetComponent<Image>().color = UnityTavernUiStyle.SurfaceRaised;
-            var minimumTouchSize = layout.CanvasUnitsForPhysicalPixels(MinimumButtonHeight);
+            var minimumTouchSize = layout.CanvasUnitsForTouchTarget(MinimumButtonHeight);
             SetMinSize(buttonObject, minimumTouchSize, minimumTouchSize);
             var button = buttonObject.GetComponent<Button>();
             buttonObject.AddComponent<UnitySelectableFocusRing>();
@@ -92,7 +92,7 @@ namespace LearnHearthstone.Presentation.Common
             var label = Label(name + "Label", buttonObject.transform, text, 16, FontStyle.Bold, layout);
             label.alignment = TextAnchor.MiddleCenter;
             label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(14f));
+            label.resizeTextMinSize = Mathf.CeilToInt(layout.CanvasUnitsForDensityIndependentPixels(14f));
             label.resizeTextMaxSize = label.fontSize;
             Stretch(label.rectTransform);
             return button;
@@ -117,12 +117,11 @@ namespace LearnHearthstone.Presentation.Common
             scrollRect.scrollSensitivity = 32f;
             scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
-            var viewport = new GameObject(name + "Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+            var viewport = new GameObject(name + "Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
             viewport.transform.SetParent(root.transform, false);
             var viewportImage = viewport.GetComponent<Image>();
             viewportImage.color = background.a > 0f ? background : Color.white;
             viewportImage.raycastTarget = true;
-            viewport.GetComponent<Mask>().showMaskGraphic = false;
             var viewportRect = viewport.GetComponent<RectTransform>();
             Stretch(viewportRect);
             viewportRect.offsetMin = new Vector2(0f, horizontal ? scrollbarWidth + scrollbarGap : 0f);

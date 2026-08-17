@@ -170,6 +170,112 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
+        [TestCase(740, 360)]
+        [TestCase(844, 390)]
+        [TestCase(932, 430)]
+        public void ShortLandscape_EditorsKeepEveryControlReachableAcrossPhoneWidths(int width, int height)
+        {
+            var rootObject = new GameObject("Root", typeof(RectTransform));
+            try
+            {
+                var layout = UnityTavernLayoutContext.ForSize(width, height);
+                Assert.IsTrue(layout.IsShortLandscape, width + "x" + height + " must use the shared short-landscape shell.");
+                var rootRect = rootObject.GetComponent<RectTransform>();
+                rootRect.sizeDelta = new Vector2(width / layout.CanvasScaleFactor, height / layout.CanvasScaleFactor);
+                BuildView(rootObject.transform, layout);
+
+                Click(rootObject.transform, "UnitySetupContinueButton");
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+                AssertPhysicalSize(rootObject.transform, "UnityTribeSelectionHeroImage", layout, 76f, 76f);
+
+                Click(rootObject.transform, "UnityTribeSelectionChooseHeroButton");
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+                AssertPhysicalHeight(rootObject.transform, "UnityHeroSelectionHeader", layout, 48f);
+                AssertHorizontalToolbar(rootObject.transform, "UnityHeroSelectionFilterScroll");
+                AssertPhysicalSize(rootObject.transform, "UnityHeroSelectionPreviewImage", layout, 64f, 64f);
+                var listPortrait = rootObject.GetComponentsInChildren<LayoutElement>(true)
+                    .First(item => item.name.StartsWith("UnityHeroSelectionHeroImage-", StringComparison.Ordinal));
+                AssertPhysicalSize(listPortrait.transform, layout, 56f, 56f);
+                Assert.IsNotNull(listPortrait.GetComponent<RectMask2D>());
+                var portraitFitter = listPortrait.GetComponentInChildren<AspectRatioFitter>(true);
+                Assert.IsNotNull(portraitFitter);
+                var portraitArt = portraitFitter.GetComponent<Image>();
+                Assert.IsNotNull(portraitArt.sprite);
+                Assert.GreaterOrEqual(portraitArt.rectTransform.rect.width * layout.CanvasScaleFactor, 56f - 0.01f);
+                Assert.GreaterOrEqual(portraitArt.rectTransform.rect.height * layout.CanvasScaleFactor, 56f - 0.01f);
+                Click(rootObject.transform, "UnityHeroSelectionCloseButton");
+
+                foreach (var tribe in TribeAvailabilityRules.PlayableTribes.Take(5))
+                {
+                    Click(rootObject.transform, "UnityTribeSelection" + tribe + "Button");
+                }
+
+                Click(rootObject.transform, "UnitySetupContinueButton");
+                Click(rootObject.transform, "UnityAdvancedQuestRewardPoolCardEditButton");
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+
+                AssertPhysicalHeight(rootObject.transform, "UnityAdvancedPoolEditorHeader", layout, 58f);
+                AssertPhysicalHeight(rootObject.transform, "UnityAdvancedPoolSearchInput", layout, 48f);
+                AssertHorizontalToolbar(rootObject.transform, "UnityAdvancedPoolFilters");
+                AssertHorizontalToolbar(rootObject.transform, "UnityAdvancedPoolBulkActions");
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityAdvancedPoolScroll").GetComponent<ScrollRect>());
+                foreach (var control in new[]
+                {
+                    "UnityAdvancedPoolTab-QuestRewards",
+                    "UnityAdvancedPoolTab-Trinkets",
+                    "UnityAdvancedPoolTab-Anomalies",
+                    "UnityAdvancedPoolIncludeFilteredButton",
+                    "UnityAdvancedPoolExcludeFilteredButton",
+                    "UnityAdvancedPoolImplementedOnlyButton",
+                    "UnityAdvancedPoolOfferableOnlyButton",
+                    "UnityAdvancedPoolInvertButton",
+                    "UnityAdvancedPoolResetFiltersButton"
+                })
+                {
+                    Assert.IsNotNull(FindChild(rootObject.transform, control), "Missing short-landscape control: " + control);
+                }
+
+                Click(rootObject.transform, "UnityAdvancedPoolEditorCloseButton");
+                Click(rootObject.transform, "UnitySetupContinueButton");
+                Click(rootObject.transform, "UnityCardPoolVersionOpenButton");
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
+
+                AssertPhysicalHeight(rootObject.transform, "UnityCardPoolVersionModalHeader", layout, 58f);
+                AssertPhysicalHeight(rootObject.transform, "UnityCardPoolVersionSearchRow", layout, 48f);
+                AssertHorizontalToolbar(rootObject.transform, "UnityCardPoolVersionPicker");
+                AssertHorizontalToolbar(rootObject.transform, "UnityCardPoolVersionFilters");
+                Assert.IsNotNull(FindChild(rootObject.transform, "UnityCardPoolVersionScroll").GetComponent<ScrollRect>());
+                var cardThumbnail = FindChild(rootObject.transform, "UnityCardPoolVersionScroll")
+                    .GetComponentsInChildren<LayoutElement>(true)
+                    .First(item => item.name.EndsWith("ImageFrame", StringComparison.Ordinal));
+                AssertPhysicalSize(cardThumbnail.transform, layout, 50f, 68f);
+                foreach (var control in new[]
+                {
+                    "UnityCardPoolVersionMinionTab",
+                    "UnityCardPoolVersionSpellTab",
+                    "UnityCardPoolVersionDefaultButton",
+                    "UnityCardPoolVersionNewButton",
+                    "UnityCardPoolVersionCopyButton",
+                    "UnityCardPoolVersionSaveButton",
+                    "UnityCardPoolVersionDeleteButton",
+                    "UnityCardPoolVersionExcludeFilteredButton",
+                    "UnityCardPoolVersionIncludeFilteredButton",
+                    "UnityCardPoolVersionCloseButton"
+                })
+                {
+                    Assert.IsNotNull(FindChild(rootObject.transform, control), "Missing short-landscape control: " + control);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
         [Test]
         public void FourSteps_PreserveSelectionsAndStartWithResolvedVersionLock()
         {
@@ -387,6 +493,53 @@ namespace LearnHearthstone.Tests.EditMode
             }
 
             return count;
+        }
+
+        private static void AssertPhysicalHeight(Transform root, string name, UnityTavernLayoutContext layout, float minimum)
+        {
+            var target = FindChild(root, name);
+            Assert.IsNotNull(target, "Missing layout target: " + name);
+            var element = target.GetComponent<LayoutElement>();
+            Assert.IsNotNull(element, "Missing LayoutElement: " + name);
+            Assert.GreaterOrEqual(element.preferredHeight * layout.CanvasScaleFactor, minimum - 0.01f, name);
+        }
+
+        private static void AssertPhysicalSize(
+            Transform root,
+            string name,
+            UnityTavernLayoutContext layout,
+            float minimumWidth,
+            float minimumHeight)
+        {
+            var target = FindChild(root, name);
+            Assert.IsNotNull(target, "Missing layout target: " + name);
+            AssertPhysicalSize(target, layout, minimumWidth, minimumHeight);
+        }
+
+        private static void AssertPhysicalSize(
+            Transform target,
+            UnityTavernLayoutContext layout,
+            float minimumWidth,
+            float minimumHeight)
+        {
+            var element = target.GetComponent<LayoutElement>();
+            Assert.IsNotNull(element, "Missing LayoutElement: " + target.name);
+            Assert.GreaterOrEqual(element.preferredWidth * layout.CanvasScaleFactor, minimumWidth - 0.01f, target.name);
+            Assert.GreaterOrEqual(element.preferredHeight * layout.CanvasScaleFactor, minimumHeight - 0.01f, target.name);
+        }
+
+        private static void AssertHorizontalToolbar(Transform root, string name)
+        {
+            var target = FindChild(root, name);
+            Assert.IsNotNull(target, "Missing toolbar: " + name);
+            var scroll = target.GetComponent<ScrollRect>();
+            Assert.IsNotNull(scroll, "Toolbar must be swipeable: " + name);
+            Assert.IsTrue(scroll.horizontal, name);
+            Assert.IsFalse(scroll.vertical, name);
+            Assert.IsNull(scroll.horizontalScrollbar, name + " uses touch scrolling without shrinking its viewport.");
+            Assert.IsNull(scroll.verticalScrollbar, name + " uses touch scrolling without shrinking its viewport.");
+            Assert.AreEqual(Vector2.zero, scroll.viewport.offsetMin, name);
+            Assert.AreEqual(Vector2.zero, scroll.viewport.offsetMax, name);
         }
 
         private static Transform FindChild(Transform parent, string name)

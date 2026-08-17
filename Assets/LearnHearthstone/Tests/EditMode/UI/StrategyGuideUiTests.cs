@@ -134,14 +134,17 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
-        [Test]
-        public void CompactSelectionClipsGuideRailAndLeavesDetailScrollable()
+        [TestCase(740f, 360f)]
+        [TestCase(844f, 390f)]
+        [TestCase(932f, 430f)]
+        public void CompactSelectionClipsGuideRailAndLeavesDetailScrollable(float width, float height)
         {
             var root = new GameObject("StrategyGuidePhoneRoot", typeof(RectTransform));
             try
             {
                 var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
                 var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                var layout = UnityTavernLayoutContext.ForSize(width, height);
                 new StrategyGuideSelectionView(
                     root.transform,
                     catalog,
@@ -149,7 +152,7 @@ namespace LearnHearthstone.Tests.EditMode
                     GameVersionIds.Season14Preview,
                     (_, __) => { },
                     () => { },
-                    layoutContext: UnityTavernLayoutContext.ForSize(844f, 390f)).Build();
+                    layoutContext: layout).Build();
 
                 var rail = Find(root.transform, "StrategyGuideRail").Single().GetComponent<LayoutElement>();
                 var railScroll = Find(root.transform, "StrategyGuideRailListScroll").Single().GetComponent<ScrollRect>();
@@ -157,11 +160,31 @@ namespace LearnHearthstone.Tests.EditMode
                     .Where(button => button.name.StartsWith("StrategyGuideCard-", StringComparison.Ordinal))
                     .ToList();
 
-                Assert.AreEqual(176f, rail.preferredHeight);
-                Assert.NotNull(railScroll.viewport.GetComponent<Mask>());
+                Assert.AreEqual(layout.CanvasUnitsForPhysicalPixels(64f), rail.preferredHeight, 0.01f);
+                Assert.NotNull(railScroll.viewport.GetComponent<RectMask2D>());
+                Assert.IsNull(railScroll.viewport.GetComponent<Mask>(), "Rectangular scroll views should avoid stencil masks.");
+                Assert.IsTrue(railScroll.horizontal);
+                Assert.IsFalse(railScroll.vertical);
                 Assert.AreEqual(catalog.Guides.Count, selectors.Count);
                 Assert.IsTrue(selectors.All(button => button.transform.IsChildOf(railScroll.content)));
+                Assert.IsTrue(selectors.All(button =>
+                    button.GetComponent<LayoutElement>().preferredWidth * layout.CanvasScaleFactor >= 180f - 0.01f));
                 Assert.AreEqual(1, Find(root.transform, "StrategyGuideDetailScroll").Count);
+                Assert.AreEqual(1, Find(root.transform, "StrategyGuideMobileActionHost").Count);
+                Assert.AreEqual(
+                    catalog.Guides.Count,
+                    root.GetComponentsInChildren<Transform>(true).Count(item =>
+                        item.name.StartsWith("StrategyGuideProfiles-", StringComparison.Ordinal)));
+                Assert.AreEqual(
+                    1,
+                    root.GetComponentsInChildren<Transform>(true).Count(item =>
+                        item.name.StartsWith("StrategyGuideProfiles-", StringComparison.Ordinal) && item.gameObject.activeInHierarchy));
+                Assert.GreaterOrEqual(
+                    Find(root.transform, "StrategyGuideHeader").Single().GetComponent<LayoutElement>().preferredHeight * layout.CanvasScaleFactor,
+                    48f - 0.01f);
+                Assert.GreaterOrEqual(
+                    Find(root.transform, "StrategyGuideMobileActionHost").Single().GetComponent<LayoutElement>().preferredHeight * layout.CanvasScaleFactor,
+                    58f - 0.01f);
             }
             finally
             {
@@ -578,6 +601,76 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.GreaterOrEqual(open.rect.width * layoutContext.CanvasScaleFactor, 100f);
                 Assert.GreaterOrEqual(delete.rect.width * layoutContext.CanvasScaleFactor, 60f);
                 Assert.GreaterOrEqual(date.rect.width * layoutContext.CanvasScaleFactor, 76f);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [TestCase(740f, 360f)]
+        [TestCase(844f, 390f)]
+        [TestCase(932f, 430f)]
+        public void ShortLandscapeAuthoringKeepsChromeLineupAndPickerAtPhysicalTouchSizes(float width, float height)
+        {
+            var layoutContext = UnityTavernLayoutContext.ForSize(width, height);
+            var root = new GameObject("StrategyGuideShortAuthoringRoot", typeof(RectTransform));
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(
+                width / layoutContext.CanvasScaleFactor,
+                height / layoutContext.CanvasScaleFactor);
+            var directory = Path.Combine(
+                UnityEngine.Application.temporaryCachePath,
+                "strategy-guide-short-authoring-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+                var repository = new FileStrategyGuideAuthoringRepository(directory);
+                repository.SaveDraft(new StrategyGuideAuthoringDraft
+                {
+                    DraftId = "short-authoring-draft",
+                    Guide = JsonUtility.FromJson<StrategyGuideDefinition>(JsonUtility.ToJson(catalog.Guides[0]))
+                });
+
+                new StrategyGuideSelectionView(
+                    root.transform,
+                    catalog,
+                    snapshot.ForLanguage(false),
+                    GameVersionIds.Season14Preview,
+                    (_, __) => { },
+                    () => { },
+                    layoutContext: layoutContext,
+                    resolvedVersion: ResolveSeason14(),
+                    authoringRepository: repository).Build();
+                Find(root.transform, "StrategyGuideAuthoringOpenButton").Single().GetComponent<Button>().onClick.Invoke();
+                Find(root.transform, "StrategyGuideAuthoringDraftOpenButton-short-authoring-draft").Single().GetComponent<Button>().onClick.Invoke();
+
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringHeader", layoutContext, 48f);
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringSteps", layoutContext, 48f);
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringFooter", layoutContext, 58f);
+                var stepScroll = Find(root.transform, "StrategyGuideAuthoringStepScroll").Single().GetComponent<ScrollRect>();
+                Assert.IsNotNull(stepScroll);
+                Assert.IsFalse(Find(root.transform, "StrategyGuideAuthoringFooter").Single().IsChildOf(stepScroll.transform));
+
+                Find(root.transform, "StrategyGuideAuthoringStepButton-1").Single().GetComponent<Button>().onClick.Invoke();
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringLineup", layoutContext, 516f);
+                var firstCard = Find(root.transform, "StrategyGuideAuthoringCard-" + catalog.Guides[0].FinalComposition[0].PlacementId).Single();
+                Assert.GreaterOrEqual(firstCard.GetComponent<LayoutElement>().preferredHeight * layoutContext.CanvasScaleFactor, 66f - 0.01f);
+                var replace = root.GetComponentsInChildren<Button>(true)
+                    .First(button => button.name.StartsWith("StrategyGuideAuthoringReplaceCardButton-", StringComparison.Ordinal));
+                Assert.GreaterOrEqual(replace.GetComponent<LayoutElement>().minHeight * layoutContext.CanvasScaleFactor, 48f - 0.01f);
+                replace.onClick.Invoke();
+
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringPickerHeader", layoutContext, 58f);
+                AssertPhysicalHeight(root.transform, "StrategyGuideAuthoringPickerHelp", layoutContext, 48f);
+                var pickerRow = root.GetComponentsInChildren<Transform>(true)
+                    .FirstOrDefault(item => item.name.StartsWith("StrategyGuideAuthoringPickerItem-", StringComparison.Ordinal));
+                Assert.IsNotNull(pickerRow, "The responsive picker must retain its card results.");
+                Assert.GreaterOrEqual(pickerRow.GetComponent<LayoutElement>().preferredHeight * layoutContext.CanvasScaleFactor, 76f - 0.01f);
             }
             finally
             {
@@ -1582,6 +1675,18 @@ namespace LearnHearthstone.Tests.EditMode
             var result = new List<Transform>();
             Collect(root, name, result);
             return result;
+        }
+
+        private static void AssertPhysicalHeight(
+            Transform root,
+            string name,
+            UnityTavernLayoutContext layout,
+            float minimum)
+        {
+            var target = Find(root, name).Single();
+            var element = target.GetComponent<LayoutElement>();
+            Assert.IsNotNull(element, "Missing LayoutElement: " + name);
+            Assert.GreaterOrEqual(element.preferredHeight * layout.CanvasScaleFactor, minimum - 0.01f, name);
         }
 
         private static int CountBrightPixels(Texture2D texture, RectTransform target, Camera camera)

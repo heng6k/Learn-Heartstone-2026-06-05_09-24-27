@@ -84,7 +84,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Build_RemovesVersionCenterAndLongConfigurationPanelsFromHome()
+        public void Build_KeepsCompactVersionEntryWithoutRestoringLongConfigurationPanels()
         {
             var rootObject = Root(1366, 768);
             try
@@ -104,7 +104,7 @@ namespace LearnHearthstone.Tests.EditMode
                     FindChildren(rootObject.transform, "MainHubVersionContext").Single().GetComponent<Text>().text);
                 Assert.AreEqual(1, FindChildren(rootObject.transform, "MainHubPrimaryStartButton").Count);
                 Assert.AreEqual(1, FindChildren(rootObject.transform, "MainHubStrategyGuideButton").Count);
-                Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
+                Assert.AreEqual(1, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
                 Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubGameVersionStrip").Count);
                 Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubRecommendedSetup").Count);
                 Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubPrimaryPath").Count);
@@ -213,7 +213,7 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void Build_ShowsCompactVersionContextWithoutAddingAThirdEntry()
+        public void Build_ShowsCompactVersionContextAsAWorkingFooterEntryWithoutAddingAThirdCard()
         {
             var rootObject = Root(1366, 768);
             try
@@ -231,9 +231,10 @@ namespace LearnHearthstone.Tests.EditMode
 
                 var context = FindChildren(rootObject.transform, "MainHubVersionContext").Single().GetComponent<Text>().text;
                 StringAssert.Contains("36.2", context);
-                StringAssert.Contains("训练内调整", context);
-                Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
-                Assert.IsFalse(versionCenterOpened);
+                StringAssert.Contains("查看版本与机制", context);
+                Assert.AreEqual(1, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
+                FindChildren(rootObject.transform, "MainHubVersionCenterButton").Single().GetComponent<Button>().onClick.Invoke();
+                Assert.IsTrue(versionCenterOpened);
             }
             finally
             {
@@ -241,7 +242,9 @@ namespace LearnHearthstone.Tests.EditMode
             }
         }
 
+        [TestCase(740, 360)]
         [TestCase(844, 390)]
+        [TestCase(932, 430)]
         [TestCase(1280, 720)]
         [TestCase(1920, 1080)]
         [TestCase(2560, 1080)]
@@ -251,6 +254,9 @@ namespace LearnHearthstone.Tests.EditMode
             try
             {
                 var layout = UnityTavernLayoutContext.ForSize(width, height);
+                rootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(
+                    width / layout.CanvasScaleFactor,
+                    height / layout.CanvasScaleFactor);
                 new MainHubView(
                     rootObject.transform,
                     () => { },
@@ -297,10 +303,10 @@ namespace LearnHearthstone.Tests.EditMode
                 var minimumEntryHeight = layout.IsCompact ? UiFactory.MinimumButtonHeight : 120f;
                 Assert.GreaterOrEqual(training.rect.height * layout.CanvasScaleFactor, minimumEntryHeight);
                 Assert.GreaterOrEqual(guides.rect.height * layout.CanvasScaleFactor, minimumEntryHeight);
-                Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
+                Assert.AreEqual(1, FindChildren(rootObject.transform, "MainHubVersionCenterButton").Count);
                 Assert.AreEqual(0, FindChildren(rootObject.transform, "MainHubGameVersionStrip").Count);
 
-                var footerObject = FindChildren(rootObject.transform, "MainHubFooter").Single();
+                var footerObject = FindChildren(rootObject.transform, "MainHubVersionCenterButton").Single();
                 var footer = footerObject.GetComponent<LayoutElement>();
                 Assert.AreEqual(0f, footer.flexibleHeight);
                 Assert.GreaterOrEqual(
@@ -381,11 +387,12 @@ namespace LearnHearthstone.Tests.EditMode
             var rootObject = Root(320, 180);
             try
             {
-                var normal14 = UiFactory.Label("Normal14", rootObject.transform, "酒馆", 14, FontStyle.Normal);
-                var normal14Again = UiFactory.Label("Normal14Again", rootObject.transform, "随从", 14, FontStyle.Normal);
-                var bold14 = UiFactory.Label("Bold14", rootObject.transform, "战斗", 14, FontStyle.Bold);
-                var normal16 = UiFactory.Label("Normal16", rootObject.transform, "回合", 16, FontStyle.Normal);
-                var normal18 = UiFactory.Label("Normal18", rootObject.transform, "准备", 18, FontStyle.Normal);
+                var desktop = UnityTavernLayoutContext.ForSize(1920f, 1080f);
+                var normal14 = UiFactory.Label("Normal14", rootObject.transform, "酒馆", 14, FontStyle.Normal, desktop);
+                var normal14Again = UiFactory.Label("Normal14Again", rootObject.transform, "随从", 14, FontStyle.Normal, desktop);
+                var bold14 = UiFactory.Label("Bold14", rootObject.transform, "战斗", 14, FontStyle.Bold, desktop);
+                var normal16 = UiFactory.Label("Normal16", rootObject.transform, "回合", 16, FontStyle.Normal, desktop);
+                var normal18 = UiFactory.Label("Normal18", rootObject.transform, "准备", 18, FontStyle.Normal, desktop);
 
                 Assert.AreSame(normal14.font, normal14Again.font);
                 Assert.AreNotSame(normal14.font, bold14.font);

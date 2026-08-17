@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using LearnHearthstone.Domain.Models;
 using LearnHearthstone.Presentation;
 using LearnHearthstone.Presentation.Common;
@@ -63,7 +64,7 @@ namespace LearnHearthstone.Tests.EditMode
                 var playerArtViewport = FindChild(playerTile, "UnityCombatCardArtViewport-accept-player-1");
                 Assert.IsNotNull(playerArt);
                 Assert.IsNotNull(playerArtViewport.GetComponent<RectMask2D>());
-                Assert.IsNotNull(playerArtViewport.GetComponent<Mask>());
+                Assert.IsNull(playerArtViewport.GetComponent<Mask>());
                 Assert.AreSame(playerArtViewport, playerArt.transform.parent);
                 Assert.AreEqual(new Vector2(-0.20f, -1.22f), playerArt.rectTransform.anchorMin);
                 Assert.AreEqual(new Vector2(1.20f, 1.05f), playerArt.rectTransform.anchorMax);
@@ -84,7 +85,7 @@ namespace LearnHearthstone.Tests.EditMode
                 var opponentTile = FindChild(panelObject.transform, "UnityReplayMinion-accept-opponent-1");
                 var opponentArt = FindChild(opponentTile, "UnityCombatCardArt-accept-opponent-1").GetComponent<Image>();
                 Assert.IsNotNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<RectMask2D>());
-                Assert.IsNotNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<Mask>());
+                Assert.IsNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<Mask>());
                 Assert.AreEqual(new Vector2(-0.20f, -1.22f), opponentArt.rectTransform.anchorMin);
                 Assert.AreEqual(new Vector2(1.20f, 1.05f), opponentArt.rectTransform.anchorMax);
                 Assert.IsFalse(opponentArt.preserveAspect);
@@ -414,6 +415,53 @@ namespace LearnHearthstone.Tests.EditMode
                 UnityUiMotionSettings.ReduceMotion = previousReduceMotion;
                 Object.DestroyImmediate(tile);
             }
+        }
+
+        [Test]
+        public void ReplayAnimations_StopUpdatingAtTheirTerminalFrame()
+        {
+            var tile = new GameObject("Tile", typeof(RectTransform), typeof(Image), typeof(UnityTavernReplayTileAnimator));
+            var drawer = new GameObject("Drawer", typeof(RectTransform), typeof(CanvasGroup), typeof(UnityCombatDrawerAnimator));
+            var label = new GameObject("Label", typeof(RectTransform), typeof(CanvasGroup), typeof(UnityCombatFloatingLabelAnimator));
+            var previousReduceMotion = UnityUiMotionSettings.ReduceMotion;
+            try
+            {
+                UnityUiMotionSettings.ReduceMotion = false;
+                var tileAnimator = tile.GetComponent<UnityTavernReplayTileAnimator>();
+                tileAnimator.Configure(UnityTavernReplayTileMotion.Strike, Color.gray, 1f);
+                CompleteAnimation(tileAnimator, typeof(UnityTavernReplayTileAnimator));
+                Assert.IsFalse(tileAnimator.enabled);
+                Assert.AreEqual(UnityTavernReplayTileMotion.None, tileAnimator.Motion);
+
+                var drawerAnimator = drawer.GetComponent<UnityCombatDrawerAnimator>();
+                drawerAnimator.Configure(120f);
+                CompleteAnimation(drawerAnimator, typeof(UnityCombatDrawerAnimator));
+                Assert.IsFalse(drawerAnimator.enabled);
+
+                var labelAnimator = label.GetComponent<UnityCombatFloatingLabelAnimator>();
+                labelAnimator.Configure(40f);
+                CompleteAnimation(labelAnimator, typeof(UnityCombatFloatingLabelAnimator));
+                Assert.IsFalse(labelAnimator.enabled);
+
+                Assert.IsNull(
+                    typeof(UnityReplayTargetingConnectorComponent).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic),
+                    "The connector must have exactly one per-frame refresh path.");
+            }
+            finally
+            {
+                UnityUiMotionSettings.ReduceMotion = previousReduceMotion;
+                Object.DestroyImmediate(tile);
+                Object.DestroyImmediate(drawer);
+                Object.DestroyImmediate(label);
+            }
+        }
+
+        private static void CompleteAnimation(MonoBehaviour animator, System.Type type)
+        {
+            type.GetField("startTime", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(animator, Time.unscaledTime - 2f);
+            type.GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(animator, null);
         }
 
         [Test]

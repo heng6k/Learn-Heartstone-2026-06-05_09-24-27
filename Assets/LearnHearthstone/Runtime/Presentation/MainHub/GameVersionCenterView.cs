@@ -73,7 +73,7 @@ namespace LearnHearthstone.Presentation.MainHub
             {
                 shell = UiFactory.Panel("GameVersionCenter", root, UnityTavernUiStyle.BackWall);
                 UiFactory.Stretch(shell.GetComponent<RectTransform>());
-                UiFactory.Vertical(shell, layout.IsCompact ? 8 : 16, layout.IsCompact ? 8 : 12);
+                UiFactory.Vertical(shell, CompactInt(8f, 16f), CompactInt(8f, 12f));
             }
             else
             {
@@ -105,17 +105,21 @@ namespace LearnHearthstone.Presentation.MainHub
         private void BuildHeader(Transform parent)
         {
             var header = UiFactory.Panel("GameVersionCenterHeader", parent, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.98f));
-            UiFactory.SetHeight(header, layout.IsCompact ? 58f : 72f);
+            UiFactory.SetHeight(header, CompactUnits(58f, 72f));
             UnityTavernUiStyle.ConfigureOutline(header, UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.52f), new Vector2(1f, -1f));
             UnityTavernUiStyle.AddStarLanternRail(header.transform, "GameVersionCenterStarLantern", UnityTavernUiStyle.ArcaneBlue);
-            var row = UiFactory.Horizontal(header, layout.IsCompact ? 4 : 8, layout.IsCompact ? 8 : 12);
+            var row = UiFactory.Horizontal(header, CompactInt(4f, 8f), CompactInt(8f, 12f));
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
 
             var back = UiFactory.Button("GameVersionCenterBackButton", header.transform, T("返回大厅", "Back to Hub"), () => backToHub?.Invoke(), layout);
             back.interactable = backToHub != null;
             UnityTavernUiStyle.ConfigureButton(back, UnityTavernUiStyle.Brass);
-            UiFactory.SetWidth(back.gameObject, layout.IsCompact ? 142f : 170f);
+            if (layout.IsShortLandscape)
+            {
+                UnityTavernUiStyle.ApplyTavernButtonSkin(back, true);
+            }
+            UiFactory.SetWidth(back.gameObject, CompactUnits(142f, 170f));
 
             var title = UiFactory.Label("GameVersionCenterTitle", header.transform, T("版本中心", "Version Center"), layout.IsCompact ? 22 : 28, FontStyle.Bold, layout);
             title.alignment = TextAnchor.MiddleCenter;
@@ -131,7 +135,7 @@ namespace LearnHearthstone.Presentation.MainHub
                 layout);
             subtitle.alignment = TextAnchor.MiddleRight;
             subtitle.color = UnityTavernUiStyle.TextMuted;
-            UiFactory.SetWidth(subtitle.gameObject, layout.IsCompact ? 300f : 430f);
+            UiFactory.SetWidth(subtitle.gameObject, CompactUnits(300f, 430f));
         }
 
         private void BuildDesktop(Transform parent)
@@ -152,11 +156,11 @@ namespace LearnHearthstone.Presentation.MainHub
         {
             var page = UiFactory.Panel("GameVersionCenterCompactListPage", parent, UnityTavernUiStyle.Panel);
             UiFactory.SetFlexible(page, 1f, 1f);
-            UiFactory.Vertical(page, 8, 8);
+            UiFactory.Vertical(page, CompactInt(8f), CompactInt(8f));
 
             var title = UiFactory.Label("GameVersionCenterCompactListTitle", page.transform, T("选择要查看的版本", "Choose a version"), 18, FontStyle.Bold, layout);
             title.alignment = TextAnchor.MiddleCenter;
-            UiFactory.SetHeight(title.gameObject, 38f);
+            UiFactory.SetHeight(title.gameObject, CompactUnits(38f));
             BuildVersionList(page.transform, true);
         }
 
@@ -164,7 +168,7 @@ namespace LearnHearthstone.Presentation.MainHub
         {
             var page = UiFactory.Panel("GameVersionCenterCompactDetailPage", parent, UnityTavernUiStyle.Panel);
             UiFactory.SetFlexible(page, 1f, 1f);
-            UiFactory.Vertical(page, 6, 6);
+            UiFactory.Vertical(page, CompactInt(6f), CompactInt(6f));
 
             var list = UiFactory.Button("GameVersionCenterCompactListButton", page.transform, T("查看版本列表", "View Version List"), () =>
             {
@@ -172,7 +176,11 @@ namespace LearnHearthstone.Presentation.MainHub
                 Build();
             }, layout);
             UnityTavernUiStyle.ConfigureButton(list, UnityTavernUiStyle.ArcaneBlue);
-            UiFactory.SetHeight(list.gameObject, UnityTavernUiStyle.CompactTouchHeight);
+            if (layout.IsShortLandscape)
+            {
+                UnityTavernUiStyle.ApplyTavernButtonSkin(list, true);
+            }
+            UiFactory.SetHeight(list.gameObject, CompactUnits(UnityTavernUiStyle.CompactTouchHeight));
             BuildDetails(page.transform, "GameVersionCenterCompactDetails");
         }
 
@@ -184,7 +192,7 @@ namespace LearnHearthstone.Presentation.MainHub
             {
                 UiFactory.SetWidth(panel, 320f);
             }
-            UiFactory.Vertical(panel, compact ? 6 : 10, 8);
+            UiFactory.Vertical(panel, compact ? CompactInt(6f) : 10, compact ? CompactInt(8f) : 8);
 
             if (!compact)
             {
@@ -208,7 +216,7 @@ namespace LearnHearthstone.Presentation.MainHub
                     Build();
                 }, layout);
                 UnityTavernUiStyle.ConfigureButton(button, selected ? UnityTavernUiStyle.FocusRing : UnityTavernUiStyle.Brass, selected, selected);
-                UiFactory.SetHeight(button.gameObject, compact ? 74f : 78f);
+                UiFactory.SetHeight(button.gameObject, compact ? CompactUnits(74f) : 78f);
             }
         }
 
@@ -216,7 +224,7 @@ namespace LearnHearthstone.Presentation.MainHub
         {
             var panel = UiFactory.Panel(objectName, parent, UnityTavernUiStyle.PanelRaised);
             UiFactory.SetFlexible(panel, 1f, 1f);
-            UiFactory.Vertical(panel, layout.IsCompact ? 6 : 12, layout.IsCompact ? 6 : 10);
+            UiFactory.Vertical(panel, CompactInt(6f, 12f), CompactInt(6f, 10f));
 
             var version = SelectedVersion();
             BuildDetailHeader(panel.transform, version);
@@ -231,10 +239,10 @@ namespace LearnHearthstone.Presentation.MainHub
                 layout);
             legend.alignment = TextAnchor.MiddleCenter;
             legend.color = UnityTavernUiStyle.TextMuted;
-            UiFactory.SetHeight(legend.gameObject, layout.IsCompact ? 34f : 38f);
+            UiFactory.SetHeight(legend.gameObject, CompactUnits(34f, 38f));
 
             var contentRoot = UiFactory.ScrollView("GameVersionCenterDetailScroll", panel.transform, UnityTavernUiStyle.PanelQuiet, out _, layout);
-            UiFactory.Vertical(contentRoot.gameObject, layout.IsCompact ? 8 : 12, layout.IsCompact ? 8 : 10);
+            UiFactory.Vertical(contentRoot.gameObject, CompactInt(8f, 12f), CompactInt(8f, 10f));
             switch (activeTab)
             {
                 case VersionTab.Heroes:
@@ -258,8 +266,8 @@ namespace LearnHearthstone.Presentation.MainHub
         private void BuildDetailHeader(Transform parent, GameVersionDefinition version)
         {
             var header = UiFactory.Panel("GameVersionCenterDetailHeader", parent, UnityTavernUiStyle.Panel);
-            UiFactory.SetHeight(header, layout.IsCompact ? 76f : 92f);
-            var row = UiFactory.Horizontal(header, layout.IsCompact ? 4 : 8, layout.IsCompact ? 6 : 10);
+            UiFactory.SetHeight(header, CompactUnits(76f, 92f));
+            var row = UiFactory.Horizontal(header, CompactInt(4f, 8f), CompactInt(6f, 10f));
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
 
@@ -270,7 +278,7 @@ namespace LearnHearthstone.Presentation.MainHub
             var tier = UiFactory.Label("GameVersionCenterVersionTier", header.transform, GameVersionUiText.Category(version, IsLatest(version), useEnglish), 14, FontStyle.Bold, layout);
             tier.alignment = TextAnchor.MiddleCenter;
             tier.color = UnityTavernUiStyle.Gold;
-            UiFactory.SetWidth(tier.gameObject, layout.IsCompact ? 190f : 230f);
+            UiFactory.SetWidth(tier.gameObject, CompactUnits(190f, 230f));
 
             BuildStatusLabel(header.transform, "GameVersionCenterOfficialStatus", GameVersionUiText.OfficialStatus(version.OfficialStatus, useEnglish));
             BuildStatusLabel(header.transform, "GameVersionCenterImplementationStatus", GameVersionUiText.ImplementationStatus(version.ImplementationStatus, useEnglish));
@@ -281,14 +289,14 @@ namespace LearnHearthstone.Presentation.MainHub
             var label = UiFactory.Label(name, parent, text, 14, FontStyle.Bold, layout);
             label.alignment = TextAnchor.MiddleCenter;
             label.color = UnityTavernUiStyle.TextLight;
-            UiFactory.SetWidth(label.gameObject, layout.IsCompact ? 220f : 250f);
+            UiFactory.SetWidth(label.gameObject, CompactUnits(220f, 250f));
         }
 
         private void BuildTabs(Transform parent)
         {
             var tabs = UiFactory.Panel("GameVersionCenterTabs", parent, Color.clear);
-            UiFactory.SetHeight(tabs, layout.IsCompact ? 54f : 58f);
-            var row = UiFactory.Horizontal(tabs, 0, layout.IsCompact ? 5 : 8);
+            UiFactory.SetHeight(tabs, CompactUnits(54f, 58f));
+            var row = UiFactory.Horizontal(tabs, 0, CompactInt(5f, 8f));
             row.childForceExpandWidth = true;
             BuildTab(tabs.transform, "GameVersionCenterTabOverview", VersionTab.Overview, T("概览", "Overview"));
             BuildTab(tabs.transform, "GameVersionCenterTabHeroes", VersionTab.Heroes, T("英雄", "Heroes"));
@@ -391,8 +399,8 @@ namespace LearnHearthstone.Presentation.MainHub
         {
             var row = UiFactory.Panel("GameVersionCenterDifference-" + title, parent, UnityTavernUiStyle.SurfaceRaised);
             UnityTavernUiStyle.ConfigureOutline(row, UnityTavernUiStyle.WithAlpha(DifferenceColor(kind), 0.68f), new Vector2(1f, -1f));
-            UiFactory.Vertical(row, layout.IsCompact ? 8 : 10, 4);
-            UiFactory.SetHeight(row, layout.IsCompact ? 78f : 82f);
+            UiFactory.Vertical(row, CompactInt(8f, 10f), CompactInt(4f));
+            UiFactory.SetHeight(row, CompactUnits(78f, 82f));
 
             var heading = UiFactory.Label("GameVersionCenterDifferenceTitle", row.transform, DifferenceText(kind) + " · " + title, 16, FontStyle.Bold, layout);
             heading.color = UnityTavernUiStyle.TextLight;
@@ -413,7 +421,7 @@ namespace LearnHearthstone.Presentation.MainHub
         {
             var label = UiFactory.Label(name, parent, text ?? string.Empty, 14, FontStyle.Normal, layout);
             label.color = UnityTavernUiStyle.TextLight;
-            UiFactory.SetHeight(label.gameObject, layout.IsCompact ? 58f : 64f);
+            UiFactory.SetHeight(label.gameObject, CompactUnits(58f, 64f));
         }
 
         private GameVersionDefinition SelectedVersion()
@@ -538,6 +546,21 @@ namespace LearnHearthstone.Presentation.MainHub
                     UnityEngine.Object.DestroyImmediate(child);
                 }
             }
+        }
+
+        private float CompactUnits(float compactPhysicalSize, float regularSize = -1f)
+        {
+            if (layout.IsCompact)
+            {
+                return layout.CanvasUnitsForPhysicalPixels(compactPhysicalSize);
+            }
+
+            return regularSize >= 0f ? regularSize : compactPhysicalSize;
+        }
+
+        private int CompactInt(float compactPhysicalSize, float regularSize = -1f)
+        {
+            return Mathf.CeilToInt(CompactUnits(compactPhysicalSize, regularSize));
         }
     }
 

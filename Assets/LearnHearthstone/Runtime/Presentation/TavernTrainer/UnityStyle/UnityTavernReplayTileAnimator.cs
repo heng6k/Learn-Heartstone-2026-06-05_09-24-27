@@ -53,7 +53,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
             ConfigureOutline(motion);
             ConfigureFlash(motion);
-            ApplyPreview(UnityUiMotionSettings.ReduceMotion ? 1f : 0f);
+            var finishImmediately = motion == UnityTavernReplayTileMotion.None || UnityUiMotionSettings.ReduceMotion;
+            ApplyPreview(finishImmediately ? 1f : 0f);
+            enabled = !finishImmediately;
+            if (finishImmediately)
+            {
+                Motion = UnityTavernReplayTileMotion.None;
+            }
         }
 
         public void ApplyPreview(float phase)
@@ -130,16 +136,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (Motion == UnityTavernReplayTileMotion.None)
             {
+                enabled = false;
                 return;
             }
 
-            if (UnityUiMotionSettings.ReduceMotion)
+            var phase = (Time.unscaledTime - startTime) / Duration;
+            if (UnityUiMotionSettings.ReduceMotion || phase >= 1f)
             {
                 ApplyPreview(1f);
+                Motion = UnityTavernReplayTileMotion.None;
+                enabled = false;
                 return;
             }
 
-            ApplyPreview((Time.unscaledTime - startTime) / Duration);
+            ApplyPreview(phase);
         }
 
         private void ConfigureOutline(UnityTavernReplayTileMotion motion)
@@ -217,6 +227,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             duration = UnityUiMotionSettings.Duration(RegularDuration);
             startTime = Time.unscaledTime;
             ApplyPreview(duration <= 0f ? 1f : 0f);
+            enabled = duration > 0f;
         }
 
         public void ApplyPreview(float phase)
@@ -231,10 +242,20 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             if (duration <= 0f)
             {
+                enabled = false;
                 return;
             }
 
-            ApplyPreview((Time.unscaledTime - startTime) / duration);
+            var phase = (Time.unscaledTime - startTime) / duration;
+            if (phase >= 1f)
+            {
+                ApplyPreview(1f);
+                duration = 0f;
+                enabled = false;
+                return;
+            }
+
+            ApplyPreview(phase);
         }
     }
 
@@ -255,7 +276,9 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             basePosition = rect.anchoredPosition;
             rise = Mathf.Max(0f, riseDistance);
             startTime = Time.unscaledTime;
-            ApplyPreview(0f);
+            var finishImmediately = UnityUiMotionSettings.ReduceMotion;
+            ApplyPreview(finishImmediately ? 1f : 0f);
+            enabled = !finishImmediately;
         }
 
         public void ApplyPreview(float phase)
@@ -274,7 +297,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private void Update()
         {
-            ApplyPreview((Time.unscaledTime - startTime) / Duration);
+            var phase = (Time.unscaledTime - startTime) / Duration;
+            if (UnityUiMotionSettings.ReduceMotion || phase >= 1f)
+            {
+                ApplyPreview(1f);
+                enabled = false;
+                return;
+            }
+
+            ApplyPreview(phase);
         }
     }
 }

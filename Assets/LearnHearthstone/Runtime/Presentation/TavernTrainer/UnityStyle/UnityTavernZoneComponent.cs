@@ -122,7 +122,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             vertical.childForceExpandWidth = true;
             vertical.childForceExpandHeight = false;
 
-            BuildHeader(title, subtitle);
+            BuildHeader(title, subtitle, resolvedLayout);
             BuildGeneratedRow(cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, resolvedLayout, useEnglish);
         }
 
@@ -142,14 +142,14 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         {
             SetText(titleText, title);
             SetText(subtitleText, subtitle);
-            ConfigureHeaderVisuals(ResolveHeader(), titleText, subtitleText);
+            ConfigureHeaderVisuals(ResolveHeader(), titleText, subtitleText, layout);
 
             var parent = slotParent != null ? slotParent : transform;
             ClearChildren(parent);
             BuildSlots(parent, cards, stableSlotCount, cardMode, actionLabel, onSelect, onPrimaryAction, configureCard, configureSlot, layout, useEnglish);
         }
 
-        private void BuildHeader(string title, string subtitle)
+        private void BuildHeader(string title, string subtitle, UnityTavernLayoutContext layoutContext)
         {
             var header = new GameObject("UnityZoneHeader", typeof(RectTransform));
             header.transform.SetParent(transform, false);
@@ -168,7 +168,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var subtitleLabel = UiFactory.Label("UnityZoneSubtitle", header.transform, subtitle, 14, FontStyle.Bold);
             subtitleLabel.color = UnityTavernUiStyle.MutedText;
             subtitleLabel.alignment = TextAnchor.MiddleRight;
-            ConfigureHeaderVisuals(header.transform, titleLabel, subtitleLabel);
+            ConfigureHeaderVisuals(header.transform, titleLabel, subtitleLabel, layoutContext);
         }
 
         private void BuildGeneratedRow(
@@ -289,6 +289,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 
         private static void ConfigureRootLayout(VerticalLayoutGroup layout, UnityTavernLayoutContext context)
         {
+            if (context.IsShortLandscape)
+            {
+                var horizontal = Mathf.RoundToInt(context.CanvasUnitsForDensityIndependentPixels(4f));
+                var vertical = Mathf.RoundToInt(context.CanvasUnitsForDensityIndependentPixels(2f));
+                layout.padding = new RectOffset(horizontal, horizontal, vertical, vertical);
+                layout.spacing = context.CanvasUnitsForDensityIndependentPixels(2f);
+                return;
+            }
+
             if (context.IsCompact)
             {
                 layout.padding = new RectOffset(8, 8, 6, 8);
@@ -352,7 +361,11 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             outline.useGraphicAlpha = false;
         }
 
-        private void ConfigureHeaderVisuals(Transform header, Text title, Text subtitle)
+        private void ConfigureHeaderVisuals(
+            Transform header,
+            Text title,
+            Text subtitle,
+            UnityTavernLayoutContext layoutContext)
         {
             if (header == null)
             {
@@ -362,12 +375,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             var headerImage = UnityTavernUiStyle.EnsureComponent<Image>(header.gameObject);
             headerImage.color = ZoneHeaderColor(zoneKind);
             headerImage.raycastTarget = false;
-            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, 32f);
+            var headerHeight = layoutContext.IsShortLandscape
+                ? layoutContext.CanvasUnitsForDensityIndependentPixels(20f)
+                : 32f;
+            UnityTavernUiStyle.SetPreferredHeight(header.gameObject, headerHeight);
 
             var layout = header.GetComponent<HorizontalLayoutGroup>();
             if (layout != null)
             {
-                layout.padding = new RectOffset(24, 8, 0, 0);
+                layout.padding = layoutContext.IsShortLandscape
+                    ? new RectOffset(
+                        Mathf.RoundToInt(layoutContext.CanvasUnitsForDensityIndependentPixels(18f)),
+                        Mathf.RoundToInt(layoutContext.CanvasUnitsForDensityIndependentPixels(4f)),
+                        0,
+                        0)
+                    : new RectOffset(24, 8, 0, 0);
             }
 
             var mark = header.Find("UnityZoneAccentMark") as RectTransform;
@@ -379,14 +401,21 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
 
             mark.SetSiblingIndex(0);
-            UnityTavernUiStyle.SetFixedSize(mark.gameObject, 10f, 10f);
+            var markSize = layoutContext.IsShortLandscape
+                ? layoutContext.CanvasUnitsForDensityIndependentPixels(8f)
+                : 10f;
+            UnityTavernUiStyle.SetFixedSize(mark.gameObject, markSize, markSize);
             var markElement = UnityTavernUiStyle.EnsureComponent<LayoutElement>(mark.gameObject);
             markElement.ignoreLayout = true;
             mark.anchorMin = new Vector2(0f, 0.5f);
             mark.anchorMax = new Vector2(0f, 0.5f);
             mark.pivot = new Vector2(0.5f, 0.5f);
-            mark.sizeDelta = new Vector2(10f, 10f);
-            mark.anchoredPosition = new Vector2(10f, 0f);
+            mark.sizeDelta = new Vector2(markSize, markSize);
+            mark.anchoredPosition = new Vector2(
+                layoutContext.IsShortLandscape
+                    ? layoutContext.CanvasUnitsForDensityIndependentPixels(8f)
+                    : 10f,
+                0f);
             mark.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var markImage = UnityTavernUiStyle.EnsureComponent<Image>(mark.gameObject);
             markImage.color = ZoneAccentColor(zoneKind);
@@ -395,14 +424,18 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             if (title != null)
             {
                 UiFactory.EnsureFont(title);
-                title.fontSize = Mathf.Max(16, title.fontSize);
+                title.fontSize = layoutContext.IsShortLandscape
+                    ? Mathf.Max(14, Mathf.RoundToInt(layoutContext.CanvasUnitsForDensityIndependentPixels(13f)))
+                    : Mathf.Max(16, title.fontSize);
                 title.color = UnityTavernUiStyle.Text;
             }
 
             if (subtitle != null)
             {
                 UiFactory.EnsureFont(subtitle);
-                subtitle.fontSize = Mathf.Max(14, subtitle.fontSize);
+                subtitle.fontSize = layoutContext.IsShortLandscape
+                    ? Mathf.Max(14, Mathf.RoundToInt(layoutContext.CanvasUnitsForDensityIndependentPixels(12f)))
+                    : Mathf.Max(14, subtitle.fontSize);
                 var accent = ZoneAccentColor(zoneKind);
                 subtitle.color = new Color(accent.r, accent.g, accent.b, 0.95f);
             }

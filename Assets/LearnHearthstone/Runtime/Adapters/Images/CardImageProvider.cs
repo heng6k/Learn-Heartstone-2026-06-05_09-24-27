@@ -11,9 +11,15 @@ namespace LearnHearthstone.Adapters.Images
         private const float FullCardAspectThreshold = 1.2f;
         private const string ArtDisplayContainTag = "art_display:contain";
         private const string ArtDisplayCropTag = "art_display:crop";
-        private static readonly Dictionary<string, Sprite> fullTextureSpriteCache = new Dictionary<string, Sprite>();
-        private static readonly Dictionary<string, Sprite> resourceSpriteCache = new Dictionary<string, Sprite>();
+        private const int FullTextureCacheCapacity = 256;
+        private const int ResourceSpriteCacheCapacity = 384;
+        private static readonly BoundedSpriteCache fullTextureSpriteCache = new BoundedSpriteCache(FullTextureCacheCapacity, true);
+        private static readonly BoundedSpriteCache resourceSpriteCache = new BoundedSpriteCache(ResourceSpriteCacheCapacity, false);
         private readonly Sprite fallback;
+
+        public static int CachedSpriteCount => fullTextureSpriteCache.Count + resourceSpriteCache.Count;
+
+        public static int MaximumCachedSpriteCount => FullTextureCacheCapacity + ResourceSpriteCacheCapacity;
 
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
@@ -126,7 +132,7 @@ namespace LearnHearthstone.Adapters.Images
 
             if (texture == null)
             {
-                fullTextureSpriteCache[path] = null;
+                fullTextureSpriteCache.Set(path, null);
                 return null;
             }
 
@@ -138,7 +144,7 @@ namespace LearnHearthstone.Adapters.Images
                 0,
                 SpriteMeshType.FullRect);
             sprite.name = texture.name + "_FullCard";
-            fullTextureSpriteCache[path] = sprite;
+            fullTextureSpriteCache.Set(path, sprite);
             return sprite;
         }
 
@@ -156,8 +162,110 @@ namespace LearnHearthstone.Adapters.Images
 
             var sprite = Resources.Load<Sprite>(path)
                 ?? Resources.LoadAll<Sprite>(path).FirstOrDefault();
-            resourceSpriteCache[path] = sprite;
+            resourceSpriteCache.Set(path, sprite);
             return sprite;
+        }
+
+        private sealed class BoundedSpriteCache
+        {
+            private readonly int capacity;
+            private readonly bool destroyEvictedSprites;
+            private readonly Dictionary<string, Sprite> values = new Dictionary<string, Sprite>();
+            private readonly Dictionary<string, LinkedListNode<string>> nodes = new Dictionary<string, LinkedListNode<string>>();
+            private readonly LinkedList<string> recency = new LinkedList<string>();
+
+            public BoundedSpriteCache(int capacity, bool destroyEvictedSprites)
+            {
+                this.capacity = Mathf.Max(1, capacity);
+                this.destroyEvictedSprites = destroyEvictedSprites;
+            }
+
+            public int Count => values.Count;
+
+            public bool TryGetValue(string key, out Sprite value)
+            {
+                if (!values.TryGetValue(key, out value))
+                {
+                    return false;
+                }
+
+                Touch(key);
+                return true;
+            }
+
+            public void Set(string key, Sprite value)
+            {
+                if (values.ContainsKey(key))
+                {
+                    var previous = values[key];
+                    values[key] = value;
+                    Touch(key);
+                    DestroyOwnedSprite(previous, value);
+                    return;
+                }
+
+                values.Add(key, value);
+                nodes.Add(key, recency.AddLast(key));
+                if (values.Count <= capacity)
+                {
+                    return;
+                }
+
+                var oldest = recency.First;
+                if (oldest == null)
+                {
+                    return;
+                }
+
+                recency.RemoveFirst();
+                nodes.Remove(oldest.Value);
+                var evicted = values[oldest.Value];
+                values.Remove(oldest.Value);
+                DestroyOwnedSprite(evicted, null);
+            }
+
+            public void Clear()
+            {
+                if (destroyEvictedSprites)
+                {
+                    foreach (var sprite in values.Values)
+                    {
+                        DestroyOwnedSprite(sprite, null);
+                    }
+                }
+
+                values.Clear();
+                nodes.Clear();
+                recency.Clear();
+            }
+
+            private void Touch(string key)
+            {
+                if (!nodes.TryGetValue(key, out var node))
+                {
+                    return;
+                }
+
+                recency.Remove(node);
+                recency.AddLast(node);
+            }
+
+            private void DestroyOwnedSprite(Sprite sprite, Sprite replacement)
+            {
+                if (!destroyEvictedSprites || sprite == null || sprite == replacement)
+                {
+                    return;
+                }
+
+                if (UnityEngine.Application.isPlaying)
+                {
+                    Object.Destroy(sprite);
+                }
+                else
+                {
+                    Object.DestroyImmediate(sprite);
+                }
+            }
         }
 
         private static IEnumerable<string> CandidatePaths(string imagePath, string cardId, CardKind cardKind)

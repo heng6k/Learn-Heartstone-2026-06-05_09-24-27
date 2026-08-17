@@ -8,6 +8,13 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
 {
     public static class UnityTavernUiStyle
     {
+        private const string TavernPanelFrameResource = "UI/Mobile/TavernPanelFrameThin";
+        private const string TavernActionGoldResource = "UI/Mobile/TavernActionGold";
+        private const string TavernActionArcaneResource = "UI/Mobile/TavernActionArcane";
+
+        private static Sprite tavernPanelFrameSprite;
+        private static Sprite tavernActionGoldSprite;
+        private static Sprite tavernActionArcaneSprite;
         public const float SpacingXs = 4f;
         public const float SpacingSm = 8f;
         public const float SpacingMd = 12f;
@@ -16,6 +23,12 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
         public const float Spacing2Xl = 32f;
         public const float TouchHeight = 48f;
         public const float CompactTouchHeight = 52f;
+        public const float ShortLandscapeTopBarHeight = 48f;
+        public const float ShortLandscapeShopHeight = 96f;
+        public const float ShortLandscapeBoardHeight = 116f;
+        public const float ShortLandscapeHandPeekHeight = 72f;
+        public const float ShortLandscapeHandExpandedHeight = 176f;
+        public const float ShortLandscapeRegionGap = 4f;
 
         public static readonly Color BackWall = ColorFromHex(0x111512);
         public static readonly Color TableDark = ColorFromHex(0x332319);
@@ -110,6 +123,7 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             // InputField inherits Unity's bright default selected tint. It obscures text on
             // mobile; focus is already represented by UnitySelectableFocusRing.
             input.transition = Selectable.Transition.None;
+            EnsureComponent<UnityMobileKeyboardAvoider>(input.gameObject);
             ConfigureLabel(input.textComponent, TextLight);
             ConfigureLabel(input.placeholder as Text, TextMuted);
         }
@@ -149,6 +163,119 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             facetImage.raycastTarget = false;
         }
 
+        public static Image AddTavernPanelFrame(Transform parent, string name)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            var existing = parent.Find(name);
+            if (existing != null)
+            {
+                return existing.GetComponent<Image>();
+            }
+
+            var frame = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+            frame.transform.SetParent(parent, false);
+            frame.GetComponent<LayoutElement>().ignoreLayout = true;
+            Stretch(frame.GetComponent<RectTransform>());
+            var image = frame.GetComponent<Image>();
+            image.sprite = tavernPanelFrameSprite ?? (tavernPanelFrameSprite = LoadNineSliceSprite(
+                TavernPanelFrameResource,
+                0.055f,
+                0.09f));
+            image.type = image.sprite == null ? Image.Type.Simple : Image.Type.Sliced;
+            image.color = image.sprite == null ? Color.clear : Color.white;
+            image.raycastTarget = false;
+            frame.transform.SetAsLastSibling();
+            return image;
+        }
+
+        public static Image ApplyTavernActionSkin(GameObject target, bool arcane)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var image = EnsureComponent<Image>(target);
+            if (arcane)
+            {
+                image.sprite = tavernActionArcaneSprite ?? (tavernActionArcaneSprite = LoadNineSliceSprite(
+                    TavernActionArcaneResource,
+                    0.14f,
+                    0.22f));
+            }
+            else
+            {
+                image.sprite = tavernActionGoldSprite ?? (tavernActionGoldSprite = LoadNineSliceSprite(
+                    TavernActionGoldResource,
+                    0.14f,
+                    0.22f));
+            }
+
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = image.sprite == null
+                ? WithAlpha(arcane ? ArcaneBlue : Gold, 0.42f)
+                : Color.white;
+            image.raycastTarget = target.GetComponent<Selectable>() != null;
+            return image;
+        }
+
+        public static void ApplyTavernButtonSkin(Button button, bool arcane)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            ApplyTavernActionSkin(button.gameObject, arcane);
+            TintSelectable(
+                button,
+                Color.white,
+                Color.Lerp(Color.white, arcane ? ArcaneBlue : Gold, 0.12f),
+                new Color(0.82f, 0.82f, 0.82f, 1f));
+            var outline = button.GetComponent<Outline>();
+            if (outline != null)
+            {
+                outline.enabled = false;
+            }
+
+            foreach (var label in button.GetComponentsInChildren<Text>(true))
+            {
+                ConfigureLabel(label, arcane ? TextLight : TextDark);
+            }
+        }
+
+        public static void ConfigureCroppedPortrait(Image image, Sprite sprite, float verticalFocus = 0.62f)
+        {
+            if (image == null)
+            {
+                return;
+            }
+
+            image.sprite = sprite;
+            image.preserveAspect = false;
+            image.raycastTarget = false;
+            if (sprite == null || image.transform.parent == null)
+            {
+                return;
+            }
+
+            EnsureComponent<RectMask2D>(image.transform.parent.gameObject);
+            var rect = image.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, Mathf.Clamp01(verticalFocus));
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
+
+            var fitter = EnsureComponent<AspectRatioFitter>(image.gameObject);
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = Mathf.Max(0.01f, sprite.rect.width / sprite.rect.height);
+        }
+
         public static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;
@@ -157,11 +284,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             rect.offsetMax = Vector2.zero;
         }
 
-        public static void SetFixedSize(GameObject target, float width, float height)
+        public static void SetFixedSize(
+            GameObject target,
+            float width,
+            float height,
+            UnityTavernLayoutContext? layoutContext = null)
         {
             var selectable = target.GetComponent<Selectable>() != null;
             var minimumTouchSize = selectable
-                ? UnityTavernLayoutContext.Current().CanvasUnitsForPhysicalPixels(TouchHeight)
+                ? (layoutContext ?? UnityTavernLayoutContext.Current()).CanvasUnitsForTouchTarget(TouchHeight)
                 : 0f;
             var resolvedWidth = selectable && width > 0f ? Mathf.Max(minimumTouchSize, width) : width;
             var resolvedHeight = selectable ? Mathf.Max(minimumTouchSize, height) : height;
@@ -180,12 +311,15 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             }
         }
 
-        public static void SetPreferredHeight(GameObject target, float height)
+        public static void SetPreferredHeight(
+            GameObject target,
+            float height,
+            UnityTavernLayoutContext? layoutContext = null)
         {
             var element = EnsureComponent<LayoutElement>(target);
             var selectable = target.GetComponent<Selectable>();
             var minimumTouchSize = selectable != null
-                ? UnityTavernLayoutContext.Current().CanvasUnitsForPhysicalPixels(TouchHeight)
+                ? (layoutContext ?? UnityTavernLayoutContext.Current()).CanvasUnitsForTouchTarget(TouchHeight)
                 : 0f;
             var resolvedHeight = selectable != null ? Mathf.Max(minimumTouchSize, height) : height;
             if (selectable != null)
@@ -275,6 +409,26 @@ namespace LearnHearthstone.Presentation.TavernTrainer.UnityStyle
             colors.fadeDuration = UnityUiMotionSettings.Duration(0.08f);
             button.colors = colors;
             button.transition = Selectable.Transition.ColorTint;
+        }
+
+        private static Sprite LoadNineSliceSprite(string resourcePath, float horizontalBorderRatio, float verticalBorderRatio)
+        {
+            var texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            var horizontalBorder = Mathf.Round(texture.width * horizontalBorderRatio);
+            var verticalBorder = Mathf.Round(texture.height * verticalBorderRatio);
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f,
+                0u,
+                SpriteMeshType.FullRect,
+                new Vector4(horizontalBorder, verticalBorder, horizontalBorder, verticalBorder));
         }
     }
 }

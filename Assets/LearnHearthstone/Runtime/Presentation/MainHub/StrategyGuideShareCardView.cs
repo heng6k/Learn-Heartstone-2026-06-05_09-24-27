@@ -65,7 +65,10 @@ namespace LearnHearthstone.Presentation.MainHub
                 shell,
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Gold, 0.72f),
                 new Vector2(2f, -2f));
-            UiFactory.Vertical(shell, layout.IsCompact ? 10 : 14, 10);
+            UiFactory.Vertical(
+                shell,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : layout.IsCompact ? 10 : 14,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : 10);
 
             if (includeActions)
             {
@@ -105,7 +108,10 @@ namespace LearnHearthstone.Presentation.MainHub
                 rowObject,
                 0f,
                 layout.CanvasUnitsForPhysicalPixels(UnityTavernUiStyle.TouchHeight));
-            var row = UiFactory.Horizontal(rowObject, 0, 8);
+            var row = UiFactory.Horizontal(
+                rowObject,
+                0,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : 8);
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
 
@@ -128,7 +134,9 @@ namespace LearnHearthstone.Presentation.MainHub
                     () => ExportPng(heading),
                     layout);
                 UnityTavernUiStyle.ConfigureButton(export, UnityTavernUiStyle.SuccessGreen, true);
-                UiFactory.SetWidth(export.gameObject, layout.IsCompact ? 106f : 132f);
+                UiFactory.SetWidth(
+                    export.gameObject,
+                    layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(106f) : layout.IsCompact ? 106f : 132f);
             }
 
             var copy = UiFactory.Button(
@@ -143,7 +151,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 },
                 layout);
             UnityTavernUiStyle.ConfigureButton(copy, UnityTavernUiStyle.Gold, true);
-            UiFactory.SetWidth(copy.gameObject, layout.IsCompact ? 132f : 172f);
+            UiFactory.SetWidth(
+                copy.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(132f) : layout.IsCompact ? 132f : 172f);
 
             var closeButton = UiFactory.Button(
                 "StrategyGuideShareCloseButton",
@@ -152,7 +162,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 () => close?.Invoke(),
                 layout);
             UnityTavernUiStyle.ConfigureButton(closeButton, UnityTavernUiStyle.ArcaneBlue, false);
-            UiFactory.SetWidth(closeButton.gameObject, layout.IsCompact ? 76f : 96f);
+            UiFactory.SetWidth(
+                closeButton.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(76f) : layout.IsCompact ? 76f : 96f);
         }
 
         private GameObject BuildCard(Transform parent)

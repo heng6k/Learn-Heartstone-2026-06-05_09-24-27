@@ -106,7 +106,10 @@ namespace LearnHearthstone.Presentation.MainHub
             rect.anchorMax = layout.IsCompact ? new Vector2(0.965f, 0.96f) : new Vector2(0.88f, 0.91f);
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
-            UiFactory.Vertical(panel, layout.IsCompact ? 9 : 14, layout.IsCompact ? 8 : 10);
+            UiFactory.Vertical(
+                panel,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : layout.IsCompact ? 9 : 14,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : layout.IsCompact ? 8 : 10);
             UnityTavernUiStyle.ConfigureOutline(
                 panel,
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.Brass, 0.72f),
@@ -128,8 +131,10 @@ namespace LearnHearthstone.Presentation.MainHub
         private void BuildHeader(Transform parent, UnityTavernLayoutContext layout)
         {
             var header = UiFactory.Panel("StrategyGuideAuthoringPickerHeader", parent, Color.clear);
-            UiFactory.SetHeight(header, layout.IsCompact ? 106f : 54f);
-            var row = UiFactory.Horizontal(header, 0, 8);
+            UiFactory.SetHeight(
+                header,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(58f) : layout.IsCompact ? 106f : 54f);
+            var row = UiFactory.Horizontal(header, 0, layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : 8);
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
             row.childForceExpandHeight = false;
@@ -153,7 +158,7 @@ namespace LearnHearthstone.Presentation.MainHub
                 layout);
             count.color = UnityTavernUiStyle.TextMuted;
             count.alignment = TextAnchor.MiddleRight;
-            UiFactory.SetWidth(count.gameObject, 84f);
+            UiFactory.SetWidth(count.gameObject, layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(84f) : 84f);
 
             var inputObject = new GameObject(
                 "StrategyGuideAuthoringPickerSearchInput",
@@ -162,7 +167,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 typeof(InputField));
             inputObject.transform.SetParent(header.transform, false);
             UiFactory.SetMinSize(inputObject, 150f, UnityTavernUiStyle.TouchHeight);
-            UiFactory.SetWidth(inputObject, layout.IsCompact ? 156f : 230f);
+            UiFactory.SetWidth(
+                inputObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(156f) : layout.IsCompact ? 156f : 230f);
             var inputLayout = inputObject.GetComponent<LayoutElement>();
             var inputHeight = layout.CanvasUnitsForPhysicalPixels(UnityTavernUiStyle.TouchHeight);
             inputLayout.minHeight = inputHeight;
@@ -214,7 +221,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 () => close?.Invoke(),
                 layout);
             UnityTavernUiStyle.ConfigureButton(closeButton, UnityTavernUiStyle.ArcaneBlue);
-            UiFactory.SetWidth(closeButton.gameObject, layout.IsCompact ? 72f : 88f);
+            UiFactory.SetWidth(
+                closeButton.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(72f) : layout.IsCompact ? 72f : 88f);
         }
 
         private string ResultCountText()
@@ -237,7 +246,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 FontStyle.Normal,
                 layout);
             label.color = UnityTavernUiStyle.TextMuted;
-            UiFactory.SetHeight(label.gameObject, layout.IsCompact ? 48f : 34f);
+            UiFactory.SetHeight(
+                label.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(48f) : layout.IsCompact ? 48f : 34f);
         }
 
         private void BuildCardLibraryFilters(Transform parent, UnityTavernLayoutContext layout)
@@ -263,7 +274,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 layout);
             label.color = UnityTavernUiStyle.Gold;
             label.alignment = TextAnchor.MiddleCenter;
-            UiFactory.SetWidth(label.gameObject, layout.IsCompact ? 48f : 58f);
+            UiFactory.SetWidth(
+                label.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(48f) : layout.IsCompact ? 48f : 58f);
 
             BuildTierButton(panel.transform, 0, T("全部", "All"), layout);
             foreach (var tier in (items ?? Array.Empty<StrategyGuideAuthoringPickerItem>())
@@ -290,7 +303,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 layout);
             clear.interactable = !string.IsNullOrWhiteSpace(searchText);
             UnityTavernUiStyle.ConfigureButton(clear, UnityTavernUiStyle.ArcaneBlue);
-            UiFactory.SetWidth(clear.gameObject, layout.IsCompact ? 82f : 96f);
+            UiFactory.SetWidth(
+                clear.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(82f) : layout.IsCompact ? 82f : 96f);
         }
 
         private void BuildTierButton(Transform parent, int tier, string caption, UnityTavernLayoutContext layout)
@@ -313,7 +328,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 active ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.ArcaneBlue,
                 active,
                 active);
-            UiFactory.SetWidth(button.gameObject, layout.IsCompact ? 48f : 54f);
+            UiFactory.SetWidth(
+                button.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(48f) : layout.IsCompact ? 48f : 54f);
         }
 
         private void BuildResults(Transform parent, UnityTavernLayoutContext layout)
@@ -324,7 +341,10 @@ namespace LearnHearthstone.Presentation.MainHub
                 UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceDark, 0.96f),
                 out _,
                 layout);
-            var list = UiFactory.Vertical(content.gameObject, 8, 8);
+            var list = UiFactory.Vertical(
+                content.gameObject,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : 8,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(4f)) : 8);
             list.childControlWidth = true;
             list.childForceExpandWidth = true;
             var allFiltered = FilteredItems().ToList();
@@ -403,8 +423,13 @@ namespace LearnHearthstone.Presentation.MainHub
                 unavailable
                     ? Color.Lerp(UnityTavernUiStyle.SurfaceRaised, UnityTavernUiStyle.Gold, 0.19f)
                     : UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.SurfaceRaised, 0.96f));
-            UiFactory.SetHeight(rowObject, layout.IsCompact ? 76f : 84f);
-            var row = UiFactory.Horizontal(rowObject, 8, 9);
+            UiFactory.SetHeight(
+                rowObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(76f) : layout.IsCompact ? 76f : 84f);
+            var row = UiFactory.Horizontal(
+                rowObject,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(6f)) : 8,
+                layout.IsShortLandscape ? Mathf.CeilToInt(layout.CanvasUnitsForPhysicalPixels(6f)) : 9);
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandWidth = false;
             UnityTavernUiStyle.ConfigureOutline(
@@ -414,7 +439,11 @@ namespace LearnHearthstone.Presentation.MainHub
                     : UnityTavernUiStyle.WithAlpha(UnityTavernUiStyle.ArcaneBlue, 0.28f),
                 new Vector2(1f, -1f));
 
-            BuildImage(rowObject.transform, item, layout.IsCompact ? 58f : 66f, layout);
+            BuildImage(
+                rowObject.transform,
+                item,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(58f) : layout.IsCompact ? 58f : 66f,
+                layout);
             var copy = UiFactory.Panel("StrategyGuideAuthoringPickerCopy-" + safeId, rowObject.transform, Color.clear);
             UiFactory.SetFlexible(copy, 1f, 0f);
             UiFactory.Vertical(copy, 0, 2);
@@ -426,7 +455,7 @@ namespace LearnHearthstone.Presentation.MainHub
                 FontStyle.Bold,
                 layout);
             name.color = UnityTavernUiStyle.TextLight;
-            UiFactory.SetHeight(name.gameObject, 26f);
+            UiFactory.SetHeight(name.gameObject, layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(26f) : 26f);
             var detail = UiFactory.Label(
                 "StrategyGuideAuthoringPickerDetail-" + safeId,
                 copy.transform,
@@ -435,7 +464,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 FontStyle.Normal,
                 layout);
             detail.color = UnityTavernUiStyle.TextMuted;
-            UiFactory.SetHeight(detail.gameObject, layout.IsCompact ? 34f : 38f);
+            UiFactory.SetHeight(
+                detail.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(34f) : layout.IsCompact ? 34f : 38f);
 
             var choose = UiFactory.Button(
                 "StrategyGuideAuthoringPickerChooseButton-" + safeId,
@@ -455,7 +486,9 @@ namespace LearnHearthstone.Presentation.MainHub
                 unavailable ? UnityTavernUiStyle.Gold : UnityTavernUiStyle.Brass,
                 unavailable,
                 unavailable);
-            UiFactory.SetWidth(choose.gameObject, layout.IsCompact ? 74f : 92f);
+            UiFactory.SetWidth(
+                choose.gameObject,
+                layout.IsShortLandscape ? layout.CanvasUnitsForPhysicalPixels(74f) : layout.IsCompact ? 74f : 92f);
         }
 
         private static void BuildImage(

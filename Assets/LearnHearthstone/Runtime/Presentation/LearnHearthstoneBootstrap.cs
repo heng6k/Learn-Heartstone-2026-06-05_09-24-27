@@ -37,6 +37,7 @@ namespace LearnHearthstone.Presentation
         }
 
         private const string UiFontResourcePath = "Fonts/NotoSansSC-Regular";
+        private const int LayoutStableFrames = 2;
 
         private Canvas canvas;
         private Transform routeRoot;
@@ -50,7 +51,12 @@ namespace LearnHearthstone.Presentation
         private UnityTavernTribeSelectionView tribeSelectionView;
         private int lastScreenWidth;
         private int lastScreenHeight;
+        private Rect lastSafeArea;
         private UnityTavernLayoutMode lastLayoutMode;
+        private int pendingScreenWidth = -1;
+        private int pendingScreenHeight = -1;
+        private Rect pendingSafeArea;
+        private int pendingLayoutStableFrames;
         private bool initialized;
 
         private void Awake()
@@ -170,17 +176,44 @@ namespace LearnHearthstone.Presentation
             {
                 return;
             }
-            if (Screen.width == lastScreenWidth && Screen.height == lastScreenHeight)
+            var safeArea = Screen.safeArea;
+            if (Screen.width == lastScreenWidth &&
+                Screen.height == lastScreenHeight &&
+                safeArea == lastSafeArea)
+            {
+                pendingLayoutStableFrames = 0;
+                return;
+            }
+
+            if (Screen.width != pendingScreenWidth ||
+                Screen.height != pendingScreenHeight ||
+                safeArea != pendingSafeArea)
+            {
+                pendingScreenWidth = Screen.width;
+                pendingScreenHeight = Screen.height;
+                pendingSafeArea = safeArea;
+                pendingLayoutStableFrames = 1;
+                return;
+            }
+
+            pendingLayoutStableFrames += 1;
+            if (pendingLayoutStableFrames < LayoutStableFrames)
             {
                 return;
             }
 
             var layout = UnityTavernLayoutContext.Current();
+            var rebuildRoute = RequiresRouteRebuild(lastLayoutMode, layout.Mode);
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
+            lastSafeArea = safeArea;
             lastLayoutMode = layout.Mode;
+            pendingLayoutStableFrames = 0;
             ConfigureCanvas(canvas, layout);
-            RebuildCurrentRoute(layout);
+            if (rebuildRoute)
+            {
+                RebuildCurrentRoute(layout);
+            }
         }
 
         private void ShowHub()
@@ -412,7 +445,17 @@ namespace LearnHearthstone.Presentation
             var layout = UnityTavernLayoutContext.Current();
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
+            lastSafeArea = Screen.safeArea;
             lastLayoutMode = layout.Mode;
+            pendingScreenWidth = lastScreenWidth;
+            pendingScreenHeight = lastScreenHeight;
+            pendingSafeArea = lastSafeArea;
+            pendingLayoutStableFrames = 0;
+        }
+
+        public static bool RequiresRouteRebuild(UnityTavernLayoutMode previous, UnityTavernLayoutMode current)
+        {
+            return previous != current;
         }
 
         private string ResolveCurrentVersionId(GameVersionCatalog versions)
@@ -517,7 +560,8 @@ namespace LearnHearthstone.Presentation
 
         public static Transform CreateSafeAreaRoot(Transform parent)
         {
-            return UnitySafeAreaPanel.Create(parent, includeTitleSafe: true);
+            var includeTitleSafe = !UnityEngine.Application.isMobilePlatform && !LearnHearthstoneDistributionChannel.IsWeChatMiniGame;
+            return UnitySafeAreaPanel.Create(parent, includeTitleSafe);
         }
 
         private void AddDebugAspectRatioOverlay()

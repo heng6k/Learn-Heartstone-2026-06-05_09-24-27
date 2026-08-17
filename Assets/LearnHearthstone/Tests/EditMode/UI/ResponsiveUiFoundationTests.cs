@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using LearnHearthstone.Adapters.Images;
 using LearnHearthstone.Presentation.Common;
 using LearnHearthstone.Presentation.TavernTrainer.UnityStyle;
 using NUnit.Framework;
@@ -35,6 +36,138 @@ namespace LearnHearthstone.Tests.EditMode
                 2f / 3f,
                 scaleProperty,
                 convertMethod);
+        }
+
+        [Test]
+        public void LayoutContext_HighDpiHandheldUsesLogicalSafeAreaAndDensityIndependentTouchTargets()
+        {
+            var mobile = UnityTavernLayoutContext.ForScreen(
+                2400f,
+                1080f,
+                new Rect(80f, 0f, 2240f, 1080f),
+                420f,
+                true);
+            var desktop = UnityTavernLayoutContext.ForScreen(
+                2400f,
+                1080f,
+                new Rect(0f, 0f, 2400f, 1080f),
+                0f,
+                false);
+
+            Assert.IsTrue(mobile.IsCompact, "High-DPI handhelds must not inherit the desktop Wide layout.");
+            Assert.IsTrue(desktop.IsWide);
+            Assert.AreEqual(420f / UnityTavernLayoutContext.MobileReferenceDpi, mobile.DensityScale, 0.001f);
+            Assert.AreEqual(2400f, mobile.PixelWidth, 0.001f);
+            Assert.GreaterOrEqual(
+                mobile.CanvasUnitsForTouchTarget() * mobile.CanvasScaleFactor,
+                48f * mobile.DensityScale - 0.01f);
+        }
+
+        [Test]
+        public void LayoutContext_ResolvesShortLandscapeBeforeCompactWithoutMisclassifying720p()
+        {
+            Assert.AreEqual(
+                UnityTavernLayoutMode.ShortLandscape,
+                UnityTavernLayoutContext.ForSize(844f, 390f).Mode);
+            Assert.AreEqual(
+                UnityTavernLayoutMode.ShortLandscape,
+                UnityTavernLayoutContext.ForSize(994f, 384f).Mode);
+            Assert.AreEqual(
+                UnityTavernLayoutMode.Compact,
+                UnityTavernLayoutContext.ForSize(1000f, 600f).Mode);
+            Assert.AreEqual(
+                UnityTavernLayoutMode.Standard,
+                UnityTavernLayoutContext.ForSize(1280f, 720f).Mode);
+
+            var shortLayout = UnityTavernLayoutContext.ForSize(844f, 390f);
+            Assert.IsTrue(shortLayout.IsShortLandscape);
+            Assert.IsTrue(shortLayout.IsCompact, "ShortLandscape must retain compact component styling during migration.");
+        }
+
+        [Test]
+        public void LayoutContext_ShortLandscapeMetricsMatchPhysicalShellBudget()
+        {
+            var layout = UnityTavernLayoutContext.ForSize(844f, 390f);
+
+            Assert.AreEqual(
+                UnityTavernUiStyle.ShortLandscapeShopHeight,
+                layout.ZoneMetrics(UnityTavernZoneKind.Shop, UnityTavernCardMode.Shop).Height * layout.CanvasScaleFactor,
+                0.01f);
+            Assert.AreEqual(
+                UnityTavernUiStyle.ShortLandscapeBoardHeight,
+                layout.ZoneMetrics(UnityTavernZoneKind.PlayerBoard, UnityTavernCardMode.Board).Height * layout.CanvasScaleFactor,
+                0.01f);
+            Assert.AreEqual(
+                UnityTavernUiStyle.ShortLandscapeHandPeekHeight,
+                layout.HandZoneHeight(10) * layout.CanvasScaleFactor,
+                0.01f);
+        }
+
+        [Test]
+        public void MobileKeyboardAvoider_UsesKeyboardTopAndAllStyledInputsReceiveTheComponent()
+        {
+            Assert.AreEqual(
+                0.45f,
+                UnityMobileKeyboardAvoider.CalculateKeyboardTopAnchor(1000, new Rect(0f, 0f, 1000f, 450f), 0.05f),
+                0.001f);
+
+            var inputObject = new GameObject("KeyboardAwareInput", typeof(RectTransform), typeof(Image), typeof(InputField));
+            try
+            {
+                var input = inputObject.GetComponent<InputField>();
+                UnityTavernUiStyle.ConfigureInputField(input, UnityTavernUiStyle.Blue);
+                Assert.IsNotNull(inputObject.GetComponent<UnityMobileKeyboardAvoider>());
+            }
+            finally
+            {
+                Object.DestroyImmediate(inputObject);
+            }
+        }
+
+        [Test]
+        public void Bootstrap_RebuildsRoutesOnlyWhenResponsiveModeChanges()
+        {
+            Assert.IsFalse(LearnHearthstone.Presentation.LearnHearthstoneBootstrap.RequiresRouteRebuild(
+                UnityTavernLayoutMode.Compact,
+                UnityTavernLayoutMode.Compact));
+            Assert.IsTrue(LearnHearthstone.Presentation.LearnHearthstoneBootstrap.RequiresRouteRebuild(
+                UnityTavernLayoutMode.Compact,
+                UnityTavernLayoutMode.Standard));
+        }
+
+        [Test]
+        public void MobileRuntimePolicy_UsesLowQualityAndSixtyFpsTargets()
+        {
+            Assert.AreEqual(1, LearnHearthstone.Presentation.LearnHearthstoneDistributionChannel.MobileQualityLevel);
+            Assert.AreEqual(60, LearnHearthstone.Presentation.LearnHearthstoneDistributionChannel.MobileTargetFrameRate);
+        }
+
+        [Test]
+        public void CardImageProvider_BoundedCacheEvictsLeastRecentlyUsedEntry()
+        {
+            var cacheType = typeof(CardImageProvider).GetNestedType("BoundedSpriteCache", BindingFlags.NonPublic);
+            Assert.IsNotNull(cacheType);
+            var cache = Activator.CreateInstance(
+                cacheType,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new object[] { 2, false },
+                null);
+            var set = cacheType.GetMethod("Set", BindingFlags.Instance | BindingFlags.Public);
+            var tryGet = cacheType.GetMethod("TryGetValue", BindingFlags.Instance | BindingFlags.Public);
+            var count = cacheType.GetProperty("Count", BindingFlags.Instance | BindingFlags.Public);
+
+            set.Invoke(cache, new object[] { "a", null });
+            set.Invoke(cache, new object[] { "b", null });
+            var touchArguments = new object[] { "a", null };
+            Assert.IsTrue((bool)tryGet.Invoke(cache, touchArguments));
+            set.Invoke(cache, new object[] { "c", null });
+
+            Assert.AreEqual(2, count.GetValue(cache));
+            Assert.IsFalse((bool)tryGet.Invoke(cache, new object[] { "b", null }));
+            Assert.IsTrue((bool)tryGet.Invoke(cache, new object[] { "a", null }));
+            Assert.IsTrue((bool)tryGet.Invoke(cache, new object[] { "c", null }));
+            Assert.AreEqual(640, CardImageProvider.MaximumCachedSpriteCount);
         }
 
         [Test]

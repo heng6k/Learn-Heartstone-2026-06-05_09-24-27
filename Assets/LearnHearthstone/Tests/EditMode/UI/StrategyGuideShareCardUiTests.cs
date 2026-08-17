@@ -159,42 +159,60 @@ namespace LearnHearthstone.Tests.EditMode
         }
 
         [Test]
-        public void CompactSelectionStacksOneSheetActionsWithoutShrinkingTouchTargets()
+        public void ShortLandscapeSelectionKeepsEveryOneSheetAndStartActionReachable()
         {
-            var root = new GameObject("StrategyGuideCompactShareActionsRoot", typeof(RectTransform));
-            try
+            foreach (var size in new[]
+                     {
+                         new Vector2(740f, 360f),
+                         new Vector2(844f, 390f),
+                         new Vector2(932f, 430f)
+                     })
             {
-                var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
-                var version = snapshot.VersionedContent.CreateResolver().Resolve(GameVersionIds.Season14Preview, snapshot);
-                var catalog = StrategyGuideCatalogLoader.LoadFromResources();
-
-                new StrategyGuideSelectionView(
-                    root.transform,
-                    catalog,
-                    snapshot.ForLanguage(false),
-                    GameVersionIds.Season14Preview,
-                    (_, __) => { },
-                    () => { },
-                    layoutContext: UnityTavernLayoutContext.ForSize(994f, 384f),
-                    resolvedVersion: version).Build();
-
-                foreach (var guide in catalog.Guides)
+                var root = new GameObject("StrategyGuideShortShareActionsRoot", typeof(RectTransform));
+                try
                 {
-                    var utility = Find(root.transform, "StrategyGuideUtilityActions-" + guide.GuideId).Single();
-                    Assert.IsInstanceOf<VerticalLayoutGroup>(
-                        utility.GetComponent<HorizontalOrVerticalLayoutGroup>());
-                    var buttons = utility.GetComponentsInChildren<Button>(true);
-                    Assert.AreEqual(3, buttons.Length);
-                    Assert.IsTrue(buttons.All(item =>
-                        item.GetComponent<LayoutElement>() != null &&
-                        item.GetComponent<LayoutElement>().minHeight >= UnityTavernUiStyle.TouchHeight));
-                    Assert.AreEqual(1, buttons.Count(item => item.GetComponentInChildren<Text>().text == "初级一图流"));
-                    Assert.AreEqual(1, buttons.Count(item => item.GetComponentInChildren<Text>().text == "困难一图流"));
+                    var layout = UnityTavernLayoutContext.ForSize(size.x, size.y);
+                    var snapshot = EmbeddedGameCatalogSnapshotLoader.Load("0.1.0-alpha");
+                    var version = snapshot.VersionedContent.CreateResolver().Resolve(GameVersionIds.Season14Preview, snapshot);
+                    var catalog = StrategyGuideCatalogLoader.LoadFromResources();
+
+                    new StrategyGuideSelectionView(
+                        root.transform,
+                        catalog,
+                        snapshot.ForLanguage(false),
+                        GameVersionIds.Season14Preview,
+                        (_, __) => { },
+                        () => { },
+                        layoutContext: layout,
+                        resolvedVersion: version).Build();
+
+                    var host = Find(root.transform, "StrategyGuideMobileActionHost").Single();
+                    Assert.AreEqual(58f,
+                        host.GetComponent<LayoutElement>().preferredHeight * layout.CanvasScaleFactor,
+                        0.5f);
+                    foreach (var guide in catalog.Guides)
+                    {
+                        var actions = Find(host, "StrategyGuideProfiles-" + guide.GuideId).Single();
+                        Assert.IsInstanceOf<HorizontalLayoutGroup>(
+                            actions.GetComponent<HorizontalOrVerticalLayoutGroup>());
+                        var buttons = actions.GetComponentsInChildren<Button>(true);
+                        var profiles = guide.EntryProfiles.Where(item => item != null).ToList();
+                        Assert.AreEqual(profiles.Count + 3, buttons.Length);
+                        Assert.IsTrue(buttons.All(item =>
+                            item.GetComponent<LayoutElement>() != null &&
+                            item.GetComponent<LayoutElement>().minHeight * layout.CanvasScaleFactor >=
+                            UnityTavernUiStyle.TouchHeight - 0.01f));
+                        Assert.AreEqual(1, buttons.Count(item => item.GetComponentInChildren<Text>().text == "初级图"));
+                        Assert.AreEqual(1, buttons.Count(item => item.GetComponentInChildren<Text>().text == "困难图"));
+                        Assert.AreEqual(1, buttons.Count(item => item.GetComponentInChildren<Text>().text == "复制码"));
+                        Assert.AreEqual(profiles.Count,
+                            buttons.Count(item => item.name.StartsWith("StrategyGuideStartButton-", StringComparison.Ordinal)));
+                    }
                 }
-            }
-            finally
-            {
-                UnityEngine.Object.DestroyImmediate(root);
+                finally
+                {
+                    UnityEngine.Object.DestroyImmediate(root);
+                }
             }
         }
 
@@ -419,7 +437,10 @@ namespace LearnHearthstone.Tests.EditMode
                 Assert.Less(image.color.maxColorComponent, 0.95f, item.name + " must not render a white missing-art block.");
                 var fallback = item.GetComponentsInChildren<Text>(true).SingleOrDefault();
                 Assert.IsNotNull(fallback, item.name + " needs a readable missing-art fallback.");
-                AssertRenderedText(fallback, camera);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(fallback.text), item.name + " needs readable fallback copy.");
+                var fallbackRect = PhysicalRect(fallback.rectTransform, camera);
+                Assert.GreaterOrEqual(fallbackRect.height, 13.5f, item.name + " fallback must keep a readable line box.");
+                Assert.Greater(fallbackRect.width, 1f, item.name + " fallback must keep a visible width.");
             }
 
             if (width != 844 || height != 390)
