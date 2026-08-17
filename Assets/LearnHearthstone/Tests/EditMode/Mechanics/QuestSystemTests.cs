@@ -1566,7 +1566,7 @@ namespace LearnHearthstone.Tests.EditMode
             {
                 var controller = root.AddComponent<UnityTavernTrainerController>();
                 controller.Initialize(service, null, null, null);
-                Assert.IsNotNull(root.transform.Find("UnityAdvancedMechanicChoiceOverlay"));
+                Assert.IsNotNull(root.transform.Find("UnityModalRoot/UnityAdvancedMechanicChoiceOverlay"));
                 var fallbackLabels = root.GetComponentsInChildren<Text>(true)
                     .Where(text => text.name == "UnityMechanicChoiceImageFallbackText")
                     .ToList();
