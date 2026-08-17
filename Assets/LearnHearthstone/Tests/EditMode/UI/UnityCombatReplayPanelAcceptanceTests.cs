@@ -63,8 +63,8 @@ namespace LearnHearthstone.Tests.EditMode
                 var playerArt = FindChild(playerTile, "UnityCombatCardArt-accept-player-1").GetComponent<Image>();
                 var playerArtViewport = FindChild(playerTile, "UnityCombatCardArtViewport-accept-player-1");
                 Assert.IsNotNull(playerArt);
-                Assert.IsNotNull(playerArtViewport.GetComponent<RectMask2D>());
-                Assert.IsNull(playerArtViewport.GetComponent<Mask>());
+                Assert.IsNull(playerArtViewport.GetComponent<RectMask2D>());
+                Assert.IsNotNull(playerArtViewport.GetComponent<Mask>());
                 Assert.AreSame(playerArtViewport, playerArt.transform.parent);
                 Assert.AreEqual(new Vector2(-0.20f, -1.22f), playerArt.rectTransform.anchorMin);
                 Assert.AreEqual(new Vector2(1.20f, 1.05f), playerArt.rectTransform.anchorMax);
@@ -84,8 +84,8 @@ namespace LearnHearthstone.Tests.EditMode
 
                 var opponentTile = FindChild(panelObject.transform, "UnityReplayMinion-accept-opponent-1");
                 var opponentArt = FindChild(opponentTile, "UnityCombatCardArt-accept-opponent-1").GetComponent<Image>();
-                Assert.IsNotNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<RectMask2D>());
-                Assert.IsNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<Mask>());
+                Assert.IsNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<RectMask2D>());
+                Assert.IsNotNull(FindChild(opponentTile, "UnityCombatCardArtViewport-accept-opponent-1").GetComponent<Mask>());
                 Assert.AreEqual(new Vector2(-0.20f, -1.22f), opponentArt.rectTransform.anchorMin);
                 Assert.AreEqual(new Vector2(1.20f, 1.05f), opponentArt.rectTransform.anchorMax);
                 Assert.IsFalse(opponentArt.preserveAspect);
